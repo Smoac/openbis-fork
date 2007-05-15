@@ -67,7 +67,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final String url;
     private final String application;
-    private final String applicationToken;
+    private final String applicationPassword;
 
 
     public CrowdAuthenticationService(String host, int port, String application, String applicationPassword)
@@ -79,11 +79,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         this.url = url;
         this.application = application;
-        applicationToken = xmlEncode(execute("token", AUTHENTICATE_APPL, application, applicationPassword));
+        this.applicationPassword = applicationPassword;
     }
     
     public boolean authenticate(String user, String password)
     {
+        String applicationToken = xmlEncode(execute("token", AUTHENTICATE_APPL, application, applicationPassword));
         String userToken = xmlEncode(execute("out", AUTHENTICATE_USER, application, applicationToken, user, password));
         return userToken != null;
     }
