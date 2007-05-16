@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.authentication;
 
 /**
- * 
+ * Interface for authentication. 
  *
- * @author felmer
+ * @author Franz-Josef Elmer
  */
 public interface IAuthenticationService
 {
