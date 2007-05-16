@@ -140,7 +140,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
             return response;
         } catch (Exception ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -174,6 +174,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private String xmlEncode(String xml)
     {
+        // TODO implementation
         return xml;
     }
 
