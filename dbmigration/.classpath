@@ -2,5 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
