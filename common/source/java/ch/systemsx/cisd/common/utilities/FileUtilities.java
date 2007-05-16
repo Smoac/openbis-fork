@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -38,6 +42,43 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class FileUtilities
 {
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
+    
+    /**
+     * Loads the specified text file.
+     * 
+     * @return text from <code>text</code>. All newline characters are '\n'.  
+     */
+    public static String loadText(File file)
+    {
+        FileReader fileReader = null;
+        try
+        {
+            fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null)
+            {
+                builder.append(line).append('\n');
+            }
+            return new String(builder);
+        } catch (IOException ex)
+        {
+            throw new EnvironmentFailureException("Error when loading file " + file, ex);
+        } finally
+        {
+            if (fileReader != null)
+            {
+                try
+                {
+                    fileReader.close();
+                } catch (IOException ex)
+                {
+                    throw new EnvironmentFailureException("Couldn't close file " + file, ex);
+                }
+            }
+        }
+    }
 
     /**
      * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the program.
