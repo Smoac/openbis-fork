@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.parser;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * 
  *
@@ -28,11 +26,9 @@ import org.apache.commons.lang.StringUtils;
  */
 public class HeaderFilePropertyMapper implements IPropertyMapper
 {
-    public final static char NAME_FORMAT_SEPARATOR = ',';
-    
     private final Map<String, Property> properties;
     
-    HeaderFilePropertyMapper(String[] headerTokens) {
+    public HeaderFilePropertyMapper(String[] headerTokens) {
         this.properties = tokensToMap(headerTokens);
     }
     
@@ -42,13 +38,7 @@ public class HeaderFilePropertyMapper implements IPropertyMapper
         for (int i = 0; i < tokens.length; i++)
         {
             String token = tokens[i];
-            String[] split = StringUtils.split(token, NAME_FORMAT_SEPARATOR);
-            String format = null;
-            if (split.length > 1)
-            {
-                format = split[1];
-            }
-            map.put(token, new Property(i, split[0], format));
+            map.put(token, new Property(i, token));
         }
         return map;
     }

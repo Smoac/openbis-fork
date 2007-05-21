@@ -37,20 +37,16 @@ public interface IPropertyMapper
      * 
      * @author Christian Ribeaud
      */
-    // TODO Christian: we should maybe add a type...
     public final static class Property {
         
         public final int column;
         
         public final String name;
         
-        public final String format;
-
-        protected Property(final int column, final String name, final String format)
+        protected Property(final int column, final String name)
         {
             this.column = column;
             this.name = name;
-            this.format = format;
         }
         
         ///////////////////////////////////////////////////////

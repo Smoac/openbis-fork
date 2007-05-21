@@ -57,6 +57,9 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     
     private IPropertyMapperFactory mapperFactory;
     
+    // TODO Christian: refactor this!!!
+    private boolean propertyMapperSet = false;
+    
     public DefaultReaderParser()
     {
         this(new DefaultLineTokenizer());
@@ -111,10 +114,11 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
             {
                 for (int lineNumber = 0; (line = bufferedReader.readLine()) != null; lineNumber++)
                 {
-                    if (mapperFactory != null && mapperFactory.getHeaderLine() > -1)
+                    if (mapperFactory != null && mapperFactory.getHeaderLine() > -1 && propertyMapperSet == false)
                     {
                         String[] tokens = parseLine(lineNumber, line);
                         factory.setPropertyMapper(mapperFactory.createPropertyMapper(tokens));
+                        propertyMapperSet = true;
                         continue;
                     }
                     if (lineFilter.acceptLine(line))
