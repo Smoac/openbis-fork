@@ -27,6 +27,8 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -94,16 +96,17 @@ public class DBMigrationEngine
     {
         try
         {
-            JdbcTemplate template = new JdbcTemplate(dataSource);
-            List list = template.query("SELECT * FROM DATABASE_VERSION", new RowMapper()
-                {
-                    public Object mapRow(ResultSet rs, int rowNum) throws SQLException
-                    {
-                        int dbVersion = rs.getInt("DB_VERSION");
-                        java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
-                        return new DatabaseVersion(dbVersion, date);
-                    }
-                });
+            SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
+            List<DatabaseVersion> list 
+                    = template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
+                            {
+                                public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
+                                {
+                                    int dbVersion = rs.getInt("DB_VERSION");
+                                    java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
+                                    return new DatabaseVersion(dbVersion, date);
+                                }
+                            });
             int size = list.size();
             if (size == 0)
             {
