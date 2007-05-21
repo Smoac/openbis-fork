@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-codec/commons-codec.jar" sourcepath="/libraries/commons-codec/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
