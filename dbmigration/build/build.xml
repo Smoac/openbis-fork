@@ -1,0 +1,19 @@
+<project name="dbmigration" basedir="..">
+	<import file="../../build_resources/ant/build-common.xml" />
+	<project-classpath name="ecp" classes="${classes}" />
+
+	<target name="compile">
+		<antcall target="-compile" />
+	</target>
+ 
+	<target name="compile-tests">
+		<antcall target="-compile-tests" />
+	</target>
+ 
+  <target name="ci">
+		<antcall target="-run-tests">
+      <param name="test.suite" value="tests.xml"/> 
+    </antcall>
+  </target> 
+  
+</project>
