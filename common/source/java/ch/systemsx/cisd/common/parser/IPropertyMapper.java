@@ -37,6 +37,7 @@ public interface IPropertyMapper
      * 
      * @author Christian Ribeaud
      */
+    // TODO Christian: we should maybe add a type...
     public final static class Property {
         
         public final int column;

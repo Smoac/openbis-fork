@@ -21,6 +21,8 @@ package ch.systemsx.cisd.common.parser;
  *
  * @author Christian Ribeaud
  */
+// TODO Christian: actually this only can understand file with a header. We should
+// be more generic.
 public interface IPropertyMapperFactory
 {
     public int getHeaderLine();

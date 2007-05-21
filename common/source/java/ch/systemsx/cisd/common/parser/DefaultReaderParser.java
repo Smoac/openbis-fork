@@ -82,18 +82,6 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
         return lineTokenizer.tokenize(lineNumber, line);
     }
     
-    /** Inits the parsing. */
-    protected void initParsing() {
-        // Inits <code>ILineTokenizer</code>
-        lineTokenizer.init();
-        String line;
-        // 
-        if (mapperFactory.getHeaderLine() < 0)
-        {
-            
-        }
-    }
-    
     ///////////////////////////////////////////////////////
     // Parser
     ///////////////////////////////////////////////////////
@@ -116,13 +104,14 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
         List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
-            initParsing();
+            // Inits <code>ILineTokenizer</code>
+            lineTokenizer.init();
             String line;
             try
             {
                 for (int lineNumber = 0; (line = bufferedReader.readLine()) != null; lineNumber++)
                 {
-                    if (mapperFactory.getHeaderLine() > -1)
+                    if (mapperFactory != null && mapperFactory.getHeaderLine() > -1)
                     {
                         String[] tokens = parseLine(lineNumber, line);
                         factory.setPropertyMapper(mapperFactory.createPropertyMapper(tokens));
