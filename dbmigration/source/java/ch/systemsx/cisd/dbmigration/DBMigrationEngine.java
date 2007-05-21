@@ -69,11 +69,14 @@ public class DBMigrationEngine
     private final DataSource metaDataSource;
     private final DataSource dataSource;
     private final File scriptFolder;
+    private final String initialDataScriptFile;
 
-    public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder)
+    public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder, 
+                             String initialDataScript)
     {
         this.metaDataSource = metaDataSource;
         this.dataSource = dataSource;
+        this.initialDataScriptFile = initialDataScript;
         this.scriptFolder = new File(scriptFolder);
     }
 
@@ -134,11 +137,25 @@ public class DBMigrationEngine
         } catch (BadSqlGrammarException ex)
         {
             String createScript = FileUtilities.loadText(new File(scriptFolder, "initial.sql"));
+            String initialDataScript = null;
+            if (initialDataScriptFile != null)
+            {
+                File file = new File(initialDataScriptFile);
+                System.out.println(file+" "+file.exists());
+                if (file.exists())
+                {
+                    initialDataScript = FileUtilities.loadText(file);
+                }
+            }
             JdbcTemplate template = new JdbcTemplate(dataSource);
             // TODO: Should be made transactionally save
             template.execute(CREATE_DB_VERSION_TABLE);
             template.update(INSERT_DB_VERSION, new Object[] {new Date()}); 
             template.execute(createScript);
+            if (initialDataScript != null)
+            {
+                template.execute(initialDataScript);
+            }
         }
     }
     
