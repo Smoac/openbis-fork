@@ -21,6 +21,7 @@ import java.text.MessageFormat;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -84,8 +85,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     
     public boolean authenticate(String user, String password)
     {
-        String applicationToken = xmlEncode(execute("token", AUTHENTICATE_APPL, application, applicationPassword));
-        String userToken = xmlEncode(execute("out", AUTHENTICATE_USER, application, applicationToken, user, password));
+        String applicationToken = StringEscapeUtils.unescapeXml(execute("token", AUTHENTICATE_APPL, application, applicationPassword));
+        String userToken = StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user, password));
         return userToken != null;
     }
 
@@ -94,7 +95,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
         {
-            decodedArguments[i] = xmlDecode(args[i]);
+            decodedArguments[i] = StringEscapeUtils.escapeXml(args[i]);
         }
         String response = execute(template.format(decodedArguments));
         return pickElementContent(response, responseElement);
@@ -142,40 +143,6 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-    }
-
-    private String xmlDecode(String text)
-    {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0, n = text.length(); i < n; i++)
-        {
-            char c = text.charAt(i);
-            switch (c)
-            {
-                case '<':
-                    builder.append("&lt;");
-                    break;
-                case '>':
-                    builder.append("&gt;");
-                    break;
-                case '&':
-                    builder.append("&amp;");
-                    break;
-                case '"':
-                    builder.append("&quot;");
-                    break;
-                default:
-                    builder.append(c);
-                    break;
-            }
-        }
-        return new String(builder);
-    }
-
-    private String xmlEncode(String xml)
-    {
-        // TODO implementation
-        return xml;
     }
 
 }
