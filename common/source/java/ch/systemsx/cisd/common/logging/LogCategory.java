@@ -28,7 +28,7 @@ public enum LogCategory
     ACCESS,
     /** Log category for authentication and authorization events. */
     AUTH,
-    /** Log category for log events related to the machine's state (log-level). */
+    /** Log category for log events related to the machine's state (low-level). */
     MACHINE,
     /** Log category for events that require immediate notification of an administrator. */
     NOTIFY,
