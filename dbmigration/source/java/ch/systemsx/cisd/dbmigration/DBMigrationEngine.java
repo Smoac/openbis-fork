@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -119,7 +118,7 @@ public class DBMigrationEngine
                 throw new EnvironmentFailureException("To many versions found in DATABASE_VERSION: " + size);
             } else
             {
-                DatabaseVersion databaseVersion = (DatabaseVersion) list.get(0);
+                DatabaseVersion databaseVersion = list.get(0);
                 int dbVersion = databaseVersion.getVersion();
                 if (version == dbVersion)
                 {
