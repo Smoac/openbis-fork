@@ -55,10 +55,13 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     
     private IParserObjectFactory<E> factory;
     
-    private IPropertyMapperFactory mapperFactory;
-    
-    // TODO Christian: refactor this!!!
-    private boolean propertyMapperSet = false;
+    /**
+     * The line where the header is.
+     * <p>
+     * If we set it bigger than <code>-1</code>, we assume that the header contains mapping informations.
+     * </p>
+     */
+    private int headerLine = -1;
     
     public DefaultReaderParser()
     {
@@ -83,6 +86,11 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     protected String[] parseLine(int lineNumber, String line)
     {
         return lineTokenizer.tokenize(lineNumber, line);
+    }
+    
+    public final void setHeaderLine(int headerLine)
+    {
+        this.headerLine = headerLine;
     }
     
     ///////////////////////////////////////////////////////
@@ -114,11 +122,10 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
             {
                 for (int lineNumber = 0; (line = bufferedReader.readLine()) != null; lineNumber++)
                 {
-                    if (mapperFactory != null && mapperFactory.getHeaderLine() > -1 && propertyMapperSet == false)
+                    if (lineNumber == headerLine)
                     {
                         String[] tokens = parseLine(lineNumber, line);
-                        factory.setPropertyMapper(mapperFactory.createPropertyMapper(tokens));
-                        propertyMapperSet = true;
+                        factory.setPropertyMapper(new HeaderFilePropertyMapper(tokens));
                         continue;
                     }
                     if (lineFilter.acceptLine(line))
@@ -144,10 +151,5 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     public final void setObjectFactory(IParserObjectFactory<E> factory)
     {
         this.factory = factory;
-    }
-
-    public final void setPropertyMapperFactory(IPropertyMapperFactory mapperFactory)
-    {
-        this.mapperFactory = mapperFactory;
     }
 }

@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * Implementation know how to deal with given parsed text line and convert it into an appropriate <code>Object</code>.
- * A <code>IParserObjectFactory</code> needs a <code>IPropertyMapper</code> to do its job. This
- * <code>IPropertyMapper</code> helps to map <code>Object</code> properties to given tokens.
+ * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and convert them into
+ * an appropriate <code>Object</code>. A <code>IParserObjectFactory</code> needs a <code>IPropertyMapper</code>
+ * to perform its job. A <code>IPropertyMapper</code> helps to map passed tokens to created <code>Object</code>
+ * properties .
  * <p>
  * A <code>IParserObjectFactory</code> is typically registered in {@link IReaderParser}.
  * </p>
@@ -31,7 +32,11 @@ public interface IParserObjectFactory<E>
 
     /**
      * This <code>IParserObjectFactory</code> implementation does nothing and returns the passed
-     * <code>lineTokens</code> as <code>String[]</code>.
+     * <code>lineTokens</code> as <code>String[]</code>. No mapping needed, so
+     * {@link #setPropertyMapper(IPropertyMapper)} does nothing.
+     * <p>
+     * This implementation could be used to debugging purposes.
+     * </p>
      * 
      * @author Christian Ribeaud
      */
@@ -42,12 +47,12 @@ public interface IParserObjectFactory<E>
             // IParserObjectFactory
             ///////////////////////////////////////////////////////
 
-            public String[] createObject(String[] lineTokens)
+            public final String[] createObject(String[] lineTokens)
             {
                 return lineTokens;
             }
 
-            public void setPropertyMapper(IPropertyMapper propertyMapper)
+            public final void setPropertyMapper(IPropertyMapper propertyMapper)
             {
             }
         };
@@ -57,5 +62,6 @@ public interface IParserObjectFactory<E>
      */
     public E createObject(String[] lineTokens);
 
+    /** Sets a <code>IPropertyMapper</code> to map line tokens. */
     public void setPropertyMapper(IPropertyMapper propertyMapper);
 }

@@ -62,6 +62,4 @@ public interface IReaderParser<E>
      * </p>
      */
     public void setObjectFactory(IParserObjectFactory<E> factory);
-
-    public void setPropertyMapperFactory(IPropertyMapperFactory factory);
 }

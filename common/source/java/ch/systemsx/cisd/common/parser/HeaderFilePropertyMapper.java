@@ -20,35 +20,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a given file.
+ * <p>
+ * The parser already parsed the header and give us a <code>String</code> array.
+ * </p>
  * 
- *
  * @author Christian Ribeaud
  */
-public class HeaderFilePropertyMapper implements IPropertyMapper
+final class HeaderFilePropertyMapper implements IPropertyMapper
 {
-    private final Map<String, Property> properties;
+    private final Map<String, IPropertyModel> properties;
     
-    public HeaderFilePropertyMapper(String[] headerTokens) {
+    HeaderFilePropertyMapper(String[] headerTokens) {
         this.properties = tokensToMap(headerTokens);
     }
     
-    private final static Map<String, Property> tokensToMap(String[] tokens)
+    private final static Map<String, IPropertyModel> tokensToMap(String[] tokens)
     {
-        Map<String, Property> map = new HashMap<String, Property>(tokens.length);
+        Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
         for (int i = 0; i < tokens.length; i++)
         {
             String token = tokens[i];
-            map.put(token, new Property(i, token));
+            map.put(token, new MappedProperty(i, token));
         }
         return map;
     }
-    
     
     ///////////////////////////////////////////////////////
     // IPropertyMapper
     ///////////////////////////////////////////////////////
 
-    public Property getProperty(String name)
+    public final IPropertyModel getProperty(String name)
     {
         return properties.get(name);
     }

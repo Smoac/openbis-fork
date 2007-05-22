@@ -16,48 +16,14 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
+ * The job of <code>PropertyMapper</code> is to return mapping informations regarding a given property name.
  * 
- *
  * @author Christian Ribeaud
  */
 public interface IPropertyMapper
 {
-    
-    public Property getProperty(String name);
-    
-    ///////////////////////////////////////////////////////
-    // Helper Classes
-    ///////////////////////////////////////////////////////
 
-    /**
-     *
-     * 
-     * @author Christian Ribeaud
-     */
-    public final static class Property {
-        
-        public final int column;
-        
-        public final String name;
-        
-        protected Property(final int column, final String name)
-        {
-            this.column = column;
-            this.name = name;
-        }
-        
-        ///////////////////////////////////////////////////////
-        // Object
-        ///////////////////////////////////////////////////////
-        
-        @Override
-        public final String toString()
-        {
-            return ToStringBuilder.reflectionToString(this);
-        }
-        
-    }
+    /** Returns a <code>IPropertyModel</code> for a given property name. */
+    public IPropertyModel getProperty(String name);
 }

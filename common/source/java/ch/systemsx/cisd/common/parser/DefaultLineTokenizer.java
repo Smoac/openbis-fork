@@ -8,7 +8,7 @@ import org.apache.commons.lang.text.StrTokenizer;
 
 /**
  * A default <code>ILineTokenizer</code> implementation that parses a line into an array of <code>String</code>
- * objects.
+ * objects. This implementation uses {@link StrTokenizer} as internal worker.
  * <p>
  * The default separator chars used here are <code>\t</code>. If you want to change that, use
  * {@link #setProperty(PropertyKey, String)} with corresponding property key defined here.

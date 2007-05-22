@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
+ * A <code>ILineTokenizer</code> implementation is able to split a given <code>String</code> line in an array of
+ * tokens.
  * 
- *
  * @author Christian Ribeaud
  */
 public interface ILineTokenizer
@@ -27,17 +28,18 @@ public interface ILineTokenizer
     /**
      * Inits this <code>ILineTokenizer</code>.
      * <p>
-     * Just gets called before parsing starts.
+     * Should be called before parsing starts.
      * </p>
      */
     public void init();
     
-    public abstract String[] tokenize(int lineNumber, String line);
+    /** Splits given <code>line</code> into an array of tokens. */
+    public String[] tokenize(int lineNumber, String line);
 
     /**
-     * Destroys resources used by this <code>IParserObjectFactory</code>.
+     * Cleans up resources used by this <code>ILineTokenizer</code>.
      * <p>
-     * Just gets called when parsing has finished.
+     * Should be called when parsing has finished.
      * </p>
      */
     public void destroy();
