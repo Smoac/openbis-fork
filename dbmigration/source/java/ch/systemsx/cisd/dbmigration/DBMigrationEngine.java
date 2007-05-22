@@ -112,7 +112,7 @@ public class DBMigrationEngine
             int size = list.size();
             if (size == 0)
             {
-                System.out.println("empty db");
+                throw new EnvironmentFailureException("Incompletely initialized database.");
             } else if (size > 1)
             {
                 throw new EnvironmentFailureException("To many versions found in DATABASE_VERSION: " + size);
