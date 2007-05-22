@@ -45,7 +45,9 @@ public class FileUtilities
     /**
      * Loads the specified text file.
      * 
-     * @return text from <code>text</code>. All newline characters are '\n'.  
+     * @param file the file that should be loaded. This method assumes that given <code>File</code> is not
+     *            <code>null</code> and that it exists.
+     * @return text from <code>text</code>. All newline characters are '\n'.
      */
     public static String loadText(File file)
     {
