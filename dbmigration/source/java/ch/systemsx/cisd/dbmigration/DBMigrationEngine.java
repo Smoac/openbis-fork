@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -69,13 +70,17 @@ public class DBMigrationEngine
     private final DataSource dataSource;
     private final File scriptFolder;
     private final String initialDataScriptFile;
+    private final String owner;
+    private final String databaseName;
 
     public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder, 
-                             String initialDataScript)
+                             String initialDataScript, String owner, String databaseName)
     {
         this.metaDataSource = metaDataSource;
         this.dataSource = dataSource;
         this.initialDataScriptFile = initialDataScript;
+        this.owner = owner;
+        this.databaseName = databaseName;
         this.scriptFolder = new File(scriptFolder);
     }
 
@@ -87,11 +92,21 @@ public class DBMigrationEngine
         } else
         {
             JdbcTemplate template = new JdbcTemplate(metaDataSource);
-            String sql = FileUtilities.loadText(new File(scriptFolder, "create.sql"));
-            template.execute(sql);
+            String createUserSQL = createScript("createUser.sql", owner, databaseName);
+            String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
+            
+            template.execute(createUserSQL);
+            template.execute(createDatabaseSQL);
+            
             migrateOrCreate(version);
             System.out.println("Database created");
         }
+    }
+
+    private String createScript(String scriptTemplateFile, String user, String database)
+    {
+        String script = FileUtilities.loadText(new File(scriptFolder, scriptTemplateFile));
+        return script.replace("$USER", user).replace("$DATABASE", database);
     }
 
     private void migrateOrCreate(int version)
@@ -140,7 +155,6 @@ public class DBMigrationEngine
             if (initialDataScriptFile != null)
             {
                 File file = new File(initialDataScriptFile);
-                System.out.println(file+" "+file.exists());
                 if (file.exists())
                 {
                     initialDataScript = FileUtilities.loadText(file);
@@ -162,7 +176,8 @@ public class DBMigrationEngine
     {
         try
         {
-            dataSource.getConnection().close();
+            Connection connection = dataSource.getConnection();
+            connection.close();
             return true;
         } catch (SQLException ex)
         {
@@ -182,6 +197,6 @@ public class DBMigrationEngine
     protected boolean isDBNotExistException(SQLException exception)
     {
         String message = exception.getMessage();
-        return message.startsWith("FATAL: database") && message.endsWith("does not exist");
+        return message.startsWith("FATAL: database") || message.startsWith("FATAL: password");
     }
 }
