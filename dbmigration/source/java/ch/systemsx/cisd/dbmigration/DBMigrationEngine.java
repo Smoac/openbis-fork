@@ -95,7 +95,13 @@ public class DBMigrationEngine
             String createUserSQL = createScript("createUser.sql", owner, databaseName);
             String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
             
-            template.execute(createUserSQL);
+            try
+            {
+                template.execute(createUserSQL);
+            } catch (BadSqlGrammarException ex)
+            {
+                // TODO: have better error checking here.
+            }
             template.execute(createDatabaseSQL);
             
             migrateOrCreate(version);
