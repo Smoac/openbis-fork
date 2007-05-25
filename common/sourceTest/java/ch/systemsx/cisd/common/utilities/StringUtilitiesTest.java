@@ -53,7 +53,6 @@ public class StringUtilitiesTest
     public void testConcatenate()
     {
         final List<String> list = Arrays.asList("one", "two", "three");
-        assertEquals("onetwothree", StringUtilities.concatenate(list, ""));
         assertEquals("one two three", StringUtilities.concatenateWithSpace(list));
         final String brokenDownInLines = String.format("one%1$stwo%1$sthree", System.getProperty("line.separator")); 
         assertEquals(brokenDownInLines, StringUtilities.concatenateWithNewLine(list));
