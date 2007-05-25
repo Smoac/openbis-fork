@@ -16,36 +16,38 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
-import static org.testng.AssertJUnit.*;
-import org.testng.annotations.BeforeSuite;
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.logging.LogInitializer;
-
 /**
- * Test cases for corresponding  {@link DefaultReaderParser} class. 
- *
+ * Test cases for corresponding {@link DefaultReaderParser} class.
+ * 
  * @author Christian Ribeaud
  */
 public final class DefaultReaderParserTest
 {
-    private final String text = "1.line:\t1\t2\t3\n2.line\t4\t5\t6\n3.line\t7\t8\t9";
-    
-    @BeforeSuite
-    public final void init()
-    {
-        LogInitializer.init();
-    }
-    
+    private final String text =
+            "\n# This is a comment\n" + "firstName\tlastName\taddress\tcity\n"
+                    + "Christian\tRibeaud\tKapfrain 2/2\tEfringen-Kirchen\n"
+                    + "Marcel\tOdiet\tRue des Pervenches 46\t2800 Delémont\n";
+
     @Test
-    public final void testParseWithoutFactory()
+    public final void testParseWithoutFactory() throws IOException
     {
         IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.DO_NOTHING_OBJECT_FACTORY);
-        List<String[]> result = parser.parse(new StringReader(text));
-        assertEquals(result.get(0)[0], "1.line:");
+        Reader reader = new StringReader(text);
+        List<String[]> result = parser.parse(reader);
+        assertEquals(result.get(0)[0], "firstName");
+        assertEquals(result.get(1)[1], "Ribeaud");
+        assertEquals(result.get(2)[2], "Rue des Pervenches 46");
+        IOUtils.closeQuietly(reader);
     }
 }
