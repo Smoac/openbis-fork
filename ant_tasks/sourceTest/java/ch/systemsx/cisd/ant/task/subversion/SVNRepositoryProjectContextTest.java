@@ -1,16 +1,17 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.FEATURE_BRANCH;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_BRANCH;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_TAG;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.TRUNK;
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
-
-import ch.systemsx.cisd.ant.task.subversion.SVNRepositoryProjectContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
-
-import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.*;
 
 /*
  * Copyright 2007 ETH Zuerich, CISD
@@ -84,7 +85,7 @@ public class SVNRepositoryProjectContextTest
         def.setProjectName(name);
         final String repositoryUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(repositoryUrl, name, "trunk"), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(repositoryUrl, name, "trunk"), "/");
         assertEquals(repositoryUrl, def.getRepositoryUrl());
         assertEquals(projectPath, def.getPathProvider().getPath());
     }
@@ -98,7 +99,7 @@ public class SVNRepositoryProjectContextTest
         def.setProjectName(name);
         final String repositoryUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(repositoryUrl, subName, "trunk"), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(repositoryUrl, subName, "trunk"), "/");
         assertEquals(projectPath, def.getPathProvider().getPath(subName));
     }
 
@@ -113,7 +114,7 @@ public class SVNRepositoryProjectContextTest
         final String repositoryUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP;
         final String projectPath =
-                StringUtilities.concatenate(Arrays.asList(repositoryUrl, subName, "trunk", pathEntry), "/");
+                StringUtils.join(Arrays.asList(repositoryUrl, subName, "trunk", pathEntry), "/");
         assertEquals(projectPath, def.getPathProvider().getPath(subName, pathEntry));
     }
 
@@ -128,7 +129,7 @@ public class SVNRepositoryProjectContextTest
         final String branchUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/branches/release/" + branchName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(branchUrl, name), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(branchUrl, name), "/");
         assertEquals(branchUrl, def.getRepositoryUrl());
         assertEquals(projectPath, def.getPathProvider().getPath());
     }
@@ -145,7 +146,7 @@ public class SVNRepositoryProjectContextTest
         final String branchUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/branches/release/" + branchName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(branchUrl, subName), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(branchUrl, subName), "/");
         assertEquals(projectPath, def.getPathProvider().getPath(subName));
     }
 
@@ -162,7 +163,7 @@ public class SVNRepositoryProjectContextTest
         final String branchUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/branches/release/" + branchName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(branchUrl, subName, pathEntry), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(branchUrl, subName, pathEntry), "/");
         assertEquals(projectPath, def.getPathProvider().getPath(subName, pathEntry));
     }
 
@@ -177,7 +178,7 @@ public class SVNRepositoryProjectContextTest
         final String branchUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/branches/feature/" + branchName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(branchUrl, name), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(branchUrl, name), "/");
         assertEquals(branchUrl, def.getRepositoryUrl());
         assertEquals(projectPath, def.getPathProvider().getPath());
     }
@@ -194,7 +195,7 @@ public class SVNRepositoryProjectContextTest
         final String branchUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/branches/feature/" + branchName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(branchUrl, subName), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(branchUrl, subName), "/");
         assertEquals(projectPath, def.getPathProvider().getPath(subName));
     }
 
@@ -210,7 +211,7 @@ public class SVNRepositoryProjectContextTest
         final String tagUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/tags/release/" + branchName + "/" + tagName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(tagUrl, name), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(tagUrl, name), "/");
         assertEquals(tagUrl, def.getRepositoryUrl());
         assertEquals(projectPath, def.getPathProvider().getPath());
     }
@@ -228,7 +229,7 @@ public class SVNRepositoryProjectContextTest
         final String tagUrl =
             SVNUtilities.DEFAULT_REPOSITORY_ROOT + "/" + SVNUtilities.DEFAULT_GROUP
                         + "/" + name + "/tags/release/" + branchName + "/" + tagName;
-        final String projectPath = StringUtilities.concatenate(Arrays.asList(tagUrl, subName), "/");
+        final String projectPath = StringUtils.join(Arrays.asList(tagUrl, subName), "/");
         assertEquals(tagUrl, def.getRepositoryUrl());
         assertEquals(projectPath, def.getPathProvider().getPath(subName));
     }

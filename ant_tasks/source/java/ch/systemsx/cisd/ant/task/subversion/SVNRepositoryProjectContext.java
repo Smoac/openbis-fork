@@ -3,8 +3,9 @@ package ch.systemsx.cisd.ant.task.subversion;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * A class for assembling and storing the subversion repository definition of a project.
@@ -247,17 +248,17 @@ class SVNRepositoryProjectContext
         switch (versionType)
         {
             case TRUNK:
-                return StringUtilities.concatenate(Arrays.asList(getRepositoryRoot(), getGroup()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup()), "/");
             case RELEASE_BRANCH:
-                return StringUtilities.concatenate(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                        "branches/release", getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
+                "branches/release", getVersion()), "/");
             case RELEASE_TAG:
                 final String branchName = SVNUtilities.getBranchForTag(getVersion());
-                return StringUtilities.concatenate(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                        "tags/release", branchName, getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
+                "tags/release", branchName, getVersion()), "/");
             case FEATURE_BRANCH:
-                return StringUtilities.concatenate(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                        "branches/feature", getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
+                "branches/feature", getVersion()), "/");
             default:
                 throw new AssertionError("Unknown version type '" + versionType + "'.");
         }
@@ -292,11 +293,11 @@ class SVNRepositoryProjectContext
 
                     if (SVNProjectVersionType.TRUNK == versionType)
                     {
-                        return StringUtilities.concatenate(Arrays.asList(getRepositoryUrl(), subProjectName,
-                                SVNUtilities.DEFAULT_VERSION), "/");
+                        return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName,
+                        SVNUtilities.DEFAULT_VERSION), "/");
                     } else
                     {
-                        return StringUtilities.concatenate(Arrays.asList(getRepositoryUrl(), subProjectName), "/");
+                        return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName), "/");
                     }
                 }
 

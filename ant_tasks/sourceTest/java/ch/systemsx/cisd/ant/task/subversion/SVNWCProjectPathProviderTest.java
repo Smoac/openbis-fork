@@ -16,18 +16,18 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.util.Arrays;
 
-import static org.testng.AssertJUnit.*;
-
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Test cases for the {@link SVNWCProjectPathProvider}.
@@ -82,16 +82,15 @@ public class SVNWCProjectPathProviderTest
         final ISVNProjectPathProvider provider = new SVNWCProjectPathProvider(workingCopyDirectory);
         String expectedPath;
         expectedPath =
-                StringUtilities.concatenate(
-                        Arrays.asList(workingDirectory.getAbsolutePath(), project), File.separator);
+                StringUtils.join(Arrays.asList(workingDirectory.getAbsolutePath(), project), File.separator);
         assertEquals(expectedPath, provider.getPath());
         expectedPath =
-                StringUtilities.concatenate(Arrays.asList(workingDirectory.getAbsolutePath(),
-                        subProject), File.separator);
+                StringUtils.join(Arrays.asList(workingDirectory.getAbsolutePath(),
+                subProject), File.separator);
         assertEquals(expectedPath, provider.getPath(subProject));
         expectedPath =
-                StringUtilities.concatenate(Arrays.asList(workingDirectory.getAbsolutePath(),
-                        subProject, path), File.separator);
+                StringUtils.join(Arrays.asList(workingDirectory.getAbsolutePath(),
+                subProject, path), File.separator);
         assertEquals(expectedPath, provider.getPath(subProject, path));
     }
 
@@ -109,8 +108,8 @@ public class SVNWCProjectPathProviderTest
             workingDirectory.deleteOnExit();
             final ISVNProjectPathProvider provider = new SVNWCProjectPathProvider(workingCopyDirectory);
             final String expectedPath =
-                    StringUtilities.concatenate(Arrays.asList(workingDirectory.getAbsolutePath(), subProject,
-                            "somePath/two"), File.separator);
+                    StringUtils.join(Arrays.asList(workingDirectory.getAbsolutePath(), subProject,
+            "somePath/two"), File.separator);
             assertEquals(expectedPath, provider.getPath(subProject, path));
         } else
         {
@@ -121,8 +120,8 @@ public class SVNWCProjectPathProviderTest
             workingCopyDirectory.mkdir();
             final ISVNProjectPathProvider provider = new SVNWCProjectPathProvider(workingCopyDirectory);
             final String expectedPath =
-                    StringUtilities.concatenate(Arrays.asList(workingDirectory.getAbsolutePath(), subProject,
-                            "somePath\\two"), File.separator);
+                    StringUtils.join(Arrays.asList(workingDirectory.getAbsolutePath(), subProject,
+            "somePath\\two"), File.separator);
             assertEquals(expectedPath, provider.getPath(subProject, path));
         }
     }
