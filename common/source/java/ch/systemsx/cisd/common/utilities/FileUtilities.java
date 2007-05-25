@@ -38,10 +38,15 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public class FileUtilities
+public final class FileUtilities
 {
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
-    
+
+    private FileUtilities()
+    {
+        // Can not be instantiated.
+    }
+
     /**
      * Loads the specified text file.
      * 

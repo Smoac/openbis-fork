@@ -18,13 +18,20 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Some useful utlities methods for {@link String}s.
  * 
  * @author Bernd Rinn
  */
-public class StringUtilities
+public final class StringUtilities
 {
+
+    private StringUtilities()
+    {
+        // This class can not be instantiated.
+    }
 
     /**
      * Returns the capitalized form of <var>string</var>
@@ -45,29 +52,15 @@ public class StringUtilities
      */
     public static String concatenateWithSpace(List<String> list)
     {
-        return concatenate(list, " ");
+        return StringUtils.join(list, " ");
     }
-    
+
     /**
      * @return The concatenated entries of the <var>list</var>, delimited by a new line.
      */
     public static String concatenateWithNewLine(List<String> list)
     {
-        return concatenate(list, OSUtilities.LINE_SEPARATOR);
-    }
-    
-   /**
-     * @return The concatenated entries of the <var>list</var>, delimited by <var>delimiter</var>.
-     */
-    public static String concatenate(List<String> list, String delimiter)
-    {
-        final StringBuilder builder = new StringBuilder();
-        for (String entry : list)
-        {
-            builder.append(entry).append(delimiter);
-        }
-        builder.setLength(Math.max(0, builder.length() - delimiter.length())); // Remove trailing delimiter.
-        return builder.toString();
+        return StringUtils.join(list, OSUtilities.LINE_SEPARATOR);
     }
 
 }
