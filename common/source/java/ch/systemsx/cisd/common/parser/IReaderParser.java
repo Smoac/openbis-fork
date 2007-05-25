@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public interface IReaderParser<E>
      * @return a <code>List</code> of elements.
      * @throws CheckedExceptionTunnel if an <code>IOException</code> occurs.
      */
-    public List<E> parse(Reader reader, ILineFilter lineFilter) throws CheckedExceptionTunnel;
+    public List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException;
 
     /**
      * Parses given <code>Reader</code>. Encapsulates given <code>Reader</code> in a {@link BufferedReader} for
@@ -53,7 +54,7 @@ public interface IReaderParser<E>
      * @return a <code>List</code> of elements.
      * @throws CheckedExceptionTunnel if an <code>IOException</code> occurs.
      */
-    public List<E> parse(Reader reader) throws CheckedExceptionTunnel;
+    public List<E> parse(Reader reader) throws IOException;
 
     /**
      * Sets the <code>IParserObjectFactory</code>.

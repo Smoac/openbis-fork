@@ -22,8 +22,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-
 /**
  * A default <code>IReaderParser</code> implementation.
  * <p>
@@ -97,12 +95,12 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     // Parser
     ///////////////////////////////////////////////////////
 
-    public final List<E> parse(Reader reader)
+    public final List<E> parse(Reader reader) throws IOException
     {
         return parse(reader, COMMENT_AND_EMPTY_LINE_FILTER);
     }
 
-    public final List<E> parse(Reader reader, ILineFilter lineFilter)
+    public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException
     {
         BufferedReader bufferedReader;
         if (reader instanceof BufferedReader)
@@ -135,9 +133,6 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
                     }
                 }
                 return elements;
-            } catch (IOException ex)
-            {
-                throw new CheckedExceptionTunnel(ex);
             } finally
             {
                 // Destroys line tokenizer.
