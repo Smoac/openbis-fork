@@ -111,8 +111,18 @@ public class DBMigrationEngine
 
     private String createScript(String scriptTemplateFile, String user, String database)
     {
-        String script = FileUtilities.loadText(new File(scriptFolder, scriptTemplateFile));
+        String script = loadScript(scriptTemplateFile);
         return script.replace("$USER", user).replace("$DATABASE", database);
+    }
+
+    private String loadScript(String scriptName)
+    {
+        String script = FileUtilities.loadStringResource(getClass(), "/" + scriptFolder + "/" + scriptName);
+        if (script == null)
+        {
+            script = FileUtilities.loadText(new File(scriptFolder, scriptName));
+        }
+        return script;
     }
 
     private void migrateOrCreate(int version)
@@ -156,14 +166,18 @@ public class DBMigrationEngine
             }
         } catch (BadSqlGrammarException ex)
         {
-            String createScript = FileUtilities.loadText(new File(scriptFolder, "initial.sql"));
+            String createScript = loadScript("initial.sql");
             String initialDataScript = null;
             if (initialDataScriptFile != null)
             {
-                File file = new File(initialDataScriptFile);
-                if (file.exists())
+                initialDataScript = FileUtilities.loadStringResource(getClass(), "/" + initialDataScriptFile);
+                if (initialDataScript == null)
                 {
-                    initialDataScript = FileUtilities.loadText(file);
+                    File file = new File(initialDataScriptFile);
+                    if (file.exists())
+                    {
+                        initialDataScript = FileUtilities.loadText(file);
+                    }
                 }
             }
             JdbcTemplate template = new JdbcTemplate(dataSource);
