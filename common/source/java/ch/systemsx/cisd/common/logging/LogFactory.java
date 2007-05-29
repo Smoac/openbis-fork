@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.logging;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 
 /**
  * This class is used to create loggers (using <code>log4j</code>).
@@ -25,11 +26,12 @@ import org.apache.log4j.Logger;
  */
 public final class LogFactory
 {
-    
-    private LogFactory() {
+
+    private LogFactory()
+    {
         // Can not be instantiated.
     }
-    
+
     /**
      * @return The logger name for the given {@link LogCategory} and {@link Class}. It will contain the name of the
      *         <var>category</var>, followed by the canonical name of <var>clazz</var>.
@@ -48,4 +50,30 @@ public final class LogFactory
         return Logger.getLogger(getLoggerName(category, clazz));
     }
 
+    /**
+     * Returns the logger for the given {@link LogCategory} and {@link Class}. The name of the logger will contain the
+     * name of the <var>category</var>, followed by the canonical name of <var>clazz</var>.
+     * <p>
+     * The returned version of <code>Logger</code> checks the priority level before doing the logging output.
+     * </p>
+     */
+    public final static Logger getExtendedLogger(LogCategory category, Class clazz) {
+        return Logger.getLogger(getLoggerName(category, clazz), new ExtendedLoggerFactory());
+    }
+    
+    ///////////////////////////////////////////////////////
+    // Helper Classes
+    ///////////////////////////////////////////////////////
+
+    private final static class ExtendedLoggerFactory implements LoggerFactory {
+        
+        ///////////////////////////////////////////////////////
+        // LoggerFactory
+        ///////////////////////////////////////////////////////
+
+        public Logger makeNewLoggerInstance(String name)
+        {
+            return new ExtendedLogger(name);
+        }
+    }
 }
