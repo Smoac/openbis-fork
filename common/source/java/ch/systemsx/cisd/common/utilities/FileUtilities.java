@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -60,14 +62,7 @@ public final class FileUtilities
         try
         {
             fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null)
-            {
-                builder.append(line).append('\n');
-            }
-            return new String(builder);
+            return readString(new BufferedReader(fileReader));
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException("Error when loading file " + file, ex);
@@ -84,6 +79,51 @@ public final class FileUtilities
                 }
             }
         }
+    }
+
+    /**
+     * Loads a resource as a string. 
+     * 
+     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked.
+     * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
+     * @return <code>null</code> if the specified resource does not exist.
+     * @throws EnvironmentFailureException if an <code>IOException</code> occurs during reading the resource. 
+     */
+    public static String loadStringResource(Class clazz, String resource)
+    {
+        InputStream stream = clazz.getResourceAsStream(resource);
+        if (stream == null)
+        {
+            return null;
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        try
+        {
+            return readString(reader);
+        } catch (IOException ex)
+        {
+            throw new EnvironmentFailureException("Couldn't read resource " + resource, ex);
+        } finally
+        {
+            try
+            {
+                reader.close();
+            } catch (IOException ex)
+            {
+                throw new EnvironmentFailureException("Couldn't close reader for resource " + resource, ex);
+            }
+        }
+    }
+
+    private static String readString(BufferedReader reader) throws IOException
+    {
+        StringBuilder builder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null)
+        {
+            builder.append(line).append('\n');
+        }
+        return new String(builder);
     }
 
     /**

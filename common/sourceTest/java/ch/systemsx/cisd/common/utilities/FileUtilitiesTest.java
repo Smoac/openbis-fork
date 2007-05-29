@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.testng.annotations.BeforeSuite;
@@ -32,7 +35,6 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 public class FileUtilitiesTest
 {
-
     private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
 
     @BeforeSuite
@@ -86,6 +88,24 @@ public class FileUtilitiesTest
         final File newFile = new File(destinationDir, "a");
         assert newFile.exists();
         FileUtilities.deleteRecursively(root);
+    }
+
+    @Test
+    public void testLoadText() throws Exception
+    {
+        File file = new File(workingDirectory, "test.txt");
+        FileWriter writer = new FileWriter(file);
+        try
+        {
+            writer.write("Hello\nWorld!");
+        } finally
+        {
+            writer.close();
+        }
+        
+        String text = FileUtilities.loadText(file);
+        assert file.delete();
+        assertEquals("Hello\nWorld!\n", text);
     }
 
 }
