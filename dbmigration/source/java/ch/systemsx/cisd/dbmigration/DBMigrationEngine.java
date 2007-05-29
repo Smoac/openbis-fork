@@ -25,30 +25,37 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Class for creating and migrating a database.  
- *
+ * Class for creating and migrating a database.
+ * 
  * @author felmer
  */
 public class DBMigrationEngine
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
+
     private static final String INSERT_DB_VERSION = "INSERT INTO DATABASE_VERSION VALUES (1, ?)";
-    private static final String CREATE_DB_VERSION_TABLE = "CREATE TABLE DATABASE_VERSION (DB_VERSION SMALLINT NOT NULL,"
-                                                          + "DB_INSTALLATION_DATE DATE)";
+
+    private static final String CREATE_DB_VERSION_TABLE =
+            "CREATE TABLE DATABASE_VERSION (DB_VERSION SMALLINT NOT NULL," + "DB_INSTALLATION_DATE DATE)";
 
     private static final class DatabaseVersion
     {
         private final int version;
+
         private final Date installationDate;
-        
+
         public DatabaseVersion(int version, Date installationDate)
         {
             this.version = version;
@@ -59,22 +66,27 @@ public class DBMigrationEngine
         {
             return installationDate;
         }
-        
+
         int getVersion()
         {
             return version;
         }
     }
-    
+
     private final DataSource metaDataSource;
+
     private final DataSource dataSource;
+
     private final File scriptFolder;
+
     private final String initialDataScriptFile;
+
     private final String owner;
+
     private final String databaseName;
 
-    public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder, 
-                             String initialDataScript, String owner, String databaseName)
+    public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder,
+            String initialDataScript, String owner, String databaseName)
     {
         this.metaDataSource = metaDataSource;
         this.dataSource = dataSource;
@@ -94,18 +106,24 @@ public class DBMigrationEngine
             JdbcTemplate template = new JdbcTemplate(metaDataSource);
             String createUserSQL = createScript("createUser.sql", owner, databaseName);
             String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
-            
+
             try
             {
+                // If the user already exists, the database will throw an exception.
+                // But, the exception thrown could have another reason. Right now, there is no possibility
+                // to differentiate one case from another.
                 template.execute(createUserSQL);
             } catch (BadSqlGrammarException ex)
             {
-                // TODO: have better error checking here.
+                operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
             }
             template.execute(createDatabaseSQL);
-            
+
             migrateOrCreate(version);
-            System.out.println("Database created");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Database '" + databaseName + "' has been successfully created.");
+            }
         }
     }
 
@@ -114,13 +132,20 @@ public class DBMigrationEngine
         String script = loadScript(scriptTemplateFile);
         return script.replace("$USER", user).replace("$DATABASE", database);
     }
-
+    
+    /** Loads given script name. */
     private String loadScript(String scriptName)
-    {
-        String script = FileUtilities.loadStringResource(getClass(), "/" + scriptFolder + "/" + scriptName);
+    {   
+        String resource = "/" + scriptFolder + "/" + scriptName;
+        String script = FileUtilities.loadStringResource(getClass(), resource);
         if (script == null)
         {
-            script = FileUtilities.loadText(new File(scriptFolder, scriptName));
+            File file = new File(scriptFolder, scriptName);
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Resource '" + resource + "' could not be found. Trying '" + file.getPath() + "'.");
+            }
+            script = FileUtilities.loadText(file);
         }
         return script;
     }
@@ -130,16 +155,16 @@ public class DBMigrationEngine
         try
         {
             SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
-            List<DatabaseVersion> list 
-                    = template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
+            List<DatabaseVersion> list =
+                    template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
+                        {
+                            public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
                             {
-                                public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
-                                {
-                                    int dbVersion = rs.getInt("DB_VERSION");
-                                    java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
-                                    return new DatabaseVersion(dbVersion, date);
-                                }
-                            });
+                                int dbVersion = rs.getInt("DB_VERSION");
+                                java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
+                                return new DatabaseVersion(dbVersion, date);
+                            }
+                        });
             int size = list.size();
             if (size == 0)
             {
@@ -157,11 +182,14 @@ public class DBMigrationEngine
                 }
                 if (version > dbVersion)
                 {
-                    System.out.println("migrate from " + dbVersion + " -> " + version);
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Migrating database from version '" + dbVersion + "' to '" + version + "'.");
+                    }
                 } else
                 {
-                    throw new EnvironmentFailureException("Couldn't revert from version " + dbVersion 
-                                                          + " to previous version " + version + ".");
+                    throw new EnvironmentFailureException("Couldn't revert from version " + dbVersion
+                            + " to previous version " + version + ".");
                 }
             }
         } catch (BadSqlGrammarException ex)
@@ -183,7 +211,8 @@ public class DBMigrationEngine
             JdbcTemplate template = new JdbcTemplate(dataSource);
             // TODO: Should be made transactionally save
             template.execute(CREATE_DB_VERSION_TABLE);
-            template.update(INSERT_DB_VERSION, new Object[] {new Date()}); 
+            template.update(INSERT_DB_VERSION, new Object[]
+                { new Date() });
             template.execute(createScript);
             if (initialDataScript != null)
             {
@@ -191,7 +220,7 @@ public class DBMigrationEngine
             }
         }
     }
-    
+
     private boolean databaseExists()
     {
         try
@@ -213,7 +242,7 @@ public class DBMigrationEngine
             throw new EnvironmentFailureException("Couldn't connect database server.", ex);
         }
     }
-    
+
     protected boolean isDBNotExistException(SQLException exception)
     {
         String message = exception.getMessage();
