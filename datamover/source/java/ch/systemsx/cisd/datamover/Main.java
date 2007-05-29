@@ -222,12 +222,6 @@ public class Main
     {
         initLog();
         final Parameters parameters = new Parameters(args);
-        if (parameters.hasAllMandatoryOptions() == false)
-        {
-            parameters.printVersionAndOptions();
-            System.err.println("\nThere are mandatory options missing from the command line.");
-            System.exit(1);
-        }
         printInitialLogMessage(parameters);
         startupServer(parameters);
         operationLog.info("Data mover ready and waiting for data.");
