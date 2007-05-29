@@ -23,9 +23,13 @@ import org.apache.log4j.Logger;
  * 
  * @author Bernd Rinn
  */
-public class LogFactory
+public final class LogFactory
 {
-
+    
+    private LogFactory() {
+        // Can not be instantiated.
+    }
+    
     /**
      * @return The logger name for the given {@link LogCategory} and {@link Class}. It will contain the name of the
      *         <var>category</var>, followed by the canonical name of <var>clazz</var>.
