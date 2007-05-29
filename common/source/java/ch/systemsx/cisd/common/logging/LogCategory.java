@@ -30,7 +30,13 @@ public enum LogCategory
     AUTH,
     /** Log category for log events related to the machine's state (low-level). */
     MACHINE,
-    /** Log category for events that require immediate notification of an administrator. */
+    /**
+     * Log category for events that require immediate notification of an administrator.
+     * <p>
+     * This should be carefully used as each logging event sent to this category will be automatically emailed to a
+     * specified recipient (assuming the event priority matches the configured one).
+     * </p>
+     */
     NOTIFY,
     /** Log category for (normal) operational events. */
     OPERATION,
