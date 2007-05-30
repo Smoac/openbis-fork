@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 /**
  * Class for creating and migrating a database.
  * 
- * @author felmer
+ * @author Franz-Josef Elmer
  */
 public class DBMigrationEngine
 {
@@ -95,35 +95,130 @@ public class DBMigrationEngine
         this.databaseName = databaseName;
         this.scriptFolder = new File(scriptFolder);
     }
+    
+    public void createDatabase()
+    {
+        dropDatabase();
+        setupDatabase();
+    }
 
     public void migrateTo(int version)
     {
-        if (databaseExists())
+        if (databaseExists() == false)
         {
-            migrateOrCreate(version);
+            setupDatabase();
+            return;
+        }
+        SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
+        List<DatabaseVersion> list =
+                template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
+                    {
+                        public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
+                        {
+                            int dbVersion = rs.getInt("DB_VERSION");
+                            java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
+                            return new DatabaseVersion(dbVersion, date);
+                        }
+                    });
+        int size = list.size();
+        if (size == 0)
+        {
+            throw new EnvironmentFailureException("Incompletely initialized database.");
+        } else if (size > 1)
+        {
+            throw new EnvironmentFailureException("To many versions found in DATABASE_VERSION: " + size);
         } else
         {
-            JdbcTemplate template = new JdbcTemplate(metaDataSource);
-            String createUserSQL = createScript("createUser.sql", owner, databaseName);
-            String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
-
-            try
+            DatabaseVersion databaseVersion = list.get(0);
+            int dbVersion = databaseVersion.getVersion();
+            if (version == dbVersion)
             {
-                // If the user already exists, the database will throw an exception.
-                // But, the exception thrown could have another reason. Right now, there is no possibility
-                // to differentiate one case from another.
-                template.execute(createUserSQL);
-            } catch (BadSqlGrammarException ex)
-            {
-                operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
+                return; // no migrate needed
             }
-            template.execute(createDatabaseSQL);
-
-            migrateOrCreate(version);
-            if (operationLog.isInfoEnabled())
+            if (version > dbVersion)
             {
-                operationLog.info("Database '" + databaseName + "' has been successfully created.");
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Migrating database from version '" + dbVersion + "' to '" + version + "'.");
+                }
+                // TODO implementation of migration
+            } else
+            {
+                throw new EnvironmentFailureException("Couldn't revert from version " + dbVersion
+                        + " to previous version " + version + ".");
             }
+        }
+    }
+
+    private void dropDatabase()
+    {
+        String dropDatabaseSQL = createScript("dropDatabase.sql", owner, databaseName);
+        JdbcTemplate template = new JdbcTemplate(metaDataSource);
+        template.execute(dropDatabaseSQL);
+    }
+    
+    private void setupDatabase()
+    {
+        createUser();
+        createEmptyDatabase();
+        fillWithInitialData();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Database '" + databaseName + "' has been successfully created.");
+        }
+    }
+
+    private void createUser()
+    {
+        String createUserSQL = createScript("createUser.sql", owner, databaseName);
+        JdbcTemplate template = new JdbcTemplate(metaDataSource);
+        try
+        {
+            // If the user already exists, the database will throw an exception.
+            // But, the exception thrown could have another reason. Right now, there is no possibility
+            // to differentiate one case from another.
+            template.execute(createUserSQL);
+        } catch (BadSqlGrammarException ex)
+        {
+            operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
+        }
+    }
+
+    private void createEmptyDatabase()
+    {
+        JdbcTemplate template = new JdbcTemplate(metaDataSource);
+        String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
+        template.execute(createDatabaseSQL);
+        
+        template = new JdbcTemplate(dataSource);
+        template.execute(CREATE_DB_VERSION_TABLE);
+        Object[] args = new Object[1];
+        args[0] = new Date();
+        template.update(INSERT_DB_VERSION, args);
+        
+        String createScript = loadScript("initial.sql");
+        template.execute(createScript);
+    }
+
+    private void fillWithInitialData()
+    {
+        String initialDataScript = null;
+        if (initialDataScriptFile != null)
+        {
+            initialDataScript = FileUtilities.loadStringResource(getClass(), "/" + initialDataScriptFile);
+            if (initialDataScript == null)
+            {
+                File file = new File(initialDataScriptFile);
+                if (file.exists())
+                {
+                    initialDataScript = FileUtilities.loadText(file);
+                }
+            }
+        }
+        if (initialDataScript != null)
+        {
+            JdbcTemplate template = new JdbcTemplate(dataSource);
+            template.execute(initialDataScript);
         }
     }
 
@@ -148,77 +243,6 @@ public class DBMigrationEngine
             script = FileUtilities.loadText(file);
         }
         return script;
-    }
-
-    private void migrateOrCreate(int version)
-    {
-        try
-        {
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
-            List<DatabaseVersion> list =
-                    template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
-                        {
-                            public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
-                            {
-                                int dbVersion = rs.getInt("DB_VERSION");
-                                java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
-                                return new DatabaseVersion(dbVersion, date);
-                            }
-                        });
-            int size = list.size();
-            if (size == 0)
-            {
-                throw new EnvironmentFailureException("Incompletely initialized database.");
-            } else if (size > 1)
-            {
-                throw new EnvironmentFailureException("To many versions found in DATABASE_VERSION: " + size);
-            } else
-            {
-                DatabaseVersion databaseVersion = list.get(0);
-                int dbVersion = databaseVersion.getVersion();
-                if (version == dbVersion)
-                {
-                    return; // no migrate needed
-                }
-                if (version > dbVersion)
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("Migrating database from version '" + dbVersion + "' to '" + version + "'.");
-                    }
-                } else
-                {
-                    throw new EnvironmentFailureException("Couldn't revert from version " + dbVersion
-                            + " to previous version " + version + ".");
-                }
-            }
-        } catch (BadSqlGrammarException ex)
-        {
-            String createScript = loadScript("initial.sql");
-            String initialDataScript = null;
-            if (initialDataScriptFile != null)
-            {
-                initialDataScript = FileUtilities.loadStringResource(getClass(), "/" + initialDataScriptFile);
-                if (initialDataScript == null)
-                {
-                    File file = new File(initialDataScriptFile);
-                    if (file.exists())
-                    {
-                        initialDataScript = FileUtilities.loadText(file);
-                    }
-                }
-            }
-            JdbcTemplate template = new JdbcTemplate(dataSource);
-            // TODO: Should be made transactionally save
-            template.execute(CREATE_DB_VERSION_TABLE);
-            template.update(INSERT_DB_VERSION, new Object[]
-                { new Date() });
-            template.execute(createScript);
-            if (initialDataScript != null)
-            {
-                template.execute(initialDataScript);
-            }
-        }
     }
 
     private boolean databaseExists()
