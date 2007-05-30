@@ -54,8 +54,7 @@ public class Parameters implements ITimingParameters
     /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
-    @Option(longName = "ssh-executable", metaVar = "EXEC", usage = "The ssh executable to use for "
-            + "creating tunnels.")
+    @Option(longName = "ssh-executable", metaVar = "EXEC", usage = "The ssh executable to use for creating tunnels.")
     private String sshExecutable = null;
 
     /**
