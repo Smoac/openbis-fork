@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
+    private static final String TOKEN_ELEMENT = "token";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
@@ -98,10 +101,33 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
+    public void checkAvailability()
+    {
+        try
+        {
+            String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            if (pickElementContent(response, TOKEN_ELEMENT) == null)
+            {
+                throw new EnvironmentFailureException("Application '" + application + "' couldn't be authenticated: "
+                        + response);
+            }
+        } catch (EnvironmentFailureException ex)
+        {
+            throw ex;
+        } catch (CheckedExceptionTunnel ex)
+        {
+            throw new EnvironmentFailureException(ex.getMessage(), ex.getCause());
+        } catch (RuntimeException ex)
+        {
+            throw new EnvironmentFailureException(ex.getMessage(), ex);
+        }
+    }
+
     public boolean authenticate(String user, String password)
     {
         String applicationToken =
-                StringEscapeUtils.unescapeXml(execute("token", AUTHENTICATE_APPL, application, applicationPassword));
+                StringEscapeUtils.unescapeXml(execute(TOKEN_ELEMENT, AUTHENTICATE_APPL, application,
+                        applicationPassword));
         if (applicationToken == null)
         {
             operationLog.warn("Application '" + application + "' could not be authenticated.");
@@ -132,13 +158,18 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private String execute(String responseElement, MessageFormat template, String... args)
     {
+        String response = execute(template, args);
+        return pickElementContent(response, responseElement);
+    }
+
+    private String execute(MessageFormat template, String... args)
+    {
         Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
         {
             decodedArguments[i] = StringEscapeUtils.escapeXml(args[i]);
         }
-        String response = execute(template.format(decodedArguments));
-        return pickElementContent(response, responseElement);
+        return execute(template.format(decodedArguments));
     }
 
     /**
@@ -154,7 +185,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '"
+                        + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
@@ -163,7 +195,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '"
+                        + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
@@ -172,7 +205,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '"
+                        + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
