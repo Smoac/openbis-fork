@@ -37,6 +37,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * Note that these utilities are considered to be <i>internal</i> methods, that means they are not prepared to do the
  * error checking. If you hand in inappropriate values, e.g. <code>null</code>, all you will get are
  * {@link AssertionError}s or {@link NullPointerException}.
+ * <p> 
+ * If you are tempted to add new functionality to this class, ensure that the new
+ * functionality does not yet exist in <code>org.apache.common.io.FileUtils</code>, see <a
+ * href="http://jakarta.apache.org/commons/io/api-release/org/apache/commons/io/FileUtils.html">javadoc</a>.
  * 
  * @author Bernd Rinn
  */

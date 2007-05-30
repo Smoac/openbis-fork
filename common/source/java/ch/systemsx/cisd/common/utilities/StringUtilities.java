@@ -22,6 +22,10 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Some useful utlities methods for {@link String}s.
+ * <p>
+ * If you are tempted to add new functionality to this class, ensure that the new functionality does not yet exist in
+ * {@link StringUtils}, see <a
+ * href="http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html">javadoc</a>.
  * 
  * @author Bernd Rinn
  */
@@ -34,7 +38,10 @@ public final class StringUtilities
     }
 
     /**
-     * Returns the capitalized form of <var>string</var>
+     * <em>Note that this method will transform <code>cAptcha</code> into <code>Captcha</code>, while 
+     * {@link StringUtils#capitalize(String)} would transform it into <code>CAptcha</code>.</em>
+     * 
+     * @return The capitalized form of <var>string</var>.
      */
     public static String capitalize(String string)
     {
