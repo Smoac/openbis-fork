@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
