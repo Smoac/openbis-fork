@@ -26,10 +26,12 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
-import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -174,13 +176,18 @@ public class DBMigrationEngine
         JdbcTemplate template = new JdbcTemplate(metaDataSource);
         try
         {
-            // If the user already exists, the database will throw an exception.
-            // But, the exception thrown could have another reason. Right now, there is no possibility
-            // to differentiate one case from another.
             template.execute(createUserSQL);
-        } catch (BadSqlGrammarException ex)
+        } catch (DataAccessException ex)
         {
-            operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
+            if (userAlreadyExists(ex))
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("User '" + owner + "' already exists.");
+                }
+            } else {
+                operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
+            }
         }
     }
 
@@ -227,10 +234,10 @@ public class DBMigrationEngine
         String script = loadScript(scriptTemplateFile);
         return script.replace("$USER", user).replace("$DATABASE", database);
     }
-    
+
     /** Loads given script name. */
     private String loadScript(String scriptName)
-    {   
+    {
         String resource = "/" + scriptFolder + "/" + scriptName;
         String script = FileUtilities.loadStringResource(getClass(), resource);
         if (script == null)
@@ -245,31 +252,72 @@ public class DBMigrationEngine
         return script;
     }
 
-    private boolean databaseExists()
+    /** Checks whether database already exists. */
+    private final boolean databaseExists()
     {
+        Connection connection = null;
         try
         {
-            Connection connection = dataSource.getConnection();
-            connection.close();
-            return true;
-        } catch (SQLException ex)
+           connection = DataSourceUtils.getConnection(dataSource);
+           return true;
+        } catch (DataAccessException ex)
         {
-            Throwable cause = ex.getCause();
-            if (cause instanceof SQLException)
-            {
-                ex = (SQLException) cause;
-            }
             if (isDBNotExistException(ex))
             {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Database '" + databaseName + "' does not exist.");
+                }
                 return false;
             }
             throw new EnvironmentFailureException("Couldn't connect database server.", ex);
+        } finally
+        {
+            JdbcUtils.closeConnection(connection);
         }
     }
-
-    protected boolean isDBNotExistException(SQLException exception)
+    
+    /**
+     * Tries to get the SQL state of given <code>Throwable</code>.
+     * <p>
+     * This is only possible if {@link Throwable#getCause()} is an instance of <code>SQLException</code>.
+     * </p>
+     */
+    protected final static String getSqlState(Throwable ex) {
+        Throwable th = ex.getCause();
+        String sqlState = null;
+        if (th instanceof SQLException)
+        {
+            SQLException sqlException = (SQLException) th;
+            sqlState = sqlException.getSQLState();
+            if (sqlState == null)
+            {
+                return getSqlState(sqlException);
+            }
+        }
+        return sqlState;
+    }
+    
+    /**
+     * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
+     * <p>
+     * This is database specific.
+     * </p>
+     */
+    protected boolean isDBNotExistException(DataAccessException ex)
     {
-        String message = exception.getMessage();
-        return message.startsWith("FATAL: database") || message.startsWith("FATAL: password");
+        // 3D000: INVALID CATALOG NAME
+        return "3D000".equals(getSqlState(ex));
+    }
+    
+    /**
+     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
+     * <p>
+     * This is database specific.
+     * </p>
+     */
+    protected boolean userAlreadyExists(DataAccessException ex) {
+        // 42710 DUPLICATE OBJECT
+        return "42710".equals(getSqlState(ex));
     }
 }
