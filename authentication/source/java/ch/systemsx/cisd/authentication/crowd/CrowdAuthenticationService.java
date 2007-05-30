@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i>
  * server, then authenticates the user.
  * 
- * @author felmer
+ * @author Franz-Josef Elmer
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
@@ -43,7 +43,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
-
+    
+    /** The template to authenticate the application. */
     private static final MessageFormat AUTHENTICATE_APPL =
             new MessageFormat("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
                     + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
@@ -56,6 +57,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + "                          xsi:nil=\"true\" />\n" + "     </in0>\n"
                     + "   </authenticateApplication>\n" + " </soap:Body>\n" + "</soap:Envelope>\n");
 
+    /** The template to authenticate the user. */
     private static final MessageFormat AUTHENTICATE_USER =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -100,7 +102,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
             operationLog.debug(msg);
         }
     }
-
+    
     public void checkAvailability()
     {
         try
@@ -155,15 +157,19 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
         return userToken != null;
     }
-
-    private String execute(String responseElement, MessageFormat template, String... args)
+    
+    /**
+     * Constructs the POST message, does the HTTP request and picks given <code>responseElement</code> in the returned
+     * server response.
+     */
+    private final String execute(String responseElement, MessageFormat template, String... args)
     {
         String response = execute(template, args);
         return pickElementContent(response, responseElement);
     }
 
     private String execute(MessageFormat template, String... args)
-    {
+        {
         Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
         {
@@ -178,15 +184,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * Returns <code>null</code> if given element could not be found.
      * </p>
      */
-    private String pickElementContent(String xmlString, String element)
+    private final String pickElementContent(String xmlString, String element)
     {
         int index = xmlString.indexOf("<" + element);
         if (index < 0)
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '"
-                        + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
@@ -195,8 +200,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '"
-                        + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
@@ -205,15 +209,15 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '"
-                        + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
         return xmlString.substring(index + 1, endIndex);
     }
-
-    private String execute(String xmlMessage)
+    
+    /** Makes a POST request with "application/soap+xml" as content type. */
+    private final String execute(String xmlMessage)
     {
         try
         {

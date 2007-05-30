@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
  * <p>
  * Does <em>not</em> depend on any library jar files.
  * 
- * @author felmer
+ * @author Franz-Josef Elmer
  */
 public final class BuildAndEnvironmentInfo
 {
