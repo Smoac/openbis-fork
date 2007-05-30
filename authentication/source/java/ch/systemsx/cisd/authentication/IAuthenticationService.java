@@ -33,7 +33,9 @@ public interface IAuthenticationService
     public void checkAvailability();
     
     /**
-     * Returns <code>true</code> if the specified user is authenticated with the specified password.
+     * Attempts authentication for the given user credentials.
+     *  
+     * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
      */
     public boolean authenticate(String user, String password);
 }
