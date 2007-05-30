@@ -28,7 +28,12 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public class LogInitializer
 {
-
+    static {
+        // Do not let log4j configure itself. We will do it our own way.
+        // Look at page 84 of the manual to get to know the default initialization.
+        System.setProperty("log4j.defaultInitOverride", "true");
+    }
+    
     private static boolean initialized = false;
 
     public static synchronized void init()
@@ -43,6 +48,7 @@ public class LogInitializer
         final File logFile = new File(logDirectory, logFilename);
         if (logFile.exists())
         {
+            // For non-XML files, you will use <code>PropertyConfigurator.configureAndWatch(String)</code>
             DOMConfigurator.configureAndWatch(logFile.getPath());
         } else
         {
