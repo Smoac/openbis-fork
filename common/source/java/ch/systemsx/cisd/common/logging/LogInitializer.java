@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.logging;
 
 import java.io.File;
+import java.net.URL;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -36,6 +37,12 @@ public class LogInitializer
     
     private static boolean initialized = false;
 
+    /**
+     * Initializes logging system. Does nothing if already initialized.
+     * Logging configuration file is assumed to be in <code>&lt;working directory&gt;/ect/log.xml</code>.
+     * If not found we look for a classpath resource named <code>/etc/log.xml</code>. If nothing found in both
+     * locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
+     */
     public static synchronized void init()
     {
         if (initialized)
@@ -52,7 +59,14 @@ public class LogInitializer
             DOMConfigurator.configureAndWatch(logFile.getPath());
         } else
         {
-            BasicConfigurator.configure();
+            URL url = LogInitializer.class.getResource("/" + logDirectory + "/" + logFilename);
+            if (url != null)
+            {
+                DOMConfigurator.configure(url);
+            } else
+            {
+                BasicConfigurator.configure();
+            }
         }
         initialized = true;
     }
