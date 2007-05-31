@@ -43,7 +43,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
-    
+
     /** The template to authenticate the application. */
     private static final MessageFormat AUTHENTICATE_APPL =
             new MessageFormat("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -97,12 +97,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
         this.applicationPassword = applicationPassword;
         if (operationLog.isDebugEnabled())
         {
-            String msg = "A new CrowdAuthenticationService instance has been created with following values [";
-            msg += "url=" + url + ",application=" + application + "]";
+            final String msg =
+                    "A new CrowdAuthenticationService instance has been created for [" + "url=" + url
+                            + ", application=" + application + "]";
             operationLog.debug(msg);
         }
     }
-    
+
     public void checkAvailability()
     {
         try
@@ -127,50 +128,52 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     public boolean authenticate(String user, String password)
     {
-        String applicationToken =
+        final String applicationToken =
                 StringEscapeUtils.unescapeXml(execute(TOKEN_ELEMENT, AUTHENTICATE_APPL, application,
                         applicationPassword));
         if (applicationToken == null)
         {
-            operationLog.warn("Application '" + application + "' could not be authenticated.");
+            operationLog.error("CROWD: application '" + application + "' failed to authenticate.");
             return false;
         } else
         {
-            if (operationLog.isInfoEnabled())
+            if (operationLog.isDebugEnabled())
             {
-                operationLog.info("Application '" + application + "' successfully authenticated.");
+                operationLog.debug("CROWD: application '" + application + "' successfully authenticated.");
             }
         }
-        String userToken =
+        final String userToken =
                 StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user,
                         password));
-        if (userToken == null)
+        if (operationLog.isInfoEnabled())
         {
-            operationLog.warn("User '" + user + "' could not be authenticated with application '" + application + "'.");
-        } else
-        {
-            if (operationLog.isInfoEnabled())
+            final String msg = "CROWD: authentication of user '" + user + "', application '" + application + "': ";
+            if (userToken == null)
             {
-                operationLog.info("User '" + user + "' successfully authenticated with application '" + application
-                        + "'.");
+                operationLog.info(msg + "FAILED.");
+            } else
+            {
+                operationLog.info(msg + "SUCCESS.");
             }
         }
         return userToken != null;
     }
-    
+
     /**
-     * Constructs the POST message, does the HTTP request and picks given <code>responseElement</code> in the returned
-     * server response.
+     * Constructs the POST message, does the HTTP request and picks the given <code>responseElement</code> in the
+     * server's response.
+     * 
+     * @return The <var>responseElement</var> in the server's response.
      */
     private final String execute(String responseElement, MessageFormat template, String... args)
     {
-        String response = execute(template, args);
+        final String response = execute(template, args);
         return pickElementContent(response, responseElement);
     }
 
     private String execute(MessageFormat template, String... args)
-        {
-        Object[] decodedArguments = new Object[args.length];
+    {
+        final Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
         {
             decodedArguments[i] = StringEscapeUtils.escapeXml(args[i]);
@@ -179,44 +182,54 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Tries to find given <code>element</code> in given <code>xmlString</code>.
+     * Tries to find given <code>element</code> in <code>xmlString</code>.
      * <p>
-     * Returns <code>null</code> if given element could not be found.
-     * </p>
+     * Note that this is a special-perpose method not suitable for putting it into general utility classes. For example
+     * it does not find empty elements.
+     * 
+     * @return The requested element, or <code>null</code> if it could not be found.
      */
-    private final String pickElementContent(String xmlString, String element)
+    private static final String pickElementContent(String xmlString, String element)
     {
+        if (xmlString == null)
+        {
+            operationLog.error("Response of web service is invalid (null). We were looking for element '" + element
+                    + "'.");
+            return null;
+        }
+
         int index = xmlString.indexOf("<" + element);
         if (index < 0)
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
+                operationLog.debug("Element '" + element + "' could not be found in '"
+                        + StringUtils.abbreviate(xmlString, 50) + "'.");
             }
             return null;
         }
         index = xmlString.indexOf(">", index);
         if (index < 0)
         {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
-            }
+            operationLog.error("Element '" + element + "' seems to be present but XML is invalid: '"
+                    + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }
-        int endIndex = xmlString.indexOf("</" + element, index);
+        int endIndex = xmlString.indexOf("</" + element + ">", index);
         if (endIndex < 0)
         {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Element '" + element + "' could not be found in '" + StringUtils.abbreviate(xmlString, 50) + "'.");
-            }
+            operationLog.error("Start tag of element '" + element + "' is present but end tag is missing: '"
+                    + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }
         return xmlString.substring(index + 1, endIndex);
     }
-    
-    /** Makes a POST request with "application/soap+xml" as content type. */
+
+    /**
+     * Makes a POST request with "application/soap+xml" as content type.
+     * 
+     * @return The server's response to the request.
+     */
     private final String execute(String xmlMessage)
     {
         try
