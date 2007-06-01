@@ -203,8 +203,10 @@ public class DBMigrationEngine
         args[0] = new Date();
         template.update(INSERT_DB_VERSION, args);
         
-        String createScript = loadScript("initial.sql");
+        final String createScript = loadScript("initial.sql");
         template.execute(createScript);
+        final String masterDataScript = loadScript("initialData.sql");
+        template.execute(masterDataScript);
     }
 
     private void fillWithInitialData()
