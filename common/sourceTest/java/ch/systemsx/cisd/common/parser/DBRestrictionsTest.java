@@ -86,26 +86,26 @@ public class DBRestrictionsTest
         assertEquals(50, parser.getTableRestrictions("materials").getLength("name"));
         assertEquals(4, parser.getTableRestrictions("materials").getLength("mate_sub_type"));
     }
-    
+
     @Test(expectedExceptions = AssertionError.class)
     public void testInvalidTable()
     {
         final DBRestrictions parser = new DBRestrictions("");
         assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("doesnotexit").getLength("doesnotexist"));
     }
-    
+
     @Test(expectedExceptions = AssertionError.class)
     public void testInvalidColumn()
     {
         final DBRestrictions parser = new DBRestrictions("create table tab (a integer, b varchar(1))");
         assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("tab").getLength("doesnotexist"));
     }
-    
+
     @Test
     public void testCheckedConstraints()
     {
         final String sqlScript =
-            FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
         assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
@@ -114,12 +114,12 @@ public class DBRestrictionsTest
         assertEquals(new HashSet<String>(Arrays.asList("STOB", "MATE")), parser.getTableRestrictions("materials")
                 .getCheckedConstaint("mate_sub_type"));
     }
-    
+
     @Test
     public void testCheckOK()
     {
         final String sqlScript =
-            FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
         assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
@@ -131,7 +131,7 @@ public class DBRestrictionsTest
     public void testCheckViolateLength()
     {
         final String sqlScript =
-            FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
         assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
@@ -149,13 +149,31 @@ public class DBRestrictionsTest
     public void testCheckAlternatives()
     {
         final String sqlScript =
-            FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
         assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         try
         {
             parser.check("materials", "mate_sub_type", "stob");
+        } catch (UserFailureException ex)
+        {
+            System.err.println(ex.getMessage());
+            throw ex;
+        }
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void testCheckNotNullConstraint()
+    {
+        final String sqlScript =
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/parser/DBRestrictionsTest.sql");
+        assert sqlScript != null;
+        final DBRestrictions parser = new DBRestrictions(sqlScript);
+
+        try
+        {
+            parser.check("material_types", "description", null);
         } catch (UserFailureException ex)
         {
             System.err.println(ex.getMessage());

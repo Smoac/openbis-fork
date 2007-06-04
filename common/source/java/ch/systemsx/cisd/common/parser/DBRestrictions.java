@@ -63,6 +63,8 @@ public class DBRestrictions
 
         final Map<String, Set<String>> checkedConstraintsMap = new HashMap<String, Set<String>>();
 
+        final Set<String> notNullSet = new HashSet<String>();
+
         public int getLength(String columnName)
         {
             final Integer columnLength = columnLengthMap.get(columnName);
@@ -73,6 +75,11 @@ public class DBRestrictions
         public Set<String> getCheckedConstaint(String columnName)
         {
             return checkedConstraintsMap.get(columnName);
+        }
+
+        public boolean hasNotNullConstraint(String columnName)
+        {
+            return notNullSet.contains(columnName);
         }
     }
 
@@ -168,6 +175,26 @@ public class DBRestrictions
                         .group(1)));
             }
         }
+        final int nullIdx = findInArray(words, "null", 3);
+        if (nullIdx > 0 && "not".equals(words[nullIdx - 1]))
+        {
+            getTableRestrictions(tableName).notNullSet.add(columnName);
+        }
+    }
+
+    private int findInArray(String[] array, String term, int firstIndex)
+    {
+        assert array != null;
+        assert term != null;
+
+        for (int i = firstIndex; i < array.length; ++i)
+        {
+            if (term.equals(array[i]))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void parserCheckedConstraints(List<String> ddlScript)
@@ -225,7 +252,12 @@ public class DBRestrictions
         final int maxLength = restrictions.getLength(columnName);
         if (value == null)
         {
-            // TODO 2007-06-04, Bernd Rinn: add correct 'NON NULL' check
+            if (restrictions.hasNotNullConstraint(columnName))
+            {
+                final String msg = String.format("Value 'NULL' not allowed for column %s.%s.", tableName, columnName);
+                operationLog.warn("Violation of database constraints detected: " + msg);
+                throw new UserFailureException(msg);
+            }
             return;
         }
         final Set<String> checkedConstraint = restrictions.getCheckedConstaint(columnName);
