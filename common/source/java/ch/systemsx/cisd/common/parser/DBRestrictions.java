@@ -231,14 +231,19 @@ public class DBRestrictions
         final Set<String> checkedConstraint = restrictions.getCheckedConstaint(columnName);
         if (checkedConstraint != null && checkedConstraint.contains(value) == false)
         {
-            throw UserFailureException.fromTemplate(
-                    "Value '%s' is not one of the allowed alternatives %s of column %s.%s.", value,
-                    toString(checkedConstraint), tableName, columnName);
+            final String msg =
+                    String.format("Value '%s' is not one of the allowed alternatives %s of column %s.%s.", value,
+                            toString(checkedConstraint), tableName, columnName);
+            operationLog.warn("Violation of database constraints detected: " + msg);
+            throw new UserFailureException(msg);
         }
         if (value.length() > maxLength)
         {
-            throw UserFailureException.fromTemplate("Value '%s' is longer than the maximum length %d of column %s.%s.",
-                    value, maxLength, tableName, columnName);
+            final String msg =
+                    String.format("Value '%s' is longer than the maximum length %d of column %s.%s.", value, maxLength,
+                            tableName, columnName);
+            operationLog.warn("Violation of database constraints detected: " + msg);
+            throw new UserFailureException(msg);
         }
     }
 
