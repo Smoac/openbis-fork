@@ -156,7 +156,16 @@ public class DBMigrationEngine
     {
         String dropDatabaseSQL = createScript("dropDatabase.sql", owner, databaseName);
         JdbcTemplate template = new JdbcTemplate(metaDataSource);
-        template.execute(dropDatabaseSQL);
+        try
+        {
+            template.execute(dropDatabaseSQL);
+        } catch (DataAccessException ex)
+        {
+            if (isDBNotExistException(ex) == false)
+            {
+                throw ex;
+            }
+        }
     }
     
     private void setupDatabase()
@@ -205,8 +214,6 @@ public class DBMigrationEngine
         
         final String createScript = loadScript("initial.sql");
         template.execute(createScript);
-        final String masterDataScript = loadScript("initialData.sql");
-        template.execute(masterDataScript);
     }
 
     private void fillWithInitialData()
@@ -260,7 +267,7 @@ public class DBMigrationEngine
         Connection connection = null;
         try
         {
-           connection = DataSourceUtils.getConnection(dataSource);
+            connection = DataSourceUtils.getConnection(dataSource);
            return true;
         } catch (DataAccessException ex)
         {
