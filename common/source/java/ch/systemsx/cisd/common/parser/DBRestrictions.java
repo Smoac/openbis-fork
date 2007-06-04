@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A parser for SQL92 domain manipulation language scripts. The result are columns lengths and checked constraints.
+ * A parser for SQL92 data definition language scripts. The result are columns lengths and checked constraints.
  * 
  * @author Bernd Rinn
  */
@@ -76,19 +76,19 @@ public class DBRestrictions
         }
     }
 
-    public DBRestrictions(String dmlScript)
+    public DBRestrictions(String ddlScript)
     {
-        final List<String> normalizedDmlScript = normalize(dmlScript);
-        final Map<String, Integer> domains = parseDomains(normalizedDmlScript);
-        parseColumnLength(normalizedDmlScript, domains);
-        parserCheckedConstraints(normalizedDmlScript);
+        final List<String> normalizedDDLScript = normalize(ddlScript);
+        final Map<String, Integer> domains = parseDomains(normalizedDDLScript);
+        parseColumnLength(normalizedDDLScript, domains);
+        parserCheckedConstraints(normalizedDDLScript);
     }
 
     // @Private
-    static List<String> normalize(String dmlScript)
+    static List<String> normalize(String ddlScript)
     {
         final List<String> list = new ArrayList<String>();
-        final SQLCommandTokenizer normalizer = new SQLCommandTokenizer(dmlScript);
+        final SQLCommandTokenizer normalizer = new SQLCommandTokenizer(ddlScript);
         String command;
         do
         {
@@ -102,10 +102,10 @@ public class DBRestrictions
     }
 
     // @Private
-    static Map<String, Integer> parseDomains(List<String> dmlScript)
+    static Map<String, Integer> parseDomains(List<String> ddlScript)
     {
         final Map<String, Integer> domains = new HashMap<String, Integer>();
-        for (String line : dmlScript)
+        for (String line : ddlScript)
         {
             if (line.startsWith(CREATE_DOMAIN_PREFIX))
             {
@@ -126,9 +126,9 @@ public class DBRestrictions
         return domains;
     }
 
-    private void parseColumnLength(List<String> dmlScript, Map<String, Integer> domains)
+    private void parseColumnLength(List<String> ddlScript, Map<String, Integer> domains)
     {
-        for (String line : dmlScript)
+        for (String line : ddlScript)
         {
             final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
             if (createTableMatcher.matches())
@@ -170,9 +170,9 @@ public class DBRestrictions
         }
     }
 
-    private void parserCheckedConstraints(List<String> dmlScript)
+    private void parserCheckedConstraints(List<String> ddlScript)
     {
-        for (String line : dmlScript)
+        for (String line : ddlScript)
         {
             final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
             if (checkedConstraintMatcher.matches())
