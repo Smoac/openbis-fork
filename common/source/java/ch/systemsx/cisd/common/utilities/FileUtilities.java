@@ -76,6 +76,9 @@ public final class FileUtilities
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fileReader);
         }
     }
     
@@ -99,6 +102,9 @@ public final class FileUtilities
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fileReader);
         }
     }
 
@@ -152,6 +158,9 @@ public final class FileUtilities
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(reader);
         }
     }
 
