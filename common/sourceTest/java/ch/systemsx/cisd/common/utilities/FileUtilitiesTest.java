@@ -21,6 +21,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -91,7 +93,7 @@ public class FileUtilitiesTest
     }
 
     @Test
-    public void testLoadText() throws Exception
+    public void testLoadToStringFile() throws Exception
     {
         File file = new File(workingDirectory, "test.txt");
         FileWriter writer = new FileWriter(file);
@@ -102,10 +104,45 @@ public class FileUtilitiesTest
         {
             writer.close();
         }
-        
-        String text = FileUtilities.loadText(file);
+
+        String text = FileUtilities.loadToString(file);
         assert file.delete();
         assertEquals("Hello\nWorld!\n", text);
+    }
+
+    @Test
+    public void testLoadToStringResource() throws Exception
+    {
+        final String thisFile =
+                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class");
+        assert thisFile != null;
+        assert thisFile.indexOf("FileUtilitiesTest") >= 0;
+    }
+
+    @Test
+    public void testLoadToStringMissingResource() throws Exception
+    {
+        final String thisFile =
+                FileUtilities.loadToString(getClass(), "/some/missing/resource");
+        assert thisFile == null;
+    }
+
+    @Test
+    public void testLoadToStringListFile() throws Exception
+    {
+        File file = new File(workingDirectory, "test.txt");
+        FileWriter writer = new FileWriter(file);
+        try
+        {
+            writer.write("Hello\nWorld!");
+        } finally
+        {
+            writer.close();
+        }
+
+        final List<String> text = FileUtilities.loadToStringList(file);
+        assert file.delete();
+        assertEquals(Arrays.asList("Hello", "World!"), text);
     }
 
 }

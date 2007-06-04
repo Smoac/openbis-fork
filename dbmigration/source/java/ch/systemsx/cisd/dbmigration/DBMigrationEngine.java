@@ -214,13 +214,13 @@ public class DBMigrationEngine
         String initialDataScript = null;
         if (initialDataScriptFile != null)
         {
-            initialDataScript = FileUtilities.loadStringResource(getClass(), "/" + initialDataScriptFile);
+            initialDataScript = FileUtilities.loadToString(getClass(), "/" + initialDataScriptFile);
             if (initialDataScript == null)
             {
                 File file = new File(initialDataScriptFile);
                 if (file.exists())
                 {
-                    initialDataScript = FileUtilities.loadText(file);
+                    initialDataScript = FileUtilities.loadToString(file);
                 }
             }
         }
@@ -241,7 +241,7 @@ public class DBMigrationEngine
     private String loadScript(String scriptName)
     {
         String resource = "/" + scriptFolder + "/" + scriptName;
-        String script = FileUtilities.loadStringResource(getClass(), resource);
+        String script = FileUtilities.loadToString(getClass(), resource);
         if (script == null)
         {
             File file = new File(scriptFolder, scriptName);
@@ -249,7 +249,7 @@ public class DBMigrationEngine
             {
                 operationLog.debug("Resource '" + resource + "' could not be found. Trying '" + file.getPath() + "'.");
             }
-            script = FileUtilities.loadText(file);
+            script = FileUtilities.loadToString(file);
         }
         return script;
     }

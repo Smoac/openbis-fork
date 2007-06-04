@@ -23,11 +23,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -37,9 +40,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * Note that these utilities are considered to be <i>internal</i> methods, that means they are not prepared to do the
  * error checking. If you hand in inappropriate values, e.g. <code>null</code>, all you will get are
  * {@link AssertionError}s or {@link NullPointerException}.
- * <p> 
- * If you are tempted to add new functionality to this class, ensure that the new
- * functionality does not yet exist in <code>org.apache.common.io.FileUtils</code>, see <a
+ * <p>
+ * If you are tempted to add new functionality to this class, ensure that the new functionality does not yet exist in
+ * <code>org.apache.common.io.FileUtils</code>, see <a
  * href="http://jakarta.apache.org/commons/io/api-release/org/apache/commons/io/FileUtils.html">javadoc</a>.
  * 
  * @author Bernd Rinn
@@ -54,14 +57,17 @@ public final class FileUtilities
     }
 
     /**
-     * Loads the specified text file.
+     * Loads a text file to a {@link String}.
      * 
-     * @param file the file that should be loaded. This method assumes that given <code>File</code> is not
-     *            <code>null</code> and that it exists.
-     * @return text from <code>text</code>. All newline characters are '\n'.
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
+     *            <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention).
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
      */
-    public static String loadText(File file)
+    public static String loadToString(File file) throws CheckedExceptionTunnel
     {
+        assert file != null;
+
         FileReader fileReader = null;
         try
         {
@@ -69,65 +75,126 @@ public final class FileUtilities
             return readString(new BufferedReader(fileReader));
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Error when loading file " + file, ex);
-        } finally
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
+    
+    /**
+     * Loads a text file line by line to a {@link List} of {@link String}s.
+     * 
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
+     *            <code>null</code>.
+     * @return The content of the file line by line.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
+     */
+    public static List<String> loadToStringList(File file) throws CheckedExceptionTunnel
+    {
+        assert file != null;
+
+        FileReader fileReader = null;
+        try
         {
-            if (fileReader != null)
-            {
-                try
-                {
-                    fileReader.close();
-                } catch (IOException ex)
-                {
-                    throw new EnvironmentFailureException("Couldn't close file " + file, ex);
-                }
-            }
+            fileReader = new FileReader(file);
+            return readStringList(new BufferedReader(fileReader));
+        } catch (IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
         }
     }
 
     /**
-     * Loads a resource as a string. 
+     * Loads a resource to a string.
+     * <p>
+     * A non-existent resource will result in a return value of <code>null</code>.
      * 
-     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked.
+     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked (must not be <code>null</code>).
      * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
-     * @return <code>null</code> if the specified resource does not exist.
-     * @throws EnvironmentFailureException if an <code>IOException</code> occurs during reading the resource. 
+     * @return The content of the resource, or <code>null</code> if the specified resource does not exist.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}
      */
-    public static String loadStringResource(Class clazz, String resource)
+    public static String loadToString(Class clazz, String resource) throws CheckedExceptionTunnel
     {
-        InputStream stream = clazz.getResourceAsStream(resource);
-        if (stream == null)
-        {
-            return null;
-        }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        assert clazz != null;
+        assert resource != null && resource.length() > 0;
+        
+        final BufferedReader reader = getBufferedReader(clazz, resource);
         try
         {
             return readString(reader);
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't read resource " + resource, ex);
+            throw new CheckedExceptionTunnel(ex);
         } finally
         {
-            try
-            {
-                reader.close();
-            } catch (IOException ex)
-            {
-                throw new EnvironmentFailureException("Couldn't close reader for resource " + resource, ex);
-            }
+            IOUtils.closeQuietly(reader);
         }
     }
 
+    /**
+     * Loads a text file line by line to a {@link List} of {@link String}s.
+     * <p>
+     * A non-existent resource will result in a return value of <code>null</code>.
+     * 
+     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked.
+     * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
+     * @return The content of the resource line by line.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
+     */
+    public static List<String> loadToStringList(Class clazz, String resource) throws CheckedExceptionTunnel
+    {
+        assert clazz != null;
+        assert resource != null && resource.length() > 0;
+
+        final BufferedReader reader = getBufferedReader(clazz, resource);
+        try
+        {
+            return readStringList(reader);
+        } catch (IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
+
+    private static BufferedReader getBufferedReader(Class clazz, String resource)
+    {
+        final InputStream stream = clazz.getResourceAsStream(resource);
+        if (stream == null)
+        {
+            return null;
+        }
+        return new BufferedReader(new InputStreamReader(stream));
+    }
+    
     private static String readString(BufferedReader reader) throws IOException
     {
-        StringBuilder builder = new StringBuilder();
+        if (reader == null)
+        {
+            return null;
+        }
+        
+        final StringBuilder builder = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null)
         {
             builder.append(line).append('\n');
         }
-        return new String(builder);
+        return builder.toString();
+    }
+
+    private static List<String> readStringList(BufferedReader reader) throws IOException
+    {
+        if (reader == null)
+        {
+            return null;
+        }
+        
+        final List<String> list = new ArrayList<String>();
+        String line;
+        while ((line = reader.readLine()) != null)
+        {
+            list.add(line);
+        }
+        return list;
     }
 
     /**
@@ -289,14 +356,17 @@ public final class FileUtilities
 
     /**
      * @return The time when any file below <var>directory</var> has last been changed in the file system.
-     * @throws EnvironmentFailureException If the <var>directory</var> does not exist, is not readable, or is not a
-     *             directory.
+     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
+     *             readable.
      */
     public static long lastChanged(File path)
     {
+        assert path != null;
+        
         if (path.canRead() == false)
         {
-            throw EnvironmentFailureException.fromTemplate("Directory '%s' cannot be read.", path.getPath());
+            throw new CheckedExceptionTunnel(
+                    new IOException(String.format("Path '%s' cannot be read.", path.getPath())));
         }
 
         long lastChanged = path.lastModified();
