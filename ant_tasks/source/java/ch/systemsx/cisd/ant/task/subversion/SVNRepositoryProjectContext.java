@@ -3,8 +3,7 @@ package ch.systemsx.cisd.ant.task.subversion;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-
+import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**

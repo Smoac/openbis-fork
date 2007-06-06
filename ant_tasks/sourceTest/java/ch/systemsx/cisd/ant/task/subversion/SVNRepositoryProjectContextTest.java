@@ -8,9 +8,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /*

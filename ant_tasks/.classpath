@@ -6,6 +6,5 @@
 	<classpathentry kind="lib" path="lib/ant.jar" sourcepath="lib/ant-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

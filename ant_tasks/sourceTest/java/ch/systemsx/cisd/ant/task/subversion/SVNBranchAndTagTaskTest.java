@@ -27,10 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.ant.common.StringUtils;
 
 /**
  * Test cases for the {@link SVNBranchAndTagTask}.
