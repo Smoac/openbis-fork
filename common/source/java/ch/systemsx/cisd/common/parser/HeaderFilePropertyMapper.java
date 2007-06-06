@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,20 +32,16 @@ final class HeaderFilePropertyMapper implements IPropertyMapper
     private final Map<String, IPropertyModel> properties;
     
     HeaderFilePropertyMapper(String[] headerTokens) {
-        if (headerTokens == null || headerTokens.length == 0)
-        {
-           this.properties = Collections.emptyMap();
-        } else {
-            this.properties = tokensToMap(headerTokens);
-        }
+        assert headerTokens != null;
+        this.properties = tokensToMap(headerTokens);
     }
     
     private final static Map<String, IPropertyModel> tokensToMap(String[] tokens)
     {
-        Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
+        final Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
         for (int i = 0; i < tokens.length; i++)
         {
-            String token = tokens[i];
+            final String token = tokens[i];
             if (token != null)
             {
                 map.put(token, new MappedProperty(i, token));

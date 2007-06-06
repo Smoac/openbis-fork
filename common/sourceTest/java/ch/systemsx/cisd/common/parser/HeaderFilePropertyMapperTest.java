@@ -27,10 +27,16 @@ import org.testng.annotations.Test;
 public final class HeaderFilePropertyMapperTest
 {
 
+    @Test(expectedExceptions=AssertionError.class)
+    public final void testNullHeaders()
+    {
+        new HeaderFilePropertyMapper(null);
+    }
+    
     @Test
     public final void testGetProperty()
     {
-        IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(null);
+        IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[0]);
         assertNull(propertyMapper.getProperty("shouldBeNull"));
         String[] headers =
             { "firstName", "lastName", "address", null };
