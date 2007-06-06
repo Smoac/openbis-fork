@@ -24,6 +24,6 @@ package ch.systemsx.cisd.common.parser;
 public interface IPropertyMapper
 {
 
-    /** Returns a <code>IPropertyModel</code> for a given property name. */
+    /** Returns an <code>IPropertyModel</code> for a given property name. */
     public IPropertyModel getProperty(String name);
 }

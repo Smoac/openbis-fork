@@ -56,7 +56,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     /**
      * The line where the header is.
      * <p>
-     * If we set it bigger than <code>-1</code>, we assume that the header contains mapping informations.
+     * If we set it bigger than <code>-1</code>, we assume that the header contains mapping information.
      * </p>
      */
     private int headerLine = -1;
@@ -102,18 +102,11 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
     public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException
     {
-        BufferedReader bufferedReader;
-        if (reader instanceof BufferedReader)
-        {
-            bufferedReader = (BufferedReader) reader;
-        } else
-        {
-            bufferedReader = new BufferedReader(reader);
-        }
-        List<E> elements = new ArrayList<E>();
+        final BufferedReader bufferedReader = getBufferedReader(reader);
+        final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
-            // Inits <code>ILineTokenizer</code>
+            // Inits ILineTokenizer
             lineTokenizer.init();
             String line;
             try
@@ -141,6 +134,19 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
         }
 
+    }
+
+    private BufferedReader getBufferedReader(Reader reader)
+    {
+        BufferedReader bufferedReader;
+        if (reader instanceof BufferedReader)
+        {
+            bufferedReader = (BufferedReader) reader;
+        } else
+        {
+            bufferedReader = new BufferedReader(reader);
+        }
+        return bufferedReader;
     }
 
     public final void setObjectFactory(IParserObjectFactory<E> factory)
