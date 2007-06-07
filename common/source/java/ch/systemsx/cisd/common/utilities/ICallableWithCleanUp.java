@@ -22,10 +22,10 @@ package ch.systemsx.cisd.common.utilities;
  * 
  * @author Bernd Rinn
  */
-public interface CallableWithCleanUp<T>
+public interface ICallableWithCleanUp<T>
 {
 
     /** Calls the method requiring clean-up. */
-    public T call(CleanUpRegistry registry);
+    public T call(ICleanUpRegistry registry);
 
 }

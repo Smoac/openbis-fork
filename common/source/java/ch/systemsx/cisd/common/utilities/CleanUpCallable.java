@@ -30,7 +30,7 @@ public final class CleanUpCallable
 
     private final List<Runnable> cleanUpList;
     
-    private final CleanUpRegistry theRegistry = new CleanUpRegistry()
+    private final ICleanUpRegistry theRegistry = new ICleanUpRegistry()
     {
         public void registerCleanUp(Runnable cleanUp)
         {
@@ -44,9 +44,9 @@ public final class CleanUpCallable
     }
 
     /**
-     * Runs a {@link CallableWithCleanUp} and ensures that all registered clean-ups are performed afterwards.
+     * Runs a {@link ICallableWithCleanUp} and ensures that all registered clean-ups are performed afterwards.
      */
-    public <T> T call(CallableWithCleanUp<T> runnable)
+    public <T> T call(ICallableWithCleanUp<T> runnable)
     {
         boolean exceptionThrown = true;
         try

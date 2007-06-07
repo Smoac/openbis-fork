@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.utilities;
  *
  * @author Bernd Rinn
  */
-public interface CleanUpRegistry
+public interface ICleanUpRegistry
 {
 
     /**
