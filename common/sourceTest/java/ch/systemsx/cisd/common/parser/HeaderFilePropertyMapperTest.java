@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.Assert.*;
+import static org.testng.AssertJUnit.*;
 import org.testng.annotations.Test;
 
 /**
