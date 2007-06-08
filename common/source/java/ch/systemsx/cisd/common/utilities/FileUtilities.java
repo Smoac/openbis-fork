@@ -26,7 +26,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -406,6 +408,32 @@ public final class FileUtilities
                 }
 
             });
+    }
+
+    /** Parses given <code>File</code> till it encounters given line number and returns it. */
+    public final static String getLine(File file, int lineNumber)
+    {
+        LineIterator lineIterator = null;
+        try
+        {
+            lineIterator = FileUtils.lineIterator(file);
+            for (int line = 0; lineIterator.hasNext(); line++)
+            {
+                String nextLine = lineIterator.nextLine();
+                if (lineNumber == line)
+                {
+                    return nextLine;
+                }
+    
+            }
+        } catch (IOException ex)
+        {
+            machineLog.error("An I/O exception has occurred while reading file '" + file + "'.", ex);
+        } finally
+        {
+            LineIterator.closeQuietly(lineIterator);
+        }
+        return null;
     }
 
 }
