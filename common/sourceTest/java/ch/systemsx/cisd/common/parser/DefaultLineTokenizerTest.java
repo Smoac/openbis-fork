@@ -42,13 +42,13 @@ public final class DefaultLineTokenizerTest
         // Default separator is '\t'
         assertNotNull(tokenizer);
         String line = "This\tis\ta\tline";
-        String[] tokens = tokenizer.tokenize(0, line);
+        String[] tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
         // Trim is whitespace
         line = " This\t is \t a \tline ";
-        tokens = tokenizer.tokenize(0, line);
+        tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
         assertEquals(tokens[2], "a");
         assertEquals(tokens[3], "line");
@@ -56,7 +56,7 @@ public final class DefaultLineTokenizerTest
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.SEPARATOR_CHARS, " \t");
         tokenizer.init();
         line = "This is \ta\tline";
-        tokens = tokenizer.tokenize(0, line);
+        tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 5);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
@@ -64,7 +64,7 @@ public final class DefaultLineTokenizerTest
         // Trying quote characters
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.QUOTE_CHARS, "'");
         line = "'This rule'\t'is not'\ta\tline";
-        tokens = tokenizer.tokenize(0, line);
+        tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This rule");
         assertEquals(tokens[1], "is not");
@@ -74,7 +74,7 @@ public final class DefaultLineTokenizerTest
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.QUOTE_CHARS, null);
         tokenizer.setProperty(DefaultLineTokenizer.PropertyKey.SEPARATOR_CHARS, null);
         line = " This\t is \t a \tline ";
-        tokens = tokenizer.tokenize(0, line);
+        tokens = tokenizer.tokenize(line);
         assertTrue(tokens.length == 4);
         assertEquals(tokens[0], "This");
         assertEquals(tokens[1], "is");
