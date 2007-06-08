@@ -128,6 +128,9 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     public boolean authenticate(String user, String password)
     {
+        assert user != null;
+        assert password != null;
+        
         final String applicationToken =
                 StringEscapeUtils.unescapeXml(execute(TOKEN_ELEMENT, AUTHENTICATE_APPL, application,
                         applicationPassword));
