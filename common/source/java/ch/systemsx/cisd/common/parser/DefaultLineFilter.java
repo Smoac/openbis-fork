@@ -1,8 +1,13 @@
 package ch.systemsx.cisd.common.parser;
 
+import org.apache.commons.lang.ArrayUtils;
+
 /**
  * A default <code>LineFilter</code> implementation that filters out comment and empty lines (lines starting with
  * '#').
+ * <p>
+ * It is also possible here to define a set of lines that should be skipped.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -10,27 +15,24 @@ public final class DefaultLineFilter implements ILineFilter
 {
 
     /**
-     * The line where the header is.
-     * <p>
-     * If we set it bigger than <code>-1</code>, we assume that the header contains mapping information and should be
-     * skipped by the parser.
-     * </p>
+     * A set of lines that should be skipped.
      */
-    private int headerLine = -1;
+    private int[] skippedLines = ArrayUtils.EMPTY_INT_ARRAY;
 
-    /** Sets <code>headerLine</code>. */
-    public final void setHeaderLine(int headerLine)
+    /** Add a line that should be skipped. */
+    public final void addSkippedLine(int line)
     {
-        this.headerLine = headerLine;
+        ArrayUtils.add(skippedLines, line);
     }
 
     //
     // LineFilter
     //
 
-    public boolean acceptLine(String line, int lineNumber)
+    public final boolean acceptLine(String line, int lineNumber)
     {
-        if (lineNumber == headerLine)
+        // Not found
+        if (ArrayUtils.indexOf(skippedLines, lineNumber) > ArrayUtils.INDEX_NOT_FOUND)
         {
             return false;
         }
