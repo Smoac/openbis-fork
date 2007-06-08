@@ -45,7 +45,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
             final String token = tokens[i];
             if (token != null)
             {
-                map.put(token, new MappedProperty(i, token));
+                map.put(token.toLowerCase(), new MappedProperty(i, token));
             }
         }
         return map;
@@ -57,21 +57,29 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 
     public final void setAlias(String aliasName, String propertyName)
     {
-        aliases.put(aliasName, propertyName);
+        aliases.put(aliasName.toLowerCase(), propertyName.toLowerCase());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that the searching is case-insensitive. 'Name' or 'name' as <var>propertName</var> returns the same
+     * <code>IPropertyModel</code>.
+     * </p>
+     */
     public final IPropertyModel getProperty(String propertyName)
     {
-        // <code>propertyName</code> could be an alias.
-        IPropertyModel propertyModel = properties.get(propertyName);
+        String property = propertyName.toLowerCase();
+        // Given <code>propertyName</code> could be an alias.
+        IPropertyModel propertyModel = properties.get(property);
         if (propertyModel == null)
         {
-            String realPropertyName = aliases.get(propertyName);
-            if (realPropertyName != null)
+            property = aliases.get(property);
+            if (property != null)
             {
-                propertyModel = properties.get(realPropertyName);
+                propertyModel = properties.get(property);
             }
-            
+
         }
         return propertyModel;
     }
