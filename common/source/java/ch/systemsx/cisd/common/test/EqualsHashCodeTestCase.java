@@ -54,7 +54,7 @@
 
 package ch.systemsx.cisd.common.test;
 
-import static org.testng.Assert.*;
+import static org.testng.AssertJUnit.*;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
