@@ -112,9 +112,9 @@ public class DefaultLineTokenizer implements ILineTokenizer
         return strMatcher;
     }
 
-    ///////////////////////////////////////////////////////
+    //
     // ILineTokenizer
-    ///////////////////////////////////////////////////////
+    //
 
     public final void init()
     {
@@ -128,7 +128,7 @@ public class DefaultLineTokenizer implements ILineTokenizer
         this.tokenizer = strTokenizer;
     }
 
-    public final String[] tokenize(int lineNumber, String line)
+    public final String[] tokenize(String line)
     {
         return tokenizer.reset(line).getTokenArray();
     }

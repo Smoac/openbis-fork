@@ -34,7 +34,7 @@ public interface ILineTokenizer
     public void init();
     
     /** Splits given <code>line</code> into an array of tokens. */
-    public String[] tokenize(int lineNumber, String line);
+    public String[] tokenize(String line);
 
     /**
      * Cleans up resources used by this <code>ILineTokenizer</code>.

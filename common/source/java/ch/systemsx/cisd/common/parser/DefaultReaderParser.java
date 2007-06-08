@@ -33,48 +33,25 @@ import java.util.List;
  */
 public class DefaultReaderParser<E> implements IReaderParser<E>
 {
-    /**
-     * A <code>LineFilter</code> implementation that filters out comment and empty lines (lines starting with '#').
-     */
-    private final static ILineFilter COMMENT_AND_EMPTY_LINE_FILTER = new ILineFilter()
-        {
-            ///////////////////////////////////////////////////////
-            // LineFilter
-            ///////////////////////////////////////////////////////
-
-            public boolean acceptLine(String line)
-            {
-                String trimmed = line.trim();
-                return trimmed.length() > 0 && trimmed.startsWith("#") == false;
-            }
-        };
-
     private final ILineTokenizer lineTokenizer;
-    
+
     private IParserObjectFactory<E> factory;
-    
-    /**
-     * The line where the header is.
-     * <p>
-     * If we set it bigger than <code>-1</code>, we assume that the header contains mapping information.
-     * </p>
-     */
-    private int headerLine = -1;
-    
+
     public DefaultReaderParser()
     {
         this(new DefaultLineTokenizer());
     }
-    
+
     public DefaultReaderParser(ILineTokenizer lineTokenizer)
     {
         this.lineTokenizer = lineTokenizer;
     }
-    
-    protected E createObject(String[] tokens) {
+
+    protected E createObject(String[] tokens)
+    {
         return factory.createObject(tokens);
     }
-    
+
     /**
      * Parses given <code>line</code> into an element.
      * <p>
@@ -83,21 +60,16 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
      */
     protected String[] parseLine(int lineNumber, String line)
     {
-        return lineTokenizer.tokenize(lineNumber, line);
+        return lineTokenizer.tokenize(line);
     }
-    
-    public final void setHeaderLine(int headerLine)
-    {
-        this.headerLine = headerLine;
-    }
-    
-    ///////////////////////////////////////////////////////
+
+    //
     // Parser
-    ///////////////////////////////////////////////////////
+    //
 
     public final List<E> parse(Reader reader) throws IOException
     {
-        return parse(reader, COMMENT_AND_EMPTY_LINE_FILTER);
+        return parse(reader, ILineFilter.ALWAYS_ACCEPT_LINE);
     }
 
     public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException
@@ -113,13 +85,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
             {
                 for (int lineNumber = 0; (line = bufferedReader.readLine()) != null; lineNumber++)
                 {
-                    if (lineNumber == headerLine)
-                    {
-                        String[] tokens = parseLine(lineNumber, line);
-                        factory.setPropertyMapper(new HeaderFilePropertyMapper(tokens));
-                        continue;
-                    }
-                    if (lineFilter.acceptLine(line))
+                    if (lineFilter.acceptLine(line, lineNumber))
                     {
                         String[] tokens = parseLine(lineNumber, line);
                         elements.add(createObject(tokens));
@@ -136,7 +102,8 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
     }
 
-    private BufferedReader getBufferedReader(Reader reader)
+    /** Converts or encapsulates given <code>Reader</code> into a <code>BufferedReader</code>. */
+    private final static BufferedReader getBufferedReader(Reader reader)
     {
         BufferedReader bufferedReader;
         if (reader instanceof BufferedReader)

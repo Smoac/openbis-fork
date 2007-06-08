@@ -20,22 +20,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a given file.
- * <p>
- * The parser already parsed the header and give us a <code>String</code> array.
- * </p>
+ * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a file.
  * 
  * @author Christian Ribeaud
  */
-final class HeaderFilePropertyMapper implements IPropertyMapper
+public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 {
     private final Map<String, IPropertyModel> properties;
-    
-    HeaderFilePropertyMapper(String[] headerTokens) {
+
+    private final Map<String, String> aliases;
+
+    public HeaderFilePropertyMapper(String[] headerTokens)
+    {
         assert headerTokens != null;
+        aliases = new HashMap<String, String>();
         this.properties = tokensToMap(headerTokens);
     }
-    
+
     private final static Map<String, IPropertyModel> tokensToMap(String[] tokens)
     {
         final Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
@@ -49,14 +50,30 @@ final class HeaderFilePropertyMapper implements IPropertyMapper
         }
         return map;
     }
-    
-    ///////////////////////////////////////////////////////
-    // IPropertyMapper
-    ///////////////////////////////////////////////////////
 
-    public final IPropertyModel getProperty(String name)
+    //
+    // IAliasPropertyMapper
+    //
+
+    public final void setAlias(String aliasName, String propertyName)
     {
-        return properties.get(name);
+        aliases.put(aliasName, propertyName);
+    }
+
+    public final IPropertyModel getProperty(String propertyName)
+    {
+        // <code>propertyName</code> could be an alias.
+        IPropertyModel propertyModel = properties.get(propertyName);
+        if (propertyModel == null)
+        {
+            String realPropertyName = aliases.get(propertyName);
+            if (realPropertyName != null)
+            {
+                propertyModel = properties.get(realPropertyName);
+            }
+            
+        }
+        return propertyModel;
     }
 
 }

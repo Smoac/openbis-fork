@@ -17,26 +17,12 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * This returns the mapping informations needed in {@link IParserObjectFactory} via the {@link IPropertyMapper}.
+ * A <code>IPropertyMapper</code> extension that allows you to define an alias for a given property name.
  * 
  * @author Christian Ribeaud
  */
-public interface IPropertyModel
+public interface IAliasPropertyMapper extends IPropertyMapper
 {
-    /** Returns the column number where the information regarding this property could be found. */
-    public int getColumn();
-
-    /** Returns the property name. */
-    public String getName();
-
-    /**
-     * Returns the format of this property.
-     * <p>
-     * This is useful when the type of this property is, for instance, <code>java.util.Date</code>.
-     * </p>
-     */
-    public String getFormat();
-    
-    /** Whether this property is mandatory or not. */
-    public boolean isMandatory();
+    /** Sets an alias for given <code>propertyname</code>. */
+    public void setAlias(String aliasName, String propertyName);
 }

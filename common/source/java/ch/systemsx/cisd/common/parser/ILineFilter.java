@@ -32,7 +32,7 @@ public interface ILineFilter
             // LineFilter
             ///////////////////////////////////////////////////////
 
-            public boolean acceptLine(String line)
+            public boolean acceptLine(String line, int lineNumber)
             {
                 return true;
             }
@@ -43,5 +43,5 @@ public interface ILineFilter
      * 
      * @param line the line read from the <code>Reader</code>. Can not be <code>null</code>.
      */
-    public boolean acceptLine(String line);
+    public boolean acceptLine(String line, int lineNumber);
 }

@@ -10,31 +10,43 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author Christian Ribeaud
  */
-final class MappedProperty implements IPropertyModel {
-    
+final class MappedProperty implements IPropertyModel
+{
+
     private final int column;
-    
+
     private final String name;
-    
+
     private String format;
-    
-    private Class type;
-    
-    MappedProperty(final int column, final String name) {
+
+    private boolean mandatory;
+
+    MappedProperty(final int column, final String name)
+    {
         this.column = column;
         this.name = name;
     }
-    
+
     public final void setFormat(String format)
     {
         this.format = format;
     }
 
-    public final void setType(Class type)
+    /** Sets <code>mandatory</code>. */
+    public final void setMandatory(boolean mandatory)
     {
-        this.type = type;
+        this.mandatory = mandatory;
     }
     
+    //
+    // IPropertyModel
+    //
+
+    public final String getFormat()
+    {
+        return format;
+    }
+
     public final int getColumn()
     {
         return column;
@@ -44,25 +56,21 @@ final class MappedProperty implements IPropertyModel {
     {
         return name;
     }
-    
-    ///////////////////////////////////////////////////////
+
+    /** Returns <code>mandatory</code>. */
+    public final boolean isMandatory()
+    {
+        return mandatory;
+    }
+
+    //
     // Object
-    ///////////////////////////////////////////////////////
-    
+    //
+
     @Override
     public final String toString()
     {
         return ToStringBuilder.reflectionToString(this);
-    }
-
-    public final String getFormat()
-    {
-        return format;
-    }
-
-    public final Class getType()
-    {
-        return type;
     }
 
 }

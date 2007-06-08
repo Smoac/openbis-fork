@@ -55,6 +55,11 @@ public interface IParserObjectFactory<E>
             public final void setPropertyMapper(IPropertyMapper propertyMapper)
             {
             }
+            
+            public IPropertyMapper getPropertyMapper()
+            {
+                return null;
+            }
         };
 
     /**
@@ -64,4 +69,7 @@ public interface IParserObjectFactory<E>
 
     /** Sets a <code>IPropertyMapper</code> to map line tokens. */
     public void setPropertyMapper(IPropertyMapper propertyMapper);
+    
+    /** Returns the <code>IPropertyMapper</code>. */
+    public IPropertyMapper getPropertyMapper();
 }
