@@ -42,7 +42,9 @@ public final class ConverterPool
 
     private final static Map<Class, Converter> createConverters()
     {
-        return new HashMap<Class, Converter>();
+        final Map<Class, Converter> converterMap = new HashMap<Class, Converter>();
+        converterMap.put(String.class, new IdentityStringConverter());
+        return converterMap;
     }
 
     /** Returns <code>instance</code>. */
