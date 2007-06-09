@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A pool of {@link Converter}.
+ * A pool of {@link Converter}s.
  * <p>
  * You can have your own instance of this class or you can use the static accessor to get a 'public' instance.
  * </p>
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public final class ConverterPool
 {
-    
+
     /** A 'public' instance of this class. */
     private final static ConverterPool instance = new ConverterPool();
 
@@ -60,29 +60,43 @@ public final class ConverterPool
     }
 
     /**
-     * Unegisters corresponding <code>Converter</code> for given <code>Class</code>.
+     * Unregisters corresponding <code>Converter</code> for given <code>Class</code>.
      */
     public final <T> void unregisterConverter(Class<T> type)
     {
         converters.remove(type);
     }
 
-    /** Does the conversion. */
-    public final Object convert(String value, String format, Class type)
+    /** 
+     * Performs the conversion.
+     * 
+     *  @throws IllegalArgumentException If there is no converter for <var>type</var>.
+     */
+    public final <T> T convert(String value, String format, Class<T> type)
     {
-        Converter converter = converters.get(type);
-        if (format != null)
-        {
-            converter.setFormat(format);
-        }
+        final Converter<T> converter = getConverter(type);
         if (converter == null)
         {
-            return value;
+            throw new IllegalArgumentException("No converter for type '" + type.getCanonicalName() + "'.");
+        }
+        if (format != null)
+        {
+            // TODO 2007-06-09, Bernd Rinn: Is it reasonable that we change the state of the converter when performing a
+            // conversion? If we use the format is such a way like here, does it make sense to have the format be a part
+            // of the Converter at all?
+            converter.setFormat(format);
         }
         if (value == null)
         {
             converter.getDefaultValue();
         }
         return converter.convert(value);
+    }
+
+    // The setter registerConverter() will ensure that no converter can be entered that is of the wrong type. 
+    @SuppressWarnings("unchecked")
+    private <T> Converter<T> getConverter(Class<T> type)
+    {
+        return converters.get(type);
     }
 }

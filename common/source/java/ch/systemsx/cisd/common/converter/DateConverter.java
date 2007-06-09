@@ -67,17 +67,19 @@ public final class DateConverter implements Converter<Date>
      */
     public final Date convert(String value)
     {
-        Date defaultValue = getDefaultValue();
         if (dateFormat == null)
         {
-            return defaultValue;
+            // FIXME 2007-06-09, Bernd Rinn: This shoulnd't return a default value, because that is not a conversion of
+            // the value at all. It is, tought, unlclear, what it should do. Why is it possible to construct a
+            // DateConverer without a dateFormat in the first place?
+            return getDefaultValue();
         }
         try
         {
             return dateFormat.parse(value);
         } catch (ParseException ex)
         {
-            return defaultValue;
+            return getDefaultValue();
         }
     }
 

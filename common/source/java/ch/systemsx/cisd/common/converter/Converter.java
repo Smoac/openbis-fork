@@ -24,12 +24,25 @@ package ch.systemsx.cisd.common.converter;
  */
 public interface Converter<T>
 {
-    /** Convert the specified input object into an output object of the specified type. */
+    /**
+     * Converts the <var>value</var> <code>String</code> into an object of type <code>T</code>.
+     * 
+     * @param value The <code>String</code> to convert. <code>null</code> is acceptable here.
+     * @return The converted value, or <code>null</code>, if the <var>value</var> was <code>null</code>.
+     */
     public T convert(String value);
 
-    /** Returns the default in case the value we try to convert is <code>null</code>. */
+    /**
+     * @return The default in case the value we try to convert is <code>null</code>. If the converter does not
+     *         support a default value, the return value of this method may be <code>null</code> as well.
+     */
     public T getDefaultValue();
-    
-    /** Sets a <code>String</code> format for this <code>Converter</code>. */
+
+    /**
+     * Sets a <code>String</code> format for this <code>Converter</code>. What this means exactly or whether this
+     * makes sense at all, depends on the type <code>T</code> of course.
+     * 
+     *  FIXME 2007-06-09, Bernd Rinn: Is this method reasonable? How will it be used?
+     */
     public void setFormat(String format);
 }
