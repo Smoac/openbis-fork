@@ -39,16 +39,29 @@ public final class DefaultReaderParserTest
                     + "Marcel\tOdiet\tRue des Pervenches 46\t2800 Delémont\n";
 
     @Test
-    public final void testParseWithoutFactory() throws IOException
+    public final void testParseWithoutFactoryAndHeader() throws IOException
     {
-        IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
+        final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.DO_NOTHING_OBJECT_FACTORY);
-        Reader reader = new StringReader(text);
-        List<String[]> result = parser.parse(reader, new DefaultLineFilter());
-        assert result.size() == 3;
+        final Reader reader = new StringReader(text);
+        final List<String[]> result = parser.parse(reader, new DefaultLineFilter());
+        assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
         assertEquals(result.get(1)[1], "Ribeaud");
         assertEquals(result.get(2)[2], "Rue des Pervenches 46");
+        IOUtils.closeQuietly(reader);
+    }
+
+    @Test
+    public final void testParseWithoutFactoryWithLineFilter() throws IOException
+    {
+        final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
+        parser.setObjectFactory(IParserObjectFactory.DO_NOTHING_OBJECT_FACTORY);
+        final Reader reader = new StringReader(text);
+        final List<String[]> result = parser.parse(reader, new DefaultLineFilter(2));
+        assertEquals(2, result.size());
+        assertEquals(result.get(0)[1], "Ribeaud");
+        assertEquals(result.get(1)[2], "Rue des Pervenches 46");
         IOUtils.closeQuietly(reader);
     }
 }

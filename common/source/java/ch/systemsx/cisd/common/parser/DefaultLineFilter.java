@@ -10,18 +10,25 @@ public final class DefaultLineFilter implements ILineFilter
 {
 
     /**
-     * The line where the header is.
+     * The line number of the header line.
      * <p>
      * If we set it bigger than <code>-1</code>, we assume that the header contains mapping information and should be
      * skipped by the parser.
      * </p>
      */
-    private int headerLine = -1;
-
-    /** Sets <code>headerLine</code>. */
-    public final void setHeaderLine(int headerLine)
+    final private int headerLineNumber;
+    
+    public DefaultLineFilter(int headerLineNumber)
     {
-        this.headerLine = headerLine;
+        this.headerLineNumber = headerLineNumber;
+    }
+    
+    /**
+     * Constructor for a line filter without a header line.
+     */
+    public DefaultLineFilter()
+    {
+        this(-1);
     }
 
     //
@@ -30,11 +37,11 @@ public final class DefaultLineFilter implements ILineFilter
 
     public boolean acceptLine(String line, int lineNumber)
     {
-        if (lineNumber == headerLine)
+        if (lineNumber == headerLineNumber)
         {
             return false;
         }
-        String trimmed = line.trim();
+        final String trimmed = line.trim();
         return trimmed.length() > 0 && trimmed.startsWith("#") == false;
     }
 
