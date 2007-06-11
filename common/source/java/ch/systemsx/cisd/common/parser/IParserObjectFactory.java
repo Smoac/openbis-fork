@@ -63,6 +63,11 @@ public interface IParserObjectFactory<E>
      */
     public E createObject(String[] lineTokens);
 
-    /** Sets a <code>IPropertyMapper</code> to map line tokens. */
+    /**
+     * Sets a <code>IPropertyMapper</code> to map line tokens.
+     * <p>
+     * Usually you must set a <code>IPropertyMapper</code> before using {@link #createObject(String[])}.
+     * </p>
+     */
     public void setPropertyMapper(IPropertyMapper propertyMapper);
 }
