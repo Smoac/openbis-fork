@@ -343,14 +343,16 @@ class SVNUtilities
     static String getBranchForTag(String tagName)
     {
         final Matcher tagMatcher = Pattern.compile(RELEASE_TAG_PATTERN_STRING).matcher(tagName);
-        assert tagMatcher.matches();
+        boolean matches = tagMatcher.matches();
+        assert matches;
         return String.format("%s.%s.x", tagMatcher.group(1), tagMatcher.group(2));
     }
 
     static String getFirstTagForBranch(String branchName)
     {
         final Matcher branchMatcher = Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
-        assert branchMatcher.matches();
+        boolean matches = branchMatcher.matches();
+        assert matches;
         return String.format("%s.%s.0", branchMatcher.group(1), branchMatcher.group(2));
     }
 
