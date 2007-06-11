@@ -90,7 +90,7 @@ public final class ConverterPool
 
     // The setter registerConverter() will ensure that no converter can be entered that is of the wrong type. 
     @SuppressWarnings("unchecked")
-    private <T> Converter<T> getConverter(Class<T> type)
+    private final <T> Converter<T> getConverter(Class<T> type)
     {
         return converters.get(type);
     }

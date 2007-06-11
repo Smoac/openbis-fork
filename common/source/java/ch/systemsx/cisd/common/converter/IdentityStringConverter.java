@@ -17,12 +17,28 @@
 package ch.systemsx.cisd.common.converter;
 
 /**
- * The identity converter for <code>String</code>s. 
- *
+ * The identity converter for <code>String</code>s.
+ * 
  * @author Bernd Rinn
  */
-public class IdentityStringConverter implements Converter<String>
+public final class IdentityStringConverter implements Converter<String>
 {
+
+    private final String defaultValue;
+
+    public IdentityStringConverter()
+    {
+        this(null);
+    }
+
+    public IdentityStringConverter(final String defaultValue)
+    {
+        this.defaultValue = defaultValue;
+    }
+
+    //
+    // Converter
+    //
 
     public String convert(String value)
     {
@@ -36,11 +52,6 @@ public class IdentityStringConverter implements Converter<String>
      */
     public String getDefaultValue()
     {
-        return null;
+        return defaultValue;
     }
-
-    public void setFormat(String format)
-    {
-    }
-
 }
