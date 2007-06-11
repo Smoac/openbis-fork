@@ -157,7 +157,7 @@ public final class BuildAndEnvironmentInfo
         List<String> environmentInfo = getEnvironmentInfo();
         for (int i = 0, n = environmentInfo.size(); i < n; i++)
         {
-            builder.append(environmentInfo.get(0));
+            builder.append(environmentInfo.get(i));
             if (i < n - 1)
             {
                 builder.append(OSUtilities.LINE_SEPARATOR);
