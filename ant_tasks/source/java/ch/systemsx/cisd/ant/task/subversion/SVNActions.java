@@ -20,9 +20,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.ant.task.subversion.SVNUtilities.ProcessInfo;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * A class that provides a wrapper for actions performed on a subversion path by wrapping the subversion command line
@@ -48,7 +49,7 @@ class SVNActions implements ISVNActions
         assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
 
         final ProcessInfo subversionProcessInfo = SVNUtilities.subversionCommand(logger, false, "cat", pathOrUrl);
-        return StringUtilities.concatenateWithNewLine(subversionProcessInfo.getLines());
+        return StringUtils.join(subversionProcessInfo.getLines(), OSUtilities.LINE_SEPARATOR);
     }
 
     public List<String> list(String pathOrUrl) throws SVNException

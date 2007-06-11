@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Some utility methods helping with subversion paths.
@@ -259,7 +259,7 @@ class SVNUtilities
         fullCommand.addAll(Arrays.asList(args));
         final ProcessBuilder builder = new ProcessBuilder(fullCommand);
         builder.redirectErrorStream(redirectErrorStream);
-        final String commandString = StringUtilities.concatenateWithSpace(builder.command());
+        final String commandString = StringUtils.join(builder.command(), " ");
         logger.log(String.format("Executing '%s'", commandString));
         try
         {
@@ -306,7 +306,7 @@ class SVNUtilities
         fullCommand.addAll(Arrays.asList(args));
         final ProcessBuilder builder = new ProcessBuilder(fullCommand);
         builder.redirectErrorStream(true);
-        final String commandString = StringUtilities.concatenateWithSpace(builder.command());
+        final String commandString = StringUtils.join(builder.command(), " ");
         logger.log(String.format("Executing '%s'", commandString));
         try
         {
