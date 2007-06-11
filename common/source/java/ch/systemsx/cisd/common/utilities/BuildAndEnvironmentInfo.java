@@ -153,7 +153,17 @@ public final class BuildAndEnvironmentInfo
     @Override
     public String toString()
     {
-        return StringUtilities.concatenateWithNewLine(getEnvironmentInfo());
+        StringBuilder builder = new StringBuilder();
+        List<String> environmentInfo = getEnvironmentInfo();
+        for (int i = 0, n = environmentInfo.size(); i < n; i++)
+        {
+            builder.append(environmentInfo.get(0));
+            if (i < n - 1)
+            {
+                builder.append(OSUtilities.LINE_SEPARATOR);
+            }
+        }
+        return builder.toString();
     }
 
     /**
