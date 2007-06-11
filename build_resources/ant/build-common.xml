@@ -1,9 +1,6 @@
 <project name="build-common" basedir="..">
-  <path id="build-resource.path">
-    <fileset dir="../build_resources/lib">
-      <include name="*.jar"/>
-    </fileset>
-  </path> 
+  <import file="build-basic.xml" />
+  
   <taskdef name="build-info" 
            classname="ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask"
            classpathref="build-resource.path" />
@@ -17,8 +14,6 @@
   <taskdef resource="testngtasks" classpath="../libraries/testng/testng-jdk15.jar"/> 
 
   <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
-  <property name="targets" value="targets" />
-  <property name="dist" value="${targets}/dist" />
   <property name="sources" value="source/java" />
   <property name="sources.test" value="sourceTest/java" />
   <property name="classes" value="${targets}/ant/classes" />
