@@ -111,7 +111,7 @@
                        Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
   --> 
   <target name="build" depends="checkout"> 
-    <exec executable="ant">
+    <exec executable="ant" failonerror="true">
       <arg value="-lib"/> 
       <arg value="${dir}/build_resources/lib/ecj.jar"/> 
       <arg value="-f"/> 
