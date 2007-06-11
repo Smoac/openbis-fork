@@ -3,7 +3,6 @@
   <project-classpath name="ecp" classes="${classes}" />
 
   <property name="original.dist" value="dist" />
-  <property name="dist" value="${targets}/dist" />
   <property name="mainfolder" value="datamover" />
   <property name="dist.datamover" value="${dist}/${mainfolder}" />
   <property name="dist.datamover.lib" value="${dist.datamover}/lib" />

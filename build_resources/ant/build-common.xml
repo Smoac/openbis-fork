@@ -18,6 +18,7 @@
 
   <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
   <property name="targets" value="targets" />
+  <property name="dist" value="${targets}/dist" />
   <property name="sources" value="source/java" />
   <property name="sources.test" value="sourceTest/java" />
   <property name="classes" value="${targets}/ant/classes" />
