@@ -31,5 +31,10 @@
             </manifest>
         </recursive-jar>
 	</target>
+ 
+  <target name="dist" depends="jar">
+    <mkdir dir="${dist}"/> 
+    <copy file="${jar.file}" todir="${dist}"/> 
+  </target> 
 
 </project>
