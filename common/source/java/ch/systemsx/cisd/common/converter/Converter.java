@@ -38,11 +38,4 @@ public interface Converter<T>
      */
     public T getDefaultValue();
 
-    /**
-     * Sets a <code>String</code> format for this <code>Converter</code>. What this means exactly or whether this
-     * makes sense at all, depends on the type <code>T</code> of course.
-     * 
-     *  FIXME 2007-06-09, Bernd Rinn: Is this method reasonable? How will it be used?
-     */
-    public void setFormat(String format);
 }

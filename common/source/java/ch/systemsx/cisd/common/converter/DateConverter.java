@@ -20,8 +20,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * A <code>Converter</code> implementation for {@link Date}.
  * <p>
@@ -32,15 +30,16 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class DateConverter implements Converter<Date>
 {
-    private SimpleDateFormat dateFormat;
+    private final SimpleDateFormat dateFormat;
 
-    public DateConverter()
-    {
-    }
-
+    /**
+     * @param datePattern Must not be <code>null</code>.
+     */
     public DateConverter(String datePattern)
     {
-        setFormat(datePattern);
+        assert datePattern != null;
+        
+        this.dateFormat = createDateFormat(datePattern);
     }
 
     /**
@@ -67,13 +66,6 @@ public final class DateConverter implements Converter<Date>
      */
     public final Date convert(String value)
     {
-        if (dateFormat == null)
-        {
-            // FIXME 2007-06-09, Bernd Rinn: This shoulnd't return a default value, because that is not a conversion of
-            // the value at all. It is, tought, unlclear, what it should do. Why is it possible to construct a
-            // DateConverer without a dateFormat in the first place?
-            return getDefaultValue();
-        }
         try
         {
             return dateFormat.parse(value);
@@ -86,18 +78,6 @@ public final class DateConverter implements Converter<Date>
     public final Date getDefaultValue()
     {
         return new Date();
-    }
-
-    public final void setFormat(String datePattern)
-    {
-        if (StringUtils.isBlank(datePattern))
-        {
-            return;
-        }
-        if (dateFormat == null || dateFormat.toPattern().equals(datePattern) == false)
-        {
-            dateFormat = createDateFormat(datePattern);
-        }
     }
 
 }

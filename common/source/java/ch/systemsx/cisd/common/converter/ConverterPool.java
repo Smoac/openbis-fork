@@ -74,19 +74,12 @@ public final class ConverterPool
      * 
      *  @throws IllegalArgumentException If there is no converter for <var>type</var>.
      */
-    public final <T> T convert(String value, String format, Class<T> type)
+    public final <T> T convert(String value, Class<T> type)
     {
         final Converter<T> converter = getConverter(type);
         if (converter == null)
         {
             throw new IllegalArgumentException("No converter for type '" + type.getCanonicalName() + "'.");
-        }
-        if (format != null)
-        {
-            // TODO 2007-06-09, Bernd Rinn: Is it reasonable that we change the state of the converter when performing a
-            // conversion? If we use the format is such a way like here, does it make sense to have the format be a part
-            // of the Converter at all?
-            converter.setFormat(format);
         }
         if (value == null)
         {
