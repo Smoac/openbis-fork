@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -312,7 +312,7 @@ public class RsyncCopier implements IPathCopier
     /**
      * Checks whether the <code>rsync</code> can be executed and has a version >= 2.6.0.
      * 
-     * @throws EnvironmentFailureException If the check fails.
+     * @throws ConfigurationFailureException If the check fails.
      */
     public void check()
     {
@@ -325,17 +325,17 @@ public class RsyncCopier implements IPathCopier
         {
             if (OSUtilities.executableExists(rsyncExecutable))
             {
-                throw new EnvironmentFailureException(String.format("Rsync executable '%s' is invalid.",
+                throw new ConfigurationFailureException(String.format("Rsync executable '%s' is invalid.",
                         rsyncExecutable));
             } else
             {
-                throw new EnvironmentFailureException(String.format("Rsync executable '%s' does not exist.",
+                throw new ConfigurationFailureException(String.format("Rsync executable '%s' does not exist.",
                         rsyncExecutable));
             }
         }
         if (version.getMajorVersion() < 2 || (version.getMajorVersion() == 2 && version.getMinorVersion() < 6))
         {
-            throw new EnvironmentFailureException(String.format(
+            throw new ConfigurationFailureException(String.format(
                     "Rsync executable '%s' is too old (required: 2.6.0, found: %s)", rsyncExecutable, version
                             .getVersionString()));
         }

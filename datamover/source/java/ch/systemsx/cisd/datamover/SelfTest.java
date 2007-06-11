@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -57,7 +58,7 @@ public class SelfTest
     }
 
     private static void checkDirectories(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory, String remoteHost, IPathCopier copier)
+            File remoteDataDirectory, String remoteHost, IPathCopier copier) throws ConfigurationFailureException
     {
         assert localDataDirectory != null;
         assert localTemporaryDirectory != null;
@@ -75,13 +76,14 @@ public class SelfTest
     }
 
     private static void checkDirectoriesWithRemoteHost(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory, String remoteHost, IPathCopier copier)
+            File remoteDataDirectory, String remoteHost, IPathCopier copier) throws ConfigurationFailureException
     {
         checkLocalDirectories(localDataDirectory, localTemporaryDirectory);
         checkDirectoryOnRemoteHost(remoteDataDirectory, remoteHost, copier);
     }
 
     private static void checkLocalDirectories(File localDataDirectory, File localTemporaryDirectory)
+            throws ConfigurationFailureException
     {
         final String localDataCanonicalPath = getCanonicalPath(localDataDirectory);
         final String localTempCanonicalPath = getCanonicalPath(localTemporaryDirectory);
@@ -106,16 +108,17 @@ public class SelfTest
     }
 
     private static void checkDirectoryOnRemoteHost(File remoteDataDirectory, String remoteHost, IPathCopier copier)
+            throws ConfigurationFailureException
     {
         if (false == copier.exists(remoteDataDirectory, remoteHost))
         {
-            throw EnvironmentFailureException.fromTemplate("Cannot access directory '%s' on host '%s'",
+            throw ConfigurationFailureException.fromTemplate("Cannot access directory '%s' on host '%s'",
                     remoteDataDirectory.getPath(), remoteHost);
         }
     }
 
     private static void checkDirectoriesWithRemoteShare(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory)
+            File remoteDataDirectory) throws ConfigurationFailureException
     {
         final String localDataCanonicalPath = getCanonicalPath(localDataDirectory);
         final String localTempCanonicalPath = getCanonicalPath(localTemporaryDirectory);
@@ -124,21 +127,20 @@ public class SelfTest
         if (localDataCanonicalPath.startsWith(localTempCanonicalPath)
                 || localTempCanonicalPath.startsWith(localDataCanonicalPath))
         {
-            throw new ConfigurationFailureException(String.format(LOCAL_DATA_AND_TEMP_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localDataCanonicalPath, localTempCanonicalPath));
+            throw ConfigurationFailureException.fromTemplate(LOCAL_DATA_AND_TEMP_DIR_CONTAIN_EACHOTHER_TEMPLATE,
+                    localDataCanonicalPath, localTempCanonicalPath);
         }
         if (localDataCanonicalPath.startsWith(remoteDataCanonicalPath)
                 || remoteDataCanonicalPath.startsWith(localDataCanonicalPath))
         {
-            throw new ConfigurationFailureException(String.format(LOCAL_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localDataCanonicalPath, remoteDataCanonicalPath));
+            throw ConfigurationFailureException.fromTemplate(LOCAL_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE,
+                    localDataCanonicalPath, remoteDataCanonicalPath);
         }
         if (localTempCanonicalPath.startsWith(remoteDataCanonicalPath)
                 || remoteDataCanonicalPath.startsWith(localTempCanonicalPath))
         {
-            throw new ConfigurationFailureException(String.format(
-                    LOCAL_TEMP_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE, localTempCanonicalPath,
-                    remoteDataCanonicalPath));
+            throw ConfigurationFailureException.fromTemplate(LOCAL_TEMP_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE,
+                    localTempCanonicalPath, remoteDataCanonicalPath);
         }
 
         String errorMessage = FileUtilities.checkDirectoryFullyAccessible(localDataDirectory, "local data");
@@ -160,10 +162,12 @@ public class SelfTest
 
     /**
      * Will perform all checks of the self-test. If the method returns without exception, the self-test can be
-     * considered "past", otherwise the exception will have more information on what went wrong.
+     * considered "past", otherwise the exception will have more information on what went wrong. This method performs
+     * failure logging of {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
     public static void check(File localDataDirectory, File localTemporaryDirectory, File remoteDataDirectory,
             String remoteHost, IPathCopier copier, ISelfTestable... selfTestables)
+            throws ConfigurationFailureException, EnvironmentFailureException
     {
         try
         {
@@ -171,7 +175,7 @@ public class SelfTest
             {
                 throw ConfigurationFailureException.fromTemplate(
                         "Copier %s does not support explicit remote hosts, but remote host given:%s", copier.getClass()
-                        .getSimpleName(), remoteHost);
+                                .getSimpleName(), remoteHost);
             }
             checkDirectories(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, copier);
             copier.check();
@@ -184,9 +188,15 @@ public class SelfTest
             {
                 operationLog.info("Self test successfully completed.");
             }
+        } catch (HighLevelException e)
+        {
+            operationLog.error(String
+                    .format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage()));
+            throw e;
         } catch (RuntimeException e)
         {
-            operationLog.info("Self test failed.", e);
+            operationLog.error(String
+                    .format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage()), e);
             throw e;
         }
     }
