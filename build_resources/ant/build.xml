@@ -101,17 +101,20 @@
      Checks out a tagged version of a project and run the 'dist' target. 
      
      Properties:
-       name     Name of the project. Mandatory
-       version  Version number. Default: trunk
-       revision Revision. Default: HEAD
-       dir      Build directory. Default: .
-       dist     Distribution build dir. Default: targets/dist of the project
-       group    Group of the project. Default: cisd
+       name            Name of the project. Mandatory
+       version         Version number. Default: trunk
+       revision        Revision. Default: HEAD
+       dir             Build directory. Default: .
+       result.dir      Folder which will contain the result. Mandatory
+       group           Group of the project. Default: cisd
        repositoryRoot  URL of the root of the Subversion repository. 
                        Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
   --> 
   <target name="build" depends="checkout"> 
     <ant antfile="${dir}/${name}/build/build.xml" target="dist" inheritall="false"/>
+    <copy todir="${result.dir}">
+      <fileset dir="${dist}"/> 
+    </copy> 
   </target> 
 
 </project>

@@ -21,5 +21,5 @@ ant -lib $dir/lib/ecj.jar -f $dir/ant/build.xml \
     -Dname=$name \
     -Dversion=$version \
     -Ddir=$build_dir \
-    -Ddist=$cdir \
+    -Dresult.dir=$cdir \
     build
