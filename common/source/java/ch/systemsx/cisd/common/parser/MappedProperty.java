@@ -19,8 +19,6 @@ final class MappedProperty implements IPropertyModel
 
     private String format;
 
-    private boolean mandatory;
-
     MappedProperty(final int column, final String name)
     {
         this.column = column;
@@ -32,12 +30,6 @@ final class MappedProperty implements IPropertyModel
         this.format = format;
     }
 
-    /** Sets <code>mandatory</code>. */
-    public final void setMandatory(boolean mandatory)
-    {
-        this.mandatory = mandatory;
-    }
-    
     //
     // IPropertyModel
     //
@@ -55,12 +47,6 @@ final class MappedProperty implements IPropertyModel
     public final String getName()
     {
         return name;
-    }
-
-    /** Returns <code>mandatory</code>. */
-    public final boolean isMandatory()
-    {
-        return mandatory;
     }
 
     //

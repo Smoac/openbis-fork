@@ -36,7 +36,4 @@ public interface IPropertyModel
      * </p>
      */
     public String getFormat();
-    
-    /** Whether this property is mandatory or not. */
-    public boolean isMandatory();
 }
