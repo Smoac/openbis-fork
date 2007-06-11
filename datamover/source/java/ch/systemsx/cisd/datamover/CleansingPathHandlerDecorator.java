@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.datamover.DirectoryScanningTimerTask.IPathHandler;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 
 /**
  * A class that decorates an {@link IPathHandler} with a selective cleansing task. The files that should be removed in

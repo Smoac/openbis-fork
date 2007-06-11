@@ -17,40 +17,35 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.IntraFSPathMover;
+import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
-import ch.systemsx.cisd.datamover.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.datamover.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.xcopy.XcopyCopier;
 
 /**
- * The main class of the raw data mover.
+ * The main class of the datamover.
  * 
  * @author Bernd Rinn
  */
 public class Main
 {
-
-    private static final FileFilter ALWAYS_TRUE_FILTER = new FileFilter()
-        {
-            public boolean accept(File pathname)
-            {
-                return true;
-            }
-        };
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Main.class);
 
@@ -60,7 +55,7 @@ public class Main
         {
             public void uncaughtException(Thread t, Throwable e)
             {
-                notificationLog.error("An exception has occurred.", e);
+                notificationLog.error("An exception has occurred [thread: '" + t.getName() + "'].", e);
             }
         };
 
@@ -72,7 +67,7 @@ public class Main
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
-        operationLog.info("Data mover is starting up.");
+        operationLog.info("datamover is starting up.");
         for (String line : BuildAndEnvironmentInfo.INSTANCE.getEnvironmentInfo())
         {
             operationLog.info(line);
@@ -90,7 +85,8 @@ public class Main
         } else if (OSUtilities.isWindows())
         {
             return new XcopyCopier(OSUtilities.findExecutable("xcopy"), requiresDeletionBeforeCreation);
-        } else {
+        } else
+        {
             throw new ConfigurationFailureException("Unable to find a copy engine.");
         }
     }
@@ -192,7 +188,8 @@ public class Main
         final IPathHandler remoteMover =
                 new RemotePathMover(remoteDataDirectory, remoteHost, monitor, operations, parameters);
         final DirectoryScanningTimerTask remoteMovingTask =
-                new DirectoryScanningTimerTask(localTemporaryDirectory, ALWAYS_TRUE_FILTER, remoteMover);
+                new DirectoryScanningTimerTask(localTemporaryDirectory,
+                        new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, false), remoteMover);
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
         if (parameters.getCleansingRegex() != null)
         {
@@ -224,7 +221,7 @@ public class Main
         final Parameters parameters = new Parameters(args);
         printInitialLogMessage(parameters);
         startupServer(parameters);
-        operationLog.info("Data mover ready and waiting for data.");
+        operationLog.info("datamover ready and waiting for data.");
     }
 
 }

@@ -20,10 +20,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -191,7 +194,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     private boolean markAsFinishedLocal(File path)
     {
-        final File markFile = new File(destinationDirectory, ".is_finished_" + path.getName());
+        final File markFile = new File(destinationDirectory, Constants.IS_FINISHED_PREFIX + path.getName());
         try
         {
             markFile.createNewFile();
@@ -210,7 +213,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     private boolean markAsFinishedRemote(File path)
     {
-        final File markFile = new File(path.getParent(), ".is_finished_" + path.getName());
+        final File markFile = new File(path.getParent(), Constants.IS_FINISHED_PREFIX + path.getName());
         try
         {
             markFile.createNewFile();

@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 
-import ch.systemsx.cisd.datamover.DirectoryScanningTimerTask.IPathHandler;
 
 /**
  * Test cases for the {@link CleansingPathHandlerDecorator}.

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
