@@ -111,9 +111,15 @@
                        Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
   --> 
   <target name="build" depends="checkout"> 
-    <ant antfile="${dir}/${name}/build/build.xml" target="dist" inheritall="false"/>
+    <exec executable="ant">
+      <arg value="-lib"/> 
+      <arg value="${dir}/build_resources/lib/ecj.jar"/> 
+      <arg value="-f"/> 
+      <arg value="${dir}/${name}/build/build.xml"/> 
+      <arg value="dist"/> 
+    </exec> 
     <copy todir="${result.dir}">
-      <fileset dir="${dist}"/> 
+      <fileset dir="${dir}/${name}/${dist}"/> 
     </copy> 
   </target> 
 
