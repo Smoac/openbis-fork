@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a file.
@@ -84,4 +86,32 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
         return propertyModel;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @return a <code>Set</code> of all properties in <b>lower case</b>. If an alias has been found for a given
+     *         property, then this alias will be added to the returned <code>Set</code> instead of the original
+     *         property.
+     */
+    public final Set<String> getAllPropertyNames()
+    {
+        Set<String> set = new HashSet<String>();
+        for (String property : properties.keySet())
+        {
+            if (aliases.containsValue(property))
+            {
+                for (Map.Entry<String, String> entry : aliases.entrySet())
+                {
+                    if (entry.getValue().equals(property))
+                    {
+                        set.add(entry.getKey());
+                    }
+                }
+            } else
+            {
+                set.add(property);
+            }
+        }
+        return set;
+    }
 }
