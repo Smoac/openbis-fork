@@ -23,7 +23,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -228,7 +227,7 @@ public class SelfTestTest
         SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, mockCopier);
     }
 
-    @Test(expectedExceptions = EnvironmentFailureException.class)
+    @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testRemoteHostAndDirectoryDoesNotExist()
     {
         final String remoteHost = "some_remote_host";
