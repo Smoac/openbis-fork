@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+
 /**
  * A role that can perform a self test.
  * 
@@ -25,10 +28,12 @@ public interface ISelfTestable
 {
 
     /**
-     * Checks this <code>ISelfTestable</code>. Any failure needs to be properly logged.
+     * Checks this <code>ISelfTestable</code>. Implementations are not supposed to do any failure logging (debug
+     * logging is OK), but the caller is in charge of this.
      * 
-     * @throws RuntimeException If the self test fails.
+     * @throws ConfigurationFailureException If the self-test fails due to a configuration problem.
+     * @throws EnvironmentFailureException If the self-test fails due to a problem in the environment.
      */
-    public void check();
+    public void check() throws EnvironmentFailureException, ConfigurationFailureException;
 
 }
