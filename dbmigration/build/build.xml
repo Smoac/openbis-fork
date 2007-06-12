@@ -10,10 +10,4 @@
 		<antcall target="-compile-tests" />
 	</target>
  
-  <target name="ci">
-		<antcall target="-run-tests">
-      <param name="test.suite" value="tests.xml"/> 
-    </antcall>
-  </target> 
-  
 </project>

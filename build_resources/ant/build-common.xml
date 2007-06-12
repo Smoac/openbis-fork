@@ -64,6 +64,11 @@
       <xmlfileset dir="${sources.test}" includes="${test.suite}"/>
     </testng> 
   </target>
-
+ 
+  <target name="ci">
+    <antcall target="-run-tests">
+      <param name="test.suite" value="tests.xml"/> 
+    </antcall> 
+  </target>
 
 </project>
