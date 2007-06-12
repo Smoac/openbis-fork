@@ -7,12 +7,10 @@
 	<property name="jar.file" value="${jar.dir}/cisd-ant-tasks.jar"/>
 
 	<target name="clean">
-        <delete dir="${jar.dir}"/>
+     <delete dir="${jar.dir}"/>
 	</target>
 
-    <target name="compile" depends="clean">
-        <antcall target="-compile" />
-    </target>
+  <target name="compile" depends="build-common.compile, clean"/>
 
 	<target name="jar" depends="compile">
         <mkdir dir="${jar.dir}"/>

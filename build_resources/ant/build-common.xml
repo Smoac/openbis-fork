@@ -24,19 +24,19 @@
   
   <target name="_dummy" description="Dummy target used by cruisecontrol"/> 
 
-  <target name="-prepare">
+  <target name="prepare">
     <delete dir="${classes}" />
     <mkdir dir="${classes}" />
   </target>
 
-  <target name="-compile" depends="-prepare">
+  <target name="compile" depends="prepare">
     <build-java-subprojects target="compile" />
     <antcall target="_plain-compile">
       <param name="src" value="${sources}"/> 
     </antcall>  
   </target>
 
-  <target name="-compile-tests" depends="-compile">
+  <target name="compile-tests" depends="compile">
     <build-java-subprojects target="compile-tests" />
     <antcall target="_plain-compile">
       <param name="src" value="${sources.test}"/> 
@@ -58,7 +58,7 @@
   <!-- Runs a TestNG test suite
        Parameter: test.suite = path of test suite relative to the test source folder
   --> 
-  <target name="-run-tests" depends="-compile-tests">
+  <target name="run-tests" depends="compile-tests">
     <delete dir="${output.test}"/> 
     <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" haltonfailure="true">
       <xmlfileset dir="${sources.test}" includes="${test.suite}"/>
@@ -66,7 +66,7 @@
   </target>
  
   <target name="ci">
-    <antcall target="-run-tests">
+    <antcall target="run-tests">
       <param name="test.suite" value="tests.xml"/> 
     </antcall> 
   </target>

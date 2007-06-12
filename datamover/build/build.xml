@@ -14,12 +14,10 @@
     <delete dir="${dist}" />
   </target>
 
-  <target name="compile" depends="clean">
-    <antcall target="-compile" />
-  </target>
+  <target name="compile" depends="build-common.compile, clean"/>
 
   <target name="run-tests">
-    <antcall target="-run-tests">
+    <antcall target="build-common.run-tests">
       <param name="test.suite" value="tests_fast.xml"/> 
     </antcall>
   </target> 
