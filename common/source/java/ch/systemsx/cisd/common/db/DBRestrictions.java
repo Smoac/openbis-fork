@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.parser;
+package ch.systemsx.cisd.common.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -43,11 +44,18 @@ public class DBRestrictions
 
     private static final Pattern VARCHAR_PATTERN = Pattern.compile("varchar\\(([0-9]+)\\)");
 
-    private static final Pattern CREATE_TABLE_PATTERN = Pattern.compile("create table ([a-z,0-9,_]+) \\((.+)\\)");
+    /** The prefix each <code>create table</code> statement starts with. */
+    private static final String CREATE_TABLE_PREFIX = "create table ";
+
+    private static final Pattern CREATE_TABLE_PATTERN =
+            Pattern.compile(CREATE_TABLE_PREFIX + "([a-z,0-9,_]+) \\((.+)\\)");
+
+    /** The prefix each <code>alter table</code> statement starts with (to add a constraint). */
+    private static final String ALTER_TABLE_PREFIX = "alter table ";
 
     private static final Pattern CHECK_CONSTRAINT_PATTERN =
-            Pattern
-                    .compile("alter table ([a-z,0-9,_]+) add constraint [a-z,0-9,_]+ check \\(([a-z,0-9,_]+) in \\((.+)\\)\\)");
+            Pattern.compile(ALTER_TABLE_PREFIX
+                    + "([a-z,0-9,_]+) add constraint [a-z,0-9,_]+ check \\(([a-z,0-9,_]+) in \\((.+)\\)\\)");
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBRestrictions.class);
 
@@ -137,15 +145,22 @@ public class DBRestrictions
     {
         for (String line : ddlScript)
         {
-            final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
-            if (createTableMatcher.matches())
+            if (line.startsWith(CREATE_TABLE_PREFIX))
             {
-                final String tableName = createTableMatcher.group(1);
-                final String tableDefinition = createTableMatcher.group(2);
-                final String[] columnDefinitions = StringUtils.split(tableDefinition, ',');
-                for (String columnDefinition : columnDefinitions)
+                final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
+                if (createTableMatcher.matches())
                 {
-                    parseColumnDefinition(columnDefinition, tableName, domains);
+                    final String tableName = createTableMatcher.group(1);
+                    final String tableDefinition = createTableMatcher.group(2);
+                    final String[] columnDefinitions = StringUtils.split(tableDefinition, ',');
+                    for (String columnDefinition : columnDefinitions)
+                    {
+                        parseColumnDefinition(columnDefinition, tableName, domains);
+                    }
+                } else
+                {
+                    operationLog.warn("line \"" + line + "\" looks like table definition, but is ill-formed.");
+                    continue;
                 }
             }
         }
@@ -186,40 +201,40 @@ public class DBRestrictions
     {
         assert array != null;
         assert term != null;
-
-        for (int i = firstIndex; i < array.length; ++i)
-        {
-            if (term.equals(array[i]))
-            {
-                return i;
-            }
-        }
-        return -1;
+        return ArrayUtils.indexOf(array, term, firstIndex);
     }
 
     private void parserCheckedConstraints(List<String> ddlScript)
     {
         for (String line : ddlScript)
         {
-            final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
-            if (checkedConstraintMatcher.matches())
+            if (line.startsWith(ALTER_TABLE_PREFIX))
             {
-                final String tableName = checkedConstraintMatcher.group(1);
-                final String columnName = checkedConstraintMatcher.group(2);
-                final String alternativesStr = checkedConstraintMatcher.group(3);
-                final String[] alternatives = StringUtils.split(alternativesStr, ',');
-                final Set<String> alternativeSet = new HashSet<String>();
-                for (String alternative : alternatives)
+
+                final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
+                if (checkedConstraintMatcher.matches())
                 {
-                    if (alternative.charAt(0) != '\'' || alternative.charAt(alternative.length() - 1) != '\'')
+                    final String tableName = checkedConstraintMatcher.group(1);
+                    final String columnName = checkedConstraintMatcher.group(2);
+                    final String alternativesStr = checkedConstraintMatcher.group(3);
+                    final String[] alternatives = StringUtils.split(alternativesStr, ',');
+                    final Set<String> alternativeSet = new HashSet<String>();
+                    for (String alternative : alternatives)
                     {
-                        operationLog.warn("Invalid alternatives definition \"" + alternative + "\" for column "
-                                + columnName + " of table " + tableName);
-                        continue;
+                        if (alternative.charAt(0) != '\'' || alternative.charAt(alternative.length() - 1) != '\'')
+                        {
+                            operationLog.warn("Invalid alternatives definition \"" + alternative + "\" for column "
+                                    + columnName + " of table " + tableName);
+                            continue;
+                        }
+                        alternativeSet.add(alternative.substring(1, alternative.length() - 1));
                     }
-                    alternativeSet.add(alternative.substring(1, alternative.length() - 1));
+                    getTableRestrictions(tableName).checkedConstraintsMap.put(columnName, alternativeSet);
+                } else
+                {
+                    operationLog.warn("line \"" + line + "\" looks like constraint definition, but is ill-formed.");
+                    continue;
                 }
-                getTableRestrictions(tableName).checkedConstraintsMap.put(columnName, alternativeSet);
             }
         }
     }

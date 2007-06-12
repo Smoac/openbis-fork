@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.parser;
+package ch.systemsx.cisd.common.db;
 
 /**
  * A class keeping the state when normalizing a SQL script.
