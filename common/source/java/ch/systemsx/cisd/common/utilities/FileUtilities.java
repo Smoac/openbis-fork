@@ -64,7 +64,7 @@ public final class FileUtilities
      * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
      *            <code>null</code>.
      * @return The content of the file. All newline characters are '\n' (Unix convention).
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static String loadToString(File file) throws CheckedExceptionTunnel
     {
@@ -83,14 +83,14 @@ public final class FileUtilities
             IOUtils.closeQuietly(fileReader);
         }
     }
-    
+
     /**
      * Loads a text file line by line to a {@link List} of {@link String}s.
      * 
      * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
      *            <code>null</code>.
      * @return The content of the file line by line.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static List<String> loadToStringList(File file) throws CheckedExceptionTunnel
     {
@@ -124,7 +124,7 @@ public final class FileUtilities
     {
         assert clazz != null;
         assert resource != null && resource.length() > 0;
-        
+
         final BufferedReader reader = getBufferedReader(clazz, resource);
         try
         {
@@ -146,7 +146,7 @@ public final class FileUtilities
      * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked.
      * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
      * @return The content of the resource line by line.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist. 
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
     public static List<String> loadToStringList(Class clazz, String resource) throws CheckedExceptionTunnel
     {
@@ -175,14 +175,14 @@ public final class FileUtilities
         }
         return new BufferedReader(new InputStreamReader(stream));
     }
-    
+
     private static String readString(BufferedReader reader) throws IOException
     {
         if (reader == null)
         {
             return null;
         }
-        
+
         final StringBuilder builder = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null)
@@ -198,7 +198,7 @@ public final class FileUtilities
         {
             return null;
         }
-        
+
         final List<String> list = new ArrayList<String>();
         String line;
         while ((line = reader.readLine()) != null)
@@ -206,6 +206,20 @@ public final class FileUtilities
             list.add(line);
         }
         return list;
+    }
+
+    /**
+     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
+     * 
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the
+     *         problem with the <var>directory</var> otherwise.
+     */
+    public static String checkPathFullyAccessible(File path, String kindOfPath)
+    {
+        assert path != null;
+        assert kindOfPath != null;
+        
+        return checkPathFullyAccessible(path, kindOfPath, "path");
     }
 
     /**
@@ -217,28 +231,39 @@ public final class FileUtilities
     public static String checkDirectoryFullyAccessible(File directory, String kindOfDirectory)
     {
         assert directory != null;
+        assert kindOfDirectory != null;
 
-        if (directory.canRead() == false)
-        {
-            if (directory.exists() == false)
-            {
-                return String.format("%s directory '%s' does not exist.", StringUtilities.capitalize(kindOfDirectory),
-                        directory.getPath());
-            } else
-            {
-                return String.format("%s directory '%s' is not readable.", StringUtilities.capitalize(kindOfDirectory),
-                        directory.getPath());
-            }
-        }
-        if (directory.canWrite() == false)
-        {
-            return String.format("%s directory '%s' is not writable.", StringUtilities.capitalize(kindOfDirectory),
-                    directory.getPath());
-        }
-        if (directory.isDirectory() == false)
+        final String msg = checkPathFullyAccessible(directory, kindOfDirectory, "directory");
+        if (msg == null && directory.isDirectory() == false)
         {
             return String.format("Path '%s' is supposed to be a %s directory, but is a file.", directory.getPath(),
                     kindOfDirectory);
+        }
+        return msg;
+    }
+
+    private static String checkPathFullyAccessible(File path, String kindOfPath, String directoryOrFile)
+    {
+        assert path != null;
+        assert kindOfPath != null;
+        assert directoryOrFile != null;
+
+        if (path.canRead() == false)
+        {
+            if (path.exists() == false)
+            {
+                return String.format("%s %s '%s' does not exist.", StringUtilities.capitalize(kindOfPath),
+                        directoryOrFile, path.getPath());
+            } else
+            {
+                return String.format("%s %s '%s' is not readable.", StringUtilities.capitalize(kindOfPath),
+                        directoryOrFile, path.getPath());
+            }
+        }
+        if (path.canWrite() == false)
+        {
+            return String.format("%s directory '%s' is not writable.", StringUtilities.capitalize(kindOfPath), path
+                    .getPath());
         }
         return null;
     }
@@ -373,7 +398,7 @@ public final class FileUtilities
     public static long lastChanged(File path)
     {
         assert path != null;
-        
+
         if (path.canRead() == false)
         {
             throw new CheckedExceptionTunnel(
@@ -424,7 +449,7 @@ public final class FileUtilities
                 {
                     return nextLine;
                 }
-    
+
             }
         } catch (IOException ex)
         {
