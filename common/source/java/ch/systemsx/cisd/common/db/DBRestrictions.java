@@ -190,18 +190,11 @@ public class DBRestrictions
                         .group(1)));
             }
         }
-        final int nullIdx = findInArray(words, "null", 3);
-        if (nullIdx > 0 && "not".equals(words[nullIdx - 1]))
+        final int nullIdx = ArrayUtils.indexOf(words, "null", 3);
+        if (nullIdx != ArrayUtils.INDEX_NOT_FOUND && "not".equals(words[nullIdx - 1]))
         {
             getTableRestrictions(tableName).notNullSet.add(columnName);
         }
-    }
-
-    private int findInArray(String[] array, String term, int firstIndex)
-    {
-        assert array != null;
-        assert term != null;
-        return ArrayUtils.indexOf(array, term, firstIndex);
     }
 
     private void parserCheckedConstraints(List<String> ddlScript)
