@@ -25,45 +25,18 @@ import java.util.regex.Pattern;
 /**
  * Some useful methods related to the operating system.
  * <p>
- * Does <em>not</em> depend on any library jar files.
+ * Does <em>not</em> depend on any library jar files. But before using or extending this class and if you do not mind
+ * using <a href="http://jakarta.apache.org/commons/lang/">commons lang</a>, then have a look on
+ * <code>SystemUtils</code>.
+ * </p>
  * 
  * @author Bernd Rinn
  */
 public class OSUtilities
 {
 
-    private static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
-
-    private static final File HOME_DIRECTORY = new File(System.getProperty("user.home"));
-
-    private static final File TEMPORARY_DIRECTORY = new File(System.getProperty("java.io.tmpdir"));
-
     /** Platform specific line separator. */
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
-    /**
-     * @return The current working directory of this Java VM.
-     */
-    public static File getWorkingDirectory()
-    {
-        return WORKING_DIRECTORY;
-    }
-
-    /**
-     * @return The home directory of the user that runs this program.
-     */
-    public static File getHomeDirectory()
-    {
-        return HOME_DIRECTORY;
-    }
-
-    /**
-     * @return The temporary directory of this Java VM.
-     */
-    public static File getTemporaryDirectory()
-    {
-        return TEMPORARY_DIRECTORY;
-    }
 
     /**
      * @return <code>true</code> if the operating system is UNIX like.
@@ -80,10 +53,10 @@ public class OSUtilities
     {
         return (File.separatorChar == '\\');
     }
-    
-    /** 
-     * @return <code>true</code> if the the operating system is a flavor of MacOS. 
-     */ 
+
+    /**
+     * @return <code>true</code> if the the operating system is a flavor of MacOS.
+     */
     public static boolean isMacOS()
     {
         return System.getProperty("java.vendor").startsWith("Apple");
