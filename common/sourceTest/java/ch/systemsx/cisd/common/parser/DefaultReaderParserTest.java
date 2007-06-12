@@ -42,7 +42,7 @@ public final class DefaultReaderParserTest
     public final void testParseWithoutFactoryAndHeader() throws IOException
     {
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
-        parser.setObjectFactory(IParserObjectFactory.DO_NOTHING_OBJECT_FACTORY);
+        parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         final Reader reader = new StringReader(text);
         final List<String[]> result = parser.parse(reader, new DefaultLineFilter());
         assertEquals(3, result.size());
@@ -56,7 +56,7 @@ public final class DefaultReaderParserTest
     public final void testParseWithoutFactoryWithLineFilter() throws IOException
     {
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
-        parser.setObjectFactory(IParserObjectFactory.DO_NOTHING_OBJECT_FACTORY);
+        parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         final Reader reader = new StringReader(text);
         final List<String[]> result = parser.parse(reader, new DefaultLineFilter(2));
         assertEquals(2, result.size());

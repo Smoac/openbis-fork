@@ -18,9 +18,7 @@ package ch.systemsx.cisd.common.parser;
 
 /**
  * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and convert them into
- * an appropriate <code>Object</code>. A <code>IParserObjectFactory</code> needs a <code>IPropertyMapper</code>
- * to perform its job. A <code>IPropertyMapper</code> helps to map passed tokens to created <code>Object</code>
- * properties .
+ * an appropriate <code>Object</code>.
  * <p>
  * A <code>IParserObjectFactory</code> is typically registered in {@link IReaderParser}.
  * </p>
@@ -32,15 +30,14 @@ public interface IParserObjectFactory<E>
 
     /**
      * This <code>IParserObjectFactory</code> implementation does nothing and returns the passed
-     * <code>lineTokens</code> as <code>String[]</code>. No mapping needed, so
-     * {@link #setPropertyMapper(IPropertyMapper)} does nothing.
+     * <code>lineTokens</code> as <code>String[]</code>.
      * <p>
      * This implementation could be used to debugging purposes.
      * </p>
      * 
      * @author Christian Ribeaud
      */
-    public final static IParserObjectFactory<String[]> DO_NOTHING_OBJECT_FACTORY = new IParserObjectFactory<String[]>()
+    public final static IParserObjectFactory<String[]> STRING_ARRAY_OBJECT_FACTORY = new IParserObjectFactory<String[]>()
         {
 
             //
@@ -51,23 +48,10 @@ public interface IParserObjectFactory<E>
             {
                 return lineTokens;
             }
-
-            public final void setPropertyMapper(IPropertyMapper propertyMapper)
-            {
-            }
-
         };
 
     /**
      * Parses given text line and returns an appropriate <i>Object</i>.
      */
     public E createObject(String[] lineTokens);
-
-    /**
-     * Sets a <code>IPropertyMapper</code> to map line tokens.
-     * <p>
-     * Usually you must set a <code>IPropertyMapper</code> before using {@link #createObject(String[])}.
-     * </p>
-     */
-    public void setPropertyMapper(IPropertyMapper propertyMapper);
 }
