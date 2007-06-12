@@ -18,12 +18,14 @@ package ch.systemsx.cisd.common.db;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -38,9 +40,15 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class DBRestrictionsTest
 {
 
-    static
+    private String sqlScript;
+    
+    @ BeforeClass
+    public void setup()
     {
         LogInitializer.init();
+        sqlScript = FileUtilities.loadToString(
+                        new File("sourceTest/java/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql"));
+        assert sqlScript != null;
     }
 
     @Test
@@ -68,9 +76,6 @@ public class DBRestrictionsTest
     @Test
     public void testColumnLengths()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         assertEquals(10, parser.getTableRestrictions("contacts").getLength("cnta_type"));
@@ -104,9 +109,6 @@ public class DBRestrictionsTest
     @Test
     public void testCheckedConstraints()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         assertEquals(new HashSet<String>(Arrays.asList("PERS", "ORGA")), parser.getTableRestrictions("contacts")
@@ -118,9 +120,6 @@ public class DBRestrictionsTest
     @Test
     public void testCheckOK()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         parser.check("contacts", "cnta_type", "ORGA");
@@ -130,9 +129,6 @@ public class DBRestrictionsTest
     @Test(expectedExceptions = UserFailureException.class)
     public void testCheckViolateLength()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         try
@@ -148,9 +144,6 @@ public class DBRestrictionsTest
     @Test(expectedExceptions = UserFailureException.class)
     public void testCheckAlternatives()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         try
@@ -166,9 +159,6 @@ public class DBRestrictionsTest
     @Test(expectedExceptions = UserFailureException.class)
     public void testCheckNotNullConstraint()
     {
-        final String sqlScript =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql");
-        assert sqlScript != null;
         final DBRestrictions parser = new DBRestrictions(sqlScript);
 
         try
