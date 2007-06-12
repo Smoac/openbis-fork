@@ -18,25 +18,26 @@ package ch.systemsx.cisd.authentication;
 
 /**
  * Dummy authentication services.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class DummyAuthenticationService implements IAuthenticationService
+public final class DummyAuthenticationService implements IAuthenticationService
 {
 
-    /**
-     * Returns always <code>true</code>.
-     */
-    public boolean authenticate(String user, String password)
-    {
-        return true;
-    }
+    //
+    // IAuthenticationService
+    //
 
     /**
-     * Is always available.
+     * Returns always a non-<code>null</code> token, meaning that the login was successfull.
      */
-    public void checkAvailability()
+    public final Principal authenticate(String user, String password)
     {
+        return new Principal("John", "Doe", "jdoe@somewhere.org");
     }
 
+    public final void checkAvailability()
+    {
+        // Always available.
+    }
 }

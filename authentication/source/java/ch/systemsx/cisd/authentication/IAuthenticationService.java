@@ -19,8 +19,8 @@ package ch.systemsx.cisd.authentication;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * Interface for authentication. 
- *
+ * Interface for authentication.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IAuthenticationService
@@ -31,11 +31,12 @@ public interface IAuthenticationService
      * @throws EnvironmentFailureException if the service is not available.
      */
     public void checkAvailability();
-    
+
     /**
      * Attempts authentication for the given user credentials.
-     *  
-     * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
+     * 
+     * @return a <code>Principal</code> object if the <var>user</var> has been successfully authenticated,
+     *         <code>null</code> otherwise.
      */
-    public boolean authenticate(String user, String password);
+    public Principal authenticate(String user, String password);
 }

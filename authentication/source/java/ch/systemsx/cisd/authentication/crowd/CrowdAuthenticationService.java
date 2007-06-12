@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.authentication.crowd;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.text.MessageFormat;
+import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -24,8 +28,13 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -39,8 +48,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
-    private static final String TOKEN_ELEMENT = "token";
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
@@ -57,27 +64,19 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + "                          xsi:nil=\"true\" />\n" + "     </in0>\n"
                     + "   </authenticateApplication>\n" + " </soap:Body>\n" + "</soap:Envelope>\n");
 
-    /** The template to authenticate the user. */
-    private static final MessageFormat AUTHENTICATE_USER =
+    /** The template to find a principal by token or by name. */
+    private static final MessageFormat FIND_PRINCIPAL_BY_NAME =
             new MessageFormat(
-                    "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
-                            + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
-                            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-                            + " <soap:Body>\n"
-                            + "   <authenticatePrincipal xmlns=\"urn:SecurityServer\">\n"
-                            + "     <in0>\n"
-                            + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</name>\n"
-                            + "       <token xmlns=\"http://authentication.integration.crowd.atlassian.com\">{1}</token>\n"
-                            + "     </in0>\n"
-                            + "     <in1>\n"
-                            + "       <application xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</application>\n"
-                            + "       <credential xmlns=\"http://authentication.integration.crowd.atlassian.com\">\n"
-                            + "         <credential>{3}</credential>\n"
-                            + "       </credential>\n"
-                            + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{2}</name>\n"
-                            + "       <validationFactors xmlns=\"http://authentication.integration.crowd.atlassian.com\" />\n"
-                            + "     </in1>\n" + "   </authenticatePrincipal>\n" + " </soap:Body>\n"
-                            + "</soap:Envelope>\n");
+                    "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                            + "   <soap:Body>\n"
+                            + "       <findPrincipalByName xmlns=\"urn:SecurityServer\">\n"
+                            + "           <in0>\n"
+                            + "               <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</name>\n"
+                            + "               <token xmlns=\"http://authentication.integration.crowd.atlassian.com\">{1}</token>\n"
+                            + "           </in0>\n"
+                            + "           <in1>{2}</in1>\n"
+                            + "       </findPrincipalByName>\n"
+                            + "   </soap:Body>\n" + "</soap:Envelope>\n");
 
     private final String url;
 
@@ -104,12 +103,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
-    public void checkAvailability()
+    public final void checkAvailability()
     {
         try
         {
             String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
-            if (pickElementContent(response, TOKEN_ELEMENT) == null)
+            if (pickElementContent(response, CrowdSoapElements.TOKEN) == null)
             {
                 throw new EnvironmentFailureException("Application '" + application + "' couldn't be authenticated: "
                         + response);
@@ -126,18 +125,17 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
-    public boolean authenticate(String user, String password)
+    public final Principal authenticate(String user, String password)
     {
         assert user != null;
-        assert password != null;
-        
+        // Application login
         final String applicationToken =
-                StringEscapeUtils.unescapeXml(execute(TOKEN_ELEMENT, AUTHENTICATE_APPL, application,
+                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.TOKEN, AUTHENTICATE_APPL, application,
                         applicationPassword));
         if (applicationToken == null)
         {
             operationLog.error("CROWD: application '" + application + "' failed to authenticate.");
-            return false;
+            return null;
         } else
         {
             if (operationLog.isDebugEnabled())
@@ -145,21 +143,58 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 operationLog.debug("CROWD: application '" + application + "' successfully authenticated.");
             }
         }
-        final String userToken =
-                StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user,
-                        password));
-        if (operationLog.isInfoEnabled())
+        // Find principal by name. Obviously we do not need to make an user authentication to get
+        // these informations.
+        String xmlResponse = null;
+        try
         {
-            final String msg = "CROWD: authentication of user '" + user + "', application '" + application + "': ";
-            if (userToken == null)
-            {
-                operationLog.info(msg + "FAILED.");
-            } else
-            {
-                operationLog.info(msg + "SUCCESS.");
-            }
+            xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
+            return createPrincipal(parseXmlResponse(xmlResponse));
+            // SAXException, IOException
+        } catch (Exception ex)
+        {
+            String message = "Parsing XML response '" + xmlResponse + "' throws an Exception.";
+            throw new EnvironmentFailureException(message, ex);
         }
-        return userToken != null;
+    }
+
+    /**
+     * Parses given <i>Crowd</i> XML response and returns a map of found <code>SOAPAttribute</code>s.
+     * <p>
+     * Never returns <code>null</code> but could returns an empty <code>Map</code>.
+     * </p>
+     */
+    private final static Map<CrowdSoapElements.SOAPAttribute, String> parseXmlResponse(String xmlResponse) throws SAXException, IOException
+    {
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        SOAPAttributeContentHandler contentHandler = new SOAPAttributeContentHandler();
+        xmlReader.setContentHandler(contentHandler);
+        StringReader stringReader = new StringReader(xmlResponse);
+        xmlReader.parse(new InputSource(stringReader));
+        stringReader.close();
+        return contentHandler.getSoapAttributes();
+    }
+
+    /** Creates a <code>Principal</code> with found SOAP attributes. */
+    private final static Principal createPrincipal(Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
+    {
+        if (soapAttributes.size() == 0)
+        {
+            return null;
+        }
+        String firstName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.givenName);
+        String lastName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.sn);
+        String email = soapAttributes.get(CrowdSoapElements.SOAPAttribute.mail);
+        Principal principal = new Principal(firstName, lastName, email);
+        principal.setProperty(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts.name(), Integer
+                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts)));
+        principal.setProperty(CrowdSoapElements.SOAPAttribute.requiresPasswordChange.name(), Boolean
+                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.requiresPasswordChange)));
+        principal.setProperty(CrowdSoapElements.SOAPAttribute.lastAuthenticated.name(), new Date(Long
+                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.lastAuthenticated))));
+        principal.setProperty(CrowdSoapElements.SOAPAttribute.passwordLastChanged.name(), new Date(Long
+                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.passwordLastChanged))));
+        return principal;
     }
 
     /**
@@ -174,7 +209,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return pickElementContent(response, responseElement);
     }
 
-    private String execute(MessageFormat template, String... args)
+    private final String execute(MessageFormat template, String... args)
     {
         final Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
