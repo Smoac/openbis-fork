@@ -16,15 +16,17 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * This class defines in its constructor minimum information that we must know about a principal.
+ * This class defines in its constructor minimum information that we must know about a <code>Principal</code>.
  * <p>
- * It is also possible to put additional <code>Object</code> properties regarding this <code>Principal</code>.
+ * It is also possible to put additional <code>Object</code> properties related to this <code>Principal</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -39,6 +41,13 @@ public class Principal
 
     private final Map<String, Object> properties;
 
+    /**
+     * Default and unique constructor which accepts mandatory parameters.
+     * 
+     * @param firstName can not be <code>null</code>.
+     * @param lastName can not be <code>null</code>.
+     * @param email can not be <code>null</code>.
+     */
     public Principal(final String firstName, final String lastName, final String email)
     {
         assert firstName != null;
@@ -50,19 +59,31 @@ public class Principal
         this.properties = new HashMap<String, Object>();
     }
 
-    /** Returns <code>email</code>. */
+    /**
+     * Returns <code>email</code>.
+     * 
+     * @return never <code>null</code>.
+     */
     public final String getEmail()
     {
         return email;
     }
 
-    /** Returns <code>firstName</code>. */
+    /**
+     * Returns <code>firstName</code>.
+     * 
+     * @return never <code>null</code>.
+     */
     public final String getFirstName()
     {
         return firstName;
     }
 
-    /** Returns <code>lastName</code>. */
+    /**
+     * Returns <code>lastName</code>.
+     * 
+     * @return never <code>null</code>.
+     */
     public final String getLastName()
     {
         return lastName;
@@ -79,7 +100,13 @@ public class Principal
     {
         return properties.get(key);
     }
-    
+
+    /** Retuns an unmodifiable <code>Set</code> of present properties. */
+    public final Set<String> getPropertyNames()
+    {
+        return Collections.unmodifiableSet(properties.keySet());
+    }
+
     //
     // Object
     //

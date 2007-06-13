@@ -36,15 +36,20 @@ import ch.systemsx.cisd.authentication.crowd.CrowdSoapElements.SOAPAttribute;
 final class SOAPAttributeContentHandler extends DefaultHandler
 {
 
+    private static final String NULL = null;
+
     private final Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes;
 
+    /** A <code>SOAPAttribute</code> has two possible children: <code>name</code> and <code>values</code>. */
     private static enum Child
     {
         soapAttributeName, soapAttributeValues;
     }
-
+    
+    /** Whether we entered the <code>SOAPAttribute</code>. */
     private boolean inSoapAttribute;
-
+    
+    /** The current <code>SOAPAttribute</code> child. */
     private Child currentChild;
 
     private SOAPAttribute soapAttribute;
@@ -112,9 +117,9 @@ final class SOAPAttributeContentHandler extends DefaultHandler
                     name = CrowdSoapElements.SOAPAttribute.valueOf(string);
                 } catch (IllegalArgumentException ex)
                 {
-                    throw new SAXException("Given '" + string + "' is not an allowed SOAPAttribute name.");
+                    throw new SAXException("Given '" + string + "' is not an allowed text value for the SOAPAttribute name child.");
                 }
-                soapAttributes.put(name, (String) null);
+                soapAttributes.put(name, NULL);
                 soapAttribute = name;
             } else if (currentChild == Child.soapAttributeValues)
             {

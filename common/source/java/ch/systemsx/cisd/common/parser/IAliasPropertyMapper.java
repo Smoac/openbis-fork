@@ -23,6 +23,16 @@ package ch.systemsx.cisd.common.parser;
  */
 public interface IAliasPropertyMapper extends IPropertyMapper
 {
-    /** Sets an alias for given <code>propertyname</code>. */
+    /**
+     * Sets an alias for given <var>propertyName</var>. Only one alias for a given property name can be specified and
+     * it should not be possible to set the same alias for two different properties.
+     * <p>
+     * Alias replaces the original property name in <code>Set</code> returned by
+     * {@link IPropertyMapper#getAllPropertyNames()}.
+     * </p>
+     * 
+     * @param aliasName can not be <code>null</code>.
+     * @param propertyName can not be <code>null</code>.
+     */
     public void setAlias(String aliasName, String propertyName);
 }
