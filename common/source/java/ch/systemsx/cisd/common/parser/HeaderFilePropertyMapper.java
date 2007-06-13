@@ -53,12 +53,49 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
         return map;
     }
 
+    private final void checkOneToOneRelation(String aliasName, String propertyName)
+    {
+        // No more than one alias for a given property
+        if (aliases.containsValue(propertyName))
+        {
+            throw new IllegalArgumentException("Following alias '" + getPropertyAlias(propertyName)
+                    + "' already exists for property '" + propertyName + "'.");
+        }
+        String alias = aliasName.toLowerCase();
+        // No alias for two different properties.
+        if (aliases.containsKey(alias))
+        {
+            throw new IllegalArgumentException("Alias name '" + aliasName + "' already specified for property '"
+                    + aliases.get(alias) + "'.");
+        }
+    }
+
+    /**
+     * For given <var>property</var> returns the corresponding alias.
+     * 
+     * @return <code>null</code> if no alias could be found.
+     */
+    private final String getPropertyAlias(String property)
+    {
+        for (Map.Entry<String, String> entry : aliases.entrySet())
+        {
+            if (entry.getValue().equals(property))
+            {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     //
     // IAliasPropertyMapper
     //
 
     public final void setAlias(String aliasName, String propertyName)
     {
+        assert aliasName != null;
+        assert propertyName != null;
+        checkOneToOneRelation(aliasName, propertyName);
         aliases.put(aliasName.toLowerCase(), propertyName.toLowerCase());
     }
 
@@ -100,13 +137,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
         {
             if (aliases.containsValue(property))
             {
-                for (Map.Entry<String, String> entry : aliases.entrySet())
-                {
-                    if (entry.getValue().equals(property))
-                    {
-                        set.add(entry.getKey());
-                    }
-                }
+                set.add(getPropertyAlias(property));
             } else
             {
                 set.add(property);
