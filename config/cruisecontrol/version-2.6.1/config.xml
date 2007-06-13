@@ -1,0 +1,104 @@
+<cruisecontrol>
+  <property name="project.trunk" value="projects/cisd/trunk/${project.name}"/>
+  <property name="status.file" value="status.txt"/>
+  <property name="quiet-period" value="120"/>
+  
+  <plugin name="project" buildafterfailed="false">
+    <listeners>
+      <currentbuildstatuslistener file="logs/${project.name}/${status.file}"/>
+    </listeners>
+    <bootstrappers>
+      <svnbootstrapper localWorkingCopy="${project.trunk}"/>
+    </bootstrappers>
+    <modificationset>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+    <schedule interval="60">
+      <ant buildfile="${project.trunk}/build/build.xml" target="ci" anthome="apache-ant-1.6.5"/>
+    </schedule>
+    <log>
+      <merge dir="${project.trunk}/targets/test-output"/>
+    </log>
+    <publishers>
+      <onsuccess>
+        <artifactspublisher dest="artifacts/${project.name}" dir="${project.trunk}/targets/dist/"/>
+      </onsuccess>
+      <onfailure>
+        <email mailhost="localhost">
+          <map address="cisd-group@systemsx.ch"/>
+        </email>
+      </onfailure>
+    </publishers>
+  </plugin>
+  
+  <!-- Projects -->
+  
+  <project name="build_resources">
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/ant/build-common.xml"/>
+    </schedule>
+  </project>
+  
+  <project name="libraries">
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
+  </project>
+  
+  <project name="common">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="authentication">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="dbmigration">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="datamover">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="lims_base">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="lims">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/authentication"/>
+      <buildstatus logdir="logs/dbmigration"/>
+      <buildstatus logdir="logs/lims_base"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+</cruisecontrol>
