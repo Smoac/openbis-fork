@@ -26,8 +26,8 @@
      <execute command="echo rm -rf  ${project.trunk}/targets/dist/*"/>
       <onfailure>
         <email buildresultsurl="http://cisd-ci:8090/buildresults/${project.name}" 
-               returnaddress="cisd-group@systemsx.ch" mailhost="localhost">
-          <map address="cisd-group@systemsx.ch"/>
+               returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1">
+          <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
         </email>
       </onfailure>
     </publishers>
