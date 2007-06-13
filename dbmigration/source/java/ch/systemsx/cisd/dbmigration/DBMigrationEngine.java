@@ -20,11 +20,13 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -81,34 +83,50 @@ public class DBMigrationEngine
 
     private final File scriptFolder;
 
-    private final String initialDataScriptFile;
-
     private final String owner;
 
     private final String databaseName;
 
-    public DBMigrationEngine(DataSource metaDataSource, DataSource dataSource, String scriptFolder,
-            String initialDataScript, String owner, String databaseName)
+    private final String folderOfDataScripts;
+
+    private final boolean shouldCreateFromScratch;
+
+    public DBMigrationEngine(DatabaseConfigurationContext context, String basicDatabaseName, String owner)
     {
-        this.metaDataSource = metaDataSource;
-        this.dataSource = dataSource;
-        this.initialDataScriptFile = initialDataScript;
         this.owner = owner;
-        this.databaseName = databaseName;
-        this.scriptFolder = new File(scriptFolder);
+        shouldCreateFromScratch = context.isCreateFromScratch();
+        metaDataSource = createMasterDataSource(context);
+        databaseName = basicDatabaseName + "_" + context.getDatabaseKind();
+        dataSource = createDataSource(context, databaseName, owner);
+        scriptFolder = new File(context.getScriptFolder());
+        folderOfDataScripts = context.getFolderOfDataScripts();
     }
     
-    public void createDatabase()
+    /**
+     * Returns the name of the database.
+     */
+    public final String getDatabaseName()
     {
-        dropDatabase();
-        setupDatabase();
+        return databaseName;
     }
 
-    public void migrateTo(int version)
+    /**
+     * Returns the data source for the database.
+     */
+    public final DataSource getDataSource()
     {
+        return dataSource;
+    }
+
+    public void migrateTo(String version)
+    {
+        if (shouldCreateFromScratch)
+        {
+            dropDatabase();
+        }
         if (databaseExists() == false)
         {
-            setupDatabase();
+            setupDatabase(version);
             return;
         }
         SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
@@ -133,11 +151,11 @@ public class DBMigrationEngine
         {
             DatabaseVersion databaseVersion = list.get(0);
             int dbVersion = databaseVersion.getVersion();
-            if (version == dbVersion)
+            if (Integer.parseInt(version) == dbVersion)
             {
                 return; // no migrate needed
             }
-            if (version > dbVersion)
+            if (Integer.parseInt(version) > dbVersion)
             {
                 if (operationLog.isInfoEnabled())
                 {
@@ -168,11 +186,11 @@ public class DBMigrationEngine
         }
     }
     
-    private void setupDatabase()
+    private void setupDatabase(String version)
     {
         createUser();
-        createEmptyDatabase();
-        fillWithInitialData();
+        createEmptyDatabase(version);
+        fillWithInitialData(version);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Database '" + databaseName + "' has been successfully created.");
@@ -200,7 +218,7 @@ public class DBMigrationEngine
         }
     }
 
-    private void createEmptyDatabase()
+    private void createEmptyDatabase(String version)
     {
         JdbcTemplate template = new JdbcTemplate(metaDataSource);
         String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
@@ -212,13 +230,14 @@ public class DBMigrationEngine
         args[0] = new Date();
         template.update(INSERT_DB_VERSION, args);
         
-        final String createScript = loadScript("initial.sql");
+        final String createScript = loadScript("schema", version);
         template.execute(createScript);
     }
 
-    private void fillWithInitialData()
+    private void fillWithInitialData(String version)
     {
         String initialDataScript = null;
+        String initialDataScriptFile =  folderOfDataScripts + "/" + version + "/" + "data-" + version + ".sql";
         if (initialDataScriptFile != null)
         {
             initialDataScript = FileUtilities.loadToString(getClass(), "/" + initialDataScriptFile);
@@ -242,6 +261,11 @@ public class DBMigrationEngine
     {
         String script = loadScript(scriptTemplateFile);
         return script.replace("$USER", user).replace("$DATABASE", database);
+    }
+    
+    private String loadScript(String scriptName, String version)
+    {
+        return loadScript(version + "/" + scriptName + "-" + version + ".sql");
     }
 
     /** Loads given script name. */
@@ -307,6 +331,33 @@ public class DBMigrationEngine
         return sqlState;
     }
     
+
+    /** Creates a <code>DataSource</code> from given <code>context</code>. */
+    private final static DataSource createMasterDataSource(DatabaseConfigurationContext context)
+    {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(context.getDriver());
+        dataSource.setUrl(context.getAdminURL());
+        dataSource.setUsername(context.getAdminUser());
+        dataSource.setPassword(context.getAdminPassword());
+        return dataSource;
+    }
+
+    /**
+     * Creates a <code>DataSource</code> from given <code>context</code>, <code>user</code> and
+     * <code>databaseName</code>.
+     */
+    private final static DataSource createDataSource(DatabaseConfigurationContext context, String databaseName, String user)
+    {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(context.getDriver());
+        String url = MessageFormat.format(context.getUrlTemplate(), databaseName);
+        dataSource.setUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword("");
+        return dataSource;
+    }
+
     /**
      * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
      * <p>
