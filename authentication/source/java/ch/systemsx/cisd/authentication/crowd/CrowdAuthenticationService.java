@@ -35,6 +35,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.authentication.crowd.CrowdSoapElements.SOAPAttribute;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -149,7 +150,29 @@ public class CrowdAuthenticationService implements IAuthenticationService
         try
         {
             xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
-            return createPrincipal(parseXmlResponse(xmlResponse));
+            Map<SOAPAttribute, String> parseXmlResponse = parseXmlResponse(xmlResponse);
+            Principal principal;
+            if (parseXmlResponse.size() < 1) {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("No SOAPAttribute element could be found in the SOAP XML response.");
+                }
+                principal = null;
+            } else {
+                principal = createPrincipal(parseXmlResponse);
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                final String msg = "CROWD: Principal information for user '" + user + "', application '" + application + "': ";
+                if (principal == null)
+                {
+                    operationLog.info(msg + "could not be found.");
+                } else
+                {
+                    operationLog.info(msg + "has been successfully found.");
+                }
+            }
+            return principal;
             // SAXException, IOException
         } catch (Exception ex)
         {
@@ -178,10 +201,6 @@ public class CrowdAuthenticationService implements IAuthenticationService
     /** Creates a <code>Principal</code> with found SOAP attributes. */
     private final static Principal createPrincipal(Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
     {
-        if (soapAttributes.size() == 0)
-        {
-            return null;
-        }
         String firstName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.givenName);
         String lastName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.sn);
         String email = soapAttributes.get(CrowdSoapElements.SOAPAttribute.mail);
