@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import org.springframework.jdbc.support.lob.LobHandler;
+
 
 /**
  * Configuration context for database operations.
@@ -25,6 +27,8 @@ package ch.systemsx.cisd.dbmigration;
 public class DatabaseConfigurationContext
 {
     private String driver;
+    
+    private LobHandler lobHandler;
     
     private String adminURL;
     
@@ -120,6 +124,26 @@ public class DatabaseConfigurationContext
     public final void setDriver(String driver)
     {
         this.driver = driver;
+    }
+
+    /**
+     * Returns lobHandler.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    public final LobHandler getLobHandler()
+    {
+        return lobHandler;
+    }
+
+    /**
+     * Sets lobHandler.
+     * 
+     * @param lobHandler New value. Can be <code>null</code>.
+     */
+    public final void setLobHandler(LobHandler lobHandler)
+    {
+        this.lobHandler = lobHandler;
     }
 
     /**
