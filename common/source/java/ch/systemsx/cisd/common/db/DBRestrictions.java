@@ -145,22 +145,15 @@ public class DBRestrictions
     {
         for (String line : ddlScript)
         {
-            if (line.startsWith(CREATE_TABLE_PREFIX))
+            final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
+            if (createTableMatcher.matches())
             {
-                final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
-                if (createTableMatcher.matches())
+                final String tableName = createTableMatcher.group(1);
+                final String tableDefinition = createTableMatcher.group(2);
+                final String[] columnDefinitions = StringUtils.split(tableDefinition, ',');
+                for (String columnDefinition : columnDefinitions)
                 {
-                    final String tableName = createTableMatcher.group(1);
-                    final String tableDefinition = createTableMatcher.group(2);
-                    final String[] columnDefinitions = StringUtils.split(tableDefinition, ',');
-                    for (String columnDefinition : columnDefinitions)
-                    {
-                        parseColumnDefinition(columnDefinition, tableName, domains);
-                    }
-                } else
-                {
-                    operationLog.warn("line \"" + line + "\" looks like table definition, but is ill-formed.");
-                    continue;
+                    parseColumnDefinition(columnDefinition, tableName, domains);
                 }
             }
         }
@@ -201,33 +194,25 @@ public class DBRestrictions
     {
         for (String line : ddlScript)
         {
-            if (line.startsWith(ALTER_TABLE_PREFIX))
+            final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
+            if (checkedConstraintMatcher.matches())
             {
-
-                final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
-                if (checkedConstraintMatcher.matches())
+                final String tableName = checkedConstraintMatcher.group(1);
+                final String columnName = checkedConstraintMatcher.group(2);
+                final String alternativesStr = checkedConstraintMatcher.group(3);
+                final String[] alternatives = StringUtils.split(alternativesStr, ',');
+                final Set<String> alternativeSet = new HashSet<String>();
+                for (String alternative : alternatives)
                 {
-                    final String tableName = checkedConstraintMatcher.group(1);
-                    final String columnName = checkedConstraintMatcher.group(2);
-                    final String alternativesStr = checkedConstraintMatcher.group(3);
-                    final String[] alternatives = StringUtils.split(alternativesStr, ',');
-                    final Set<String> alternativeSet = new HashSet<String>();
-                    for (String alternative : alternatives)
+                    if (alternative.charAt(0) != '\'' || alternative.charAt(alternative.length() - 1) != '\'')
                     {
-                        if (alternative.charAt(0) != '\'' || alternative.charAt(alternative.length() - 1) != '\'')
-                        {
-                            operationLog.warn("Invalid alternatives definition \"" + alternative + "\" for column "
-                                    + columnName + " of table " + tableName);
-                            continue;
-                        }
-                        alternativeSet.add(alternative.substring(1, alternative.length() - 1));
+                        operationLog.warn("Invalid alternatives definition \"" + alternative + "\" for column "
+                                + columnName + " of table " + tableName);
+                        continue;
                     }
-                    getTableRestrictions(tableName).checkedConstraintsMap.put(columnName, alternativeSet);
-                } else
-                {
-                    operationLog.warn("line \"" + line + "\" looks like constraint definition, but is ill-formed.");
-                    continue;
+                    alternativeSet.add(alternative.substring(1, alternative.length() - 1));
                 }
+                getTableRestrictions(tableName).checkedConstraintsMap.put(columnName, alternativeSet);
             }
         }
     }
