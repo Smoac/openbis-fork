@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 
+import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -310,28 +311,6 @@ public class DBMigrationEngine
         }
     }
     
-    /**
-     * Tries to get the SQL state of given <code>Throwable</code>.
-     * <p>
-     * This is only possible if {@link Throwable#getCause()} is an instance of <code>SQLException</code>.
-     * </p>
-     */
-    protected final static String getSqlState(Throwable ex) {
-        Throwable th = ex.getCause();
-        String sqlState = null;
-        if (th instanceof SQLException)
-        {
-            SQLException sqlException = (SQLException) th;
-            sqlState = sqlException.getSQLState();
-            if (sqlState == null)
-            {
-                return getSqlState(sqlException);
-            }
-        }
-        return sqlState;
-    }
-    
-
     /** Creates a <code>DataSource</code> from given <code>context</code>. */
     private final static DataSource createMasterDataSource(DatabaseConfigurationContext context)
     {
@@ -367,7 +346,7 @@ public class DBMigrationEngine
     protected boolean isDBNotExistException(DataAccessException ex)
     {
         // 3D000: INVALID CATALOG NAME
-        return "3D000".equals(getSqlState(ex));
+        return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.getSqlState(ex));
     }
     
     /**
@@ -378,6 +357,6 @@ public class DBMigrationEngine
      */
     protected boolean userAlreadyExists(DataAccessException ex) {
         // 42710 DUPLICATE OBJECT
-        return "42710".equals(getSqlState(ex));
+        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
 }
