@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Operations on classes using reflection.
@@ -61,4 +63,35 @@ public final class ClassUtils
         return list;
     }
 
+    /**
+     * Returns the currently called <code>Method</code>.
+     * <p>
+     * Returns <code>null</code> if none could be found.
+     * </p>
+     */
+    // TODO 2007.06.14 Christian Ribeaud: 'method.getName()' is not specific enough. You have to used kind of
+    // or part of 'Method.toGenericString()'.
+    public final static Method getCurrentMethod()
+    {
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+        // Index 0 is *this* method
+        StackTraceElement element = elements[1];
+        String methodName = element.getMethodName();
+        try
+        {
+            Method[] methods = Class.forName(element.getClassName()).getMethods();
+            for (Method method : methods)
+            {
+                if (method.getName().equals(methodName))
+                {
+                    return method;
+                }
+            }
+            // SecurityException, ClassNotFoundException 
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        return null;
+    }
 }
