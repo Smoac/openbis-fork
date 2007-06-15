@@ -74,7 +74,7 @@ public final class ClassUtils
      * Returns <code>null</code> if none could be found.
      * </p>
      */
-    // TODO 2007.06.14 Christian Ribeaud: 'method.getName()' is not specific enough. You have to used kind of
+    // TODO 2007-06-14 Christian Ribeaud: 'method.getName()' is not specific enough. You have to used kind of
     // or part of 'Method.toGenericString()'.
     public final static Method getCurrentMethod()
     {
