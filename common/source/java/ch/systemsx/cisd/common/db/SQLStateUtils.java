@@ -23,6 +23,8 @@ import java.sql.SQLException;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2007-06-15, Christian Ribeaud: be careful not to duplicate functionality with Spring.
+// Have a look at SQLErrorCodeSQLExceptionTranslator and SQLErrorCodes
 public final class SQLStateUtils
 {
 
@@ -65,6 +67,11 @@ public final class SQLStateUtils
     /** Whether given SQL state stands for <i>UNIQUE VIOLATION</i>. */
     public final static boolean isUniqueViolation(String sqlState) {
         return "23505".equalsIgnoreCase(sqlState);
+    }
+    
+    /** Whether given SQL state stands for <i>FOREIGN KEY VIOLATION</i>. */
+    public final static boolean isForeignKeyViolation(String sqlState) {
+        return "23503".equalsIgnoreCase(sqlState);
     }
     
 }
