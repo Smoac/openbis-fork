@@ -114,36 +114,42 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     @Override
     public void run()
     {
-        if (operationLog.isTraceEnabled())
+        try
         {
-            operationLog.trace("Start scanning directory.");
-        }
-        checkForFaultyPathsFileChanged();
-        final File[] paths = listFiles();
-        if (paths == null) // Means: error reading directory listing
-        {
-            return;
-        }
-        // Sort in order of "oldest first" in order to move older items before newer items. This becomes important when
-        // doing online quality control of measurements.
-        Arrays.sort(paths, new Comparator<File>()
+            if (operationLog.isTraceEnabled())
             {
-                public int compare(File o1, File o2)
-                {
-                    return (int) (o1.lastModified() - o2.lastModified());
-                }
-            });
-        for (File path : paths)
-        {
-            if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
-            {
-                continue;
+                operationLog.trace("Start scanning directory.");
             }
-            handle(path);
-        }
-        if (operationLog.isTraceEnabled())
+            checkForFaultyPathsFileChanged();
+            final File[] paths = listFiles();
+            if (paths == null) // Means: error reading directory listing
+            {
+                return;
+            }
+            // Sort in order of "oldest first" in order to move older items before newer items. This becomes important when
+            // doing online quality control of measurements.
+            Arrays.sort(paths, new Comparator<File>()
+                {
+                    public int compare(File o1, File o2)
+                    {
+                        return (int) (o1.lastModified() - o2.lastModified());
+                    }
+                });
+            for (File path : paths)
+            {
+                if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
+                {
+                    continue;
+                }
+                handle(path);
+            }
+            if (operationLog.isTraceEnabled())
+            {
+                operationLog.trace("Finished scanning directory.");
+            }
+        } catch (Exception ex)
         {
-            operationLog.trace("Finished scanning directory.");
+            notificationLog.error("An exception has occurred.", ex);
         }
     }
 
