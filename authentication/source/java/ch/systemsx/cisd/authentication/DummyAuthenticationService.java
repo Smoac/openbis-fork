@@ -33,7 +33,7 @@ public final class DummyAuthenticationService implements IAuthenticationService
      */
     public final Principal authenticate(String user, String password)
     {
-        return new Principal("John", "Doe", "jdoe@somewhere.org");
+        return new Principal(user, "John", "Doe", "jdoe@somewhere.org");
     }
 
     public final void checkAvailability()

@@ -33,6 +33,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class Principal
 {
+    private final String userId;
+    
     private final String firstName;
 
     private final String lastName;
@@ -44,15 +46,19 @@ public class Principal
     /**
      * Default and unique constructor which accepts mandatory parameters.
      * 
+     * @param userId Must not be <code>null</code>.
      * @param firstName can not be <code>null</code>.
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
      */
-    public Principal(final String firstName, final String lastName, final String email)
+    public Principal(final String userId, final String firstName, final String lastName, final String email)
     {
+        assert userId != null;
         assert firstName != null;
         assert lastName != null;
         assert email != null;
+        
+        this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -60,9 +66,15 @@ public class Principal
     }
 
     /**
+     * Returns the id of the user.
+     */
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    /**
      * Returns <code>email</code>.
-     * 
-     * @return never <code>null</code>.
      */
     public final String getEmail()
     {
@@ -71,8 +83,6 @@ public class Principal
 
     /**
      * Returns <code>firstName</code>.
-     * 
-     * @return never <code>null</code>.
      */
     public final String getFirstName()
     {
@@ -81,8 +91,6 @@ public class Principal
 
     /**
      * Returns <code>lastName</code>.
-     * 
-     * @return never <code>null</code>.
      */
     public final String getLastName()
     {
