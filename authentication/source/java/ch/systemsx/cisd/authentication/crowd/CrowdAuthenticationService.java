@@ -159,7 +159,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 }
                 principal = null;
             } else {
-                principal = createPrincipal(parseXmlResponse);
+                principal = createPrincipal(user, parseXmlResponse);
             }
             if (operationLog.isInfoEnabled())
             {
@@ -199,12 +199,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
-    private final static Principal createPrincipal(Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
+    private final static Principal createPrincipal(String user, Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
     {
         String firstName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.givenName);
         String lastName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.sn);
         String email = soapAttributes.get(CrowdSoapElements.SOAPAttribute.mail);
-        Principal principal = new Principal(firstName, lastName, email);
+        Principal principal = new Principal(user, firstName, lastName, email);
         principal.setProperty(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts.name(), Integer
                 .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts)));
         principal.setProperty(CrowdSoapElements.SOAPAttribute.requiresPasswordChange.name(), Boolean
