@@ -20,7 +20,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -80,8 +79,6 @@ public class DBMigrationEngine
 
     private final DataSource metaDataSource;
 
-    private final DataSource dataSource;
-
     private final File scriptFolder;
 
     private final String owner;
@@ -92,13 +89,15 @@ public class DBMigrationEngine
 
     private final boolean shouldCreateFromScratch;
 
-    public DBMigrationEngine(DatabaseConfigurationContext context, String basicDatabaseName, String owner)
+    private final DataSource dataSource;
+
+    public DBMigrationEngine(DatabaseConfigurationContext context)
     {
-        this.owner = owner;
+        this.owner = context.getOwner();
         shouldCreateFromScratch = context.isCreateFromScratch();
         metaDataSource = createMasterDataSource(context);
-        databaseName = basicDatabaseName + "_" + context.getDatabaseKind();
-        dataSource = createDataSource(context, databaseName, owner);
+        databaseName = context.getDatabaseName();
+        dataSource = context.getDataSource();
         scriptFolder = new File(context.getScriptFolder());
         folderOfDataScripts = context.getFolderOfDataScripts();
     }
@@ -109,14 +108,6 @@ public class DBMigrationEngine
     public final String getDatabaseName()
     {
         return databaseName;
-    }
-
-    /**
-     * Returns the data source for the database.
-     */
-    public final DataSource getDataSource()
-    {
-        return dataSource;
     }
 
     public void migrateTo(String version)
@@ -319,21 +310,6 @@ public class DBMigrationEngine
         dataSource.setUrl(context.getAdminURL());
         dataSource.setUsername(context.getAdminUser());
         dataSource.setPassword(context.getAdminPassword());
-        return dataSource;
-    }
-
-    /**
-     * Creates a <code>DataSource</code> from given <code>context</code>, <code>user</code> and
-     * <code>databaseName</code>.
-     */
-    private final static DataSource createDataSource(DatabaseConfigurationContext context, String databaseName, String user)
-    {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(context.getDriver());
-        String url = MessageFormat.format(context.getUrlTemplate(), databaseName);
-        dataSource.setUrl(url);
-        dataSource.setUsername(user);
-        dataSource.setPassword("");
         return dataSource;
     }
 

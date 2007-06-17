@@ -16,35 +16,99 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import org.springframework.jdbc.support.lob.LobHandler;
+import java.text.MessageFormat;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 /**
  * Configuration context for database operations.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DatabaseConfigurationContext
 {
     private String driver;
-    
+
     private LobHandler lobHandler;
-    
+
     private String adminURL;
-    
+
     private String adminUser;
-    
+
     private String adminPassword;
-    
+
     private String urlTemplate;
-    
+
     private String scriptFolder;
-    
+
     private String folderOfDataScripts;
-    
+
     private String databaseKind;
-    
+
     private boolean createFromScratch;
+
+    private DataSource dataSource;
+
+    private String owner;
+
+    private String basicDatabaseName;
+
+    private String databaseName;
+    
+    public DatabaseConfigurationContext()
+    {
+        owner = System.getProperty("user.name");
+    }
+
+    /**
+     * Creates a <code>DataSource</code> for this context.
+     */
+    private final DataSource createDataSource()
+    {
+        final BasicDataSource myDataSource = new BasicDataSource();
+        myDataSource.setDriverClassName(getDriver());
+        final String url = MessageFormat.format(getUrlTemplate(), getDatabaseName());
+        myDataSource.setUrl(url);
+        myDataSource.setUsername(owner);
+        myDataSource.setPassword("");
+        return myDataSource;
+    }
+
+    public final void setDataSource(DataSource dataSource)
+    {
+        this.dataSource = dataSource;
+    }
+    
+    /**
+     * Returns the {@link DataSource} of this data configuration.
+     */
+    public final DataSource getDataSource()
+    {
+        if (dataSource == null)
+        {
+            dataSource = createDataSource();
+        }
+        return dataSource;
+    }
+
+    /**
+     * Returns the user name of the owner of the database.
+     */
+    public final String getOwner()
+    {
+        return owner;
+    }
+
+    /**
+     * Sets the user name of the onwer of the database.
+     */
+    public final void setOwner(String owner)
+    {
+        this.owner = owner;
+    }
 
     /**
      * Returns user name of the administrator.
@@ -64,6 +128,34 @@ public class DatabaseConfigurationContext
     public final void setAdminUser(String adminUser)
     {
         this.adminUser = adminUser;
+    }
+
+    /**
+     * Returns the basic name of the database. The kind of database will be added to this to create the full database
+     * name.
+     */
+    public String getBasicDatabaseName()
+    {
+        return basicDatabaseName;
+    }
+
+    /**
+     * Sets the basic name of the database. The kind of database will be added to this to create the full database name.
+     * 
+     * @param basicDatabaseName The basic name of the database. Must not be <code>null</code>.
+     */
+    public void setBasicDatabaseName(String basicDatabaseName)
+    {
+        this.basicDatabaseName = basicDatabaseName;
+    }
+
+    public String getDatabaseName()
+    {
+        if (databaseName == null)
+        {
+            databaseName = getBasicDatabaseName() + "_" + getDatabaseKind();
+        }
+        return databaseName;
     }
 
     /**
@@ -147,8 +239,8 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Returns the template to created the URL of the database to be created/migrated. It should
-     * contain <code>{0}</code> as a placeholder for the name of the database.
+     * Returns the template to created the URL of the database to be created/migrated. It should contain
+     * <code>{0}</code> as a placeholder for the name of the database.
      * 
      * @return <code>null</code> when undefined.
      */
@@ -187,7 +279,7 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Returns database kind. 
+     * Returns database kind.
      * 
      * @return <code>null</code> when undefined.
      */
@@ -197,8 +289,8 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Sets database kind. This will be append to the name of the database. It allows to have different
-     * database instances in parallel (for developing, testing, etc.).
+     * Sets database kind. This will be append to the name of the database. It allows to have different database
+     * instances in parallel (for developing, testing, etc.).
      * 
      * @param databaseKind New value. Can be <code>null</code>.
      */
@@ -228,9 +320,8 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Returns the folder which contains all Data SQL scripts. As a default value {@link #getScriptFolder()}
-     * will be returned if not definied by a non-<code>null</code> value in 
-     * {@link #setFolderOfDataScripts(String)}. 
+     * Returns the folder which contains all Data SQL scripts. As a default value {@link #getScriptFolder()} will be
+     * returned if not definied by a non-<code>null</code> value in {@link #setFolderOfDataScripts(String)}.
      * 
      * @return <code>null</code> when {@link #getScriptFolder()} returns <code>null</code>.
      */
