@@ -47,7 +47,7 @@
   </category>    
   
   <root>
-    <priority value="debug" />
+    <priority value="info" />
     <appender-ref ref="DEFAULT" />
   </root>
   
