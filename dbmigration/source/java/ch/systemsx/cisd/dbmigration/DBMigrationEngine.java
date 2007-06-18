@@ -16,29 +16,14 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.db.SQLStateUtils;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Class for creating and migrating a database.
@@ -49,67 +34,20 @@ public class DBMigrationEngine
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
-    private static final String INSERT_DB_VERSION = "INSERT INTO DATABASE_VERSION VALUES (1, ?)";
-
-    private static final String CREATE_DB_VERSION_TABLE =
-            "CREATE TABLE DATABASE_VERSION (DB_VERSION SMALLINT NOT NULL," + "DB_INSTALLATION_DATE DATE)";
-
-    private static final class DatabaseVersion
-    {
-        private final int version;
-
-        private final Date installationDate;
-
-        public DatabaseVersion(int version, Date installationDate)
-        {
-            this.version = version;
-            this.installationDate = installationDate;
-        }
-
-        Date getInstallationDate()
-        {
-            return installationDate;
-        }
-
-        int getVersion()
-        {
-            return version;
-        }
-    }
-
-    private final DataSource metaDataSource;
-
-    private final File scriptFolder;
-
-    private final String owner;
-
-    private final String databaseName;
-
-    private final String folderOfDataScripts;
-
     private final boolean shouldCreateFromScratch;
 
-    private final DataSource dataSource;
+    private final IDAOFactory daoFactory;
+    
+    private final ISqlScriptProvider scriptProvider;
 
-    public DBMigrationEngine(DatabaseConfigurationContext context)
+
+    public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider, boolean shouldCreateFromScratch)
     {
-        this.owner = context.getOwner();
-        shouldCreateFromScratch = context.isCreateFromScratch();
-        metaDataSource = createMasterDataSource(context);
-        databaseName = context.getDatabaseName();
-        dataSource = context.getDataSource();
-        scriptFolder = new File(context.getScriptFolder());
-        folderOfDataScripts = context.getFolderOfDataScripts();
+        this.daoFactory = daoFactory;
+        this.scriptProvider = scriptProvider;
+        this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
     
-    /**
-     * Returns the name of the database.
-     */
-    public final String getDatabaseName()
-    {
-        return databaseName;
-    }
-
     public void migrateTo(String version)
     {
         if (shouldCreateFromScratch)
@@ -121,208 +59,165 @@ public class DBMigrationEngine
             setupDatabase(version);
             return;
         }
-        SimpleJdbcTemplate template = new SimpleJdbcTemplate(dataSource);
-        List<DatabaseVersion> list =
-                template.query("SELECT * FROM DATABASE_VERSION", new ParameterizedRowMapper<DatabaseVersion>()
-                    {
-                        public DatabaseVersion mapRow(ResultSet rs, int rowNum) throws SQLException
-                        {
-                            int dbVersion = rs.getInt("DB_VERSION");
-                            java.sql.Date date = rs.getDate("DB_INSTALLATION_DATE");
-                            return new DatabaseVersion(dbVersion, date);
-                        }
-                    });
-        int size = list.size();
-        if (size == 0)
+        LogEntry entry = daoFactory.getDatabaseVersionLogDAO().getLastEntry();
+        String databaseVersion = entry.getVersion();
+        if (version.equals(databaseVersion))
         {
-            throw new EnvironmentFailureException("Incompletely initialized database.");
-        } else if (size > 1)
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("No migration needed. Database version " + version + ".");
+            }
+            return;
+        }
+        if (version.compareTo(databaseVersion) > 0)
         {
-            throw new EnvironmentFailureException("To many versions found in DATABASE_VERSION: " + size);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Migrating database from version '" + databaseVersion + "' to '" + version + "'.");
+            }
+            migrate(databaseVersion, version);
         } else
         {
-            DatabaseVersion databaseVersion = list.get(0);
-            int dbVersion = databaseVersion.getVersion();
-            if (Integer.parseInt(version) == dbVersion)
-            {
-                return; // no migrate needed
-            }
-            if (Integer.parseInt(version) > dbVersion)
-            {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Migrating database from version '" + dbVersion + "' to '" + version + "'.");
-                }
-                // TODO implementation of migration
-            } else
-            {
-                throw new EnvironmentFailureException("Couldn't revert from version " + dbVersion
-                        + " to previous version " + version + ".");
-            }
+            throw new EnvironmentFailureException("Couldn't revert from version " + databaseVersion
+                    + " to previous version " + version + ".");
         }
     }
 
     private void dropDatabase()
     {
-        String dropDatabaseSQL = createScript("dropDatabase.sql", owner, databaseName);
-        JdbcTemplate template = new JdbcTemplate(metaDataSource);
-        try
-        {
-            template.execute(dropDatabaseSQL);
-        } catch (DataAccessException ex)
-        {
-            if (isDBNotExistException(ex) == false)
-            {
-                throw ex;
-            }
-        }
+        daoFactory.getDatabaseDAO().dropDatabase();
     }
     
     private void setupDatabase(String version)
     {
-        createUser();
+        createOwner();
         createEmptyDatabase(version);
         fillWithInitialData(version);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Database '" + databaseName + "' has been successfully created.");
+            String databaseName = daoFactory.getDatabaseDAO().getDatabaseName();
+            operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
         }
     }
 
-    private void createUser()
+    private void createOwner()
     {
-        String createUserSQL = createScript("createUser.sql", owner, databaseName);
-        JdbcTemplate template = new JdbcTemplate(metaDataSource);
+        IDatabaseAdminDAO databaseDAO = daoFactory.getDatabaseDAO();
         try
         {
-            template.execute(createUserSQL);
+            databaseDAO.createOwner();
         } catch (DataAccessException ex)
         {
             if (userAlreadyExists(ex))
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("User '" + owner + "' already exists.");
+                    operationLog.info("Owner '" + databaseDAO.getOwner() + "' already exists.");
                 }
             } else {
-                operationLog.error("Executing following script '" + createUserSQL + "' threw an exception.", ex);
+                operationLog.error("Database owner couldn't be created:", ex);
             }
         }
     }
 
     private void createEmptyDatabase(String version)
     {
-        JdbcTemplate template = new JdbcTemplate(metaDataSource);
-        String createDatabaseSQL = createScript("createDatabase.sql", owner, databaseName);
-        template.execute(createDatabaseSQL);
+        daoFactory.getDatabaseDAO().createDatabase();
+        IDatabaseVersionLogDAO logDAO = daoFactory.getDatabaseVersionLogDAO();
+        logDAO.createTable();
         
-        template = new JdbcTemplate(dataSource);
-        template.execute(CREATE_DB_VERSION_TABLE);
-        Object[] args = new Object[1];
-        args[0] = new Date();
-        template.update(INSERT_DB_VERSION, args);
-        
-        final String createScript = loadScript("schema", version);
-        template.execute(createScript);
+        Script script = scriptProvider.getSchemaScript(version);
+        if (script == null)
+        {
+            throw new EnvironmentFailureException("No schema script found for version " + version);
+        }
+        executeScript(script, version);
     }
 
     private void fillWithInitialData(String version)
     {
-        String initialDataScript = null;
-        String initialDataScriptFile =  folderOfDataScripts + "/" + version + "/" + "data-" + version + ".sql";
-        if (initialDataScriptFile != null)
-        {
-            initialDataScript = FileUtilities.loadToString(getClass(), "/" + initialDataScriptFile);
-            if (initialDataScript == null)
-            {
-                File file = new File(initialDataScriptFile);
-                if (file.exists())
-                {
-                    initialDataScript = FileUtilities.loadToString(file);
-                }
-            }
-        }
+        Script initialDataScript = scriptProvider.getDataScript(version);
         if (initialDataScript != null)
         {
-            JdbcTemplate template = new JdbcTemplate(dataSource);
-            template.execute(initialDataScript);
+            executeScript(initialDataScript, version);
         }
     }
 
-    private String createScript(String scriptTemplateFile, String user, String database)
+    private void migrate(String fromVersion, String toVersion)
     {
-        String script = loadScript(scriptTemplateFile);
-        return script.replace("$USER", user).replace("$DATABASE", database);
+        String version = fromVersion;
+        do
+        {
+            String nextVersion = increment(version);
+            Script migrationScript = scriptProvider.getMigrationScript(version, nextVersion);
+            if (migrationScript == null)
+            {
+                String message = "Missing migration script from version " + version + " to " + nextVersion;
+                operationLog.error(message);
+                throw new EnvironmentFailureException(message);
+            }
+            executeScript(migrationScript, toVersion);
+            version = nextVersion;
+        } while (version.equals(toVersion) == false);
     }
     
-    private String loadScript(String scriptName, String version)
+    private String increment(String version)
     {
-        return loadScript(version + "/" + scriptName + "-" + version + ".sql");
+        char[] characters = new char[version.length()];
+        version.getChars(0, characters.length, characters, 0);
+        for (int i = characters.length - 1; i >= 0; i--)
+        {
+            char c = characters[i];
+            if (c == '9')
+            {
+                characters[i] = '0';
+            } else
+            {
+                characters[i] = (char) (c + 1);
+                break;
+            }
+        }
+        return new String(characters);
     }
 
-    /** Loads given script name. */
-    private String loadScript(String scriptName)
+    private void executeScript(Script script, String version) throws Error
     {
-        String resource = "/" + scriptFolder + "/" + scriptName;
-        String script = FileUtilities.loadToString(getClass(), resource);
-        if (script == null)
+        IDatabaseVersionLogDAO logDAO = daoFactory.getDatabaseVersionLogDAO();
+        String code = script.getCode();
+        String name = script.getName();
+        logDAO.logStart(version, name, code);
+        try
         {
-            File file = new File(scriptFolder, scriptName);
-            if (operationLog.isDebugEnabled())
+            daoFactory.getSqlScriptExecutor().execute(code);
+            logDAO.logSuccess(version, name);
+        } catch (Throwable t)
+        {
+            operationLog.error("Executing script '" + name + "' failed", t);
+            logDAO.logFailure(version, name, t);
+            if (t instanceof RuntimeException)
             {
-                operationLog.debug("Resource '" + resource + "' could not be found. Trying '" + file.getPath() + "'.");
+                RuntimeException re = (RuntimeException) t;
+                throw re;
             }
-            script = FileUtilities.loadToString(file);
+            if (t instanceof Error)
+            {
+                Error error = (Error) t;
+                throw error;
+            }
+            throw new CheckedExceptionTunnel((Exception) t);
         }
-        return script;
     }
+
 
     /** Checks whether database already exists. */
     private final boolean databaseExists()
     {
-        Connection connection = null;
-        try
+        boolean result = daoFactory.getDatabaseVersionLogDAO().canConnectToDatabase();
+        if (result && operationLog.isInfoEnabled())
         {
-            connection = DataSourceUtils.getConnection(dataSource);
-           return true;
-        } catch (DataAccessException ex)
-        {
-            if (isDBNotExistException(ex))
-            {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Database '" + databaseName + "' does not exist.");
-                }
-                return false;
-            }
-            throw new EnvironmentFailureException("Couldn't connect database server.", ex);
-        } finally
-        {
-            JdbcUtils.closeConnection(connection);
+            operationLog.info("Database '" + daoFactory.getDatabaseDAO().getDatabaseName() + "' does not exist.");
         }
-    }
-    
-    /** Creates a <code>DataSource</code> from given <code>context</code>. */
-    private final static DataSource createMasterDataSource(DatabaseConfigurationContext context)
-    {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(context.getDriver());
-        dataSource.setUrl(context.getAdminURL());
-        dataSource.setUsername(context.getAdminUser());
-        dataSource.setPassword(context.getAdminPassword());
-        return dataSource;
-    }
-
-    /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
-     * <p>
-     * This is database specific.
-     * </p>
-     */
-    protected boolean isDBNotExistException(DataAccessException ex)
-    {
-        // 3D000: INVALID CATALOG NAME
-        return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.getSqlState(ex));
+        return result;
     }
     
     /**

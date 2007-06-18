@@ -51,6 +51,8 @@ public class DatabaseConfigurationContext
     private boolean createFromScratch;
 
     private DataSource dataSource;
+    
+    private DataSource adminDataSource;
 
     private String owner;
 
@@ -76,11 +78,6 @@ public class DatabaseConfigurationContext
         myDataSource.setPassword("");
         return myDataSource;
     }
-
-    public final void setDataSource(DataSource dataSource)
-    {
-        this.dataSource = dataSource;
-    }
     
     /**
      * Returns the {@link DataSource} of this data configuration.
@@ -92,6 +89,23 @@ public class DatabaseConfigurationContext
             dataSource = createDataSource();
         }
         return dataSource;
+    }
+
+    /**
+     * Returns data source for admin purposes.
+     */
+    final DataSource getAdminDataSource()
+    {
+        if (adminDataSource == null)
+        {
+            BasicDataSource myDataSource = new BasicDataSource();
+            myDataSource.setDriverClassName(getDriver());
+            myDataSource.setUrl(getAdminURL());
+            myDataSource.setUsername(getAdminUser());
+            myDataSource.setPassword(getAdminPassword());
+            adminDataSource = myDataSource;
+        }
+        return adminDataSource;
     }
 
     /**
