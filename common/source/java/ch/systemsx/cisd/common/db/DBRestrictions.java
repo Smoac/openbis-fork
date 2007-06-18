@@ -243,16 +243,7 @@ public class DBRestrictions
         final DBTableRestrictions restrictions = tableMap.get(tableName);
         assert restrictions != null : "Illegal table " + tableName;
         final int maxLength = restrictions.getLength(columnName);
-        if (value == null)
-        {
-            if (restrictions.hasNotNullConstraint(columnName))
-            {
-                final String msg = String.format("Value 'NULL' not allowed for column %s.%s.", tableName, columnName);
-                operationLog.warn("Violation of database constraints detected: " + msg);
-                throw new UserFailureException(msg);
-            }
-            return;
-        }
+        checkNotNullConstraint(tableName, columnName, value, restrictions);
         final Set<String> checkedConstraint = restrictions.getCheckedConstaint(columnName);
         if (checkedConstraint != null && checkedConstraint.contains(value) == false)
         {
@@ -269,6 +260,35 @@ public class DBRestrictions
                             tableName, columnName);
             operationLog.warn("Violation of database constraints detected: " + msg);
             throw new UserFailureException(msg);
+        }
+    }
+
+    /**
+     * Check <var>value</var> against the restrictions (maximal length and possible check constraints) of column
+     * <var>columnName</var> of table <var>tableName</var>.
+     * 
+     * @throws UserFailureException If the <var>value</var> violates the constraints.
+     */
+    public void check(String tableName, String columnName, Object value) throws UserFailureException
+    {
+        final DBTableRestrictions restrictions = tableMap.get(tableName);
+        assert restrictions != null : "Illegal table " + tableName;
+        checkNotNullConstraint(tableName, columnName, value, restrictions);
+    }
+
+    private void checkNotNullConstraint(String tableName, String columnName, Object value, DBTableRestrictions restrictions)
+            throws UserFailureException
+    {
+        assert restrictions != null;
+        if (value == null)
+        {
+            if (restrictions.hasNotNullConstraint(columnName))
+            {
+                final String msg = String.format("Value 'NULL' not allowed for column %s.%s.", tableName, columnName);
+                operationLog.warn("Violation of database constraints detected: " + msg);
+                throw new UserFailureException(msg);
+            }
+            return;
         }
     }
 
