@@ -36,14 +36,20 @@ public class DBMigrationEngine
 
     private final boolean shouldCreateFromScratch;
 
-    private final IDAOFactory daoFactory;
-    
     private final ISqlScriptProvider scriptProvider;
+
+    private final IDatabaseAdminDAO adminDAO;
+
+    private final IDatabaseVersionLogDAO logDAO;
+
+    private final ISqlScriptExecutor scriptExecutor;
 
 
     public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider, boolean shouldCreateFromScratch)
     {
-        this.daoFactory = daoFactory;
+        adminDAO = daoFactory.getDatabaseDAO();
+        logDAO = daoFactory.getDatabaseVersionLogDAO();
+        scriptExecutor = daoFactory.getSqlScriptExecutor();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
@@ -52,14 +58,14 @@ public class DBMigrationEngine
     {
         if (shouldCreateFromScratch)
         {
-            dropDatabase();
+            adminDAO.dropDatabase();
         }
         if (databaseExists() == false)
         {
             setupDatabase(version);
             return;
         }
-        LogEntry entry = daoFactory.getDatabaseVersionLogDAO().getLastEntry();
+        LogEntry entry = logDAO.getLastEntry();
         String databaseVersion = entry.getVersion();
         if (version.equals(databaseVersion))
         {
@@ -83,11 +89,6 @@ public class DBMigrationEngine
         }
     }
 
-    private void dropDatabase()
-    {
-        daoFactory.getDatabaseDAO().dropDatabase();
-    }
-    
     private void setupDatabase(String version)
     {
         createOwner();
@@ -95,14 +96,14 @@ public class DBMigrationEngine
         fillWithInitialData(version);
         if (operationLog.isInfoEnabled())
         {
-            String databaseName = daoFactory.getDatabaseDAO().getDatabaseName();
+            String databaseName = adminDAO.getDatabaseName();
             operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
         }
     }
 
     private void createOwner()
     {
-        IDatabaseAdminDAO databaseDAO = daoFactory.getDatabaseDAO();
+        IDatabaseAdminDAO databaseDAO = adminDAO;
         try
         {
             databaseDAO.createOwner();
@@ -122,8 +123,7 @@ public class DBMigrationEngine
 
     private void createEmptyDatabase(String version)
     {
-        daoFactory.getDatabaseDAO().createDatabase();
-        IDatabaseVersionLogDAO logDAO = daoFactory.getDatabaseVersionLogDAO();
+        adminDAO.createDatabase();
         logDAO.createTable();
         
         Script script = scriptProvider.getSchemaScript(version);
@@ -182,13 +182,12 @@ public class DBMigrationEngine
 
     private void executeScript(Script script, String version) throws Error
     {
-        IDatabaseVersionLogDAO logDAO = daoFactory.getDatabaseVersionLogDAO();
         String code = script.getCode();
         String name = script.getName();
         logDAO.logStart(version, name, code);
         try
         {
-            daoFactory.getSqlScriptExecutor().execute(code);
+            scriptExecutor.execute(code);
             logDAO.logSuccess(version, name);
         } catch (Throwable t)
         {
@@ -212,10 +211,10 @@ public class DBMigrationEngine
     /** Checks whether database already exists. */
     private final boolean databaseExists()
     {
-        boolean result = daoFactory.getDatabaseVersionLogDAO().canConnectToDatabase();
+        boolean result = logDAO.canConnectToDatabase();
         if (result && operationLog.isInfoEnabled())
         {
-            operationLog.info("Database '" + daoFactory.getDatabaseDAO().getDatabaseName() + "' does not exist.");
+            operationLog.info("Database '" + adminDAO.getDatabaseName() + "' does not exist.");
         }
         return result;
     }
