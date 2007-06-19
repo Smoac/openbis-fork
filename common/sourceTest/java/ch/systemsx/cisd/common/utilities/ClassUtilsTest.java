@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  * 
  * @author Christian Ribeaud
  */
-public class ClassUtilsTest
+public final class ClassUtilsTest
 {
 
     /**
