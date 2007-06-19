@@ -67,6 +67,9 @@ class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVer
 
     private static final String DB_VERSION_LOG = "database_version_logs";
     
+    private static final String SELECT_LAST_ENTRY = "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP 
+                                    + " in (select max(" + RUN_STATUS_TIMESTAMP + ") from " + DB_VERSION_LOG + ")";
+    
     private static final class LogEntryRowMapper implements ParameterizedRowMapper<LogEntry>
     {
         private final LobHandler lobHandler;
@@ -144,7 +147,8 @@ class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVer
     public LogEntry getLastEntry()
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        List<LogEntry> entries = template.query("select * from " + DB_VERSION_LOG, new LogEntryRowMapper(lobHandler));
+        List<LogEntry> entries = template.query(SELECT_LAST_ENTRY, new LogEntryRowMapper(lobHandler));
+        System.out.println(entries);
         
         return entries.size() == 0 ? null : entries.get(entries.size() - 1);
     }
