@@ -244,6 +244,11 @@ public class DBRestrictions
         assert restrictions != null : "Illegal table " + tableName;
         final int maxLength = restrictions.getLength(columnName);
         checkNotNullConstraint(tableName, columnName, value, restrictions);
+        if (value == null)
+        {
+            // No further check needed here.
+            return;
+        }
         final Set<String> checkedConstraint = restrictions.getCheckedConstaint(columnName);
         if (checkedConstraint != null && checkedConstraint.contains(value) == false)
         {
