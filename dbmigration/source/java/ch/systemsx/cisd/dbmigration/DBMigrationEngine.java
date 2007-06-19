@@ -75,28 +75,28 @@ public class DBMigrationEngine
                 operationLog.info("No migration needed for database '" + databaseName + "'. Current version: " 
                                   + version + ".");
             }
-            return;
-        }
-        if (version.compareTo(databaseVersion) > 0)
+        } else if (version.compareTo(databaseVersion) > 0)
         {
             if (operationLog.isInfoEnabled())
             {
                 String databaseName = adminDAO.getDatabaseName();
-                operationLog.info("Migrating database '" + databaseName + "' from version '" + databaseVersion 
-                                   + "' to '" + version + "'.");
+                operationLog.info("Migrating database '" + databaseName + "' from version " + databaseVersion 
+                                   + " to " + version + ".");
             }
             migrate(databaseVersion, version);
             if (operationLog.isInfoEnabled())
             {
                 String databaseName = adminDAO.getDatabaseName();
-                operationLog.info("Database '" + databaseName + "' successfully migrated from version '" 
-                                  + databaseVersion + "' to '" + version + "'.");
+                operationLog.info("Database '" + databaseName + "' successfully migrated from version " 
+                                  + databaseVersion + " to " + version + ".");
             }
         } else
         {
             String databaseName = adminDAO.getDatabaseName();
-            throw new EnvironmentFailureException("Couldn't revert database '" + databaseName + "' from version " 
-                                                  + databaseVersion + " to previous version " + version + ".");
+            String message = "Couldn't revert database '" + databaseName + "' from version " 
+                             + databaseVersion + " to previous version " + version + ".";
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
         }
     }
 
@@ -120,7 +120,7 @@ public class DBMigrationEngine
             databaseDAO.createOwner();
         } catch (DataAccessException ex)
         {
-            if (userAlreadyExists(ex))
+            if (ownerAlreadyExists(ex))
             {
                 if (operationLog.isInfoEnabled())
                 {
@@ -128,6 +128,7 @@ public class DBMigrationEngine
                 }
             } else {
                 operationLog.error("Database owner couldn't be created:", ex);
+                throw ex;
             }
         }
     }
@@ -140,7 +141,9 @@ public class DBMigrationEngine
         Script script = scriptProvider.getSchemaScript(version);
         if (script == null)
         {
-            throw new EnvironmentFailureException("No schema script found for version " + version);
+            String message = "No schema script found for version " + version;
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
         }
         executeScript(script, version);
     }
@@ -238,7 +241,7 @@ public class DBMigrationEngine
      * This is database specific.
      * </p>
      */
-    protected boolean userAlreadyExists(DataAccessException ex) {
+    protected boolean ownerAlreadyExists(DataAccessException ex) {
         // 42710 DUPLICATE OBJECT
         return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
