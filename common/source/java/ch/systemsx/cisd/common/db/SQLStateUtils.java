@@ -27,6 +27,17 @@ import java.sql.SQLException;
 // Have a look at SQLErrorCodeSQLExceptionTranslator and SQLErrorCodes
 public final class SQLStateUtils
 {
+    /** SQL State. */
+    public static final String FOREIGN_KEY_VIOLATION = "23503";
+    
+    /** SQL State. */
+    public static final String UNIQUE_VIOLATION = "23505";
+    
+    /** SQL State. */
+    public static final String INVALID_CATALOG_NAME = "3D000";
+    
+    /** SQL State. */
+    public static final String DUPLICATE_OBJECT = "42710";
 
     private SQLStateUtils()
     {
@@ -56,22 +67,22 @@ public final class SQLStateUtils
     
     /** Whether given SQL state stands for <i>DUPLICATE OBJECT</i>. */
     public final static boolean isDuplicateObject(String sqlState) {
-        return "42710".equalsIgnoreCase(sqlState);
+        return DUPLICATE_OBJECT.equalsIgnoreCase(sqlState);
     }
     
     /** Whether given SQL state stands for <i>INVALID CATALOG NAME</i>. */
     public final static boolean isInvalidCatalogName(String sqlState) {
-        return "3D000".equalsIgnoreCase(sqlState);
+        return INVALID_CATALOG_NAME.equalsIgnoreCase(sqlState);
     }
     
     /** Whether given SQL state stands for <i>UNIQUE VIOLATION</i>. */
     public final static boolean isUniqueViolation(String sqlState) {
-        return "23505".equalsIgnoreCase(sqlState);
+        return UNIQUE_VIOLATION.equalsIgnoreCase(sqlState);
     }
     
     /** Whether given SQL state stands for <i>FOREIGN KEY VIOLATION</i>. */
     public final static boolean isForeignKeyViolation(String sqlState) {
-        return "23503".equalsIgnoreCase(sqlState);
+        return FOREIGN_KEY_VIOLATION.equalsIgnoreCase(sqlState);
     }
     
 }
