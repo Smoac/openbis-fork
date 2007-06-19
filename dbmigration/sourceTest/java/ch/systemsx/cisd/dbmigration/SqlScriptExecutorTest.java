@@ -49,6 +49,7 @@ public class SqlScriptExecutorTest
     public void setUpTestFiles() throws IOException
     {
         TEMP_SCHEMA_SCRIPT_FOLDER.mkdir();
+        write(new File(TEMP_SCHEMA_SCRIPT_FOLDER, "hello.script"), "hello world!");
         File schemaVersionFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, VERSION);
         schemaVersionFolder.mkdir();
         write(new File(schemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
@@ -139,6 +140,20 @@ public class SqlScriptExecutorTest
     public void testGetNonExistingMigrationScript()
     {
         assertEquals(null, sqlScriptProvider.getMigrationScript("000", "001"));
+    }
+    
+    @Test
+    public void testGetScript()
+    {
+        Script script = sqlScriptProvider.getScript("hello.script");
+        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/hello.script", script.getName());
+        assertEquals("hello world!", script.getCode().trim());
+    }
+
+    @Test
+    public void testGetNonExistingScript()
+    {
+        assertEquals(null, sqlScriptProvider.getScript("blabla.sql"));
     }
     
 }

@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Class for creating and migrating a database.
@@ -30,6 +31,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class DBMigrationEngine
 {
+    //@Private
+    static final String CREATE_LOG_SQL = "createLog.sql";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     private final boolean shouldCreateFromScratch;
@@ -141,7 +145,22 @@ public class DBMigrationEngine
     private void createEmptyDatabase(String version)
     {
         adminDAO.createDatabase();
-        logDAO.createTable();
+        Script createScript = scriptProvider.getScript(CREATE_LOG_SQL);
+        if (createScript == null)
+        {
+            String message = "Missing script " + CREATE_LOG_SQL;
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
+        }
+        try
+        {
+            logDAO.createTable(createScript);
+        } catch (RuntimeException e)
+        {
+            operationLog.error("Script '" + createScript.getName() + "' failed:" + OSUtilities.LINE_SEPARATOR 
+                               + createScript.getCode(), e);
+            throw e;
+        }
         
         Script script = scriptProvider.getSchemaScript(version);
         if (script == null)

@@ -76,13 +76,21 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the schmea script for the specified version. 
+     * Returns the schema script for the specified version. 
      * The name of the script is expected to be
      * <pre>&lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql</pre>
      */
     public Script getSchemaScript(String version)
     {
         return loadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE);
+    }
+
+    /**
+     * Returns the specified script relative to the schema script folder.
+     */
+    public Script getScript(String scriptName)
+    {
+        return loadScript(schemaScriptFolder, scriptName);
     }
 
     private Script loadScript(String folder, String scriptName)

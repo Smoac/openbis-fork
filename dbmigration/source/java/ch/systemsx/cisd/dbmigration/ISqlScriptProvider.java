@@ -47,4 +47,12 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a migration script. 
      */
     public Script getMigrationScript(String fromVersion, String toVersion);
+    
+    /**
+     * Returns the specified script.
+     * 
+     * @param scriptName The name of the script file. File extension has to be included.
+     * @return <code>null</code> if there isn't such a script. 
+     */
+    public Script getScript(String scriptName);
 }

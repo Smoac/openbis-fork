@@ -67,16 +67,6 @@ class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVer
 
     private static final String DB_VERSION_LOG = "database_version_logs";
     
-    private static final String CREATE_DB_VERSION_TABLE =
-            "create table " + DB_VERSION_LOG 
-            + " (" + DB_VERSION + "           varchar(4) not null" 
-            + " ," + MODULE_NAME + "          varchar(250)"
-            + " ," + RUN_STATUS + "           varchar(10)"
-            + " ," + RUN_STATUS_TIMESTAMP + " timestamp"
-            + " ," + MODULE_CODE + "          bytea"
-            + " ," + RUN_EXCEPTION + "        bytea"
-            + ")";
-    
     private static final class LogEntryRowMapper implements ParameterizedRowMapper<LogEntry>
     {
         private final LobHandler lobHandler;
@@ -145,10 +135,10 @@ class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVer
         }
     }
 
-    public void createTable()
+    public void createTable(Script script)
     {
         JdbcTemplate template = getJdbcTemplate();
-        template.execute(CREATE_DB_VERSION_TABLE);
+        template.execute(script.getCode());
     }
     
     public LogEntry getLastEntry()

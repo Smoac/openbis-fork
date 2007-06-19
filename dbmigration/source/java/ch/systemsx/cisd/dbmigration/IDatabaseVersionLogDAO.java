@@ -30,9 +30,9 @@ public interface IDatabaseVersionLogDAO
     public boolean canConnectToDatabase();
     
     /**
-     * Creates the table DATABASE_VERSION_LOG.
+     * Creates the table DATABASE_VERSION_LOG by using the specified script.
      */
-    public void createTable();
+    public void createTable(Script script);
     
     /**
      * Returns the last log entry found.
