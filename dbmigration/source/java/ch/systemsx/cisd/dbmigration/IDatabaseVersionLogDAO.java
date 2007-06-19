@@ -24,16 +24,45 @@ package ch.systemsx.cisd.dbmigration;
  */
 public interface IDatabaseVersionLogDAO
 {
+    /**
+     * Returns <code>true</code> if the database instance with database version log can be connected.
+     */
     public boolean canConnectToDatabase();
     
+    /**
+     * Creates the table DATABASE_VERSION_LOG.
+     */
     public void createTable();
     
+    /**
+     * Returns the last log entry found.
+     */
     public LogEntry getLastEntry();
     
+    /**
+     * Inserts a new entry into the version log with {@link LogEntry.RunStatus#START}. 
+     * 
+     * @param version Version of the database after creation/migration.
+     * @param moduleName Name of the module/script to be applied. 
+     * @param moduleCode Script code. 
+     */
     public void logStart(String version, String moduleName, String moduleCode);
     
+    /**
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#SUCCESS}. 
+     * 
+     * @param version Version of the database after creation/migration.
+     * @param moduleName Name of the successfully applied module/script. 
+     */
     public void logSuccess(String version, String moduleName);
     
+    /**
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#FAILED}. 
+     * 
+     * @param version Version of the database after creation/migration.
+     * @param moduleName Name of the failed module/script.
+     * @param runException Exception causing the failure. 
+     */
     public void logFailure(String version, String moduleName, Throwable runException);
 
 }

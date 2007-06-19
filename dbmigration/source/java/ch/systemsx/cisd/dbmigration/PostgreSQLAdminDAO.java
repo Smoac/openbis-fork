@@ -32,6 +32,13 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
     private final String owner;
     private final String database;
 
+    /**
+     * Creates an instance.
+     *
+     * @param dataSource Data source able to create/drop the specified database.
+     * @param owner Owner to be created if it doesn't exist.
+     * @param database Name of the database.
+     */
     public PostgreSQLAdminDAO(DataSource dataSource, String owner, String database)
     {
         this.owner = owner;

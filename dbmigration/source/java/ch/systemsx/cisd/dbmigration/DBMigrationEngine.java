@@ -44,7 +44,11 @@ public class DBMigrationEngine
 
     private final ISqlScriptExecutor scriptExecutor;
 
-
+    /**
+     * Creates an instance for the specified DAO factory and SQL script provider.
+     *
+     * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
+     */
     public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider, boolean shouldCreateFromScratch)
     {
         adminDAO = daoFactory.getDatabaseDAO();
@@ -54,6 +58,12 @@ public class DBMigrationEngine
         this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
     
+    /**
+     * Create or migrate database to the specified version.
+     * 
+     * @throws EnvironmentFailureException if creation/migration failed because of some missing scripts or an
+     *          inconsistent database.
+     */
     public void migrateTo(String version)
     {
         if (shouldCreateFromScratch)
@@ -66,6 +76,7 @@ public class DBMigrationEngine
             return;
         }
         LogEntry entry = logDAO.getLastEntry();
+        // TODO 2007-06-19, Franz-Josef Elmer: check not null and run status
         String databaseVersion = entry.getVersion();
         if (version.equals(databaseVersion))
         {

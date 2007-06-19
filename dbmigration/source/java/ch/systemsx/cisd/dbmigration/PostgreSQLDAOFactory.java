@@ -29,6 +29,9 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     private final ISqlScriptExecutor sqlScriptExecutor;
     private final IDatabaseVersionLogDAO databaseVersionLogDAO;
 
+    /**
+     * Creates an instance based on the specified configuration context.
+     */
     public PostgreSQLDAOFactory(DatabaseConfigurationContext context)
     {
         databaseDAO = new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());

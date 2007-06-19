@@ -17,19 +17,34 @@
 package ch.systemsx.cisd.dbmigration;
 
 /**
- * Interface for creating/dropping a database.
+ * Interface for administration of a database.
  *
  * @author Franz-Josef Elmer
  */
 public interface IDatabaseAdminDAO
 {
+    /**
+     * Returns the owner of the database to be created/dropped.
+     */
     public String getOwner();
     
+    /**
+     * Returns the name of the database to be created/dropped.
+     */
     public String getDatabaseName();
     
+    /**
+     * Creates the owner/user.
+     */
     public void createOwner();
     
+    /**
+     * Creates the database. 
+     */
     public void createDatabase();
     
+    /**
+     * Drops the database.
+     */
     public void dropDatabase();
 }

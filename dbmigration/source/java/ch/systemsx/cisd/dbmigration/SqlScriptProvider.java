@@ -25,7 +25,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory. 
+ * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory. This provider tries
+ * first to load a resource. If this isn't successful the provider tries to look for files relative to the
+ * working directory. 
  *
  * @author Franz-Josef Elmer
  */
@@ -39,23 +41,45 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private final String schemaScriptFolder;
     private final String dataScriptFolder;
     
+    /**
+     * Creates an instance for the specified script folders. They are either resource folders or folders
+     * relative to the working directory.
+     *
+     * @param schemaScriptFolder Folder of schema and migration scripts.
+     * @param dataScriptFolder Folder of data scripts.
+     */
     public SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder)
     {
         this.schemaScriptFolder = schemaScriptFolder;
         this.dataScriptFolder = dataScriptFolder;
     }
 
+    /**
+     * Returns the data script for the specified version. 
+     * The name of the script is expected to be
+     * <pre>&lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql</pre>
+     */
     public Script getDataScript(String version)
     {
         return loadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
     }
 
+    /**
+     * Returns the migration script for the specified versions. 
+     * The name of the script is expected to be
+     * <pre>&lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql</pre>
+     */
     public Script getMigrationScript(String fromVersion, String toVersion)
     {
         String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
         return loadScript(schemaScriptFolder + "/migration", scriptName);
     }
 
+    /**
+     * Returns the schmea script for the specified version. 
+     * The name of the script is expected to be
+     * <pre>&lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql</pre>
+     */
     public Script getSchemaScript(String version)
     {
         return loadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE);

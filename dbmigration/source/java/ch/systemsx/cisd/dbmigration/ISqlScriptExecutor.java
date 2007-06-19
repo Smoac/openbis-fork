@@ -23,5 +23,8 @@ package ch.systemsx.cisd.dbmigration;
  */
 public interface ISqlScriptExecutor
 {
+    /**
+     * Executes the specified SQL script.
+     */
     public void execute(String sqlScript);
 }

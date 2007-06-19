@@ -23,9 +23,18 @@ package ch.systemsx.cisd.dbmigration;
  */
 public interface IDAOFactory
 {
+    /**
+     * Returns an Data Access Object for administration of the database.
+     */
     public IDatabaseAdminDAO getDatabaseDAO();
     
+    /**
+     * Returns an executor of SQL scripts.
+     */
     public ISqlScriptExecutor getSqlScriptExecutor();
     
+    /**
+     * Returns the DAO for the database version log.
+     */
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO();
 }

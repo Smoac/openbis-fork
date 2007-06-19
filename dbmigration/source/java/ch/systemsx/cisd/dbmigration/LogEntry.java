@@ -19,12 +19,13 @@ package ch.systemsx.cisd.dbmigration;
 import java.util.Date;
 
 /**
- * Log entry of DATABASE_VERSION_LOG
+ * Log entry of DATABASE_VERSION_LOG.
  *
  * @author Franz-Josef Elmer
  */
 public class LogEntry
 {
+    /** Run status of an entry. */
     public enum RunStatus {START, SUCCESS, FAILED, UNKNOWN}
     
     private String version;
