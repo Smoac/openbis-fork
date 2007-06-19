@@ -18,9 +18,14 @@ package ch.systemsx.cisd.dbmigration;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+
+import ch.systemsx.cisd.common.db.SQLStateUtils;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for PostgreSQL.
@@ -29,6 +34,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
  */
 public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
+    
     private final String owner;
     private final String database;
 
@@ -51,16 +58,37 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
         return database;
     }
 
-    public String getOwner()
-    {
-        return owner;
-    }
-
     public void createOwner()
     {
-        getJdbcTemplate().execute("create user " + owner);
+        try
+        {
+            getJdbcTemplate().execute("create user " + owner);
+        } catch (DataAccessException ex)
+        {
+            if (ownerAlreadyExists(ex))
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Owner '" + owner + "' already exists.");
+                }
+            } else {
+                operationLog.error("Database owner couldn't be created:", ex);
+                throw ex;
+            }
+        }
     }
 
+    /**
+     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
+     * <p>
+     * This is database specific.
+     * </p>
+     */
+    protected boolean ownerAlreadyExists(DataAccessException ex) {
+        // 42710 DUPLICATE OBJECT
+        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
+    }
+    
     public void createDatabase()
     {
         JdbcTemplate template = getJdbcTemplate();

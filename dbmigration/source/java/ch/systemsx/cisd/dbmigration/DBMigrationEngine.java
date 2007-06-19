@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import org.apache.log4j.Logger;
-import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -75,8 +73,7 @@ public class DBMigrationEngine
             setupDatabase(version);
             return;
         }
-        LogEntry entry = logDAO.getLastEntry();
-        // TODO 2007-06-19, Franz-Josef Elmer: check not null and run status
+        LogEntry entry = getAndCheckLastLogEntry();
         String databaseVersion = entry.getVersion();
         if (version.equals(databaseVersion))
         {
@@ -111,36 +108,33 @@ public class DBMigrationEngine
         }
     }
 
+    private LogEntry getAndCheckLastLogEntry()
+    {
+        LogEntry entry = logDAO.getLastEntry();
+        if (entry == null)
+        {
+            String message = "Inconsistent database: Empty database version log.";
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
+        }
+        if (entry.getRunStatus() != LogEntry.RunStatus.SUCCESS)
+        {
+            String message = "Inconsistent database: Last creation/migration didn't succeeded. Last log entry: " + entry;
+            operationLog.error(message);
+            throw new EnvironmentFailureException(message);
+        }
+        return entry;
+    }
+
     private void setupDatabase(String version)
     {
-        createOwner();
+        adminDAO.createOwner();
         createEmptyDatabase(version);
         fillWithInitialData(version);
         if (operationLog.isInfoEnabled())
         {
             String databaseName = adminDAO.getDatabaseName();
             operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
-        }
-    }
-
-    private void createOwner()
-    {
-        IDatabaseAdminDAO databaseDAO = adminDAO;
-        try
-        {
-            databaseDAO.createOwner();
-        } catch (DataAccessException ex)
-        {
-            if (ownerAlreadyExists(ex))
-            {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Owner '" + databaseDAO.getOwner() + "' already exists.");
-                }
-            } else {
-                operationLog.error("Database owner couldn't be created:", ex);
-                throw ex;
-            }
         }
     }
 
@@ -246,14 +240,4 @@ public class DBMigrationEngine
         return result;
     }
     
-    /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
-     * <p>
-     * This is database specific.
-     * </p>
-     */
-    protected boolean ownerAlreadyExists(DataAccessException ex) {
-        // 42710 DUPLICATE OBJECT
-        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
-    }
 }

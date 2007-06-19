@@ -36,6 +36,8 @@ public interface IDatabaseVersionLogDAO
     
     /**
      * Returns the last log entry found.
+     * 
+     * @return <code>null</code> if log is empty.
      */
     public LogEntry getLastEntry();
     

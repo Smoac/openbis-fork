@@ -24,17 +24,13 @@ package ch.systemsx.cisd.dbmigration;
 public interface IDatabaseAdminDAO
 {
     /**
-     * Returns the owner of the database to be created/dropped.
-     */
-    public String getOwner();
-    
-    /**
      * Returns the name of the database to be created/dropped.
      */
     public String getDatabaseName();
     
     /**
-     * Creates the owner/user.
+     * Creates the owner/user of the database. Implementation should handle the case of already existing owner/user 
+     * gracefully.
      */
     public void createOwner();
     

@@ -167,5 +167,19 @@ public class LogEntry
     {
         this.version = version;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Version:").append(version).append(", Module:").append(moduleName);
+        builder.append(", Run status:").append(runStatus).append(", Time stamp:").append(runStatusTimestamp);
+        if (runStatus == RunStatus.FAILED && runException != null)
+        {
+            builder.append(", Exception:").append(runException);
+        }
+        return builder.toString();
+    }
+    
     
 }
