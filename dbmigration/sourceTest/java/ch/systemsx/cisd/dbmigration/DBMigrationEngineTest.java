@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -31,6 +32,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
+
 /**
  * Tests of {@link DBMigrationEngine} using mocks for database and {@link SqlScriptProvider}.
  *
@@ -38,6 +42,17 @@ import org.testng.annotations.Test;
  */
 public class DBMigrationEngineTest
 {
+    private class MyExpectations extends Expectations
+    {
+        protected void expectSuccessfulExecution(Script script, final String version)
+        {
+            will(returnValue(script));
+            one(logDAO).logStart(version, script.getName(), script.getCode());
+            one(scriptExecutor).execute(script.getCode());
+            one(logDAO).logSuccess(version, script.getName());
+        }
+    }
+    
     private Mockery context;
     private ISqlScriptProvider scriptProvider;
     private IDAOFactory daoFactory;
@@ -90,7 +105,7 @@ public class DBMigrationEngineTest
     public void testCreateFromScratch()
     {
         final String version = "042";
-        context.checking(new Expectations()
+        context.checking(new MyExpectations()
         {
             {
                 one(daoFactory).getDatabaseDAO();
@@ -103,23 +118,17 @@ public class DBMigrationEngineTest
                 one(adminDAO).dropDatabase();
                 one(logDAO).canConnectToDatabase();
                 will(returnValue(false));
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 1. database"));
                 one(adminDAO).createOwner();
                 one(adminDAO).createDatabase();
                 one(logDAO).createTable();
                 one(scriptProvider).getSchemaScript(version);
-                Script schemaScript = new Script("schema", "schema code");
-                will(returnValue(schemaScript));
-                one(logDAO).logStart(version, schemaScript.getName(), schemaScript.getCode());
-                one(scriptExecutor).execute(schemaScript.getCode());
-                one(logDAO).logSuccess(version, schemaScript.getName());
+                expectSuccessfulExecution(new Script("schema", "schema code"), version);
                 one(scriptProvider).getDataScript(version);
-                Script dataScript = new Script("data", "data code");
-                will(returnValue(dataScript));
-                one(logDAO).logStart(version, dataScript.getName(), dataScript.getCode());
-                one(scriptExecutor).execute(dataScript.getCode());
-                one(logDAO).logSuccess(version, dataScript.getName());
+                expectSuccessfulExecution(new Script("data", "data code"), version);
                 one(adminDAO).getDatabaseName();
-                will(returnValue("my database"));
+                will(returnValue("my 2. database"));
             }
         });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
@@ -127,7 +136,176 @@ public class DBMigrationEngineTest
         logRecorder.reset();
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my database' version 042 has been successfully created.", getLogContent());
+                + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Database 'my 2. database' version 042 has been successfully created.", getLogContent());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCreateFromScratchWithFromScratchFlagFalse()
+    {
+        final String version = "042";
+        context.checking(new MyExpectations()
+        {
+            {
+                one(daoFactory).getDatabaseDAO();
+                will(returnValue(adminDAO));
+                one(daoFactory).getDatabaseVersionLogDAO();
+                will(returnValue(logDAO));
+                one(daoFactory).getSqlScriptExecutor();
+                will(returnValue(scriptExecutor));
+                
+                one(logDAO).canConnectToDatabase();
+                will(returnValue(false));
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 1. database"));
+                one(adminDAO).createOwner();
+                one(adminDAO).createDatabase();
+                one(logDAO).createTable();
+                one(scriptProvider).getSchemaScript(version);
+                expectSuccessfulExecution(new Script("schema", "schema code"), version);
+                one(scriptProvider).getDataScript(version);
+                expectSuccessfulExecution(new Script("data", "data code"), version);
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 2. database"));
+            }
+
+        });
+        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
+        
+        logRecorder.reset();
+        migrationEngine.migrateTo(version);
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Database 'my 2. database' version 042 has been successfully created.", getLogContent());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCaseNoMigrationNeeded()
+    {
+        final String version = "042";
+        context.checking(new Expectations()
+        {
+            {
+                one(daoFactory).getDatabaseDAO();
+                will(returnValue(adminDAO));
+                one(daoFactory).getDatabaseVersionLogDAO();
+                will(returnValue(logDAO));
+                one(daoFactory).getSqlScriptExecutor();
+                will(returnValue(scriptExecutor));
+                
+                one(logDAO).canConnectToDatabase();
+                will(returnValue(true));
+                one(logDAO).getLastEntry();
+                LogEntry logEntry = new LogEntry();
+                logEntry.setVersion(version);
+                will(returnValue(logEntry));
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my database"));
+            }
+        });
+        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
+        
+        logRecorder.reset();
+        migrationEngine.migrateTo(version);
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "No migration needed for database 'my database'. Current version: 042.", getLogContent());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testMigration()
+    {
+        final String fromVersion = "099";
+        final String toVersion = "101";
+        context.checking(new MyExpectations()
+        {
+            {
+                one(daoFactory).getDatabaseDAO();
+                will(returnValue(adminDAO));
+                one(daoFactory).getDatabaseVersionLogDAO();
+                will(returnValue(logDAO));
+                one(daoFactory).getSqlScriptExecutor();
+                will(returnValue(scriptExecutor));
+                
+                one(logDAO).canConnectToDatabase();
+                will(returnValue(true));
+                one(logDAO).getLastEntry();
+                LogEntry logEntry = new LogEntry();
+                logEntry.setVersion(fromVersion);
+                will(returnValue(logEntry));
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 1. database"));
+                one(scriptProvider).getMigrationScript(fromVersion, "100");
+                expectSuccessfulExecution(new Script("m-099-100", "code 099 100"), toVersion);
+                one(scriptProvider).getMigrationScript("100", toVersion);
+                expectSuccessfulExecution(new Script("m-100-101", "code 100 101"), toVersion);
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 2. database"));
+            }
+        });
+        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
+        
+        logRecorder.reset();
+        migrationEngine.migrateTo(toVersion);
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Migrating database 'my 1. database' from version '099' to '101'." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " 
+                + "Database 'my 2. database' successfully migrated from version '099' to '101'.", getLogContent());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testMigrationScriptNotFound()
+    {
+        final String fromVersion = "099";
+        final String toVersion = "101";
+        context.checking(new MyExpectations()
+        {
+            {
+                one(daoFactory).getDatabaseDAO();
+                will(returnValue(adminDAO));
+                one(daoFactory).getDatabaseVersionLogDAO();
+                will(returnValue(logDAO));
+                one(daoFactory).getSqlScriptExecutor();
+                will(returnValue(scriptExecutor));
+                
+                one(logDAO).canConnectToDatabase();
+                will(returnValue(true));
+                one(logDAO).getLastEntry();
+                LogEntry logEntry = new LogEntry();
+                logEntry.setVersion(fromVersion);
+                will(returnValue(logEntry));
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 1. database"));
+                one(scriptProvider).getMigrationScript(fromVersion, "100");
+                one(adminDAO).getDatabaseName();
+                will(returnValue("my 2. database"));
+            }
+        });
+        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
+        
+        logRecorder.reset();
+        String errorMessage = "Cannot migrate database 'my 2. database' from version 099 to 100 because of "
+                              + "missing migration script.";
+        try
+        {
+            migrationEngine.migrateTo(toVersion);
+            fail("EnvironmentFailureException expected because of missing migration step");
+        } catch (EnvironmentFailureException e)
+        {
+            assertEquals(errorMessage, e.getMessage());
+        }
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Migrating database 'my 1. database' from version '099' to '101'." + OSUtilities.LINE_SEPARATOR
+                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + errorMessage, getLogContent());
         
         context.assertIsSatisfied();
     }
@@ -136,4 +314,5 @@ public class DBMigrationEngineTest
     {
         return new String(logRecorder.toByteArray()).trim();
     }
+    
 }

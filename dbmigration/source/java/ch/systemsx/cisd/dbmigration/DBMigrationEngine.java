@@ -71,7 +71,9 @@ public class DBMigrationEngine
         {
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("No migration needed. Database version " + version + ".");
+                String databaseName = adminDAO.getDatabaseName();
+                operationLog.info("No migration needed for database '" + databaseName + "'. Current version: " 
+                                  + version + ".");
             }
             return;
         }
@@ -79,13 +81,22 @@ public class DBMigrationEngine
         {
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Migrating database from version '" + databaseVersion + "' to '" + version + "'.");
+                String databaseName = adminDAO.getDatabaseName();
+                operationLog.info("Migrating database '" + databaseName + "' from version '" + databaseVersion 
+                                   + "' to '" + version + "'.");
             }
             migrate(databaseVersion, version);
+            if (operationLog.isInfoEnabled())
+            {
+                String databaseName = adminDAO.getDatabaseName();
+                operationLog.info("Database '" + databaseName + "' successfully migrated from version '" 
+                                  + databaseVersion + "' to '" + version + "'.");
+            }
         } else
         {
-            throw new EnvironmentFailureException("Couldn't revert from version " + databaseVersion
-                    + " to previous version " + version + ".");
+            String databaseName = adminDAO.getDatabaseName();
+            throw new EnvironmentFailureException("Couldn't revert database '" + databaseName + "' from version " 
+                                                  + databaseVersion + " to previous version " + version + ".");
         }
     }
 
@@ -152,7 +163,9 @@ public class DBMigrationEngine
             Script migrationScript = scriptProvider.getMigrationScript(version, nextVersion);
             if (migrationScript == null)
             {
-                String message = "Missing migration script from version " + version + " to " + nextVersion;
+                String databaseName = adminDAO.getDatabaseName();
+                String message = "Cannot migrate database '" + databaseName + "' from version " + version + " to " 
+                                 + nextVersion + " because of missing migration script.";
                 operationLog.error(message);
                 throw new EnvironmentFailureException(message);
             }
@@ -212,7 +225,7 @@ public class DBMigrationEngine
     private final boolean databaseExists()
     {
         boolean result = logDAO.canConnectToDatabase();
-        if (result && operationLog.isInfoEnabled())
+        if (result == false && operationLog.isInfoEnabled())
         {
             operationLog.info("Database '" + adminDAO.getDatabaseName() + "' does not exist.");
         }
