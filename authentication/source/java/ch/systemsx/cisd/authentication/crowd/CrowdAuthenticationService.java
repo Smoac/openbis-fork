@@ -65,6 +65,28 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + "                          xsi:nil=\"true\" />\n" + "     </in0>\n"
                     + "   </authenticateApplication>\n" + " </soap:Body>\n" + "</soap:Envelope>\n");
 
+    /** The template to authenticate the user. */
+    private static final MessageFormat AUTHENTICATE_USER =
+            new MessageFormat(
+                    "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
+                            + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
+                            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                            + " <soap:Body>\n"
+                            + "   <authenticatePrincipal xmlns=\"urn:SecurityServer\">\n"
+                            + "     <in0>\n"
+                            + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</name>\n"
+                            + "       <token xmlns=\"http://authentication.integration.crowd.atlassian.com\">{1}</token>\n"
+                            + "     </in0>\n"
+                            + "     <in1>\n"
+                            + "       <application xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</application>\n"
+                            + "       <credential xmlns=\"http://authentication.integration.crowd.atlassian.com\">\n"
+                            + "         <credential>{3}</credential>\n"
+                            + "       </credential>\n"
+                            + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{2}</name>\n"
+                            + "       <validationFactors xmlns=\"http://authentication.integration.crowd.atlassian.com\" />\n"
+                            + "     </in1>\n" + "   </authenticatePrincipal>\n" + " </soap:Body>\n"
+                            + "</soap:Envelope>\n");
+
     /** The template to find a principal by token or by name. */
     private static final MessageFormat FIND_PRINCIPAL_BY_NAME =
             new MessageFormat(
@@ -144,6 +166,24 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 operationLog.debug("CROWD: application '" + application + "' successfully authenticated.");
             }
         }
+        final String userToken =
+                StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user,
+                        password));
+        if (operationLog.isInfoEnabled())
+        {
+            final String msg = "CROWD: authentication of user '" + user + "', application '" + application + "': ";
+            if (userToken == null)
+            {
+                operationLog.info(msg + "FAILED.");
+            } else
+            {
+                operationLog.info(msg + "SUCCESS.");
+            }
+        }
+        if (userToken == null)
+        {
+            return null;
+        }
         // Find principal by name. Obviously we do not need to make an user authentication to get
         // these informations.
         String xmlResponse = null;
@@ -152,25 +192,21 @@ public class CrowdAuthenticationService implements IAuthenticationService
             xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
             Map<SOAPAttribute, String> parseXmlResponse = parseXmlResponse(xmlResponse);
             Principal principal;
-            if (parseXmlResponse.size() < 1) {
+            if (parseXmlResponse.size() < 1)
+            {
                 if (operationLog.isDebugEnabled())
                 {
                     operationLog.debug("No SOAPAttribute element could be found in the SOAP XML response.");
                 }
                 principal = null;
-            } else {
+            } else
+            {
                 principal = createPrincipal(user, parseXmlResponse);
             }
-            if (operationLog.isInfoEnabled())
+            if (principal == null)
             {
-                final String msg = "CROWD: Principal information for user '" + user + "', application '" + application + "': ";
-                if (principal == null)
-                {
-                    operationLog.info(msg + "could not be found.");
-                } else
-                {
-                    operationLog.info(msg + "has been successfully found.");
-                }
+                throw new EnvironmentFailureException("CROWD: Principal information for user '" + user
+                        + "' could not be obtained.");
             }
             return principal;
             // SAXException, IOException
@@ -187,7 +223,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
      */
-    private final static Map<CrowdSoapElements.SOAPAttribute, String> parseXmlResponse(String xmlResponse) throws SAXException, IOException
+    private final static Map<CrowdSoapElements.SOAPAttribute, String> parseXmlResponse(String xmlResponse)
+            throws SAXException, IOException
     {
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
         SOAPAttributeContentHandler contentHandler = new SOAPAttributeContentHandler();
@@ -199,7 +236,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
-    private final static Principal createPrincipal(String user, Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
+    private final static Principal createPrincipal(String user,
+            Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
     {
         String firstName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.givenName);
         String lastName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.sn);
