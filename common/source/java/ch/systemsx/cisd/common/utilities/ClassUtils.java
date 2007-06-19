@@ -78,16 +78,19 @@ public final class ClassUtils
     {
         return getMethodOnStack(2);
     }
-    
+
     /**
      * Returns the <code>Method</code> on the stack of <var>level</var>.
      * <p>
      * <code>level=0</code> is this method itself, <code>level=1</code> is the method that called it and so forth.
-     * @return <code>null</code> if none could be found.
      * </p>
+     * IMPORTANT NOTE: You should carefully use this method in a class having more than one method with the same name.
+     * The internal idea used here (<code>new Throwable().getStackTrace()</code>) only returns a method name and
+     * does not make any other consideration.
+     * 
+     * @see StackTraceElement#getMethodName()
+     * @return <code>null</code> if none could be found.
      */
-    // TODO 2007-06-14, Christian Ribeaud: 'method.getName()' is not specific enough. You have to used kind of
-    // or part of 'Method.toGenericString()'.
     public final static Method getMethodOnStack(int level)
     {
         StackTraceElement[] elements = new Throwable().getStackTrace();

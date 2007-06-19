@@ -39,13 +39,32 @@ public class ClassUtilsTest
     public final void testGetCurrentMethod()
     {
         assertEquals("testGetCurrentMethod", ClassUtils.getCurrentMethod().getName());
+        // Border cases
+        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(), new Object()));
     }
-    
+
+    private final static class SameMethodName
+    {
+
+        public final String getMethodName()
+        {
+            StackTraceElement[] elements = new Throwable().getStackTrace();
+            return elements[0].getMethodName();
+        }
+
+        public final String getMethodName(Object one, Object two)
+        {
+            StackTraceElement[] elements = new Throwable().getStackTrace();
+            return elements[0].getMethodName();
+        }
+    }
+
     private static class SimpleBean
     {
         private final int number;
+
         private final String string;
-        
+
         SimpleBean(int number, String string)
         {
             this.number = number;
@@ -61,18 +80,18 @@ public class ClassUtilsTest
         {
             return string;
         }
-        
+
         String getIgnoreThisBecauseItIsNotPublic()
         {
             AssertJUnit.fail("Should be ignore because not public");
             return null;
         }
     }
-    
+
     @Test
     public void testCheckGettersForNullOK()
     {
-        final SimpleBean bean = new SimpleBean(1, ""); 
+        final SimpleBean bean = new SimpleBean(1, "");
         assert ClassUtils.checkGettersNotNull(bean) == bean;
     }
 
@@ -85,14 +104,14 @@ public class ClassUtilsTest
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullStringNull()
     {
-        final SimpleBean bean = new SimpleBean(1, null); 
+        final SimpleBean bean = new SimpleBean(1, null);
         ClassUtils.checkGettersNotNull(bean);
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullInt0()
     {
-        final SimpleBean bean = new SimpleBean(0, "test"); 
+        final SimpleBean bean = new SimpleBean(0, "test");
         ClassUtils.checkGettersNotNull(bean);
     }
 
@@ -105,8 +124,8 @@ public class ClassUtilsTest
     @Test
     public void testCheckGettersForNullListOK()
     {
-        final SimpleBean bean1 = new SimpleBean(1, "test"); 
-        final SimpleBean bean2 = new SimpleBean(5, "test2"); 
+        final SimpleBean bean1 = new SimpleBean(1, "test");
+        final SimpleBean bean2 = new SimpleBean(5, "test2");
         final List<SimpleBean> beanList = Arrays.asList(bean1, bean2);
         assert ClassUtils.checkGettersNotNull(beanList) == beanList;
     }
@@ -114,8 +133,8 @@ public class ClassUtilsTest
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullListInt0()
     {
-        final SimpleBean bean1 = new SimpleBean(1, "test"); 
-        final SimpleBean bean2 = new SimpleBean(0, "test2"); 
+        final SimpleBean bean1 = new SimpleBean(1, "test");
+        final SimpleBean bean2 = new SimpleBean(0, "test2");
         ClassUtils.checkGettersNotNull(Arrays.asList(bean1, bean2));
     }
 
