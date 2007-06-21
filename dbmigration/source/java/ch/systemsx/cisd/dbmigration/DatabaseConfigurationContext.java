@@ -47,6 +47,8 @@ public class DatabaseConfigurationContext
     private String folderOfDataScripts;
 
     private String databaseKind;
+    
+    private String databaseType;
 
     private boolean createFromScratch;
 
@@ -311,6 +313,26 @@ public class DatabaseConfigurationContext
     public final void setDatabaseKind(String databaseKind)
     {
         this.databaseKind = databaseKind;
+    }
+
+    /**
+     * Returns databaseType.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    public final String getDatabaseType()
+    {
+        return databaseType;
+    }
+
+    /**
+     * Sets databaseType.
+     * 
+     * @param databaseType New value. Can be <code>null</code>.
+     */
+    public final void setDatabaseType(String databaseType)
+    {
+        this.databaseType = databaseType;
     }
 
     /**

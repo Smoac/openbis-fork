@@ -37,8 +37,10 @@ public class SqlScriptExecutorTest
 {
     private static final String TEMPORARY_DATA_SCRIPT_FOLDER_NAME = "temporaryDataScriptFolder";
     private static final String TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME = "temporarySchemaScriptFolder";
+    private static final String TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME = "temporaryInternalScriptFolder";
     private static final File TEMP_SCHEMA_SCRIPT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
     private static final File TEMP_DATA_SCRIPT_FOLDER = new File(TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
+    private static final File TEMP_INTERNAL_SCRIPT_FOLDER = new File(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
     private static final String MIGRATION = "migration";
     private static final String VERSION = "042";
     private static final String VERSION2 = "049";
@@ -49,7 +51,6 @@ public class SqlScriptExecutorTest
     public void setUpTestFiles() throws IOException
     {
         TEMP_SCHEMA_SCRIPT_FOLDER.mkdir();
-        write(new File(TEMP_SCHEMA_SCRIPT_FOLDER, "hello.script"), "hello world!");
         File schemaVersionFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, VERSION);
         schemaVersionFolder.mkdir();
         write(new File(schemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
@@ -60,7 +61,11 @@ public class SqlScriptExecutorTest
         File dataVersionFolder = new File(TEMP_DATA_SCRIPT_FOLDER, VERSION);
         dataVersionFolder.mkdir();
         write(new File(dataVersionFolder, "data-" + VERSION + ".sql"), "code: data");
-        sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
+        TEMP_INTERNAL_SCRIPT_FOLDER.mkdir();
+        write(new File(TEMP_INTERNAL_SCRIPT_FOLDER, "hello.script"), "hello world!");
+        sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, 
+                                                  TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
+                                                  TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
     }
 
     private void write(File file, String content) throws IOException
@@ -84,6 +89,7 @@ public class SqlScriptExecutorTest
     {
         delete(TEMP_SCHEMA_SCRIPT_FOLDER);
         delete(TEMP_DATA_SCRIPT_FOLDER);
+        delete(TEMP_INTERNAL_SCRIPT_FOLDER);
     }
 
     private void delete(File file)
@@ -146,7 +152,7 @@ public class SqlScriptExecutorTest
     public void testGetScript()
     {
         Script script = sqlScriptProvider.getScript("hello.script");
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/hello.script", script.getName());
+        assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/hello.script", script.getName());
         assertEquals("hello world!", script.getCode().trim());
     }
 

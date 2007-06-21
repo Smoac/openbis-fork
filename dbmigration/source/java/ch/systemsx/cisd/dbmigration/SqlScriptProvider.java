@@ -40,18 +40,31 @@ public class SqlScriptProvider implements ISqlScriptProvider
     
     private final String schemaScriptFolder;
     private final String dataScriptFolder;
+    private final String internalScriptFolder;
     
     /**
-     * Creates an instance for the specified script folders. They are either resource folders or folders
-     * relative to the working directory.
-     *
+     * Creates an instance for the specified folders and database type. The database type specifies the resource folder
+     * relative to the package of this class where the scripts with method {@link #getScript(String)} are loaded.
+     */
+    public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder, String databaseType)
+    {
+        String internalFolder = SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseType;
+        return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, internalFolder);
+    }
+    
+    /**
+     * Creates an instance for the specified script folders. They are either resource folders or folders relative to the
+     * working directory.
+     * 
      * @param schemaScriptFolder Folder of schema and migration scripts.
      * @param dataScriptFolder Folder of data scripts.
+     * @param internalScriptFolder Folder for internal scripts.
      */
-    public SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder)
+    SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder, String internalScriptFolder)
     {
         this.schemaScriptFolder = schemaScriptFolder;
         this.dataScriptFolder = dataScriptFolder;
+        this.internalScriptFolder = internalScriptFolder;
     }
 
     /**
@@ -86,11 +99,11 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the specified script relative to the schema script folder.
+     * Returns the specified script relative to the internal script folder.
      */
     public Script getScript(String scriptName)
     {
-        return loadScript(schemaScriptFolder, scriptName);
+        return loadScript(internalScriptFolder, scriptName);
     }
 
     private Script loadScript(String folder, String scriptName)
