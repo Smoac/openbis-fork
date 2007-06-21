@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,10 +106,12 @@ class SVNUtilities
 
     private static final class StreamReaderGobbler
     {
+        private final Semaphore waitForReadingFinishedSemaphore = new Semaphore(1);
         private final List<String> lines = new ArrayList<String>();
 
-        StreamReaderGobbler(final InputStream stream)
+        StreamReaderGobbler(final InputStream stream) throws InterruptedException
         {
+            waitForReadingFinishedSemaphore.acquire();
             new Thread()
                 {
                     @Override
@@ -116,26 +119,33 @@ class SVNUtilities
                     {
                         try
                         {
-                            synchronized (this)
+                            final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                            String line;
+                            while ((line = reader.readLine()) != null)
                             {
-                                final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                                String line;
-                                while ((line = reader.readLine()) != null)
-                                {
-                                    lines.add(line);
-                                }
+                                lines.add(line);
                             }
                         } catch (IOException ex)
                         {
                             throw new EnvironmentFailureException("Couldn't gobble stream content", ex);
+                        } finally
+                        {
+                            waitForReadingFinishedSemaphore.release();
                         }
                     }
                 }.start();
         }
 
-        synchronized List<String> getLines()
+        List<String> getLines() throws InterruptedException
         {
-            return lines;
+            waitForReadingFinishedSemaphore.acquire();
+            try
+            {
+                return lines;
+            } finally
+            {
+                waitForReadingFinishedSemaphore.release();
+            }
         }
 
     }
