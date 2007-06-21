@@ -23,6 +23,8 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import ch.systemsx.cisd.common.db.ISequencerScriptProvider;
+
 /**
  * Configuration context for database operations.
  * 
@@ -33,6 +35,8 @@ public class DatabaseConfigurationContext
     private String driver;
 
     private LobHandler lobHandler;
+    
+    private ISequencerScriptProvider sequencerScriptProvider;
 
     private String adminURL;
 
@@ -252,6 +256,26 @@ public class DatabaseConfigurationContext
     public final void setLobHandler(LobHandler lobHandler)
     {
         this.lobHandler = lobHandler;
+    }
+
+    /**
+     * Returns sequencerScriptProvider.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    public final ISequencerScriptProvider getSequencerScriptProvider()
+    {
+        return sequencerScriptProvider;
+    }
+
+    /**
+     * Sets sequencerScriptProvider.
+     * 
+     * @param sequencerScriptProvider New value. Can be <code>null</code>.
+     */
+    public final void setSequencerScriptProvider(ISequencerScriptProvider sequencerScriptProvider)
+    {
+        this.sequencerScriptProvider = sequencerScriptProvider;
     }
 
     /**
