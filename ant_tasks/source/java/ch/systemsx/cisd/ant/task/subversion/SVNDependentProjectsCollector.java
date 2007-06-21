@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -71,17 +72,30 @@ class SVNDependentProjectsCollector
         private final Set<String> projects;
 
         private final String projectPath;
+        
+        private final Set<String> locationsAlreadyVisited;
 
         ProjectHandler(Set<String> projects, String projectPath)
         {
+            this(projects, projectPath, new HashSet<String>());
+        }
+
+        ProjectHandler(Set<String> projects, String projectPath, Set<String> locationsAlreadyVisited)
+        {
             this.projects = projects;
             this.projectPath = projectPath;
+            this.locationsAlreadyVisited = locationsAlreadyVisited;
         }
 
         @Override
         public IEclipseClasspathLocation createLocation()
         {
             final String displayableLocation = projectPath + "/" + EclipseClasspathReader.CLASSPATH_FILE;
+            if (locationsAlreadyVisited.contains(displayableLocation))
+            {
+                return null;
+            }
+            locationsAlreadyVisited.add(displayableLocation);
             try
             {
                 final String eclipseClasspath = actions.cat(displayableLocation);
@@ -111,7 +125,7 @@ class SVNDependentProjectsCollector
         public IProjectHandler createHandler(EclipseClasspathEntry entry)
         {
             final String projectName = SVNUtilities.getTopLevelDirectory(entry.getPath());
-            return new ProjectHandler(projects, pathProvider.getPath(projectName));
+            return new ProjectHandler(projects, pathProvider.getPath(projectName), locationsAlreadyVisited);
         }
 
     }
