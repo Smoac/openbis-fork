@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.ant.task;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -91,11 +93,20 @@ public class RecursiveJar extends Jar
 
         private final File subprojectsParent;
 
+        private final Set<String> subprojectsAlreadySeen;
+
         SubprojectFileSetAppender(RecursiveJar jar, FileSet fileSet, File subprojectsParent)
+        {
+            this(jar, fileSet, subprojectsParent, new HashSet<String>());
+        }
+
+        SubprojectFileSetAppender(RecursiveJar jar, FileSet fileSet, File subprojectsParent,
+                Set<String> subprojectsAlreadySeen)
         {
             this.jar = jar;
             this.fileSet = fileSet;
             this.subprojectsParent = subprojectsParent;
+            this.subprojectsAlreadySeen = subprojectsAlreadySeen;
         }
 
         @Override
@@ -106,9 +117,15 @@ public class RecursiveJar extends Jar
                 if (entry.isSubprojectEntry())
                 {
                     String subproject = entry.getPath().substring(1);
+                    if (subprojectsAlreadySeen.contains(subproject))
+                    {
+                        continue;
+                    }
+                    subprojectsAlreadySeen.add(subproject);
                     jar.addFilesetPlain(new RelatedSubprojectFileSet(fileSet, subproject));
                     File subprojectDir = new File(subprojectsParent, subproject);
-                    new SubprojectFileSetAppender(jar, fileSet, subprojectsParent).execute(subprojectDir);
+                    new SubprojectFileSetAppender(jar, fileSet, subprojectsParent, subprojectsAlreadySeen)
+                            .execute(subprojectDir);
                 }
             }
         }
