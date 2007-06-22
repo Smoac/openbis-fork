@@ -28,15 +28,26 @@ public final class DummyAuthenticationService implements IAuthenticationService
     // IAuthenticationService
     //
 
+    public String authenticateApplication()
+    {
+        // We do not care about the returned application token.
+        return null;
+    }
+    
     /**
-     * Returns always a non-<code>null</code> token, meaning that the login was successfull.
+     * Always returns <code>true</code>, meaning that the login was successfull.
      */
-    public final Principal authenticate(String user, String password)
+    public final boolean authenticateUser(String applicationToken, String user, String password)
+    {
+        return true;
+    }
+
+    public final Principal getPrincipal(String applicationToken, String user)
     {
         return new Principal(user, "John", "Doe", "jdoe@somewhere.org");
     }
-
-    public final void checkAvailability()
+    
+    public final void check()
     {
         // Always available.
     }

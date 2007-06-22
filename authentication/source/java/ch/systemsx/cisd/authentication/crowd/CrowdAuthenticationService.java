@@ -37,6 +37,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.authentication.crowd.CrowdSoapElements.SOAPAttribute;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -44,6 +45,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i>
  * server, then authenticates the user.
+ * <p>
+ * The modus operandi is based on information found at <a
+ * href="http://confluence.atlassian.com/display/CROWD/SOAP+API">http://confluence.atlassian.com/display/CROWD/SOAP+API</a>
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */
@@ -126,7 +131,11 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
-    public final void checkAvailability()
+    //
+    // IAuthenticationService
+    //
+
+    public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         try
         {
@@ -148,17 +157,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
-    public final Principal authenticate(String user, String password)
+    public final String authenticateApplication()
     {
-        assert user != null;
-        // Application login
         final String applicationToken =
                 StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.TOKEN, AUTHENTICATE_APPL, application,
                         applicationPassword));
         if (applicationToken == null)
         {
             operationLog.error("CROWD: application '" + application + "' failed to authenticate.");
-            return null;
         } else
         {
             if (operationLog.isDebugEnabled())
@@ -166,6 +172,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 operationLog.debug("CROWD: application '" + application + "' successfully authenticated.");
             }
         }
+        return applicationToken;
+    }
+
+    public final boolean authenticateUser(String applicationToken, String user, String password)
+    {
+        assert applicationToken != null;
+        assert user != null;
+        
         final String userToken =
                 StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user,
                         password));
@@ -180,12 +194,11 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 operationLog.info(msg + "SUCCESS.");
             }
         }
-        if (userToken == null)
-        {
-            return null;
-        }
-        // Find principal by name. Obviously we do not need to make an user authentication to get
-        // these informations.
+        return userToken != null;
+    }
+
+    public final Principal getPrincipal(String applicationToken, String user)
+    {
         String xmlResponse = null;
         try
         {
