@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
@@ -126,15 +125,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             {
                 return;
             }
-            // Sort in order of "oldest first" in order to move older items before newer items. This becomes important when
+            // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
+            // when
             // doing online quality control of measurements.
-            Arrays.sort(paths, new Comparator<File>()
-                {
-                    public int compare(File o1, File o2)
-                    {
-                        return (int) (o1.lastModified() - o2.lastModified());
-                    }
-                });
+            Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
             for (File path : paths)
             {
                 if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
@@ -204,6 +198,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     {
         if (ex == null)
         {
+            // TODO 2007-06-22, Christian Ribeaud: This part belongs to 'check' method, does not it? Actually we already
+            // check if we get a directory in the 'check' method. Or maybe we want to be paranoiac?
             if (sourceDirectory.isFile())
             {
                 notificationLog.error(String
