@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.authentication;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Dummy authentication services.
  * 
@@ -28,12 +30,13 @@ public final class DummyAuthenticationService implements IAuthenticationService
     // IAuthenticationService
     //
 
-    public String authenticateApplication()
+    public final String authenticateApplication()
     {
-        // We do not care about the returned application token.
-        return null;
+        // Up to the contract, if it returns <code>null</code> here, it assumes that the application
+        // did not authenticate successfully.
+        return StringUtils.EMPTY;
     }
-    
+
     /**
      * Always returns <code>true</code>, meaning that the login was successfull.
      */
@@ -46,7 +49,7 @@ public final class DummyAuthenticationService implements IAuthenticationService
     {
         return new Principal(user, "John", "Doe", "jdoe@somewhere.org");
     }
-    
+
     public final void check()
     {
         // Always available.

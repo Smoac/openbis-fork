@@ -28,7 +28,8 @@ public interface IAuthenticationService extends ISelfTestable
 
     /**
      * Attempts authentication of the application with credentials passed in the constructor and retuns the application
-     * token.
+     * token. Implementations should log what is going on, whether the application could register itself successfully or
+     * not.
      * <p>
      * The returned application token can then be used to authenticate an user (via
      * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about an user (via
