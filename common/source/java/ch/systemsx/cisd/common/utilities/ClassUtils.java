@@ -18,9 +18,7 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,83 +182,6 @@ public final class ClassUtils
         assert fitsInterfaces(objectToProxy.getClass(), interfaces);
         return (T) Proxy.newProxyInstance(ClassUtils.class.getClassLoader(), interfaces.toArray(new Class[interfaces
                 .size()]), new ProxyingInvocationHandler(objectToProxy));
-    }
-
-    private static boolean isNull(Object objectToCheck)
-    {
-        return (objectToCheck instanceof Number) && ((Number) objectToCheck).longValue() == 0;
-    }
-
-    /**
-     * Checks the list of bean objects item by item for public getters which return <code>null</code> or 0.
-     * 
-     * @param beanListToCheck The list of beans to check. Can be <code>null</code>.
-     * @return <var>beanListToCheck</var> (the parameter itself)
-     * @see #checkGettersNotNull(Object)
-     * @throws IllegalStateException If at least one of the public getters returns <code>null</code> or 0.
-     */
-    public final static <T> List<T> checkGettersNotNull(List<T> beanListToCheck)
-    {
-        if (beanListToCheck == null)
-        {
-            return beanListToCheck;
-        }
-        for (Object bean : beanListToCheck)
-        {
-            checkGettersNotNull(bean);
-        }
-        return beanListToCheck;
-    }
-
-    /**
-     * Checks bean object for public getters which return <code>null</code> or 0.
-     * 
-     * @param beanToCheck The bean to check. Can be <code>null</code>. Must not be an array type.
-     * @return <var>beanToCheck</var> (the parameter itself)
-     * @throws IllegalArgumentException If the <var>beanToCheck</var> is an array type.
-     * @throws IllegalStateException If at least one of the public getters returns <code>null</code> or 0.
-     */
-    public final static <T> T checkGettersNotNull(T beanToCheck)
-    {
-        if (beanToCheck == null)
-        {
-            return beanToCheck;
-        }
-        if (beanToCheck.getClass().isArray())
-        {
-            throw new IllegalArgumentException("Arrays are not supported.");
-        }
-        for (Method method : beanToCheck.getClass().getMethods())
-        {
-            if (method.getName().startsWith("get") && method.getParameterTypes().length == 0
-                    && Modifier.isPublic(method.getModifiers()))
-            {
-                try
-                {
-                    final Object result = method.invoke(beanToCheck, new Object[0]);
-                    if (result == null)
-                    {
-                        throw new IllegalStateException("Method '" + method.getName() + "' returns null.");
-                    } else if (isNull(result))
-                    {
-                        throw new IllegalStateException("Method '" + method.getName() + "' returns 0.");
-                    }
-                } catch (InvocationTargetException ex)
-                {
-                    final Throwable cause = ex.getCause();
-                    if (cause instanceof Error)
-                    {
-                        throw (Error) cause;
-                    }
-                    throw CheckedExceptionTunnel.wrapIfNecessary((Exception) cause);
-                } catch (IllegalAccessException ex)
-                {
-                    // Can't happen since we checked for isAccessible()
-                    throw new Error("Cannot call method '" + method.getName() + "'.");
-                }
-            }
-        }
-        return beanToCheck;
     }
 
 }

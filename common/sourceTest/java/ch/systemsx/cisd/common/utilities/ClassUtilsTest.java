@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
@@ -57,85 +53,6 @@ public final class ClassUtilsTest
             StackTraceElement[] elements = new Throwable().getStackTrace();
             return elements[0].getMethodName();
         }
-    }
-
-    private static class SimpleBean
-    {
-        private final int number;
-
-        private final String string;
-
-        SimpleBean(int number, String string)
-        {
-            this.number = number;
-            this.string = string;
-        }
-
-        public int getNumber()
-        {
-            return number;
-        }
-
-        public String getString()
-        {
-            return string;
-        }
-
-        String getIgnoreThisBecauseItIsNotPublic()
-        {
-            AssertJUnit.fail("Should be ignore because not public");
-            return null;
-        }
-    }
-
-    @Test
-    public void testCheckGettersForNullOK()
-    {
-        final SimpleBean bean = new SimpleBean(1, "");
-        assert ClassUtils.checkGettersNotNull(bean) == bean;
-    }
-
-    @Test
-    public void testCheckGettersForNullOKNullBean()
-    {
-        assertNull(ClassUtils.checkGettersNotNull(null));
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullStringNull()
-    {
-        final SimpleBean bean = new SimpleBean(1, null);
-        ClassUtils.checkGettersNotNull(bean);
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullInt0()
-    {
-        final SimpleBean bean = new SimpleBean(0, "test");
-        ClassUtils.checkGettersNotNull(bean);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testCheckGettersForNullForbiddenArray()
-    {
-        ClassUtils.checkGettersNotNull(new Object[0]);
-    }
-
-    @Test
-    public void testCheckGettersForNullListOK()
-    {
-        final SimpleBean bean1 = new SimpleBean(1, "test");
-        final SimpleBean bean2 = new SimpleBean(5, "test2");
-        final List<SimpleBean> beanList = Arrays.asList(bean1, bean2);
-        assert ClassUtils.checkGettersNotNull(beanList) == beanList;
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullListInt0()
-    {
-        final SimpleBean bean1 = new SimpleBean(1, "test");
-        final SimpleBean bean2 = new SimpleBean(0, "test2");
-        ClassUtils.checkGettersNotNull(Arrays.asList(bean1, bean2));
     }
 
 }
