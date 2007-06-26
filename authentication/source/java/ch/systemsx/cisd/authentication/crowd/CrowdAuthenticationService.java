@@ -180,19 +180,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
         assert applicationToken != null;
         assert user != null;
         
-        final String userToken =
-                StringEscapeUtils.unescapeXml(execute("out", AUTHENTICATE_USER, application, applicationToken, user,
-                        password));
+        final String userToken = StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.OUT, AUTHENTICATE_USER, 
+                                                               application, applicationToken, user, password));
         if (operationLog.isInfoEnabled())
         {
             final String msg = "CROWD: authentication of user '" + user + "', application '" + application + "': ";
-            if (userToken == null)
-            {
-                operationLog.info(msg + "FAILED.");
-            } else
-            {
-                operationLog.info(msg + "SUCCESS.");
-            }
+            operationLog.info(msg + (userToken == null ? "FAILED." : "SUCCESS."));
         }
         return userToken != null;
     }
@@ -204,17 +197,16 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
             Map<SOAPAttribute, String> parseXmlResponse = parseXmlResponse(xmlResponse);
-            Principal principal;
-            if (parseXmlResponse.size() < 1)
+            Principal principal = null;
+            if (parseXmlResponse.size() >= 1)
+            {
+                principal = createPrincipal(user, parseXmlResponse);
+            } else
             {
                 if (operationLog.isDebugEnabled())
                 {
                     operationLog.debug("No SOAPAttribute element could be found in the SOAP XML response.");
                 }
-                principal = null;
-            } else
-            {
-                principal = createPrincipal(user, parseXmlResponse);
             }
             if (principal == null)
             {

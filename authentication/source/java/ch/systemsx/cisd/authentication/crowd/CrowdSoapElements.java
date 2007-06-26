@@ -33,6 +33,9 @@ final class CrowdSoapElements
     /** The <code>token</code> element. */
     static final String TOKEN = "token";
 
+    /** The <code>out</code> element. */
+    static final String OUT = "out";
+    
     /** The <code>SOAPAttribute</code> element. */
     final static String SOAP_ATTRIBUTE = "SOAPAttribute";
 
