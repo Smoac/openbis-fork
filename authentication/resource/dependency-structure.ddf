@@ -1,0 +1,18 @@
+#
+#
+#
+
+#show allResults
+
+{package} = ch.systemsx.cisd.authentication
+
+[generic] = ${package}.* excluding ${package}.*.*
+check sets [generic]
+
+[crowd] = ${package}.crowd.*
+check sets [crowd]
+
+layer layer0 = [generic]
+layer layer1 = [crowd]
+
+check layeringOf layer0 layer1 
