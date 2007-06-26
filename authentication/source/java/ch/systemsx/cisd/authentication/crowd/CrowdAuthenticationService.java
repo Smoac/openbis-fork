@@ -105,23 +105,64 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "           <in1>{2}</in1>\n"
                             + "       </findPrincipalByName>\n"
                             + "   </soap:Body>\n" + "</soap:Envelope>\n");
+   
+    private static IRequestExecutor createExecutor()
+    {
+        return new IRequestExecutor()
+            {
+                /**
+                 * Makes a POST request with "application/soap+xml" as content type.
+                 * 
+                 * @return The server's response to the request.
+                 */
+                public String execute(String serviceUrl, String message)
+                {
+                    try
+                    {
+                        HttpClient client = new HttpClient();
+                        PostMethod post = new PostMethod(serviceUrl);
+                        StringRequestEntity entity = new StringRequestEntity(message, "application/soap+xml", "utf-8");
+                        post.setRequestEntity(entity);
+                        String response = null;
+                        try
+                        {
+                            client.executeMethod(post);
+                            response = post.getResponseBodyAsString();
+                        } finally
+                        {
+                            post.releaseConnection();
+                        }
+                        return response;
+                    } catch (Exception ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
 
+            };
+    }
+    
     private final String url;
 
     private final String application;
 
     private final String applicationPassword;
 
+    private final IRequestExecutor requestExecutor;
+
     public CrowdAuthenticationService(String host, int port, String application, String applicationPassword)
     {
-        this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application, applicationPassword);
+        this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application, applicationPassword,
+                createExecutor());
     }
 
-    public CrowdAuthenticationService(String url, String application, String applicationPassword)
+    public CrowdAuthenticationService(String url, String application, String applicationPassword,
+            IRequestExecutor requestExecutor)
     {
         this.url = url;
         this.application = application;
         this.applicationPassword = applicationPassword;
+        this.requestExecutor = requestExecutor;
         if (operationLog.isDebugEnabled())
         {
             final String msg =
@@ -278,7 +319,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             decodedArguments[i] = StringEscapeUtils.escapeXml(args[i]);
         }
-        return execute(template.format(decodedArguments));
+        return requestExecutor.execute(url, template.format(decodedArguments));
     }
 
     /**
@@ -323,35 +364,6 @@ public class CrowdAuthenticationService implements IAuthenticationService
             return null;
         }
         return xmlString.substring(index + 1, endIndex);
-    }
-
-    /**
-     * Makes a POST request with "application/soap+xml" as content type.
-     * 
-     * @return The server's response to the request.
-     */
-    private final String execute(String xmlMessage)
-    {
-        try
-        {
-            HttpClient client = new HttpClient();
-            PostMethod post = new PostMethod(url);
-            StringRequestEntity entity = new StringRequestEntity(xmlMessage, "application/soap+xml", "utf-8");
-            post.setRequestEntity(entity);
-            String response = null;
-            try
-            {
-                client.executeMethod(post);
-                response = post.getResponseBodyAsString();
-            } finally
-            {
-                post.releaseConnection();
-            }
-            return response;
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
     }
 
 }
