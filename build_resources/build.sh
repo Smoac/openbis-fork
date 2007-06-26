@@ -25,7 +25,7 @@ build_dir=$cdir/tmp
 rm -rf $build_dir
 mkdir $build_dir
 ant -lib $dir/lib/ecj.jar -f $dir/ant/build.xml \
-		-DrepositoryRoot=$repository
+		-DrepositoryRoot=$repository \
     -Dname=$name \
     -Dversion=$version \
     -Ddir=$build_dir \
