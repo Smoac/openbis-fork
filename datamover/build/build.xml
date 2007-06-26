@@ -56,7 +56,7 @@
     <delete dir="${dist.datamover.lib}" /> 
   </target>
  
-  <target name="ci" depends="run-tests, dist">
+  <target name="ci" depends="run-tests, check-dependencies, dist">
   </target> 
 
 </project>

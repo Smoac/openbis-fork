@@ -1,0 +1,16 @@
+#show allResults
+
+{package} = ch.systemsx.cisd.datamover
+
+[generic] = ${package}.* excluding ${package}.*.*
+check sets [generic]
+
+[rsync] = ${package}.rsync.*
+check sets [rsync]
+
+[xcopy] = ${package}.xcopy.*
+check sets [xcopy]
+
+layer layer0 = [rsync] [xcopy]
+
+check layeringOf layer0
