@@ -2,4 +2,6 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
+  <target name="ci" depends="build-common.ci, dependency-check"/>
+
 </project>

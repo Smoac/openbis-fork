@@ -1,0 +1,40 @@
+#
+#
+#
+
+#show allResults
+
+{package} = ch.systemsx.cisd.common
+
+[annotation] = ${package}.annotation.*
+check sets [annotation]
+
+[config] = ${package}.config.*
+check sets [config]
+
+[converter] = ${package}.converter.*
+check sets [converter]
+
+[db] = ${package}.db.*
+check sets [db]
+
+
+[exceptions] = ${package}.exceptions.*
+check sets [exceptions]
+
+[logging] = ${package}.logging.*
+check sets [logging]
+
+[parser] = ${package}.parser.*
+check sets [parser]
+
+[test] = ${package}.test.*
+check sets [test]
+
+[utilities] = ${package}.utilities.*
+check sets [utilities]
+
+layer layer0 = [annotation] [exceptions] [logging] [parser] [test]
+layer layer1 = [config] [db] [utilities]
+
+check layeringOf layer0 layer1 
