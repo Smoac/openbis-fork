@@ -19,23 +19,26 @@ package ch.systemsx.cisd.common.db;
 import java.sql.SQLException;
 
 /**
- * Some utility methods regarding <i>SQL State</i>
+ * Some utility methods regarding <i>SQL State</i>.
+ * <p>
+ * Note: be careful not to duplicate functionality with the <i>Spring</i> framework. Have a look at at
+ * <code>org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator</code> and
+ * <code>org.springframework.util.StringUtils.SQLErrorCodes</code> before extending the functionality of this class.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
-// TODO 2007-06-15, Christian Ribeaud: be careful not to duplicate functionality with Spring.
-// Have a look at SQLErrorCodeSQLExceptionTranslator and SQLErrorCodes
 public final class SQLStateUtils
 {
     /** SQL State. */
     public static final String FOREIGN_KEY_VIOLATION = "23503";
-    
+
     /** SQL State. */
     public static final String UNIQUE_VIOLATION = "23505";
-    
+
     /** SQL State. */
     public static final String INVALID_CATALOG_NAME = "3D000";
-    
+
     /** SQL State. */
     public static final String DUPLICATE_OBJECT = "42710";
 
@@ -50,7 +53,8 @@ public final class SQLStateUtils
      * This is only possible if {@link Throwable#getCause()} is an instance of <code>SQLException</code>.
      * </p>
      */
-    public final static String getSqlState(Throwable ex) {
+    public final static String getSqlState(Throwable ex)
+    {
         Throwable th = ex.getCause();
         String sqlState = null;
         if (th instanceof SQLException)
@@ -64,25 +68,29 @@ public final class SQLStateUtils
         }
         return sqlState;
     }
-    
+
     /** Whether given SQL state stands for <i>DUPLICATE OBJECT</i>. */
-    public final static boolean isDuplicateObject(String sqlState) {
+    public final static boolean isDuplicateObject(String sqlState)
+    {
         return DUPLICATE_OBJECT.equalsIgnoreCase(sqlState);
     }
-    
+
     /** Whether given SQL state stands for <i>INVALID CATALOG NAME</i>. */
-    public final static boolean isInvalidCatalogName(String sqlState) {
+    public final static boolean isInvalidCatalogName(String sqlState)
+    {
         return INVALID_CATALOG_NAME.equalsIgnoreCase(sqlState);
     }
-    
+
     /** Whether given SQL state stands for <i>UNIQUE VIOLATION</i>. */
-    public final static boolean isUniqueViolation(String sqlState) {
+    public final static boolean isUniqueViolation(String sqlState)
+    {
         return UNIQUE_VIOLATION.equalsIgnoreCase(sqlState);
     }
-    
+
     /** Whether given SQL state stands for <i>FOREIGN KEY VIOLATION</i>. */
-    public final static boolean isForeignKeyViolation(String sqlState) {
+    public final static boolean isForeignKeyViolation(String sqlState)
+    {
         return FOREIGN_KEY_VIOLATION.equalsIgnoreCase(sqlState);
     }
-    
+
 }
