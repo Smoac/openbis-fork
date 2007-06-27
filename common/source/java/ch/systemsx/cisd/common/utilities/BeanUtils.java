@@ -37,9 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
-import ch.systemsx.cisd.common.annotation.BeanNameMapping;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -653,28 +650,9 @@ public final class BeanUtils
 
     private static Method getGetter(Method setter, Map<String, Method> sourceGetters, AnnotationMap annotationMap)
     {
-        final BeanNameMapping mapping = annotationMap.getAnnotation(BeanNameMapping.class);
-        if (mapping != null)
-        {
-            return getGetter(sourceGetters, getGetterPrefix(setter), mapping.names());
-        }
         final String getterName = getGetterPrefix(setter) + setter.getName().substring("set".length());
         final Method getter = sourceGetters.get(getterName);
         return getter;
-    }
-
-    private static Method getGetter(Map<String, Method> sourceGetters, String prefix, String... attributeNames)
-    {
-        for (String attributeName : attributeNames)
-        {
-            final String getterName = prefix + StringUtils.capitalize(attributeName);
-            final Method getter = sourceGetters.get(getterName);
-            if (getter != null)
-            {
-                return getter;
-            }
-        }
-        return null;
     }
 
     private static String getGetterPrefix(final Method setter)

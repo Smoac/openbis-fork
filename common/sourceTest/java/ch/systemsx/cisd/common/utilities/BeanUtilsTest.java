@@ -32,7 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.annotation.BeanNameMapping;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
@@ -957,29 +956,10 @@ public final class BeanUtilsTest
             return bar;
         }
 
-        @BeanNameMapping(names = {"bar", "foo"})
         public void setBar(String bar)
         {
             this.bar = bar;
         }
-    }
-    
-    @Test
-    public void testNameMapping1()
-    {
-        final FooBean fooBean = new FooBean();
-        fooBean.setFoo("foo is now bar");
-        final BarBean barBean = BeanUtils.fillBean(BarBean.class, fooBean);
-        assertEquals(fooBean.getFoo(), barBean.getBar());
-    }
-    
-    @Test
-    public void testNameMapping2()
-    {
-        final BarBean barBean = new BarBean();
-        barBean.setBar("bar is still bar");
-        final BarBean barBean2 = BeanUtils.fillBean(BarBean.class, barBean);
-        assertEquals(barBean.getBar(), barBean2.getBar());
     }
     
     @Test
