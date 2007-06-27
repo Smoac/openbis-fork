@@ -688,6 +688,14 @@ public final class BeanUtilsTest
     }
 
     @Test
+    public void testFillComplexBeanWithNull()
+    {
+        final BeanWithBean1 b3 = new BeanWithBean1();
+        final BeanWithBean2 b4 = BeanUtils.fillBean(BeanWithBean2.class, b3);
+        assertEquals(null, b4.getBean());
+    }
+
+    @Test
     public void testFillComplexBean()
     {
         final Bean1a b1 = new Bean1a();
@@ -701,7 +709,7 @@ public final class BeanUtilsTest
         final Bean2a b2 = b4.getBean();
         assertBeansAreEqual("Bean comparison", b1, b2);
     }
-
+    
     public static class BeanWithBeanArray1
     {
         private Bean1a[] bean;

@@ -280,10 +280,13 @@ public final class BeanUtils
     private static <T> T fillBean(Class<T> beanClass, Object sourceBean, AnnotationMap setterAnnotations,
             Converter converter)
     {
+        if (sourceBean == null)
+        {
+            return null;
+        }
         assert beanClass != null;
-        assert sourceBean != null;
-        assert setterAnnotations != null;
-        assert converter != null;
+        assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
+        assert converter != null : "undefined converter for " + beanClass;
 
         try
         {
