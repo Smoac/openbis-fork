@@ -28,9 +28,9 @@ import java.lang.annotation.Target;
  * @author Christian Ribeaud
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 @Inherited
 public @interface Mandatory
 {
-
+    public String[] value();
 }

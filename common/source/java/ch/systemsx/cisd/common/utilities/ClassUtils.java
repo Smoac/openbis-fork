@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -41,10 +43,21 @@ public final class ClassUtils
 
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
+     */
+    public final static List<Field> getMandatoryFields(Class<?> clazz)
+    {
+        final Mandatory mandatory = clazz.getAnnotation(Mandatory.class);
+        return getFields(clazz, null, mandatory == null ? null : mandatory.value());
+    }
+
+    /**
+     * For given <code>Class</code> (and eventually its superclasses) return a list of <code>Field</code> objects
+     * that matches the ones defined in <code>strFields</code>.
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
+     * @return never <code>null</code> but could return an empty <code>List</code>.
      */
-    public final static List<Field> getMandatoryFields(Class clazz, List<Field> fields)
+    public final static List<Field> getFields(Class<?> clazz, List<Field> fields, String... strFields)
     {
         List<Field> list = fields;
         if (list == null)
@@ -53,7 +66,7 @@ public final class ClassUtils
         }
         for (Field field : clazz.getDeclaredFields())
         {
-            if (field.getAnnotation(Mandatory.class) != null)
+            if (ArrayUtils.indexOf(strFields, field.getName()) > -1)
             {
                 list.add(field);
             }
@@ -61,7 +74,7 @@ public final class ClassUtils
         Class superclass = clazz.getSuperclass();
         if (superclass != null)
         {
-            return getMandatoryFields(superclass, list);
+            return getFields(superclass, list, strFields);
         }
         return list;
     }
