@@ -37,6 +37,8 @@ import java.lang.annotation.Target;
  * <li><code>method-name()</code> : The lock object is returned by calling the named nil-ary method. </li>
  * <li> <code>class-name.class</code> : The Class object for the specified class should be used as the lock object.
  * </li>
+ * 
+ * @author Christian Ribeaud
  */
 @Target(
     { ElementType.FIELD, ElementType.METHOD })
