@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.db;
  * 
  * @author Bernd Rinn
  */
-class SQLCommandTokenizer
+public final class SQLCommandTokenizer
 {
 
     private static enum Mode
@@ -43,12 +43,12 @@ class SQLCommandTokenizer
     
     private Character current;
 
-    SQLCommandTokenizer(String sqlScript)
+    public SQLCommandTokenizer(String sqlScript)
     {
         this.sqlScript = sqlScript;
     }
 
-    String getNextCommand()
+    public final String getNextCommand()
     {
         final StringBuilder builder = new StringBuilder();
         mode = Mode.SCANNING;
