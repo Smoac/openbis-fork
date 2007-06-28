@@ -126,8 +126,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
                 return;
             }
             // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
-            // when
-            // doing online quality control of measurements.
+            // when doing online quality control of measurements.
             Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
             for (File path : paths)
             {
