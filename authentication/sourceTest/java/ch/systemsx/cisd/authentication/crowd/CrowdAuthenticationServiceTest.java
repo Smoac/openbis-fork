@@ -119,6 +119,7 @@ public class CrowdAuthenticationServiceTest
 
         });
         
+        logRecorder.reset();
         String result = authenticationService.authenticateApplication();
         assertEquals(APPLICATION_TOKEN, result);
         assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION + "' successfully authenticated."), 
@@ -140,6 +141,7 @@ public class CrowdAuthenticationServiceTest
             }
         });
         
+        logRecorder.reset();
         String result = authenticationService.authenticateApplication();
         assertEquals(null, result);
         assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.TOKEN + "' could not be found in 'error'.") 
@@ -163,6 +165,7 @@ public class CrowdAuthenticationServiceTest
             }
         });
         
+        logRecorder.reset();
         boolean result = authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(true, result);
         assertEquals(createInfoLogEntry("CROWD: authentication of user '" + USER + "', application '" + APPLICATION 
@@ -185,6 +188,7 @@ public class CrowdAuthenticationServiceTest
             }
         });
         
+        logRecorder.reset();
         boolean result = authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(false, result);
         assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.OUT + "' could not be found in 'error'.") 
@@ -219,6 +223,7 @@ public class CrowdAuthenticationServiceTest
             }
         });
         
+        logRecorder.reset();
         Principal result = authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
         assertEquals("Justen", result.getFirstName());
         assertEquals("Stepka", result.getLastName());
@@ -245,6 +250,7 @@ public class CrowdAuthenticationServiceTest
             }
         });
         
+        logRecorder.reset();
         try
         {
             authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
