@@ -46,7 +46,7 @@ public final class MailClient extends Authenticator
 {
 
     /** This system property is not supported by the <i>JavaMail API</i> */
-    public final static String MAIL_SMTP_PASSWORD = "mail.smtp.user";
+    public final static String MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
 
@@ -143,7 +143,7 @@ public final class MailClient extends Authenticator
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("SENDING message from '" + from + "' to recipients '" + Arrays.asList(recipients) + "'");
+            operationLog.info("Sending message from '" + from + "' to recipients '" + Arrays.asList(recipients) + "'");
         }
         int len = recipients.length;
         InternetAddress[] internetAddresses = new InternetAddress[len];
