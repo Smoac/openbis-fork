@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -250,7 +251,34 @@ public final class BeanUtils
                     double.class, Double.class, String.class, Date.class));
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var>.
+     * Creates a new list of Beans of type <var>clazz</var>.
+     * 
+     * @param clazz element type of the new list.
+     * @param sourceList The list to fill the new bean list from. Can be <code>null</code>, in which case the method
+     *            returns <code>null</code>.
+     * @return The new list filled from <var>list</var> or <code>null</code>, if <var>list</var> is
+     *         <code>null</code>.
+     */
+    public static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList)
+    {
+        assert clazz != null;
+
+        if (sourceList == null)
+        {
+            return null;
+        }
+
+        final List<T> resultList = new ArrayList<T>();
+        for (Q element : sourceList)
+        {
+            resultList.add(BeanUtils.fillBean(clazz, element));
+        }
+        return resultList;
+    }
+
+    /**
+     * Convenience method for {@link #fillBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * where <var>converter</var> is <code>null</code>.
      */
     public static <T> T fillBean(Class<T> beanClass, Object sourceBean)
     {
@@ -258,8 +286,14 @@ public final class BeanUtils
     }
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var>, using the
-     * <var>converter</var> where appropriate.
+     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>beanToFill</var>.
+     * 
+     * @param beanClass The class to create a new instance from.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
+     *            <code>null</code>.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
+     *            <code>null</code>, in which case only standard conversions are allowed.
+     * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     public static <T> T fillBean(Class<T> beanClass, Object sourceBean, Converter converter)
     {
@@ -270,20 +304,25 @@ public final class BeanUtils
      * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>beanToFill</var>.
      * 
      * @param beanClass The class to create a new instance from.
-     * @param sourceBean The bean to get the values from.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
+     *            <code>null</code>.
      * @param setterAnnotations The annotations attached to the setter that can be used to determine how the result
      *            should be created.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
+     *            <code>null</code>, in which case only standard conversions are allowed.
+     * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     private static <T> T fillBean(Class<T> beanClass, Object sourceBean, AnnotationMap setterAnnotations,
             Converter converter)
     {
+        assert beanClass != null;
+        assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
+        assert converter != null : "undefined converter for " + beanClass;
+
         if (sourceBean == null)
         {
             return null;
         }
-        assert beanClass != null;
-        assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
-        assert converter != null : "undefined converter for " + beanClass;
 
         try
         {
