@@ -16,14 +16,9 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.*;
-
-import java.lang.reflect.Field;
-import java.util.List;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.annotation.Mandatory;
 
 /**
  * Test cases for the {@link ClassUtils} class.
@@ -33,49 +28,16 @@ import ch.systemsx.cisd.common.annotation.Mandatory;
 public final class ClassUtilsTest
 {
 
+    /**
+     * Test method for {@link ch.systemsx.cisd.common.utilities.ClassUtils#getCurrentMethod()}.
+     */
     @Test
     public final void testGetCurrentMethod()
     {
         assertEquals("testGetCurrentMethod", ClassUtils.getCurrentMethod().getName());
         // Border cases
-        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(),
-                new Object()));
+        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(), new Object()));
     }
-
-    @Test
-    public final void testGetFields()
-    {
-        List<Field> fields = ClassUtils.getFields(A.class, null, "otherField");
-        assertNotNull(fields);
-        assert fields.size() == 0;
-        // A
-        fields = ClassUtils.getFields(A.class, null, "someField");
-        assertNotNull(fields);
-        assert fields.size() == 1;
-        // B
-        fields = ClassUtils.getFields(B.class, null, "someField");
-        assertNotNull(fields);
-        assert fields.size() == 1;
-        // C
-        fields = ClassUtils.getFields(C.class, null, "someField");
-        assertNotNull(fields);
-        assert fields.size() == 1;
-    }
-
-    @Test
-    public final void testGetMandatoryFields()
-    {
-        List<Field> fields = ClassUtils.getMandatoryFields(A.class);
-        assertNotNull(fields);
-        assert fields.size() == 0;
-        fields = ClassUtils.getMandatoryFields(C.class);
-        assertNotNull(fields);
-        assert fields.size() == 2;
-    }
-
-    //
-    // Helper classes
-    //
 
     private final static class SameMethodName
     {
@@ -93,24 +55,4 @@ public final class ClassUtilsTest
         }
     }
 
-    @SuppressWarnings("unused")
-    private static class A
-    {
-        private Object someField;
-
-        private Object mandatoryField;
-    }
-
-    private static class B extends A
-    {
-
-    }
-
-    @Mandatory(
-        { "mandatoryField", "otherMandatoryField", "notPresentField" })
-    private final static class C extends B
-    {
-        @SuppressWarnings("unused")
-        private Object otherMandatoryField;
-    }
 }

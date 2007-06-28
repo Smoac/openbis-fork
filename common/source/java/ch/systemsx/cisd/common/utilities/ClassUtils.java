@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -44,20 +42,17 @@ public final class ClassUtils
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      */
-    public final static List<Field> getMandatoryFields(Class<?> clazz)
+    public final static List<Field> getMandatoryFields(Class clazz)
     {
-        final Mandatory mandatory = clazz.getAnnotation(Mandatory.class);
-        return getFields(clazz, null, mandatory == null ? null : mandatory.value());
+        return getMandatoryFields(clazz, null);
     }
-
+    
     /**
-     * For given <code>Class</code> (and eventually its superclasses) return a list of <code>Field</code> objects
-     * that matches the ones defined in <code>strFields</code>.
+     * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
-     * @return never <code>null</code> but could return an empty <code>List</code>.
      */
-    public final static List<Field> getFields(Class<?> clazz, List<Field> fields, String... strFields)
+    private final static List<Field> getMandatoryFields(Class clazz, List<Field> fields)
     {
         List<Field> list = fields;
         if (list == null)
@@ -66,7 +61,7 @@ public final class ClassUtils
         }
         for (Field field : clazz.getDeclaredFields())
         {
-            if (ArrayUtils.indexOf(strFields, field.getName()) > -1)
+            if (field.getAnnotation(Mandatory.class) != null)
             {
                 list.add(field);
             }
@@ -74,7 +69,7 @@ public final class ClassUtils
         Class superclass = clazz.getSuperclass();
         if (superclass != null)
         {
-            return getFields(superclass, list, strFields);
+            return getMandatoryFields(superclass, list);
         }
         return list;
     }
