@@ -58,7 +58,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
     /** The template to authenticate the application. */
-    private static final MessageFormat AUTHENTICATE_APPL =
+    //@Private
+    static final MessageFormat AUTHENTICATE_APPL =
             new MessageFormat("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
                     + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
                     + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + " <soap:Body>\n"
@@ -71,7 +72,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + "   </authenticateApplication>\n" + " </soap:Body>\n" + "</soap:Envelope>\n");
 
     /** The template to authenticate the user. */
-    private static final MessageFormat AUTHENTICATE_USER =
+    //@Private
+    static final MessageFormat AUTHENTICATE_USER =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
                             + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
@@ -93,7 +95,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "</soap:Envelope>\n");
 
     /** The template to find a principal by token or by name. */
-    private static final MessageFormat FIND_PRINCIPAL_BY_NAME =
+    //@Private
+    static final MessageFormat FIND_PRINCIPAL_BY_NAME =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
                             + "   <soap:Body>\n"
@@ -255,8 +258,10 @@ public class CrowdAuthenticationService implements IAuthenticationService
                         + "' could not be obtained.");
             }
             return principal;
-            // SAXException, IOException
-        } catch (Exception ex)
+        } catch (EnvironmentFailureException ex)
+        {
+            throw ex;
+        } catch (Exception ex) // SAXException, IOException
         {
             String message = "Parsing XML response '" + xmlResponse + "' throws an Exception.";
             throw new EnvironmentFailureException(message, ex);
