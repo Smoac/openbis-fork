@@ -35,7 +35,7 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     public PostgreSQLDAOFactory(DatabaseConfigurationContext context)
     {
         databaseDAO = new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
-        DataSource dataSource = context.getDataSource();
+        final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
     }

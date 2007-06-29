@@ -20,28 +20,27 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
-import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for PostgreSQL.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
-    
+
     private final String owner;
+
     private final String database;
 
     /**
      * Creates an instance.
-     *
+     * 
      * @param dataSource Data source able to create/drop the specified database.
      * @param owner Owner to be created if it doesn't exist.
      * @param database Name of the database.
@@ -52,7 +51,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
         this.database = database;
         setDataSource(dataSource);
     }
-    
+
     public String getDatabaseName()
     {
         return database;
@@ -65,38 +64,28 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
             getJdbcTemplate().execute("create user " + owner);
         } catch (DataAccessException ex)
         {
-            if (ownerAlreadyExists(ex))
+            if (DBUtilities.ownerAlreadyExists(ex))
             {
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Owner '" + owner + "' already exists.");
                 }
-            } else {
+            } else
+            {
                 operationLog.error("Database owner couldn't be created:", ex);
                 throw ex;
             }
         }
     }
 
-    /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
-     * <p>
-     * This is database specific.
-     * </p>
-     */
-    protected boolean ownerAlreadyExists(DataAccessException ex) {
-        // 42710 DUPLICATE OBJECT
-        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
-    }
-    
     public void createDatabase()
     {
-        JdbcTemplate template = getJdbcTemplate();
-        template.execute("create database " + database + " with owner = " + owner 
-                         + " encoding = 'utf8' tablespace = pg_default;"
-                         + "alter database " + database + " set default_with_oids = off;");
+        getJdbcTemplate().execute(
+                "create database " + database + " with owner = " + owner
+                        + " encoding = 'utf8' tablespace = pg_default;" + "alter database " + database
+                        + " set default_with_oids = off;");
     }
-    
+
     public void dropDatabase()
     {
         try
@@ -110,5 +99,5 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
             }
         }
     }
-    
+
 }

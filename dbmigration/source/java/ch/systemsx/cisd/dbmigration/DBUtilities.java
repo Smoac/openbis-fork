@@ -40,4 +40,15 @@ class DBUtilities
     }
 
     private DBUtilities() {}
+
+    /**
+     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
+     * <p>
+     * This is database specific.
+     * </p>
+     */
+    static boolean ownerAlreadyExists(DataAccessException ex) {
+        // 42710 DUPLICATE OBJECT
+        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
+    }
 }
