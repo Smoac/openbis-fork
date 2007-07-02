@@ -259,7 +259,23 @@ public final class BeanUtils
      * @return The new list filled from <var>list</var> or <code>null</code>, if <var>list</var> is
      *         <code>null</code>.
      */
-    public static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList)
+    public final static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList)
+    {
+        return fillBeanList(clazz, sourceList, null);
+    }
+
+    /**
+     * Creates a new list of Beans of type <var>clazz</var>.
+     * 
+     * @param clazz element type of the new list.
+     * @param sourceList The list to fill the new bean list from. Can be <code>null</code>, in which case the method
+     *            returns <code>null</code>.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
+     *            <code>null</code>, in which case only standard conversions are allowed.
+     * @return The new list filled from <var>list</var> or <code>null</code>, if <var>list</var> is
+     *         <code>null</code>.
+     */
+    public final static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList, Converter converter)
     {
         assert clazz != null;
 
@@ -271,7 +287,7 @@ public final class BeanUtils
         final List<T> resultList = new ArrayList<T>();
         for (Q element : sourceList)
         {
-            resultList.add(BeanUtils.fillBean(clazz, element));
+            resultList.add(BeanUtils.fillBean(clazz, element, converter));
         }
         return resultList;
     }
@@ -297,7 +313,12 @@ public final class BeanUtils
      */
     public static <T> T fillBean(Class<T> beanClass, Object sourceBean, Converter converter)
     {
-        return fillBean(beanClass, sourceBean, emptyAnnotationMap, converter);
+        Converter c = converter;
+        if (c == null)
+        {
+            c = nullConverter;
+        }
+        return fillBean(beanClass, sourceBean, emptyAnnotationMap, c);
     }
 
     /**
