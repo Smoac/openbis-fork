@@ -24,6 +24,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.common.db.ISequencerScriptProvider;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * Configuration context for database operations.
@@ -77,8 +78,23 @@ public class DatabaseConfigurationContext
     private final DataSource createDataSource()
     {
         final BasicDataSource myDataSource = new BasicDataSource();
-        myDataSource.setDriverClassName(getDriver());
-        final String url = MessageFormat.format(getUrlTemplate(), getDatabaseName());
+        final String dsDriver = getDriver();
+        if (dsDriver == null)
+        {
+            throw new ConfigurationFailureException("No db driver defined.");
+        }
+        final String dsUrlTemplate = getUrlTemplate();
+        if (dsUrlTemplate == null)
+        {
+            throw new ConfigurationFailureException("No db url template defined.");
+        }
+        final String dsDatabaseName = getDatabaseName();
+        if (dsDatabaseName == null)
+        {
+            throw new ConfigurationFailureException("No db name defined.");
+        }
+        myDataSource.setDriverClassName(dsDriver);
+        final String url = MessageFormat.format(dsUrlTemplate, dsDatabaseName);
         myDataSource.setUrl(url);
         myDataSource.setUsername(owner);
         myDataSource.setPassword("");
