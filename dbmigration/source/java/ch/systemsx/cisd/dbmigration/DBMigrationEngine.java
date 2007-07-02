@@ -123,7 +123,7 @@ public class DBMigrationEngine
         }
         if (entry.getRunStatus() != LogEntry.RunStatus.SUCCESS)
         {
-            String message = "Inconsistent database: Last creation/migration didn't succeeded. Last log entry: " + entry;
+            String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + entry;
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
