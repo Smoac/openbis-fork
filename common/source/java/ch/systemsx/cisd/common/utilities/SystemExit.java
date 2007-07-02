@@ -26,12 +26,19 @@ public class SystemExit implements IExitHandler
     /** The one and only one instance. */
     public static final IExitHandler SYSTEM_EXIT = new SystemExit();
     
+    //@Private
+    public static boolean throwException;
+    
     private SystemExit()
     {
     }
 
     public void exit(int exitCode)
     {
+        if (throwException)
+        {
+            throw new RuntimeException("Exit called with exit code " + exitCode);
+        }
         System.exit(exitCode);
     }
 
