@@ -108,7 +108,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     }
 
     /**
-     * Handles all entries in {@link #sourceDirectory} that are picked by the {@link #filter} by some {@link #handler}.
+     * Handles all entries in the source directory that are picked by the filter.
      */
     @Override
     public void run()
@@ -222,18 +222,30 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             return;
         }
 
-        final boolean handledOK = handler.handle(path);
-        if (path.exists())
+        try
         {
-            if (handledOK)
+            final boolean handledOK = handler.handle(path);
+            if (path.exists())
             {
-                operationLog.warn(String.format("Handler %s reports path '%s' be handled OK, but path still exists.",
-                        handler.getClass().getSimpleName(), path));
+                if (handledOK)
+                {
+                    operationLog.warn(String.format("Handler %s reports path '%s' be handled OK, but path still exists.",
+                            handler.getClass().getSimpleName(), path));
+                }
+                addToFaultyPaths(path);
             }
-            faultyPaths.add(path);
-            CollectionIO.writeIterable(faultyPathsFile, faultyPaths);
-            faultyPathsLastChanged = faultyPathsFile.lastModified();
+        } catch (RuntimeException ex)
+        {
+            addToFaultyPaths(path);
+            throw ex;
         }
+    }
+
+    private void addToFaultyPaths(File path)
+    {
+        faultyPaths.add(path);
+        CollectionIO.writeIterable(faultyPathsFile, faultyPaths);
+        faultyPathsLastChanged = faultyPathsFile.lastModified();
     }
 
     public void check() throws ConfigurationFailureException
