@@ -21,7 +21,7 @@ import java.io.File;
 /**
  * Classes that implement this interface encapsulate mass uploading of tabular files to the database. The files to be
  * processed by implementations of this class are supposed to be <code>csv</code> files that can be uploaded to
- * exactly one table. They need to follow the naming convention <code>orderSpecifier::tableName.csv</code>. Here the
+ * exactly one table. They need to follow the naming convention <code>orderSpecifier=tableName.csv</code>. Here the
  * order specifier ensures that the dependency is right while the table name is the name of the table to upload the data
  * to.
  * 
@@ -34,7 +34,7 @@ public interface IMassUploader
      * Upload the data from file <var>massUploadFile</var> to the database.
      * 
      * @param massUploadFile File to upload to the database, following the naming convention
-     *            <code>orderSpecifier::tableName.csv</code>.
+     *            <code>orderSpecifier=tableName.csv</code>.
      */
     public void performMassUpload(File massUploadFile);
 

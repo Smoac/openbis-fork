@@ -57,7 +57,7 @@ public class PostgreSQLMassUploader implements IMassUploader
         try
         {
             final CopyManager copyManager = getPGConnection().getCopyAPI();
-            final String[] splitName = StringUtils.split(massUploadFile.getName(), "::");
+            final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
             assert splitName.length == 2;
             final String tableNameWithExtension = splitName[1];
             assert tableNameWithExtension.endsWith(".csv");
