@@ -37,4 +37,6 @@ public interface IDAOFactory
      * Returns the DAO for the database version log.
      */
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO();
+    
+    public IMassUploader getMassUploader();
 }

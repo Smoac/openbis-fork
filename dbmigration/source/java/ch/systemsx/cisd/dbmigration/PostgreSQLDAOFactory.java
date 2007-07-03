@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
+
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Implementation of {@link IDAOFactory} for PostgreSQL.
@@ -28,6 +32,7 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     private final IDatabaseAdminDAO databaseDAO;
     private final ISqlScriptExecutor sqlScriptExecutor;
     private final IDatabaseVersionLogDAO databaseVersionLogDAO;
+    private final IMassUploader massUploader;
 
     /**
      * Creates an instance based on the specified configuration context.
@@ -38,6 +43,13 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
+        try
+        {
+            massUploader = new PostgreSQLMassUploader(dataSource);
+        } catch (SQLException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
     }
     
     public IDatabaseAdminDAO getDatabaseDAO()
@@ -53,6 +65,11 @@ public class PostgreSQLDAOFactory implements IDAOFactory
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO()
     {
         return databaseVersionLogDAO;
+    }
+
+    public IMassUploader getMassUploader()
+    {
+        return massUploader;
     }
 
 }

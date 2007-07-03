@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.File;
+
 /**
  * Provider of SQL scripts for creation and migration of database.
  *
@@ -55,4 +57,11 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a script. 
      */
     public Script getScript(String scriptName);
+    
+    /**
+     * Returns the files containing data for mass upload.
+     * @param version Version of the database.
+     * @return The files to mass upload, or an empty array, if there are no such files.
+     */
+    public File[] getMassUploadFiles(String version);
 }

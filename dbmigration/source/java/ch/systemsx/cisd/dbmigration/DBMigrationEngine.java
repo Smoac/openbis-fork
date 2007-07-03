@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -43,6 +45,8 @@ public class DBMigrationEngine
     private final IDatabaseAdminDAO adminDAO;
 
     private final IDatabaseVersionLogDAO logDAO;
+    
+    private final IMassUploader massUploader;
 
     private final ISqlScriptExecutor scriptExecutor;
 
@@ -55,6 +59,7 @@ public class DBMigrationEngine
     {
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
+        massUploader = daoFactory.getMassUploader();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
@@ -178,6 +183,11 @@ public class DBMigrationEngine
         if (initialDataScript != null)
         {
             executeScript(initialDataScript, version);
+        }
+        File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
+        for (File f : massUploadFiles)
+        {
+            massUploader.performMassUpload(f);
         }
     }
 

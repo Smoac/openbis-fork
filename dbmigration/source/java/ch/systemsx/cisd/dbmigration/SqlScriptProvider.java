@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -129,6 +131,32 @@ public class SqlScriptProvider implements ISqlScriptProvider
             script = FileUtilities.loadToString(file);
         }
         return new Script(fullScriptName, script);
+    }
+
+    /**
+     * Returns the files determined for mass uploading.
+     */
+    public File[] getMassUploadFiles(String version)
+    {
+        final File dataFolder = new File(dataScriptFolder + "/" + version);
+        String[] csvFiles = dataFolder.list(new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return name.endsWith(".csv");
+            }
+        });
+        Arrays.sort(csvFiles);
+        if (csvFiles == null)
+        {
+            return new File[0];
+        }
+        final File[] csvPaths = new File[csvFiles.length];
+        for (int i = 0; i < csvFiles.length; ++i)
+        {
+            csvPaths[i] = new File(dataFolder, csvFiles[i]);
+        }
+        return csvPaths;
     }
 
 
