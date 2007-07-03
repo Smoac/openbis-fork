@@ -28,22 +28,23 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory. This provider tries
- * first to load a resource. If this isn't successful the provider tries to look for files relative to the
- * working directory. 
- *
+ * first to load a resource. If this isn't successful the provider tries to look for files relative to the working
+ * directory.
+ * 
  * @author Franz-Josef Elmer
  */
 public class SqlScriptProvider implements ISqlScriptProvider
 {
     private static final String SQL_FILE_TYPE = ".sql";
 
-    private static final Logger operationLog 
-                = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
-    
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
+
     private final String schemaScriptFolder;
+
     private final String dataScriptFolder;
+
     private final String internalScriptFolder;
-    
+
     /**
      * Creates an instance for the specified folders and database type. The database type specifies the resource folder
      * relative to the package of this class where the scripts with method {@link #getScript(String)} are loaded.
@@ -53,7 +54,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
         String internalFolder = SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseType;
         return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, internalFolder);
     }
-    
+
     /**
      * Creates an instance for the specified script folders. They are either resource folders or folders relative to the
      * working directory.
@@ -70,9 +71,11 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the data script for the specified version. 
-     * The name of the script is expected to be
-     * <pre>&lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql</pre>
+     * Returns the data script for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
+     * </pre>
      */
     public Script getDataScript(String version)
     {
@@ -80,9 +83,11 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the migration script for the specified versions. 
-     * The name of the script is expected to be
-     * <pre>&lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql</pre>
+     * Returns the migration script for the specified versions. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
+     * </pre>
      */
     public Script getMigrationScript(String fromVersion, String toVersion)
     {
@@ -91,9 +96,11 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the schema script for the specified version. 
-     * The name of the script is expected to be
-     * <pre>&lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql</pre>
+     * Returns the schema script for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql
+     * </pre>
      */
     public Script getSchemaScript(String version)
     {
@@ -139,17 +146,26 @@ public class SqlScriptProvider implements ISqlScriptProvider
     public File[] getMassUploadFiles(String version)
     {
         final File dataFolder = new File(dataScriptFolder + "/" + version);
-        String[] csvFiles = dataFolder.list(new FilenameFilter()
+        if (operationLog.isDebugEnabled())
         {
-            public boolean accept(File dir, String name)
+            operationLog.debug("Searching for mass upload files in directory '" + dataFolder.getAbsolutePath() + "'.");
+        }
+        String[] csvFiles = dataFolder.list(new FilenameFilter()
             {
-                return name.endsWith(".csv");
-            }
-        });
-        Arrays.sort(csvFiles);
+                public boolean accept(File dir, String name)
+                {
+                    return name.endsWith(".csv");
+                }
+            });
         if (csvFiles == null)
         {
+            operationLog.warn("Path '" +  dataFolder.getAbsolutePath() + "' is not a directory.");
             return new File[0];
+        }
+        Arrays.sort(csvFiles);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Found " + csvFiles.length + " files for mass uploading.");
         }
         final File[] csvPaths = new File[csvFiles.length];
         for (int i = 0; i < csvFiles.length; ++i)
@@ -158,6 +174,5 @@ public class SqlScriptProvider implements ISqlScriptProvider
         }
         return csvPaths;
     }
-
 
 }
