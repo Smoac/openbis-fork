@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -78,6 +79,8 @@ public class DBMigrationEngineTest
     private IDatabaseVersionLogDAO logDAO;
 
     private ISqlScriptExecutor scriptExecutor;
+    
+    private IMassUploader massUploader;
 
     private PrintStream systemOut;
 
@@ -94,6 +97,7 @@ public class DBMigrationEngineTest
         adminDAO = context.mock(IDatabaseAdminDAO.class);
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
+        massUploader = context.mock(IMassUploader.class);
         logRecorder = new ByteArrayOutputStream();
         systemOut = System.out;
         systemErr = System.err;
@@ -145,6 +149,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -157,8 +163,12 @@ public class DBMigrationEngineTest
                     expectCreateLogDAOTable();
                     one(scriptProvider).getSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code"), version);
+                    one(scriptProvider).getMassUploadFiles(version);
+                    final File massUploadFile = new File("1::materials.csv");
+                    will(returnValue(new File[] { massUploadFile }));
                     one(scriptProvider).getDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), version);
+                    one(massUploader).performMassUpload(massUploadFile);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -189,6 +199,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -229,6 +241,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -241,6 +255,8 @@ public class DBMigrationEngineTest
                     expectSuccessfulExecution(new Script("schema", "schema code"), version);
                     one(scriptProvider).getDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), version);
+                    one(scriptProvider).getMassUploadFiles(version);
+                    will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -270,6 +286,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -281,6 +299,8 @@ public class DBMigrationEngineTest
                     one(scriptProvider).getSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code"), version);
                     one(scriptProvider).getDataScript(version);
+                    one(scriptProvider).getMassUploadFiles(version);
+                    will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -310,6 +330,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -353,6 +375,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -396,6 +420,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -440,6 +466,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -476,6 +504,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -520,6 +550,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -570,6 +602,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -612,6 +646,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -653,6 +689,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -664,7 +702,7 @@ public class DBMigrationEngineTest
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
 
         logRecorder.reset();
-        String message = "Inconsistent database: Last creation/migration didn't succeeded. Last log entry: " + logEntry;
+        String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + logEntry;
         try
         {
             migrationEngine.migrateTo("001");
@@ -696,6 +734,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -707,7 +747,7 @@ public class DBMigrationEngineTest
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
 
         logRecorder.reset();
-        String message = "Inconsistent database: Last creation/migration didn't succeeded. Last log entry: " + logEntry;
+        String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + logEntry;
         try
         {
             migrationEngine.migrateTo("001");
@@ -736,6 +776,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getMassUploader();
+                    will(returnValue(massUploader));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
