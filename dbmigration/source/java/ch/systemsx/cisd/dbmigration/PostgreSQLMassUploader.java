@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -40,7 +42,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public class PostgreSQLMassUploader implements IMassUploader
+public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMassUploader
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLMassUploader.class);
@@ -50,6 +52,7 @@ public class PostgreSQLMassUploader implements IMassUploader
     public PostgreSQLMassUploader(DataSource dataSource) throws SQLException
     {
         this.dataSource = dataSource;
+        setDataSource(dataSource);
     }
 
     public void performMassUpload(File massUploadFile)
@@ -75,10 +78,35 @@ public class PostgreSQLMassUploader implements IMassUploader
             {
                 IOUtils.closeQuietly(is);
             }
+            fixSequence(tableName);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+    }
+
+    private void fixSequence(String tableName)
+    {
+        final String sequenceName = getSequenceName(tableName);
+        try
+        {
+            getSimpleJdbcTemplate().queryForLong(String.format("select setval('%s', max(id)) from %s", sequenceName,
+                    tableName));
+        } catch (DataAccessException ex)
+        {
+            // TODO 2007-07-03, Bernd Rinn: implement more robust way to find the sequence for a table. For now we need
+            // to ignore it.
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
+                        + "'.");
+            }
+        }
+    }
+
+    private String getSequenceName(String tableName)
+    {
+        return tableName.substring(0, tableName.length() - 1) + "_id_seq";
     }
 
     private PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException
