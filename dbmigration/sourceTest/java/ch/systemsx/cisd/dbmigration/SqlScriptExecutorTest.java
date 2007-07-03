@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,9 +38,11 @@ public class SqlScriptExecutorTest
 {
     private static final String TEMPORARY_DATA_SCRIPT_FOLDER_NAME = "temporaryDataScriptFolder";
     private static final String TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME = "temporarySchemaScriptFolder";
+    private static final String TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME = "temporaryMassDataUploadFolder";
     private static final String TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME = "temporaryInternalScriptFolder";
     private static final File TEMP_SCHEMA_SCRIPT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
     private static final File TEMP_DATA_SCRIPT_FOLDER = new File(TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
+    private static final File TEMP_MASS_DATA_UPLOAD_FOLDER = new File(TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME);
     private static final File TEMP_INTERNAL_SCRIPT_FOLDER = new File(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
     private static final String MIGRATION = "migration";
     private static final String VERSION = "042";
@@ -50,21 +53,23 @@ public class SqlScriptExecutorTest
     @BeforeClass
     public void setUpTestFiles() throws IOException
     {
-        TEMP_SCHEMA_SCRIPT_FOLDER.mkdir();
         File schemaVersionFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, VERSION);
-        schemaVersionFolder.mkdir();
+        schemaVersionFolder.mkdirs();
         write(new File(schemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
         File migrationFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, MIGRATION);
         migrationFolder.mkdir();
         write(new File(migrationFolder, "migration-" + VERSION + "-" + VERSION2 + ".sql"), "code: migration");
-        TEMP_DATA_SCRIPT_FOLDER.mkdir();
         File dataVersionFolder = new File(TEMP_DATA_SCRIPT_FOLDER, VERSION);
-        dataVersionFolder.mkdir();
+        dataVersionFolder.mkdirs();
         write(new File(dataVersionFolder, "data-" + VERSION + ".sql"), "code: data");
         TEMP_INTERNAL_SCRIPT_FOLDER.mkdir();
         write(new File(TEMP_INTERNAL_SCRIPT_FOLDER, "hello.script"), "hello world!");
+        File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
+        massUploaadVersionFolder.mkdirs();
+        write(new File(massUploaadVersionFolder, "1=test.csv"), "id,code\n1,bla");
         sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, 
                                                   TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
+                                                  TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME,
                                                   TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
     }
 
@@ -90,6 +95,7 @@ public class SqlScriptExecutorTest
         delete(TEMP_SCHEMA_SCRIPT_FOLDER);
         delete(TEMP_DATA_SCRIPT_FOLDER);
         delete(TEMP_INTERNAL_SCRIPT_FOLDER);
+        delete(TEMP_MASS_DATA_UPLOAD_FOLDER);
     }
 
     private void delete(File file)
@@ -127,6 +133,14 @@ public class SqlScriptExecutorTest
         assertEquals("code: data", script.getCode().trim());
     }
 
+    @Test void testGetMassUploadFiles()
+    {
+        final File[] massUploadFiles = sqlScriptProvider.getMassUploadFiles(VERSION);
+        assertEquals(1, massUploadFiles.length);
+        assertEquals("1=test.csv", massUploadFiles[0].getName());
+        assertTrue(massUploadFiles[0].exists());
+    }
+    
     @Test
     public void testGetNonExistingDataScript()
     {

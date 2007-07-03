@@ -36,7 +36,7 @@ public class DatabaseConfigurationContext
     private String driver;
 
     private LobHandler lobHandler;
-    
+
     private ISequencerScriptProvider sequencerScriptProvider;
 
     private String adminURL;
@@ -51,14 +51,16 @@ public class DatabaseConfigurationContext
 
     private String folderOfDataScripts;
 
+    private String folderOfMassUploadFiles;
+
     private String databaseKind;
-    
+
     private String databaseType;
 
     private boolean createFromScratch;
 
     private DataSource dataSource;
-    
+
     private DataSource adminDataSource;
 
     private String owner;
@@ -66,7 +68,7 @@ public class DatabaseConfigurationContext
     private String basicDatabaseName;
 
     private String databaseName;
-    
+
     public DatabaseConfigurationContext()
     {
         owner = System.getProperty("user.name");
@@ -100,7 +102,7 @@ public class DatabaseConfigurationContext
         myDataSource.setPassword("");
         return myDataSource;
     }
-    
+
     /**
      * Returns the {@link DataSource} of this data configuration.
      */
@@ -409,11 +411,38 @@ public class DatabaseConfigurationContext
     /**
      * Sets the folder which contains all Data SQL scripts.
      * 
-     * @param scriptFolderOfDataScripts New value. Can be <code>null</code>.
+     * @param folderOfDataScripts New value. Can be <code>null</code>.
      */
-    public final void setFolderOfDataScripts(String scriptFolderOfDataScripts)
+    public final void setFolderOfDataScripts(String folderOfDataScripts)
     {
-        this.folderOfDataScripts = scriptFolderOfDataScripts;
+        this.folderOfDataScripts = folderOfDataScripts;
+    }
+
+    /**
+     * Returns the folder which contains the files for mass upload to the database. As a default value
+     * {@link #getFolderOfDataScripts()} will be returned if not definied by a non-<code>null</code> value in
+     * {@link #setFolderOfMassUploadFiles(String)}.
+     */
+    public String getFolderOfMassUploadFiles()
+    {
+        return folderOfMassUploadFiles == null ? getFolderOfDataScripts() : folderOfMassUploadFiles;
+    }
+
+    /**
+     * Sets the folder which contains the files for mass uploads.
+     * 
+     * @param folderOfMassUploadFiles New value. Can be <code>null</code>. An empty value will be interpreted as
+     *            <code>null</code>.
+     */
+    public void setFolderOfMassUploadFiles(String folderOfMassUploadFiles)
+    {
+        if ("".equals(folderOfMassUploadFiles))
+        {
+            this.folderOfMassUploadFiles = null;
+        } else
+        {
+            this.folderOfMassUploadFiles = folderOfMassUploadFiles;
+        }
     }
 
 }

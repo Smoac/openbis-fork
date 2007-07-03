@@ -43,16 +43,19 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     private final String dataScriptFolder;
 
+    private final String massUploadDataFolder;
+
     private final String internalScriptFolder;
 
     /**
      * Creates an instance for the specified folders and database type. The database type specifies the resource folder
      * relative to the package of this class where the scripts with method {@link #getScript(String)} are loaded.
      */
-    public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder, String databaseType)
+    public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder,
+            String massUploadDataFolder, String databaseType)
     {
         String internalFolder = SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseType;
-        return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, internalFolder);
+        return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, massUploadDataFolder, internalFolder);
     }
 
     /**
@@ -63,10 +66,12 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * @param dataScriptFolder Folder of data scripts.
      * @param internalScriptFolder Folder for internal scripts.
      */
-    SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder, String internalScriptFolder)
+    SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder, String massUploadDataFolder,
+            String internalScriptFolder)
     {
         this.schemaScriptFolder = schemaScriptFolder;
         this.dataScriptFolder = dataScriptFolder;
+        this.massUploadDataFolder = massUploadDataFolder;
         this.internalScriptFolder = internalScriptFolder;
     }
 
@@ -145,7 +150,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public File[] getMassUploadFiles(String version)
     {
-        final File dataFolder = new File(dataScriptFolder + "/" + version);
+        final File dataFolder = new File(massUploadDataFolder + "/" + version);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Searching for mass upload files in directory '" + dataFolder.getAbsolutePath() + "'.");
@@ -159,7 +164,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
             });
         if (csvFiles == null)
         {
-            operationLog.warn("Path '" +  dataFolder.getAbsolutePath() + "' is not a directory.");
+            operationLog.warn("Path '" + dataFolder.getAbsolutePath() + "' is not a directory.");
             return new File[0];
         }
         Arrays.sort(csvFiles);
