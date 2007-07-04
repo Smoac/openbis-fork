@@ -225,19 +225,17 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         try
         {
             final boolean handledOK = handler.handle(path);
+            if (handledOK && path.exists())
+            {
+                operationLog.warn(String.format("Handler %s reports path '%s' be handled OK, but path still exists.",
+                        handler.getClass().getSimpleName(), path));
+            }
+        } finally
+        {
             if (path.exists())
             {
-                if (handledOK)
-                {
-                    operationLog.warn(String.format("Handler %s reports path '%s' be handled OK, but path still exists.",
-                            handler.getClass().getSimpleName(), path));
-                }
                 addToFaultyPaths(path);
             }
-        } catch (RuntimeException ex)
-        {
-            addToFaultyPaths(path);
-            throw ex;
         }
     }
 
