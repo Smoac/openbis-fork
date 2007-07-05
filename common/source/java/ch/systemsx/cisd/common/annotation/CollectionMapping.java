@@ -37,6 +37,8 @@ public @interface CollectionMapping
     /**
      * The concrete class to use as a collection.
      */
+    @SuppressWarnings("unchecked")
+    // No way to avoid the warning since the compiler doesn't accept something like ArrayList<String>.class
     Class<? extends Collection> collectionClass();
 
     /**
