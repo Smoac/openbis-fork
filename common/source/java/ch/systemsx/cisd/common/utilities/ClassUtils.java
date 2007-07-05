@@ -17,11 +17,8 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
@@ -42,7 +39,7 @@ public final class ClassUtils
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      */
-    public final static List<Field> getMandatoryFields(Class clazz)
+    public final static List<Field> getMandatoryFields(Class<?> clazz)
     {
         return getMandatoryFields(clazz, null);
     }
@@ -52,7 +49,7 @@ public final class ClassUtils
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
      */
-    private final static List<Field> getMandatoryFields(Class clazz, List<Field> fields)
+    private final static List<Field> getMandatoryFields(Class<?> clazz, List<Field> fields)
     {
         List<Field> list = fields;
         if (list == null)
@@ -66,7 +63,7 @@ public final class ClassUtils
                 list.add(field);
             }
         }
-        Class superclass = clazz.getSuperclass();
+        Class<?> superclass = clazz.getSuperclass();
         if (superclass != null)
         {
             return getMandatoryFields(superclass, list);
@@ -122,74 +119,6 @@ public final class ClassUtils
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         return null;
-    }
-
-    /**
-     * The {@link InvocationHandler} for the {@link ClassUtils#createProxy(Object, Class, Class[])} method.
-     * 
-     * @author Bernd Rinn
-     */
-    private static final class ProxyingInvocationHandler implements InvocationHandler
-    {
-        private final Object proxiedObject;
-
-        ProxyingInvocationHandler(Object proxiedObject)
-        {
-            this.proxiedObject = proxiedObject;
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-        {
-            final Method proxyThroughMethod =
-                    proxiedObject.getClass().getMethod(method.getName(), method.getParameterTypes());
-            return proxyThroughMethod.invoke(proxiedObject, args);
-        }
-    }
-
-    private static boolean fitsInterfaces(Class classToCheck, List<Class> interfaces)
-    {
-        for (Class ifs : interfaces)
-        {
-            if (ifs.isInterface() == false)
-            {
-                System.err.println("'" + ifs.getCanonicalName() + "' is not an interface.");
-                return false;
-            }
-            for (Method method : ifs.getMethods())
-            {
-                try
-                {
-                    classToCheck.getMethod(method.getName(), method.getParameterTypes());
-                } catch (NoSuchMethodException ex)
-                {
-                    System.err.println("'" + classToCheck.getCanonicalName() + "' does not have a method '" + method
-                            + "'");
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns a {@link Proxy} for <var>objectToBeProxied</var>. This allows to retroactively fit a class into a couple
-     * of interfaces.
-     * 
-     * @param objectToProxy The object to proxy through to.
-     * @param mainInterfaceToProvideProxyFor The main interface to provide a proxy for and to cast to.
-     * @param otherInterfacesToProvideProxyFor Other interfaces to provide a proxy for.
-     */
-    // Proxy guarantees that the type cast is OK.
-    @SuppressWarnings("unchecked")
-    public final static <T> T createProxy(Object objectToProxy, Class<T> mainInterfaceToProvideProxyFor,
-            Class... otherInterfacesToProvideProxyFor)
-    {
-        final List<Class> interfaces = new ArrayList<Class>();
-        interfaces.add(mainInterfaceToProvideProxyFor);
-        interfaces.addAll(Arrays.asList(otherInterfacesToProvideProxyFor));
-        assert fitsInterfaces(objectToProxy.getClass(), interfaces);
-        return (T) Proxy.newProxyInstance(ClassUtils.class.getClassLoader(), interfaces.toArray(new Class[interfaces
-                .size()]), new ProxyingInvocationHandler(objectToProxy));
     }
 
 }
