@@ -16,12 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -53,39 +47,6 @@ public final class BeanUtils
     private BeanUtils()
     {
         // Can not be instantiated.
-    }
-
-    /**
-     * Encodes given object into a XML string.
-     * <p>
-     * To decode the returned XML string, you should use {@link #xmlDecode(String)}.
-     * </p>
-     */
-    public final static String xmlEncode(Object object)
-    {
-        assert object != null;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(out));
-        encoder.writeObject(object);
-        encoder.close();
-        return out.toString();
-    }
-
-    /**
-     * This method decodes given XML string into an <code>Object</code>.
-     * <p>
-     * By using this method, we assume that the returned <code>Object</code> has been encoded using
-     * {@link #xmlEncode(Object)}.
-     * </p>
-     */
-    public final static Object xmlDecode(String xmlString)
-    {
-        assert xmlString != null;
-        ByteArrayInputStream in = new ByteArrayInputStream(xmlString.getBytes());
-        XMLDecoder encoder = new XMLDecoder(new BufferedInputStream(in));
-        Object result = encoder.readObject();
-        encoder.close();
-        return result;
     }
 
     /**
@@ -355,16 +316,16 @@ public final class BeanUtils
                     copyArrayToArray(destinationBean, sourceBean, converter);
                 } else if (isCollection(sourceBean))
                 {
-                    copyCollectionToArray(destinationBean, (Collection) sourceBean, converter);
+                    copyCollectionToArray(destinationBean, (Collection<?>) sourceBean, converter);
                 }
             } else if (isCollection(destinationBean))
             {
                 if (isArray(sourceBean))
                 {
-                    copyArrayToCollection((Collection) destinationBean, sourceBean, setterAnnotations, converter);
+                    copyArrayToCollection((Collection<?>) destinationBean, sourceBean, setterAnnotations, converter);
                 } else if (isCollection(sourceBean))
                 {
-                    copyCollectionToCollection((Collection) destinationBean, (Collection) sourceBean,
+                    copyCollectionToCollection((Collection<?>) destinationBean, (Collection<?>) sourceBean,
                             setterAnnotations, converter);
                 }
             } else
@@ -441,7 +402,7 @@ public final class BeanUtils
             return Array.getLength(o);
         } else if (isCollection(o))
         {
-            return ((Collection) o).size();
+            return ((Collection<?>) o).size();
         } else
         { // Don't know how to get the size of o.
             return null;
@@ -454,6 +415,8 @@ public final class BeanUtils
         return (T) Array.newInstance(beanClass.getComponentType(), length);
     }
 
+    @SuppressWarnings("unchecked")
+    // No way to avoid the warning since the compiler doesn't accept something like ArrayList<String>.class
     private static <T> T createCollection(Class<T> beanClass, int size, AnnotationMap setterAnnotations)
             throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, InvocationTargetException
@@ -528,7 +491,7 @@ public final class BeanUtils
         }
     }
 
-    private static void copyCollectionToArray(Object destination, Collection source, Converter converter)
+    private static void copyCollectionToArray(Object destination, Collection<?> source, Converter converter)
             throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
@@ -555,7 +518,7 @@ public final class BeanUtils
         }
     }
 
-    private static void copyArrayToCollection(Collection destination, Object source, AnnotationMap setterAnnotations,
+    private static void copyArrayToCollection(Collection<?> destination, Object source, AnnotationMap setterAnnotations,
             Converter converter)
     {
         if (destination == null)
@@ -582,7 +545,7 @@ public final class BeanUtils
         }
     }
 
-    private static void copyCollectionToCollection(Collection destination, Collection source,
+    private static void copyCollectionToCollection(Collection<?> destination, Collection<?> source,
             AnnotationMap setterAnnotations, Converter converter)
     {
         if (destination == null)

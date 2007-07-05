@@ -43,67 +43,13 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
 public final class BeanUtilsTest
 {
 
-    /**
-     * Test method for {@link ch.systemsx.cisd.common.utilities.BeanUtils#xmlEncode(java.lang.Object)}.
-     */
-    @Test
-    public final void testXmlEnDecode()
-    {
-        List<SimpleBean> list = new ArrayList<SimpleBean>();
-        SimpleBean bean = new SimpleBean();
-        bean.setFirstName("Tanja");
-        bean.setLastName("Berg");
-        list.add(bean);
-        bean = new SimpleBean();
-        bean.setFirstName("Christian");
-        bean.setLastName("Ribeaud");
-        list.add(bean);
-        String xml = BeanUtils.xmlEncode(list);
-        List newList = (List) BeanUtils.xmlDecode(xml);
-        assert newList.size() == 2;
-        assertEquals(((SimpleBean) newList.get(0)).getFirstName(), "Tanja");
-        assertEquals(((SimpleBean) newList.get(1)).getLastName(), "Ribeaud");
-    }
-
-    // This MUST be public.
-    public final static class SimpleBean
-    {
-        private String firstName;
-
-        private String lastName;
-
-        /** Returns <code>firstName</code>. */
-        public final String getFirstName()
-        {
-            return firstName;
-        }
-
-        /** Returns <code>lastName</code>. */
-        public final String getLastName()
-        {
-            return lastName;
-        }
-
-        /** Sets <code>firstName</code>. */
-        public final void setFirstName(String firstName)
-        {
-            this.firstName = firstName;
-        }
-
-        /** Sets <code>lastName</code>. */
-        public final void setLastName(String lastName)
-        {
-            this.lastName = lastName;
-        }
-    }
-
-    private static class SimpleBean2
+    private static class SimpleBean
     {
         private final int number;
 
         private final String string;
 
-        SimpleBean2(int number, String string)
+        SimpleBean(int number, String string)
         {
             this.number = number;
             this.string = string;
@@ -129,7 +75,7 @@ public final class BeanUtilsTest
     @Test
     public void testCheckGettersForNullOK()
     {
-        final SimpleBean2 bean = new SimpleBean2(1, "");
+        final SimpleBean bean = new SimpleBean(1, "");
         assert BeanUtils.checkGettersNotNull(bean) == bean;
     }
 
@@ -142,14 +88,14 @@ public final class BeanUtilsTest
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullStringNull()
     {
-        final SimpleBean2 bean = new SimpleBean2(1, null);
+        final SimpleBean bean = new SimpleBean(1, null);
         BeanUtils.checkGettersNotNull(bean);
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullInt0()
     {
-        final SimpleBean2 bean = new SimpleBean2(0, "test");
+        final SimpleBean bean = new SimpleBean(0, "test");
         BeanUtils.checkGettersNotNull(bean);
     }
 
@@ -162,17 +108,17 @@ public final class BeanUtilsTest
     @Test
     public void testCheckGettersForNullListOK()
     {
-        final SimpleBean2 bean1 = new SimpleBean2(1, "test");
-        final SimpleBean2 bean2 = new SimpleBean2(5, "test2");
-        final List<SimpleBean2> beanList = Arrays.asList(bean1, bean2);
+        final SimpleBean bean1 = new SimpleBean(1, "test");
+        final SimpleBean bean2 = new SimpleBean(5, "test2");
+        final List<SimpleBean> beanList = Arrays.asList(bean1, bean2);
         assert BeanUtils.checkGettersNotNull(beanList) == beanList;
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
     public void testCheckGettersForNullListInt0()
     {
-        final SimpleBean2 bean1 = new SimpleBean2(1, "test");
-        final SimpleBean2 bean2 = new SimpleBean2(0, "test2");
+        final SimpleBean bean1 = new SimpleBean(1, "test");
+        final SimpleBean bean2 = new SimpleBean(0, "test2");
         BeanUtils.checkGettersNotNull(Arrays.asList(bean1, bean2));
     }
 
