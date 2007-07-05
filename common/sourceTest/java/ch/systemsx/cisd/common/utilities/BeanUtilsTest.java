@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
@@ -338,6 +339,20 @@ public final class BeanUtilsTest
         assertBeansAreEqual("Beans are not equal", b1, b2);
     }
 
+    @Test
+    public void testFillPreinstantiatedBean()
+    {
+        final Bean1a b1 = new Bean1a();
+        b1.setB(true);
+        b1.setF(0.2f);
+        b1.setI(17);
+        b1.setS("test");
+        final Bean2a b2 = new Bean2a();
+        assertSame(b2, BeanUtils.fillBean(Bean2a.class, b2, b1));
+        assertBeansAreEqual("Beans are not equal", b1, b2);
+        
+    }
+    
     @Test
     public void testFillSimpleBeanWithNativeWrapper1()
     {

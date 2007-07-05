@@ -255,15 +255,44 @@ public final class BeanUtils
 
     /**
      * Convenience method for {@link #fillBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
-     * where <var>converter</var> is <code>null</code>.
+     * where <var>converter</var> is <code>nullConverter</code>.
      */
-    public static <T> T fillBean(Class<T> beanClass, Object sourceBean)
+    public static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean)
     {
-        return fillBean(beanClass, sourceBean, emptyAnnotationMap, nullConverter);
+        return fillBean(beanClass, beanInstance, sourceBean, emptyAnnotationMap, nullConverter);
     }
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>beanToFill</var>.
+     * Convenience method for {@link #fillBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * where <var>converter</var> is <code>nullConverter</code>.
+     */
+    public static <T> T fillBean(Class<T> beanClass, Object sourceBean)
+    {
+        return fillBean(beanClass, null, sourceBean, emptyAnnotationMap, nullConverter);
+    }
+
+    /**
+     * Fills a new bean <var>beanInstance</var> of type <var>beanClass</var> with values from <var>sourceBean</var>.
+     * 
+     * @param beanClass The class to create a new instance from.
+     * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
+     *            <code>null</code>.
+     * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
+     *            <code>null</code>, in which case only standard conversions are allowed.
+     * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
+     */
+    public static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean, Converter converter)
+    {
+        Converter c = converter;
+        if (c == null)
+        {
+            c = nullConverter;
+        }
+        return fillBean(beanClass, beanInstance, sourceBean, emptyAnnotationMap, c);
+    }
+
+    /**
+     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var>.
      * 
      * @param beanClass The class to create a new instance from.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
@@ -279,11 +308,11 @@ public final class BeanUtils
         {
             c = nullConverter;
         }
-        return fillBean(beanClass, sourceBean, emptyAnnotationMap, c);
+        return fillBean(beanClass, null, sourceBean, emptyAnnotationMap, c);
     }
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>beanToFill</var>.
+     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var>.
      * 
      * @param beanClass The class to create a new instance from.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
@@ -294,7 +323,7 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
-    private static <T> T fillBean(Class<T> beanClass, Object sourceBean, AnnotationMap setterAnnotations,
+    private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean, AnnotationMap setterAnnotations,
             Converter converter)
     {
         assert beanClass != null;
@@ -308,7 +337,7 @@ public final class BeanUtils
 
         try
         {
-            final T destinationBean = instantiateBean(beanClass, sourceBean, setterAnnotations);
+            final T destinationBean = (beanInstance != null) ? beanInstance : instantiateBean(beanClass, sourceBean, setterAnnotations);
             if (isArray(destinationBean))
             {
                 if (isArray(sourceBean))
@@ -644,7 +673,7 @@ public final class BeanUtils
             return oldBean;
         } else
         {
-            return fillBean(parameterType, oldBean, annotationMap, converter);
+            return fillBean(parameterType, null, oldBean, annotationMap, converter);
         }
     }
 
