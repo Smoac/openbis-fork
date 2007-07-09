@@ -49,9 +49,12 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private final DataSource dataSource;
 
-    public PostgreSQLMassUploader(DataSource dataSource) throws SQLException
+    private final ISequenceNameMapper sequenceMapper;
+
+    public PostgreSQLMassUploader(DataSource dataSource, ISequenceNameMapper sequenceMapper) throws SQLException
     {
         this.dataSource = dataSource;
+        this.sequenceMapper = sequenceMapper;
         setDataSource(dataSource);
     }
 
@@ -87,7 +90,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private void fixSequence(String tableName)
     {
-        final String sequenceName = getSequenceName(tableName);
+        final String sequenceName = sequenceMapper.map(tableName);
         try
         {
             getSimpleJdbcTemplate().queryForLong(String.format("select setval('%s', max(id)) from %s", sequenceName,
@@ -102,11 +105,6 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
                         + "'.");
             }
         }
-    }
-
-    private String getSequenceName(String tableName)
-    {
-        return tableName.substring(0, tableName.length() - 1) + "_id_seq";
     }
 
     private PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException

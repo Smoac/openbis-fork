@@ -38,6 +38,8 @@ public class DatabaseConfigurationContext
     private LobHandler lobHandler;
 
     private ISequencerScriptProvider sequencerScriptProvider;
+    
+    private ISequenceNameMapper sequenceNameMapper;
 
     private String adminURL;
 
@@ -294,6 +296,26 @@ public class DatabaseConfigurationContext
     public final void setSequencerScriptProvider(ISequencerScriptProvider sequencerScriptProvider)
     {
         this.sequencerScriptProvider = sequencerScriptProvider;
+    }
+
+    /**
+     * Returns sequenceNameMapper.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    public final ISequenceNameMapper getSequenceNameMapper()
+    {
+        return sequenceNameMapper;
+    }
+
+    /**
+     * Sets sequenceNameMapper.
+     * 
+     * @param sequenceNameMapper New value. Can be <code>null</code>.
+     */
+    public final void setSequenceNameMapper(ISequenceNameMapper sequenceNameMapper)
+    {
+        this.sequenceNameMapper = sequenceNameMapper;
     }
 
     /**
