@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -28,6 +31,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -323,8 +327,8 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
-    private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean, AnnotationMap setterAnnotations,
-            Converter converter)
+    private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean,
+            AnnotationMap setterAnnotations, Converter converter)
     {
         assert beanClass != null;
         assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
@@ -337,7 +341,8 @@ public final class BeanUtils
 
         try
         {
-            final T destinationBean = (beanInstance != null) ? beanInstance : instantiateBean(beanClass, sourceBean, setterAnnotations);
+            final T destinationBean =
+                    (beanInstance != null) ? beanInstance : instantiateBean(beanClass, sourceBean, setterAnnotations);
             if (isArray(destinationBean))
             {
                 if (isArray(sourceBean))
@@ -547,8 +552,8 @@ public final class BeanUtils
         }
     }
 
-    private static void copyArrayToCollection(Collection<?> destination, Object source, AnnotationMap setterAnnotations,
-            Converter converter)
+    private static void copyArrayToCollection(Collection<?> destination, Object source,
+            AnnotationMap setterAnnotations, Converter converter)
     {
         if (destination == null)
         {
@@ -747,6 +752,39 @@ public final class BeanUtils
                     methodMap.put(methodName, method);
                 }
             }
+        }
+    }
+
+    /**
+     * Returns a map of <code>PropertyDescriptor</code>s keyed by {@link PropertyDescriptor#getName()}.
+     * <p>
+     * It introspects given class and remove each (bean) property that does not have a write method (like
+     * <code>class</code>).
+     * </p>
+     */
+    public final static Map<String, PropertyDescriptor> getPropertyDescriptors(Class<?> clazz)
+    {
+        try
+        {
+            Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>();
+            final List<PropertyDescriptor> descriptors =
+                    new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
+                            .getPropertyDescriptors()));
+            for (Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
+            {
+                final PropertyDescriptor descriptor = iter.next();
+                // If no write method, remove it. For instance 'class' property does not have any
+                // write method.
+                if (descriptor.getWriteMethod() != null)
+                {
+                    // Put the descriptor name in lower case.
+                    map.put(descriptor.getName().toLowerCase(), descriptor);
+                }
+            }
+            return map;
+        } catch (IntrospectionException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
         }
     }
 

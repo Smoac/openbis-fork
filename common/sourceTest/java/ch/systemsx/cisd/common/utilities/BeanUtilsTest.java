@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +46,38 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  */
 public final class BeanUtilsTest
 {
+
+    @SuppressWarnings("null")
+    @Test
+    public final void testGetPropertyDescriptors() throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException
+    {
+        List<PropertyDescriptor> descriptors =
+                new ArrayList<PropertyDescriptor>(BeanUtils.getPropertyDescriptors(FooBean.class).values());
+        assertEquals(1, descriptors.size());
+        PropertyDescriptor outerDescriptor = null;
+        // Play with property 'description'
+        for (Iterator iter = descriptors.iterator(); iter.hasNext();)
+        {
+            PropertyDescriptor innerDescriptor = (PropertyDescriptor) iter.next();
+            if (innerDescriptor.getName().equals("foo"))
+            {
+                outerDescriptor = innerDescriptor;
+                break;
+            }
+        }
+        assertNotNull(outerDescriptor);
+        assertEquals(outerDescriptor.getDisplayName(), "foo");
+        assertEquals(outerDescriptor.getName(), "foo");
+        assertNotNull(outerDescriptor.getWriteMethod());
+        // Setting the property 'foo' live on an object
+        FooBean fooBean = new FooBean();
+        Method method = outerDescriptor.getWriteMethod();
+        String description = "This is a foolish description.";
+        method.invoke(fooBean, new Object[]
+            { description });
+        assertEquals(fooBean.getFoo(), description);
+    }
 
     private static class SimpleBean
     {
@@ -350,9 +385,9 @@ public final class BeanUtilsTest
         final Bean2a b2 = new Bean2a();
         assertSame(b2, BeanUtils.fillBean(Bean2a.class, b2, b1));
         assertBeansAreEqual("Beans are not equal", b1, b2);
-        
+
     }
-    
+
     @Test
     public void testFillSimpleBeanWithNativeWrapper1()
     {
@@ -669,7 +704,7 @@ public final class BeanUtilsTest
         final Bean2a b2 = b4.getBean();
         assertBeansAreEqual("Bean comparison", b1, b2);
     }
-    
+
     public static class BeanWithBeanArray1
     {
         private Bean1a[] bean;
@@ -892,7 +927,7 @@ public final class BeanUtilsTest
         assertEquals(msg, b2.getI(), b1.getI());
         assertEquals(msg, b2.getS(), b1.getS());
     }
-    
+
     public static class FooBean
     {
         private String foo;
@@ -922,20 +957,20 @@ public final class BeanUtilsTest
             this.bar = bar;
         }
     }
-    
+
     @Test
     public void testConverter()
     {
         final FooBean tofuBean = new FooBean();
         tofuBean.setFoo("some tofu");
         final BarBean toFooBean = BeanUtils.fillBean(BarBean.class, tofuBean, new BeanUtils.Converter()
-        {
-            @SuppressWarnings("unused")
-            public String convertToBar(FooBean foo)
             {
-                return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
-            }
-        });
+                @SuppressWarnings("unused")
+                public String convertToBar(FooBean foo)
+                {
+                    return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
+                }
+            });
         assertEquals("some to Foo", toFooBean.getBar());
     }
 }
