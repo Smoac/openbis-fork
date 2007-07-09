@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.parser.ILineFilter;
 
 /**
  * Some useful utility methods for files and directories.
@@ -218,7 +219,7 @@ public final class FileUtilities
     {
         assert path != null;
         assert kindOfPath != null;
-        
+
         return checkPathFullyAccessible(path, kindOfPath, "path");
     }
 
@@ -435,6 +436,37 @@ public final class FileUtilities
             });
     }
 
+    /**
+     * Returns the first line that is not filtered out by given <code>ILineFilter</code>.
+     * <p>
+     * Returns <code>-1</code> if all lines have been filtered out.
+     * </p>
+     */
+    public final static int getFirstAcceptedLine(File file, ILineFilter lineFilter)
+    {
+        LineIterator lineIterator = null;
+        try
+        {
+            lineIterator = FileUtils.lineIterator(file);
+            for (int line = 0; lineIterator.hasNext(); line++)
+            {
+                String nextLine = lineIterator.nextLine();
+                if (lineFilter.acceptLine(nextLine, line))
+                {
+                    return line;
+                }
+
+            }
+        } catch (IOException ex)
+        {
+            machineLog.error("An I/O exception has occurred while reading file '" + file + "'.", ex);
+        } finally
+        {
+            LineIterator.closeQuietly(lineIterator);
+        }
+        return -1;
+    }
+
     /** Parses given <code>File</code> till it encounters given line number and returns it. */
     public final static String getLine(File file, int lineNumber)
     {
@@ -460,5 +492,4 @@ public final class FileUtilities
         }
         return null;
     }
-
 }
