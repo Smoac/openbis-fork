@@ -44,7 +44,7 @@ public final class DefaultReaderParserTest
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         final Reader reader = new StringReader(text);
-        final List<String[]> result = parser.parse(reader, new DefaultLineFilter());
+        final List<String[]> result = parser.parse(reader, new HeaderLineFilter());
         assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
         assertEquals(result.get(1)[1], "Ribeaud");
@@ -58,7 +58,7 @@ public final class DefaultReaderParserTest
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         final Reader reader = new StringReader(text);
-        final List<String[]> result = parser.parse(reader, new DefaultLineFilter(2));
+        final List<String[]> result = parser.parse(reader, new HeaderLineFilter(2));
         assertEquals(2, result.size());
         assertEquals(result.get(0)[1], "Ribeaud");
         assertEquals(result.get(1)[2], "Rue des Pervenches 46");
