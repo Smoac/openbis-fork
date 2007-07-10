@@ -437,12 +437,12 @@ public final class FileUtilities
     }
 
     /**
-     * Returns the first line that is not filtered out by given <code>ILineFilter</code>.
+     * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
      * <p>
-     * Returns <code>-1</code> if all lines have been filtered out.
+     * Returns <code>null</code> if all lines have been filtered out.
      * </p>
      */
-    public final static int getFirstAcceptedLine(File file, ILineFilter lineFilter)
+    public final static Line getFirstAcceptedLine(File file, ILineFilter lineFilter)
     {
         LineIterator lineIterator = null;
         try
@@ -453,7 +453,7 @@ public final class FileUtilities
                 String nextLine = lineIterator.nextLine();
                 if (lineFilter.acceptLine(nextLine, line))
                 {
-                    return line;
+                    return new Line(line, nextLine);
                 }
 
             }
@@ -464,7 +464,26 @@ public final class FileUtilities
         {
             LineIterator.closeQuietly(lineIterator);
         }
-        return -1;
+        return null;
+    }
+
+    /**
+     * A small object that represents a line in a <code>File</code> context.
+     * 
+     * @author Christian Ribeaud
+     */
+    public final static class Line
+    {
+
+        public final String text;
+
+        public final int number;
+
+        Line(final int number, final String text)
+        {
+            this.number = number;
+            this.text = text;
+        }
     }
 
     /** Parses given <code>File</code> till it encounters given line number and returns it. */
