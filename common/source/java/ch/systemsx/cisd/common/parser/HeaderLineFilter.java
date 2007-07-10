@@ -37,7 +37,7 @@ public final class HeaderLineFilter implements ILineFilter
 
     public final boolean acceptLine(String line, int lineNumber)
     {
-        if (ILineFilter.EXCLUDE_EMPTY_AND_COMMENT_LINE.acceptLine(line, lineNumber) == false
+        if (ExcludeEmptyAndCommentLineFilter.INSTANCE.acceptLine(line, lineNumber) == false
                 || lineNumber == headerLineNumber)
         {
             return false;

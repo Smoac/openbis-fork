@@ -69,7 +69,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
     public final List<E> parse(Reader reader) throws IOException
     {
-        return parse(reader, ILineFilter.ALWAYS_ACCEPT_LINE);
+        return parse(reader, AlwaysAcceptLineFilter.INSTANCE);
     }
 
     public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException

@@ -24,40 +24,6 @@ package ch.systemsx.cisd.common.parser;
 public interface ILineFilter
 {
 
-    /** A default <code>LineFilter</code> implementation that accepts any line. */
-    public final static ILineFilter ALWAYS_ACCEPT_LINE = new ILineFilter()
-        {
-
-            //
-            // LineFilter
-            //
-
-            public final boolean acceptLine(String line, int lineNumber)
-            {
-                return true;
-            }
-        };
-
-    /**
-     * A default <code>LineFilter</code> implementation that excludes empty and comment lines.
-     * <p>
-     * A comment line starts with '#'.
-     * </p>
-     */
-    public final static ILineFilter EXCLUDE_EMPTY_AND_COMMENT_LINE = new ILineFilter()
-        {
-
-            //
-            // LineFilter
-            //
-
-            public final boolean acceptLine(String line, int lineNumber)
-            {
-                final String trimmed = line.trim();
-                return trimmed.length() > 0 && trimmed.startsWith("#") == false;
-            }
-        };
-
     /**
      * If given <code>line</code> should be accepted or not.
      * 
