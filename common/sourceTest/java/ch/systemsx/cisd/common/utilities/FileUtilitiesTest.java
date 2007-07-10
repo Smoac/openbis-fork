@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -144,5 +144,12 @@ public class FileUtilitiesTest
         assert file.delete();
         assertEquals(Arrays.asList("Hello", "World!"), text);
     }
-
+    
+    public final void testCanonifyRelativePath() {
+        assertNull(FileUtilities.canonifyRelativePath(null));
+        String relativePath = "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class";
+        assertEquals("ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class", FileUtilities.canonifyRelativePath(relativePath));
+        relativePath = "ch\\systemsx\\cisd\\common\\utilities\\FileUtilitiesTest.class";
+        assertEquals("ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class", FileUtilities.canonifyRelativePath(relativePath));
+    }
 }
