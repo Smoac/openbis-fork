@@ -44,6 +44,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMassUploader
 {
+    private static final String FILE_TYPE = ".csv";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLMassUploader.class);
 
@@ -51,6 +53,9 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private final ISequenceNameMapper sequenceMapper;
 
+    /**
+     * Creates an instance for the specified data source and sequence mapper.
+     */
     public PostgreSQLMassUploader(DataSource dataSource, ISequenceNameMapper sequenceMapper) throws SQLException
     {
         this.dataSource = dataSource;
@@ -64,11 +69,12 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         {
             final CopyManager copyManager = getPGConnection().getCopyAPI();
             final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
-            assert splitName.length == 2;
+            assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
             final String tableNameWithExtension = splitName[1];
-            assert tableNameWithExtension.endsWith(".csv");
+            assert tableNameWithExtension.endsWith(FILE_TYPE) : "Not of expected file type " + FILE_TYPE + ": "
+                    + massUploadFile.getName();
             final String tableName =
-                    tableNameWithExtension.substring(0, tableNameWithExtension.length() - ".csv".length());
+                    tableNameWithExtension.substring(0, tableNameWithExtension.length() - FILE_TYPE.length());
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Perform mass upload of file '" + massUploadFile + "' to table '" + tableName + "'.");
@@ -93,8 +99,8 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         final String sequenceName = sequenceMapper.map(tableName);
         try
         {
-            getSimpleJdbcTemplate().queryForLong(String.format("select setval('%s', max(id)) from %s", sequenceName,
-                    tableName));
+            getSimpleJdbcTemplate().queryForLong(
+                    String.format("select setval('%s', max(id)) from %s", sequenceName, tableName));
         } catch (DataAccessException ex)
         {
             // TODO 2007-07-03, Bernd Rinn: implement more robust way to find the sequence for a table. For now we need

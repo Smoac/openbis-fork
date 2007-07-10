@@ -38,5 +38,8 @@ public interface IDAOFactory
      */
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO();
     
+    /**
+     * Returns the mass uploader used for initial data uploading.
+     */
     public IMassUploader getMassUploader();
 }

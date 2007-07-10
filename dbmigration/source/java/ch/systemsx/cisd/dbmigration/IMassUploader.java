@@ -21,8 +21,8 @@ import java.io.File;
 /**
  * Classes that implement this interface encapsulate mass uploading of tabular files to the database. The files to be
  * processed by implementations of this class are supposed to be <code>csv</code> files that can be uploaded to
- * exactly one table. They need to follow the naming convention <code>orderSpecifier=tableName.csv</code>. Here the
- * order specifier ensures that the dependency is right while the table name is the name of the table to upload the data
+ * exactly one table. They need to follow the naming convention <code><i>&lt;orderSpecifier&gt;</i>=<i>&lt;tableName&gt;</i>.csv</code>. 
+ * Here the order specifier ensures that the dependency is right while the table name is the name of the table to upload the data
  * to.
  * 
  * @author Bernd Rinn

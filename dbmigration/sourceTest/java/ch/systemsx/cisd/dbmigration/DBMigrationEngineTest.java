@@ -164,7 +164,7 @@ public class DBMigrationEngineTest
                     one(scriptProvider).getSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code"), version);
                     one(scriptProvider).getMassUploadFiles(version);
-                    final File massUploadFile = new File("1::materials.csv");
+                    final File massUploadFile = new File("1=materials.csv");
                     will(returnValue(new File[] { massUploadFile }));
                     one(scriptProvider).getDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), version);

@@ -64,6 +64,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * 
      * @param schemaScriptFolder Folder of schema and migration scripts.
      * @param dataScriptFolder Folder of data scripts.
+     * @param massUploadDataFolder Folder of CSV files for uploading.
      * @param internalScriptFolder Folder for internal scripts.
      */
     SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder, String massUploadDataFolder,
