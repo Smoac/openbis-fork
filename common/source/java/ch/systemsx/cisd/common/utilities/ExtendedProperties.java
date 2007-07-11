@@ -129,6 +129,8 @@ public final class ExtendedProperties extends Properties
         while (p1 >= 0 && p2 > p1)
         {
             String paramName = result.substring(p1 + 2, p2);
+            // TODO 2007-07-11, Franz-Josef Elmer: This recursive call has to be checked against cyclic dependencies
+            // in a properties file like a = ${b}, b = ${a}
             String paramValue = getProperty(paramName);
             if (paramValue != null)
             {
