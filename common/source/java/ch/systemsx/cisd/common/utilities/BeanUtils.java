@@ -48,6 +48,8 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 public final class BeanUtils
 {
 
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+
     private BeanUtils()
     {
         // Can not be instantiated.
@@ -88,6 +90,7 @@ public final class BeanUtils
         {
             return beanToCheck;
         }
+        // TODO 2007-07-11, Franz-Josef Elmer: Why arrays are not checked? Why they are forbidden and not ignored?
         if (beanToCheck.getClass().isArray())
         {
             throw new IllegalArgumentException("Arrays are not supported.");
@@ -99,7 +102,7 @@ public final class BeanUtils
             {
                 try
                 {
-                    final Object result = method.invoke(beanToCheck, new Object[0]);
+                    final Object result = method.invoke(beanToCheck, EMPTY_OBJECT_ARRAY);
                     if (result == null)
                     {
                         throw new IllegalStateException("Method '" + method.getName() + "' returns null.");
@@ -125,6 +128,7 @@ public final class BeanUtils
         return beanToCheck;
     }
 
+    //  TODO 2007-07-11, Franz-Josef Elmer: Why numbers with a value rounded to 0 are forbidden? 
     private static boolean isNull(Object objectToCheck)
     {
         return (objectToCheck instanceof Number) && ((Number) objectToCheck).longValue() == 0;
@@ -203,9 +207,9 @@ public final class BeanUtils
     {
     }
 
-    private static final AnnotationMap emptyAnnotationMap = new EmptyAnnotationMap();
+    private static final AnnotationMap EMPTY_ANNOTATION_MAP = new EmptyAnnotationMap();
 
-    private static final Converter nullConverter = new Converter()
+    private static final Converter NULL_CONVERTER = new Converter()
         {
         };
 
@@ -221,12 +225,12 @@ public final class BeanUtils
      * @param clazz element type of the new list.
      * @param sourceList The list to fill the new bean list from. Can be <code>null</code>, in which case the method
      *            returns <code>null</code>.
-     * @return The new list filled from <var>list</var> or <code>null</code>, if <var>list</var> is
+     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList)
+    public final static <T, S> List<T> createBeanList(Class<T> clazz, List<S> sourceList)
     {
-        return fillBeanList(clazz, sourceList, null);
+        return createBeanList(clazz, sourceList, null);
     }
 
     /**
@@ -237,10 +241,10 @@ public final class BeanUtils
      *            returns <code>null</code>.
      * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
      *            <code>null</code>, in which case only standard conversions are allowed.
-     * @return The new list filled from <var>list</var> or <code>null</code>, if <var>list</var> is
+     * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, Q> List<T> fillBeanList(Class<T> clazz, List<Q> sourceList, Converter converter)
+    public final static <T, S> List<T> createBeanList(Class<T> clazz, List<S> sourceList, Converter converter)
     {
         assert clazz != null;
 
@@ -250,35 +254,36 @@ public final class BeanUtils
         }
 
         final List<T> resultList = new ArrayList<T>();
-        for (Q element : sourceList)
+        for (S element : sourceList)
         {
-            resultList.add(BeanUtils.fillBean(clazz, element, converter));
+            resultList.add(BeanUtils.createBean(clazz, element, converter));
         }
         return resultList;
     }
 
     /**
-     * Convenience method for {@link #fillBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
-     * where <var>converter</var> is <code>nullConverter</code>.
+     * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
     public static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean)
     {
-        return fillBean(beanClass, beanInstance, sourceBean, emptyAnnotationMap, nullConverter);
+        return fillBean(beanClass, beanInstance, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
     /**
-     * Convenience method for {@link #fillBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
-     * where <var>converter</var> is <code>nullConverter</code>.
+     * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
-    public static <T> T fillBean(Class<T> beanClass, Object sourceBean)
+    public static <T> T createBean(Class<T> beanClass, Object sourceBean)
     {
-        return fillBean(beanClass, null, sourceBean, emptyAnnotationMap, nullConverter);
+        return fillBean(beanClass, null, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
     /**
      * Fills a new bean <var>beanInstance</var> of type <var>beanClass</var> with values from <var>sourceBean</var>.
      * 
      * @param beanClass The class to create a new instance from.
+     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance will be created.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
      *            <code>null</code>.
      * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
@@ -290,9 +295,9 @@ public final class BeanUtils
         Converter c = converter;
         if (c == null)
         {
-            c = nullConverter;
+            c = NULL_CONVERTER;
         }
-        return fillBean(beanClass, beanInstance, sourceBean, emptyAnnotationMap, c);
+        return fillBean(beanClass, beanInstance, sourceBean, EMPTY_ANNOTATION_MAP, c);
     }
 
     /**
@@ -305,20 +310,21 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
-    public static <T> T fillBean(Class<T> beanClass, Object sourceBean, Converter converter)
+    public static <T> T createBean(Class<T> beanClass, Object sourceBean, Converter converter)
     {
         Converter c = converter;
         if (c == null)
         {
-            c = nullConverter;
+            c = NULL_CONVERTER;
         }
-        return fillBean(beanClass, null, sourceBean, emptyAnnotationMap, c);
+        return fillBean(beanClass, null, sourceBean, EMPTY_ANNOTATION_MAP, c);
     }
 
     /**
-     * Creates a new bean of type <var>beanClass</var> and fills it with values from <var>sourceBean</var>.
+     * Fills the specified bean instance with values from <var>sourceBean</var>.
      * 
-     * @param beanClass The class to create a new instance from.
+     * @param beanClass The class to create a new instance from. 
+     * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance will be created.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
      *            <code>null</code>.
      * @param setterAnnotations The annotations attached to the setter that can be used to determine how the result
@@ -330,7 +336,7 @@ public final class BeanUtils
     private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean,
             AnnotationMap setterAnnotations, Converter converter)
     {
-        assert beanClass != null;
+        assert beanClass != null : "undefined bean class";
         assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
         assert converter != null : "undefined converter for " + beanClass;
 
@@ -455,12 +461,7 @@ public final class BeanUtils
             throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, InvocationTargetException
     {
-        final CollectionMapping mapping = setterAnnotations.getAnnotation(CollectionMapping.class);
-        if (mapping == null)
-        {
-            throw new IllegalArgumentException("No collection mapping specified for '"
-                    + setterAnnotations.getAnnotatedEntity() + "'.");
-        }
+        final CollectionMapping mapping = getCollectionMapping(setterAnnotations);
         try
         {
             final Constructor<? extends Collection> constructorWithSize =
@@ -519,7 +520,7 @@ public final class BeanUtils
             for (int index = 0; index < length; ++index)
             {
                 final Object sourceElement = Array.get(source, index);
-                final Object destinationElement = fillBean(componentType, sourceElement, converter);
+                final Object destinationElement = createBean(componentType, sourceElement, converter);
                 Array.set(destination, index, destinationElement);
             }
         }
@@ -546,7 +547,7 @@ public final class BeanUtils
             int index = 0;
             for (Object sourceElement : source)
             {
-                final Object destinationElement = fillBean(componentType, sourceElement, converter);
+                final Object destinationElement = createBean(componentType, sourceElement, converter);
                 Array.set(destination, index++, destinationElement);
             }
         }
@@ -573,7 +574,7 @@ public final class BeanUtils
             for (int index = 0; index < length; ++index)
             {
                 final Object sourceElement = Array.get(source, index);
-                final Object destinationElement = fillBean(componentType, sourceElement, converter);
+                final Object destinationElement = createBean(componentType, sourceElement, converter);
                 addToUntypedCollection(destination, destinationElement);
             }
         }
@@ -597,7 +598,7 @@ public final class BeanUtils
         {
             for (Object sourceElement : source)
             {
-                final Object destinationElement = fillBean(componentType, sourceElement, converter);
+                final Object destinationElement = createBean(componentType, sourceElement, converter);
                 addToUntypedCollection(destination, destinationElement);
             }
         }
@@ -611,13 +612,18 @@ public final class BeanUtils
 
     private static Class<?> getCollectionComponentType(AnnotationMap setterAnnotations)
     {
+        return getCollectionMapping(setterAnnotations).elementClass();
+    }
+
+    private static CollectionMapping getCollectionMapping(AnnotationMap setterAnnotations)
+    {
         final CollectionMapping mapping = setterAnnotations.getAnnotation(CollectionMapping.class);
         if (mapping == null)
         {
             throw new IllegalArgumentException("No collection mapping specified for '"
                     + setterAnnotations.getAnnotatedEntity() + "'.");
         }
-        return mapping.elementClass();
+        return mapping;
     }
 
     private static void copyBean(Object destination, Object source, Converter converter) throws IllegalAccessException,
@@ -671,7 +677,7 @@ public final class BeanUtils
         {
             return null;
         }
-        final Object oldBean = getter.invoke(source, new Object[0]);
+        final Object oldBean = getter.invoke(source, EMPTY_OBJECT_ARRAY);
         final Class<?> parameterType = setter.getParameterTypes()[0];
         if (parameterType.isPrimitive() || immutableTypes.contains(parameterType))
         {
@@ -684,7 +690,7 @@ public final class BeanUtils
 
     private static Method getConverterMethod(Method setter, Object sourceBean, Converter converter)
     {
-        if (converter != nullConverter)
+        if (converter != NULL_CONVERTER)
         {
             try
             {

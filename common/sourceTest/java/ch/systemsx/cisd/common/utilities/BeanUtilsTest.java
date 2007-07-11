@@ -370,7 +370,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
-        final Bean2a b2 = BeanUtils.fillBean(Bean2a.class, b1);
+        final Bean2a b2 = BeanUtils.createBean(Bean2a.class, b1);
         assertBeansAreEqual("Beans are not equal", b1, b2);
     }
 
@@ -396,7 +396,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
-        final Bean2a b2 = BeanUtils.fillBean(Bean2a.class, b1);
+        final Bean2a b2 = BeanUtils.createBean(Bean2a.class, b1);
         assertEquals(b1.isB().booleanValue(), b2.isB());
         assertEquals(b1.getF().floatValue(), b2.getF());
         assertEquals(b1.getI().intValue(), b2.getI());
@@ -411,7 +411,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
-        final Bean2b b2 = BeanUtils.fillBean(Bean2b.class, b1);
+        final Bean2b b2 = BeanUtils.createBean(Bean2b.class, b1);
         assertEquals(b1.isB(), b2.isB().booleanValue());
         assertEquals(b1.getF(), b2.getF().floatValue());
         assertEquals(b1.getI(), b2.getI().intValue());
@@ -426,7 +426,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
-        final Bean2b b2 = BeanUtils.fillBean(Bean2b.class, b1);
+        final Bean2b b2 = BeanUtils.createBean(Bean2b.class, b1);
         assertEquals(b1.isB().booleanValue(), b2.isB().booleanValue());
         assertEquals(b1.getF().floatValue(), b2.getF().floatValue());
         assertEquals(b1.getI().intValue(), b2.getI().intValue());
@@ -448,7 +448,7 @@ public final class BeanUtilsTest
         b1b.setS("ttt");
         final Bean1a[] b1Array = new Bean1a[]
             { b1a, b1b };
-        final Bean2a[] b2Array = BeanUtils.fillBean(Bean2a[].class, b1Array);
+        final Bean2a[] b2Array = BeanUtils.createBean(Bean2a[].class, b1Array);
         assertEquals(b1Array.length, b2Array.length);
         for (int i = 0; i < b1Array.length; ++i)
         {
@@ -467,7 +467,7 @@ public final class BeanUtilsTest
     {
         final int[] array = new int[]
             { -5, 17, 0, 88 };
-        final int[] array2 = BeanUtils.fillBean(int[].class, array);
+        final int[] array2 = BeanUtils.createBean(int[].class, array);
         assert Arrays.equals(array, array2);
     }
 
@@ -476,7 +476,7 @@ public final class BeanUtilsTest
     {
         final int[] array = new int[]
             { -5, 17, 0, 88 };
-        final Integer[] array2 = BeanUtils.fillBean(Integer[].class, array);
+        final Integer[] array2 = BeanUtils.createBean(Integer[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
             assertEquals("Element " + i, array[i], array2[i].intValue());
@@ -488,7 +488,7 @@ public final class BeanUtilsTest
     {
         final Integer[] array = new Integer[]
             { -5, 17, 0, 88 };
-        final int[] array2 = BeanUtils.fillBean(int[].class, array);
+        final int[] array2 = BeanUtils.createBean(int[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
             assertEquals("Element " + i, array[i].intValue(), array2[i]);
@@ -500,7 +500,7 @@ public final class BeanUtilsTest
     {
         final String[] array = new String[]
             { "apple", "orange", "banana" };
-        final String[] array2 = BeanUtils.fillBean(String[].class, array);
+        final String[] array2 = BeanUtils.createBean(String[].class, array);
         for (int i = 0; i < array.length; ++i)
         {
             assertEquals("Element " + i, array[i], array2[i]);
@@ -558,7 +558,7 @@ public final class BeanUtilsTest
         final ArrayWrapper1 awrapper = new ArrayWrapper1();
         awrapper.setArray(new byte[]
             { -1, 0, 100, -88 });
-        final ArrayWrapper1 awrapper2 = BeanUtils.fillBean(ArrayWrapper1.class, awrapper);
+        final ArrayWrapper1 awrapper2 = BeanUtils.createBean(ArrayWrapper1.class, awrapper);
         final byte[] array = awrapper.getArray();
         final byte[] array2 = awrapper2.getArray();
         assertNotNull(array2);
@@ -575,7 +575,7 @@ public final class BeanUtilsTest
         final ArrayWrapper1 awrapper = new ArrayWrapper1();
         awrapper.setArray(new byte[]
             { -1, 0, 100, -88 });
-        final ArrayWrapper2 awrapper2 = BeanUtils.fillBean(ArrayWrapper2.class, awrapper);
+        final ArrayWrapper2 awrapper2 = BeanUtils.createBean(ArrayWrapper2.class, awrapper);
         final byte[] array = awrapper.getArray();
         final Byte[] array2 = awrapper2.getArray();
         assertNotNull(array2);
@@ -608,7 +608,7 @@ public final class BeanUtilsTest
         final CollectionWrapper1 colWrapper = new CollectionWrapper1();
         final List<String> list = Arrays.asList("blue", "yellow", "green");
         colWrapper.setArray(list);
-        final ArrayWrapper3 aWrapper = BeanUtils.fillBean(ArrayWrapper3.class, colWrapper);
+        final ArrayWrapper3 aWrapper = BeanUtils.createBean(ArrayWrapper3.class, colWrapper);
         final String[] array = aWrapper.getArray();
         assertNotNull(array);
         assertEquals(list.size(), array.length);
@@ -625,7 +625,7 @@ public final class BeanUtilsTest
         final String[] array = new String[]
             { "hot", "warm", "cool", "icy" };
         aWrapper.setArray(array);
-        final CollectionWrapper1 colWrapper = BeanUtils.fillBean(CollectionWrapper1.class, aWrapper);
+        final CollectionWrapper1 colWrapper = BeanUtils.createBean(CollectionWrapper1.class, aWrapper);
         List<String> list = colWrapper.getArray();
         assertNotNull(list);
         assertEquals(array.length, list.size());
@@ -642,7 +642,7 @@ public final class BeanUtilsTest
         final List<String> list = new ArrayList<String>(Arrays.asList(new String[]
             { "hot", "warm", "cool", "icy" }));
         colWrapper.setArray(list);
-        final CollectionWrapper1 colWrapper2 = BeanUtils.fillBean(CollectionWrapper1.class, colWrapper);
+        final CollectionWrapper1 colWrapper2 = BeanUtils.createBean(CollectionWrapper1.class, colWrapper);
         List<String> list2 = colWrapper2.getArray();
         assertNotNull(list2);
         assertEquals(list.size(), list2.size());
@@ -686,7 +686,7 @@ public final class BeanUtilsTest
     public void testFillComplexBeanWithNull()
     {
         final BeanWithBean1 b3 = new BeanWithBean1();
-        final BeanWithBean2 b4 = BeanUtils.fillBean(BeanWithBean2.class, b3);
+        final BeanWithBean2 b4 = BeanUtils.createBean(BeanWithBean2.class, b3);
         assertEquals(null, b4.getBean());
     }
 
@@ -700,7 +700,7 @@ public final class BeanUtilsTest
         b1.setS("test");
         final BeanWithBean1 b3 = new BeanWithBean1();
         b3.setBean(b1);
-        final BeanWithBean2 b4 = BeanUtils.fillBean(BeanWithBean2.class, b3);
+        final BeanWithBean2 b4 = BeanUtils.createBean(BeanWithBean2.class, b3);
         final Bean2a b2 = b4.getBean();
         assertBeansAreEqual("Bean comparison", b1, b2);
     }
@@ -784,7 +784,7 @@ public final class BeanUtilsTest
         final Bean1a[] arrayb1 = new Bean1a[]
             { b1a, b1b };
         b1Array.setBeanArray(arrayb1);
-        final BeanWithBeanCollection2 b2Collection = BeanUtils.fillBean(BeanWithBeanCollection2.class, b1Array);
+        final BeanWithBeanCollection2 b2Collection = BeanUtils.createBean(BeanWithBeanCollection2.class, b1Array);
         final Collection<Bean2a> colb2 = b2Collection.getBeanArray();
         assertNotNull(colb2);
         assertEquals(arrayb1.length, colb2.size());
@@ -812,7 +812,7 @@ public final class BeanUtilsTest
         final Bean2a[] arrayb2 = new Bean2a[]
             { b2a, b2b };
         b2Array.setBeanArray(arrayb2);
-        final BeanWithBeanCollection1 b1Collection = BeanUtils.fillBean(BeanWithBeanCollection1.class, b2Array);
+        final BeanWithBeanCollection1 b1Collection = BeanUtils.createBean(BeanWithBeanCollection1.class, b2Array);
         final Collection<Bean1a> colb1 = b1Collection.getBeanArray();
         assertNotNull(colb1);
         assertEquals(arrayb2.length, colb1.size());
@@ -840,7 +840,7 @@ public final class BeanUtilsTest
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
-        final BeanWithBeanArray2 b2Array = BeanUtils.fillBean(BeanWithBeanArray2.class, b1Collection);
+        final BeanWithBeanArray2 b2Array = BeanUtils.createBean(BeanWithBeanArray2.class, b1Collection);
         final Bean2a[] arrayb2 = b2Array.getBeanArray();
         assertNotNull(arrayb2);
         assertEquals(colb1.size(), arrayb2.length);
@@ -869,7 +869,7 @@ public final class BeanUtilsTest
         final Bean1a[] arrayb1 = new Bean1a[]
             { b1a, b1b };
         b1Array.setBeanArray(arrayb1);
-        final BeanWithBeanArray2 b2Array = BeanUtils.fillBean(BeanWithBeanArray2.class, b1Array);
+        final BeanWithBeanArray2 b2Array = BeanUtils.createBean(BeanWithBeanArray2.class, b1Array);
         final Bean2a[] arrayb2 = b2Array.getBeanArray();
         assertNotNull(arrayb2);
         assertEquals(arrayb1.length, arrayb2.length);
@@ -896,7 +896,7 @@ public final class BeanUtilsTest
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
-        final BeanWithBeanCollection2 b2Collection = BeanUtils.fillBean(BeanWithBeanCollection2.class, b1Collection);
+        final BeanWithBeanCollection2 b2Collection = BeanUtils.createBean(BeanWithBeanCollection2.class, b1Collection);
         final Collection<Bean2a> colb2 = b2Collection.getBeanArray();
         assertNotNull(colb2);
         assertEquals(colb1.size(), colb2.size());
@@ -963,7 +963,7 @@ public final class BeanUtilsTest
     {
         final FooBean tofuBean = new FooBean();
         tofuBean.setFoo("some tofu");
-        final BarBean toFooBean = BeanUtils.fillBean(BarBean.class, tofuBean, new BeanUtils.Converter()
+        final BarBean toFooBean = BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
             {
                 @SuppressWarnings("unused")
                 public String convertToBar(FooBean foo)
