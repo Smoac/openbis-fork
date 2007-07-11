@@ -16,21 +16,13 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Operations on classes using reflection.
@@ -39,8 +31,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class ClassUtils
 {
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, ClassUtils.class);
-
     private ClassUtils()
     {
         // Can not be instantiated.
@@ -53,7 +43,7 @@ public final class ClassUtils
     {
         return getMandatoryFields(clazz, null);
     }
-
+    
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      * 
@@ -131,87 +121,4 @@ public final class ClassUtils
         return null;
     }
 
-    /**
-     * Searches for <code>resource</code> in different places. The search order is as follows:
-     * <ol>
-     * <li>Search for <code>resource</code> using the thread context class loader under Java2. If that fails, search
-     * for <code>resource</code> using the class loader that loaded this class (<code>Loader</code>).</li>
-     * <li>Try one last time with <code>ClassLoader.getSystemResourceAsStream(resource)</code>, that is is using the
-     * system class loader in JDK 1.2 and virtual machine's built-in class loader in JDK 1.1.</li>
-     * </ol>
-     */
-    public final static InputStream getResourceAsStream(String resource)
-    {
-        ClassLoader classLoader = null;
-        try
-        {
-            // Let's try the Thread Context Class Loader
-            classLoader = getTCL();
-            if (classLoader != null)
-            {
-                if (machineLog.isDebugEnabled())
-                {
-                    machineLog.debug("Trying to find [" + resource + "] using '" + classLoader + "' class loader.");
-                }
-                InputStream is = classLoader.getResourceAsStream(resource);
-                if (is != null)
-                {
-                    return is;
-                }
-            }
-        } catch (Throwable t)
-        {
-            machineLog.warn("Caught Exception while in Loader.getResourceAsStream. This may be innocuous.", t);
-        }
-
-        try
-        {
-            // We could not find resource. Let us now try with the
-            // classloader that loaded this class.
-            classLoader = ClassUtils.class.getClassLoader();
-            if (classLoader != null)
-            {
-                if (machineLog.isDebugEnabled())
-                {
-                    machineLog.debug("Trying to find [" + resource + "] using '" + classLoader + "' class loader.");
-                }
-                InputStream is = classLoader.getResourceAsStream(resource);
-                if (is != null)
-                {
-                    return is;
-                }
-            }
-        } catch (Throwable t)
-        {
-            machineLog.warn("Caught Exception while in Loader.getResourceAsStream. This may be innocuous.", t);
-        }
-
-        // Last ditch attempt: get the resource from the class path. It
-        // may be the case that clazz was loaded by the Extentsion class
-        // loader which the parent of the system class loader. Hence the
-        // code below.
-        if (machineLog.isDebugEnabled())
-        {
-            machineLog.debug("Trying to find [" + resource + "] using ClassLoader.getSystemResourceAsStream().");
-        }
-        return ClassLoader.getSystemResourceAsStream(resource);
-    }
-
-    /**
-     * Gets the thread context class loader.
-     */
-    private final static ClassLoader getTCL() throws IllegalAccessException, InvocationTargetException
-    {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-            {
-                //
-                // PrivilegedAction
-                //
-
-                public final ClassLoader run()
-                {
-                    return Thread.currentThread().getContextClassLoader();
-                }
-            });
-    }
 }
