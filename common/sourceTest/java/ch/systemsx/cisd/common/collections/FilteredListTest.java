@@ -27,6 +27,7 @@ import static org.testng.AssertJUnit.*;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2007-07-11, Franz-Josef Elmer: More tests needed. All methods of List have to be tested.
 public final class FilteredListTest
 {
 
@@ -59,6 +60,8 @@ public final class FilteredListTest
         list.add(null);
         list.add("0");
         list.add(null);
+        // TODO 2007-07-11, Franz-Josef Elmer, use assertEquals(1, list.size()) and in all similar assert statements
+        // in order to get more information in case of failures.
         assert list.size() == 1;
         try
         {

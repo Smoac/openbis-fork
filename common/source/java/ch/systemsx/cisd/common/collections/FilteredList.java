@@ -30,6 +30,8 @@ import java.util.NoSuchElementException;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2007-07-11, Franz-Josef Elmer: This class violates the contract of List because iterator() creates a filtered 
+// iterator which does not returns size() elements
 public final class FilteredList<E> extends FilteredCollection<E> implements List<E>
 {
 
