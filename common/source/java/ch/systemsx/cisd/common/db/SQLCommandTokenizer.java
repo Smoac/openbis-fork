@@ -48,6 +48,7 @@ public final class SQLCommandTokenizer
         this.sqlScript = sqlScript;
     }
 
+    // TODO 2007-07-11, Franz-Josef Elmer: Can not handle end-of-line comments and multiline commands
     public final String getNextCommand()
     {
         final StringBuilder builder = new StringBuilder();
