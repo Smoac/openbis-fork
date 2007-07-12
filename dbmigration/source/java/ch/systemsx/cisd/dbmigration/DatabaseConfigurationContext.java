@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.db.ISequencerScriptProvider;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 

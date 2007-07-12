@@ -24,9 +24,23 @@ package ch.systemsx.cisd.common.db;
 public class OracleSequencerScriptProvider implements ISequencerScriptProvider
 {
 
+    private final ISequenceNameMapper sequenceNameMapper;
+    
+    public OracleSequencerScriptProvider(ISequenceNameMapper sequenceNameMapper) {
+        this.sequenceNameMapper = sequenceNameMapper;
+    }
+    
+    //
+    // ISequencerScriptProvider
+    //
+
     public String getNextValueScript(String sequencer)
     {
         return "select " + sequencer + ".nextval from dual";
     }
 
+    public final String getSequencerForTable(String tableName)
+    {
+        return sequenceNameMapper.map(tableName);
+    }
 }

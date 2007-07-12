@@ -24,9 +24,24 @@ package ch.systemsx.cisd.common.db;
 public class PostgreSQLSequencerScriptProvider implements ISequencerScriptProvider
 {
 
-    public String getNextValueScript(String sequencer)
+    private final ISequenceNameMapper sequenceNameMapper;
+    
+    public PostgreSQLSequencerScriptProvider(ISequenceNameMapper sequenceNameMapper) {
+        this.sequenceNameMapper = sequenceNameMapper;
+    }
+    
+    //
+    // ISequencerScriptProvider
+    //
+
+    public final String getNextValueScript(String sequencer)
     {
         return "select nextval('" + sequencer + "')";
+    }
+    
+    public final String getSequencerForTable(String tableName)
+    {
+        return sequenceNameMapper.map(tableName);
     }
 
 }

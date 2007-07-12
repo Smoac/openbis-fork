@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.common.db;
 
 import java.util.Map;
 
@@ -36,7 +36,11 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
         this.nonstandardMaping = nonstandardMaping;
     }
     
-    public String map(String tableName)
+    //
+    // ISequenceNameMapper
+    //
+
+    public final String map(String tableName)
     {
         String tableNameInLowerCase = tableName.toLowerCase();
         String sequenceName = nonstandardMaping.get(tableNameInLowerCase);

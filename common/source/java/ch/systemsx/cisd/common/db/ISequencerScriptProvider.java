@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.db;
 
 /**
  * A sequencer script provider returns a SQL script which requests the next value of a database sequencer.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ISequencerScriptProvider
@@ -27,4 +27,9 @@ public interface ISequencerScriptProvider
      * Returns the SQL script for obtaining the next value from the specified sequencer.
      */
     public String getNextValueScript(String sequencer);
+
+    /**
+     * Returns the sequencer name for given table.
+     */
+    public String getSequencerForTable(String tableName);
 }

@@ -33,6 +33,7 @@ import org.postgresql.copy.CopyManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
+import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
