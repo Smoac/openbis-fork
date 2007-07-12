@@ -44,7 +44,7 @@ public final class FilteredListTest
         }
         try
         {
-            FilteredList.decorate(null, new NullValidator());
+            FilteredList.decorate(null, new NotNullValidator());
             fail("Neither list nor validator can be null");
         } catch (AssertionError e)
         {
@@ -55,14 +55,12 @@ public final class FilteredListTest
     @Test
     public final void testWithEmptyList()
     {
-        List<String> list = FilteredList.decorate(new ArrayList<String>(), new NullValidator());
+        List<String> list = FilteredList.decorate(new ArrayList<String>(), new NotNullValidator());
         list.add(null);
         list.add(null);
         list.add("0");
         list.add(null);
-        // TODO 2007-07-11, Franz-Josef Elmer, use assertEquals(1, list.size()) and in all similar assert statements
-        // in order to get more information in case of failures.
-        assert list.size() == 1;
+        assertEquals(1, list.size());
         try
         {
             list.set(1, "1");
@@ -72,7 +70,7 @@ public final class FilteredListTest
             // Nothing to do here.
         }
         String old0 = list.set(0, "newO");
-        assert list.size() == 1;
+        assertEquals(1, list.size());
         assertEquals("0", old0);
     }
 
@@ -88,22 +86,22 @@ public final class FilteredListTest
         list.add(null);
         list.add("2");
         list.add(null);
-        assert list.size() == 8;
-        list = FilteredList.decorate(list, new NullValidator());
-        assert list.size() == 8;
+        assertEquals(8, list.size());
+        list = FilteredList.decorate(list, new NotNullValidator());
+        assertEquals(8, list.size());
         int count = 0;
         for (final String string : list)
         {
             assertEquals(count++ + "", string);
         }
-        assert count == 3;        
+        assertEquals(3, count);
     }
 
     //
     // Helper classes
     //
 
-    private final static class NullValidator implements Validator<String>
+    private final static class NotNullValidator implements Validator<String>
     {
 
         //
