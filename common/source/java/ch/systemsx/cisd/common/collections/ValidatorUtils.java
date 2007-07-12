@@ -69,6 +69,7 @@ public final class ValidatorUtils
      * <li>replaces any <code>*</code> with <code>.*</code></li>
      * </ol>
      */
+    // TODO 2007-07-12, Christian Ribeaud: And if you are looking for '*' and '?' in the name?
     final static String convertToRegEx(String pattern)
     {
         assert pattern != null;
