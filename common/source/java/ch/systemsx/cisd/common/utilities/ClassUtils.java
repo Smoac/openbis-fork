@@ -43,7 +43,7 @@ public final class ClassUtils
     {
         return getMandatoryFields(clazz, null);
     }
-    
+
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      * 
@@ -86,10 +86,14 @@ public final class ClassUtils
      * Returns the <code>Method</code> on the stack of <var>level</var>.
      * <p>
      * <code>level=0</code> is this method itself, <code>level=1</code> is the method that called it and so forth.
+     * This method internally uses {@link Class#getMethods()} to retrieve the <code>Method</code> (meaning that
+     * <code>private</code> methods will not be found).
      * </p>
+     * <p>
      * IMPORTANT NOTE: You should carefully use this method in a class having more than one method with the same name.
      * The internal idea used here (<code>new Throwable().getStackTrace()</code>) only returns a method name and
      * does not make any other consideration.
+     * </p>
      * 
      * @see StackTraceElement#getMethodName()
      * @return <code>null</code> if none could be found.

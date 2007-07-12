@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 import org.testng.annotations.Test;
 
@@ -36,7 +36,8 @@ public final class ClassUtilsTest
     {
         assertEquals("testGetCurrentMethod", ClassUtils.getCurrentMethod().getName());
         // Border cases
-        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(), new Object()));
+        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(),
+                new Object()));
     }
 
     private final static class SameMethodName
@@ -55,4 +56,19 @@ public final class ClassUtilsTest
         }
     }
 
+    @Test
+    public final void testGetMethodOnStack()
+    {
+        assertEquals("getMethodOnStack", ClassUtils.getMethodOnStack(0).getName());
+        assertEquals("testGetMethodOnStack", ClassUtils.getMethodOnStack(1).getName());
+        assertNull(ClassUtils.getMethodOnStack(2));
+        privateMethodOnStack();
+    }
+
+    private final void privateMethodOnStack()
+    {
+        // If <code>Class.getDeclaredMethods</code> were used instead of <code>Class.getDeclaredMethods</code>,
+        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()' here.
+        assertNull(ClassUtils.getMethodOnStack(1));
+    }
 }
