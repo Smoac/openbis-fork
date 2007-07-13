@@ -44,7 +44,7 @@ public final class FilteredListTest
         }
         try
         {
-            FilteredList.decorate(null, new NotNullValidator());
+            FilteredList.decorate(null, ValidatorUtils.getNotNullValidator());
             fail("Neither list nor validator can be null");
         } catch (AssertionError e)
         {
@@ -55,7 +55,8 @@ public final class FilteredListTest
     @Test
     public final void testWithEmptyList()
     {
-        List<String> list = FilteredList.decorate(new ArrayList<String>(), new NotNullValidator());
+        final Validator<String> validator = ValidatorUtils.getNotNullValidator();
+        List<String> list = FilteredList.decorate(new ArrayList<String>(), validator);
         list.add(null);
         list.add(null);
         list.add("0");
@@ -77,6 +78,7 @@ public final class FilteredListTest
     @Test
     public final void testWithNonEmptyList()
     {
+        final Validator<String> validator = ValidatorUtils.getNotNullValidator();
         List<String> list = new ArrayList<String>();
         list.add(null);
         list.add(null);
@@ -87,7 +89,7 @@ public final class FilteredListTest
         list.add("2");
         list.add(null);
         assertEquals(8, list.size());
-        list = FilteredList.decorate(list, new NotNullValidator());
+        list = FilteredList.decorate(list, validator);
         assertEquals(8, list.size());
         int count = 0;
         for (final String string : list)
@@ -95,22 +97,5 @@ public final class FilteredListTest
             assertEquals(count++ + "", string);
         }
         assertEquals(3, count);
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final static class NotNullValidator implements Validator<String>
-    {
-
-        //
-        // Validator
-        //
-
-        public boolean isValid(String object)
-        {
-            return object != null;
-        }
     }
 }

@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * <code>ValidatorUtils</code> provides reference implementations and utilities for the <code>Validator</code>
  * interface.
@@ -29,6 +27,23 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class ValidatorUtils
 {
+
+    /**
+     * A <code>Validator</code> implementation which check whether given <code>Object</code> is not
+     * <code>null</code>.
+     */
+    private final static Validator NOT_NULL_VALIDATOR = new Validator<Object>()
+        {
+
+            //
+            // Validator
+            //
+
+            public final boolean isValid(Object object)
+            {
+                return object != null;
+            }
+        };
 
     private ValidatorUtils()
     {
@@ -62,6 +77,14 @@ public final class ValidatorUtils
             };
     }
 
+    /** Returns a typed validator for non-<code>null</code> objects. */
+    @SuppressWarnings(
+        { "cast", "unchecked" })
+    public static final <T> Validator<T> getNotNullValidator()
+    {
+        return (Validator<T>) NOT_NULL_VALIDATOR;
+    }
+
     /**
      * Converts given pattern into a regular expression. This method does the following:
      * <ol>
@@ -69,10 +92,40 @@ public final class ValidatorUtils
      * <li>replaces any <code>*</code> with <code>.*</code></li>
      * </ol>
      */
-    // TODO 2007-07-12, Christian Ribeaud: And if you are looking for '*' and '?' in the name?
     final static String convertToRegEx(String pattern)
     {
         assert pattern != null;
-        return StringUtils.replace(pattern.replace('?', '.'), "*", ".*");
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] chars = pattern.toCharArray();
+        boolean escape = false;
+        for (char c : chars)
+        {
+            String toAppend;
+            if (c == '\\')
+            {
+                escape = true;
+                toAppend = c + "";
+            } else if (c == '?' || c == '*')
+            {
+                if (escape == false)
+                {
+                    toAppend = ".";
+                    if (c == '*')
+                    {
+                        toAppend += "*";
+                    }
+                } else
+                {
+                    toAppend = c + "";
+                    escape = false;
+                }
+            } else
+            {
+                toAppend = c + "";
+                escape = false;
+            }
+            stringBuilder.append(toAppend);
+        }
+        return stringBuilder.toString();
     }
 }
