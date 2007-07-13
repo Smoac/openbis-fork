@@ -17,21 +17,21 @@
 package ch.systemsx.cisd.common.db;
 
 /**
- * Implementation of {@link ISequencerScriptProvider} for Oracle.
+ * Implementation of {@link ISequencerHandler} for Oracle.
  *
  * @author Franz-Josef Elmer
  */
-public class OracleSequencerScriptProvider implements ISequencerScriptProvider
+public class OracleSequencerHandler implements ISequencerHandler
 {
 
     private final ISequenceNameMapper sequenceNameMapper;
     
-    public OracleSequencerScriptProvider(ISequenceNameMapper sequenceNameMapper) {
+    public OracleSequencerHandler(ISequenceNameMapper sequenceNameMapper) {
         this.sequenceNameMapper = sequenceNameMapper;
     }
     
     //
-    // ISequencerScriptProvider
+    // ISequencerProvider
     //
 
     public String getNextValueScript(String sequencer)

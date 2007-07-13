@@ -33,7 +33,7 @@ import org.postgresql.copy.CopyManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
-import ch.systemsx.cisd.common.db.ISequenceNameMapper;
+import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -52,15 +52,15 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private final DataSource dataSource;
 
-    private final ISequenceNameMapper sequenceMapper;
+    private final ISequencerHandler sequencerHandler;
 
     /**
      * Creates an instance for the specified data source and sequence mapper.
      */
-    public PostgreSQLMassUploader(DataSource dataSource, ISequenceNameMapper sequenceMapper) throws SQLException
+    public PostgreSQLMassUploader(DataSource dataSource, ISequencerHandler sequencerHandler) throws SQLException
     {
         this.dataSource = dataSource;
-        this.sequenceMapper = sequenceMapper;
+        this.sequencerHandler = sequencerHandler;
         setDataSource(dataSource);
     }
 
@@ -97,7 +97,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private void fixSequence(String tableName)
     {
-        final String sequenceName = sequenceMapper.map(tableName);
+        final String sequenceName = sequencerHandler.getSequencerForTable(tableName);
         try
         {
             getSimpleJdbcTemplate().queryForLong(

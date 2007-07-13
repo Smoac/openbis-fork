@@ -24,14 +24,17 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Implementation of {@link IDAOFactory} for PostgreSQL.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PostgreSQLDAOFactory implements IDAOFactory
 {
     private final IDatabaseAdminDAO databaseDAO;
+
     private final ISqlScriptExecutor sqlScriptExecutor;
+
     private final IDatabaseVersionLogDAO databaseVersionLogDAO;
+
     private final IMassUploader massUploader;
 
     /**
@@ -39,19 +42,20 @@ public class PostgreSQLDAOFactory implements IDAOFactory
      */
     public PostgreSQLDAOFactory(DatabaseConfigurationContext context)
     {
-        databaseDAO = new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
+        databaseDAO =
+                new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
-            massUploader = new PostgreSQLMassUploader(dataSource, context.getSequenceNameMapper());
+            massUploader = new PostgreSQLMassUploader(dataSource, context.getSequencerHandler());
         } catch (SQLException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
     }
-    
+
     public IDatabaseAdminDAO getDatabaseDAO()
     {
         return databaseDAO;

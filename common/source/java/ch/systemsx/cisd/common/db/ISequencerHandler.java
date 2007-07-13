@@ -17,31 +17,22 @@
 package ch.systemsx.cisd.common.db;
 
 /**
- * Implementation of {@link ISequencerScriptProvider} for PostgreSQL.
- *
+ * A sequencer handler encapsulates stuff related to database sequencer.
+ * 
  * @author Franz-Josef Elmer
  */
-public class PostgreSQLSequencerScriptProvider implements ISequencerScriptProvider
+public interface ISequencerHandler
 {
+    /**
+     * Returns the SQL script for obtaining the next value from the specified sequencer.
+     * <p>
+     * This is DB specific.
+     * </p>
+     */
+    public String getNextValueScript(String sequencer);
 
-    private final ISequenceNameMapper sequenceNameMapper;
-    
-    public PostgreSQLSequencerScriptProvider(ISequenceNameMapper sequenceNameMapper) {
-        this.sequenceNameMapper = sequenceNameMapper;
-    }
-    
-    //
-    // ISequencerScriptProvider
-    //
-
-    public final String getNextValueScript(String sequencer)
-    {
-        return "select nextval('" + sequencer + "')";
-    }
-    
-    public final String getSequencerForTable(String tableName)
-    {
-        return sequenceNameMapper.map(tableName);
-    }
-
+    /**
+     * Returns the sequencer name for given table.
+     */
+    public String getSequencerForTable(String tableName);
 }

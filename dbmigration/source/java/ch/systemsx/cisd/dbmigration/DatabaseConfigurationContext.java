@@ -23,8 +23,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import ch.systemsx.cisd.common.db.ISequenceNameMapper;
-import ch.systemsx.cisd.common.db.ISequencerScriptProvider;
+import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
@@ -38,10 +37,8 @@ public class DatabaseConfigurationContext
 
     private LobHandler lobHandler;
 
-    private ISequencerScriptProvider sequencerScriptProvider;
+    private ISequencerHandler sequencerHandler;
     
-    private ISequenceNameMapper sequenceNameMapper;
-
     private String adminURL;
 
     private String adminUser;
@@ -280,43 +277,23 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Returns sequencerScriptProvider.
+     * Returns <code>sequencerHandler</code>.
      * 
      * @return <code>null</code> when undefined.
      */
-    public final ISequencerScriptProvider getSequencerScriptProvider()
+    public final ISequencerHandler getSequencerHandler()
     {
-        return sequencerScriptProvider;
+        return sequencerHandler;
     }
 
     /**
-     * Sets sequencerScriptProvider.
+     * Sets <code>sequencerHandler</code>.
      * 
-     * @param sequencerScriptProvider New value. Can be <code>null</code>.
+     * @param sequencerHandler New value. Can be <code>null</code>.
      */
-    public final void setSequencerScriptProvider(ISequencerScriptProvider sequencerScriptProvider)
+    public final void setSequencerHandler(ISequencerHandler sequencerHandler)
     {
-        this.sequencerScriptProvider = sequencerScriptProvider;
-    }
-
-    /**
-     * Returns sequenceNameMapper.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final ISequenceNameMapper getSequenceNameMapper()
-    {
-        return sequenceNameMapper;
-    }
-
-    /**
-     * Sets sequenceNameMapper.
-     * 
-     * @param sequenceNameMapper New value. Can be <code>null</code>.
-     */
-    public final void setSequenceNameMapper(ISequenceNameMapper sequenceNameMapper)
-    {
-        this.sequenceNameMapper = sequenceNameMapper;
+        this.sequencerHandler = sequencerHandler;
     }
 
     /**
