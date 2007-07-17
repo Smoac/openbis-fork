@@ -49,7 +49,7 @@ public final class StringUtils
      * @param separator the separator character to use
      * @return the joined String, <code>null</code> if null iterator input
      */
-    public final static String join(Iterator iterator, char separator)
+    public final static String join(Iterator<String> iterator, char separator)
     {
 
         // handle null, zero and one elements before building a buffer
@@ -57,12 +57,12 @@ public final class StringUtils
         {
             return null;
         }
-        if (!iterator.hasNext())
+        if (iterator.hasNext() == false)
         {
             return EMPTY;
         }
         Object first = iterator.next();
-        if (!iterator.hasNext())
+        if (iterator.hasNext() == false)
         {
             return toString(first);
         }
@@ -100,7 +100,7 @@ public final class StringUtils
      * @param separator the separator character to use, null treated as ""
      * @return the joined String, <code>null</code> if null iterator input
      */
-    public final static String join(Iterator iterator, String separator)
+    public final static String join(Iterator<String> iterator, String separator)
     {
 
         // handle null, zero and one elements before building a buffer
@@ -154,7 +154,7 @@ public final class StringUtils
      * @param separator the separator character to use
      * @return the joined String, <code>null</code> if null iterator input
      */
-    public final static String join(Collection collection, char separator)
+    public final static String join(Collection<String> collection, char separator)
     {
         if (collection == null)
         {
@@ -177,7 +177,7 @@ public final class StringUtils
      * @param separator the separator character to use, null treated as ""
      * @return the joined String, <code>null</code> if null iterator input
      */
-    public final static String join(Collection collection, String separator)
+    public final static String join(Collection<String> collection, String separator)
     {
         if (collection == null)
         {

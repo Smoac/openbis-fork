@@ -33,16 +33,16 @@ public final class ConverterPool
     /** A 'public' instance of this class. */
     private final static ConverterPool instance = new ConverterPool();
 
-    private final Map<Class, Converter> converters;
+    private final Map<Class<?>, Converter<?>> converters;
 
     public ConverterPool()
     {
         converters = createConverters();
     }
 
-    private final static Map<Class, Converter> createConverters()
+    private final static Map<Class<?>, Converter<?>> createConverters()
     {
-        final Map<Class, Converter> converterMap = new HashMap<Class, Converter>();
+        final Map<Class<?>, Converter<?>> converterMap = new HashMap<Class<?>, Converter<?>>();
         converterMap.put(String.class, new IdentityStringConverter());
         return converterMap;
     }
@@ -92,6 +92,6 @@ public final class ConverterPool
     @SuppressWarnings("unchecked")
     private final <T> Converter<T> getConverter(Class<T> type)
     {
-        return converters.get(type);
+        return (Converter<T>) converters.get(type);
     }
 }

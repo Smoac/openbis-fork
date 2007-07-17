@@ -32,7 +32,7 @@ public final class ValidatorUtils
      * A <code>Validator</code> implementation which check whether given <code>Object</code> is not
      * <code>null</code>.
      */
-    private final static Validator NOT_NULL_VALIDATOR = new Validator<Object>()
+    private final static Validator<Object> NOT_NULL_VALIDATOR = new Validator<Object>()
         {
 
             //

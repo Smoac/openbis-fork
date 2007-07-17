@@ -57,9 +57,9 @@ public final class BeanUtilsTest
         assertEquals(1, descriptors.size());
         PropertyDescriptor outerDescriptor = null;
         // Play with property 'description'
-        for (Iterator iter = descriptors.iterator(); iter.hasNext();)
+        for (Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
         {
-            PropertyDescriptor innerDescriptor = (PropertyDescriptor) iter.next();
+            PropertyDescriptor innerDescriptor = iter.next();
             if (innerDescriptor.getName().equals("foo"))
             {
                 outerDescriptor = innerDescriptor;

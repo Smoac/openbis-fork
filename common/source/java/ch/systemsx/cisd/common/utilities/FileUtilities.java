@@ -122,7 +122,7 @@ public final class FileUtilities
      * @return The content of the resource, or <code>null</code> if the specified resource does not exist.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}
      */
-    public static String loadToString(Class clazz, String resource) throws CheckedExceptionTunnel
+    public static String loadToString(Class<?> clazz, String resource) throws CheckedExceptionTunnel
     {
         assert clazz != null;
         assert resource != null && resource.length() > 0;
@@ -150,7 +150,7 @@ public final class FileUtilities
      * @return The content of the resource line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public static List<String> loadToStringList(Class clazz, String resource) throws CheckedExceptionTunnel
+    public static List<String> loadToStringList(Class<?> clazz, String resource) throws CheckedExceptionTunnel
     {
         assert clazz != null;
         assert resource != null && resource.length() > 0;
@@ -168,7 +168,7 @@ public final class FileUtilities
         }
     }
 
-    private static BufferedReader getBufferedReader(Class clazz, String resource)
+    private static BufferedReader getBufferedReader(Class<?> clazz, String resource)
     {
         final InputStream stream = clazz.getResourceAsStream(resource);
         if (stream == null)

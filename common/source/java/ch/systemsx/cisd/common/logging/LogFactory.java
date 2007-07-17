@@ -35,7 +35,7 @@ public final class LogFactory
      * @return The logger name for the given {@link LogCategory} and {@link Class}. It will contain the name of the
      *         <var>category</var>, followed by the canonical name of <var>clazz</var>.
      */
-    public static String getLoggerName(LogCategory category, Class clazz)
+    public static String getLoggerName(LogCategory category, Class<?> clazz)
     {
         return category.name() + "." + clazz.getCanonicalName();
     }
@@ -44,7 +44,7 @@ public final class LogFactory
      * @return The logger for the given {@link LogCategory} and {@link Class}. The name of the logger will contain the
      *         name of the <var>category</var>, followed by the canonical name of <var>clazz</var>.
      */
-    public static Logger getLogger(LogCategory category, Class clazz)
+    public static Logger getLogger(LogCategory category, Class<?> clazz)
     {
         return Logger.getLogger(getLoggerName(category, clazz));
     }

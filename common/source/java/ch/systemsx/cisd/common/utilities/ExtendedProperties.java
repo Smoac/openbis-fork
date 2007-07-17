@@ -105,7 +105,7 @@ public final class ExtendedProperties extends Properties
     public final ExtendedProperties getSubset(final String prefix)
     {
         ExtendedProperties result = new ExtendedProperties();
-        for (Enumeration enumeration = propertyNames(); enumeration.hasMoreElements();)
+        for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
             String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
