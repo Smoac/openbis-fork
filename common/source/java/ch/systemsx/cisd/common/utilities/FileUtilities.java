@@ -440,11 +440,15 @@ public final class FileUtilities
     /**
      * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
      * <p>
-     * Returns <code>null</code> if all lines have been filtered out.
+     * You should not call this method if given <var>file</var> does not exist.
      * </p>
+     * 
+     * @return <code>null</code> if all lines have been filtered out.
      */
     public final static Line getFirstAcceptedLine(File file, ILineFilter lineFilter)
     {
+        assert file.exists();
+
         LineIterator lineIterator = null;
         try
         {
