@@ -18,24 +18,45 @@ package ch.systemsx.cisd.common.utilities;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+
 /**
- * This implementation supports parameters substitution in property value.
+ * Another class of Properties that allows recursive references for property keys and values. For example,
  * 
- * @see #getProperty(String)
+ * <pre>
+ * A=12345678
+ * B=${A}90
+ * C=${B} plus more
+ * 
+ * </code></pre>
+ * 
+ * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". The keys will be rewritten
+ * when queried (dynamically), thus the order of adding properties is unimportant. Cyclic references are handled by
+ * removing the current key before resolving it, i.e. when setting A=${B} and B=${A} and then asking for A, you will get
+ * ${A}.
+ * 
  * @author Christian Ribeaud
  */
 public final class ExtendedProperties extends Properties
 {
+
     private static final long serialVersionUID = 1L;
 
-    /** Default placeholder prefix: "${" */
-    private static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
+    /** Usual (or default) property separator in the super class. */
+    private static final String PROPERTY_SEPARATOR = ", ";
 
     /** Default placeholder suffix: "}" */
-    private static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
+    private static final String SUFFIX = "}";
+
+    /** Default placeholder prefix: "${" */
+    private static final String PREFIX = "${";
+
+    /** The minimum length a string should have to be considered. */
+    private static final int MIN_LENGTH = PREFIX.length() + SUFFIX.length() + 1;
 
     /**
-     * @see java.util.Properties#Properties()
+     * @see Properties#Properties()
      */
     public ExtendedProperties()
     {
@@ -43,58 +64,13 @@ public final class ExtendedProperties extends Properties
     }
 
     /**
-     * @see java.util.Properties#Properties(java.util.Properties)
+     * Creates an empty property list with the specified defaults.
+     * 
+     * @see Properties#Properties(Properties)
      */
-    public ExtendedProperties(Properties defs)
+    public ExtendedProperties(Properties defaults)
     {
-        super(defs);
-    }
-
-    /**
-     * Any parameter like <code>${propertyName}</code> in property value will be replaced with the value of property
-     * with name <code>propertyName</code>.
-     * <p>
-     * For example, for the following set of properties:
-     * 
-     * <pre>
-     * param1 = abcd
-     * param2 = efgh
-     * param3 = Alphabet starts with: ${param1}${param2}
-     * </pre>
-     * 
-     * The call <code>props.getProperty("param3")</code> returns:
-     * 
-     * <pre>
-     * Alphabet starts with: abcdefgh
-     * </pre>
-     * 
-     * Note also that call <code>props.get("param3")</code> returns:
-     * 
-     * <pre>
-     * Alphabet starts with: ${param1}${param2}
-     * </pre>
-     * 
-     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not expanded with substituted
-     * parameters) property value.
-     * </p>
-     * 
-     * @see java.util.Properties#getProperty(java.lang.String)
-     */
-    @Override
-    public String getProperty(String key)
-    {
-        String result = super.getProperty(key);
-        return result == null ? null : expandValue(result);
-    }
-
-    /**
-     * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
-     */
-    @Override
-    public String getProperty(String key, String defaultValue)
-    {
-        String result = getProperty(key);
-        return result == null ? expandValue(defaultValue) : result;
+        super(defaults);
     }
 
     /**
@@ -116,33 +92,98 @@ public final class ExtendedProperties extends Properties
         return result;
     }
 
-    private final String expandValue(final String value)
+    private final String expandValue(final String key, final String value)
     {
-        if (value == null || value.length() < 4)
+        if (value == null || value.length() < MIN_LENGTH)
         {
             return value;
         }
         StringBuilder result = new StringBuilder(value.length());
         result.append(value);
-        int p1 = result.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
-        int p2 = result.indexOf(DEFAULT_PLACEHOLDER_SUFFIX, p1 + 2);
-        while (p1 >= 0 && p2 > p1)
+        int startName = result.indexOf(PREFIX);
+        int prefixLen = PREFIX.length();
+        int endName = result.indexOf(SUFFIX, startName + prefixLen);
+        int suffixLen = SUFFIX.length();
+        while (startName >= 0 && endName > startName)
         {
-            String paramName = result.substring(p1 + 2, p2);
-            // TODO 2007-07-11, Franz-Josef Elmer: This recursive call has to be checked against cyclic dependencies
-            // in a properties file like a = ${b}, b = ${a}
+            String paramName = result.substring(startName + prefixLen, endName);
+            // recurse into this variable, prevent cyclic references by removing the current key
+            // before asking for the property and the setting it again afterwards.
+            remove(key);
             String paramValue = getProperty(paramName);
+            super.setProperty(key, value);
             if (paramValue != null)
             {
-                result.replace(p1, p2 + 1, paramValue);
-                p1 += paramValue.length();
+                result.replace(startName, endName + suffixLen, paramValue);
+                startName += paramValue.length();
             } else
             {
-                p1 = p2 + 1;
+                startName = endName + suffixLen;
             }
-            p1 = result.indexOf(DEFAULT_PLACEHOLDER_PREFIX, p1);
-            p2 = result.indexOf(DEFAULT_PLACEHOLDER_SUFFIX, p1 + 2);
+            startName = result.indexOf(PREFIX, startName);
+            endName = result.indexOf(SUFFIX, startName + prefixLen);
         }
         return result.toString();
+    }
+
+    /**
+     * Returns the value of property <code>key</code> without resolving.
+     * <p>
+     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not expanded with substituted
+     * parameters) property value.
+     * </p>
+     */
+    public final String getUnalteredProperty(String key)
+    {
+        return (String) get(key);
+    }
+
+    //
+    // Properties
+    //
+
+    /**
+     * Any parameter like <code>${propertyName}</code> in property value will be replaced with the value of property
+     * with name <code>propertyName</code>.
+     * <p>
+     * For example, for the following set of properties:
+     * 
+     * <pre>
+     * param1 = abcd
+     * param2 = efgh
+     * param3 = Alphabet starts with: ${param1}${param2}
+     * </pre>
+     * 
+     * The call <code>props.getProperty("param3")</code> returns:
+     * 
+     * <pre>
+     * Alphabet starts with: abcdefgh
+     * </pre>
+     * 
+     * </p>
+     * 
+     * @see java.util.Properties#getProperty(java.lang.String)
+     */
+    @Override
+    public final String getProperty(String key)
+    {
+        String result = super.getProperty(key);
+        return result == null ? null : expandValue(key, result);
+    }
+
+    /**
+     * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
+     */
+    @Override
+    public final String getProperty(String key, String defaultValue)
+    {
+        String result = getProperty(key);
+        return result == null ? expandValue(key, defaultValue) : result;
+    }
+
+    @Override
+    public final String toString()
+    {
+        return StringUtils.replace(super.toString(), PROPERTY_SEPARATOR, SystemUtils.LINE_SEPARATOR);
     }
 }
