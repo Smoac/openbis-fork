@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Decorates another <code>Collection</code> to validate that additions match a specified <code>Validator</code>.
@@ -35,12 +36,12 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     /**
      * Factory method to create a filtered (validating) collection.
      * <p>
-     * If there are any elements already in the collection being decorated, they are not validated.
+     * If there are any elements already in the collection being decorated, they are validated.
      * </p>
      * 
-     * @param coll the collection to decorate, must not be <code>null</code>
-     * @param validator the predicate to use for validation, must not be <code>null</code>
-     * @return a new predicated collection
+     * @param coll the collection to decorate. Must not be <code>null</code>.
+     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>.
+     * @return a new filtered collection.
      */
     public static <E> Collection<E> decorate(Collection<E> coll, Validator<E> validator)
     {
@@ -48,17 +49,41 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     }
 
     /**
-     * Constructor that wraps (not copies) given <code>Collection</code>.
+     * Constructor that filters given <code>Collection</code>.
      * 
-     * @param collection the collection to decorate, must not be <code>null</code>.
-     * @param validator the predicate to use for validation, must not be <code>null</code>.
+     * @param collection the collection to decorate. Must not be <code>null</code>.
+     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>.
      */
     protected FilteredCollection(Collection<E> collection, Validator<E> validator)
     {
-        super(collection);
+        super(filterCollection(collection, validator));
         assert validator != null;
 
         this.validator = validator;
+    }
+
+    /**
+     * Filters given <var>collection</var> with given <var>validator</var>.
+     * <p>
+     * Note that this operation changes passed <code>Collection</code> if some invalid elements are found. The
+     * original collection does not get cloned before .
+     * </p>
+     */
+    @SuppressWarnings("unchecked")
+    protected final static <E> Collection<E> filterCollection(Collection<? extends E> collection, Validator<E> validator)
+    {
+        if (collection == null)
+        {
+            return null;
+        }
+        for (Iterator<? extends E> iter = collection.iterator(); iter.hasNext();)
+        {
+            if (validator.isValid(iter.next()) == false)
+            {
+                iter.remove();
+            }
+        }
+        return (Collection<E>) collection;
     }
 
     /**

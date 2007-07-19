@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.common.collections;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 
 /**
  * Decorates another <code>List</code> to validate that all additions match a specified <code>Validator</code>.
@@ -30,16 +28,14 @@ import java.util.NoSuchElementException;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2007-07-11, Franz-Josef Elmer: This class violates the contract of List because iterator() creates a filtered 
-// iterator which does not returns size() elements
 public final class FilteredList<E> extends FilteredCollection<E> implements List<E>
 {
 
     /**
-     * Constructor that wraps (not copies) given <code>List</code>.
+     * Constructor that filters given <code>List</code>.
      * 
-     * @param list the list to decorate, must not be <code>null</code>
-     * @param validator the predicate to use for validation, must not be <code>null</code>
+     * @param list the list to decorate. Must not be <code>null</code>
+     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>
      */
     protected FilteredList(List<E> list, Validator<E> validator)
     {
@@ -49,11 +45,11 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
     /**
      * Factory method to create a filtered (validating) list.
      * <p>
-     * If there are any elements already in the list being decorated, they are not validated.
+     * If there are any elements already in the list being decorated, they are validated.
      * </p>
      * 
-     * @param list the list to decorate, must not be <code>null</code>
-     * @param validator the predicate to use for validation, must not be <code>null</code>
+     * @param list the list to decorate. Must not be <code>null</code>
+     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>
      */
     public static <E> List<E> decorate(List<E> list, Validator<E> validator)
     {
@@ -94,35 +90,14 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         return getList().remove(index);
     }
 
-    public void add(int index, E object)
-    {
-        if (isValid(object))
-        {
-            getList().add(index, object);
-        }
-    }
-
-    public boolean addAll(int index, Collection<? extends E> collection)
-    {
-        for (Iterator<? extends E> iter = collection.iterator(); iter.hasNext();)
-        {
-            E element = iter.next();
-            if (isValid(element) == false)
-            {
-                iter.remove();
-            }
-        }
-        return getList().addAll(index, collection);
-    }
-    
     public ListIterator<E> listIterator()
     {
-        return listIterator(0);
+        return getList().listIterator();
     }
 
     public ListIterator<E> listIterator(int i)
     {
-        return new FilteredListIterator(getList().listIterator(i));
+        return getList().listIterator(i);
     }
 
     public E set(int index, E object)
@@ -139,100 +114,16 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         return new FilteredList<E>(getList().subList(fromIndex, toIndex), validator);
     }
 
-     @Override
-    public Iterator<E> iterator()
+    public void add(int index, E object)
     {
-        return listIterator();
+        if (isValid(object))
+        {
+            getList().add(index, object);
+        }
     }
 
-    /**
-     * Inner class <code>Iterator</code> for the <code>FilteredList</code>.
-     * 
-     * @author Christian Ribeaud
-     */
-    protected class FilteredListIterator extends AbstractListIteratorDecorator<E>
+    public boolean addAll(int index, Collection<? extends E> collection)
     {
-        /** The next object in the iteration */
-        private E nextObject;
-
-        /** Whether the next object has been calculated yet. */
-        private boolean nextObjectSet = false;
-
-        /**
-         * Constructs a new <code>FilterIterator</code>.
-         * 
-         * @param iterator the iterator to use.
-         */
-        public FilteredListIterator(ListIterator<E> iterator)
-        {
-            super(iterator);
-        }
-
-        /**
-         * Set <code>nextObject</code> to the next object. If there are no more objects then returns
-         * <code>false</code>. Otherwise, returns <code>true</code>.
-         */
-        private boolean setNextObject()
-        {
-            ListIterator<E> iterator = getListIterator();
-            while (iterator.hasNext())
-            {
-                E object = iterator.next();
-                if (validator.isValid(object))
-                {
-                    nextObject = object;
-                    nextObjectSet = true;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        //
-        // AbstractListIteratorDecorator
-        //
-
-        /**
-         * Returns <code>true</code> if the underlying iterator contains an object that matches the
-         * <code>Validator</code>.
-         * 
-         * @return <code>true</code> if there is another object that matches the <code>Validator</code>.
-         */
-        @Override
-        public final boolean hasNext()
-        {
-            if (nextObjectSet)
-            {
-                return true;
-            } else
-            {
-                return setNextObject();
-            }
-        }
-
-        @Override
-        public E next()
-        {
-            if (nextObjectSet == false)
-            {
-                if (setNextObject() == false)
-                {
-                    throw new NoSuchElementException();
-                }
-            }
-            nextObjectSet = false;
-            return nextObject;
-        }
-
-        @Override
-        public void remove()
-        {
-            if (nextObjectSet)
-            {
-                throw new IllegalStateException("remove() cannot be called");
-            }
-            listIterator().remove();
-        }
-
+        return getList().addAll(index, filterCollection(collection, validator));
     }
 }

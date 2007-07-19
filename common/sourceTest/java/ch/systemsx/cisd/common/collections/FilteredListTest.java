@@ -27,7 +27,6 @@ import static org.testng.AssertJUnit.*;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2007-07-11, Franz-Josef Elmer: More tests needed. All methods of List have to be tested.
 public final class FilteredListTest
 {
 
@@ -52,31 +51,7 @@ public final class FilteredListTest
         }
     }
 
-    @Test
-    public final void testWithEmptyList()
-    {
-        final Validator<String> validator = ValidatorUtils.getNotNullValidator();
-        List<String> list = FilteredList.decorate(new ArrayList<String>(), validator);
-        list.add(null);
-        list.add(null);
-        list.add("0");
-        list.add(null);
-        assertEquals(1, list.size());
-        try
-        {
-            list.set(1, "1");
-            fail("IndexOutOfBoundsException should be thrown.");
-        } catch (IndexOutOfBoundsException e)
-        {
-            // Nothing to do here.
-        }
-        String old0 = list.set(0, "newO");
-        assertEquals(1, list.size());
-        assertEquals("0", old0);
-    }
-
-    @Test
-    public final void testWithNonEmptyList()
+    private final static List<String> createList()
     {
         final Validator<String> validator = ValidatorUtils.getNotNullValidator();
         List<String> list = new ArrayList<String>();
@@ -89,13 +64,83 @@ public final class FilteredListTest
         list.add("2");
         list.add(null);
         assertEquals(8, list.size());
-        list = FilteredList.decorate(list, validator);
-        assertEquals(8, list.size());
-        int count = 0;
-        for (final String string : list)
+        List<String> decoratedList = FilteredList.decorate(list, validator);
+        assertEquals(3, list.size());
+        return decoratedList;
+    }
+
+    @Test
+    public final void testSet()
+    {
+        List<String> list = createList();
+        try
         {
-            assertEquals(count++ + "", string);
+            list.set(5, "5");
+            fail("IndexOutOfBoundsException not thrown.");
+        } catch (IndexOutOfBoundsException ex)
+        {
+            assertEquals("Index: 5, Size: 3", ex.getMessage());
         }
-        assertEquals(3, count);
+        String old = list.set(2, "new2");
+        assertEquals("2", old);
+        assertEquals("new2", list.get(2));
+    }
+
+    @Test
+    public final void testAddAll()
+    {
+        // addAll(List)
+        List<String> list = createList();
+        List<String> newList = new ArrayList<String>();
+        newList.add("one");
+        newList.add(null);
+        newList.add("two");
+        newList.add(null);
+        newList.add(null);
+        newList.add("thre");
+        newList.add(null);
+        assertEquals(7, newList.size());
+        list.addAll(newList);
+        assertEquals(6, list.size());
+        assertEquals("1", list.get(1));
+        assertEquals("one", list.get(3));
+        // addAll(int, List)
+        list = createList();
+        list.addAll(1, newList);
+        assertEquals(6, list.size());
+        assertEquals("one", list.get(1));
+        assertEquals("1", list.get(4));
+    }
+
+    @Test
+    public final void testAdd()
+    {
+        // add(Object)
+        List<String> list = createList();
+        list.add(null);
+        assertEquals(3, list.size());
+        list.add("new");
+        assertEquals(4, list.size());
+        assertEquals("new", list.get(3));
+        // add(int, Object)
+        try
+        {
+            list.add(5, "renew");
+        } catch (IndexOutOfBoundsException ex)
+        {
+            assertEquals("Index: 5, Size: 4", ex.getMessage());
+        }
+        list.add(4, "renew");
+        assertEquals(5, list.size());
+        assertEquals("renew", list.get(4));
+    }
+    
+    @Test
+    public final void testSubList() {
+        List<String> list = createList();
+        List<String> subList = list.subList(0, 2);
+        assertEquals(2, subList.size());
+        assertEquals(list.get(0), subList.get(0));
+        assertEquals(list.get(1), subList.get(1));
     }
 }
