@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 
 /**
  * A default <code>IReaderParser</code> implementation.
@@ -74,20 +76,20 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
     public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException
     {
-        final BufferedReader bufferedReader = getBufferedReader(reader);
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
             // Inits ILineTokenizer
             lineTokenizer.init();
-            String line;
             try
             {
-                for (int lineNumber = 0; (line = bufferedReader.readLine()) != null; lineNumber++)
+                LineIterator lineIterator = IOUtils.lineIterator(reader);
+                for (int lineNumber = 0; lineIterator.hasNext(); lineNumber++)
                 {
-                    if (lineFilter.acceptLine(line, lineNumber))
+                    String nextLine = lineIterator.nextLine();
+                    if (lineFilter.acceptLine(nextLine, lineNumber))
                     {
-                        String[] tokens = parseLine(lineNumber, line);
+                        String[] tokens = parseLine(lineNumber, nextLine);
                         elements.add(createObject(tokens));
                     }
                 }
@@ -100,20 +102,6 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
         }
 
-    }
-
-    /** Converts or encapsulates given <code>Reader</code> into a <code>BufferedReader</code>. */
-    private final static BufferedReader getBufferedReader(Reader reader)
-    {
-        BufferedReader bufferedReader;
-        if (reader instanceof BufferedReader)
-        {
-            bufferedReader = (BufferedReader) reader;
-        } else
-        {
-            bufferedReader = new BufferedReader(reader);
-        }
-        return bufferedReader;
     }
 
     public final void setObjectFactory(IParserObjectFactory<E> factory)
