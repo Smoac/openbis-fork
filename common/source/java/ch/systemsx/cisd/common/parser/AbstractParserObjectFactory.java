@@ -95,7 +95,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * Analyzes given <code>Class</code> and returns a <code>Map</code> containing the mandatory <code>Field</code>s
      * keyed by {@link Field#getName()}.
      */
-    private final static Map<String, Field> createMandatoryFields(Class clazz)
+    private final static Map<String, Field> createMandatoryFields(Class<?> clazz)
     {
         Map<String, Field> map = new HashMap<String, Field>();
         List<Field> fields = ClassUtils.getMandatoryFields(clazz);
