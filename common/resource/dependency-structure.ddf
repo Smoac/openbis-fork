@@ -34,7 +34,8 @@ check sets [test]
 [utilities] = ${package}.utilities.*
 check sets [utilities]
 
-layer layer0 = [annotation] [exceptions] [logging] [parser] [test]
-layer layer1 = [config] [db] [utilities]
+layer layer0 = [annotation] [exceptions] [logging] [test]
+layer layer1 = [utilities] 
+layer layer2 = [config] [db] [parser]
 
-check layeringOf layer0 layer1 
+check layeringOf layer0 layer1 layer2 

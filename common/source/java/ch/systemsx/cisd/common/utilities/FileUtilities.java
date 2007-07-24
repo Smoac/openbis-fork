@@ -26,17 +26,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.parser.ILineFilter;
 
 /**
  * Some useful utility methods for files and directories.
@@ -435,60 +432,6 @@ public final class FileUtilities
                 }
 
             });
-    }
-
-    /**
-     * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
-     * <p>
-     * You should not call this method if given <var>file</var> does not exist.
-     * </p>
-     * 
-     * @return <code>null</code> if all lines have been filtered out.
-     */
-    public final static Line getFirstAcceptedLine(File file, ILineFilter lineFilter)
-    {
-        assert file.exists();
-
-        LineIterator lineIterator = null;
-        try
-        {
-            lineIterator = FileUtils.lineIterator(file);
-            for (int line = 0; lineIterator.hasNext(); line++)
-            {
-                String nextLine = lineIterator.nextLine();
-                if (lineFilter.acceptLine(nextLine, line))
-                {
-                    return new Line(line, nextLine);
-                }
-
-            }
-        } catch (IOException ex)
-        {
-            machineLog.error("An I/O exception has occurred while reading file '" + file + "'.", ex);
-        } finally
-        {
-            LineIterator.closeQuietly(lineIterator);
-        }
-        return null;
-    }
-
-    /**
-     * A small object that represents a line in a <code>File</code> context.
-     * 
-     * @author Christian Ribeaud
-     */
-    public final static class Line
-    {
-
-        public final String text;
-
-        public final int number;
-
-        Line(final int number, final String text)
-        {
-            this.number = number;
-            this.text = text;
-        }
     }
 
     /** Canonifies given relative path. */
