@@ -46,8 +46,8 @@
     <copy file="${lib}/mail/mail.jar" todir="${dist.datamover.lib}" />
     <copy file="${lib}/log4j/log4j.jar" todir="${dist.datamover.lib}" />
     <copy file="${lib}/args4j/args4j.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.etlserver.lib}" />
-    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.etlserver.lib}" />
+    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datamover.lib}" />
+    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datamover.lib}" />
     <property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />   
     <zip basedir="${dist}" destfile="${dist.file}">
       <zipfileset dir="${original.dist}" excludes="**/datamover.sh" prefix="${mainfolder}" />
