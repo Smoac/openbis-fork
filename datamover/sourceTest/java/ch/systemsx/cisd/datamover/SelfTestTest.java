@@ -77,14 +77,17 @@ public class SelfTestTest
     // ////////////////////////////////////////
     // Mocks.
     //
-    
+
     private static class MockPathCopier implements IPathCopier
     {
         private final boolean supportsExplicitHost;
+
         private final boolean existRemote;
+
         File destinationDirectoryQueried;
+
         String destinationHostQueried;
-        
+
         MockPathCopier(boolean supportsExplicitHost, boolean existRemote)
         {
             this.supportsExplicitHost = supportsExplicitHost;
@@ -108,7 +111,7 @@ public class SelfTestTest
             assert destinationHostQueried == null;
             assert destinationDirectory != null;
             assert destinationHost != null;
-            
+
             destinationDirectoryQueried = destinationDirectory;
             destinationHostQueried = destinationHost;
             return existRemote;
@@ -154,7 +157,7 @@ public class SelfTestTest
     @Test
     public void testHappyCaseWithRemoteShare()
     {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, mockCopier);
+        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier);
     }
 
     @Test
@@ -162,7 +165,8 @@ public class SelfTestTest
     {
         final String remoteHost = "some_remote_host";
         final MockPathCopier myMockCopier = new MockPathCopier(true, true);
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, myMockCopier);
+        SelfTest
+                .check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, myMockCopier);
         assert remoteHost.equals(myMockCopier.destinationHostQueried);
         assert remoteDataDirectory.equals(myMockCopier.destinationDirectoryQueried);
     }
@@ -171,8 +175,8 @@ public class SelfTestTest
     public void testSelfTestableCalled()
     {
         final MockSelfTestable selfTestable = new MockSelfTestable();
-        SelfTest
-                .check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, mockCopier, selfTestable);
+        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier,
+                selfTestable);
         assert selfTestable.isCheckCalled();
     }
 
@@ -196,35 +200,36 @@ public class SelfTestTest
     @Test(expectedExceptions = FailingSelfTestException.class)
     public void testFailingSelfTestablePassedOn()
     {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, mockCopier,
+        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier,
                 new FailingSelfTestable());
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testEqualPaths()
     {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, localDataDirectory, null, mockCopier);
+        SelfTest.check(localDataDirectory, localTemporaryDirectory, localDataDirectory, null, null, mockCopier);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testContainingPaths()
     {
         final File illegalTemporaryDirectory = new File(localDataDirectory, "temp");
-        SelfTest.check(localDataDirectory, illegalTemporaryDirectory, remoteDataDirectory, null, mockCopier);
+        SelfTest.check(localDataDirectory, illegalTemporaryDirectory, remoteDataDirectory, null, null, mockCopier);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testNonExistentPaths()
     {
         final File nonExistentLocalDataDirectory = new File(workingDirectory, "data");
-        SelfTest.check(nonExistentLocalDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, mockCopier);
+        SelfTest.check(nonExistentLocalDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null,
+                mockCopier);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testRemoteHostNotSupported()
     {
         final String remoteHost = "some_remote_host";
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, mockCopier);
+        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, mockCopier);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
@@ -232,7 +237,8 @@ public class SelfTestTest
     {
         final String remoteHost = "some_remote_host";
         final MockPathCopier myMockCopier = new MockPathCopier(true, false);
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, myMockCopier);
+        SelfTest
+                .check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, myMockCopier);
     }
 
 }

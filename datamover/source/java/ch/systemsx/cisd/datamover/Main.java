@@ -145,13 +145,15 @@ public class Main
         final File incomingDirectory = parameters.getIncomingDirectory();
         final File bufferDirectory = parameters.getBufferDirectory();
         final File outgoingDirectory = parameters.getOutgoingDirectory();
+        final File manualInterventionDirectory = parameters.getManualInterventionDirectory();
         final String outgoingHost = parameters.getOutgoingHost();
         IPathCopier copyProcess = null; // Convince Eclipse compiler that the variable has been initialized.
 
         try
         {
             copyProcess = suggestPathCopier(parameters, false); // This is part of the self-test.
-            SelfTest.check(incomingDirectory, bufferDirectory, outgoingDirectory, outgoingHost, copyProcess);
+            SelfTest.check(incomingDirectory, bufferDirectory, outgoingDirectory, manualInterventionDirectory,
+                    outgoingHost, copyProcess);
         } catch (HighLevelException e)
         {
             System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
@@ -173,13 +175,21 @@ public class Main
     {
         final File incomingDirectory = parameters.getIncomingDirectory();
         final File bufferDirectory = parameters.getBufferDirectory();
+        final File manualInterventionDirectory = parameters.getManualInterventionDirectory();
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
         if (parameters.getCleansingRegex() != null)
         {
             cleansingFilter.add(PathType.FILE, parameters.getCleansingRegex());
         }
+        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
+        if (parameters.getManualInterventionRegex() != null)
+        {
+            manualInterventionFilter.add(PathType.ALL, parameters.getManualInterventionRegex());
+        }
         final IPathHandler localPathMover =
-                new CleansingPathHandlerDecorator(cleansingFilter, new IntraFSPathMover(bufferDirectory));
+                new GatePathHandlerDecorator(manualInterventionFilter, new CleansingPathHandlerDecorator(
+                        cleansingFilter, new IntraFSPathMover(bufferDirectory)), new IntraFSPathMover(
+                        manualInterventionDirectory));
         final DirectoryScanningTimerTask localMovingTask =
                 new DirectoryScanningTimerTask(incomingDirectory, new QuietPeriodFileFilter(parameters, operations),
                         localPathMover);

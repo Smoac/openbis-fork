@@ -14,6 +14,17 @@
   
   </appender>
 
+  <appender name="MANUAL_INTERVENTION" class="org.apache.log4j.DailyRollingFileAppender">
+
+    <param name="File" value="log/manual_intervention.txt"/>
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d: %m%n"/>
+    </layout>
+  
+  </appender>
+
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
      <layout class="org.apache.log4j.PatternLayout">
        <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
@@ -46,6 +57,11 @@
     <appender-ref ref="EMAIL" />
   </category>    
   
+  <logger name="OPERATION.ch.systemsx.cisd.datamover.GatePathHandlerDecorator">
+     <level value ="info" />
+     <appender-ref ref="MANUAL_INTERVENTION" />
+  </logger>
+
   <root>
     <priority value="info" />
     <appender-ref ref="DEFAULT" />

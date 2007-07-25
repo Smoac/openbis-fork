@@ -1,3 +1,3 @@
 #! /bin/sh
 
-java -jar lib/datamover.jar
+java -jar lib/datamover.jar "$@"

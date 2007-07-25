@@ -146,6 +146,15 @@ public class Parameters implements ITimingParameters
     private File bufferDirectory = null;
 
     /**
+     * The directory to move files and directories to that have been quiet in the incoming directory for long enough and
+     * that need manual intervention. Note that this directory needs to be on the same file system than
+     * {@link #incomingDirectory}.
+     */
+    @Option(longName = "manual-intervention-dir", metaVar = "DIR", usage = "The local directory to "
+            + "store paths that need manual intervention.")
+    private File manualInterventionDirectory = null;
+
+    /**
      * The directory on the remote side to move the paths to from the buffer directory.
      */
     @Option(longName = "outgoing-dir", metaVar = "DIR", usage = "The remote directory to move the data to.")
@@ -159,11 +168,18 @@ public class Parameters implements ITimingParameters
     private String outgoingHost = null;
 
     /**
-     * The regular expression to use for cleansing on the local path before moving it to remote.
+     * The regular expression to use for cleansing on the incoming directory before moving it to the buffer.
      */
     @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
             + "moving to outgoing.")
     private Pattern cleansingRegex = null;
+
+    /**
+     * The regular expression to use for deciding whether a path in the incoming directory needs manual intervetion.
+     */
+    @Option(longName = "manual-intervention-regex", usage = "The regular expression to use for deciding whether an "
+            + "incoming paths needs manual intervention. ")
+    private Pattern manualInterventionRegex = null;
 
     /**
      * The command line parser.
@@ -242,6 +258,11 @@ public class Parameters implements ITimingParameters
             {
                 throw new ConfigurationFailureException("No 'outgoing-dir' defined.");
             }
+            if (manualInterventionDirectory == null && manualInterventionRegex != null)
+            {
+                throw new ConfigurationFailureException(
+                        "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
+            }
         } catch (Exception ex)
         {
             outputException(ex);
@@ -294,6 +315,10 @@ public class Parameters implements ITimingParameters
         {
             bufferDirectory = new File(serviceProperties.getProperty("buffer-dir"));
         }
+        if (serviceProperties.getProperty("manual-intervention-dir") != null)
+        {
+            manualInterventionDirectory = new File(serviceProperties.getProperty("manual-intervention-dir"));
+        }
         if (serviceProperties.getProperty("outgoing-dir") != null)
         {
             outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir"));
@@ -302,6 +327,10 @@ public class Parameters implements ITimingParameters
         if (serviceProperties.getProperty("cleansing-regex") != null)
         {
             cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
+        }
+        if (serviceProperties.getProperty("ignoring-regex") != null)
+        {
+            cleansingRegex = Pattern.compile(serviceProperties.getProperty("ignoring-regex"));
         }
     }
 
@@ -410,6 +439,16 @@ public class Parameters implements ITimingParameters
     }
 
     /**
+     * @return The directory to move files and directories to that have been quiet in the local data directory for long
+     *         enough and that need manual intervention. Note that this directory needs to be on the same file system
+     *         than {@link #getIncomingDirectory}.
+     */
+    public File getManualInterventionDirectory()
+    {
+        return manualInterventionDirectory;
+    }
+
+    /**
      * @return The directory on the remote side to move the local files to once they are quiet.
      */
     public File getOutgoingDirectory()
@@ -426,12 +465,22 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The regular expression to use for cleansing on the local path before moving it to remote or
+     * @return The regular expression to use for cleansing on the incoming directory before moving it to the buffer or
      *         <code>null</code>, if no regular expression for cleansing has been provided.
      */
     public Pattern getCleansingRegex()
     {
         return cleansingRegex;
+    }
+
+    /**
+     * @return The regular expression to use for deciding whether a path in the incoming directory requires manual
+     *         intervention or <code>null</code>, if no regular expression for manual interventionpaths has been
+     *         provided.
+     */
+    public Pattern getManualInterventionRegex()
+    {
+        return manualInterventionRegex;
     }
 
     /**
@@ -441,13 +490,17 @@ public class Parameters implements ITimingParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Local data directory: '%s'.", getIncomingDirectory().getAbsolutePath()));
-            operationLog
-                    .info(String.format("Local temporary directory: '%s'.", getBufferDirectory().getAbsolutePath()));
-            operationLog.info(String.format("Remote directory: '%s'.", getOutgoingDirectory().getAbsolutePath()));
+            operationLog.info(String.format("Incoming directory: '%s'.", getIncomingDirectory().getAbsolutePath()));
+            operationLog.info(String.format("Buffer directory: '%s'.", getBufferDirectory().getAbsolutePath()));
+            operationLog.info(String.format("Outgoing directory: '%s'.", getOutgoingDirectory().getAbsolutePath()));
             if (null != getOutgoingHost())
             {
-                operationLog.info(String.format("Remote host: '%s'.", getOutgoingHost()));
+                operationLog.info(String.format("Outgoing host: '%s'.", getOutgoingHost()));
+            }
+            if (null != getManualInterventionDirectory())
+            {
+                operationLog.info(String.format("Manual interventions directory: '%s'.",
+                        getManualInterventionDirectory().getAbsolutePath()));
             }
             operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));
@@ -459,6 +512,12 @@ public class Parameters implements ITimingParameters
             {
                 operationLog.info(String.format("Regular expression used for cleansing before moving: '%s'",
                         getCleansingRegex().pattern()));
+            }
+            if (getManualInterventionRegex() != null)
+            {
+                operationLog.info(String.format(
+                        "Regular expression used for deciding whether a path needs manual intervention: '%s'",
+                        getManualInterventionRegex().pattern()));
             }
         }
     }

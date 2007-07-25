@@ -58,7 +58,8 @@ public class SelfTest
     }
 
     private static void checkDirectories(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory, String remoteHost, IPathCopier copier) throws ConfigurationFailureException
+            File remoteDataDirectory, File manualInterventionDirectory, String remoteHost, IPathCopier copier)
+            throws ConfigurationFailureException
     {
         assert localDataDirectory != null;
         assert localTemporaryDirectory != null;
@@ -72,6 +73,15 @@ public class SelfTest
         {
             checkDirectoriesWithRemoteHost(localDataDirectory, localTemporaryDirectory, remoteDataDirectory,
                     remoteHost, copier);
+        }
+        if (manualInterventionDirectory != null)
+        {
+            String errorMessage =
+                    FileUtilities.checkDirectoryFullyAccessible(manualInterventionDirectory, "manual intervention");
+            if (errorMessage != null)
+            {
+                throw new ConfigurationFailureException(errorMessage);
+            }
         }
     }
 
@@ -166,7 +176,7 @@ public class SelfTest
      * failure logging of {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
     public static void check(File localDataDirectory, File localTemporaryDirectory, File remoteDataDirectory,
-            String remoteHost, IPathCopier copier, ISelfTestable... selfTestables)
+            File manualInterventionDirectory, String remoteHost, IPathCopier copier, ISelfTestable... selfTestables)
             throws ConfigurationFailureException, EnvironmentFailureException
     {
         try
@@ -177,7 +187,8 @@ public class SelfTest
                         "Copier %s does not support explicit remote hosts, but remote host given:%s", copier.getClass()
                                 .getSimpleName(), remoteHost);
             }
-            checkDirectories(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost, copier);
+            checkDirectories(localDataDirectory, localTemporaryDirectory, remoteDataDirectory,
+                    manualInterventionDirectory, remoteHost, copier);
             copier.check();
 
             for (ISelfTestable selfTestable : selfTestables)
@@ -190,13 +201,13 @@ public class SelfTest
             }
         } catch (HighLevelException e)
         {
-            operationLog.error(String
-                    .format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage()));
+            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e
+                    .getMessage()));
             throw e;
         } catch (RuntimeException e)
         {
-            operationLog.error(String
-                    .format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage()), e);
+            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e
+                    .getMessage()), e);
             throw e;
         }
     }
@@ -274,7 +285,7 @@ public class SelfTest
             final File remoteDataDirectory = new File(args[2]);
             try
             {
-                check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, new IPathCopier()
+                check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, new IPathCopier()
                     {
                         public Status copy(File sourcePath, File destinationDirectory)
                         {
