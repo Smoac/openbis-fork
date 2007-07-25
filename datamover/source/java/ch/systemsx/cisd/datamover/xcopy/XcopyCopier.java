@@ -330,13 +330,24 @@ public class XcopyCopier implements IPathCopier
     }
 
     /**
-     * <em>Must not be called since this copier does not support explicitely specifying a destination host.</em>
+     * <em>Must not be called with <code>destinationHost != null</code> since this copier does not support explicitly 
+     * specifying a destination host.</em>
      * 
-     * @throws IllegalStateException Whenever it is called.
+     * @throws IllegalStateException If <var>destinationHost</var> is not <code>null</code>.
      */
     public Status copy(File sourcePath, File destinationDirectory, String destinationHost)
     {
-        throw new IllegalStateException("Explicitely specifying a destination host is not supported by this copier.");
+        assert sourcePath != null;
+        assert destinationDirectory != null;
+
+        if (destinationHost == null)
+        {
+            return copy(sourcePath, destinationDirectory);
+        } else
+        {
+            throw new IllegalStateException(
+                    "Explicitely specifying a destination host is not supported by this copier.");
+        }
     }
 
     /**
@@ -356,5 +367,5 @@ public class XcopyCopier implements IPathCopier
     {
         return false;
     }
-    
+
 }
