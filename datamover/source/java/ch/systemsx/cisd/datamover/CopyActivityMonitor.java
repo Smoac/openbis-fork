@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
  * A <code>CopyActivityMonitor</code> monitors write activity on a <var>destinationPath</var> and triggers an alarm
- * if there was a period of inactivity that exceeds a certains inactivity period.
+ * if there was a period of inactivity that exceeds a given inactivity period.
  * 
  * @author Bernd Rinn
  */
