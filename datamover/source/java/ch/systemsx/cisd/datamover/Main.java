@@ -75,7 +75,7 @@ public class Main
         parameters.log();
     }
 
-    private static IPathCopier getPathCopier(Parameters parameters, boolean requiresDeletionBeforeCreation)
+    private static IPathCopier suggestPathCopier(Parameters parameters, boolean requiresDeletionBeforeCreation)
     {
         final File rsyncExecutable = findRsyncExecutable(parameters.getRsyncExecutable());
         final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
@@ -137,19 +137,21 @@ public class Main
         return sshExecutable;
     }
 
-    private static void startupServer(final Parameters parameters)
+    /**
+     * Returns the path copier and performs a self-test.
+     */
+    private static IPathCopier getPathCopier(final Parameters parameters)
     {
-        final File localDataDirectory = parameters.getLocalDataDirectory();
-        final File localTemporaryDirectory = parameters.getLocalTemporaryDirectory();
-        final File remoteDataDirectory = parameters.getRemoteDataDirectory();
-        final String remoteHost = parameters.getRemoteHost();
-        IPathCopier temporaryCopyProcess = null; // Convince Eclipse compiler that the variable has been initialized.
+        final File incomingDirectory = parameters.getIncomingDirectory();
+        final File bufferDirectory = parameters.getBufferDirectory();
+        final File outgoingDirectory = parameters.getOutgoingDirectory();
+        final String outgoingHost = parameters.getOutgoingHost();
+        IPathCopier copyProcess = null; // Convince Eclipse compiler that the variable has been initialized.
 
         try
         {
-            temporaryCopyProcess = getPathCopier(parameters, false); // This is part of the self-test.
-            SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, remoteHost,
-                    temporaryCopyProcess);
+            copyProcess = suggestPathCopier(parameters, false); // This is part of the self-test.
+            SelfTest.check(incomingDirectory, bufferDirectory, outgoingDirectory, outgoingHost, copyProcess);
         } catch (HighLevelException e)
         {
             System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
@@ -160,11 +162,60 @@ public class Main
             e.printStackTrace();
             System.exit(1);
         }
-        if (SelfTest.requiresDeletionBeforeCreation(temporaryCopyProcess, localTemporaryDirectory, remoteDataDirectory))
+        if (SelfTest.requiresDeletionBeforeCreation(copyProcess, bufferDirectory, outgoingDirectory))
         {
-            temporaryCopyProcess = getPathCopier(parameters, true);
+            copyProcess = suggestPathCopier(parameters, true);
         }
-        final IPathCopier copyProcess = temporaryCopyProcess;
+        return copyProcess;
+    }
+
+    private static void startupIncomingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
+    {
+        final File incomingDirectory = parameters.getIncomingDirectory();
+        final File bufferDirectory = parameters.getBufferDirectory();
+        final RegexFileFilter cleansingFilter = new RegexFileFilter();
+        if (parameters.getCleansingRegex() != null)
+        {
+            cleansingFilter.add(PathType.FILE, parameters.getCleansingRegex());
+        }
+        final IPathHandler localPathMover =
+                new CleansingPathHandlerDecorator(cleansingFilter, new IntraFSPathMover(bufferDirectory));
+        final DirectoryScanningTimerTask localMovingTask =
+                new DirectoryScanningTimerTask(incomingDirectory, new QuietPeriodFileFilter(parameters, operations),
+                        localPathMover);
+        final Timer localMovingTimer = new Timer("Local Mover");
+        localMovingTimer.schedule(localMovingTask, 0, parameters.getCheckIntervalMillis());
+
+    }
+
+    private static void startupOutgoingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
+    {
+        final File bufferDirectory = parameters.getBufferDirectory();
+        final File outgoingDirectory = parameters.getOutgoingDirectory();
+        final String outgoingHost = parameters.getOutgoingHost();
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(outgoingDirectory, operations, operations.getCopier(), parameters);
+        final IPathHandler remoteMover =
+                new RemotePathMover(outgoingDirectory, outgoingHost, monitor, operations, parameters);
+        final DirectoryScanningTimerTask remoteMovingTask =
+                new DirectoryScanningTimerTask(bufferDirectory, new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX,
+                        false), remoteMover);
+        final Timer remoteMovingTimer = new Timer("Remote Mover");
+
+        // Implementation notes:
+        // 1. The startup of the remote moving task is delayed for half the time of the check interval. Thus the local
+        // moving task should have enough time to finish its job.
+        // 2. The remote moving task is scheduled at fixed rate. The rationale behind this is that if new items are
+        // added
+        // to the local temp directory while the remote timer task has been running for a long time, busy moving data to
+        // remote, the task shoulnd't sit idle for the check time when there is actually work to do.
+        remoteMovingTimer.scheduleAtFixedRate(remoteMovingTask, parameters.getCheckIntervalMillis() / 2, parameters
+                .getCheckIntervalMillis());
+    }
+
+    private static void startupServer(final Parameters parameters)
+    {
+        final IPathCopier copyProcess = getPathCopier(parameters);
 
         final IFileSystemOperations operations = new IFileSystemOperations()
             {
@@ -183,36 +234,9 @@ public class Main
                     return new FSPathRemover();
                 }
             };
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(remoteDataDirectory, operations, copyProcess, parameters);
-        final IPathHandler remoteMover =
-                new RemotePathMover(remoteDataDirectory, remoteHost, monitor, operations, parameters);
-        final DirectoryScanningTimerTask remoteMovingTask =
-                new DirectoryScanningTimerTask(localTemporaryDirectory,
-                        new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, false), remoteMover);
-        final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        if (parameters.getCleansingRegex() != null)
-        {
-            cleansingFilter.add(PathType.FILE, parameters.getCleansingRegex());
-        }
-        final IPathHandler localPathMover =
-                new CleansingPathHandlerDecorator(cleansingFilter, new IntraFSPathMover(localTemporaryDirectory));
-        final DirectoryScanningTimerTask localMovingTask =
-                new DirectoryScanningTimerTask(localDataDirectory, new QuietPeriodFileFilter(parameters, operations),
-                        localPathMover);
-        final Timer remoteMovingTimer = new Timer("Remote Mover");
-        final Timer localMovingTimer = new Timer("Local Mover");
 
-        localMovingTimer.schedule(localMovingTask, 0, parameters.getCheckIntervalMillis());
-        // Implementation notes:
-        // 1. The startup of the remote moving task is delayed for half the time of the check interval. Thus the local
-        // moving task should have enough time to finith its job.
-        // 2. The remote moving task is scheduled at fixed rate. The rationale behind this is that if new items are
-        // added
-        // to the local temp directory while the remote timer task has been running for a long time, busy moving data to
-        // remote, the task shoulnd't sit idle for the check time when there is actually work to do.
-        remoteMovingTimer.scheduleAtFixedRate(remoteMovingTask, parameters.getCheckIntervalMillis() / 2, parameters
-                .getCheckIntervalMillis());
+        startupIncomingMovingProcess(parameters, operations);
+        startupOutgoingMovingProcess(parameters, operations);
     }
 
     public static void main(String[] args)

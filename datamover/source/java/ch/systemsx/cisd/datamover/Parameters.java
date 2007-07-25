@@ -17,8 +17,12 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -27,10 +31,13 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.LongOptionHandler;
 import org.kohsuke.args4j.spi.Setter;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
  * The class to process the command line parameters.
@@ -39,6 +46,8 @@ import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
  */
 public class Parameters implements ITimingParameters
 {
+
+    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
 
@@ -58,11 +67,21 @@ public class Parameters implements ITimingParameters
     private String sshExecutable = null;
 
     /**
-     * The interval to wait beween to checks for activity (in milliseconds).
+     * Default interval to wait between two checks for activity (in seconds)
+     */
+    static final int DEFAULT_CHECK_INTERVAL = 120;
+
+    /**
+     * The interval to wait between two checks for activity (in milliseconds).
      */
     @Option(name = "c", longName = "check-interval", usage = "The interval to wait between two checks (in seconds) "
             + "[default: 120]", handler = MillisecondConversionOptionHandler.class)
-    private long checkIntervalMillis = 120 * 1000;
+    private long checkIntervalMillis;
+
+    /**
+     * Default period to wait before a file or directory is considered "inactive" or "stalled" (in seconds).
+     */
+    static final int DEFAULT_INACTIVITY_PERIOD = 600;
 
     /**
      * The period to wait before a file or directory is considered "inactive" or "stalled" (in milliseconds). This
@@ -70,7 +89,12 @@ public class Parameters implements ITimingParameters
      */
     @Option(name = "i", longName = "inactivity-period", usage = "The period to wait before a file or directory is "
             + "considered \"inactive\" or \"stalled\" (in seconds) [default: 600].", handler = MillisecondConversionOptionHandler.class)
-    private long inactivityPeriodMillis = 600 * 1000;
+    private long inactivityPeriodMillis;
+
+    /**
+     * Default period to wait before a file or directory is considered "quiet" (in seconds).
+     */
+    static final int DEFAULT_QUIET_PERIOD = 300;
 
     /**
      * The period to wait before a file or directory is considered "quiet" (in milliseconds). This setting is used when
@@ -78,58 +102,67 @@ public class Parameters implements ITimingParameters
      */
     @Option(name = "q", longName = "quiet-period", usage = "The period that needs to pass before a path item is "
             + "considered quiet (in seconds) [default: 300].", handler = MillisecondConversionOptionHandler.class)
-    private long quietPeriodMillis = 300 * 1000;
+    private long quietPeriodMillis;
 
     /**
-     * The time intervall to wait after a failure has occurred before the operation is retried (in milliseconds).
+     * Default period to wait before a file or directory is considered "quiet" (in seconds).
+     */
+    static final int DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES = 1800;
+
+    /**
+     * The time interval to wait after a failure has occurred before the operation is retried (in milliseconds).
      */
     @Option(name = "f", longName = "failure-interval", usage = "The interval to wait after a failure has occurred "
-            + "before retrying the operation (in seconds) [default: 120].", handler = MillisecondConversionOptionHandler.class)
-    private long intervalToWaitAfterFailureMillis = 120 * 1000;
+            + "before retrying the operation (in seconds) [default: 1800].", handler = MillisecondConversionOptionHandler.class)
+    private long intervalToWaitAfterFailureMillis;
+
+    /**
+     * Default number of retries after a failure has occurred.
+     */
+    static final int DEFAULT_MAXIMAL_NUMBER_OF_RETRIES = 10;
 
     /**
      * The number of times a failed operation is retried (note that this means that the total number that the operation
      * is tried is one more).
      */
     @Option(name = "m", longName = "max-retries", usage = "The number of retries of a failed operation before the "
-            + "datamover gives up on it. [default: 2].")
-    private int maximalNumberOfRetries = 2;
+            + "datamover gives up on it. [default: 10].")
+    private int maximalNumberOfRetries;
 
     /**
-     * The (local) directory to monitor for new files and directories to move to the remote side.
+     * The directory to monitor for new files and directories to move to outgoing.
      */
-    @Option(name = "d", longName = "local-datadir", metaVar = "DIR", required = true, usage = "The local directory where "
+    @Option(longName = "incoming-dir", metaVar = "DIR", usage = "The local directory where "
             + "the data producer writes to.")
-    private File localDataDirectory = null;
+    private File incomingDirectory = null;
 
     /**
-     * The directory to move files and directories to that have been quiet in the local data directory for long enough
-     * and thus are considered to be ready to be moved to remote. Note that this directory needs to be on the same file
-     * system than {@link #localDataDirectory}.
+     * The directory to move files and directories to that have been quiet in the incoming directory for long enough and
+     * thus are considered to be ready to be moved to outgoing. Note that this directory needs to be on the same file
+     * system than {@link #incomingDirectory}.
      */
-    @Option(name = "t", longName = "local-tempdir", metaVar = "DIR", required = true, usage = "The local directory to "
+    @Option(longName = "buffer-dir", metaVar = "DIR", usage = "The local directory to "
             + "store the paths to be transfered temporarily.")
-    private File localTemporaryDirectory = null;
+    private File bufferDirectory = null;
 
     /**
-     * The directory on the remote side to move the local files to once they are quiet.
+     * The directory on the remote side to move the paths to from the buffer directory.
      */
-    @Option(name = "r", longName = "remotedir", metaVar = "DIR", required = true, usage = "The remote directory to "
-            + "move the data to.")
-    private File remoteDataDirectory = null;
+    @Option(longName = "outgoing-dir", metaVar = "DIR", usage = "The remote directory to move the data to.")
+    private File outgoingDirectory = null;
 
     /**
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
      */
-    @Option(name = "h", longName = "remotehost", metaVar = "HOST", usage = "The remote host to move the data to (only "
+    @Option(longName = "outgoing-host", metaVar = "HOST", usage = "The remote host to move the data to (only "
             + "with rsync).")
-    private String remoteHost = null;
+    private String outgoingHost = null;
 
     /**
      * The regular expression to use for cleansing on the local path before moving it to remote.
      */
     @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
-            + "moving to remote.")
+            + "moving to outgoing.")
     private Pattern cleansingRegex = null;
 
     /**
@@ -188,30 +221,114 @@ public class Parameters implements ITimingParameters
 
     Parameters(String[] args)
     {
-        this(args, false, false);
+        this(args, SystemExit.SYSTEM_EXIT);
     }
 
-    Parameters(String[] args, boolean unitTest, boolean suppressMissingMandatoryOptions)
+    Parameters(String[] args, IExitHandler systemExitHandler)
     {
+        initParametersFromProperties();
         try
         {
             parser.parseArgument(args);
-        } catch (CmdLineException ex)
-        {
-            if (unitTest == false)
+            if (incomingDirectory == null)
             {
-                System.err.println(ex.getMessage());
-                printHelp(false);
-                System.exit(1);
-            } else
-            // Suppress exception due to missing mandatory options.
-            {
-                if (false == suppressMissingMandatoryOptions
-                        || ex.getMessage().indexOf("Required option(s) are missing") == -1)
-                {
-                    throw new UserFailureException("Error parsing command line: " + ex.getMessage(), ex);
-                }
+                throw new ConfigurationFailureException("No 'incoming-dir' defined.");
             }
+            if (bufferDirectory == null)
+            {
+                throw new ConfigurationFailureException("No 'buffer-dir' defined.");
+            }
+            if (outgoingDirectory == null)
+            {
+                throw new ConfigurationFailureException("No 'outgoing-dir' defined.");
+            }
+        } catch (Exception ex)
+        {
+            outputException(ex);
+            systemExitHandler.exit(1);
+            // Only reached in unit tests.
+            throw new AssertionError(ex.getMessage());
+        }
+    }
+
+    private void outputException(Exception ex)
+    {
+        if (ex instanceof HighLevelException || ex instanceof CmdLineException)
+        {
+            System.err.println(ex.getMessage());
+        } else
+        {
+            System.err.println("An exception occurred.");
+            ex.printStackTrace();
+        }
+        if (ex instanceof CmdLineException)
+        {
+            printHelp(false);
+        }
+    }
+
+    private void initParametersFromProperties()
+    {
+        final Properties serviceProperties = loadServiceProperties();
+        rsyncExecutable = serviceProperties.getProperty("rsync-executable");
+        sshExecutable = serviceProperties.getProperty("ssh-executable");
+        checkIntervalMillis =
+                Integer.parseInt(serviceProperties.getProperty("check-interval", Integer
+                        .toString(DEFAULT_CHECK_INTERVAL))) * 1000;
+        inactivityPeriodMillis =
+                Integer.parseInt(serviceProperties.getProperty("inactivity-period", Integer
+                        .toString(DEFAULT_INACTIVITY_PERIOD))) * 1000;
+        quietPeriodMillis =
+                Integer.parseInt(serviceProperties.getProperty("quiet-period", Integer.toString(DEFAULT_QUIET_PERIOD))) * 1000;
+        intervalToWaitAfterFailureMillis =
+                Integer.parseInt(serviceProperties.getProperty("failure-interval", Integer
+                        .toString(DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES))) * 1000;
+        maximalNumberOfRetries =
+                Integer.parseInt(serviceProperties.getProperty("max-retries", Integer
+                        .toString(DEFAULT_MAXIMAL_NUMBER_OF_RETRIES)));
+        if (serviceProperties.getProperty("incoming-dir") != null)
+        {
+            incomingDirectory = new File(serviceProperties.getProperty("incoming-dir"));
+        }
+        if (serviceProperties.getProperty("buffer-dir") != null)
+        {
+            bufferDirectory = new File(serviceProperties.getProperty("buffer-dir"));
+        }
+        if (serviceProperties.getProperty("outgoing-dir") != null)
+        {
+            outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir"));
+        }
+        outgoingHost = serviceProperties.getProperty("outgoing-host");
+        if (serviceProperties.getProperty("cleansing-regex") != null)
+        {
+            cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
+        }
+    }
+
+    /**
+     * Returns the service property.
+     * 
+     * @throws ConfigurationFailureException If an exception occurs when loading the service properties.
+     */
+    private Properties loadServiceProperties()
+    {
+        final Properties properties = new Properties();
+        try
+        {
+            final InputStream is = new FileInputStream(SERVICE_PROPERTIES_FILE);
+            try
+            {
+                properties.load(is);
+                return properties;
+            } finally
+            {
+                IOUtils.closeQuietly(is);
+            }
+        } catch (Exception ex)
+        {
+            final String msg = "Could not load the service properties from resource '" + SERVICE_PROPERTIES_FILE + "'.";
+            operationLog.warn(msg, ex);
+            throw new ConfigurationFailureException(msg, ex);
         }
     }
 
@@ -275,37 +392,37 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The (local) directory to monitor for new files and directories to move to the remote side.
+     * @return The (local) directory to monitor for new files and directories to move to outgoing.
      */
-    public File getLocalDataDirectory()
+    public File getIncomingDirectory()
     {
-        return localDataDirectory;
+        return incomingDirectory;
     }
 
     /**
      * @return The directory to move files and directories to that have been quiet in the local data directory for long
      *         enough and thus are considered to be ready to be moved to remote. Note that this directory needs to be on
-     *         the same file system than {@link #getLocalDataDirectory}.
+     *         the same file system than {@link #getIncomingDirectory}.
      */
-    public File getLocalTemporaryDirectory()
+    public File getBufferDirectory()
     {
-        return localTemporaryDirectory;
+        return bufferDirectory;
     }
 
     /**
      * @return The directory on the remote side to move the local files to once they are quiet.
      */
-    public File getRemoteDataDirectory()
+    public File getOutgoingDirectory()
     {
-        return remoteDataDirectory;
+        return outgoingDirectory;
     }
 
     /**
      * @return The remote host to copy the data to (only with rsync, will use an ssh tunnel).
      */
-    public String getRemoteHost()
+    public String getOutgoingHost()
     {
-        return remoteHost;
+        return outgoingHost;
     }
 
     /**
@@ -324,13 +441,13 @@ public class Parameters implements ITimingParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Local data directory: '%s'.", getLocalDataDirectory().getAbsolutePath()));
-            operationLog.info(String.format("Local temporary directory: '%s'.", getLocalTemporaryDirectory()
-                    .getAbsolutePath()));
-            operationLog.info(String.format("Remote directory: '%s'.", getRemoteDataDirectory().getAbsolutePath()));
-            if (null != getRemoteHost())
+            operationLog.info(String.format("Local data directory: '%s'.", getIncomingDirectory().getAbsolutePath()));
+            operationLog
+                    .info(String.format("Local temporary directory: '%s'.", getBufferDirectory().getAbsolutePath()));
+            operationLog.info(String.format("Remote directory: '%s'.", getOutgoingDirectory().getAbsolutePath()));
+            if (null != getOutgoingHost())
             {
-                operationLog.info(String.format("Remote host: '%s'.", getRemoteHost()));
+                operationLog.info(String.format("Remote host: '%s'.", getOutgoingHost()));
             }
             operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));
