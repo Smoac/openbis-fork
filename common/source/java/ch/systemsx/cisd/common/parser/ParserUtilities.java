@@ -28,13 +28,18 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Utilities for parsing files.
- *
+ * 
  * @author Bernd Rinn
  */
-public class ParserUtilities
+public final class ParserUtilities
 {
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, ParserUtilities.class);
+
+    private ParserUtilities()
+    {
+        // Can not be instantiated.
+    }
 
     /**
      * A small object that represents a line in a <code>File</code> context.
@@ -44,9 +49,9 @@ public class ParserUtilities
     public final static class Line
     {
         public final String text;
-    
+
         public final int number;
-    
+
         Line(final int number, final String text)
         {
             this.number = number;
@@ -60,13 +65,16 @@ public class ParserUtilities
      * You should not call this method if given <var>file</var> does not exist.
      * </p>
      * 
+     * @param lineFilter could be <code>null</code>. In this case, the {@link AlwaysAcceptLineFilter} implementation
+     *            will be used.
+     * @param file the file that is going to be analyzed. Can not be <code>null</code> and must exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    // TODO 2007-07-24, Bernd Rinn: needs a unit test
-    public final static Line getFirstAcceptedLine(File file, ILineFilter lineFilter)
+    public final static Line getFirstAcceptedLine(final File file, final ILineFilter lineFilter)
     {
-        assert file.exists();
-    
+        assert file != null && file.exists();
+        final ILineFilter filter = lineFilter == null ? AlwaysAcceptLineFilter.INSTANCE : lineFilter;
+
         LineIterator lineIterator = null;
         try
         {
@@ -74,11 +82,11 @@ public class ParserUtilities
             for (int line = 0; lineIterator.hasNext(); line++)
             {
                 String nextLine = lineIterator.nextLine();
-                if (lineFilter.acceptLine(nextLine, line))
+                if (filter.acceptLine(nextLine, line))
                 {
                     return new Line(line, nextLine);
                 }
-    
+
             }
         } catch (IOException ex)
         {
