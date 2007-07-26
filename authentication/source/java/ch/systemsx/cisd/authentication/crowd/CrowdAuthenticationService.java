@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-
 /**
  * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i>
  * server, then authenticates the user.
@@ -274,7 +273,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
      */
-    private final static Map<CrowdSoapElements.SOAPAttribute, String> parseXmlResponse(String xmlResponse)
+    private final static Map<SOAPAttribute, String> parseXmlResponse(String xmlResponse)
             throws SAXException, IOException
     {
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
@@ -288,20 +287,20 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
     private final static Principal createPrincipal(String user,
-            Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes)
+            Map<SOAPAttribute, String> soapAttributes)
     {
-        String firstName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.givenName);
-        String lastName = soapAttributes.get(CrowdSoapElements.SOAPAttribute.sn);
-        String email = soapAttributes.get(CrowdSoapElements.SOAPAttribute.mail);
+        String firstName = soapAttributes.get(SOAPAttribute.givenName);
+        String lastName = soapAttributes.get(SOAPAttribute.sn);
+        String email = soapAttributes.get(SOAPAttribute.mail);
         Principal principal = new Principal(user, firstName, lastName, email);
-        principal.setProperty(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts.name(), Integer
-                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.invalidPasswordAttempts)));
-        principal.setProperty(CrowdSoapElements.SOAPAttribute.requiresPasswordChange.name(), Boolean
-                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.requiresPasswordChange)));
-        principal.setProperty(CrowdSoapElements.SOAPAttribute.lastAuthenticated.name(), new Date(Long
-                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.lastAuthenticated))));
-        principal.setProperty(CrowdSoapElements.SOAPAttribute.passwordLastChanged.name(), new Date(Long
-                .valueOf(soapAttributes.get(CrowdSoapElements.SOAPAttribute.passwordLastChanged))));
+        principal.setProperty(SOAPAttribute.invalidPasswordAttempts.name(), Integer
+                .valueOf(soapAttributes.get(SOAPAttribute.invalidPasswordAttempts)));
+        principal.setProperty(SOAPAttribute.requiresPasswordChange.name(), Boolean
+                .valueOf(soapAttributes.get(SOAPAttribute.requiresPasswordChange)));
+        principal.setProperty(SOAPAttribute.lastAuthenticated.name(), new Date(Long
+                .valueOf(soapAttributes.get(SOAPAttribute.lastAuthenticated))));
+        principal.setProperty(SOAPAttribute.passwordLastChanged.name(), new Date(Long
+                .valueOf(soapAttributes.get(SOAPAttribute.passwordLastChanged))));
         return principal;
     }
 
