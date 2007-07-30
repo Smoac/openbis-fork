@@ -328,9 +328,9 @@ public class Parameters implements ITimingParameters
         {
             cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
         }
-        if (serviceProperties.getProperty("ignoring-regex") != null)
+        if (serviceProperties.getProperty("manual-intervention-regex") != null)
         {
-            cleansingRegex = Pattern.compile(serviceProperties.getProperty("ignoring-regex"));
+            manualInterventionRegex = Pattern.compile(serviceProperties.getProperty("manual-intervention-regex"));
         }
     }
 
