@@ -62,17 +62,21 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
         try
         {
             getJdbcTemplate().execute("create user " + owner);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Created role '" + owner + "'.");
+            }
         } catch (DataAccessException ex)
         {
             if (DBUtilities.ownerAlreadyExists(ex))
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Owner '" + owner + "' already exists.");
+                    operationLog.info("Role '" + owner + "' already exists.");
                 }
             } else
             {
-                operationLog.error("Database owner couldn't be created:", ex);
+                operationLog.error("Database role '" + owner + "' couldn't be created:", ex);
                 throw ex;
             }
         }
