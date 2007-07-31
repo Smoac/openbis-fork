@@ -71,7 +71,7 @@ public class DatabaseConfigurationContext
 
     public DatabaseConfigurationContext()
     {
-        owner = System.getProperty("user.name");
+        owner = System.getProperty("user.name").toLowerCase();
     }
 
     /**
