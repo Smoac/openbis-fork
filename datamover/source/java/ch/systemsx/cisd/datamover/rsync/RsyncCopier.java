@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.rsync;
 
+import static ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.getVersion;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +39,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.IPathCopier;
-
-import static ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.*;
+import ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.RsyncVersion;
 
 /**
  * A class that encapsulates the <code>rsync</code> call for doing an archive copy.
@@ -78,6 +79,8 @@ public class RsyncCopier implements IPathCopier
 
     private final String sshExecutable;
 
+    private final List<String> additionalCmdLineFlags;
+    
     /**
      * If <code>true</code>, the file system of the destination directory requires that already existing files and
      * directories on the remote side are removed before the copy process is started.
@@ -101,7 +104,7 @@ public class RsyncCopier implements IPathCopier
      *            paths).
      */
     public RsyncCopier(File rsyncExecutable, File sshExecutable,
-            boolean destinationDirectoryRequiresDeletionBeforeCreation)
+            boolean destinationDirectoryRequiresDeletionBeforeCreation, String... cmdLineFlags)
     {
         assert rsyncExecutable != null && rsyncExecutable.exists();
         assert sshExecutable == null || rsyncExecutable.exists();
@@ -110,6 +113,13 @@ public class RsyncCopier implements IPathCopier
         this.sshExecutable = (sshExecutable != null) ? sshExecutable.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation = destinationDirectoryRequiresDeletionBeforeCreation;
         this.copyProcessReference = new AtomicReference<Process>(null);
+        if (cmdLineFlags.length > 0)
+        {
+            this.additionalCmdLineFlags = Arrays.asList(cmdLineFlags);
+        } else
+        {
+            this.additionalCmdLineFlags = null;
+        }
     }
 
     public Status copy(File sourcePath, File destinationDirectory)
@@ -133,8 +143,6 @@ public class RsyncCopier implements IPathCopier
                         "Remove path '%s' since it exists and the remote file system doesn't support overwriting.",
                         destinationPath));
             }
-            // Remove it now, otherwise the Cellera NAS server will not allow xcopy to perform.
-            // Error message from xcopy: "File creation error - A required privilege is not held by the client."
             FileUtilities.deleteRecursively(destinationPath);
         }
         try
@@ -181,6 +189,7 @@ public class RsyncCopier implements IPathCopier
             commandLineList.add("--rsh");
             commandLineList.add(getSshExecutableArgument(sshExecutable));
         }
+        commandLineList.addAll(additionalCmdLineFlags);
         commandLineList.add(toUnix(sourcePath.getAbsolutePath()));
         commandLineList.add(createDestination(destinationHost, destinationDirectory));
         
