@@ -88,7 +88,7 @@ public class ParametersTest
     {
         final String LOCAL_DATADIR = ".." + File.separator + "test_it_data";
         final Parameters parameters = parse("--incoming-dir", LOCAL_DATADIR);
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingDirectory().getPath());
+        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ParametersTest
     {
         final String LOCAL_TEMPDIR = "test_it_tmp";
         final Parameters parameters = parse("--buffer-dir", LOCAL_TEMPDIR);
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectory().getPath());
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ParametersTest
     {
         final String REMOTE_DATADIR = "test_it_remote";
         final Parameters parameters = parse("--outgoing-dir", REMOTE_DATADIR);
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingDirectory().getPath());
+        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ParametersTest
     {
         final String REMOTE_HOST = "test_it_remote";
         final Parameters parameters = parse("--outgoing-host", REMOTE_HOST);
-        assertEquals(REMOTE_HOST, parameters.getOutgoingHost());
+        assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
     }
 
     @Test
@@ -204,9 +204,9 @@ public class ParametersTest
         final String REMOTE_DATADIR = "rrr";
         final Parameters parameters =
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR);
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingDirectory().getPath());
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectory().getPath());
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingDirectory().getPath());
+        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
+        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
     }
 
     @Test
@@ -222,10 +222,10 @@ public class ParametersTest
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR,
                         "--outgoing-host", REMOTE_HOST, "--check-interval", Integer.toString(CHECK_INTERVAL),
                         "--quiet-period", Integer.toString(QUIET_PERIOD));
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingDirectory().getPath());
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectory().getPath());
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingDirectory().getPath());
-        assertEquals(REMOTE_HOST, parameters.getOutgoingHost());
+        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
+        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
+        assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
     }

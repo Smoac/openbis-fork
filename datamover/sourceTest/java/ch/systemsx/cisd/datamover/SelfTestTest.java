@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
  * Test cases for the {@link SelfTest}.
@@ -40,11 +39,19 @@ public class SelfTestTest
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "SelfTestTest");
 
-    private static final File localDataDirectory = new File(workingDirectory, "local/data");
+    private static final File incomingDirectory = new File(workingDirectory, "local/incoming");
 
-    private static final File localTemporaryDirectory = new File(workingDirectory, "local/temp");
+    private static final FileStore incomingStore = new FileStore(incomingDirectory, "incoming", null, false);
 
-    private static final File remoteDataDirectory = new File(workingDirectory, "remote");
+    private static final File bufferDirectory = new File(workingDirectory, "local/buffer");
+
+    private static final FileStore bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
+
+    private static final File outgoingDirectory = new File(workingDirectory, "outgoing");
+
+    private static final FileStore outgoingStore = new FileStore(outgoingDirectory, "outgoing", null, false);
+    
+    private static final FileStore dummyStore = new FileStore(null, "dummy", null, false);
 
     private static final IPathCopier mockCopier = new MockPathCopier(false, false);
 
@@ -65,13 +72,13 @@ public class SelfTestTest
     {
         FileUtilities.deleteRecursively(workingDirectory);
         assert workingDirectory.mkdirs();
-        assert localDataDirectory.mkdirs();
-        assert localTemporaryDirectory.mkdirs();
-        assert remoteDataDirectory.mkdirs();
+        assert incomingDirectory.mkdirs();
+        assert bufferDirectory.mkdirs();
+        assert outgoingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
-        localDataDirectory.deleteOnExit();
-        localTemporaryDirectory.deleteOnExit();
-        remoteDataDirectory.deleteOnExit();
+        incomingDirectory.deleteOnExit();
+        bufferDirectory.deleteOnExit();
+        outgoingDirectory.deleteOnExit();
     }
 
     // ////////////////////////////////////////
@@ -133,23 +140,6 @@ public class SelfTestTest
 
     }
 
-    private static class MockSelfTestable implements ISelfTestable
-    {
-
-        private boolean checkCalled = false;
-
-        public void check()
-        {
-            checkCalled = true;
-        }
-
-        public boolean isCheckCalled()
-        {
-            return checkCalled;
-        }
-
-    }
-
     // ////////////////////////////////////////
     // Test cases.
     //
@@ -157,88 +147,57 @@ public class SelfTestTest
     @Test
     public void testHappyCaseWithRemoteShare()
     {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier);
+        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStore, dummyStore);
     }
 
     @Test
     public void testHappyCaseWithRemoteHost()
     {
-        final String remoteHost = "some_remote_host";
+        final String outgoingHost = "some_remote_host";
+        final FileStore remoteHostOutgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
         final MockPathCopier myMockCopier = new MockPathCopier(true, true);
-        SelfTest
-                .check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, myMockCopier);
-        assert remoteHost.equals(myMockCopier.destinationHostQueried);
-        assert remoteDataDirectory.equals(myMockCopier.destinationDirectoryQueried);
-    }
-
-    @Test
-    public void testSelfTestableCalled()
-    {
-        final MockSelfTestable selfTestable = new MockSelfTestable();
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier,
-                selfTestable);
-        assert selfTestable.isCheckCalled();
-    }
-
-    private static class FailingSelfTestException extends RuntimeException
-    {
-
-        private static final long serialVersionUID = 1L;
-
-    }
-
-    private static class FailingSelfTestable implements ISelfTestable
-    {
-
-        public void check()
-        {
-            throw new FailingSelfTestException();
-        }
-
-    }
-
-    @Test(expectedExceptions = FailingSelfTestException.class)
-    public void testFailingSelfTestablePassedOn()
-    {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, mockCopier,
-                new FailingSelfTestable());
+        SelfTest.check(myMockCopier, incomingStore, bufferStore, remoteHostOutgoingStore, dummyStore);
+        assert outgoingHost.equals(myMockCopier.destinationHostQueried);
+        assert outgoingDirectory.equals(myMockCopier.destinationDirectoryQueried);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testEqualPaths()
     {
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, localDataDirectory, null, null, mockCopier);
+        SelfTest.check(mockCopier, incomingStore, bufferStore, incomingStore);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testContainingPaths()
     {
-        final File illegalTemporaryDirectory = new File(localDataDirectory, "temp");
-        SelfTest.check(localDataDirectory, illegalTemporaryDirectory, remoteDataDirectory, null, null, mockCopier);
+        final File illegalBufferDirectory = new File(incomingDirectory, "temp");
+        final FileStore illegalBufferStore = new FileStore(illegalBufferDirectory, "buffer", null, false);
+        SelfTest.check(mockCopier, incomingStore, illegalBufferStore, outgoingStore);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testNonExistentPaths()
     {
-        final File nonExistentLocalDataDirectory = new File(workingDirectory, "data");
-        SelfTest.check(nonExistentLocalDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null,
-                mockCopier);
+        final File nonExistentIncomingDirectory = new File(workingDirectory, "data");
+        final FileStore nonExistentIncomingStore = new FileStore(nonExistentIncomingDirectory, "incoming", null, false);
+        SelfTest.check(mockCopier, nonExistentIncomingStore, bufferStore, outgoingStore);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testRemoteHostNotSupported()
     {
         final String remoteHost = "some_remote_host";
-        SelfTest.check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, mockCopier);
+        final FileStore outgoingStoreWithRemoteHost = new FileStore(outgoingDirectory, "outgoing", remoteHost, true);
+        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testRemoteHostAndDirectoryDoesNotExist()
     {
         final String remoteHost = "some_remote_host";
+        final FileStore outgoingStoreWithRemoteHost = new FileStore(outgoingDirectory, "outgoing", remoteHost, true);
         final MockPathCopier myMockCopier = new MockPathCopier(true, false);
-        SelfTest
-                .check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, remoteHost, myMockCopier);
+        SelfTest.check(myMockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
     }
 
 }
