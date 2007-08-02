@@ -142,18 +142,13 @@ public class Main
      */
     private static IPathCopier getPathCopier(final Parameters parameters)
     {
-        final File incomingDirectory = parameters.getIncomingDirectory();
-        final File bufferDirectory = parameters.getBufferDirectory();
-        final File outgoingDirectory = parameters.getOutgoingDirectory();
-        final File manualInterventionDirectory = parameters.getManualInterventionDirectory();
-        final String outgoingHost = parameters.getOutgoingHost();
         IPathCopier copyProcess = null; // Convince Eclipse compiler that the variable has been initialized.
 
         try
         {
             copyProcess = suggestPathCopier(parameters, false); // This is part of the self-test.
-            SelfTest.check(incomingDirectory, bufferDirectory, outgoingDirectory, manualInterventionDirectory,
-                    outgoingHost, copyProcess);
+            SelfTest.check(copyProcess, parameters.getIncomingStore(), parameters.getBufferStore(), parameters
+                    .getOutgoingStore(), parameters.getManualInterventionStore());
         } catch (HighLevelException e)
         {
             System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
@@ -164,7 +159,8 @@ public class Main
             e.printStackTrace();
             System.exit(1);
         }
-        if (SelfTest.requiresDeletionBeforeCreation(copyProcess, bufferDirectory, outgoingDirectory))
+        if (SelfTest.requiresDeletionBeforeCreation(copyProcess, parameters.getBufferStore().getPath(), parameters
+                .getOutgoingStore().getPath()))
         {
             copyProcess = suggestPathCopier(parameters, true);
         }
@@ -173,8 +169,8 @@ public class Main
 
     private static void startupIncomingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
     {
-        final File incomingDirectory = parameters.getIncomingDirectory();
-        final File bufferDirectory = parameters.getBufferDirectory();
+        final File incomingDirectory = parameters.getIncomingStore().getPath();
+        final File bufferDirectory = parameters.getBufferStore().getPath();
         final File manualInterventionDirectory = parameters.getManualInterventionDirectory();
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
         if (parameters.getCleansingRegex() != null)
@@ -200,9 +196,9 @@ public class Main
 
     private static void startupOutgoingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
     {
-        final File bufferDirectory = parameters.getBufferDirectory();
-        final File outgoingDirectory = parameters.getOutgoingDirectory();
-        final String outgoingHost = parameters.getOutgoingHost();
+        final File bufferDirectory = parameters.getBufferStore().getPath();
+        final File outgoingDirectory = parameters.getOutgoingStore().getPath();
+        final String outgoingHost = parameters.getOutgoingStore().getHost();
         final CopyActivityMonitor monitor =
                 new CopyActivityMonitor(outgoingDirectory, operations, operations.getCopier(), parameters);
         final IPathHandler remoteMover =

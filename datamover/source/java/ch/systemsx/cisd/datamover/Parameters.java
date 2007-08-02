@@ -175,7 +175,27 @@ public class Parameters implements ITimingParameters
     private Pattern cleansingRegex = null;
 
     /**
-     * The regular expression to use for deciding whether a path in the incoming directory needs manual intervetion.
+     * The store where the files come in.
+     */
+    private final FileStore incomingStore;
+    
+    /**
+     * The store to buffer the files before copying to outgoing.
+     */
+    private final FileStore bufferStore;
+    
+    /**
+     * The store to copy the files to.
+     */
+    private final FileStore outgoingStore;
+    
+    /**
+     * The store to copy files to that need manual intervention.
+     */
+    private final FileStore manualInterventionStore;
+    
+    /**
+     * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
      */
     @Option(longName = "manual-intervention-regex", usage = "The regular expression to use for deciding whether an "
             + "incoming paths needs manual intervention. ")
@@ -263,6 +283,10 @@ public class Parameters implements ITimingParameters
                 throw new ConfigurationFailureException(
                         "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
             }
+            incomingStore = new FileStore(incomingDirectory, "incoming", null, false);
+            bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
+            manualInterventionStore = new FileStore(manualInterventionDirectory, "manual intervention", null, false);
+            outgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
         } catch (Exception ex)
         {
             outputException(ex);
@@ -421,27 +445,35 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The (local) directory to monitor for new files and directories to move to outgoing.
+     * @return The store to monitor for new files and directories to move to the buffer.
      */
-    public File getIncomingDirectory()
+    public FileStore getIncomingStore()
     {
-        return incomingDirectory;
+        return incomingStore;
     }
 
     /**
-     * @return The directory to move files and directories to that have been quiet in the local data directory for long
+     * @return The store to move files and directories to that have been quiet in the incoming directory for long
      *         enough and thus are considered to be ready to be moved to remote. Note that this directory needs to be on
-     *         the same file system than {@link #getIncomingDirectory}.
+     *         the same file system as {@link #getIncomingStore}.
      */
-    public File getBufferDirectory()
+    public FileStore getBufferStore()
     {
-        return bufferDirectory;
+        return bufferStore;
+    }
+
+    /**
+     * @return The store to copy the data to.
+     */
+    public FileStore getOutgoingStore()
+    {
+        return outgoingStore;
     }
 
     /**
      * @return The directory to move files and directories to that have been quiet in the local data directory for long
      *         enough and that need manual intervention. Note that this directory needs to be on the same file system
-     *         than {@link #getIncomingDirectory}.
+     *         as {@link #getIncomingStore}.
      */
     public File getManualInterventionDirectory()
     {
@@ -449,19 +481,13 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The directory on the remote side to move the local files to once they are quiet.
+     * @return The store to move files and directories to that have been quiet in the local data directory for long
+     *         enough and that need manual intervention. Note that this directory needs to be on the same file system
+     *         as {@link #getIncomingStore}.
      */
-    public File getOutgoingDirectory()
+    public FileStore getManualInterventionStore()
     {
-        return outgoingDirectory;
-    }
-
-    /**
-     * @return The remote host to copy the data to (only with rsync, will use an ssh tunnel).
-     */
-    public String getOutgoingHost()
-    {
-        return outgoingHost;
+        return manualInterventionStore;
     }
 
     /**
@@ -490,17 +516,17 @@ public class Parameters implements ITimingParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Incoming directory: '%s'.", getIncomingDirectory().getAbsolutePath()));
-            operationLog.info(String.format("Buffer directory: '%s'.", getBufferDirectory().getAbsolutePath()));
-            operationLog.info(String.format("Outgoing directory: '%s'.", getOutgoingDirectory().getAbsolutePath()));
-            if (null != getOutgoingHost())
+            operationLog.info(String.format("Incoming directory: '%s'.", incomingDirectory.getAbsolutePath()));
+            operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory.getAbsolutePath()));
+            operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory.getAbsolutePath()));
+            if (null != outgoingHost)
             {
-                operationLog.info(String.format("Outgoing host: '%s'.", getOutgoingHost()));
+                operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
             }
             if (null != getManualInterventionDirectory())
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.",
-                        getManualInterventionDirectory().getAbsolutePath()));
+                        manualInterventionDirectory.getAbsolutePath()));
             }
             operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));

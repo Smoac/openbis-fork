@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
  * A class that can perform a self test of the data mover.
@@ -43,130 +43,81 @@ public class SelfTest
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
-    private static final String LOCAL_DATA_AND_TEMP_DIR_CONTAIN_EACHOTHER_TEMPLATE =
-            "The local data directory '%s' and the local temporary directory '%s' contain each other.";
-
-    private static final String LOCAL_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE =
-            "The local data directory '%s' and the remote data directory '%s' contain each other.";
-
-    private static final String LOCAL_TEMP_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE =
-            "The local temporary directory '%s' and the remote data directory '%s' contain each other.";
-
     static
     {
         LogInitializer.init();
     }
 
-    private static void checkDirectories(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory, File manualInterventionDirectory, String remoteHost, IPathCopier copier)
-            throws ConfigurationFailureException
+    private static void checkPathRecords(FileStore[] pathRecords, IPathCopier copier)
     {
-        assert localDataDirectory != null;
-        assert localTemporaryDirectory != null;
-        assert remoteDataDirectory != null;
-        assert copier != null;
+        assert pathRecords != null;
 
-        if (null == remoteHost)
+        checkPathRecordsContainEachOther(pathRecords);
+        for (FileStore pathRecord : pathRecords)
         {
-            checkDirectoriesWithRemoteShare(localDataDirectory, localTemporaryDirectory, remoteDataDirectory);
-        } else
-        {
-            checkDirectoriesWithRemoteHost(localDataDirectory, localTemporaryDirectory, remoteDataDirectory,
-                    remoteHost, copier);
-        }
-        if (manualInterventionDirectory != null)
-        {
-            String errorMessage =
-                    FileUtilities.checkDirectoryFullyAccessible(manualInterventionDirectory, "manual intervention");
-            if (errorMessage != null)
+            if (pathRecord.getPath() == null)
             {
-                throw new ConfigurationFailureException(errorMessage);
+                continue;
+            }
+            if (pathRecord.getHost() == null)
+            {
+                checkDirectoryOnLocalHost(pathRecord);
+            } else
+            {
+                checkDirectoryOnRemoteHost(pathRecord, copier);
             }
         }
     }
 
-    private static void checkDirectoriesWithRemoteHost(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory, String remoteHost, IPathCopier copier) throws ConfigurationFailureException
+    private static void checkPathRecordsContainEachOther(FileStore[] store) throws ConfigurationFailureException
     {
-        checkLocalDirectories(localDataDirectory, localTemporaryDirectory);
-        checkDirectoryOnRemoteHost(remoteDataDirectory, remoteHost, copier);
+        for (int i = 1; i < store.length; ++i)
+        {
+            for (int j = 0; j < i; ++j)
+            {
+                if (StringUtils.equals(store[i].getHost(), store[j].getHost())
+                        && containOneAnother(store[i].getCanonicalPath(), store[j].getCanonicalPath()))
+                {
+                    throw ConfigurationFailureException.fromTemplate("Directory '%s' and '%s' contain each other",
+                            store[i].getCanonicalPath(), store[j].getCanonicalPath());
+                }
+            }
+        }
     }
 
-    private static void checkLocalDirectories(File localDataDirectory, File localTemporaryDirectory)
+    private static void checkDirectoryOnRemoteHost(FileStore pathRecord, IPathCopier copier)
             throws ConfigurationFailureException
     {
-        final String localDataCanonicalPath = getCanonicalPath(localDataDirectory);
-        final String localTempCanonicalPath = getCanonicalPath(localTemporaryDirectory);
+        if (false == copier.exists(pathRecord.getPath(), pathRecord.getHost()))
 
-        if (localDataCanonicalPath.startsWith(localTempCanonicalPath)
-                || localTempCanonicalPath.startsWith(localDataCanonicalPath))
         {
-            throw new ConfigurationFailureException(String.format(LOCAL_DATA_AND_TEMP_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localDataCanonicalPath, localTempCanonicalPath));
-        }
-
-        String errorMessage = FileUtilities.checkDirectoryFullyAccessible(localDataDirectory, "local data");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
-        }
-        errorMessage = FileUtilities.checkDirectoryFullyAccessible(localTemporaryDirectory, "local temporary");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
+            throw ConfigurationFailureException.fromTemplate("Cannot access %s directory '%s' on host '%s'", pathRecord
+                    .getKind(), pathRecord.getCanonicalPath(), pathRecord.getHost());
         }
     }
 
-    private static void checkDirectoryOnRemoteHost(File remoteDataDirectory, String remoteHost, IPathCopier copier)
-            throws ConfigurationFailureException
+    private static void checkDirectoryOnLocalHost(FileStore pathRecord)
     {
-        if (false == copier.exists(remoteDataDirectory, remoteHost))
+        String errorMessage = FileUtilities.checkDirectoryFullyAccessible(pathRecord.getPath(), pathRecord.getKind());
+        if (errorMessage != null)
         {
-            throw ConfigurationFailureException.fromTemplate("Cannot access directory '%s' on host '%s'",
-                    remoteDataDirectory.getPath(), remoteHost);
+            throw new ConfigurationFailureException(errorMessage);
         }
+
     }
 
-    private static void checkDirectoriesWithRemoteShare(File localDataDirectory, File localTemporaryDirectory,
-            File remoteDataDirectory) throws ConfigurationFailureException
+    private static boolean containOneAnother(String directory1, String directory2)
     {
-        final String localDataCanonicalPath = getCanonicalPath(localDataDirectory);
-        final String localTempCanonicalPath = getCanonicalPath(localTemporaryDirectory);
-        final String remoteDataCanonicalPath = getCanonicalPath(remoteDataDirectory);
-
-        if (localDataCanonicalPath.startsWith(localTempCanonicalPath)
-                || localTempCanonicalPath.startsWith(localDataCanonicalPath))
+        if (directory1 == null || directory2 == null)
         {
-            throw ConfigurationFailureException.fromTemplate(LOCAL_DATA_AND_TEMP_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localDataCanonicalPath, localTempCanonicalPath);
+            return false;
         }
-        if (localDataCanonicalPath.startsWith(remoteDataCanonicalPath)
-                || remoteDataCanonicalPath.startsWith(localDataCanonicalPath))
+        if (directory1.length() < directory2.length())
         {
-            throw ConfigurationFailureException.fromTemplate(LOCAL_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localDataCanonicalPath, remoteDataCanonicalPath);
-        }
-        if (localTempCanonicalPath.startsWith(remoteDataCanonicalPath)
-                || remoteDataCanonicalPath.startsWith(localTempCanonicalPath))
+            return directory2.startsWith(directory1);
+        } else
         {
-            throw ConfigurationFailureException.fromTemplate(LOCAL_TEMP_AND_REMOTE_DATA_DIR_CONTAIN_EACHOTHER_TEMPLATE,
-                    localTempCanonicalPath, remoteDataCanonicalPath);
-        }
-
-        String errorMessage = FileUtilities.checkDirectoryFullyAccessible(localDataDirectory, "local data");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
-        }
-        errorMessage = FileUtilities.checkDirectoryFullyAccessible(localTemporaryDirectory, "local temporary");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
-        }
-        errorMessage = FileUtilities.checkDirectoryFullyAccessible(remoteDataDirectory, "remote");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
+            return directory1.startsWith(directory2);
         }
     }
 
@@ -175,26 +126,26 @@ public class SelfTest
      * considered "past", otherwise the exception will have more information on what went wrong. This method performs
      * failure logging of {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
-    public static void check(File localDataDirectory, File localTemporaryDirectory, File remoteDataDirectory,
-            File manualInterventionDirectory, String remoteHost, IPathCopier copier, ISelfTestable... selfTestables)
-            throws ConfigurationFailureException, EnvironmentFailureException
+    public static void check(IPathCopier copier, FileStore... stores)
     {
         try
         {
-            if (null != remoteHost && false == copier.supportsExplicitHost())
+            if (false == copier.supportsExplicitHost())
             {
-                throw ConfigurationFailureException.fromTemplate(
-                        "Copier %s does not support explicit remote hosts, but remote host given:%s", copier.getClass()
-                                .getSimpleName(), remoteHost);
+                for (FileStore store : stores)
+                {
+                    if (null != store.getHost())
+                    {
+                        throw ConfigurationFailureException
+                                .fromTemplate(
+                                        "Copier %s does not support explicit remote hosts, but %s store is on a remote host (%s)",
+                                        copier.getClass().getSimpleName(), store.getKind(), store.getHost());
+                    }
+                }
             }
-            checkDirectories(localDataDirectory, localTemporaryDirectory, remoteDataDirectory,
-                    manualInterventionDirectory, remoteHost, copier);
             copier.check();
+            checkPathRecords(stores, copier);
 
-            for (ISelfTestable selfTestable : selfTestables)
-            {
-                selfTestable.check();
-            }
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Self test successfully completed.");
@@ -209,18 +160,6 @@ public class SelfTest
             operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e
                     .getMessage()), e);
             throw e;
-        }
-    }
-
-    private static String getCanonicalPath(File path)
-    {
-        try
-        {
-            return path.getCanonicalPath() + File.separator;
-        } catch (IOException e)
-        {
-            throw EnvironmentFailureException.fromTemplate(e, "Cannot determine canonical form of path '%s'", path
-                    .getPath());
         }
     }
 
@@ -276,57 +215,4 @@ public class SelfTest
         }
     }
 
-    public static void main(String[] args)
-    {
-        if (args.length == 3)
-        {
-            final File localDataDirectory = new File(args[0]);
-            final File localTemporaryDirectory = new File(args[1]);
-            final File remoteDataDirectory = new File(args[2]);
-            try
-            {
-                check(localDataDirectory, localTemporaryDirectory, remoteDataDirectory, null, null, new IPathCopier()
-                    {
-                        public Status copy(File sourcePath, File destinationDirectory)
-                        {
-                            return null;
-                        }
-
-                        public Status copy(File sourcePath, File destinationDirectory, String destinationHost)
-                        {
-                            return null;
-                        }
-
-                        public boolean exists(File destinationDirectory, String destinationHost)
-                        {
-                            return false;
-                        }
-
-                        public boolean supportsExplicitHost()
-                        {
-                            return false;
-                        }
-
-                        public boolean terminate()
-                        {
-                            return false;
-                        }
-
-                        public void check()
-                        {
-                        }
-                    });
-                System.err.println("Self test passed.");
-            } catch (Exception e)
-            {
-                System.err.println("Self test failed:");
-                e.printStackTrace();
-                System.exit(1);
-            }
-        } else
-        {
-            System.err.println("Syntax: SelfTest <localDataDir> <localTempDir> <remoteDataDir>");
-            System.exit(2);
-        }
-    }
 }
