@@ -189,7 +189,10 @@ public class RsyncCopier implements IPathCopier
             commandLineList.add("--rsh");
             commandLineList.add(getSshExecutableArgument(sshExecutable));
         }
-        commandLineList.addAll(additionalCmdLineFlags);
+        if (additionalCmdLineFlags != null)
+        {
+            commandLineList.addAll(additionalCmdLineFlags);
+        }
         commandLineList.add(toUnix(sourcePath.getAbsolutePath()));
         commandLineList.add(createDestination(destinationHost, destinationDirectory));
         
