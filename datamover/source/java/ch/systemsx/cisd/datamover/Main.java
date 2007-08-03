@@ -18,24 +18,16 @@ package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.utilities.IntraFSPathMover;
-import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.xcopy.XcopyCopier;
 
@@ -167,58 +159,6 @@ public class Main
         return copyProcess;
     }
 
-    private static void startupIncomingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
-    {
-        final File incomingDirectory = parameters.getIncomingStore().getPath();
-        final File bufferDirectory = parameters.getBufferStore().getPath();
-        final File manualInterventionDirectory = parameters.getManualInterventionDirectory();
-        final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        if (parameters.getCleansingRegex() != null)
-        {
-            cleansingFilter.add(PathType.FILE, parameters.getCleansingRegex());
-        }
-        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        if (parameters.getManualInterventionRegex() != null)
-        {
-            manualInterventionFilter.add(PathType.ALL, parameters.getManualInterventionRegex());
-        }
-        final IPathHandler localPathMover =
-                new GatePathHandlerDecorator(manualInterventionFilter, new CleansingPathHandlerDecorator(
-                        cleansingFilter, new IntraFSPathMover(bufferDirectory)), new IntraFSPathMover(
-                        manualInterventionDirectory));
-        final DirectoryScanningTimerTask localMovingTask =
-                new DirectoryScanningTimerTask(incomingDirectory, new QuietPeriodFileFilter(parameters, operations),
-                        localPathMover);
-        final Timer localMovingTimer = new Timer("Local Mover");
-        localMovingTimer.schedule(localMovingTask, 0, parameters.getCheckIntervalMillis());
-
-    }
-
-    private static void startupOutgoingMovingProcess(final Parameters parameters, final IFileSystemOperations operations)
-    {
-        final File bufferDirectory = parameters.getBufferStore().getPath();
-        final File outgoingDirectory = parameters.getOutgoingStore().getPath();
-        final String outgoingHost = parameters.getOutgoingStore().getHost();
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(outgoingDirectory, operations, operations.getCopier(), parameters);
-        final IPathHandler remoteMover =
-                new RemotePathMover(outgoingDirectory, outgoingHost, monitor, operations, parameters);
-        final DirectoryScanningTimerTask remoteMovingTask =
-                new DirectoryScanningTimerTask(bufferDirectory, new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX,
-                        false), remoteMover);
-        final Timer remoteMovingTimer = new Timer("Remote Mover");
-
-        // Implementation notes:
-        // 1. The startup of the remote moving task is delayed for half the time of the check interval. Thus the local
-        // moving task should have enough time to finish its job.
-        // 2. The remote moving task is scheduled at fixed rate. The rationale behind this is that if new items are
-        // added
-        // to the local temp directory while the remote timer task has been running for a long time, busy moving data to
-        // remote, the task shoulnd't sit idle for the check time when there is actually work to do.
-        remoteMovingTimer.scheduleAtFixedRate(remoteMovingTask, parameters.getCheckIntervalMillis() / 2, parameters
-                .getCheckIntervalMillis());
-    }
-
     private static void startupServer(final Parameters parameters)
     {
         final IPathCopier copyProcess = getPathCopier(parameters);
@@ -241,8 +181,8 @@ public class Main
                 }
             };
 
-        startupIncomingMovingProcess(parameters, operations);
-        startupOutgoingMovingProcess(parameters, operations);
+        final MonitorStarter starter = new MonitorStarter(parameters, operations);
+        starter.start();
     }
 
     public static void main(String[] args)
