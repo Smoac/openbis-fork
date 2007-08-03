@@ -25,9 +25,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -210,6 +212,7 @@ public final class FileUtilities
     /**
      * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
      * 
+     * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the
      *         problem with the <var>directory</var> otherwise.
      */
@@ -434,20 +437,115 @@ public final class FileUtilities
             });
     }
 
-    /** Canonifies given relative path. */
-    public final static String canonifyRelativePath(final String relativePath)
+    /**
+     * Removes given <var>prefix</var> from given <var>file</var> and returns a new <code>File</code>.
+     * <p>
+     * Returns given <var>file</var> if prefix is <i>empty</i> or could not be found in the file name.
+     * </p>
+     * 
+     * @param file can not be <code>null</code>.
+     * @param prefix prefix that should be removed from the file name. Can be <code>null</code>.
+     */
+    public final static File removePrefixFromFileName(File file, String prefix)
     {
-        if (relativePath == null)
+        assert file != null;
+        String name = file.getName();
+        if (StringUtils.isEmpty(prefix))
         {
-            return null;
+            return file;
         }
-        String canonifiedPath = FilenameUtils.separatorsToUnix(relativePath);
-        if (canonifiedPath.startsWith("/"))
+        if (name.indexOf(prefix) < 0)
         {
-            return canonifiedPath.substring(1);
+            return file;
+        }
+        return new File(file.getParent(), name.substring(prefix.length()));
+    }
+
+    /** A <i>Java</i> pattern matching one or more digits. */
+    private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile("(\\d+)");
+
+    public final static File createNextNumberedFile(File path, String defaultFileName)
+    {
+        return createNextNumberedFile(path, null, defaultFileName);
+    }
+
+    /**
+     * Creates the next numbered file.
+     * <p>
+     * If the new suggested file already exists, then this method is called recursively.
+     * </p>
+     * 
+     * @param defaultFileName the default name for the new file if the digit pattern could not be found (probably the
+     *            starting file).
+     * @param regex pattern to find out the counter. If <code>null</code> then {@link #ONE_OR_MORE_DIGITS}} will be
+     *            taken. The given <var>regex</var> must contain <code>(\\d+)</code>.
+     */
+    public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
+    {
+        assert path != null;
+        final Pattern pattern;
+        if (regex == null)
+        {
+            pattern = ONE_OR_MORE_DIGITS;
         } else
         {
-            return canonifiedPath;
+            pattern = regex;
+        }
+        assert pattern.pattern().indexOf("(\\d+)") > -1;
+
+        String pathName = path.getName();
+        final Matcher matcher = pattern.matcher(pathName);
+        boolean found = matcher.find();
+        if (found == false)
+        {
+            if (StringUtils.isEmpty(defaultFileName) == false)
+            {
+                return new File(path.getParent(), defaultFileName);
+            }
+            return path;
+        }
+        StringBuilder builder = new StringBuilder();
+        int nextStart = 0;
+        while (found)
+        {
+            String group = matcher.group(1);
+            final int newNumber = Integer.parseInt(group) + 1;
+            builder.append(pathName.substring(nextStart, matcher.start(1))).append(newNumber);
+            nextStart = matcher.end(1);
+            found = matcher.find();
+        }
+        builder.append(pathName.substring(nextStart));
+        File newFile = new File(path.getParent(), builder.toString());
+        if (newFile.exists())
+        {
+            return createNextNumberedFile(newFile, pattern, defaultFileName);
+        }
+        return newFile;
+    }
+
+    /**
+     * For given <var>root</var> and <var>file</var> extracts the relative <code>File</code>.
+     * <p>
+     * If given <var>file</var> does not contain given <var>root</var> path in its absolute path, then returns
+     * <code>null</code> (as the relative file could not be determined).
+     * </p>
+     */
+    public final static File getRelativeFile(File root, File file)
+    {
+        assert file != null;
+        if (root == null)
+        {
+            return file;
+        }
+        String absolutePath = root.getAbsolutePath();
+        final String strRoot = absolutePath + File.separator;
+        final String absoluteFile = file.getAbsolutePath();
+        if (absoluteFile.startsWith(strRoot))
+        {
+            return new File(absoluteFile.substring(strRoot.length()));
+        } else
+        {
+            return null;
         }
     }
 }

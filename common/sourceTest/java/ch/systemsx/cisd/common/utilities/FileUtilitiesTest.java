@@ -16,17 +16,23 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
@@ -122,8 +128,7 @@ public class FileUtilitiesTest
     @Test
     public void testLoadToStringMissingResource() throws Exception
     {
-        final String thisFile =
-                FileUtilities.loadToString(getClass(), "/some/missing/resource");
+        final String thisFile = FileUtilities.loadToString(getClass(), "/some/missing/resource");
         assert thisFile == null;
     }
 
@@ -144,12 +149,78 @@ public class FileUtilitiesTest
         assert file.delete();
         assertEquals(Arrays.asList("Hello", "World!"), text);
     }
-    
-    public final void testCanonifyRelativePath() {
-        assertNull(FileUtilities.canonifyRelativePath(null));
-        String relativePath = "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class";
-        assertEquals("ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class", FileUtilities.canonifyRelativePath(relativePath));
-        relativePath = "ch\\systemsx\\cisd\\common\\utilities\\FileUtilitiesTest.class";
-        assertEquals("ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class", FileUtilities.canonifyRelativePath(relativePath));
+
+    @Test
+    public final void testRemovePrefixFromFileName()
+    {
+        File file = new File("/tmp/dir/x.txt");
+        try
+        {
+            FileUtilities.removePrefixFromFileName(null, Constants.IS_FINISHED_PREFIX);
+            fail("Given file can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
+        assertEquals(file, FileUtilities.removePrefixFromFileName(file, null));
+        assertEquals(file, FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX));
+        file = new File("/tmp/dir/" + Constants.IS_FINISHED_PREFIX + "x.txt");
+        assertEquals("/tmp/dir/x.txt", FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX)
+                .getPath());
+    }
+
+    @Test
+    public final void testCreateNextNumberedFile()
+    {
+        File file = new File(workingDirectory, "abc_[12]");
+        assert file.exists() == false;
+        Pattern pattern = Pattern.compile("_\\[(\\d+)\\]");
+        File newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
+        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc_[13]").getPath()), FilenameUtils
+                .getName(newFile.getPath()));
+        file = new File(workingDirectory, "abc");
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
+        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc").getPath()), FilenameUtils.getName(newFile
+                .getPath()));
+        try
+        {
+            FileUtilities.createNextNumberedFile(null, pattern, null);
+            fail("Null value for file not allowed.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, "abc_[1]");
+        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc_[1]").getPath()), FilenameUtils
+                .getName(newFile.getPath()));
+        file = new File(workingDirectory, "a0bc1");
+        newFile = FileUtilities.createNextNumberedFile(file, null);
+        assertEquals(FilenameUtils.getName(new File(workingDirectory, "a1bc2").getPath()), FilenameUtils
+                .getName(newFile.getPath()));
+    }
+
+    @Test
+    public final void testGetRelativeFile()
+    {
+        try
+        {
+            FileUtilities.getRelativeFile(null, null);
+            fail("Given file can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
+        File file = new File(workingDirectory, "hello");
+        assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file.getAbsolutePath());
+        assertEquals(file, FileUtilities.getRelativeFile(null, file));
+        assertEquals(file, FileUtilities.getRelativeFile(new File(""), file));
+        File root = new File("/temp");
+        assertEquals("/temp", root.getAbsolutePath());
+        File relativeFile = FileUtilities.getRelativeFile(root, file);
+        assertNull(relativeFile);
+        root = workingDirectory;
+        relativeFile = FileUtilities.getRelativeFile(root, file);
+        assertFalse(relativeFile.isAbsolute());
+        assertEquals("hello", relativeFile.getPath());
     }
 }
