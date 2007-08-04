@@ -197,6 +197,10 @@ public class FileUtilitiesTest
         newFile = FileUtilities.createNextNumberedFile(file, null);
         assertEquals(FilenameUtils.getName(new File(workingDirectory, "a1bc2").getPath()), FilenameUtils
                 .getName(newFile.getPath()));
+        file = new File(workingDirectory, "12abc_[12]");
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
+        assertEquals(FilenameUtils.getName(new File(workingDirectory, "12abc_[13]").getPath()), FilenameUtils
+                .getName(newFile.getPath()));
     }
 
     @Test
