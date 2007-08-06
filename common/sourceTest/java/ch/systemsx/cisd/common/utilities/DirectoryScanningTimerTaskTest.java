@@ -319,7 +319,7 @@ public class DirectoryScanningTimerTaskTest
         dir.delete();
         assert dir.exists() == false;
         scanner.run();
-        assert appender.hasLogHappened();
+        appender.verifyLogHasHappened();
         LogMonitoringAppender.removeAppender(appender);
     }
 
@@ -338,7 +338,7 @@ public class DirectoryScanningTimerTaskTest
         dir.deleteOnExit();
         assert dir.isFile();
         scanner.run();
-        assert appender.hasLogHappened();
+        appender.verifyLogHasHappened();
         dir.delete();
         LogMonitoringAppender.removeAppender(appender);
     }
@@ -360,8 +360,8 @@ public class DirectoryScanningTimerTaskTest
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER, mockPathHandler);
         scanner.run();
-        assert appender1.hasLogHappened();
-        assert appender2.hasLogHappened();
+        appender1.verifyLogHasHappened();
+        appender2.verifyLogHasHappened();
         file.delete();
         dir.delete();
         LogMonitoringAppender.removeAppender(appender1);

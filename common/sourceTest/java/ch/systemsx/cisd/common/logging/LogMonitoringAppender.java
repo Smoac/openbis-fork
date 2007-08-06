@@ -109,9 +109,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     return false;
   }
 
-  public boolean hasLogHappened()
+  public void verifyLogHasHappened()
   {
-    return logHappened;
+      assert logHappened : "Following log snippet missed: " + messagePart;
   }
-
 }

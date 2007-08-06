@@ -293,7 +293,7 @@ public class CopyActivityMonitorTest
         monitor.stop();
         LogMonitoringAppender.removeAppender(appender);
         assert copyProcess.isTerminated();
-        assert appender.hasLogHappened();
+        appender.verifyLogHasHappened();
     }
 
     private final class PathLastChangedCheckerStuck implements IPathLastChangedChecker
