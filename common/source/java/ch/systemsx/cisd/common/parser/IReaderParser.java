@@ -17,11 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * <code>IReaderParser</code> is able to parse a given {@link Reader} and to returns <code>Object</code> instances.
@@ -40,9 +37,8 @@ public interface IReaderParser<E>
      * 
      * @param lineFilter you could define a filter for the lines found in given <code>reader</code>.
      * @return a <code>List</code> of elements.
-     * @throws CheckedExceptionTunnel if an <code>IOException</code> occurs.
      */
-    public List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException;
+    public List<E> parse(Reader reader, ILineFilter lineFilter);
 
     /**
      * Parses given <code>Reader</code>. Encapsulates given <code>Reader</code> in a {@link BufferedReader} for
@@ -52,9 +48,8 @@ public interface IReaderParser<E>
      * </p>
      * 
      * @return a <code>List</code> of elements.
-     * @throws CheckedExceptionTunnel if an <code>IOException</code> occurs.
      */
-    public List<E> parse(Reader reader) throws IOException;
+    public List<E> parse(Reader reader);
 
     /**
      * Sets the <code>IParserObjectFactory</code>.

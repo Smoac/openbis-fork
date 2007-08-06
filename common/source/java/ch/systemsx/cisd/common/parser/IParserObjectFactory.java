@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and convert them into
  * an appropriate <code>Object</code>.
@@ -53,5 +55,5 @@ public interface IParserObjectFactory<E>
     /**
      * Parses given text line and returns an appropriate <i>Object</i>.
      */
-    public E createObject(String[] lineTokens);
+    public E createObject(String[] lineTokens) throws UserFailureException;
 }

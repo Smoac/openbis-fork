@@ -18,6 +18,9 @@ package ch.systemsx.cisd.common.parser;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.converter.Converter;
+import ch.systemsx.cisd.common.converter.ConverterPool;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -49,22 +55,46 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** The list of mandatory <code>Field</code>s for {@link NewExperiment}, keyed by their name. */
     private final Map<String, Field> mandatoryFields;
 
-    protected AbstractParserObjectFactory(Class<E> clazz, IPropertyMapper propertyMapper)
+    /** The pool of {@link Converter}s. */
+    private final ConverterPool converterPool;
+
+    /** The class of object bean we are going to create here. */
+    private final Class<E> beanClass;
+
+    protected AbstractParserObjectFactory(Class<E> beanClass, IPropertyMapper propertyMapper)
     {
-        propertyDescriptors = BeanUtils.getPropertyDescriptors(clazz);
-        mandatoryFields = createMandatoryFields(clazz);
-        checkPropertyMapper(clazz, propertyMapper);
+        propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
+        mandatoryFields = createMandatoryFields(beanClass);
+        checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
+        converterPool = createConverterPool();
+        this.beanClass = beanClass;
+    }
+
+    private final static ConverterPool createConverterPool()
+    {
+        return new ConverterPool();
+    }
+
+    /** Registers given <var>converter</var> for given class type. */
+    protected final <T> void registerConverter(Class<T> clazz, Converter<T> converter)
+    {
+        converterPool.registerConverter(clazz, converter);
+    }
+
+    private final <T> T convert(String value, Class<T> type)
+    {
+        return converterPool.convert(value, type);
     }
 
     /** For given property name returns corresponding <code>IPropertyModel</code>. */
-    protected final IPropertyModel getPropertyModel(String name)
+    private final IPropertyModel getPropertyModel(String name)
     {
         return propertyMapper.getProperty(name);
     }
 
     /** Returns an unmodifiable list of <code>PropertyDescriptor</code>s. */
-    protected final Collection<PropertyDescriptor> getPropertyDescriptors()
+    private final Collection<PropertyDescriptor> getPropertyDescriptors()
     {
         return Collections.unmodifiableCollection(propertyDescriptors.values());
     }
@@ -107,11 +137,63 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     /** Whether given field name is mandatory. */
-    protected final boolean isMandatory(String fieldName)
+    private final boolean isMandatory(String fieldName)
     {
         assert mandatoryFields != null;
-
         return mandatoryFields.containsKey(fieldName);
     }
 
+    private String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
+    {
+        int column = propertyModel.getColumn();
+        if (column >= lineTokens.length)
+        {
+            throw UserFailureException.fromTemplate("Column index '%s' bigger than available line tokens '%s'.",
+                    column, Arrays.asList(lineTokens));
+        }
+        return lineTokens[column];
+    }
+
+    //
+    // IParserObjectFactory
+    //
+
+    @SuppressWarnings("unchecked")
+    public E createObject(String[] lineTokens)
+    {
+        try
+        {
+            Object object = beanClass.newInstance();
+            for (PropertyDescriptor descriptor : getPropertyDescriptors())
+            {
+                final Method writeMethod = descriptor.getWriteMethod();
+                final IPropertyModel propertyModel = getPropertyModel(descriptor.getName());
+                if (propertyModel != null)
+                {
+                    writeMethod.invoke(object, convert(getPropertyValue(lineTokens, propertyModel), writeMethod
+                            .getParameterTypes()[0]));
+                } else
+                {
+                    // If the corresponding bean field is mandatory and <code>propertyModel</code> is null,
+                    // then we should throw an exception.
+                    final String fieldName = descriptor.getName();
+                    if (isMandatory(fieldName))
+                    {
+                        throw UserFailureException.fromTemplate("Field/Property name '%s' is mandatory.", fieldName);
+                    }
+                }
+            }
+            return (E) object;
+        } catch (IllegalAccessException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        } catch (InvocationTargetException ex)
+        {
+            // We are interested in the cause exception.
+            throw CheckedExceptionTunnel.wrapIfNecessary((Exception) ex.getCause());
+        } catch (InstantiationException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
 }

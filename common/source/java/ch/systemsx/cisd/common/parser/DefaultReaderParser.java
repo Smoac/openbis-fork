@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +48,15 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
         this.lineTokenizer = lineTokenizer;
     }
 
-    protected E createObject(String[] tokens)
+    protected E createObject(int lineNumber, String[] tokens)
     {
-        return factory.createObject(tokens);
+        try
+        {
+            return factory.createObject(tokens);
+        } catch (RuntimeException ex)
+        {
+            throw new ParseException(ex.getMessage(), lineNumber);
+        }
     }
 
     /**
@@ -69,37 +74,29 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     // Parser
     //
 
-    public final List<E> parse(Reader reader) throws IOException
+    public final List<E> parse(Reader reader)
     {
         return parse(reader, AlwaysAcceptLineFilter.INSTANCE);
     }
 
-    public final List<E> parse(Reader reader, ILineFilter lineFilter) throws IOException
+    public final List<E> parse(Reader reader, ILineFilter lineFilter)
     {
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
-            // Inits ILineTokenizer
             lineTokenizer.init();
-            try
+            LineIterator lineIterator = IOUtils.lineIterator(reader);
+            for (int lineNumber = 0; lineIterator.hasNext(); lineNumber++)
             {
-                LineIterator lineIterator = IOUtils.lineIterator(reader);
-                for (int lineNumber = 0; lineIterator.hasNext(); lineNumber++)
+                String nextLine = lineIterator.nextLine();
+                if (lineFilter.acceptLine(nextLine, lineNumber))
                 {
-                    String nextLine = lineIterator.nextLine();
-                    if (lineFilter.acceptLine(nextLine, lineNumber))
-                    {
-                        String[] tokens = parseLine(lineNumber, nextLine);
-                        elements.add(createObject(tokens));
-                    }
+                    String[] tokens = parseLine(lineNumber, nextLine);
+                    elements.add(createObject(lineNumber, tokens));
                 }
-                return elements;
-            } finally
-            {
-                // Destroys line tokenizer.
-                lineTokenizer.destroy();
             }
-
+            lineTokenizer.destroy();
+            return elements;
         }
 
     }
