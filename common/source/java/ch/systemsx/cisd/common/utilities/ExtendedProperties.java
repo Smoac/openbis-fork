@@ -77,16 +77,20 @@ public final class ExtendedProperties extends Properties
      * Returns a subset of given <code>Properties</code> based on given property key prefix.
      * 
      * @param prefix string, each property key should start with.
+     * @param dropPrefix If <code>true</code> the prefix will be removed from the key.
      */
-    public final ExtendedProperties getSubset(final String prefix)
+    public final ExtendedProperties getSubset(final String prefix, boolean dropPrefix)
     {
+        assert prefix != null : "Missing prefix";
+        
         ExtendedProperties result = new ExtendedProperties();
+        int prefixLength = prefix.length();
         for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
             String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
             {
-                result.put(key, getProperty(key));
+                result.put(dropPrefix ? key.substring(prefixLength) : key, getProperty(key));
             }
         }
         return result;

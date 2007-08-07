@@ -68,21 +68,33 @@ public final class ExtendedPropertiesTest
     @Test
     public final void testGetSubsetString()
     {
-        ExtendedProperties props = extendedProperties.getSubset("t");
+        ExtendedProperties props = extendedProperties.getSubset("t", false);
         assert props.size() == 2;
         assert props.getProperty("two").equals("zwei");
-        props = extendedProperties.getSubset("un");
+        assert props.getProperty("three").equals("drei");
+        
+        props = extendedProperties.getSubset("un", false);
         assert props.size() == 1;
         assert props.getProperty("un").equals("eins");
+        
+        props = extendedProperties.getSubset("t", true);
+        assert props.size() == 2;
+        assert props.getProperty("wo").equals("zwei");
+        assert props.getProperty("hree").equals("drei");
+        
+        props = extendedProperties.getSubset("un", true);
+        assert props.size() == 1;
+        assert props.getProperty("").equals("eins");
     }
 
     @Test
     public final void testCyclicDependency()
     {
         ExtendedProperties props = new ExtendedProperties();
-        props.setProperty("a", "${b}");
-        props.setProperty("b", "${a}");
-        assertEquals("${b}", props.getProperty("b"));
+        props.setProperty("a", "A${b}");
+        props.setProperty("b", "B${c}");
+        props.setProperty("c", "C${a}");
+        assertEquals("ABC${a}", props.getProperty("a"));
     }
 
     @Test
