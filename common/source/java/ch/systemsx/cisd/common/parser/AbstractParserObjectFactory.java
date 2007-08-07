@@ -62,6 +62,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
 
     protected AbstractParserObjectFactory(Class<E> beanClass, IPropertyMapper propertyMapper)
     {
+        assert beanClass != null;
+        assert propertyMapper != null;
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
         mandatoryFields = createMandatoryFields(beanClass);
         checkPropertyMapper(beanClass, propertyMapper);
@@ -75,10 +77,21 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         return new ConverterPool();
     }
 
-    /** Registers given <var>converter</var> for given class type. */
+    /**
+     * Registers given <var>converter</var> for given class type.
+     * <p>
+     * If given <var>converter</var>, then it will unregister it.
+     * </p>
+     */
     protected final <T> void registerConverter(Class<T> clazz, Converter<T> converter)
     {
-        converterPool.registerConverter(clazz, converter);
+        if (converter == null)
+        {
+            converterPool.unregisterConverter(clazz);
+        } else
+        {
+            converterPool.registerConverter(clazz, converter);
+        }
     }
 
     private final <T> T convert(String value, Class<T> type)
@@ -107,8 +120,6 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      */
     private final void checkPropertyMapper(Class<E> clazz, IPropertyMapper propMapper) throws UserFailureException
     {
-        assert propMapper != null;
-        assert clazz != null;
         assert propertyDescriptors != null;
 
         Set<String> propertyNames = new HashSet<String>(propMapper.getAllPropertyNames());

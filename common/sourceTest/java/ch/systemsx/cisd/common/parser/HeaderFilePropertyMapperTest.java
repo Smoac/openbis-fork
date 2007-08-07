@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.common.parser;
 
 import static org.testng.AssertJUnit.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 /**
@@ -27,12 +31,12 @@ import org.testng.annotations.Test;
 public final class HeaderFilePropertyMapperTest
 {
 
-    @Test(expectedExceptions=AssertionError.class)
+    @Test(expectedExceptions = AssertionError.class)
     public final void testNullHeaders()
     {
         new HeaderFilePropertyMapper(null);
     }
-    
+
     @Test
     public final void testGetProperty()
     {
@@ -43,5 +47,19 @@ public final class HeaderFilePropertyMapperTest
         propertyMapper = new HeaderFilePropertyMapper(headers);
         assertTrue(propertyMapper.getProperty("firstName").getColumn() == 0);
         assertTrue(propertyMapper.getProperty("address").getColumn() == 2);
+    }
+
+    @Test
+    public final void testCasePropertyMapper()
+    {
+        HeaderFilePropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
+            { "Code", "Description", "RegistrationTimestamp" });
+        List<String> properties = new ArrayList<String>(propertyMapper.getAllPropertyNames());
+        assertTrue(properties.indexOf("Code") < 0);
+        assertTrue(properties.indexOf("code") > -1);
+        assertTrue(properties.indexOf("Description") < 0);
+        assertTrue(properties.indexOf("description") > -1);
+        assertTrue(properties.indexOf("RegistrationTimestamp") < 0);
+        assertTrue(properties.indexOf("registrationtimestamp") > -1);
     }
 }
