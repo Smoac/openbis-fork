@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * Operations on classes using reflection.
@@ -125,4 +129,48 @@ public final class ClassUtils
         return null;
     }
 
+    /**
+     * Creates a new instance of a class specified by its fully-qualified name.
+     * 
+     * @param superClazz Super class <code>className</code> has to be implemented or extended.
+     * @param className Fully-qualified class name.
+     * @param properties Optional constructor argument. If not <code>null</code> an constructor with one single
+     *            <code>Properties</code> argument is expected. Otherwise the default constructor will used.
+     * @return an instance of type <code>interfaze</code>.
+     */
+    public static <T> T create(Class<T> superClazz, String className, Properties properties)
+    {
+        assert superClazz != null : "Missing super class";
+        assert className != null : "Missing class name";
+        
+        try
+        {
+            final Class<?> clazz = Class.forName(className);
+            assert clazz.isInterface() == false : clazz + " can not be instanciated";
+            assert superClazz.isAssignableFrom(clazz) : clazz + " does not implements/extends " + superClazz.getName();
+            if (properties == null)
+            {
+                return createInstance(clazz);
+            }
+            final Constructor<?> constructor = clazz.getConstructor(new Class[] {Properties.class});
+            return createInstance(constructor, properties);
+        } catch (Exception ex)
+        {
+            throw new ConfigurationFailureException("Cannot instanitate class " + className, ex);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T createInstance(final Class<?> clazz) throws InstantiationException, IllegalAccessException
+    {
+        return (T) clazz.newInstance();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static <T> T createInstance(final Constructor<?> constructor, Properties properties)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException
+    {
+        return (T) constructor.newInstance(new Object[] {properties});
+    }
+    
 }

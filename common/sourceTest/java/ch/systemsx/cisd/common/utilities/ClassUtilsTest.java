@@ -16,7 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
+import java.io.IOException;
+import java.util.Properties;
 
 import org.testng.annotations.Test;
 
@@ -70,5 +77,79 @@ public final class ClassUtilsTest
         // If <code>Class.getDeclaredMethods</code> were used instead of <code>Class.getDeclaredMethods</code>,
         // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()' here.
         assertNull(ClassUtils.getMethodOnStack(1));
+    }
+    
+    @Test
+    public void testCreateWithDefaultConstructor()
+    {
+        CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), null);
+        assertTrue(cs instanceof StringBuffer);
+        assertEquals(0, cs.length());
+    }
+    
+    @Test
+    public void testCreateWithPropertiesConstructor()
+    {
+        Properties properties = new Properties();
+        Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
+        assertTrue(appendable instanceof MyClass);
+        assertSame(properties, ((MyClass) appendable).getProperties());
+    }
+    
+    public static class MyClass implements Appendable
+    {
+        private final Properties properties;
+
+        public MyClass(Properties properties)
+        {
+            this.properties = properties;
+        }
+        
+        public final Properties getProperties()
+        {
+            return properties;
+        }
+
+        public Appendable append(char c) throws IOException
+        {
+            return null;
+        }
+
+        public Appendable append(CharSequence csq, int start, int end) throws IOException
+        {
+            return null;
+        }
+
+        public Appendable append(CharSequence csq) throws IOException
+        {
+            return null;
+        }
+        
+    }
+    
+    @Test
+    public void testCreateWithIncompatibleSuperclass()
+    {
+        try
+        {
+            ClassUtils.create(Float.class, Integer.class.getName(), null);
+            fail("AssertionError expected.");
+        } catch (AssertionError e)
+        {
+            assertEquals("class java.lang.Integer does not implements/extends java.lang.Float", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testCreateInstanceOfAnInterface()
+    {
+        try
+        {
+            ClassUtils.create(Float.class, CharSequence.class.getName(), null);
+            fail("AssertionError expected.");
+        } catch (AssertionError e)
+        {
+            assertEquals("interface java.lang.CharSequence can not be instanciated", e.getMessage());
+        }
     }
 }
