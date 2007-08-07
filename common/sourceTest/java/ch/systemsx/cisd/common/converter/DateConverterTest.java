@@ -21,6 +21,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link DateConverter}.
@@ -29,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public final class DateConverterTest
 {
-    
+
     @Test(expectedExceptions =
         { AssertionError.class })
     public final void testConstructor()
@@ -56,18 +57,19 @@ public final class DateConverterTest
         Calendar birthday = Calendar.getInstance();
         birthday.setTime(date);
         assert DateUtils.isSameDay(calendar, birthday);
+        assertNull(converter.convert("notParsableDate"));
+        assertNull(converter.convert(null));
+        assertNull(converter.convert(""));
     }
-    
+
     @Test
-    public final void testGetDefault() {
+    public final void testGetDefault()
+    {
         // Explicit call to <code>getDefaultValue()</code>
         Calendar today = Calendar.getInstance();
         DateConverter converter = new DateConverter("dd.MM.yyyy");
         Calendar result = Calendar.getInstance();
         result.setTime(converter.getDefaultValue());
-        assert DateUtils.isSameDay(today, result);
-        // Implicit call to <code>getDefaultValue()</code>
-        result.setTime(converter.convert("notParsableDate"));
         assert DateUtils.isSameDay(today, result);
     }
 }

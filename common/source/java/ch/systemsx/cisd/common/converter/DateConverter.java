@@ -38,7 +38,7 @@ public final class DateConverter implements Converter<Date>
     public DateConverter(String datePattern)
     {
         assert datePattern != null;
-        
+
         this.dateFormat = createDateFormat(datePattern);
     }
 
@@ -60,18 +60,22 @@ public final class DateConverter implements Converter<Date>
     /**
      * Converts given <code>value</code> to a <code>Date</code>.
      * <p>
-     * Return {@link #getDefaultValue()} if no date pattern has been defined or if a <code>ParseException</code>
-     * occurs.
+     * Return <code>null</code> if a <code>ParseException</code> occurs or if given <var>value</var> is
+     * <code>null</code>.
      * </p>
      */
     public final Date convert(String value)
     {
+        if (value == null)
+        {
+            return null;
+        }
         try
         {
             return dateFormat.parse(value);
         } catch (ParseException ex)
         {
-            return getDefaultValue();
+            return null;
         }
     }
 
