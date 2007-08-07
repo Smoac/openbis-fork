@@ -20,7 +20,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -148,8 +147,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         int column = propertyModel.getColumn();
         if (column >= lineTokens.length)
         {
-            throw UserFailureException.fromTemplate("Column index '%s' bigger than available line tokens '%s'.",
-                    column, Arrays.asList(lineTokens));
+            throw UserFailureException.fromTemplate("Not enough tokens are available (index: %d, available: %d)",
+                    column, lineTokens.length);
         }
         return lineTokens[column];
     }

@@ -25,8 +25,8 @@ import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -40,9 +40,11 @@ import ch.systemsx.cisd.common.parser.ParserUtilities.Line;
 public final class ParserUtilitiesTest
 {
 
-    private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
 
-    @BeforeSuite
+    private static final File workingDirectory = new File(unitTestRootDirectory, "ParserUtilitiesTest");
+
+    @BeforeClass
     public final void setUp()
     {
         LogInitializer.init();
@@ -50,10 +52,11 @@ public final class ParserUtilitiesTest
         assert workingDirectory.isDirectory();
     }
 
-    @AfterSuite
+    @AfterClass
     public void tearDown() throws IOException
     {
         FileUtils.deleteDirectory(workingDirectory);
+        workingDirectory.deleteOnExit();
     }
 
     @Test

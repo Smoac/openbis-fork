@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.parser;
 
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -48,15 +49,9 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
         this.lineTokenizer = lineTokenizer;
     }
 
-    protected E createObject(int lineNumber, String[] tokens)
+    protected E createObject(String[] tokens)
     {
-        try
-        {
-            return factory.createObject(tokens);
-        } catch (RuntimeException ex)
-        {
-            throw new ParseException(ex.getMessage(), lineNumber);
-        }
+        return factory.createObject(tokens);
     }
 
     /**
@@ -92,7 +87,16 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
                 if (lineFilter.acceptLine(nextLine, lineNumber))
                 {
                     String[] tokens = parseLine(lineNumber, nextLine);
-                    elements.add(createObject(lineNumber, tokens));
+                    E object;
+                    try
+                    {
+                        object = createObject(tokens);
+                    } catch (RuntimeException ex)
+                    {
+                        throw new ParseException(String.format("Creating an object with following tokens '%s' failed.",
+                                Arrays.asList(tokens)), ex, lineNumber);
+                    }
+                    elements.add(object);
                 }
             }
             lineTokenizer.destroy();

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.parser;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
@@ -39,7 +38,7 @@ public final class DefaultReaderParserTest
                     + "Marcel\tOdiet\tRue des Pervenches 46\t2800 Delémont\n";
 
     @Test
-    public final void testParseWithoutFactoryAndHeader() throws IOException
+    public final void testParseWithoutFactoryAndHeader()
     {
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
@@ -53,7 +52,7 @@ public final class DefaultReaderParserTest
     }
 
     @Test
-    public final void testParseWithoutFactoryWithLineFilter() throws IOException
+    public final void testParseWithoutFactoryWithLineFilter()
     {
         final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
@@ -63,5 +62,33 @@ public final class DefaultReaderParserTest
         assertEquals(result.get(0)[1], "Ribeaud");
         assertEquals(result.get(1)[2], "Rue des Pervenches 46");
         IOUtils.closeQuietly(reader);
+    }
+
+    @Test
+    public final void testCreateObjectWithException()
+    {
+        final IReaderParser<String[]> parser = new DefaultReaderParser<String[]>()
+            {
+                //
+                // DefaultReaderParser
+                //
+                @Override
+                protected String[] createObject(String[] tokens)
+                {
+                    throw new ArrayIndexOutOfBoundsException();
+                }
+            };
+        parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
+        final Reader reader = new StringReader(text);
+        try
+        {
+            parser.parse(reader, new HeaderLineFilter(2));
+        } catch (ParseException ex)
+        {
+            assertEquals(
+                    "Creating an object with following tokens '[Christian, Ribeaud, Kapfrain 2/2, Efringen-Kirchen]' failed.",
+                    ex.getMessage());
+            assertEquals(3, ex.getLineNumber());
+        }
     }
 }
