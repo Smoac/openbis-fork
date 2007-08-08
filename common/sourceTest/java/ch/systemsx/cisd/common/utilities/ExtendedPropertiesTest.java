@@ -90,7 +90,13 @@ public final class ExtendedPropertiesTest
     @Test
     public final void testCyclicDependency()
     {
+        // Two nodes cyclic dependencies
         ExtendedProperties props = new ExtendedProperties();
+        props.setProperty("a", "${b}");
+        props.setProperty("b", "${a}");
+        assertEquals("${b}", props.getProperty("b"));    
+        // Three nodes cyclic dependencies
+        props = new ExtendedProperties();
         props.setProperty("a", "A${b}");
         props.setProperty("b", "B${c}");
         props.setProperty("c", "C${a}");
