@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -48,7 +50,14 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 public final class BeanUtils
 {
 
-    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+    /** A generally accepted variation for <code>Boolean</code> bean property. */
+    private static final String BOOLEAN_GETTER_PREFIX = "is";
+
+    /** The typical <i>getter</i> prefix for <i>bean</i> property. */
+    private static final String GETTER_PREFIX = "get";
+
+    /** The typical <i>setter</i> prefix for <i>bean</i> property. */
+    private static final String SETTER_PREFIX = "set";
 
     private BeanUtils()
     {
@@ -97,12 +106,12 @@ public final class BeanUtils
         }
         for (Method method : beanToCheck.getClass().getMethods())
         {
-            if (method.getName().startsWith("get") && method.getParameterTypes().length == 0
+            if (method.getName().startsWith(GETTER_PREFIX) && method.getParameterTypes().length == 0
                     && Modifier.isPublic(method.getModifiers()))
             {
                 try
                 {
-                    final Object result = method.invoke(beanToCheck, EMPTY_OBJECT_ARRAY);
+                    final Object result = method.invoke(beanToCheck, ArrayUtils.EMPTY_OBJECT_ARRAY);
                     if (result == null)
                     {
                         throw new IllegalStateException("Method '" + method.getName() + "' returns null.");
@@ -128,7 +137,7 @@ public final class BeanUtils
         return beanToCheck;
     }
 
-    //  TODO 2007-07-11, Franz-Josef Elmer: Why numbers with a value rounded to 0 are forbidden? 
+    // TODO 2007-07-11, Franz-Josef Elmer: Why numbers with a value rounded to 0 are forbidden?
     private static boolean isNull(Object objectToCheck)
     {
         return (objectToCheck instanceof Number) && ((Number) objectToCheck).longValue() == 0;
@@ -323,7 +332,7 @@ public final class BeanUtils
     /**
      * Fills the specified bean instance with values from <var>sourceBean</var>.
      * 
-     * @param beanClass The class to create a new instance from. 
+     * @param beanClass The class to create a new instance from.
      * @param beanInstance Instance of the bean to be filled. If <code>null</code> a new instance will be created.
      * @param sourceBean The bean to get the values from. Can be <code>null</code>, in which case the method returns
      *            <code>null</code>.
@@ -633,9 +642,9 @@ public final class BeanUtils
         {
             return;
         }
-        final Collection<Method> destinationSetters = scanForPublicMethods(destination, "set", 1).values();
-        final Map<String, Method> sourceGetters = scanForPublicMethods(source, "get", 0);
-        scanForPublicMethods(source, sourceGetters, "is", 0, boolean.class, Boolean.class);
+        final Collection<Method> destinationSetters = scanForPublicMethods(destination, SETTER_PREFIX, 1).values();
+        final Map<String, Method> sourceGetters = scanForPublicMethods(source, GETTER_PREFIX, 0);
+        scanForPublicMethods(source, sourceGetters, BOOLEAN_GETTER_PREFIX, 0, boolean.class, Boolean.class);
         for (Method setter : destinationSetters)
         {
             final Object newBean = emergeNewBean(setter, source, sourceGetters, converter);
@@ -677,7 +686,7 @@ public final class BeanUtils
         {
             return null;
         }
-        final Object oldBean = getter.invoke(source, EMPTY_OBJECT_ARRAY);
+        final Object oldBean = getter.invoke(source, ArrayUtils.EMPTY_OBJECT_ARRAY);
         final Class<?> parameterType = setter.getParameterTypes()[0];
         if (parameterType.isPrimitive() || immutableTypes.contains(parameterType))
         {
@@ -695,8 +704,8 @@ public final class BeanUtils
             try
             {
                 final Method converterMethod =
-                        converter.getClass().getMethod("convertTo" + setter.getName().substring("set".length()),
-                                new Class[]
+                        converter.getClass().getMethod(
+                                "convertTo" + setter.getName().substring(SETTER_PREFIX.length()), new Class[]
                                     { sourceBean.getClass() });
                 if (converterMethod.isAccessible() == false)
                 {
@@ -713,21 +722,21 @@ public final class BeanUtils
 
     private static Method getGetter(Method setter, Map<String, Method> sourceGetters, AnnotationMap annotationMap)
     {
-        final String getterName = getGetterPrefix(setter) + setter.getName().substring("set".length());
-        final Method getter = sourceGetters.get(getterName);
-        return getter;
-    }
-
-    private static String getGetterPrefix(final Method setter)
-    {
-        final Class<?> type = setter.getParameterTypes()[0];
-        if (type == boolean.class || type == Boolean.class)
+        String propertyName = setter.getName().substring(SETTER_PREFIX.length());
+        final Method getter = sourceGetters.get(GETTER_PREFIX + propertyName);
+        if (getter != null)
         {
-            return "is";
+            return getter;
         } else
         {
-            return "get";
+            final Class<?> type = setter.getParameterTypes()[0];
+            // If parameter type is boolean, then try with 'is' as prefix
+            if (type == boolean.class || type == Boolean.class)
+            {
+                return sourceGetters.get(BOOLEAN_GETTER_PREFIX + propertyName);
+            }
         }
+        return null;
     }
 
     private static Map<String, Method> scanForPublicMethods(Object bean, String prefix, int numberOfParameters)

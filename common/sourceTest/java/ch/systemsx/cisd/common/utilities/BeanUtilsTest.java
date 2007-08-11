@@ -168,6 +168,8 @@ public final class BeanUtilsTest
 
         private float f;
 
+        private boolean bb;
+
         public boolean isB()
         {
             return b;
@@ -207,6 +209,17 @@ public final class BeanUtilsTest
         {
             this.s = s;
         }
+
+        public final boolean getBb()
+        {
+            return bb;
+        }
+
+        public final void setBb(boolean bb)
+        {
+            this.bb = bb;
+        }
+
     }
 
     public static class Bean1b
@@ -218,6 +231,18 @@ public final class BeanUtilsTest
         private Boolean b;
 
         private Float f;
+
+        private Boolean bb;
+
+        public final Boolean getBb()
+        {
+            return bb;
+        }
+
+        public final void setBb(Boolean bb)
+        {
+            this.bb = bb;
+        }
 
         public Boolean isB()
         {
@@ -258,6 +283,7 @@ public final class BeanUtilsTest
         {
             this.s = s;
         }
+
     }
 
     public static class Bean2a
@@ -269,6 +295,8 @@ public final class BeanUtilsTest
         private boolean b;
 
         private float f;
+
+        private boolean bb;
 
         public boolean isB()
         {
@@ -309,6 +337,16 @@ public final class BeanUtilsTest
         {
             this.s = s;
         }
+
+        public final void setBb(boolean bb)
+        {
+            this.bb = bb;
+        }
+
+        public final boolean getBb()
+        {
+            return bb;
+        }
     }
 
     public static class Bean2b
@@ -320,6 +358,18 @@ public final class BeanUtilsTest
         private Boolean b;
 
         private Float f;
+
+        private Boolean bb;
+
+        public final Boolean getBb()
+        {
+            return bb;
+        }
+
+        public final void setBb(Boolean bb)
+        {
+            this.bb = bb;
+        }
 
         public Boolean isB()
         {
@@ -370,6 +420,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
+        b1.setBb(true);
         final Bean2a b2 = BeanUtils.createBean(Bean2a.class, b1);
         assertBeansAreEqual("Beans are not equal", b1, b2);
     }
@@ -382,6 +433,7 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
+        b1.setBb(true);
         final Bean2a b2 = new Bean2a();
         assertSame(b2, BeanUtils.fillBean(Bean2a.class, b2, b1));
         assertBeansAreEqual("Beans are not equal", b1, b2);
@@ -396,11 +448,13 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
+        b1.setBb(Boolean.TRUE);
         final Bean2a b2 = BeanUtils.createBean(Bean2a.class, b1);
         assertEquals(b1.isB().booleanValue(), b2.isB());
         assertEquals(b1.getF().floatValue(), b2.getF());
         assertEquals(b1.getI().intValue(), b2.getI());
         assertEquals(b1.getS(), b2.getS());
+        assertEquals(b1.getBb().booleanValue(), b2.getBb());
     }
 
     @Test
@@ -411,11 +465,13 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
+        b1.setBb(true);
         final Bean2b b2 = BeanUtils.createBean(Bean2b.class, b1);
         assertEquals(b1.isB(), b2.isB().booleanValue());
         assertEquals(b1.getF(), b2.getF().floatValue());
         assertEquals(b1.getI(), b2.getI().intValue());
         assertEquals(b1.getS(), b2.getS());
+        assertEquals(b1.getBb(), b2.getBb().booleanValue());
     }
 
     @Test
@@ -426,11 +482,13 @@ public final class BeanUtilsTest
         b1.setF(0.2f);
         b1.setI(17);
         b1.setS("test");
+        b1.setBb(true);
         final Bean2b b2 = BeanUtils.createBean(Bean2b.class, b1);
         assertEquals(b1.isB().booleanValue(), b2.isB().booleanValue());
         assertEquals(b1.getF().floatValue(), b2.getF().floatValue());
         assertEquals(b1.getI().intValue(), b2.getI().intValue());
         assertEquals(b1.getS(), b2.getS());
+        assertEquals(b1.getBb(), b2.getBb());
     }
 
     @Test
@@ -916,6 +974,7 @@ public final class BeanUtilsTest
         assertEquals(msg, b1.getF(), b2.getF());
         assertEquals(msg, b1.getI(), b2.getI());
         assertEquals(msg, b1.getS(), b2.getS());
+        assertEquals(msg, b1.getBb(), b2.getBb());
     }
 
     private void assertBeansAreEqual(String msg, Bean2a b2, Bean1a b1)
