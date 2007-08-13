@@ -31,6 +31,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Christian Ribeaud
  */
-public final class MailClient extends Authenticator
+public final class MailClient extends Authenticator implements IMailClient
 {
 
     /** This system property is not supported by the <i>JavaMail API</i> */
@@ -139,7 +140,8 @@ public final class MailClient extends Authenticator
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public final void sendMessage(String subject, String content, String... recipients) throws MessagingException
+    public final void sendMessage(String subject, String content, String... recipients)
+            throws EnvironmentFailureException
     {
         if (operationLog.isInfoEnabled())
         {
@@ -152,11 +154,18 @@ public final class MailClient extends Authenticator
             internetAddresses[i] = createInternetAddress(recipients[i]);
         }
         MimeMessage msg = new MimeMessage(createSession());
-        msg.setFrom(createInternetAddress(from));
-        msg.addRecipients(Message.RecipientType.TO, internetAddresses);
-        msg.setSubject(subject);
-        msg.setText(content);
-        Transport.send(msg);
+        try
+        {
+            msg.setFrom(createInternetAddress(from));
+            msg.addRecipients(Message.RecipientType.TO, internetAddresses);
+            msg.setSubject(subject);
+            msg.setText(content);
+            Transport.send(msg);
+        } catch (MessagingException ex)
+        {
+            throw new EnvironmentFailureException("Sending e-mail with subject '" + subject + "' to recipients "
+                    + Arrays.asList(recipients) + " failed. Reason: " + ex, ex);
+        }
     }
 
     //
