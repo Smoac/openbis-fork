@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
-import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DBUtilities;
@@ -88,22 +87,21 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     public void createDatabase()
     {
+        operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.execute("create database " + database + " with owner = " + owner
                                         + " encoding = 'utf8' tablespace = pg_default;" 
                              + "alter database " + database + " set default_with_oids = off;");
         try
         {
+            operationLog.info("Try to create language 'plpgsql'.");
             jdbcTemplate.execute("create trusted procedural language 'plpgsql' handler plpgsql_call_handler "
                                  + "validator plpgsql_validator;");
         } catch (DataAccessException e)
         {
             if (DBUtilities.isDuplicateObjectException(e))
             {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Couldn't create language:" + e+":"+SQLStateUtils.getSqlState(e));
-                }
+                operationLog.info("Language 'plpgsql' already exists.");
             } else
             {
                 operationLog.error("Database language 'plpgsql' couldn't be created:", e);
