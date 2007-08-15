@@ -1,0 +1,15 @@
+#show allResults
+
+{package} = ch.systemsx.cisd.dbmigration
+
+[generic] = ${package}.* excluding ${package}.*.*
+check set [generic]
+
+[postgresql] = ${package}.postgresql
+check set [postgresql]
+
+layer generic = [generic]
+layer databases = [postgresql]
+
+check layeringOf generic databases
+

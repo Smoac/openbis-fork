@@ -10,4 +10,6 @@
     </copy> 
   </target>
 
+  <target name="ci" depends="build-common.ci, check-dependencies"/>
+
 </project>
