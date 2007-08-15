@@ -3,10 +3,10 @@
 {package} = ch.systemsx.cisd.dbmigration
 
 [generic] = ${package}.* excluding ${package}.*.*
-check set [generic]
+check sets [generic]
 
-[postgresql] = ${package}.postgresql
-check set [postgresql]
+[postgresql] = ${package}.postgresql.*
+check sets [postgresql]
 
 layer generic = [generic]
 layer databases = [postgresql]
