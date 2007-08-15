@@ -35,6 +35,7 @@
           <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
           <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
           <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
+          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
         </htmlemail>
       </onfailure>
     </publishers>
