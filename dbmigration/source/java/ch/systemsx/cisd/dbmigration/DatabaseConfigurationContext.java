@@ -118,7 +118,7 @@ public class DatabaseConfigurationContext
     /**
      * Returns data source for admin purposes.
      */
-    final DataSource getAdminDataSource()
+    public final DataSource getAdminDataSource()
     {
         if (adminDataSource == null)
         {

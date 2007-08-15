@@ -49,7 +49,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  *
  * @author Franz-Josef Elmer
  */
-class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVersionLogDAO
+public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVersionLogDAO
 {
     private static final String ENCODING = "utf8";
     
@@ -111,7 +111,7 @@ class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVer
 
     final LobHandler lobHandler;
 
-    DatabaseVersionLogDAO(DataSource dataSource, LobHandler lobHandler)
+    public DatabaseVersionLogDAO(DataSource dataSource, LobHandler lobHandler)
     {
         setDataSource(dataSource);
         this.lobHandler = lobHandler;

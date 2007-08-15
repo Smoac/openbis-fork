@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.db.SQLStateUtils;
  *
  * @author Franz-Josef Elmer
  */
-class DBUtilities
+public class DBUtilities
 {
     /**
      * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
@@ -33,22 +33,23 @@ class DBUtilities
      * This is database specific.
      * </p>
      */
-    static boolean isDBNotExistException(DataAccessException ex)
+    public static boolean isDBNotExistException(DataAccessException ex)
     {
         // 3D000: INVALID CATALOG NAME
         return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.getSqlState(ex));
     }
 
-    private DBUtilities() {}
-
     /**
-     * Checks whether given <code>DataAccessException</code> is caused by a "user already exists" exception.
+     * Checks whether given <code>DataAccessException</code> is caused by a "duplicate object" exception.
      * <p>
      * This is database specific.
      * </p>
      */
-    static boolean ownerAlreadyExists(DataAccessException ex) {
+    public static boolean isDuplicateObjectException(DataAccessException ex) {
         // 42710 DUPLICATE OBJECT
         return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
+    
+    private DBUtilities() {}
+    
 }

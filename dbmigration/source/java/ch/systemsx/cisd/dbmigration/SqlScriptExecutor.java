@@ -25,9 +25,9 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  *
  * @author Franz-Josef Elmer
  */
-class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
+public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
 {
-    SqlScriptExecutor(DataSource dataSource)
+    public SqlScriptExecutor(DataSource dataSource)
     {
         setDataSource(dataSource);
     }

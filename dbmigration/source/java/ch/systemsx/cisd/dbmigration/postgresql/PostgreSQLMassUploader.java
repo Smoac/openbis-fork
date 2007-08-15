@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.postgresql;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.dbmigration.IMassUploader;
 
 /**
  * A {@link IMassUploader} for the PostgreSQL database.

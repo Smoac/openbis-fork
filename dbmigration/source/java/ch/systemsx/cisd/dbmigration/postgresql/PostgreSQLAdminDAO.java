@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.postgresql;
 
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
+import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.dbmigration.DBUtilities;
+import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for PostgreSQL.
@@ -68,7 +72,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
             }
         } catch (DataAccessException ex)
         {
-            if (DBUtilities.ownerAlreadyExists(ex))
+            if (DBUtilities.isDuplicateObjectException(ex))
             {
                 if (operationLog.isInfoEnabled())
                 {
@@ -84,10 +88,28 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     public void createDatabase()
     {
-        getJdbcTemplate().execute(
-                "create database " + database + " with owner = " + owner
-                        + " encoding = 'utf8' tablespace = pg_default;" + "alter database " + database
-                        + " set default_with_oids = off;");
+        JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        jdbcTemplate.execute("create database " + database + " with owner = " + owner
+                                        + " encoding = 'utf8' tablespace = pg_default;" 
+                             + "alter database " + database + " set default_with_oids = off;");
+        try
+        {
+            jdbcTemplate.execute("create trusted procedural language 'plpgsql' handler plpgsql_call_handler "
+                                 + "validator plpgsql_validator;");
+        } catch (DataAccessException e)
+        {
+            if (DBUtilities.isDuplicateObjectException(e))
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Couldn't create language:" + e+":"+SQLStateUtils.getSqlState(e));
+                }
+            } else
+            {
+                operationLog.error("Database language 'plpgsql' couldn't be created:", e);
+                throw e;
+            }
+        }
     }
 
     public void dropDatabase()
