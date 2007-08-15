@@ -38,7 +38,7 @@ public class QuietPeriodFileFilter implements FileFilter
      * @param operations The operations object to ask for the implementation to use to check when a pathname was
      *            changed.
      */
-    public QuietPeriodFileFilter(ITimingParameters timingParameters, IFileSystemOperations operations)
+    public QuietPeriodFileFilter(ITimingParameters timingParameters, IFileSysOperationsFactory operations)
     {
         assert timingParameters != null;
         assert operations != null;

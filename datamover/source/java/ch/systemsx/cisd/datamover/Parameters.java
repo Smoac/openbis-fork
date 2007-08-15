@@ -117,6 +117,19 @@ public class Parameters implements ITimingParameters
     private long intervalToWaitAfterFailureMillis;
 
     /**
+     * Default treatment of the incoming data directory - should it be treated as on a remote share?
+     */
+    private static final boolean DEFAULT_TREAT_INCOMING_AS_REMOTE = false;
+
+    /**
+     * If set to true, than directory with incoming data is supposed to be on a remote share. It implies that a special
+     * care will be taken when coping is performed from that directory.
+     */
+    @Option(name = "r", longName = "treat-incoming-as-remote", usage = "If set to true, than directory with incoming data "
+            + "is supposed to be on a remote share.")
+    private boolean treatIncomingAsRemote;
+
+    /**
      * Default number of retries after a failure has occurred.
      */
     static final int DEFAULT_MAXIMAL_NUMBER_OF_RETRIES = 10;
@@ -130,16 +143,21 @@ public class Parameters implements ITimingParameters
     private int maximalNumberOfRetries;
 
     /**
+     * The remote host to copy the data from or null if data are available on a local/remote share
+     */
+    @Option(longName = "incoming-host", metaVar = "HOST", usage = "The remote host to move the data from")
+    private String incomingHost = null;
+    
+    /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
     @Option(longName = "incoming-dir", metaVar = "DIR", usage = "The local directory where "
             + "the data producer writes to.")
     private File incomingDirectory = null;
-
+ 
+ 
     /**
-     * The directory to move files and directories to that have been quiet in the incoming directory for long enough and
-     * thus are considered to be ready to be moved to outgoing. Note that this directory needs to be on the same file
-     * system than {@link #incomingDirectory}.
+     * The directory for local files and directories manipulations.
      */
     @Option(longName = "buffer-dir", metaVar = "DIR", usage = "The local directory to "
             + "store the paths to be transfered temporarily.")
@@ -148,7 +166,7 @@ public class Parameters implements ITimingParameters
     /**
      * The directory to move files and directories to that have been quiet in the incoming directory for long enough and
      * that need manual intervention. Note that this directory needs to be on the same file system than
-     * {@link #incomingDirectory}.
+     * {@link #bufferDirectory}.
      */
     @Option(longName = "manual-intervention-dir", metaVar = "DIR", usage = "The local directory to "
             + "store paths that need manual intervention.")
@@ -178,22 +196,22 @@ public class Parameters implements ITimingParameters
      * The store where the files come in.
      */
     private final FileStore incomingStore;
-    
+
     /**
      * The store to buffer the files before copying to outgoing.
      */
     private final FileStore bufferStore;
-    
+
     /**
      * The store to copy the files to.
      */
     private final FileStore outgoingStore;
-    
+
     /**
      * The store to copy files to that need manual intervention.
      */
     private final FileStore manualInterventionStore;
-    
+
     /**
      * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
      */
@@ -283,7 +301,7 @@ public class Parameters implements ITimingParameters
                 throw new ConfigurationFailureException(
                         "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
             }
-            incomingStore = new FileStore(incomingDirectory, "incoming", null, false);
+            incomingStore = new FileStore(incomingDirectory, "incoming", incomingHost, treatIncomingAsRemote);
             bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
             manualInterventionStore = new FileStore(manualInterventionDirectory, "manual intervention", null, false);
             outgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
@@ -331,10 +349,14 @@ public class Parameters implements ITimingParameters
         maximalNumberOfRetries =
                 Integer.parseInt(serviceProperties.getProperty("max-retries", Integer
                         .toString(DEFAULT_MAXIMAL_NUMBER_OF_RETRIES)));
+        treatIncomingAsRemote =
+                Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote", Boolean
+                        .toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)));
         if (serviceProperties.getProperty("incoming-dir") != null)
         {
             incomingDirectory = new File(serviceProperties.getProperty("incoming-dir"));
         }
+        incomingHost = serviceProperties.getProperty("incoming-host");
         if (serviceProperties.getProperty("buffer-dir") != null)
         {
             bufferDirectory = new File(serviceProperties.getProperty("buffer-dir"));
@@ -453,9 +475,16 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The store to move files and directories to that have been quiet in the incoming directory for long
-     *         enough and thus are considered to be ready to be moved to remote. Note that this directory needs to be on
-     *         the same file system as {@link #getIncomingStore}.
+     * @return true if directory with incoming data is supposed to be on a remote share. It implies that a special care
+     *         will be taken when coping is performed from that directory.
+     */
+    public boolean getTreatIncomingAsRemote()
+    {
+        return treatIncomingAsRemote;
+    }
+
+    /**
+     * @return The directory for local files and directories manipulations.
      */
     public FileStore getBufferStore()
     {
@@ -472,8 +501,8 @@ public class Parameters implements ITimingParameters
 
     /**
      * @return The directory to move files and directories to that have been quiet in the local data directory for long
-     *         enough and that need manual intervention. Note that this directory needs to be on the same file system
-     *         as {@link #getIncomingStore}.
+     *         enough and that need manual intervention. Note that this directory needs to be on the same file system as
+     *         {@link #getBufferStore}.
      */
     public File getManualInterventionDirectory()
     {
@@ -482,8 +511,8 @@ public class Parameters implements ITimingParameters
 
     /**
      * @return The store to move files and directories to that have been quiet in the local data directory for long
-     *         enough and that need manual intervention. Note that this directory needs to be on the same file system
-     *         as {@link #getIncomingStore}.
+     *         enough and that need manual intervention. Note that this directory needs to be on the same file system as
+     *         {@link #getBufferStore}.
      */
     public FileStore getManualInterventionStore()
     {
@@ -525,8 +554,8 @@ public class Parameters implements ITimingParameters
             }
             if (null != getManualInterventionDirectory())
             {
-                operationLog.info(String.format("Manual interventions directory: '%s'.",
-                        manualInterventionDirectory.getAbsolutePath()));
+                operationLog.info(String.format("Manual interventions directory: '%s'.", manualInterventionDirectory
+                        .getAbsolutePath()));
             }
             operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));

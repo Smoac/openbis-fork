@@ -167,19 +167,19 @@ public class SelfTest
      * @return <code>true</code> if the <var>copyProcess</var> on the file system where the <var>destinationDirectory</var>
      *         resides requires deleting an existing file before it can be overwritten.
      */
-    public static boolean requiresDeletionBeforeCreation(IPathCopier copyProcess, File sourceDirectory,
-            File destinationDirectory)
+    public static boolean requiresDeletionBeforeCreation(IPathCopier copyProcess, File destinationDirectory)
     {
         assert copyProcess != null;
-        assert sourceDirectory != null;
-        assert sourceDirectory.isDirectory();
         assert destinationDirectory != null;
         assert destinationDirectory.isDirectory();
 
-        final File sourceFile = new File(sourceDirectory, ".requiresDeletionBeforeCreation");
-        final File destinationFile = new File(destinationDirectory, ".requiresDeletionBeforeCreation");
+        String fileName = ".requiresDeletionBeforeCreation";
+        final File destinationFile = new File(destinationDirectory, fileName);
+        final File tmpSourceDir = new File(destinationDirectory, ".DataMover-OverrideTest");
+        final File sourceFile = new File(tmpSourceDir, fileName);
         try
         {
+            tmpSourceDir.mkdir();
             sourceFile.createNewFile();
             destinationFile.createNewFile();
             // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
@@ -211,6 +211,7 @@ public class SelfTest
         {
             // We don't check for success because there is nothing we can do if we fail.
             sourceFile.delete();
+            tmpSourceDir.delete();
             destinationFile.delete();
         }
     }

@@ -80,7 +80,7 @@ public class RsyncCopier implements IPathCopier
     private final String sshExecutable;
 
     private final List<String> additionalCmdLineFlags;
-    
+
     /**
      * If <code>true</code>, the file system of the destination directory requires that already existing files and
      * directories on the remote side are removed before the copy process is started.
@@ -124,15 +124,16 @@ public class RsyncCopier implements IPathCopier
 
     public Status copy(File sourcePath, File destinationDirectory)
     {
-        return copy(sourcePath, destinationDirectory, null);
+        return copy(sourcePath, null, destinationDirectory, null);
     }
 
-    public Status copy(File sourcePath, File destinationDirectory, String destinationHost)
+    public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost)
     {
         assert sourcePath != null;
-        assert sourcePath.exists();
+        assert sourceHost != null || sourcePath.exists();
         assert destinationDirectory != null;
         assert destinationHost != null || destinationDirectory.isDirectory();
+        assert sourceHost == null || destinationHost == null; // only one side can be remote
 
         final File destinationPath = new File(destinationDirectory, sourcePath.getName());
         if (destinationDirectoryRequiresDeletionBeforeCreation && destinationPath.exists())
@@ -143,12 +144,13 @@ public class RsyncCopier implements IPathCopier
                         "Remove path '%s' since it exists and the remote file system doesn't support overwriting.",
                         destinationPath));
             }
+            // TODO [2007-08-13 tpylak] Bernd, what if destinationHost is set?
             FileUtilities.deleteRecursively(destinationPath);
         }
         try
         {
             final ProcessBuilder copyProcessBuilder =
-                    new ProcessBuilder(createCommandLine(sourcePath, destinationDirectory, destinationHost));
+                    new ProcessBuilder(createCommandLine(sourcePath, sourceHost, destinationDirectory, destinationHost));
             copyProcessBuilder.redirectErrorStream(true);
             if (operationLog.isDebugEnabled())
             {
@@ -174,12 +176,14 @@ public class RsyncCopier implements IPathCopier
         }
     }
 
-    private List<String> createCommandLine(File sourcePath, File destinationDirectory, String destinationHost)
+    private List<String> createCommandLine(File sourcePath, String sourceHost, File destinationDirectory,
+            String destinationHost)
     {
-        assert sourcePath != null && sourcePath.exists();
-        assert destinationDirectory != null && destinationDirectory.isDirectory();
-        assert (destinationHost != null && sshExecutable != null) || (destinationHost == null); 
-        
+        assert sourcePath != null && (sourceHost != null || sourcePath.exists());
+        assert destinationDirectory != null && (destinationHost != null || destinationDirectory.isDirectory());
+        assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
+        assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
+
         final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace", "--whole-file");
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
@@ -193,12 +197,12 @@ public class RsyncCopier implements IPathCopier
         {
             commandLineList.addAll(additionalCmdLineFlags);
         }
-        commandLineList.add(toUnix(sourcePath.getAbsolutePath()));
-        commandLineList.add(createDestination(destinationHost, destinationDirectory));
-        
+        commandLineList.add(buildPath(sourceHost, sourcePath, false));
+        commandLineList.add(buildPath(destinationHost, destinationDirectory, true));
+
         return commandLineList;
     }
-    
+
     private static String getSshExecutableArgument(String sshExecutable)
     {
         if (OSUtilities.isWindows())
@@ -209,16 +213,22 @@ public class RsyncCopier implements IPathCopier
             return sshExecutable + " -oBatchMode=yes";
         }
     }
-    
-    private static String createDestination(String destinationHost, File destinationDirectory)
+
+    private static String buildPath(String host, File resource, boolean isDirectory)
     {
-        if (null == destinationHost)
+        if (null == host)
         {
-            return toUnix(destinationDirectory.getAbsolutePath() + File.separator);
+            String path = resource.getAbsolutePath();
+            if (isDirectory)
+                path += File.separator;
+            return toUnix(path);
         } else
         {
+            String path = resource.getPath();
+            if (isDirectory)
+                path += File.separator;
             // We must not use the absolute path here because that is the business of the destination host.
-            return destinationHost + ":" + toUnix(destinationDirectory.getPath() + File.separator);
+            return host + ":" + toUnix(path);
         }
     }
 
@@ -362,8 +372,8 @@ public class RsyncCopier implements IPathCopier
     {
         assert destinationDirectory != null && destinationDirectory.isDirectory();
         assert destinationHost != null;
-        
-        final String destination = createDestination(destinationHost, destinationDirectory);
+
+        final String destination = buildPath(destinationHost, destinationDirectory, true);
         final ProcessBuilder listProcessBuilder =
                 new ProcessBuilder(rsyncExecutable, "--rsh", getSshExecutableArgument(sshExecutable), destination)
                         .redirectErrorStream(true);

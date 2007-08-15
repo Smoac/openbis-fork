@@ -97,7 +97,7 @@ public class CopyActivityMonitor
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(File destinationDirectory, IFileSystemOperations operations, ITerminable copyProcess,
+    public CopyActivityMonitor(File destinationDirectory, IFileSysOperationsFactory operations, ITerminable copyProcess,
             ITimingParameters timingParameters)
     {
         this.monitoredPathLastChecked = new AtomicLong(0);

@@ -130,15 +130,13 @@ public class Main
     }
 
     /**
-     * Returns the path copier and performs a self-test.
+     * performs a self-test.
      */
-    private static IPathCopier getPathCopier(final Parameters parameters)
+    private static void selfTest(final Parameters parameters)
     {
-        IPathCopier copyProcess = null; // Convince Eclipse compiler that the variable has been initialized.
-
         try
         {
-            copyProcess = suggestPathCopier(parameters, false); // This is part of the self-test.
+            IPathCopier copyProcess = suggestPathCopier(parameters, false);
             SelfTest.check(copyProcess, parameters.getIncomingStore(), parameters.getBufferStore(), parameters
                     .getOutgoingStore(), parameters.getManualInterventionStore());
         } catch (HighLevelException e)
@@ -151,28 +149,32 @@ public class Main
             e.printStackTrace();
             System.exit(1);
         }
-        if (SelfTest.requiresDeletionBeforeCreation(copyProcess, parameters.getBufferStore().getPath(), parameters
-                .getOutgoingStore().getPath()))
-        {
-            copyProcess = suggestPathCopier(parameters, true);
-        }
-        return copyProcess;
+    }
+
+    /**
+     * Returns the path copier
+     */
+    private static IPathCopier getPathCopier(Parameters parameters, File destinationDirectory)
+    {
+        IPathCopier copyProcess = suggestPathCopier(parameters, false);
+        boolean requiresDeletionBeforeCreation =
+                SelfTest.requiresDeletionBeforeCreation(copyProcess, destinationDirectory);
+        return suggestPathCopier(parameters, requiresDeletionBeforeCreation);
     }
 
     private static void startupServer(final Parameters parameters)
     {
-        final IPathCopier copyProcess = getPathCopier(parameters);
-
-        final IFileSystemOperations operations = new IFileSystemOperations()
+        selfTest(parameters);
+        final IFileSysOperationsFactory operations = new IFileSysOperationsFactory()
             {
                 public IPathLastChangedChecker getChecker()
                 {
                     return new FSPathLastChangedChecker();
                 }
 
-                public IPathCopier getCopier()
+                public IPathCopier getCopier(File destinationDirectory)
                 {
-                    return copyProcess;
+                    return getPathCopier(parameters, destinationDirectory);
                 }
 
                 public IPathRemover getRemover()

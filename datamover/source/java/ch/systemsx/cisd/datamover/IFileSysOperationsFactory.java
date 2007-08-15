@@ -15,15 +15,17 @@
  */
 package ch.systemsx.cisd.datamover;
 
+import java.io.File;
+
 /**
  * A role that provides access to the roles which perform file system operations.
  * 
  * @author Bernd Rinn
  */
-public interface IFileSystemOperations
+public interface IFileSysOperationsFactory
 {
 
-    public IPathCopier getCopier();
+    public IPathCopier getCopier(File destinationDirectory);
 
     public IPathRemover getRemover();
 

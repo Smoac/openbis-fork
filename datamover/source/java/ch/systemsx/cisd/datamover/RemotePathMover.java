@@ -51,7 +51,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
     private static final String MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE =
             "Moving path '%s' to remote directory '%s' failed.";
 
-    private static final String REMOVING_LOCAL_PATH_FAILED_TEMPLATE = "Removing local path '%s' failed.";
+    private static final String REMOVING_LOCAL_PATH_FAILED_TEMPLATE = "Removing local path '%s' failed (%s).";
 
     private static final String FAILED_TO_CREATE_MARK_FILE_TEMPLATE = "Failed to create mark file '%s'";
 
@@ -71,6 +71,8 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
     private final IPathCopier copier;
 
     private final IPathRemover remover;
+    
+    private final String sourceHost;
 
     private final CopyActivityMonitor monitor;
 
@@ -85,15 +87,18 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
      * @param destinationHost The host to move paths to, or <code>null</code>, if <var>destinationDirectory</var> is
      *            a remote share.
      * @param monitor The activity monitor to inform about actions.
-     * @param operations The implementations of the file system operations to use for moving.
+     * @param remover Allows to remove files.
+     * @param copier Allows to copy files
+     * @param sourceHost The host to move paths from, or <code>null</code>, if data will be moved from the local file system
      * @param timingParameters The timing parametes used for monitoring and reporting stall situations.
      */
     public RemotePathMover(File destinationDirectory, String destinationHost, CopyActivityMonitor monitor,
-            IFileSystemOperations operations, ITimingParameters timingParameters)
+            IPathRemover remover, IPathCopier copier, String sourceHost, ITimingParameters timingParameters)
     {
         assert destinationDirectory != null;
         assert monitor != null;
-        assert operations != null;
+        assert remover != null;
+        assert copier != null;
         assert timingParameters != null;
         assert FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination") == null : FileUtilities
                 .checkDirectoryFullyAccessible(destinationDirectory, "destination");
@@ -101,8 +106,9 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         this.destinationDirectory = destinationDirectory;
         this.destinationHost = destinationHost;
         this.monitor = monitor;
-        this.copier = operations.getCopier();
-        this.remover = operations.getRemover();
+        this.copier = copier;
+        this.remover = remover;
+        this.sourceHost = sourceHost;
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
 
@@ -131,7 +137,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
             }
             final long startTime = System.currentTimeMillis();
             monitor.start(path);
-            final Status copyStatus = copier.copy(path, destinationDirectory, destinationHost);
+            final Status copyStatus = copier.copy(path, sourceHost, destinationDirectory, destinationHost);
             monitor.stop();
             if (StatusFlag.OK.equals(copyStatus.getFlag()))
             {
@@ -145,7 +151,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
                 if (Status.OK.equals(removalStatus) == false)
                 {
                     // We don't retry this, because the path is local and removal really shouldn't fail.
-                    notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path));
+                    notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path, removalStatus));
                 } else if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(String.format(REMOVED_PATH_TEMPLATE, path.getPath()));
@@ -218,7 +224,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         {
             markFile.createNewFile();
             monitor.start(path);
-            final Status copyStatus = copier.copy(markFile, destinationDirectory, destinationHost);
+            final Status copyStatus = copier.copy(markFile, sourceHost, destinationDirectory, destinationHost);
             monitor.stop();
             if (StatusFlag.OK.equals(copyStatus.getFlag()))
             {

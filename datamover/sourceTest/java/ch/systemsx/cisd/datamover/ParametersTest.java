@@ -218,16 +218,22 @@ public class ParametersTest
         final String REMOTE_HOST = "myremotehost";
         final int CHECK_INTERVAL = 22;
         final int QUIET_PERIOD = 33;
+        final String TREAT_AS_REMOTE = Boolean.toString(true);
+        final String REMOTE_INCOMING_HOST = "my-remote-incoming-host";
+
         final Parameters parameters =
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR,
                         "--outgoing-host", REMOTE_HOST, "--check-interval", Integer.toString(CHECK_INTERVAL),
-                        "--quiet-period", Integer.toString(QUIET_PERIOD));
+                        "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote",
+                        TREAT_AS_REMOTE, "--incoming-host", REMOTE_INCOMING_HOST);
         assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
+        assertEquals(REMOTE_INCOMING_HOST, parameters.getIncomingStore().getHost());
         assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
         assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
         assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
+        assertEquals(TREAT_AS_REMOTE, parameters.getTreatIncomingAsRemote());
     }
 
 }

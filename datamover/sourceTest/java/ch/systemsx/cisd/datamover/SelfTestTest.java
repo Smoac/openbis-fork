@@ -50,7 +50,7 @@ public class SelfTestTest
     private static final File outgoingDirectory = new File(workingDirectory, "outgoing");
 
     private static final FileStore outgoingStore = new FileStore(outgoingDirectory, "outgoing", null, false);
-    
+
     private static final FileStore dummyStore = new FileStore(null, "dummy", null, false);
 
     private static final IPathCopier mockCopier = new MockPathCopier(false, false);
@@ -106,7 +106,7 @@ public class SelfTestTest
             throw new AssertionError();
         }
 
-        public Status copy(File sourcePath, File destinationDirectory, String destinationHost)
+        public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost)
         {
             throw new AssertionError();
         }

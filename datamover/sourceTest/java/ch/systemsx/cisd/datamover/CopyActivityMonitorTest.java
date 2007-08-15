@@ -78,7 +78,7 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private final class MyFileSystemOperations implements IFileSystemOperations
+    private final class MyFileSystemOperations implements IFileSysOperationsFactory
     {
         /**
          * 
@@ -95,7 +95,7 @@ public class CopyActivityMonitorTest
             return checker;
         }
 
-        public IPathCopier getCopier()
+        public IPathCopier getCopier(File destinationDirectory)
         {
             throw new AssertionError("call not expected");
         }
@@ -187,7 +187,7 @@ public class CopyActivityMonitorTest
     public void testHappyPath() throws Throwable
     {
         final IPathLastChangedChecker checker = new HappyPathLastChangedChecker();
-        final IFileSystemOperations operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
         final ITerminable dummyTerminable = new DummyTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -205,7 +205,7 @@ public class CopyActivityMonitorTest
     public void testCopyStalled() throws Throwable
     {
         final IPathLastChangedChecker checker = new PathLastChangedCheckerStalled();
-        final IFileSystemOperations operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -251,7 +251,7 @@ public class CopyActivityMonitorTest
     public void testCopySeemsStalledButActuallyIsFine() throws Throwable
     {
         final IPathLastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
-        final IFileSystemOperations operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -280,7 +280,7 @@ public class CopyActivityMonitorTest
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
         LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class).addAppender(appender);
         final PathLastChangedCheckerStuck checker = new PathLastChangedCheckerStuck();
-        final IFileSystemOperations operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -305,7 +305,7 @@ public class CopyActivityMonitorTest
             try
             {
                 Thread.sleep(INACTIVITY_PERIOD_MILLIS); // Wait longer than the activity monitor is willing to wait for
-                                                        // us.
+                // us.
             } catch (InterruptedException e)
             {
                 // Can't happen since this method runs in a TimerThread which isn't interrupted.
