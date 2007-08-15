@@ -125,7 +125,7 @@ public class Parameters implements ITimingParameters
      * If set to true, than directory with incoming data is supposed to be on a remote share. It implies that a special
      * care will be taken when coping is performed from that directory.
      */
-    @Option(name = "r", longName = "treat-incoming-as-remote", usage = "If set to true, than directory with incoming data "
+    @Option(name = "r", longName = "treat-incoming-as-remote", usage = "If flag is set, than directory with incoming data "
             + "is supposed to be on a remote share.")
     private boolean treatIncomingAsRemote;
 
@@ -147,15 +147,13 @@ public class Parameters implements ITimingParameters
      */
     @Option(longName = "incoming-host", metaVar = "HOST", usage = "The remote host to move the data from")
     private String incomingHost = null;
-    
+
     /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
-    @Option(longName = "incoming-dir", metaVar = "DIR", usage = "The local directory where "
-            + "the data producer writes to.")
+    @Option(longName = "incoming-dir", metaVar = "DIR", usage = "The directory where the data producer writes to.")
     private File incomingDirectory = null;
- 
- 
+
     /**
      * The directory for local files and directories manipulations.
      */
