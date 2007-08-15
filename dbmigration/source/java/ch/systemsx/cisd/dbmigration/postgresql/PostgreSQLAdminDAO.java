@@ -87,27 +87,11 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     public void createDatabase()
     {
-        operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
+        operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
         jdbcTemplate.execute("create database " + database + " with owner = " + owner
-                                        + " encoding = 'utf8' tablespace = pg_default;" 
-                             + "alter database " + database + " set default_with_oids = off;");
-        try
-        {
-            operationLog.info("Try to create language 'plpgsql'.");
-            jdbcTemplate.execute("create trusted procedural language 'plpgsql' handler plpgsql_call_handler "
-                                 + "validator plpgsql_validator;");
-        } catch (DataAccessException e)
-        {
-            if (DBUtilities.isDuplicateObjectException(e))
-            {
-                operationLog.info("Language 'plpgsql' already exists.");
-            } else
-            {
-                operationLog.error("Database language 'plpgsql' couldn't be created:", e);
-                throw e;
-            }
-        }
+                + " encoding = 'utf8' tablespace = pg_default;" 
+                + "alter database " + database + " set default_with_oids = off;");
     }
 
     public void dropDatabase()
