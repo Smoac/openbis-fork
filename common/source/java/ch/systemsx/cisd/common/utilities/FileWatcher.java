@@ -32,6 +32,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public abstract class FileWatcher extends TimerTask
 {
 
+    static final String DOES_NOT_EXIST_FORMAT = "Given file '%s' does not exist.";
+
+    static final String HAS_NOT_CHANGED_FORMAT = "Watched file '%s' did not change.";
+
+    static final String HAS_CHANGED_FORMAT = "Watched file '%s' has changed.";
+
+    static final String PERMISSION_EXCEPTION_FORMAT = "Was not allowed to check existence of file '%s'.";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileWatcher.class);
 
     /** The default <code>FileWatcherState</code> implementation used. */
@@ -77,7 +85,7 @@ public abstract class FileWatcher extends TimerTask
             fileExists = fileToWatch.exists();
         } catch (SecurityException e)
         {
-            operationLog.warn(String.format("Was not allowed to check existence of file '%s'.", fileToWatch), e);
+            operationLog.warn(String.format(PERMISSION_EXCEPTION_FORMAT, fileToWatch), e);
             return;
         }
         if (fileExists)
@@ -86,7 +94,7 @@ public abstract class FileWatcher extends TimerTask
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug(String.format("Watched file '%s' has changed.", fileToWatch));
+                    operationLog.debug(String.format(HAS_CHANGED_FORMAT, fileToWatch));
                 }
                 onChange();
                 warnedAlready = false;
@@ -94,14 +102,14 @@ public abstract class FileWatcher extends TimerTask
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug(String.format("Watched file '%s' did not change.", fileToWatch));
+                    operationLog.debug(String.format(HAS_NOT_CHANGED_FORMAT, fileToWatch));
                 }
             }
         } else
         {
             if (warnedAlready == false)
             {
-                operationLog.warn(String.format("Given file '%s' does not exist.", fileToWatch));
+                operationLog.warn(String.format(DOES_NOT_EXIST_FORMAT, fileToWatch));
                 warnedAlready = true;
             }
         }
