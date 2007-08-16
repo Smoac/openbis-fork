@@ -38,6 +38,9 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for the {@link FileWatcher}.
+ * <p>
+ * Note that this test is suite aware. This test will probably fail if you call it alone.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -47,26 +50,30 @@ public class FileWatcherTest
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "FileWatcherTest");
 
-    private static final File touchedFile = new File(workingDirectory, "touchedFile");
-
-    private boolean onChangeCalled;
+    private static final File touchedFile1 = new File(workingDirectory, "touchedFile1");
 
     private PrintStream systemOut;
 
     private PrintStream systemErr;
 
     private ByteArrayOutputStream logRecorder;
-    
+
+    private final static void createNewFile(File file) throws IOException
+    {
+        FileUtils.touch(file);
+        assert file.exists();
+        file.deleteOnExit();
+    }
+
     @BeforeSuite
-    public final void beforeSuite() throws IOException {
+    public final void beforeSuite() throws IOException
+    {
         workingDirectory.mkdirs();
         assert workingDirectory.isDirectory();
-        FileUtils.touch(touchedFile);
-        assert touchedFile.exists();
-        touchedFile.deleteOnExit();
+        createNewFile(touchedFile1);
         workingDirectory.deleteOnExit();
     }
-    
+
     @BeforeClass
     public final void setUp() throws IOException
     {
@@ -77,7 +84,7 @@ public class FileWatcherTest
         System.setErr(new PrintStream(logRecorder));
         System.setOut(new PrintStream(logRecorder));
         Properties properties = new Properties();
-        properties.setProperty("log4j.rootLogger", "DEBUG, TestAppender");
+        properties.setProperty("log4j.rootLogger", "TRACE, TestAppender");
         properties.setProperty("log4j.appender.TestAppender", ConsoleAppender.class.getName());
         properties.setProperty("log4j.appender.TestAppender.layout", PatternLayout.class.getName());
         properties.setProperty("log4j.appender.TestAppender.layout.ConversionPattern", "%m%n");
@@ -121,19 +128,17 @@ public class FileWatcherTest
     @Test
     public final void testNonChangingFile()
     {
-        new TestFileWatcher(touchedFile).run();
-        assertEquals(String.format(FileWatcher.HAS_NOT_CHANGED_FORMAT, touchedFile), getLogContent());
+        new TestFileWatcher(touchedFile1).run();
+        assertEquals(String.format(FileWatcher.HAS_NOT_CHANGED_FORMAT, touchedFile1), getLogContent());
     }
 
-    @SuppressWarnings("static-access")
     @Test
     public final void testFileHasChanged() throws IOException
     {
-        FileWatcher fileWatcher = new TestFileWatcher(touchedFile);
-        FileUtils.touch(touchedFile);
+        FileWatcher fileWatcher = new TestFileWatcher(touchedFile1);
+        FileUtils.touch(touchedFile1);
         fileWatcher.run();
-        assertEquals(String.format(FileWatcher.HAS_CHANGED_FORMAT, touchedFile), getLogContent());
-        assertEquals(true, onChangeCalled);
+        assertEquals(String.format(FileWatcher.HAS_CHANGED_FORMAT, touchedFile1), getLogContent());
     }
 
     //
@@ -151,7 +156,7 @@ public class FileWatcherTest
         @Override
         protected void onChange()
         {
-            onChangeCalled = true;
+
         }
     }
 }

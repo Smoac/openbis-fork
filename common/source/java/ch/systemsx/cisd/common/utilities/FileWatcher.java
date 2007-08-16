@@ -100,9 +100,9 @@ public abstract class FileWatcher extends TimerTask
                 warnedAlready = false;
             } else
             {
-                if (operationLog.isDebugEnabled())
+                if (operationLog.isTraceEnabled())
                 {
-                    operationLog.debug(String.format(HAS_NOT_CHANGED_FORMAT, fileToWatch));
+                    operationLog.trace(String.format(HAS_NOT_CHANGED_FORMAT, fileToWatch));
                 }
             }
         } else
