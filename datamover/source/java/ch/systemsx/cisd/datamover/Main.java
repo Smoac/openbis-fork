@@ -18,16 +18,20 @@ package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.datamover.hardlink.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.xcopy.XcopyCopier;
 
@@ -65,6 +69,47 @@ public class Main
             operationLog.info(line);
         }
         parameters.log();
+    }
+
+    private static IPathImmutableCopier getImmutablePathCopier(Parameters parameters)
+    {
+        String lnExec = parameters.getHardLinkExecutable();
+        if (lnExec != null)
+        {
+            return RecursiveHardLinkMaker.create(lnExec);
+        }
+
+        IPathImmutableCopier copier = null;
+        if (!OSUtilities.isWindows())
+        {
+            copier = RecursiveHardLinkMaker.tryCreate();
+            if (copier != null)
+            {
+                return copier;
+            }
+        }
+        return createFakedImmCopier(parameters);
+    }
+
+    private static IPathImmutableCopier createFakedImmCopier(Parameters parameters)
+    {
+        final IPathCopier normalCopier = suggestPathCopier(parameters, false);
+        return new IPathImmutableCopier()
+            {
+                public File tryCopy(File file, File destinationDirectory)
+                {
+                    Status status = normalCopier.copy(file, destinationDirectory);
+                    if (StatusFlag.OK.equals(status.getFlag()))
+                    {
+                        return new File(destinationDirectory, file.getName());
+                    } else
+                    {
+                        notificationLog.error(String.format("Copy of '%s' to '%s' failed: %s.", file.getPath(),
+                                destinationDirectory.getPath(), status));
+                        return null;
+                    }
+                }
+            };
     }
 
     private static IPathCopier suggestPathCopier(Parameters parameters, boolean requiresDeletionBeforeCreation)
@@ -137,8 +182,16 @@ public class Main
         try
         {
             IPathCopier copyProcess = suggestPathCopier(parameters, false);
-            SelfTest.check(copyProcess, parameters.getIncomingStore(), parameters.getBufferStore(), parameters
-                    .getOutgoingStore(), parameters.getManualInterventionStore());
+            ArrayList<FileStore> stores = new ArrayList<FileStore>();
+            stores.add(parameters.getIncomingStore());
+            stores.add(parameters.getBufferStore());
+            stores.add(parameters.getOutgoingStore());
+            stores.add(parameters.getManualInterventionStore());
+            if (parameters.tryGetExtraCopyStore() != null)
+            {
+                stores.add(parameters.tryGetExtraCopyStore());
+            }
+            SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
         } catch (HighLevelException e)
         {
             System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
@@ -180,6 +233,11 @@ public class Main
                 public IPathRemover getRemover()
                 {
                     return new FSPathRemover();
+                }
+
+                public IPathImmutableCopier getImmutableCopier()
+                {
+                    return getImmutablePathCopier(parameters);
                 }
             };
 

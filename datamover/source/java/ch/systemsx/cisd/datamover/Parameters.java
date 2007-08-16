@@ -67,6 +67,12 @@ public class Parameters implements ITimingParameters
     private String sshExecutable = null;
 
     /**
+     * The path to the <code>ln</code> executable file for creating hard links.
+     */
+    @Option(longName = "hard-link-executable", metaVar = "EXEC", usage = "The executable to use for creating hard links.")
+    private String hardLinkExecutable = null;
+
+    /**
      * Default interval to wait between two checks for activity (in seconds)
      */
     static final int DEFAULT_CHECK_INTERVAL = 120;
@@ -184,6 +190,14 @@ public class Parameters implements ITimingParameters
     private String outgoingHost = null;
 
     /**
+     * The local directory where we create additional copy of the incoming data (if and only if the directory is
+     * specified)
+     */
+    @Option(longName = "extra-copy-dir", metaVar = "DIR", usage = "The local directory where we create additional "
+            + "copy of the incoming data.")
+    private File extraCopyDirectory = null;
+
+    /**
      * The regular expression to use for cleansing on the incoming directory before moving it to the buffer.
      */
     @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
@@ -209,6 +223,11 @@ public class Parameters implements ITimingParameters
      * The store to copy files to that need manual intervention.
      */
     private final FileStore manualInterventionStore;
+
+    /**
+     * The store where we create an additional copy of incoming data (optional).
+     */
+    private final FileStore extraCopyStoreOrNull;
 
     /**
      * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
@@ -303,6 +322,13 @@ public class Parameters implements ITimingParameters
             bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
             manualInterventionStore = new FileStore(manualInterventionDirectory, "manual intervention", null, false);
             outgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
+            if (extraCopyDirectory != null)
+            {
+                extraCopyStoreOrNull = new FileStore(extraCopyDirectory, "extra-copy", null, false);
+            } else
+            {
+                extraCopyStoreOrNull = null;
+            }
         } catch (Exception ex)
         {
             outputException(ex);
@@ -333,6 +359,7 @@ public class Parameters implements ITimingParameters
         final Properties serviceProperties = loadServiceProperties();
         rsyncExecutable = serviceProperties.getProperty("rsync-executable");
         sshExecutable = serviceProperties.getProperty("ssh-executable");
+        hardLinkExecutable = serviceProperties.getProperty("hard-link-executable");
         checkIntervalMillis =
                 Integer.parseInt(serviceProperties.getProperty("check-interval", Integer
                         .toString(DEFAULT_CHECK_INTERVAL))) * 1000;
@@ -368,6 +395,10 @@ public class Parameters implements ITimingParameters
             outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir"));
         }
         outgoingHost = serviceProperties.getProperty("outgoing-host");
+        if (serviceProperties.getProperty("extra-copy-dir") != null)
+        {
+            extraCopyDirectory = new File(serviceProperties.getProperty("extra-copy-dir"));
+        }
         if (serviceProperties.getProperty("cleansing-regex") != null)
         {
             cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
@@ -419,6 +450,15 @@ public class Parameters implements ITimingParameters
     public String getSshExecutable()
     {
         return sshExecutable;
+    }
+
+    /**
+     * @return The name of the <code>ln</code> executable to use for creating hard links or <code>null</code> if not
+     *         specified.
+     */
+    public String getHardLinkExecutable()
+    {
+        return hardLinkExecutable;
     }
 
     /**
@@ -518,6 +558,15 @@ public class Parameters implements ITimingParameters
     }
 
     /**
+     * @return The store where we create an additional copy of incoming data or <code>null</code> if it is not
+     *         specified. Note that this directory needs to be on the same file system as {@link #getBufferStore}.
+     */
+    public FileStore tryGetExtraCopyStore()
+    {
+        return extraCopyStoreOrNull;
+    }
+
+    /**
      * @return The regular expression to use for cleansing on the incoming directory before moving it to the buffer or
      *         <code>null</code>, if no regular expression for cleansing has been provided.
      */
@@ -544,6 +593,11 @@ public class Parameters implements ITimingParameters
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Incoming directory: '%s'.", incomingDirectory.getAbsolutePath()));
+            if (null != incomingHost)
+            {
+                operationLog.info(String.format("Incoming host: '%s'.", incomingHost));
+            }
+            operationLog.info(String.format("Is incoming directory remote: %b.", treatIncomingAsRemote));
             operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory.getAbsolutePath()));
             operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory.getAbsolutePath()));
             if (null != outgoingHost)
@@ -554,6 +608,10 @@ public class Parameters implements ITimingParameters
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.", manualInterventionDirectory
                         .getAbsolutePath()));
+            }
+            if (null != extraCopyDirectory)
+            {
+                operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory.getAbsolutePath()));
             }
             operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));

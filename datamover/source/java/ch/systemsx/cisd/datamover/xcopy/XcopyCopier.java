@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.IPathCopier;
+import ch.systemsx.cisd.datamover.helper.CmdLineHelper;
 
 /**
  * A class that encapsulates the <code>xcopy</code> call for doing an archive copy.
@@ -52,11 +53,6 @@ public class XcopyCopier implements IPathCopier
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, XcopyCopier.class);
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, XcopyCopier.class);
-
-    /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()}.
-     */
-    private static final int EXIT_VALUE_FOR_TERMINATION = 1;
 
     private static final Status INTERRUPTED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
 
@@ -175,7 +171,7 @@ public class XcopyCopier implements IPathCopier
 
     private Status createStatus(final int exitValue)
     {
-        if (exitValue == EXIT_VALUE_FOR_TERMINATION)
+        if (CmdLineHelper.processTerminated(exitValue))
         {
             return TERMINATED_STATUS;
         }
@@ -192,42 +188,7 @@ public class XcopyCopier implements IPathCopier
 
     private void logXcopyExitValue(final int exitValue, final Process copyProcess)
     {
-        if (operationLog.isDebugEnabled())
-        {
-            if (exitValue == EXIT_VALUE_FOR_TERMINATION)
-            {
-                operationLog.debug("Xcopy process was destroyed.");
-            } else
-            {
-                operationLog.debug(String.format("Xcopy process returned with exit value %d.", exitValue));
-            }
-            if (exitValue != 0)
-            {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(copyProcess.getInputStream()));
-                try
-                {
-                    String ln;
-                    while ((ln = reader.readLine()) != null)
-                    {
-                        if (ln.trim().length() > 0)
-                            machineLog.debug(String.format("XCOPY: \"%s\"", ln));
-                    }
-                } catch (IOException e)
-                {
-                    operationLog.debug(String.format("IOException when trying to read stderr, msg='%s'.", e
-                            .getMessage()));
-                } finally
-                {
-                    try
-                    {
-                        reader.close();
-                    } catch (IOException e)
-                    {
-                        // Silence this.
-                    }
-                }
-            }
-        }
+        CmdLineHelper.logProcessExitValue(exitValue, copyProcess, "xcopy", operationLog, machineLog);
     }
 
     /**

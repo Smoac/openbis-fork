@@ -18,10 +18,8 @@ package ch.systemsx.cisd.datamover.rsync;
 
 import static ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.getVersion;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.IPathCopier;
+import ch.systemsx.cisd.datamover.helper.CmdLineHelper;
 import ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.RsyncVersion;
 
 /**
@@ -55,23 +54,11 @@ public class RsyncCopier implements IPathCopier
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
      */
-    public static final Status TERMINATED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was terminated.");
+    protected static final Status TERMINATED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was terminated.");
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RsyncCopier.class);
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RsyncCopier.class);
-
-    /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()}
-     * on a UNIX machine.
-     */
-    private static final int EXIT_VALUE_FOR_TERMINATION_UNIX = 143;
-
-    /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()}
-     * on a MS Windows machine.
-     */
-    private static final int EXIT_VALUE_FOR_TERMINATION_WINDOWS = 1;
 
     private static final Status INTERRUPTED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
 
@@ -144,7 +131,7 @@ public class RsyncCopier implements IPathCopier
                         "Remove path '%s' since it exists and the remote file system doesn't support overwriting.",
                         destinationPath));
             }
-            // TODO [2007-08-13 tpylak] Bernd, what if destinationHost is set?
+            // TODO 2007-08-13 Tomasz Pylak: Bernd, what if destinationHost is set?
             FileUtilities.deleteRecursively(destinationPath);
         }
         try
@@ -251,7 +238,7 @@ public class RsyncCopier implements IPathCopier
 
     private static Status createStatus(final int exitValue)
     {
-        if (hasBeenTerminated(exitValue))
+        if (CmdLineHelper.processTerminated(exitValue))
         {
             return TERMINATED_STATUS;
         }
@@ -265,53 +252,7 @@ public class RsyncCopier implements IPathCopier
 
     private static void logRsyncExitValue(final int exitValue, final Process copyProcess)
     {
-        if (operationLog.isDebugEnabled())
-        {
-            if (hasBeenTerminated(exitValue))
-            {
-                operationLog.debug("Rsync process was destroyed.");
-            } else
-            {
-                operationLog.debug(String.format("Rsync process returned with exit value %d.", exitValue));
-            }
-            if (exitValue != 0)
-            {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(copyProcess.getInputStream()));
-                try
-                {
-                    String ln;
-                    while ((ln = reader.readLine()) != null)
-                    {
-                        if (ln.trim().length() > 0)
-                            machineLog.debug(String.format("RSYNC: \"%s\"", ln));
-                    }
-                } catch (IOException e)
-                {
-                    operationLog.debug(String.format("IOException when trying to read stderr, msg='%s'.", e
-                            .getMessage()));
-                } finally
-                {
-                    try
-                    {
-                        reader.close();
-                    } catch (IOException e)
-                    {
-                        // Silence this.
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean hasBeenTerminated(final int exitValue)
-    {
-        if (OSUtilities.isWindows())
-        {
-            return exitValue == EXIT_VALUE_FOR_TERMINATION_WINDOWS;
-        } else
-        {
-            return exitValue == EXIT_VALUE_FOR_TERMINATION_UNIX;
-        }
+        CmdLineHelper.logProcessExitValue(exitValue, copyProcess, "rsync", operationLog, machineLog);
     }
 
     /**

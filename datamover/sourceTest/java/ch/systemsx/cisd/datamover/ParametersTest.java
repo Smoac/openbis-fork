@@ -69,6 +69,14 @@ public class ParametersTest
     }
 
     @Test
+    public void testSetLnExecutableLong() throws Exception
+    {
+        final String EXEC = "/usr/local/bin/ln";
+        final Parameters parameters = parse("--hard-link-executable", EXEC);
+        assertEquals(EXEC, parameters.getHardLinkExecutable());
+    }
+
+    @Test
     public void testSetCleansingRegexLong() throws Exception
     {
         final String CLEANSING_REGEX = "[0-9]+";
@@ -219,17 +227,19 @@ public class ParametersTest
         final int CHECK_INTERVAL = 22;
         final int QUIET_PERIOD = 33;
         final String REMOTE_INCOMING_HOST = "my-remote-incoming-host";
+        final String EXTRA_COPY_DIR = "xxx";
 
         final Parameters parameters =
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR,
                         "--outgoing-host", REMOTE_HOST, "--check-interval", Integer.toString(CHECK_INTERVAL),
                         "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote",
-                        "--incoming-host", REMOTE_INCOMING_HOST);
+                        "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR);
         assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
         assertEquals(REMOTE_INCOMING_HOST, parameters.getIncomingStore().getHost());
         assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
         assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
         assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
+        assertEquals(EXTRA_COPY_DIR, parameters.tryGetExtraCopyStore().getPath().getPath());
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
         assertEquals(true, parameters.getTreatIncomingAsRemote());

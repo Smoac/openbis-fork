@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 
-
 /**
- * A role that provides access to the roles which perform file system operations.
+ * Utility to create copies of files/resources, which should not be modified later.
  * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
-public interface IFileSysOperationsFactory
+public interface IPathImmutableCopier
 {
-    public IPathCopier getCopier(File destinationDirectory);
-
-    public IPathImmutableCopier getImmutableCopier();
-
-    public IPathRemover getRemover();
-
-    public IPathLastChangedChecker getChecker();
-
+    /**
+     * Creates copy of <code>file</code> in <code>destinationDirectory</code> which should not be modified. Can use
+     * hard links if it is possible.
+     * 
+     * @return pointer to the created file or null if operation failed
+     */
+    File tryCopy(File file, File destinationDirectory);
 }

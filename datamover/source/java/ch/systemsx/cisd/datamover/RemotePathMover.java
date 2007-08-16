@@ -112,8 +112,6 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
 
-        assert copier != null;
-        assert remover != null;
         assert intervallToWaitAfterFailure >= 0;
         assert maximalNumberOfRetries >= 0;
     }

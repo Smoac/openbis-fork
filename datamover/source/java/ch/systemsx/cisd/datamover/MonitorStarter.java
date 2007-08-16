@@ -21,12 +21,8 @@ import java.io.FileFilter;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.IntraFSPathMover;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
@@ -45,33 +41,36 @@ public class MonitorStarter
 
     private final static String LOCAL_READY_TO_MOVE_DIR = "ready-to-move";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RemotePathMover.class);
+    private final static String LOCAL_TEMP_DIR = "tmp";
 
     private final Parameters parameters;
 
     private final IFileSysOperationsFactory operations;
 
+    private final File inProgressDir; // here data are copied from incoming
+
+    private final File readyToMoveDir;// from here data are moved to outgoing directory
+
+    private final File tempDir;// auxiliary directory used if we need to make a copy of incoming data
+
     public MonitorStarter(Parameters parameters, IFileSysOperationsFactory operations)
     {
         this.parameters = parameters;
         this.operations = operations;
+        File buffer = parameters.getBufferStore().getPath();
+        this.inProgressDir = ensureDirectoryExists(buffer, LOCAL_IN_PROGRESS_DIR);
+        this.readyToMoveDir = ensureDirectoryExists(buffer, LOCAL_READY_TO_MOVE_DIR);
+        this.tempDir = ensureDirectoryExists(buffer, LOCAL_TEMP_DIR);
     }
 
     public void start()
     {
-        File buffer = parameters.getBufferStore().getPath();
-        // here data are copied from incoming
-        File inProgressDir = ensureDirectoryExists(buffer, LOCAL_IN_PROGRESS_DIR);
-        // from here data are moved to outgoing directory
-        File readyToMoveDir = ensureDirectoryExists(buffer, LOCAL_READY_TO_MOVE_DIR);
-
-        startupIncomingMovingProcess(parameters.getIncomingStore(), inProgressDir, readyToMoveDir);
+        startupIncomingMovingProcess(parameters.getIncomingStore());
         startupOutgoingMovingProcess(readyToMoveDir, parameters.getOutgoingStore());
     }
 
-    private void startupIncomingMovingProcess(FileStore incomingStore, File inProgressDir, File readyToMoveDir)
+    private void startupIncomingMovingProcess(FileStore incomingStore)
     {
-
         final File manualInterventionDir = parameters.getManualInterventionDirectory();
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
         if (parameters.getCleansingRegex() != null)
@@ -84,8 +83,8 @@ public class MonitorStarter
             manualInterventionFilter.add(PathType.ALL, parameters.getManualInterventionRegex());
         }
         IPathHandler pathHandler =
-                createIncomingMovingPathHandler(incomingStore.getHost(), inProgressDir, readyToMoveDir,
-                        manualInterventionDir, manualInterventionFilter, cleansingFilter);
+                createIncomingMovingPathHandler(incomingStore.getHost(), manualInterventionDir,
+                        manualInterventionFilter, cleansingFilter);
 
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters,
@@ -94,11 +93,12 @@ public class MonitorStarter
         schedule(movingTimer, movingTask, 0, parameters.getCheckIntervalMillis(), parameters.getTreatIncomingAsRemote());
     }
 
-    private IPathHandler createIncomingMovingPathHandler(String sourceHost, File inProgressDir, File readyToMoveDir,
-            File manualInterventionDir, RegexFileFilter manualInterventionFilter, RegexFileFilter cleansingFilter)
+    private IPathHandler createIncomingMovingPathHandler(String sourceHost, File manualInterventionDir,
+            RegexFileFilter manualInterventionFilter, RegexFileFilter cleansingFilter)
     {
         IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
-        IPathHandler processMoved = createProcessMovedFile(readyToMoveDir);
+        IPathHandler processMoved =
+                createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), operations);
         IPathHandler moveAndProcess = createMoveAndProcess(moveFromIncoming, inProgressDir, processMoved);
         IPathHandler manualInterventionMover = createPathMoverToLocal(sourceHost, manualInterventionDir);
         CleansingPathHandlerDecorator cleansingOrMover =
@@ -106,12 +106,55 @@ public class MonitorStarter
         return new GatePathHandlerDecorator(manualInterventionFilter, cleansingOrMover, manualInterventionMover);
     }
 
-    private static IPathHandler createProcessMovedFile(File destDirectory)
+    private static IPathHandler createProcessMovedFile(File destDirectory, File tempDir,
+            FileStore extraCopyStoreOrNull, IFileSysOperationsFactory operations)
     {
         FileFilter cleanMarkers = new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, true);
-        // TODO [2007-08-13 tpylak] add possibility to make hard-link copy for images analysis
         IPathHandler moveToDone = new IntraFSPathMover(destDirectory);
-        return new CleansingPathHandlerDecorator(cleanMarkers, moveToDone);
+        IPathHandler processHandler;
+        if (extraCopyStoreOrNull != null)
+        {
+            IPathImmutableCopier copier = operations.getImmutableCopier();
+            IPathHandler extraCopyHandler = createExtraCopyHandler(tempDir, extraCopyStoreOrNull.getPath(), copier);
+            processHandler = combineHandlers(extraCopyHandler, moveToDone);
+        } else
+        {
+            processHandler = moveToDone;
+        }
+        return new CleansingPathHandlerDecorator(cleanMarkers, processHandler);
+    }
+
+    private static IPathHandler combineHandlers(final IPathHandler first, final IPathHandler second)
+    {
+        return new IPathHandler()
+            {
+                public boolean handle(File path)
+                {
+                    boolean firstOk = first.handle(path);
+                    boolean secondOk = second.handle(path);
+                    return firstOk && secondOk;
+                }
+            };
+    }
+
+    private static IPathHandler createExtraCopyHandler(final File tempDir, final File finalDir,
+            final IPathImmutableCopier copier)
+    {
+        // making a copy can take some time, so we do that in the temporary directory. Than we move it from temporary
+        // the final destination. In this way external process can start moving data from final destination as soon as
+        // they appear there.
+        final IPathHandler moveToFinal = new IntraFSPathMover(finalDir);
+
+        return new IPathHandler()
+            {
+                public boolean handle(File path)
+                {
+                    File copiedFile = copier.tryCopy(path, tempDir);
+                    if (copiedFile == null)
+                        return false;
+                    return moveToFinal.handle(copiedFile);
+                }
+            };
     }
 
     private static IPathHandler createMoveAndProcess(final IPathHandler moveFromIncoming, final File destinationDir,
@@ -129,7 +172,6 @@ public class MonitorStarter
                         File markFile = new File(destinationDir, Constants.IS_FINISHED_PREFIX + path.getName());
                         assert movedFile.exists();
                         assert markFile.exists();
-                        operationLog.info(String.format("Processing moved file locally %s\n.", movedFile.getAbsoluteFile()));
                         markFile.delete(); // process even if mark file could not be deleted
                         ok = processMovedFile.handle(movedFile);
                     }

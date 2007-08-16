@@ -104,6 +104,11 @@ public class CopyActivityMonitorTest
         {
             throw new AssertionError("call not expected");
         }
+
+        public IPathImmutableCopier getImmutableCopier()
+        {
+            throw new AssertionError("call not expected");
+        }
     }
 
     private final class HappyPathLastChangedChecker implements IPathLastChangedChecker
