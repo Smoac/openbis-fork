@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.common.db;
 
 /**
  * Executor of SQL scripts.

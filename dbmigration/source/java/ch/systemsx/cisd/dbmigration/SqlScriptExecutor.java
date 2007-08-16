@@ -20,8 +20,10 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+
 /**
- * Implementation of {@link SqlScriptExecutor}.
+ * Implementation of {@link ISqlScriptExecutor}.
  *
  * @author Franz-Josef Elmer
  */

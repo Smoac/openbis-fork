@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+
 /**
  * Factory for DAOs.
  *

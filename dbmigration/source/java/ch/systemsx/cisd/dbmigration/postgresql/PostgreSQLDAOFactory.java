@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
@@ -27,7 +28,6 @@ import ch.systemsx.cisd.dbmigration.IDAOFactory;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.IDatabaseVersionLogDAO;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
-import ch.systemsx.cisd.dbmigration.ISqlScriptExecutor;
 import ch.systemsx.cisd.dbmigration.SqlScriptExecutor;
 
 /**
