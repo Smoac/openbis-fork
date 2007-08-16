@@ -17,18 +17,48 @@
 package ch.systemsx.cisd.common.db;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
+ * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual tests.
+ * The runner executes all test scripts found in the specified test scripts folder. The folder should have the
+ * following structure
+ * <pre>
+ *   &lt;<i>test script folder</i>&gt;
+ *      &lt;<i>1. test case</i>&gt;
+ *         buildup.sql
+ *         1=&lt;<i>first test</i>&gt;.sql
+ *         2=&lt;<i>second test</i>&gt;.sql
+ *         ...
+ *         teardown.sql
+ *      &lt;<i>2. test case</i>&gt;
+ *         ...
+ *      ...
+ * </pre>
+ * The test cases are executed in lexicographical order of their name. For each test case <code>buildup.sql</code>
+ * will be executed first. The test scripts follow the naming schema
+ * <pre>
+ *   &lt;<i>decimal number</i>&gt;=&lt;<i>test name</i>&gt;.sql
+ * </pre>
+ * They are executed in ascending order of their numbers. Finally <code>teardown.sql</code> is executed. 
+ * If execution of <code>buildup.sql</code> failed all test scripts and the tear down script are skipped.
+ * Note that <code>buildup.sql</code> and <code>teardown.sql</code> are optional.
+ * <p>
+ * A script fails if its execution throws an exception. Its innermost cause (usually a {@link SQLException}) will
+ * be recorded together with the name of the test case and the script. All failed scripts will be recorded.
+ * <p> 
+ * The runner throws an {@link AssertionError} if at least one script failed.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class SqlUnitTestRunner
@@ -75,23 +105,37 @@ public class SqlUnitTestRunner
     private final ISqlScriptExecutor executor;
     private final PrintWriter writer;
     
+    /**
+     * Creates an instance for the specified SQL script executor and writer.
+     *
+     * @param executor SQL script executor.
+     * @param writer Writer used to monitor running progress by printing test and test case names.
+     */
     public SqlUnitTestRunner(ISqlScriptExecutor executor, PrintWriter writer)
     {
+        assert executor != null : "Undefined SQL script executor.";
+        assert writer != null : "Undefined writer.";
+        
         this.executor = executor;
         this.writer = writer;
     }
 
-    public void run(File testScriptsFolder)
+    /**
+     * Executes all scripts in the specified folder. Does nothing if it does not exists or if it is empty.
+     * 
+     * @throws AssertionError if at least one script failed.
+     */
+    public void run(File testScriptsFolder) throws AssertionError
     {
-        if (testScriptsFolder.exists() == false)
+        if (testScriptsFolder == null || testScriptsFolder.exists() == false)
         {
             return; // no tests
         }
-        File[] testCases = testScriptsFolder.listFiles(new FilenameFilter()
+        File[] testCases = testScriptsFolder.listFiles(new FileFilter()
             {
-                public boolean accept(File dir, String name)
+                public boolean accept(File pathname)
                 {
-                    return name.startsWith(".") == false;
+                    return pathname.isDirectory() && pathname.getName().startsWith(".") == false;
                 }
             });
         Arrays.sort(testCases);
@@ -105,7 +149,9 @@ public class SqlUnitTestRunner
         {
             if (result.isOK() == false)
             {
-                builder.append("Test script ").append(getName(result.getTestScript())).append(" failed because of ");
+                File testScript = result.getTestScript();
+                builder.append("Script '").append(testScript.getName()).append("' of test case '");
+                builder.append(testScript.getParentFile().getName()).append("' failed because of ");
                 builder.append(result.getThrowable()).append(OSUtilities.LINE_SEPARATOR);
             }
         }
@@ -118,20 +164,19 @@ public class SqlUnitTestRunner
 
     private void runTestCase(File testCaseFolder, List<TestResult> results)
     {
-        writer.println("====== Test case " + testCaseFolder.getName() + " ======");
+        writer.println("====== Test case: " + testCaseFolder.getName() + " ======");
         File buildupFile = new File(testCaseFolder, "buildup.sql");
         if (buildupFile.exists())
         {
-            results.add(runScript(buildupFile));
-        }
-        File[] testScripts = testCaseFolder.listFiles(new FilenameFilter()
+            TestResult result = runScript(buildupFile);
+            results.add(result);
+            if (result.isOK() == false)
             {
-                public boolean accept(File dir, String name)
-                {
-                    return name.length() > 1 && name.charAt(1) == '=';
-                }
-            });
-        Arrays.sort(testScripts);
+                writer.println("       script failed: skip test scripts and teardown script.");
+                return;
+            }
+        }
+        File[] testScripts = getTestScripts(testCaseFolder);
         for (File testScript : testScripts)
         {
             results.add(runScript(testScript));
@@ -141,6 +186,25 @@ public class SqlUnitTestRunner
         {
             results.add(runScript(teardownFile));
         }
+    }
+
+    private File[] getTestScripts(File testCaseFolder)
+    {
+        File[] testScripts = testCaseFolder.listFiles(new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    return getNumber(name) >= 0;
+                }
+            });
+        Arrays.sort(testScripts, new Comparator<File>()
+            {
+                public int compare(File f1, File f2)
+                {
+                    return getNumber(f1.getName()) - getNumber(f2.getName());
+                }
+            });
+        return testScripts;
     }
     
     private TestResult runScript(File scriptFile)
@@ -160,9 +224,19 @@ public class SqlUnitTestRunner
         }
     }
 
-    private String getName(File testScript)
+    private int getNumber(String name)
     {
-        return testScript.getParentFile().getName() + File.separatorChar + testScript.getName();
+        int index = name.indexOf('=');
+        if (index < 0)
+        {
+            return -1;
+        }
+        try
+        {
+            return Integer.parseInt(name.substring(0, index));
+        } catch (NumberFormatException ex)
+        {
+            return -1;
+        }
     }
-    
 }
