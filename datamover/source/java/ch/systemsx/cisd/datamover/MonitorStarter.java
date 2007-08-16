@@ -45,7 +45,7 @@ public class MonitorStarter
 
     private final Parameters parameters;
 
-    private final IFileSysOperationsFactory operations;
+    private final IFileSysOperationsFactory factory;
 
     private final File inProgressDir; // here data are copied from incoming
 
@@ -53,10 +53,10 @@ public class MonitorStarter
 
     private final File tempDir;// auxiliary directory used if we need to make a copy of incoming data
 
-    public MonitorStarter(Parameters parameters, IFileSysOperationsFactory operations)
+    public MonitorStarter(Parameters parameters, IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
-        this.operations = operations;
+        this.factory = factory;
         File buffer = parameters.getBufferStore().getPath();
         this.inProgressDir = ensureDirectoryExists(buffer, LOCAL_IN_PROGRESS_DIR);
         this.readyToMoveDir = ensureDirectoryExists(buffer, LOCAL_READY_TO_MOVE_DIR);
@@ -88,7 +88,7 @@ public class MonitorStarter
 
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters,
-                        operations), pathHandler);
+                        factory), pathHandler);
         final Timer movingTimer = new Timer("Mover of Incomming Data");
         schedule(movingTimer, movingTask, 0, parameters.getCheckIntervalMillis(), parameters.getTreatIncomingAsRemote());
     }
@@ -98,7 +98,7 @@ public class MonitorStarter
     {
         IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
         IPathHandler processMoved =
-                createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), operations);
+                createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), factory);
         IPathHandler moveAndProcess = createMoveAndProcess(moveFromIncoming, inProgressDir, processMoved);
         IPathHandler manualInterventionMover = createPathMoverToLocal(sourceHost, manualInterventionDir);
         CleansingPathHandlerDecorator cleansingOrMover =
@@ -107,14 +107,14 @@ public class MonitorStarter
     }
 
     private static IPathHandler createProcessMovedFile(File destDirectory, File tempDir,
-            FileStore extraCopyStoreOrNull, IFileSysOperationsFactory operations)
+            FileStore extraCopyStoreOrNull, IFileSysOperationsFactory factory)
     {
         FileFilter cleanMarkers = new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, true);
         IPathHandler moveToDone = new IntraFSPathMover(destDirectory);
         IPathHandler processHandler;
         if (extraCopyStoreOrNull != null)
         {
-            IPathImmutableCopier copier = operations.getImmutableCopier();
+            IPathImmutableCopier copier = factory.getImmutableCopier();
             IPathHandler extraCopyHandler = createExtraCopyHandler(tempDir, extraCopyStoreOrNull.getPath(), copier);
             processHandler = combineHandlers(extraCopyHandler, moveToDone);
         } else
@@ -151,7 +151,9 @@ public class MonitorStarter
                 {
                     File copiedFile = copier.tryCopy(path, tempDir);
                     if (copiedFile == null)
+                    {
                         return false;
+                    }
                     return moveToFinal.handle(copiedFile);
                 }
             };
@@ -193,9 +195,9 @@ public class MonitorStarter
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
     {
-        IPathCopier copier = operations.getCopier(destinationDirectory);
-        CopyActivityMonitor monitor = new CopyActivityMonitor(destinationDirectory, operations, copier, parameters);
-        IPathRemover remover = operations.getRemover();
+        IPathCopier copier = factory.getCopier(destinationDirectory);
+        CopyActivityMonitor monitor = new CopyActivityMonitor(destinationDirectory, factory, copier, parameters);
+        IPathRemover remover = factory.getRemover();
         return new RemotePathMover(destinationDirectory, destinationHost, monitor, remover, copier, sourceHost,
                 parameters);
     }
@@ -236,9 +238,9 @@ public class MonitorStarter
     private static File ensureDirectoryExists(File dir, String newDirName)
     {
         File dataDir = new File(dir, newDirName);
-        if (!dataDir.exists())
+        if (dataDir.exists() == false)
         {
-            if (!dataDir.mkdir())
+            if (dataDir.mkdir() == false)
                 throw new EnvironmentFailureException("Could not create local data directory " + dataDir);
         }
         return dataDir;

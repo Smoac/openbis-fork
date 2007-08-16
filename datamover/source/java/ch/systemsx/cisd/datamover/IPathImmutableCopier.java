@@ -29,7 +29,7 @@ public interface IPathImmutableCopier
      * Creates copy of <code>file</code> in <code>destinationDirectory</code> which should not be modified. Can use
      * hard links if it is possible.
      * 
-     * @return pointer to the created file or null if operation failed
+     * @return pointer to the created file or <code>null</code> if operation failed
      */
     File tryCopy(File file, File destinationDirectory);
 }

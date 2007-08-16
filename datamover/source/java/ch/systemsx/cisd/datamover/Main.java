@@ -80,7 +80,7 @@ public class Main
         }
 
         IPathImmutableCopier copier = null;
-        if (!OSUtilities.isWindows())
+        if (OSUtilities.isWindows() == false)
         {
             copier = RecursiveHardLinkMaker.tryCreate();
             if (copier != null)
@@ -218,7 +218,7 @@ public class Main
     private static void startupServer(final Parameters parameters)
     {
         selfTest(parameters);
-        final IFileSysOperationsFactory operations = new IFileSysOperationsFactory()
+        final IFileSysOperationsFactory factory = new IFileSysOperationsFactory()
             {
                 public IPathLastChangedChecker getChecker()
                 {
@@ -241,7 +241,7 @@ public class Main
                 }
             };
 
-        final MonitorStarter starter = new MonitorStarter(parameters, operations);
+        final MonitorStarter starter = new MonitorStarter(parameters, factory);
         starter.start();
     }
 

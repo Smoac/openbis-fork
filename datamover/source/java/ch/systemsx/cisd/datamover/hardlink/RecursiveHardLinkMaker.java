@@ -59,7 +59,9 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
     {
         File lnExec = OSUtilities.findExecutable(HARD_LINK_EXEC);
         if (lnExec == null)
+        {
             return null;
+        }
         return new RecursiveHardLinkMaker(lnExec.getAbsolutePath());
     }
 
@@ -75,7 +77,7 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
         operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", resource.getPath(),
                 destinationDirectory.getPath()));
         String resourceParent = resource.getParentFile().getAbsolutePath();
-        assert !resourceParent.equals(destinationDirectory.getAbsolutePath());
+        assert resourceParent.equals(destinationDirectory.getAbsolutePath()) == false;
         return tryMakeCopy(resource, destinationDirectory);
     }
 
@@ -88,11 +90,15 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
         {
             File dir = tryCreateDir(resource.getName(), destinationDirectory);
             if (dir == null)
+            {
                 return null;
+            }
             for (File file : resource.listFiles())
             {
                 if (tryMakeCopy(file, dir) == null)
+                {
                     return null;
+                }
             }
             return dir;
         }
@@ -102,7 +108,7 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
     {
         File dir = new File(destDir, name);
         boolean ok = dir.mkdir();
-        if (!ok)
+        if (ok == false)
         {
             if (dir.isDirectory())
             {

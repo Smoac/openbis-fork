@@ -35,16 +35,16 @@ public class QuietPeriodFileFilter implements FileFilter
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param timingParameters The timing paramter object to get the quiet period from.
-     * @param operations The operations object to ask for the implementation to use to check when a pathname was
+     * @param factory The factory object to create implementation to use to check when a pathname was
      *            changed.
      */
-    public QuietPeriodFileFilter(ITimingParameters timingParameters, IFileSysOperationsFactory operations)
+    public QuietPeriodFileFilter(ITimingParameters timingParameters, IFileSysOperationsFactory factory)
     {
         assert timingParameters != null;
-        assert operations != null;
+        assert factory != null;
 
         quietPeriodMillis = timingParameters.getQuietPeriodMillis();
-        checker = operations.getChecker();
+        checker = factory.getChecker();
 
         assert quietPeriodMillis > 0;
         assert checker != null;

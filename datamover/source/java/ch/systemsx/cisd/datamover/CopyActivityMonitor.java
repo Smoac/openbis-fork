@@ -92,12 +92,12 @@ public class CopyActivityMonitor
      * Creates a monitor.
      * 
      * @param destinationDirectory The directory to monitor for write access.
-     * @param operations The provider to get the {@link IPathLastChangedChecker} from.
+     * @param factory The provider to get the {@link IPathLastChangedChecker} from.
      * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(File destinationDirectory, IFileSysOperationsFactory operations, ITerminable copyProcess,
+    public CopyActivityMonitor(File destinationDirectory, IFileSysOperationsFactory factory, ITerminable copyProcess,
             ITimingParameters timingParameters)
     {
         this.monitoredPathLastChecked = new AtomicLong(0);
@@ -105,12 +105,12 @@ public class CopyActivityMonitor
         this.pathToBeCopied = new AtomicReference<File>(null);
 
         assert destinationDirectory != null;
-        assert operations != null;
+        assert factory != null;
         assert copyProcess != null;
         assert timingParameters != null;
 
         this.destinationDirectory = destinationDirectory;
-        this.checker = operations.getChecker();
+        this.checker = factory.getChecker();
         this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
 
         assert this.checker != null;

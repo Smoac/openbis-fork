@@ -78,14 +78,14 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private final class MyFileSystemOperations implements IFileSysOperationsFactory
+    private final class MyFileSystemFactory implements IFileSysOperationsFactory
     {
         /**
          * 
          */
         private final IPathLastChangedChecker checker;
 
-        private MyFileSystemOperations(IPathLastChangedChecker checker)
+        private MyFileSystemFactory(IPathLastChangedChecker checker)
         {
             this.checker = checker;
         }
@@ -192,11 +192,11 @@ public class CopyActivityMonitorTest
     public void testHappyPath() throws Throwable
     {
         final IPathLastChangedChecker checker = new HappyPathLastChangedChecker();
-        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
         final ITerminable dummyTerminable = new DummyTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, operations, dummyTerminable, parameters);
+                new CopyActivityMonitor(workingDirectory, factory, dummyTerminable, parameters);
         final File directory = new File(workingDirectory, "some-directory");
         directory.mkdir();
         directory.deleteOnExit();
@@ -210,11 +210,11 @@ public class CopyActivityMonitorTest
     public void testCopyStalled() throws Throwable
     {
         final IPathLastChangedChecker checker = new PathLastChangedCheckerStalled();
-        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, operations, copyProcess, parameters);
+                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
         final File file = new File(workingDirectory, "some-directory");
         file.mkdir();
         monitor.start(file);
@@ -256,11 +256,11 @@ public class CopyActivityMonitorTest
     public void testCopySeemsStalledButActuallyIsFine() throws Throwable
     {
         final IPathLastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
-        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, operations, copyProcess, parameters);
+                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
         final File file = new File(workingDirectory, "some-directory");
         file.mkdir();
         monitor.start(file);
@@ -285,11 +285,11 @@ public class CopyActivityMonitorTest
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
         LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class).addAppender(appender);
         final PathLastChangedCheckerStuck checker = new PathLastChangedCheckerStuck();
-        final IFileSysOperationsFactory operations = new MyFileSystemOperations(checker);
+        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, operations, copyProcess, parameters);
+                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
         final File directory = new File(workingDirectory, "some-directory");
         directory.mkdir();
         directory.deleteOnExit();
