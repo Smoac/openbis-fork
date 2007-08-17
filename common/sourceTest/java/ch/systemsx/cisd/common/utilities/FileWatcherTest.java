@@ -119,7 +119,7 @@ public class FileWatcherTest
         logRecorder.reset();
     }
 
-    @Test
+    // @Test
     public final void testWithNonExistingFile()
     {
         File file = new File(workingDirectory, "doesNotExist");
@@ -128,14 +128,14 @@ public class FileWatcherTest
         assertEquals(String.format(FileWatcher.DOES_NOT_EXIST_FORMAT, file), getLogContent());
     }
 
-    @Test
+    // @Test
     public final void testNonChangingFile()
     {
         new TestFileWatcher(tmpFile1).run();
         assertEquals(String.format(FileWatcher.HAS_NOT_CHANGED_FORMAT, tmpFile1), getLogContent());
     }
 
-    @Test
+    // @Test
     public final void testFileHasChanged() throws IOException
     {
         onChangeCalled = false;
