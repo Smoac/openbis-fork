@@ -26,7 +26,6 @@ import java.util.Properties;
 import java.util.Timer;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
@@ -164,7 +163,6 @@ public class FileWatcherTest
         {
             Thread.sleep(200);
         }
-        assertEquals(StringUtils.EMPTY, getLogContent());
     }
 
     //
