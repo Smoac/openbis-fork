@@ -20,18 +20,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.fail;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.Properties;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -42,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.TestAppender;
 
 /**
  * Tests of {@link DBMigrationEngine} using mocks for database and {@link SqlScriptProvider}.
@@ -80,14 +76,10 @@ public class DBMigrationEngineTest
     private IDatabaseVersionLogDAO logDAO;
 
     private ISqlScriptExecutor scriptExecutor;
-    
+
     private IMassUploader massUploader;
 
-    private PrintStream systemOut;
-
-    private PrintStream systemErr;
-
-    private ByteArrayOutputStream logRecorder;
+    private TestAppender logRecorder;
 
     @BeforeMethod
     public void setUp()
@@ -99,30 +91,13 @@ public class DBMigrationEngineTest
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
         massUploader = context.mock(IMassUploader.class);
-        logRecorder = new ByteArrayOutputStream();
-        systemOut = System.out;
-        systemErr = System.err;
-        System.setErr(new PrintStream(logRecorder));
-        System.setOut(new PrintStream(logRecorder));
-        Properties properties = new Properties();
-        properties.setProperty("log4j.rootLogger", "DEBUG, TestAppender");
-        properties.setProperty("log4j.appender.TestAppender", ConsoleAppender.class.getName());
-        properties.setProperty("log4j.appender.TestAppender.layout", PatternLayout.class.getName());
-        properties.setProperty("log4j.appender.TestAppender.layout.ConversionPattern", "%-5p %c - %m%n");
-        PropertyConfigurator.configure(properties);
+        logRecorder = new TestAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod
     public void tearDown()
     {
-        if (systemOut != null)
-        {
-            System.setOut(systemOut);
-        }
-        if (systemErr != null)
-        {
-            System.setErr(systemErr);
-        }
+        logRecorder.reset();
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
@@ -166,7 +141,8 @@ public class DBMigrationEngineTest
                     expectSuccessfulExecution(new Script("schema", "schema code"), version);
                     one(scriptProvider).getMassUploadFiles(version);
                     final File massUploadFile = new File("1=materials.csv");
-                    will(returnValue(new File[] { massUploadFile }));
+                    will(returnValue(new File[]
+                        { massUploadFile }));
                     one(scriptProvider).getDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), version);
                     one(massUploader).performMassUpload(massUploadFile);
@@ -175,13 +151,11 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
-
-        logRecorder.reset();
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' version 042 has been successfully created.", getLogContent());
+                + "Database 'my 2. database' version 042 has been successfully created.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -213,8 +187,6 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
-
-        logRecorder.reset();
         try
         {
             migrationEngine.migrateTo(version);
@@ -224,7 +196,7 @@ public class DBMigrationEngineTest
             assertSame(exception, e);
         }
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 1. database' does not exist.", getLogContent());
+                + "Database 'my 1. database' does not exist.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -263,13 +235,11 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-
-        logRecorder.reset();
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' version 042 has been successfully created.", getLogContent());
+                + "Database 'my 2. database' version 042 has been successfully created.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -307,13 +277,11 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-
-        logRecorder.reset();
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' version 042 has been successfully created.", getLogContent());
+                + "Database 'my 2. database' version 042 has been successfully created.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -345,8 +313,6 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-
-        logRecorder.reset();
         String message = "No schema script found for version 042";
         try
         {
@@ -358,7 +324,8 @@ public class DBMigrationEngineTest
         }
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, getLogContent());
+                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -389,8 +356,6 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-
-        logRecorder.reset();
         String message = "Missing script createLog.sql";
         try
         {
@@ -402,7 +367,8 @@ public class DBMigrationEngineTest
         }
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, getLogContent());
+                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -435,8 +401,6 @@ public class DBMigrationEngineTest
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-
-        logRecorder.reset();
         try
         {
             migrationEngine.migrateTo(version);
@@ -449,7 +413,7 @@ public class DBMigrationEngineTest
                 + "Database 'my database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Script 'createLog.sql' failed:"
                 + OSUtilities.LINE_SEPARATOR + "create log" + OSUtilities.LINE_SEPARATOR + getStackTrace(exception),
-                getLogContent());
+                logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -483,10 +447,10 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        logRecorder.reset();
         migrationEngine.migrateTo(version);
         assertEquals("DEBUG OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "No migration needed for database 'my database'. It has the right version (042).", getLogContent());
+                + "No migration needed for database 'my database'. It has the right version (042).", logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -527,12 +491,12 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        logRecorder.reset();
         migrationEngine.migrateTo(toVersion);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Trying to migrate database 'my 1. database' from version 099 to 101." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' successfully migrated from version 099 to 101.", getLogContent());
+                + "Database 'my 2. database' successfully migrated from version 099 to 101.", logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -570,7 +534,6 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        logRecorder.reset();
         String errorMessage =
                 "Cannot migrate database 'my 2. database' from version 099 to 100 because of "
                         + "missing migration script.";
@@ -584,7 +547,8 @@ public class DBMigrationEngineTest
         }
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Trying to migrate database 'my 1. database' from version 099 to 101." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + errorMessage, getLogContent());
+                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + errorMessage, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -619,7 +583,6 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        logRecorder.reset();
         String errorMessage = "Cannot revert database 'my database' from version 101 to earlier version 099.";
         try
         {
@@ -629,8 +592,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(errorMessage, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + errorMessage,
-                getLogContent());
+        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + errorMessage, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -658,7 +621,6 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        logRecorder.reset();
         String message = "Inconsistent database: Empty database version log.";
         try
         {
@@ -668,7 +630,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, getLogContent());
+        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -702,7 +665,6 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        logRecorder.reset();
         String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + logEntry;
         try
         {
@@ -712,7 +674,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, getLogContent());
+        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -747,7 +710,6 @@ public class DBMigrationEngineTest
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        logRecorder.reset();
         String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + logEntry;
         try
         {
@@ -757,7 +719,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, getLogContent());
+        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+                .getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -801,7 +764,6 @@ public class DBMigrationEngineTest
             });
         final DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        logRecorder.reset();
         try
         {
             migrationEngine.migrateTo(toVersion);
@@ -813,14 +775,9 @@ public class DBMigrationEngineTest
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Trying to migrate database 'my database' from version 001 to 002." + OSUtilities.LINE_SEPARATOR
                 + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Executing script 'm-1-2' failed."
-                + OSUtilities.LINE_SEPARATOR + getStackTrace(exception), getLogContent());
+                + OSUtilities.LINE_SEPARATOR + getStackTrace(exception), logRecorder.getLogContent());
 
         context.assertIsSatisfied();
-    }
-
-    private String getLogContent()
-    {
-        return new String(logRecorder.toByteArray()).trim();
     }
 
     private String getStackTrace(final Throwable throwable)
