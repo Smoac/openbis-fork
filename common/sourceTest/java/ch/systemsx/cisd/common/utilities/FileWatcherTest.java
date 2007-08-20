@@ -104,19 +104,14 @@ public class FileWatcherTest
         assertEquals(true, onChangeCalled);
     }
 
-    @Test
-    public final void testWithTimer() throws IOException
+    @Test(timeOut = 5000, groups = "slow")
+    public final void testOnChangeCalled() throws IOException
     {
         onChangeCalled = false;
         FileWatcher fileWatcher = new TestFileWatcher(tmpFile2);
         FileUtils.touch(tmpFile2);
         Timer timer = new Timer(true);
         timer.schedule(fileWatcher, 0);
-    }
-
-    @Test(dependsOnMethods = "testWithTimer", timeOut = 5000, groups = "slow")
-    public final void testOnChangeCalled()
-    {
         while (onChangeCalled == false)
         {
             try
