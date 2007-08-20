@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,14 +36,17 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * Kind of <code>FileWatcher</code> extension that allow registration of multiple <code>ChangeListener</code> for
  * one file watched.
  * <p>
- * You can use this class as <i>singleton</i> calling {@link #getInstance()} or you may instance it with a constructor.
- * Note that access to this class is <i>synchronized</i>.
+ * You can use this class as <i>singleton</i> calling {@link #getInstance()} or you may instance it with a constructor.<br />
+ * Note that access to this class is <i>synchronized</i> and that this class internally uses a {@link WeakHashMap} to
+ * store the registered <code>ChangeListener</code>s.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 public final class FileWatcherSynchronizer extends TimerTask
 {
+
+    private static final ChangeListener[] LISTENER_EMPTY_ARRAY = new ChangeListener[0];
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileWatcherSynchronizer.class);
@@ -66,6 +70,15 @@ public final class FileWatcherSynchronizer extends TimerTask
             instance = new FileWatcherSynchronizer();
         }
         return instance;
+    }
+
+    private final synchronized void fireStateChanged(FileWatcher fileWatcher)
+    {
+        final ChangeEvent event = new ChangeEvent(fileWatcher.getFileToWatch());
+        for (ChangeListener listener : fileWatcherListeners.get(fileWatcher))
+        {
+            listener.stateChanged(event);
+        }
     }
 
     public final synchronized void addChangeListener(final File file, final ChangeListener changeListener)
@@ -102,7 +115,7 @@ public final class FileWatcherSynchronizer extends TimerTask
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "A new listener has been registered for file '%s'. Currently %d listeners registered.", file,
+                    "A new listener has been registered for file '%s'. Currently %d listener(s) registered.", file,
                     listeners.size()));
         }
     }
@@ -120,21 +133,44 @@ public final class FileWatcherSynchronizer extends TimerTask
             return;
         }
         listeners.remove(changeListener);
+        int size = listeners.size();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "A listener for file '%s' has been removed. Currently %d listeners registered.", file, listeners
-                            .size()));
+                    "A listener for file '%s' has been removed. Currently %d listener(s) registered.", file, size));
+        }
+        if (size == 0)
+        {
+            fileWatchers.remove(file);
         }
     }
 
-    private final synchronized void fireStateChanged(FileWatcher fileWatcher)
+    /**
+     * For given <var>file</var> returns the registered <code>ChangeListener</code>s.
+     * 
+     * @return <code>null</code> if given <var>file</var> is unknown or if no <code>ChangeListener</code> could be
+     *         found for given <var>file</var>.
+     */
+    public final synchronized ChangeListener[] getChangeListeners(final File file)
     {
-        final ChangeEvent event = new ChangeEvent(fileWatcher.getFileToWatch());
-        for (ChangeListener listener : fileWatcherListeners.get(fileWatcher))
+        FileWatcher fileWatcher = fileWatchers.get(file);
+        if (fileWatcher == null)
         {
-            listener.stateChanged(event);
+            return null;
         }
+        List<ChangeListener> listeners = fileWatcherListeners.get(fileWatcher);
+        if (listeners == null)
+        {
+            return null;
+        }
+        return listeners.toArray(LISTENER_EMPTY_ARRAY);
+    }
+
+    /** Clears the <code>Map</code>s used internally. */
+    public final synchronized void destroy()
+    {
+        fileWatcherListeners.clear();
+        fileWatchers.clear();
     }
 
     //
