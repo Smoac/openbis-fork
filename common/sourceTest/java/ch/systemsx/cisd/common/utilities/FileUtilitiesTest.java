@@ -190,6 +190,14 @@ public class FileUtilitiesTest
         {
             // Nothing to do here
         }
+        try
+        {
+            FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"), "abc_[1]");
+            fail("Must contain either '(\\d+)' or ([0-9]+).");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
         newFile = FileUtilities.createNextNumberedFile(file, pattern, "abc_[1]");
         assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc_[1]").getPath()), FilenameUtils
                 .getName(newFile.getPath()));
