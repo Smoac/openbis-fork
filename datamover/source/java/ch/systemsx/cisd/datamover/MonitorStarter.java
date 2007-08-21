@@ -87,8 +87,8 @@ public class MonitorStarter
                         manualInterventionFilter, cleansingFilter);
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters,
-                        factory), pathHandler);
+                new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters, factory),
+                        pathHandler);
         final Timer movingTimer = new Timer("Mover of Incomming Data");
         schedule(movingTimer, movingTask, 0, parameters.getCheckIntervalMillis(), parameters.getTreatIncomingAsRemote());
     }
@@ -98,14 +98,16 @@ public class MonitorStarter
     {
         IPathHandler processMoved =
                 createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), factory);
-        IPathHandler moveAndProcess = createMoveAndProcess(sourceHost, processMoved);
+        IPathHandler moveAndProcess =
+                createMoveAndProcess(sourceHost, processMoved, parameters.getTreatIncomingAsRemote());
         IPathHandler manualInterventionMover = createPathMoverToLocal(sourceHost, manualInterventionDir);
         CleansingPathHandlerDecorator cleansingOrMover =
                 new CleansingPathHandlerDecorator(cleansingFilter, moveAndProcess);
         return new GatePathHandlerDecorator(manualInterventionFilter, cleansingOrMover, manualInterventionMover);
     }
 
-    private IPathHandler createMoveAndProcess(String sourceHost, final IPathHandler processMoved)
+    private IPathHandler createMoveAndProcess(String sourceHost, final IPathHandler processMoved,
+            final boolean isIncomingRemote)
     {
         final IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
         IPathHandler moveAndProcess = new IPathHandler()
@@ -119,9 +121,15 @@ public class MonitorStarter
                         File movedFile = new File(inProgressDir, path.getName());
                         File markFile = new File(inProgressDir, Constants.IS_FINISHED_PREFIX + path.getName());
                         assert movedFile.exists();
-                        assert markFile.exists();
-                        markFile.delete(); // process even if mark file could not be deleted
+                        if (isIncomingRemote)
+                        {
+                            assert markFile.exists();
+                        }
                         ok = processMoved.handle(movedFile);
+                        if (isIncomingRemote)
+                        {
+                            markFile.delete(); // process even if mark file could not be deleted
+                        }
                     }
                     return ok;
                 }
