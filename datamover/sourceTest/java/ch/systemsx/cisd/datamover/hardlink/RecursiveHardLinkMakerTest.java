@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.hardlink;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -176,7 +178,7 @@ public class RecursiveHardLinkMakerTest
     {
         List<String> list1 = CollectionIO.readList(file1);
         List<String> list2 = CollectionIO.readList(file2);
-        assert list1.equals(list2);
+        assertEquals(list1, list2);
     }
 
     private static void modifyDest(File file)
