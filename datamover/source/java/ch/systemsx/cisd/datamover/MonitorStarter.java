@@ -96,14 +96,37 @@ public class MonitorStarter
     private IPathHandler createIncomingMovingPathHandler(String sourceHost, File manualInterventionDir,
             RegexFileFilter manualInterventionFilter, RegexFileFilter cleansingFilter)
     {
-        IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
         IPathHandler processMoved =
                 createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), factory);
-        IPathHandler moveAndProcess = createMoveAndProcess(moveFromIncoming, inProgressDir, processMoved);
+        IPathHandler moveAndProcess = createMoveAndProcess(sourceHost, processMoved);
         IPathHandler manualInterventionMover = createPathMoverToLocal(sourceHost, manualInterventionDir);
         CleansingPathHandlerDecorator cleansingOrMover =
                 new CleansingPathHandlerDecorator(cleansingFilter, moveAndProcess);
         return new GatePathHandlerDecorator(manualInterventionFilter, cleansingOrMover, manualInterventionMover);
+    }
+
+    private IPathHandler createMoveAndProcess(String sourceHost, final IPathHandler processMoved)
+    {
+        final IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
+        IPathHandler moveAndProcess = new IPathHandler()
+            {
+                public boolean handle(File path)
+                {
+                    boolean ok = moveFromIncoming.handle(path);
+                    if (ok)
+                    {
+                        // create path in destination directory
+                        File movedFile = new File(inProgressDir, path.getName());
+                        File markFile = new File(inProgressDir, Constants.IS_FINISHED_PREFIX + path.getName());
+                        assert movedFile.exists();
+                        assert markFile.exists();
+                        markFile.delete(); // process even if mark file could not be deleted
+                        ok = processMoved.handle(movedFile);
+                    }
+                    return ok;
+                }
+            };
+        return moveAndProcess;
     }
 
     private static IPathHandler createProcessMovedFile(File destDirectory, File tempDir,
@@ -155,29 +178,6 @@ public class MonitorStarter
                         return false;
                     }
                     return moveToFinal.handle(copiedFile);
-                }
-            };
-    }
-
-    private static IPathHandler createMoveAndProcess(final IPathHandler moveFromIncoming, final File destinationDir,
-            final IPathHandler processMovedFile)
-    {
-        return new IPathHandler()
-            {
-                public boolean handle(File path)
-                {
-                    boolean ok = moveFromIncoming.handle(path);
-                    if (ok)
-                    {
-                        // create path in destination directory
-                        File movedFile = new File(destinationDir, path.getName());
-                        File markFile = new File(destinationDir, Constants.IS_FINISHED_PREFIX + path.getName());
-                        assert movedFile.exists();
-                        assert markFile.exists();
-                        markFile.delete(); // process even if mark file could not be deleted
-                        ok = processMovedFile.handle(movedFile);
-                    }
-                    return ok;
                 }
             };
     }
