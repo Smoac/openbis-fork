@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Christian Ribeaud
  */
-public final class FileWatcherSynchronizer extends TimerTask
+public class FileWatcherSynchronizer extends TimerTask
 {
 
     private static final ChangeListener[] LISTENER_EMPTY_ARRAY = new ChangeListener[0];
@@ -167,7 +167,7 @@ public final class FileWatcherSynchronizer extends TimerTask
     }
 
     /** Clears the <code>Map</code>s used internally. */
-    public final synchronized void destroy()
+    public synchronized void destroy()
     {
         fileWatcherListeners.clear();
         fileWatchers.clear();
