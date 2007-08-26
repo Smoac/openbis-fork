@@ -19,6 +19,12 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.io.FileFilter;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 
@@ -32,6 +38,9 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler
  */
 public class CleansingPathHandlerDecorator implements IPathHandler
 {
+
+    private final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CleansingPathHandlerDecorator.class);
 
     private final FileFilter filter;
 
@@ -50,7 +59,9 @@ public class CleansingPathHandlerDecorator implements IPathHandler
     {
         assert path != null;
 
-        final boolean pathDeleted = FileUtilities.deleteRecursively(path, filter);
+        final ISimpleLogger logger =
+                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(Level.DEBUG, operationLog) : null;
+        final boolean pathDeleted = FileUtilities.deleteRecursively(path, filter, logger);
         if (pathDeleted == false)
         {
             return decoratedHandler.handle(path);
@@ -59,5 +70,4 @@ public class CleansingPathHandlerDecorator implements IPathHandler
             return true;
         }
     }
-
 }
