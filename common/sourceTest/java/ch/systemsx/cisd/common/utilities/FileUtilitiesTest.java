@@ -38,7 +38,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
@@ -56,51 +55,6 @@ public class FileUtilitiesTest
         LogInitializer.init();
         workingDirectory.mkdirs();
         assert workingDirectory.isDirectory();
-    }
-
-    @Test
-    public void moveFile()
-    {
-        final File root = new File(workingDirectory, "move-test");
-        FileUtilities.deleteRecursively(root);
-        root.mkdir();
-        assert root.isDirectory();
-        final File file = new File(root, "a");
-        try
-        {
-            file.createNewFile();
-        } catch (IOException e)
-        {
-            throw new CheckedExceptionTunnel(e);
-        }
-        final File destinationDir = new File(root, "d");
-        destinationDir.mkdir();
-        assert destinationDir.exists();
-        FileUtilities.movePath(file, destinationDir);
-        assert file.exists() == false;
-        final File newFile = new File(destinationDir, "a");
-        assert newFile.exists();
-        FileUtilities.deleteRecursively(root);
-    }
-
-    @Test
-    public void moveDirectory()
-    {
-        final File root = new File(workingDirectory, "move-test");
-        FileUtilities.deleteRecursively(root);
-        root.mkdir();
-        assert root.isDirectory();
-        final File file = new File(root, "a");
-        file.mkdir();
-        assert file.isDirectory();
-        final File destinationDir = new File(root, "d");
-        destinationDir.mkdir();
-        assert destinationDir.exists();
-        FileUtilities.movePath(file, destinationDir);
-        assert file.exists() == false;
-        final File newFile = new File(destinationDir, "a");
-        assert newFile.exists();
-        FileUtilities.deleteRecursively(root);
     }
 
     @Test

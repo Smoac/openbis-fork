@@ -154,7 +154,7 @@ public class FileUtilitiesDeleteRecursivelyTest
                 {
                     return false;
                 }
-            });
+            }, null);
         checkDirectories(true);
         checkFiles(true);
     }
@@ -169,7 +169,7 @@ public class FileUtilitiesDeleteRecursivelyTest
                 {
                     return true;
                 }
-            });
+            }, null);
         checkDirectories(false);
         checkFiles(false);
         assert workingDirectory.exists() == false;
@@ -185,7 +185,7 @@ public class FileUtilitiesDeleteRecursivelyTest
                 {
                     return pathname.isFile();
                 }
-            });
+            }, null);
         checkDirectories(true);
         checkFiles(false);
     }
@@ -200,7 +200,7 @@ public class FileUtilitiesDeleteRecursivelyTest
                 {
                     return pathname.getName().equals("file1a") || pathname.getName().equals("file3");
                 }
-            });
+            }, null);
         checkDirectories(true);
         assert file1a.exists() == false;
         assert file1b.exists();
@@ -219,7 +219,7 @@ public class FileUtilitiesDeleteRecursivelyTest
                 {
                     return pathname.getName().equals("dir1");
                 }
-            });
+            }, null);
         assert dir1.exists() == false;
         assert dir1a.exists() == false;
         assert dir1b.exists() == false;

@@ -32,12 +32,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
  * Some useful utility methods for files and directories.
@@ -54,8 +51,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FileUtilities
 {
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
-
     private FileUtilities()
     {
         // Can not be instantiated.
@@ -276,25 +271,28 @@ public final class FileUtilities
      * Deletes a directory recursively, that is deletes all files and directories within first and then the directory
      * itself.
      * <p>
-     * Convenience method for {@link #deleteRecursively(File, Level)} with <var>Level</var> set to {@link Level#DEBUG}.
+     * Convenience method for {@link #deleteRecursively(File)} with <var>logger</var> set to <code>null</code>.
      * 
      * @param path Path of the file or directory to delete.
      * @return <code>true</code> if the path has been delete successfully, <code>false</code> otherwise.
      */
     public static boolean deleteRecursively(File path)
     {
-        return deleteRecursively(path, Level.DEBUG);
+        assert path != null;
+        
+        return deleteRecursively(path, null);
     }
-
+    
     /**
      * Deletes a directory recursively, that is deletes all files and directories within first and then the directory
      * itself.
      * 
      * @param path Path of the file or directory to delete.
-     * @param logLevel The logLevel that should be used to log deletion of path entries.
+     * @param logger The logger that should be used to log deletion of path entries, or <code>null</code> if nothing
+     *            should be logged.
      * @return <code>true</code> if the path has been delete successfully, <code>false</code> otherwise.
      */
-    public static boolean deleteRecursively(File path, Level logLevel)
+    public static boolean deleteRecursively(File path, ISimpleLogger logger)
     {
         assert path != null;
 
@@ -304,20 +302,20 @@ public final class FileUtilities
             {
                 if (file.isDirectory())
                 {
-                    deleteRecursively(file, logLevel);
+                    deleteRecursively(file, logger);
                 } else
                 {
-                    if (machineLog.isEnabledFor(logLevel))
+                    if (logger != null)
                     {
-                        machineLog.log(logLevel, String.format("Deleting file '%s'", file.getPath()));
+                        logger.log("Deleting file '%s'", file.getPath());
                     }
                     file.delete();
                 }
             }
         }
-        if (machineLog.isEnabledFor(logLevel))
+        if (logger != null)
         {
-            machineLog.log(logLevel, String.format("Deleting directory '%s'", path.getPath()));
+            logger.log("Deleting directory '%s'", path.getPath());
         }
         return path.delete();
     }
@@ -326,45 +324,28 @@ public final class FileUtilities
      * Deletes selected parts of a directory recursively, that is deletes all files and directories within the directory
      * that are accepted by the {@link FileFilter}. Any subdirectory that is accepted by the <var>filter</var> will be
      * completely deleted. This holds true also for the <var>path</var> itself.
-     * <p>
-     * Convenience method for {@link #deleteRecursively(File, FileFilter, Level)} with <var>Level</var> set to
-     * {@link Level#DEBUG}.
      * 
      * @param path Path of the directory to delete the selected content from.
      * @param filter The {@link FileFilter} to use when deciding which paths to delete.
+     * @param logger The logger that should be used to log deletion of path entries, or <code>null</code> if nothing
+     *            should be logged.
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
      */
-    public static boolean deleteRecursively(File path, FileFilter filter)
-    {
-        return deleteRecursively(path, filter, Level.DEBUG);
-    }
-
-    /**
-     * Deletes selected parts of a directory recursively, that is deletes all files and directories within the directory
-     * that are accepted by the {@link FileFilter}. Any subdirectory that is accepted by the <var>filter</var> will be
-     * completely deleted. This holds true also for the <var>path</var> itself.
-     * 
-     * @param path Path of the directory to delete the selected content from.
-     * @param filter The {@link FileFilter} to use when deciding which paths to delete.
-     * @param logLevel The logLevel that should be used to log deletion of path entries.
-     * @return <code>true</code> if the <var>path</var> itself has been deleted.
-     */
-    public static boolean deleteRecursively(File path, FileFilter filter, Level logLevel)
+    public static boolean deleteRecursively(File path, FileFilter filter, ISimpleLogger logger)
     {
         assert path != null;
         assert filter != null;
-        assert logLevel != null;
 
         if (filter.accept(path))
         {
-            return FileUtilities.deleteRecursively(path, logLevel);
+            return FileUtilities.deleteRecursively(path, logger);
         } else
         {
             if (path.isDirectory())
             {
                 for (File file : path.listFiles())
                 {
-                    deleteRecursively(file, filter, logLevel);
+                    deleteRecursively(file, filter, logger);
                 }
             }
             return false;
@@ -372,30 +353,7 @@ public final class FileUtilities
     }
 
     /**
-     * Moves <var>path</var> to <var>destinationDir</var>.
-     * 
-     * @see File#renameTo(File)
-     * @param path The file or directory that will be moved.
-     * @param destinationDir Directory to move the <var>path</var> to.
-     * @return <code>true</code> if the <var>path</var> has been moved successfully, <code>false</code> otherwise.
-     */
-    public static boolean movePath(File path, File destinationDir)
-    {
-        assert path != null;
-        assert destinationDir != null;
-
-        if (machineLog.isTraceEnabled())
-        {
-            machineLog.trace(String.format("Moving path '%s' to '%s'", path.getPath(), destinationDir.getPath())
-                    .toString());
-        }
-        return path.renameTo(new File(destinationDir, path.getName()));
-    }
-
-    private static final String PATH_LAST_CHANGED_TEMPLATE = "Path '%s' has last been changed at %2$tF %2$tT";
-
-    /**
-     * @return The time when any file below <var>directory</var> has last been changed in the file system.
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
      *             readable.
      */
@@ -416,10 +374,6 @@ public final class FileUtilities
             {
                 lastChanged = Math.max(lastChanged, lastChanged(subDirectory));
             }
-        }
-        if (machineLog.isTraceEnabled())
-        {
-            machineLog.trace(String.format(PATH_LAST_CHANGED_TEMPLATE, path, lastChanged));
         }
         return lastChanged;
     }
@@ -589,7 +543,7 @@ public final class FileUtilities
             IOUtils.closeQuietly(resourceStream);
         }
     }
-    
+
     /**
      * Tries to copy the resource with the given name to a temporary file.
      * 
