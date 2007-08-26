@@ -18,17 +18,22 @@ package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -234,5 +239,63 @@ public class FileUtilitiesTest
         relativeFile = FileUtilities.getRelativeFile(root, file);
         assertFalse(relativeFile.isAbsolute());
         assertEquals("hello", relativeFile.getPath());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public final void testCopyResourceToTempFileIllegalResource()
+    {
+        FileUtilities.copyResourceToTempFile("nonexistent", "pre", "post");
+    }
+
+    @Test
+    public final void testCopyResourceToTempFile()
+    {
+        final String resourceName = "/ch/systemsx/cisd/common/utilities/FileUtilities.class";
+        final String absoluteTempFileName = FileUtilities.copyResourceToTempFile(resourceName, "pre", "post");
+        assertNotNull(absoluteTempFileName);
+        final File tempFile = new File(absoluteTempFileName);
+        final String tempFileName = tempFile.getName();
+        assertTrue(tempFile.exists());
+        assertTrue(tempFile.length() > 0);
+        assertTrue(tempFileName.startsWith("pre"));
+        assertTrue(tempFileName.endsWith("post"));
+        assertTrue(Arrays.equals(resourceToByteArray(resourceName), fileToByteArray(absoluteTempFileName)));
+
+    }
+
+    private byte[] resourceToByteArray(String resourcename)
+    {
+        final InputStream is = FileUtilitiesTest.class.getResourceAsStream(resourcename);
+        if (is == null)
+        {
+            return null;
+        }
+        try
+        {
+            return IOUtils.toByteArray(is);
+        } catch (IOException ex)
+        {
+            return null;
+        } finally
+        {
+            IOUtils.closeQuietly(is);
+        }
+    }
+
+    private byte[] fileToByteArray(String filename)
+    {
+        InputStream is = null;
+        try
+        {
+            is = new FileInputStream(filename);
+            return IOUtils.toByteArray(is);
+        } catch (IOException ex)
+        {
+            return null;
+        } finally
+        {
+            IOUtils.closeQuietly(is);
+        }
+
     }
 }

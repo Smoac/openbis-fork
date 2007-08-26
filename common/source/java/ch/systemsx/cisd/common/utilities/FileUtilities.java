@@ -19,10 +19,12 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -477,8 +479,8 @@ public final class FileUtilities
      * 
      * @param defaultFileName the default name for the new file if the digit pattern could not be found (probably the
      *            starting file).
-     * @param regex pattern to find out the counter. If <code>null</code> then <code>"(\\d+)"</code> will be
-     *            taken. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param regex pattern to find out the counter. If <code>null</code> then <code>"(\\d+)"</code> will be taken.
+     *            The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
     {
@@ -544,6 +546,64 @@ public final class FileUtilities
         {
             return new File(absoluteFile.substring(strRoot.length()));
         } else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Copies the resource with the given name to a temporary file.
+     * 
+     * @param resource The name of the resource to copy.
+     * @param prefix The prefix to use for the temporary name.
+     * @param postfix The postfix to use for the temporary name.
+     * @return The name of the temporary file.
+     * @throws IllegalArgumentException If the resource cannot be found in the class path.
+     * @throws CheckedExceptionTunnel If an {@link IOException} occurs.
+     */
+    public final static String copyResourceToTempFile(String resource, String prefix, String postfix)
+    {
+        final InputStream resourceStream = FileUtilities.class.getResourceAsStream(resource);
+        if (resourceStream == null)
+        {
+            throw new IllegalArgumentException("Resource '" + resource + "' not found.");
+        }
+        try
+        {
+            final File tempFile = File.createTempFile(prefix, postfix);
+            tempFile.deleteOnExit();
+            OutputStream fileStream = new FileOutputStream(tempFile);
+            try
+            {
+                IOUtils.copy(resourceStream, fileStream);
+            } finally
+            {
+                IOUtils.closeQuietly(fileStream);
+            }
+            return tempFile.getAbsolutePath();
+        } catch (IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(resourceStream);
+        }
+    }
+    
+    /**
+     * Tries to copy the resource with the given name to a temporary file.
+     * 
+     * @param resource The name of the resource to copy.
+     * @param prefix The prefix to use for the temporary name.
+     * @param postfix The postfix to use for the temporary name.
+     * @return The name of the temporary file, or <code>null</code>, if the resource could not be copied.
+     */
+    public final static String tryCopyResourceToTempFile(String resource, String prefix, String postfix)
+    {
+        try
+        {
+            return copyResourceToTempFile(resource, prefix, postfix);
+        } catch (Exception ex)
         {
             return null;
         }
