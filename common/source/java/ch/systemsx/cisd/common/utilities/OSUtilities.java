@@ -63,6 +63,14 @@ public class OSUtilities
     }
 
     /**
+     * @return The name of the computer platform (CPU architecture and OS name).
+     */
+    public static String getComputerPlatform()
+    {
+        return System.getProperty("os.arch") + "-" + System.getProperty("os.name");
+    }
+    
+    /**
      * @return The name of user that runs this program.
      */
     public static String getUsername()
