@@ -79,6 +79,14 @@ public final class BuildAndEnvironmentInfo
     }
 
     /**
+     * @return Name of the CPU architecture.
+     */
+    public String getCPUArchitecture()
+    {
+        return System.getProperty("os.arch");
+    }
+    
+    /**
      * @return Name and version of the operating system.
      */
     public String getOS()
@@ -143,6 +151,7 @@ public final class BuildAndEnvironmentInfo
         environmentInfo.add("Version:\t" + getVersion());
         environmentInfo.add("Build number:\t" + getBuildNumber());
         environmentInfo.add("Java VM:\t" + getJavaVM());
+        environmentInfo.add("CPU architecture:\t" + getCPUArchitecture());
         environmentInfo.add("OS:\t\t" + getOS());
         return environmentInfo;
     }
