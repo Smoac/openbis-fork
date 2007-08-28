@@ -126,11 +126,25 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         propertyNames.removeAll(propertyDescriptors.keySet());
         if (propertyNames.size() > 0)
         {
-            throw UserFailureException.fromTemplate("Following properties '%s' are not part of '%s'.", propertyNames,
-                    clazz.getSimpleName());
+            throw UserFailureException.fromTemplate("The following header columns are not part of '%s': %s",
+                    clazz.getSimpleName(), format(propertyNames));
         }
     }
 
+    private final String format(Set<String> set)
+    {
+        final StringBuilder builder = new StringBuilder();
+        for (String s : set)
+        {
+            builder.append("'");
+            builder.append(s);
+            builder.append("', ");
+        }
+        // Remove trailing ", "
+        builder.setLength(builder.length() - 2);
+        return builder.toString();
+    }
+    
     /**
      * Analyzes given <code>Class</code> and returns a <code>Map</code> containing the mandatory <code>Field</code>s
      * keyed by {@link Field#getName()}.
