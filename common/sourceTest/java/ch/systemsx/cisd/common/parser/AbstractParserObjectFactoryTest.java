@@ -69,7 +69,7 @@ public final class AbstractParserObjectFactoryTest
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (UserFailureException ex)
         {
-            assertEquals("Following properties '[isnotin]' are not part of 'Bean'.", ex.getMessage());
+            assertEquals("The following header columns are not part of 'Bean': 'isnotin'", ex.getMessage());
         }
     }
 
