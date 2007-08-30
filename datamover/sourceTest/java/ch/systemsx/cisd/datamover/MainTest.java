@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -114,9 +115,15 @@ public class MainTest
     private static void assertSampleStructMovedWithCopy(ExternalDirs dirs, LocalBufferDirs bufferDirs,
             FileStructEngine structEngine) throws IOException
     {
+        assertSampleStructMoved(dirs, bufferDirs, structEngine);
+        structEngine.assertSampleStructureExists(dirs.extraCopy);
+    }
+
+    private static void assertSampleStructMoved(ExternalDirs dirs, LocalBufferDirs bufferDirs,
+            FileStructEngine structEngine) throws IOException
+    {
         assertEmptyIncomingAndBufferDir(dirs, bufferDirs);
         assertSampleStructInOutgoing(dirs, structEngine);
-        structEngine.assertSampleStructureExists(dirs.extraCopy);
     }
 
     private static void assertSampleStructInOutgoing(ExternalDirs dirs, FileStructEngine structEngine)
@@ -191,9 +198,8 @@ public class MainTest
     private static ArrayList<String> getDefaultParameters(ExternalDirs dirs)
     {
         return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer.getPath(),
-                "--outgoing-dir", dirs.outgoing.getPath(), "--extra-copy-dir", dirs.extraCopy.getPath(),
-                "--check-interval", Integer.toString(CHECK_INTERVAL), "--quiet-period", Integer.toString(QUIET_PERIOD),
-                "--treat-incoming-as-remote");
+                "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer.toString(CHECK_INTERVAL),
+                "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote");
     }
 
     private static ArrayList<String> getManualInterventionParameters(ExternalDirs dirs, String filteredName)
@@ -202,9 +208,14 @@ public class MainTest
                 filteredName);
     }
 
-    private ArrayList<String> getCleansingParameters(ExternalDirs dirs, String cleansingStruct)
+    private static ArrayList<String> getCleansingParameters(ExternalDirs dirs, String cleansingStruct)
     {
         return createList("--cleansing-regex", cleansingStruct);
+    }
+
+    private static ArrayList<String> getExtraCopyParameters(ExternalDirs dirs)
+    {
+        return createList("--extra-copy-dir", dirs.extraCopy.getPath());
     }
 
     private static String[] asStringArray(ArrayList<String> list)
@@ -229,9 +240,18 @@ public class MainTest
         return createParameters(getDefaultParameters(dirs));
     }
 
-    private Parameters createParametersWithFilter(ExternalDirs dirs, String manualIntervName, String cleansingStruct)
+    private static Parameters createDefaultParametersWithExtraCopy(ExternalDirs dirs)
     {
         ArrayList<String> list = getDefaultParameters(dirs);
+        list.addAll(getExtraCopyParameters(dirs));
+        return createParameters(list);
+    }
+
+    private static Parameters createParametersWithFilter(ExternalDirs dirs, String manualIntervName,
+            String cleansingStruct)
+    {
+        ArrayList<String> list = getDefaultParameters(dirs);
+        list.addAll(getExtraCopyParameters(dirs));
         list.addAll(getManualInterventionParameters(dirs, manualIntervName));
         list.addAll(getCleansingParameters(dirs, cleansingStruct));
         return createParameters(list);
@@ -252,7 +272,7 @@ public class MainTest
     private static void performGenericTest(IFSPreparator preparator) throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
-        Parameters parameters = createDefaultParameters(dirs);
+        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
         preparator.prepareState(dirs, bufferDirs);
@@ -441,7 +461,7 @@ public class MainTest
     public void testRecoveryAllThreadsPartial() throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
-        Parameters parameters = createDefaultParameters(dirs);
+        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
         // incoming recovery: structure 1 partial in in-progress
@@ -464,6 +484,59 @@ public class MainTest
         assertSampleStructMovedWithCopy(dirs, bufferDirs, struct2);
         assertSampleStructMovedWithCopy(dirs, bufferDirs, struct3);
         assertNumberOfResources(dirs.outgoing, 6);
+    }
+
+    @Test(groups =
+        { "slow" })
+    // normal work-flow tests, no extra copy is created
+    public void testWholePipelineNoExtraCopy() throws Exception
+    {
+        ExternalDirs dirs = new ExternalDirs(workingDirectory);
+        Parameters parameters = createDefaultParameters(dirs);
+        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+
+        FileStructEngine struct1 = new FileStructEngine("test1");
+        FileStructEngine struct2 = new FileStructEngine("test2");
+        struct1.createSampleStructure(dirs.incoming);
+        struct2.createSampleStructure(dirs.incoming);
+
+        runDataMover(parameters, bufferDirs);
+
+        assertSampleStructMoved(dirs, bufferDirs, struct1);
+        assertSampleStructMoved(dirs, bufferDirs, struct2);
+        assertNumberOfResources(dirs.outgoing, 4);
+        assertEmptyDir(dirs.extraCopy);
+    }
+
+    @Test(groups =
+        { "slow" })
+    // data are coming in random moments, while data mover is running
+    public void testWholePipelineDataStreaming() throws Exception
+    {
+        ExternalDirs dirs = new ExternalDirs(workingDirectory);
+        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
+        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+
+        ITerminable terminable = Main.startupServer(parameters, bufferDirs);
+        Thread.sleep(2000); // let data mover start
+        // data on the input
+        int size = 20;
+        FileStructEngine[] structs = new FileStructEngine[size];
+        for (int i = 0; i < size; i++)
+        {
+            int timeToWait = new Random().nextInt(200);
+            Thread.sleep(timeToWait);
+            structs[i] = new FileStructEngine("test" + i);
+            structs[i].createSampleStructure(dirs.incoming);
+        }
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME);
+
+        for (int i = 0; i < size; i++)
+        {
+            assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
+        }
+        assertNumberOfResources(dirs.outgoing, 2 * size);
+        assert terminable.terminate();
     }
 
     @Test(groups =
