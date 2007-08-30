@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -279,10 +281,10 @@ public final class FileUtilities
     public static boolean deleteRecursively(File path)
     {
         assert path != null;
-        
+
         return deleteRecursively(path, null);
     }
-    
+
     /**
      * Deletes a directory recursively, that is deletes all files and directories within first and then the directory
      * itself.
@@ -502,6 +504,50 @@ public final class FileUtilities
         } else
         {
             return null;
+        }
+    }
+
+    /**
+     * Lists all resources in a given directory which match the filter.
+     * 
+     * @param loggerOrNull logger, if <code>null</code> than no logging occurs
+     */
+    public static File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+    {
+        File[] paths = null;
+        RuntimeException ex = null;
+        try
+        {
+            paths = directory.listFiles(filter);
+        } catch (RuntimeException e)
+        {
+            ex = e;
+        }
+        if (paths == null && loggerOrNull != null)
+        {
+            logFailureInDirectoryListing(ex, directory, loggerOrNull);
+        }
+        return paths;
+    }
+
+    private static void logFailureInDirectoryListing(RuntimeException exOrNull, File directory, ISimpleLogger logger)
+    {
+        if (exOrNull == null)
+        {
+            if (directory.isFile())
+            {
+                logger.log(String.format(
+                        "Failed to get listing of directory '%s' (path is file instead of directory).", directory));
+            } else
+            {
+                logger.log(String.format("Failed to get listing of directory '%s' (path not found).", directory));
+            }
+        } else
+        {
+            StringWriter exStackWriter = new StringWriter();
+            exOrNull.printStackTrace(new PrintWriter(exStackWriter));
+            logger.log(String.format("Failed to get listing of directory '%s'. Exception: %s", directory, exStackWriter
+                    .toString()));
         }
     }
 

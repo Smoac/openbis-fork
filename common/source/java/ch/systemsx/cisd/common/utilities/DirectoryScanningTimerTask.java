@@ -23,9 +23,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -170,49 +172,28 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private File[] listFiles()
     {
-        File[] paths = null;
-        RuntimeException ex = null;
-        try
-        {
-            paths = sourceDirectory.listFiles(filter);
-        } catch (RuntimeException e)
-        {
-            ex = e;
-        }
-        if (paths == null)
-        {
-            if (errorReadingDirectory == false)
-            {
-                logFailureInDirectoryListing(ex);
-                errorReadingDirectory = true; // Avoid mailbox flooding.
-            }
-        } else
-        {
-            errorReadingDirectory = false;
-        }
+        boolean logErrors = (errorReadingDirectory == false);
+        final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
+
+        File[] paths = FileUtilities.listFiles(sourceDirectory, filter, errorLogger);
+        errorReadingDirectory = (paths == null); // Avoid mailbox flooding.
         return paths;
     }
 
-    private void logFailureInDirectoryListing(RuntimeException ex)
+    private ISimpleLogger createSimpleErrorLogger()
     {
-        if (ex == null)
-        {
-            // TODO 2007-06-22, Christian Ribeaud: This part belongs to 'check' method, does not it? Actually we already
-            // check if we get a directory in the 'check' method. Or maybe we want to be paranoiac?
-            if (sourceDirectory.isFile())
+        return new ISimpleLogger()
             {
-                notificationLog.error(String
-                        .format("Failed to get listing of directory '%s' (path is file instead of directory).",
-                                sourceDirectory));
-            } else
-            {
-                notificationLog.error(String.format("Failed to get listing of directory '%s' (path not found).",
-                        sourceDirectory));
-            }
-        } else
-        {
-            notificationLog.error(String.format("Failed to get listing of directory '%s'.", sourceDirectory), ex);
-        }
+                public void log(String message)
+                {
+                    notificationLog.log(Level.ERROR, message);
+                }
+
+                public void log(String messageTemplate, Object... args)
+                {
+                    log(String.format(messageTemplate, args));
+                }
+            };
     }
 
     private void handle(File path)
