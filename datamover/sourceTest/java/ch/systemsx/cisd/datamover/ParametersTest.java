@@ -239,7 +239,7 @@ public class ParametersTest
         assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
         assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
         assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
-        assertEquals(EXTRA_COPY_DIR, parameters.tryGetExtraCopyStore().getPath().getPath());
+        assertEquals(EXTRA_COPY_DIR, parameters.tryGetExtraCopyDir().getPath());
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
         assertEquals(true, parameters.getTreatIncomingAsRemote());

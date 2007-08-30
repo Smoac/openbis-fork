@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
 
 /**
  * Test cases for the {@link SelfTest}.

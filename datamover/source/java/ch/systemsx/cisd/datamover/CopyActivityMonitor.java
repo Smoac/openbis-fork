@@ -28,6 +28,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
  * A <code>CopyActivityMonitor</code> monitors write activity on a <var>destinationPath</var> and triggers an alarm
@@ -44,7 +46,7 @@ public class CopyActivityMonitor
 
     private final File destinationDirectory;
 
-    private final IPathLastChangedChecker checker;
+    private final IReadPathOperations readOperations;
 
     private final long checkIntervallMillis;
 
@@ -92,12 +94,12 @@ public class CopyActivityMonitor
      * Creates a monitor.
      * 
      * @param destinationDirectory The directory to monitor for write access.
-     * @param factory The provider to get the {@link IPathLastChangedChecker} from.
+     * @param readOperations Provides read-only access to the file system.
      * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(File destinationDirectory, IFileSysOperationsFactory factory, ITerminable copyProcess,
+    public CopyActivityMonitor(File destinationDirectory, IReadPathOperations readOperations, ITerminable copyProcess,
             ITimingParameters timingParameters)
     {
         this.monitoredPathLastChecked = new AtomicLong(0);
@@ -105,15 +107,14 @@ public class CopyActivityMonitor
         this.pathToBeCopied = new AtomicReference<File>(null);
 
         assert destinationDirectory != null;
-        assert factory != null;
+        assert readOperations != null;
         assert copyProcess != null;
         assert timingParameters != null;
 
         this.destinationDirectory = destinationDirectory;
-        this.checker = factory.getChecker();
+        this.readOperations = readOperations;
         this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
 
-        assert this.checker != null;
         assert this.checkIntervallMillis > 0;
 
         final String currentThreadName = Thread.currentThread().getName();
@@ -147,7 +148,7 @@ public class CopyActivityMonitor
         ++currentNumberOfActivityMonitor;
         activityMonitoringTimer =
                 new Timer(threadNamePrefix + "Activity Monitor " + currentNumberOfActivityMonitor, true);
-        activityMonitoringTimerTask = new ActivityMonitoringTimerTask(checker);
+        activityMonitoringTimerTask = new ActivityMonitoringTimerTask();
         activityMonitoringTimer.schedule(activityMonitoringTimerTask, 0, checkIntervallMillis);
     }
 
@@ -184,9 +185,9 @@ public class CopyActivityMonitor
 
         private AtomicBoolean terminated = new AtomicBoolean(false);
 
-        private ActivityMonitoringTimerTask(IPathLastChangedChecker checker)
+        private ActivityMonitoringTimerTask()
         {
-            assert checker != null;
+            assert readOperations != null;
             assert pathToBeCopied != null;
             assert monitoredPathLastChanged != null;
             assert destinationDirectory != null;
@@ -211,21 +212,21 @@ public class CopyActivityMonitor
                 final File pathToCheck = new File(destinationDirectory, path.getName());
                 if (operationLog.isTraceEnabled())
                 {
-                    operationLog.trace(String.format("Asking checker %s for last change time of path '%s'.", checker
-                            .getClass().getName(), pathToCheck));
+                    operationLog.trace(String.format("Asking checker %s for last change time of path '%s'.",
+                            readOperations.getClass().getName(), pathToCheck));
                 }
-                if (pathToCheck.exists() == false)
+                if (readOperations.exists(pathToCheck) == false)
                 {
                     operationLog.warn(String.format("File or directory '%s' does not (yet?) exist.", pathToCheck));
                     monitoredPathLastChecked.set(System.currentTimeMillis());
                     return;
                 }
-                final long lastChangedAsFoundByPathChecker = checker.lastChanged(pathToCheck);
+                final long lastChangedAsFoundByPathChecker = readOperations.lastChanged(pathToCheck);
                 if (operationLog.isTraceEnabled())
                 {
                     operationLog.trace(String.format(
-                            "Checker %s reported last changed time of path '%s' to be %3$tF %3$tT.", checker.getClass()
-                                    .getName(), pathToCheck.getPath(), lastChangedAsFoundByPathChecker));
+                            "Checker %s reported last changed time of path '%s' to be %3$tF %3$tT.", readOperations
+                                    .getClass().getName(), pathToCheck.getPath(), lastChangedAsFoundByPathChecker));
                 }
                 if (terminated.get()) // Don't modify the time variables any more if we got terminated.
                 {

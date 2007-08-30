@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.helper.CmdLineHelper;
+import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
 
 /**
  * Utility to create a hard link of a file or copy recursively a directories structure, creating a hard link for each

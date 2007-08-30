@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package ch.systemsx.cisd.datamover;
+package ch.systemsx.cisd.datamover.intf;
 
 import java.io.File;
 
 /**
- * Interface that represents a role that can check when there has been the last write access to a given directory.
+ * A role that provides access to the roles which perform file system operations.
  * 
  * @author Bernd Rinn
  */
-public interface IPathLastChangedChecker
+public interface IFileSysOperationsFactory
 {
+    public IPathCopier getCopier(File destinationDirectory);
 
-    /**
-     * Returns the last time when there was a write access to <var>directory</var>.
-     * 
-     * @param path The path to check for last write activity.
-     * @return The time (in milliseconds since the start of the epoch) when <var>path</var> was last changed.
-     */
-    public long lastChanged(File path);
+    public IPathImmutableCopier getImmutableCopier();
 
+    public IPathRemover getRemover();
+
+    public IReadPathOperations getReadAccessor();
 }

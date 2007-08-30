@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -24,12 +25,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
+import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
+import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
@@ -78,41 +83,39 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private final class MyFileSystemFactory implements IFileSysOperationsFactory
+    private static class ReadOperationsOriginalImpl implements IReadPathOperations
     {
-        /**
-         * 
-         */
-        private final IPathLastChangedChecker checker;
+        private final IReadPathOperations impl;
 
-        private MyFileSystemFactory(IPathLastChangedChecker checker)
+        public ReadOperationsOriginalImpl()
         {
-            this.checker = checker;
+            this.impl = FileSystemHelper.createPathReadOperations();
         }
 
-        public IPathLastChangedChecker getChecker()
+        public long lastChanged(File path)
         {
-            return checker;
+            return impl.lastChanged(path);
         }
 
-        public IPathCopier getCopier(File destinationDirectory)
+        public boolean exists(File file)
         {
-            throw new AssertionError("call not expected");
+            return impl.exists(file);
         }
 
-        public IPathRemover getRemover()
+        public File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
         {
-            throw new AssertionError("call not expected");
+            return impl.listFiles(directory, filter, loggerOrNull);
         }
 
-        public IPathImmutableCopier getImmutableCopier()
+        public File[] listFiles(File directory, ISimpleLogger logger)
         {
-            throw new AssertionError("call not expected");
+            return impl.listFiles(directory, logger);
         }
     }
 
-    private final class HappyPathLastChangedChecker implements IPathLastChangedChecker
+    private final class HappyPathLastChangedChecker extends ReadOperationsOriginalImpl
     {
+        @Override
         public long lastChanged(File path)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS / 2;
@@ -191,12 +194,11 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testHappyPath() throws Throwable
     {
-        final IPathLastChangedChecker checker = new HappyPathLastChangedChecker();
-        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
+        final IReadPathOperations checker = new HappyPathLastChangedChecker();
         final ITerminable dummyTerminable = new DummyTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, factory, dummyTerminable, parameters);
+                new CopyActivityMonitor(workingDirectory, checker, dummyTerminable, parameters);
         final File directory = new File(workingDirectory, "some-directory");
         directory.mkdir();
         directory.deleteOnExit();
@@ -209,12 +211,10 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testCopyStalled() throws Throwable
     {
-        final IPathLastChangedChecker checker = new PathLastChangedCheckerStalled();
-        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
+        final IReadPathOperations checker = new PathLastChangedCheckerStalled();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
+        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
         final File file = new File(workingDirectory, "some-directory");
         file.mkdir();
         monitor.start(file);
@@ -223,10 +223,11 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated();
     }
 
-    private final class SimulateShortInterruptionChangedChecker implements IPathLastChangedChecker
+    private final class SimulateShortInterruptionChangedChecker extends ReadOperationsOriginalImpl
     {
         private int numberOfTimesCalled = 0;
 
+        @Override
         public long lastChanged(File path)
         {
             ++numberOfTimesCalled;
@@ -255,12 +256,10 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testCopySeemsStalledButActuallyIsFine() throws Throwable
     {
-        final IPathLastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
-        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
+        final IReadPathOperations checker = new SimulateShortInterruptionChangedChecker();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
+        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
         final File file = new File(workingDirectory, "some-directory");
         file.mkdir();
         monitor.start(file);
@@ -269,8 +268,9 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated() == false;
     }
 
-    private final class PathLastChangedCheckerStalled implements IPathLastChangedChecker
+    private final class PathLastChangedCheckerStalled extends ReadOperationsOriginalImpl
     {
+        @Override
         public long lastChanged(File path)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
@@ -284,12 +284,10 @@ public class CopyActivityMonitorTest
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
         LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class).addAppender(appender);
-        final PathLastChangedCheckerStuck checker = new PathLastChangedCheckerStuck();
-        final IFileSysOperationsFactory factory = new MyFileSystemFactory(checker);
+        final IReadPathOperations checker = new PathLastChangedCheckerStuck();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, factory, copyProcess, parameters);
+        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
         final File directory = new File(workingDirectory, "some-directory");
         directory.mkdir();
         directory.deleteOnExit();
@@ -301,10 +299,11 @@ public class CopyActivityMonitorTest
         appender.verifyLogHasHappened();
     }
 
-    private final class PathLastChangedCheckerStuck implements IPathLastChangedChecker
+    private final class PathLastChangedCheckerStuck extends ReadOperationsOriginalImpl
     {
         private boolean interrupted = false;
 
+        @Override
         public long lastChanged(File path)
         {
             try

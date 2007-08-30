@@ -17,27 +17,30 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Timer;
-import java.util.TimerTask;
 
-import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.utilities.IntraFSPathMover;
-import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter;
+import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
+import ch.systemsx.cisd.datamover.helper.CopyFinishedMarker;
+import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
+import ch.systemsx.cisd.datamover.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.intf.IPathRemover;
+import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
 
 /**
- * A class that starts up the monitoring processes, based on the parameters provided.
+ * A class that starts up the processing pipeline and its monitoring, based on the parameters provided.
  * 
  * @author Bernd Rinn
+ * @author Tomasz Pylak on Aug 24, 2007
  */
 public class MonitorStarter
 {
-    private final static String LOCAL_IN_PROGRESS_DIR = "in-progress";
+    private final static String LOCAL_COPY_IN_PROGRESS_DIR = "copy-in-progress";
+
+    private final static String LOCAL_COPY_COMPLETE_DIR = "copy-complete";
 
     private final static String LOCAL_READY_TO_MOVE_DIR = "ready-to-move";
 
@@ -47,210 +50,260 @@ public class MonitorStarter
 
     private final IFileSysOperationsFactory factory;
 
-    private final File inProgressDir; // here data are copied from incoming
+    private final LocalBufferDirs bufferDirs;
 
-    private final File readyToMoveDir;// from here data are moved to outgoing directory
+    /**
+     * starts the process of moving data and monitoring it
+     * 
+     * @return object which can be used to terminate the process and all its threads
+     */
+    public static final ITerminable start(Parameters parameters, IFileSysOperationsFactory factory)
+    {
+        LocalBufferDirs localBufferDirs =
+                new LocalBufferDirs(parameters, LOCAL_COPY_IN_PROGRESS_DIR, LOCAL_COPY_COMPLETE_DIR,
+                        LOCAL_READY_TO_MOVE_DIR, LOCAL_TEMP_DIR);
+        return start(parameters, factory, localBufferDirs);
+    }
 
-    private final File tempDir;// auxiliary directory used if we need to make a copy of incoming data
+    /** Allows to specify buffer directories. Exposed for testing purposes. */
+    public static final ITerminable start(Parameters parameters, IFileSysOperationsFactory factory,
+            LocalBufferDirs localBufferDirs)
+    {
+        return new MonitorStarter(parameters, factory, localBufferDirs).start();
+    }
 
-    public MonitorStarter(Parameters parameters, IFileSysOperationsFactory factory)
+    private MonitorStarter(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.factory = factory;
-        File buffer = parameters.getBufferStore().getPath();
-        this.inProgressDir = ensureDirectoryExists(buffer, LOCAL_IN_PROGRESS_DIR);
-        this.readyToMoveDir = ensureDirectoryExists(buffer, LOCAL_READY_TO_MOVE_DIR);
-        this.tempDir = ensureDirectoryExists(buffer, LOCAL_TEMP_DIR);
+        this.bufferDirs = bufferDirs;
     }
 
-    public void start()
+    private ITerminable start()
     {
-        startupIncomingMovingProcess(parameters.getIncomingStore());
-        startupOutgoingMovingProcess(readyToMoveDir, parameters.getOutgoingStore());
+        final LazyPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
+        final LazyPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
+        final Timer incomingProcessor = startupIncomingMovingProcess(parameters.getIncomingStore(), localProcessor);
+        return createTerminable(outgoingProcessor, localProcessor, incomingProcessor);
     }
 
-    private void startupIncomingMovingProcess(FileStore incomingStore)
+    private static ITerminable createTerminable(final LazyPathHandler outgoingProcessor,
+            final LazyPathHandler localProcessor, final Timer incomingProcessor)
     {
-        final File manualInterventionDir = parameters.getManualInterventionDirectory();
-        final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        if (parameters.getCleansingRegex() != null)
-        {
-            cleansingFilter.add(PathType.FILE, parameters.getCleansingRegex());
-        }
-        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        if (parameters.getManualInterventionRegex() != null)
-        {
-            manualInterventionFilter.add(PathType.ALL, parameters.getManualInterventionRegex());
-        }
-        IPathHandler pathHandler =
-                createIncomingMovingPathHandler(incomingStore.getHost(), manualInterventionDir,
-                        manualInterventionFilter, cleansingFilter);
-
-        final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters, factory),
-                        pathHandler);
-        final Timer movingTimer = new Timer("Mover of Incomming Data");
-        schedule(movingTimer, movingTask, 0, parameters.getCheckIntervalMillis(), parameters.getTreatIncomingAsRemote());
-    }
-
-    private IPathHandler createIncomingMovingPathHandler(String sourceHost, File manualInterventionDir,
-            RegexFileFilter manualInterventionFilter, RegexFileFilter cleansingFilter)
-    {
-        IPathHandler processMoved =
-                createProcessMovedFile(readyToMoveDir, tempDir, parameters.tryGetExtraCopyStore(), factory);
-        IPathHandler moveAndProcess =
-                createMoveAndProcess(sourceHost, processMoved, parameters.getTreatIncomingAsRemote());
-        IPathHandler manualInterventionMover = createPathMoverToLocal(sourceHost, manualInterventionDir);
-        CleansingPathHandlerDecorator cleansingOrMover =
-                new CleansingPathHandlerDecorator(cleansingFilter, moveAndProcess);
-        return new GatePathHandlerDecorator(manualInterventionFilter, cleansingOrMover, manualInterventionMover);
-    }
-
-    private IPathHandler createMoveAndProcess(String sourceHost, final IPathHandler processMoved,
-            final boolean isIncomingRemote)
-    {
-        final IPathHandler moveFromIncoming = createPathMoverToLocal(sourceHost, inProgressDir);
-        IPathHandler moveAndProcess = new IPathHandler()
+        return new ITerminable()
             {
-                public boolean handle(File path)
+                public boolean terminate()
                 {
-                    boolean ok = moveFromIncoming.handle(path);
-                    if (ok)
-                    {
-                        // create path in destination directory
-                        File movedFile = new File(inProgressDir, path.getName());
-                        File markFile = new File(inProgressDir, Constants.IS_FINISHED_PREFIX + path.getName());
-                        assert movedFile.exists();
-                        if (isIncomingRemote)
-                        {
-                            assert markFile.exists();
-                        }
-                        ok = processMoved.handle(movedFile);
-                        if (isIncomingRemote)
-                        {
-                            markFile.delete(); // process even if mark file could not be deleted
-                        }
-                    }
+                    incomingProcessor.cancel();
+                    boolean ok = localProcessor.terminate();
+                    ok = ok && outgoingProcessor.terminate();
                     return ok;
                 }
             };
-        return moveAndProcess;
     }
 
-    private static IPathHandler createProcessMovedFile(File destDirectory, File tempDir,
-            FileStore extraCopyStoreOrNull, IFileSysOperationsFactory factory)
+    private LazyPathHandler startupLocalProcessing(LazyPathHandler outgoingHandler)
     {
-        FileFilter cleanMarkers = new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, true);
-        IPathHandler moveToDone = new IntraFSPathMover(destDirectory);
-        IPathHandler processHandler;
-        if (extraCopyStoreOrNull != null)
+        IPathImmutableCopier copier = factory.getImmutableCopier();
+        IPathHandler localProcesingHandler =
+                LocalProcessorHandler.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
+                        .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, copier);
+        return LazyPathHandler.create(localProcesingHandler, "Local Processor");
+    }
+
+    // --- Incoming data processing -----------------------
+
+    private Timer startupIncomingMovingProcess(FileStore incomingStore, LazyPathHandler localProcessor)
+    {
+        IReadPathOperations readOperations = factory.getReadAccessor();
+        boolean isIncomingRemote = parameters.getTreatIncomingAsRemote();
+
+        recoverIncomingAfterShutdown(incomingStore, readOperations, isIncomingRemote, localProcessor);
+        IPathHandler pathHandler =
+                createIncomingMovingPathHandler(incomingStore.getHost(), localProcessor, isIncomingRemote);
+
+        final DirectoryScanningTimerTask movingTask =
+                new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters,
+                        readOperations), pathHandler);
+        final Timer movingTimer = new Timer("Mover of Incomming Data");
+        // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
+        // remote share. The rationale behind this is that if new items are
+        // added to the source directory while the remote timer task has been running for a long time, busy moving data,
+        // the task shoulnd't sit idle for the check time when there is actually work to do.
+        movingTimer.scheduleAtFixedRate(movingTask, 0, parameters.getCheckIntervalMillis());
+        return movingTimer;
+    }
+
+    private void recoverIncomingAfterShutdown(FileStore incomingStore, IReadPathOperations incomingReadOperations,
+            boolean isIncomingRemote, LazyPathHandler localProcessor)
+    {
+        if (isIncomingRemote == false)
+            return; // no recovery is needed
+
+        recoverIncomingInProgress(incomingStore, incomingReadOperations, bufferDirs.getCopyInProgressDir(), bufferDirs
+                .getCopyCompleteDir());
+        recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir(), localProcessor);
+    }
+
+    private static void recoverIncomingInProgress(FileStore incomingStore, IReadPathOperations incomingReadOperations,
+            File copyInProgressDir, File copyCompleteDir)
+    {
+        File[] files = FileSystemHelper.listFiles(copyInProgressDir);
+        if (files == null || files.length == 0)
+            return; // directory is empty, no recovery is needed
+
+        for (int i = 0; i < files.length; i++)
         {
-            IPathImmutableCopier copier = factory.getImmutableCopier();
-            IPathHandler extraCopyHandler = createExtraCopyHandler(tempDir, extraCopyStoreOrNull.getPath(), copier);
-            processHandler = combineHandlers(extraCopyHandler, moveToDone);
-        } else
-        {
-            processHandler = moveToDone;
+            File file = files[i];
+            recoverIncomingAfterShutdown(file, incomingStore, incomingReadOperations, copyCompleteDir);
         }
-        return new CleansingPathHandlerDecorator(cleanMarkers, processHandler);
     }
 
-    private static IPathHandler combineHandlers(final IPathHandler first, final IPathHandler second)
+    private static void recoverIncomingAfterShutdown(File unfinishedFile, FileStore incomingStore,
+            IReadPathOperations incomingReadOperations, File copyCompleteDir)
     {
-        return new IPathHandler()
+        if (CopyFinishedMarker.isMarker(unfinishedFile))
+        {
+            File markerFile = unfinishedFile;
+            File localCopy = CopyFinishedMarker.extractOriginal(markerFile);
+            if (localCopy.exists())
             {
-                public boolean handle(File path)
+                // copy and marker exist - do nothing, recovery will be done for copied resource
+            } else
+            {
+                // copy finished, resource moved, but marker was not deleted
+                markerFile.delete();
+            }
+        } else
+        // handle local copy
+        {
+            File localCopy = unfinishedFile;
+            File markerFile = CopyFinishedMarker.extractMarker(localCopy);
+            if (markerFile.exists())
+            {
+                // copy and marker exist - copy finished, but copied resource not moved
+                tryMoveFromInProgressToFinished(localCopy, markerFile, copyCompleteDir);
+            } else
+            // no marker
+            {
+                File incomingDir = incomingStore.getPath();
+                File originalInIncoming = new File(incomingDir, localCopy.getName());
+                if (incomingReadOperations.exists(originalInIncoming))
                 {
-                    boolean firstOk = first.handle(path);
-                    boolean secondOk = second.handle(path);
-                    return firstOk && secondOk;
+                    // partial copy - nothing to do, will be copied again
+                } else
+                {
+                    // move finished, but marker not created
+                    tryMoveFromInProgressToFinished(localCopy, null, copyCompleteDir);
                 }
-            };
+            }
+        }
     }
 
-    private static IPathHandler createExtraCopyHandler(final File tempDir, final File finalDir,
-            final IPathImmutableCopier copier)
+    // schedule processing of all resources which were previously copied
+    private static void recoverIncomingCopyComplete(File copyCompleteDir, LazyPathHandler localProcessor)
     {
-        // making a copy can take some time, so we do that in the temporary directory. Than we move it from temporary
-        // the final destination. In this way external process can start moving data from final destination as soon as
-        // they appear there.
-        final IPathHandler moveToFinal = new IntraFSPathMover(finalDir);
+        File[] files = FileSystemHelper.listFiles(copyCompleteDir);
+        if (files == null || files.length == 0)
+            return; // directory is empty, no recovery is needed
 
+        for (int i = 0; i < files.length; i++)
+        {
+            localProcessor.handle(files[i]);
+        }
+    }
+
+    private IPathHandler createIncomingMovingPathHandler(final String sourceHostOrNull,
+            final LazyPathHandler localProcessor, final boolean isIncomingRemote)
+    {
         return new IPathHandler()
             {
-                public boolean handle(File path)
+                public boolean handle(File sourceFile)
                 {
-                    File copiedFile = copier.tryCopy(path, tempDir);
-                    if (copiedFile == null)
+                    if (isIncomingRemote)
                     {
-                        return false;
+                        return moveFromRemoteIncoming(sourceFile, sourceHostOrNull, localProcessor);
+                    } else
+                    {
+                        return moveFromLocalIncoming(sourceFile, localProcessor);
                     }
-                    return moveToFinal.handle(copiedFile);
                 }
             };
     }
 
-    private IPathHandler createPathMoverToLocal(String sourceHost, final File localDestDir)
+    private boolean moveFromLocalIncoming(File source, LazyPathHandler localProcessor)
     {
-        if (parameters.getTreatIncomingAsRemote())
+        File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir());
+        if (finalFile == null)
+            return false;
+        return localProcessor.handle(finalFile);
+    }
+
+    private boolean moveFromRemoteIncoming(File source, String sourceHostOrNull, LazyPathHandler localProcessor)
+    {
+        // 1. move from incoming: copy, delete, create copy-finished-marker
+        File copyInProgressDir = bufferDirs.getCopyInProgressDir();
+        boolean ok = moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
+        if (ok == false)
+            return false;
+        File copiedFile = new File(copyInProgressDir, source.getName());
+        assert copiedFile.exists();
+        File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
+        assert markerFile.exists();
+
+        // 2. Move to final directory, delete marker
+        File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
+        if (finalFile == null)
+            return false;
+
+        // 3. schedule local processing, always successful
+        localProcessor.handle(finalFile);
+        return true;
+    }
+
+    private static File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
+    {
+        File finalFile = tryMoveLocal(copiedFile, copyCompleteDir);
+        if (finalFile != null)
         {
-            return createRemotePathMover(sourceHost, localDestDir, /* local host */null);
+            if (markerFileOrNull != null)
+            {
+                markerFileOrNull.delete(); // process even if marker file could not be deleted
+            }
+            return finalFile;
         } else
         {
-            return new IntraFSPathMover(localDestDir);
+            return null;
         }
+    }
+
+    private boolean moveFromRemoteToLocal(File source, String sourceHostOrNull, File localDestDir)
+    {
+        return createRemotePathMover(sourceHostOrNull, localDestDir, null).handle(source);
+    }
+
+    private static File tryMoveLocal(File sourceFile, File destinationDir)
+    {
+        return FileSystemHelper.tryMoveLocal(sourceFile, destinationDir);
+    }
+
+    // --------------------------
+
+    private LazyPathHandler startupOutgoingMovingProcess(FileStore outputDir)
+    {
+        final File outgoingDirectory = outputDir.getPath();
+        final String outgoingHost = outputDir.getHost();
+        final IPathHandler remoteMover = createRemotePathMover(null, outgoingDirectory, outgoingHost);
+        return LazyPathHandler.create(remoteMover, "Final Destination Mover");
     }
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
     {
         IPathCopier copier = factory.getCopier(destinationDirectory);
-        CopyActivityMonitor monitor = new CopyActivityMonitor(destinationDirectory, factory, copier, parameters);
+        CopyActivityMonitor monitor =
+                new CopyActivityMonitor(destinationDirectory, factory.getReadAccessor(), copier, parameters);
         IPathRemover remover = factory.getRemover();
         return new RemotePathMover(destinationDirectory, destinationHost, monitor, remover, copier, sourceHost,
                 parameters);
-    }
-
-    private void startupOutgoingMovingProcess(File srcDir, FileStore destDir)
-    {
-        final File outgoingDirectory = destDir.getPath();
-        final String outgoingHost = destDir.getHost();
-        final IPathHandler remoteMover = createRemotePathMover(null, outgoingDirectory, outgoingHost);
-        final DirectoryScanningTimerTask remoteMovingTask =
-                new DirectoryScanningTimerTask(srcDir, new NamePrefixFileFilter(Constants.IS_FINISHED_PREFIX, false),
-                        remoteMover);
-        final Timer remoteMovingTimer = new Timer("Remote Mover");
-
-        // Implementation notes:
-        // The startup of the remote moving task is delayed for half the time of the check interval. Thus the
-        // incoming
-        // moving task should have enough time to finish its job.
-        schedule(remoteMovingTimer, remoteMovingTask, parameters.getCheckIntervalMillis() / 2, parameters
-                .getCheckIntervalMillis(), true);
-    }
-
-    private void schedule(Timer timer, TimerTask task, long delay, long period, boolean isRemote)
-    {
-        // The remote moving task is scheduled at fixed rate. The rationale behind this is that if new items are
-        // added to the source directory while the remote timer task has been running for a long time, busy moving data
-        // to or from
-        // remote, the task shoulnd't sit idle for the check time when there is actually work to do.
-        if (isRemote)
-        {
-            timer.scheduleAtFixedRate(task, delay, period);
-        } else
-        {
-            timer.schedule(task, delay, period);
-        }
-    }
-
-    private static File ensureDirectoryExists(File dir, String newDirName)
-    {
-        File dataDir = new File(dir, newDirName);
-        if (dataDir.exists() == false)
-        {
-            if (dataDir.mkdir() == false)
-                throw new EnvironmentFailureException("Could not create local data directory " + dataDir);
-        }
-        return dataDir;
     }
 }

@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.datamover.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
 
 /**
  * Test cases for the {@link RecursiveHardLinkMaker}.

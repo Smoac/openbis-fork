@@ -21,6 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.intf.IPathRemover;
 
 /**
  * Removes a path (file or directory) from the file system, if necessary recursively.

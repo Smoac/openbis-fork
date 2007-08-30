@@ -30,8 +30,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.hardlink.RecursiveHardLinkMaker;
+import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
+import ch.systemsx.cisd.datamover.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.xcopy.XcopyCopier;
 
@@ -158,7 +165,7 @@ public class Main
             {
                 sshExecutable = new File(sshExecutablePath);
             } else
-            // Explicitely disable tunneling via ssh on the command line.
+            // Explicitly disable tunneling via ssh on the command line.
             {
                 sshExecutable = null;
             }
@@ -174,39 +181,6 @@ public class Main
         return sshExecutable;
     }
 
-    /**
-     * performs a self-test.
-     */
-    private static void selfTest(final Parameters parameters)
-    {
-        try
-        {
-            IPathCopier copyProcess = suggestPathCopier(parameters, false);
-            ArrayList<FileStore> stores = new ArrayList<FileStore>();
-            stores.add(parameters.getIncomingStore());
-            stores.add(parameters.getBufferStore());
-            stores.add(parameters.getOutgoingStore());
-            stores.add(parameters.getManualInterventionStore());
-            if (parameters.tryGetExtraCopyStore() != null)
-            {
-                stores.add(parameters.tryGetExtraCopyStore());
-            }
-            SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
-        } catch (HighLevelException e)
-        {
-            System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
-            System.exit(1);
-        } catch (RuntimeException e)
-        {
-            System.err.println("Self test failed:");
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Returns the path copier
-     */
     private static IPathCopier getPathCopier(Parameters parameters, File destinationDirectory)
     {
         IPathCopier copyProcess = suggestPathCopier(parameters, false);
@@ -215,16 +189,11 @@ public class Main
         return suggestPathCopier(parameters, requiresDeletionBeforeCreation);
     }
 
-    private static void startupServer(final Parameters parameters)
+    private static IFileSysOperationsFactory createFileSysOperations(final Parameters parameters)
     {
-        selfTest(parameters);
-        final IFileSysOperationsFactory factory = new IFileSysOperationsFactory()
+        final IReadPathOperations readAccessor = FileSystemHelper.createPathReadOperations();
+        return new IFileSysOperationsFactory()
             {
-                public IPathLastChangedChecker getChecker()
-                {
-                    return new FSPathLastChangedChecker();
-                }
-
                 public IPathCopier getCopier(File destinationDirectory)
                 {
                     return getPathCopier(parameters, destinationDirectory);
@@ -239,10 +208,56 @@ public class Main
                 {
                     return getImmutablePathCopier(parameters);
                 }
-            };
 
-        final MonitorStarter starter = new MonitorStarter(parameters, factory);
-        starter.start();
+                public IReadPathOperations getReadAccessor()
+                {
+                    return readAccessor;
+                }
+            };
+    }
+
+    /**
+     * performs a self-test.
+     */
+    private static void selfTest(final Parameters parameters)
+    {
+        try
+        {
+            IPathCopier copyProcess = suggestPathCopier(parameters, false);
+            ArrayList<FileStore> stores = new ArrayList<FileStore>();
+            stores.add(parameters.getIncomingStore());
+            stores.add(parameters.getBufferStore());
+            stores.add(parameters.getOutgoingStore());
+            stores.add(parameters.getManualInterventionStore());
+            if (parameters.tryGetExtraCopyDir() != null)
+            {
+                FileStore dummyStore = new FileStore(parameters.tryGetExtraCopyDir(), "extra-copy", null, false);
+                stores.add(dummyStore);
+            }
+            SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
+        } catch (HighLevelException e)
+        {
+            System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
+            System.exit(1);
+        } catch (RuntimeException e)
+        {
+            System.err.println("Self test failed:");
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /** exposed for testing purposes */
+    static ITerminable startupServer(Parameters parameters, LocalBufferDirs bufferDirs)
+    {
+        final IFileSysOperationsFactory factory = createFileSysOperations(parameters);
+        return MonitorStarter.start(parameters, factory, bufferDirs);
+    }
+
+    private static void startupServer(Parameters parameters)
+    {
+        final IFileSysOperationsFactory factory = createFileSysOperations(parameters);
+        MonitorStarter.start(parameters, factory);
     }
 
     public static void main(String[] args)
@@ -250,6 +265,7 @@ public class Main
         initLog();
         final Parameters parameters = new Parameters(args);
         printInitialLogMessage(parameters);
+        selfTest(parameters);
         startupServer(parameters);
         operationLog.info("datamover ready and waiting for data.");
     }

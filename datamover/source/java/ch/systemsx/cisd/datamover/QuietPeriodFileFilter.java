@@ -19,6 +19,9 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.io.FileFilter;
 
+import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.intf.ITimingParameters;
+
 /**
  * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given quiet period.
  * 
@@ -29,30 +32,28 @@ public class QuietPeriodFileFilter implements FileFilter
 
     private final long quietPeriodMillis;
 
-    private final IPathLastChangedChecker checker;
+    private final IReadPathOperations readOperations;
 
     /**
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param timingParameters The timing paramter object to get the quiet period from.
-     * @param factory The factory object to create implementation to use to check when a pathname was
-     *            changed.
+     * @param readOperations Used to check when a pathname was changed.
      */
-    public QuietPeriodFileFilter(ITimingParameters timingParameters, IFileSysOperationsFactory factory)
+    public QuietPeriodFileFilter(ITimingParameters timingParameters, IReadPathOperations readOperations)
     {
         assert timingParameters != null;
-        assert factory != null;
+        assert readOperations != null;
 
-        quietPeriodMillis = timingParameters.getQuietPeriodMillis();
-        checker = factory.getChecker();
+        this.quietPeriodMillis = timingParameters.getQuietPeriodMillis();
+        this.readOperations = readOperations;
 
         assert quietPeriodMillis > 0;
-        assert checker != null;
     }
 
     public boolean accept(File pathname)
     {
-        return (System.currentTimeMillis() - checker.lastChanged(pathname)) > quietPeriodMillis;
+        return (System.currentTimeMillis() - readOperations.lastChanged(pathname)) > quietPeriodMillis;
     }
 
 }

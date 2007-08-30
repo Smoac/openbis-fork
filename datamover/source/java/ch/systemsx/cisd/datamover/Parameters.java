@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
  * The class to process the command line parameters.
@@ -225,11 +226,6 @@ public class Parameters implements ITimingParameters
     private final FileStore manualInterventionStore;
 
     /**
-     * The store where we create an additional copy of incoming data (optional).
-     */
-    private final FileStore extraCopyStoreOrNull;
-
-    /**
      * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
      */
     @Option(longName = "manual-intervention-regex", usage = "The regular expression to use for deciding whether an "
@@ -322,13 +318,6 @@ public class Parameters implements ITimingParameters
             bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
             manualInterventionStore = new FileStore(manualInterventionDirectory, "manual intervention", null, false);
             outgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
-            if (extraCopyDirectory != null)
-            {
-                extraCopyStoreOrNull = new FileStore(extraCopyDirectory, "extra-copy", null, false);
-            } else
-            {
-                extraCopyStoreOrNull = null;
-            }
         } catch (Exception ex)
         {
             outputException(ex);
@@ -558,12 +547,12 @@ public class Parameters implements ITimingParameters
     }
 
     /**
-     * @return The store where we create an additional copy of incoming data or <code>null</code> if it is not
+     * @return The directory where we create an additional copy of incoming data or <code>null</code> if it is not
      *         specified. Note that this directory needs to be on the same file system as {@link #getBufferStore}.
      */
-    public FileStore tryGetExtraCopyStore()
+    public File tryGetExtraCopyDir()
     {
-        return extraCopyStoreOrNull;
+        return extraCopyDirectory;
     }
 
     /**

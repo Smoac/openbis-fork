@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.datamover;
+package ch.systemsx.cisd.datamover.intf;
 
 /**
  * A role that provides the parameters regarding time intervals to be used in the operation.

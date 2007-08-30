@@ -36,8 +36,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.IPathCopier;
 import ch.systemsx.cisd.datamover.helper.CmdLineHelper;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.rsync.RsyncVersionChecker.RsyncVersion;
 
 /**

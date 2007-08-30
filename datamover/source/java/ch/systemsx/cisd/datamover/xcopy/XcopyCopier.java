@@ -34,8 +34,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.IPathCopier;
 import ch.systemsx.cisd.datamover.helper.CmdLineHelper;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
 
 /**
  * A class that encapsulates the <code>xcopy</code> call for doing an archive copy.

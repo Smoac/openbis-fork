@@ -21,13 +21,16 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.helper.CopyFinishedMarker;
+import ch.systemsx.cisd.datamover.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.intf.IPathRemover;
+import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
  * A class that moves files and directories to remote directories. This class monitors the copy process and, if
@@ -71,7 +74,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
     private final IPathCopier copier;
 
     private final IPathRemover remover;
-    
+
     private final String sourceHost;
 
     private final CopyActivityMonitor monitor;
@@ -89,7 +92,8 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
      * @param monitor The activity monitor to inform about actions.
      * @param remover Allows to remove files.
      * @param copier Allows to copy files
-     * @param sourceHost The host to move paths from, or <code>null</code>, if data will be moved from the local file system
+     * @param sourceHost The host to move paths from, or <code>null</code>, if data will be moved from the local file
+     *            system
      * @param timingParameters The timing parametes used for monitoring and reporting stall situations.
      */
     public RemotePathMover(File destinationDirectory, String destinationHost, CopyActivityMonitor monitor,
@@ -198,7 +202,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     private boolean markAsFinishedLocal(File path)
     {
-        final File markFile = new File(destinationDirectory, Constants.IS_FINISHED_PREFIX + path.getName());
+        final File markFile = new File(destinationDirectory, CopyFinishedMarker.getMarkerName(path.getName()));
         try
         {
             markFile.createNewFile();
@@ -217,7 +221,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     private boolean markAsFinishedRemote(File path)
     {
-        final File markFile = new File(path.getParent(), Constants.IS_FINISHED_PREFIX + path.getName());
+        final File markFile = new File(path.getParent(), CopyFinishedMarker.getMarkerName(path.getName()));
         try
         {
             markFile.createNewFile();
