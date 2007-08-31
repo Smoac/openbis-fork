@@ -137,18 +137,13 @@ public class MonitorStarter
     private void recoverIncomingAfterShutdown(FileStore incomingStore, IReadPathOperations incomingReadOperations,
             boolean isIncomingRemote, LazyPathHandler localProcessor)
     {
-        if (isIncomingRemote == false)
-        {
-            return; // no recovery is needed
-        }
-
         recoverIncomingInProgress(incomingStore, incomingReadOperations, bufferDirs.getCopyInProgressDir(), bufferDirs
-                .getCopyCompleteDir());
+                .getCopyCompleteDir(), parameters.getPrefixForIncoming());
         recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir(), localProcessor);
     }
 
     private static void recoverIncomingInProgress(FileStore incomingStore, IReadPathOperations incomingReadOperations,
-            File copyInProgressDir, File copyCompleteDir)
+            File copyInProgressDir, File copyCompleteDir, String prefixTemplate)
     {
         final File[] files = FileSystemHelper.listFiles(copyInProgressDir);
         if (files == null || files.length == 0)
@@ -158,12 +153,12 @@ public class MonitorStarter
 
         for (File file : files)
         {
-            recoverIncomingAfterShutdown(file, incomingStore, incomingReadOperations, copyCompleteDir);
+            recoverIncomingAfterShutdown(file, incomingStore, incomingReadOperations, copyCompleteDir, prefixTemplate);
         }
     }
 
     private static void recoverIncomingAfterShutdown(File unfinishedFile, FileStore incomingStore,
-            IReadPathOperations incomingReadOperations, File copyCompleteDir)
+            IReadPathOperations incomingReadOperations, File copyCompleteDir, String prefixTemplate)
     {
         if (CopyFinishedMarker.isMarker(unfinishedFile))
         {
@@ -185,7 +180,7 @@ public class MonitorStarter
             if (markerFile.exists())
             {
                 // copy and marker exist - copy finished, but copied resource not moved
-                tryMoveFromInProgressToFinished(localCopy, markerFile, copyCompleteDir);
+                tryMoveFromInProgressToFinished(localCopy, markerFile, copyCompleteDir, prefixTemplate);
             } else
             // no marker
             {
@@ -197,7 +192,7 @@ public class MonitorStarter
                 } else
                 {
                     // move finished, but marker not created
-                    tryMoveFromInProgressToFinished(localCopy, null, copyCompleteDir);
+                    tryMoveFromInProgressToFinished(localCopy, null, copyCompleteDir, prefixTemplate);
                 }
             }
         }
@@ -238,7 +233,7 @@ public class MonitorStarter
 
     private boolean moveFromLocalIncoming(File source, LazyPathHandler localProcessor)
     {
-        final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir());
+        final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
         if (finalFile == null)
         {
             return false;
@@ -255,13 +250,16 @@ public class MonitorStarter
         {
             return false;
         }
+        FileSystemHelper.createDestinationPath(source, null, copyInProgressDir, parameters.getPrefixForIncoming());
         final File copiedFile = new File(copyInProgressDir, source.getName());
         assert copiedFile.exists();
         final File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
         assert markerFile.exists();
 
         // 2. Move to final directory, delete marker
-        final File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
+        final File finalFile =
+                tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir(), parameters
+                        .getPrefixForIncoming());
         if (finalFile == null)
         {
             return false;
@@ -272,9 +270,10 @@ public class MonitorStarter
         return true;
     }
 
-    private static File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
+    private static File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir,
+            String prefixTemplate)
     {
-        final File finalFile = tryMoveLocal(copiedFile, copyCompleteDir);
+        final File finalFile = tryMoveLocal(copiedFile, copyCompleteDir, prefixTemplate);
         if (finalFile != null)
         {
             if (markerFileOrNull != null)
@@ -293,9 +292,9 @@ public class MonitorStarter
         return createRemotePathMover(sourceHostOrNull, localDestDir, null).handle(source);
     }
 
-    private static File tryMoveLocal(File sourceFile, File destinationDir)
+    private static File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
     {
-        return FileSystemHelper.tryMoveLocal(sourceFile, destinationDir);
+        return FileSystemHelper.tryMoveLocal(sourceFile, destinationDir, prefixTemplate);
     }
 
     // --------------------------

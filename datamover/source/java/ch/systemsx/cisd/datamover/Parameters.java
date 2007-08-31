@@ -233,6 +233,14 @@ public class Parameters implements ITimingParameters
     private Pattern manualInterventionRegex = null;
 
     /**
+     * A prefix for all incoming items. Note that '%t' will be replaced with the current timestamp in format
+     * 'yyyyMMddHHmmss'.
+     */
+    @Option(longName = "prefix-for-incoming", usage = "A string that all incoming items will be prepended with, "
+            + "'%t' will be replaced with the current time stamp.")
+    private String prefixForIncoming;
+
+    /**
      * The command line parser.
      */
     private final CmdLineParser parser = new CmdLineParser(this);
@@ -366,6 +374,7 @@ public class Parameters implements ITimingParameters
         treatIncomingAsRemote =
                 Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote", Boolean
                         .toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)));
+        prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "");
         if (serviceProperties.getProperty("incoming-dir") != null)
         {
             incomingDirectory = new File(serviceProperties.getProperty("incoming-dir"));
@@ -572,6 +581,15 @@ public class Parameters implements ITimingParameters
     public Pattern getManualInterventionRegex()
     {
         return manualInterventionRegex;
+    }
+
+    /**
+     * @return The prefix string to put in front of all incoming items. Note that '%t' will be replaced with the current
+     *         time stamp.
+     */
+    public String getPrefixForIncoming()
+    {
+        return prefixForIncoming;
     }
 
     /**

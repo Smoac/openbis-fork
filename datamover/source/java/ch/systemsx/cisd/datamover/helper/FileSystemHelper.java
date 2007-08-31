@@ -19,6 +19,8 @@ package ch.systemsx.cisd.datamover.helper;
 import java.io.File;
 import java.io.FileFilter;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IntraFSPathMover;
+import ch.systemsx.cisd.datamover.IntraFSPathMover;
 import ch.systemsx.cisd.datamover.LocalProcessorHandler;
 import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
 
@@ -98,12 +100,56 @@ public class FileSystemHelper
             };
     }
 
-    /** moves source file to destination directory */
+    /**
+     * Moves source file to destination directory.
+     */
     public static File tryMoveLocal(File sourceFile, File destinationDir)
     {
-        boolean ok = new IntraFSPathMover(destinationDir).handle(sourceFile);
-        if (!ok)
-            return null;
-        return new File(destinationDir, sourceFile.getName());
+        return tryMoveLocal(sourceFile, destinationDir, "");
     }
+
+    /**
+     * Moves source file to destination directory, putting <var>prefixTemplate</var> in front of its name after
+     * replacing '%t' with the current time stamp.
+     */
+    public static File tryMoveLocal(File sourceFile, File destinationDirectory, String prefixTemplate)
+    {
+        boolean ok = new IntraFSPathMover(destinationDirectory, prefixTemplate).handle(sourceFile);
+        if (ok == false)
+        {
+            return null;
+        }
+        return new File(createDestinationPath(sourceFile, null, destinationDirectory, prefixTemplate));
+    }
+
+    /**
+     * Creates a destination path for copying <var>sourcePath</var> to <var>destinationDirectory</var> with prefix
+     * defined by <var>prefixTemplate</var>. Note that '%t' in <var>prefixTemplate</var> will be replaced by the
+     * current time stamp in format YYYYmmddhhMMss.
+     */
+    public static String createDestinationPath(File sourcePath, String destinationHostOrNull,
+            File destinationDirectory, String prefixTemplate)
+    {
+        assert sourcePath != null;
+        assert destinationDirectory != null;
+        assert prefixTemplate != null;
+
+        if (destinationHostOrNull != null)
+        {
+            return destinationHostOrNull + ":" + destinationDirectory.getPath() + File.separator
+                    + createPrefix(prefixTemplate) + sourcePath.getName();
+
+        } else
+        {
+            return destinationDirectory.getAbsolutePath() + File.separator + createPrefix(prefixTemplate)
+                    + sourcePath.getName();
+        }
+    }
+
+    private static String createPrefix(String prefixTemplate)
+    {
+        return StringUtils.replace(prefixTemplate, "%t", DateFormatUtils.format(System.currentTimeMillis(),
+                "yyyyMMddHHmmss"));
+    }
+
 }
