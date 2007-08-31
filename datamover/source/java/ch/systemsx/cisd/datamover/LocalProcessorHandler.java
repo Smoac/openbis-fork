@@ -92,7 +92,9 @@ public class LocalProcessorHandler implements IPathHandler
     {
         File[] files = FileSystemHelper.listFiles(tempDir);
         if (files == null || files.length == 0)
+        {
             return; // directory is empty, no recovery is needed
+        }
 
         for (int i = 0; i < files.length; i++)
         {
@@ -122,7 +124,9 @@ public class LocalProcessorHandler implements IPathHandler
     {
         File[] files = FileSystemHelper.listFiles(outputDir);
         if (files == null || files.length == 0)
+        {
             return; // directory is empty, no recovery is needed
+        }
 
         for (int i = 0; i < files.length; i++)
         {
@@ -136,7 +140,9 @@ public class LocalProcessorHandler implements IPathHandler
     {
         Boolean result = tryMoveManualOrClean(path);
         if (result != null)
+        {
             return result.booleanValue(); // stop processing
+        }
 
         boolean ok = true;
         File extraTmpCopy = null;
