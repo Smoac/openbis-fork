@@ -235,7 +235,9 @@ public class MonitorStarter
     {
         File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir());
         if (finalFile == null)
+        {
             return false;
+        }
         return localProcessor.handle(finalFile);
     }
 
@@ -245,7 +247,9 @@ public class MonitorStarter
         File copyInProgressDir = bufferDirs.getCopyInProgressDir();
         boolean ok = moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
         if (ok == false)
+        {
             return false;
+        }
         File copiedFile = new File(copyInProgressDir, source.getName());
         assert copiedFile.exists();
         File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
@@ -254,7 +258,9 @@ public class MonitorStarter
         // 2. Move to final directory, delete marker
         File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
         if (finalFile == null)
+        {
             return false;
+        }
 
         // 3. schedule local processing, always successful
         localProcessor.handle(finalFile);
