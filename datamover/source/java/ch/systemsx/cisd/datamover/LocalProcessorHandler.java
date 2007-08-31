@@ -90,7 +90,7 @@ public class LocalProcessorHandler implements IPathHandler
 
     private static void recoverTemporaryExtraCopy(File tempDir, File inputDir, File extraCopyDirOrNull)
     {
-        File[] files = FileSystemHelper.listFiles(tempDir);
+        final File[] files = FileSystemHelper.listFiles(tempDir);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
@@ -138,7 +138,7 @@ public class LocalProcessorHandler implements IPathHandler
 
     public boolean handle(File path)
     {
-        Boolean result = tryMoveManualOrClean(path);
+        final Boolean result = tryMoveManualOrClean(path);
         if (result != null)
         {
             return result.booleanValue(); // stop processing
@@ -152,7 +152,7 @@ public class LocalProcessorHandler implements IPathHandler
             ok = ok && (extraTmpCopy != null);
         }
 
-        File movedFile = FileSystemHelper.tryMoveLocal(path, outputDir);
+        final File movedFile = FileSystemHelper.tryMoveLocal(path, outputDir);
         if (movedFile != null)
         {
             outgoingHandler.handle(movedFile);
@@ -168,10 +168,10 @@ public class LocalProcessorHandler implements IPathHandler
         return ok;
     }
 
-    // @return true if successed, false if failed, null if succeded and file still exists
+    // @return true if succeeded, false if failed, null if succeeded and file still exists
     private Boolean tryMoveManualOrClean(File file)
     {
-        EFileManipResult manualMoveStatus = doManualIntervention(file);
+        final EFileManipResult manualMoveStatus = doManualIntervention(file);
         if (manualMoveStatus == EFileManipResult.FAILURE)
         {
             return Boolean.FALSE;
@@ -182,7 +182,7 @@ public class LocalProcessorHandler implements IPathHandler
         {
             // continue processing
         }
-        boolean wholeDeleted = doCleansing(file);
+        final boolean wholeDeleted = doCleansing(file);
         if (wholeDeleted)
         {
             return Boolean.TRUE;
@@ -195,7 +195,7 @@ public class LocalProcessorHandler implements IPathHandler
     private boolean doCleansing(File resource)
     {
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        Pattern cleansingRegex = parameters.getCleansingRegex();
+        final Pattern cleansingRegex = parameters.getCleansingRegex();
         if (cleansingRegex != null)
         {
             log(resource, "Doing cleansing");
@@ -203,7 +203,7 @@ public class LocalProcessorHandler implements IPathHandler
         }
         final ISimpleLogger logger =
                 operationLog.isDebugEnabled() ? new Log4jSimpleLogger(Level.DEBUG, operationLog) : null;
-        boolean pathDeleted = FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
+        final boolean pathDeleted = FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
         return pathDeleted;
     }
 
@@ -214,8 +214,8 @@ public class LocalProcessorHandler implements IPathHandler
 
     private EFileManipResult doManualIntervention(File resource)
     {
-        RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        Pattern manualInterventionRegex = parameters.getManualInterventionRegex();
+        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
+        final Pattern manualInterventionRegex = parameters.getManualInterventionRegex();
         if (manualInterventionRegex != null)
         {
             manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);

@@ -104,8 +104,8 @@ public class MonitorStarter
 
     private LazyPathHandler startupLocalProcessing(LazyPathHandler outgoingHandler)
     {
-        IPathImmutableCopier copier = factory.getImmutableCopier();
-        IPathHandler localProcesingHandler =
+        final IPathImmutableCopier copier = factory.getImmutableCopier();
+        final IPathHandler localProcesingHandler =
                 LocalProcessorHandler.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
                         .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, copier);
         return LazyPathHandler.create(localProcesingHandler, "Local Processor");
@@ -115,8 +115,8 @@ public class MonitorStarter
 
     private Timer startupIncomingMovingProcess(FileStore incomingStore, LazyPathHandler localProcessor)
     {
-        IReadPathOperations readOperations = factory.getReadAccessor();
-        boolean isIncomingRemote = parameters.getTreatIncomingAsRemote();
+        final IReadPathOperations readOperations = factory.getReadAccessor();
+        final boolean isIncomingRemote = parameters.getTreatIncomingAsRemote();
 
         recoverIncomingAfterShutdown(incomingStore, readOperations, isIncomingRemote, localProcessor);
         IPathHandler pathHandler =
@@ -138,7 +138,9 @@ public class MonitorStarter
             boolean isIncomingRemote, LazyPathHandler localProcessor)
     {
         if (isIncomingRemote == false)
+        {
             return; // no recovery is needed
+        }
 
         recoverIncomingInProgress(incomingStore, incomingReadOperations, bufferDirs.getCopyInProgressDir(), bufferDirs
                 .getCopyCompleteDir());
@@ -148,13 +150,14 @@ public class MonitorStarter
     private static void recoverIncomingInProgress(FileStore incomingStore, IReadPathOperations incomingReadOperations,
             File copyInProgressDir, File copyCompleteDir)
     {
-        File[] files = FileSystemHelper.listFiles(copyInProgressDir);
+        final File[] files = FileSystemHelper.listFiles(copyInProgressDir);
         if (files == null || files.length == 0)
-            return; // directory is empty, no recovery is needed
-
-        for (int i = 0; i < files.length; i++)
         {
-            File file = files[i];
+            return; // directory is empty, no recovery is needed
+        }
+
+        for (File file : files)
+        {
             recoverIncomingAfterShutdown(file, incomingStore, incomingReadOperations, copyCompleteDir);
         }
     }
@@ -164,8 +167,8 @@ public class MonitorStarter
     {
         if (CopyFinishedMarker.isMarker(unfinishedFile))
         {
-            File markerFile = unfinishedFile;
-            File localCopy = CopyFinishedMarker.extractOriginal(markerFile);
+            final File markerFile = unfinishedFile;
+            final File localCopy = CopyFinishedMarker.extractOriginal(markerFile);
             if (localCopy.exists())
             {
                 // copy and marker exist - do nothing, recovery will be done for copied resource
@@ -177,8 +180,8 @@ public class MonitorStarter
         } else
         // handle local copy
         {
-            File localCopy = unfinishedFile;
-            File markerFile = CopyFinishedMarker.extractMarker(localCopy);
+            final File localCopy = unfinishedFile;
+            final File markerFile = CopyFinishedMarker.extractMarker(localCopy);
             if (markerFile.exists())
             {
                 // copy and marker exist - copy finished, but copied resource not moved
@@ -203,9 +206,11 @@ public class MonitorStarter
     // schedule processing of all resources which were previously copied
     private static void recoverIncomingCopyComplete(File copyCompleteDir, LazyPathHandler localProcessor)
     {
-        File[] files = FileSystemHelper.listFiles(copyCompleteDir);
+        final File[] files = FileSystemHelper.listFiles(copyCompleteDir);
         if (files == null || files.length == 0)
+        {
             return; // directory is empty, no recovery is needed
+        }
 
         for (int i = 0; i < files.length; i++)
         {
@@ -233,7 +238,7 @@ public class MonitorStarter
 
     private boolean moveFromLocalIncoming(File source, LazyPathHandler localProcessor)
     {
-        File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir());
+        final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir());
         if (finalFile == null)
         {
             return false;
@@ -244,19 +249,19 @@ public class MonitorStarter
     private boolean moveFromRemoteIncoming(File source, String sourceHostOrNull, LazyPathHandler localProcessor)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
-        File copyInProgressDir = bufferDirs.getCopyInProgressDir();
-        boolean ok = moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
+        final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
+        final boolean ok = moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
         if (ok == false)
         {
             return false;
         }
-        File copiedFile = new File(copyInProgressDir, source.getName());
+        final File copiedFile = new File(copyInProgressDir, source.getName());
         assert copiedFile.exists();
-        File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
+        final File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
         assert markerFile.exists();
 
         // 2. Move to final directory, delete marker
-        File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
+        final File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
         if (finalFile == null)
         {
             return false;
@@ -269,7 +274,7 @@ public class MonitorStarter
 
     private static File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
     {
-        File finalFile = tryMoveLocal(copiedFile, copyCompleteDir);
+        final File finalFile = tryMoveLocal(copiedFile, copyCompleteDir);
         if (finalFile != null)
         {
             if (markerFileOrNull != null)
@@ -305,10 +310,10 @@ public class MonitorStarter
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
     {
-        IPathCopier copier = factory.getCopier(destinationDirectory);
-        CopyActivityMonitor monitor =
+        final IPathCopier copier = factory.getCopier(destinationDirectory);
+        final CopyActivityMonitor monitor =
                 new CopyActivityMonitor(destinationDirectory, factory.getReadAccessor(), copier, parameters);
-        IPathRemover remover = factory.getRemover();
+        final IPathRemover remover = factory.getRemover();
         return new RemotePathMover(destinationDirectory, destinationHost, monitor, remover, copier, sourceHost,
                 parameters);
     }
