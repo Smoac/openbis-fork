@@ -22,31 +22,47 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Manipulations on the file which is used as a marker of finished copy operation.
+ * Manipulations on marker files.
  * 
  * @author Tomasz Pylak on Aug 27, 2007
  */
-public class CopyFinishedMarker
+public class MarkerFile
 {
 
-    public static String getMarkerName(String originalFileName)
+    public static String getCopyFinishedMarkerName(String originalFileName)
     {
         return Constants.IS_FINISHED_PREFIX + originalFileName;
     }
 
-    public static boolean isMarker(File file)
+    public static String getDeletionInProgressMarkerName(File originalFile)
+    {
+        return Constants.DELETION_IN_PROGRESS_PREFIX + originalFile.getName();
+    }
+
+    public static String getDeletionInProgressMarkerName(String originalFileName)
+    {
+        return Constants.DELETION_IN_PROGRESS_PREFIX + originalFileName;
+    }
+
+    public static boolean isCopyFinishedMarker(File file)
     {
         return file.getName().startsWith(Constants.IS_FINISHED_PREFIX);
     }
 
-    public static File extractOriginal(File markerFile)
+    public static boolean isDeletionInProgressMarker(File file)
     {
-        assert isMarker(markerFile);
+        return file.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX);
+    }
+
+    public static File extractOriginalFromCopyFinishedMarker(File markerFile)
+    {
+        assert isCopyFinishedMarker(markerFile);
         return FileUtilities.removePrefixFromFileName(markerFile, Constants.IS_FINISHED_PREFIX);
     }
 
-    public static File extractMarker(File originalFile)
+    public static File createCopyFinishedMarker(File originalFile)
     {
-        return new File(originalFile.getParent(), getMarkerName(originalFile.getName()));
+        return new File(originalFile.getParent(), getCopyFinishedMarkerName(originalFile.getName()));
     }
+
 }

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.datamover.helper.CopyFinishedMarker;
+import ch.systemsx.cisd.datamover.helper.MarkerFile;
 import ch.systemsx.cisd.datamover.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
@@ -122,6 +122,18 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     public boolean handle(File path)
     {
+        if (isDeletionInProgress(path))
+        {
+            // That is a recovery situation: we have been interrupted removing the path and now finish the job.
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format(
+                        "Detected recovery situation: '%s' has been interrupted in deletion phase, finishing up.", path
+                                .getAbsolutePath()));
+            }
+            remove(path);
+            return markAsFinished(path);
+        }
         int tryCount = 0;
         do
         {
@@ -149,15 +161,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
                     operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, path.getPath(), destinationDirectory
                             .getPath(), (endTime - startTime) / 1000.0));
                 }
-                final Status removalStatus = remover.remove(path);
-                if (Status.OK.equals(removalStatus) == false)
-                {
-                    // We don't retry this, because the path is local and removal really shouldn't fail.
-                    notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path, removalStatus));
-                } else if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info(String.format(REMOVED_PATH_TEMPLATE, path.getPath()));
-                }
+                remove(path);
                 // Note: we return true even if removal of the directory failed. There is no point in retrying the
                 // operation.
                 return markAsFinished(path);
@@ -189,62 +193,121 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         return false;
     }
 
-    private boolean markAsFinished(File path)
+    private void remove(File path)
     {
-        if (destinationHost == null)
+        final File removalInProgressMarkerFile = tryMarkAsDeletionInProgress(path);
+        final Status removalStatus = remover.remove(path);
+        removeMarkerFile(removalInProgressMarkerFile);
+        if (Status.OK.equals(removalStatus) == false)
         {
-            return markAsFinishedLocal(path);
-        } else
+            // We don't retry this, because the path is local and removal really shouldn't fail.
+            // TODO 2007-09-02, Bernd Rinn: this is no longer true, the source directory can now be remote,
+            // so we should consider retrying a failed attempt to remove it.
+            notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path, removalStatus));
+        } else if (operationLog.isInfoEnabled())
         {
-            return markAsFinishedRemote(path);
+            operationLog.info(String.format(REMOVED_PATH_TEMPLATE, path.getPath()));
         }
     }
 
-    private boolean markAsFinishedLocal(File path)
+    private boolean isDeletionInProgress(File path)
     {
-        final File markFile = new File(destinationDirectory, CopyFinishedMarker.getMarkerName(path.getName()));
+        final File markDeletionInProgressMarkerFile = getDeletionInProgressMarkerFile(path);
+        return markDeletionInProgressMarkerFile.exists();
+    }
+
+    private File tryMarkAsDeletionInProgress(File path)
+    {
+        final File markDeletionInProgressMarkerFile = getDeletionInProgressMarkerFile(path);
+        if (markLocal(markDeletionInProgressMarkerFile))
+        {
+            return markDeletionInProgressMarkerFile;
+        } else
+        {
+            machineLog.error(String.format("Cannot create deletion-in-progress marker file for path '%s' [%s]", path
+                    .getAbsolutePath(), markDeletionInProgressMarkerFile.getAbsolutePath()));
+            return null;
+        }
+    }
+
+    private File getDeletionInProgressMarkerFile(File path)
+    {
+        // When destinationHost == null, we put the marker directory in the destination directory, otherwise in
+        // the source directory
+        final File markerParentDirectory = (destinationHost == null) ? destinationDirectory : path.getParentFile();
+        final File markDeletionInProgressMarkerFile =
+                new File(markerParentDirectory, MarkerFile.getDeletionInProgressMarkerName(path));
+        return markDeletionInProgressMarkerFile;
+    }
+
+    private void removeMarkerFile(File markerFileOrNull)
+    {
+        if (markerFileOrNull != null)
+        {
+            final boolean removalOK = markerFileOrNull.delete();
+            if (removalOK == false)
+            {
+                machineLog.error(String.format("Cannot remove marker file '%s'", markerFileOrNull.getAbsolutePath()));
+            }
+        }
+    }
+
+    private boolean markAsFinished(File path)
+    {
+        final File markFinishedFile = new File(destinationDirectory, MarkerFile.getCopyFinishedMarkerName(path.getName()));
+        if (destinationHost == null)
+        {
+            return markLocal(markFinishedFile);
+        } else
+        {
+            return markOnSourceLocalAndCopyToRemoteDestination(markFinishedFile);
+        }
+    }
+
+    private boolean markLocal(File markerFile)
+    {
         try
         {
-            markFile.createNewFile();
-            final boolean success = markFile.exists();
+            markerFile.createNewFile();
+            final boolean success = markerFile.exists();
             if (success == false)
             {
-                machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markFile.getAbsoluteFile()));
+                machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markerFile.getAbsoluteFile()));
             }
             return success;
         } catch (IOException e)
         {
-            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markFile.getAbsoluteFile()), e);
+            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markerFile.getAbsoluteFile()), e);
             return false;
         }
     }
 
-    private boolean markAsFinishedRemote(File path)
+    private boolean markOnSourceLocalAndCopyToRemoteDestination(File markerFile)
     {
-        final File markFile = new File(path.getParent(), CopyFinishedMarker.getMarkerName(path.getName()));
+        final File localMarkerFile = new File(markerFile.getParent(), markerFile.getName());
         try
         {
-            markFile.createNewFile();
-            monitor.start(path);
-            final Status copyStatus = copier.copy(markFile, sourceHost, destinationDirectory, destinationHost);
+            localMarkerFile.createNewFile();
+            monitor.start(localMarkerFile);
+            final Status copyStatus = copier.copy(localMarkerFile, sourceHost, destinationDirectory, destinationHost);
             monitor.stop();
             if (StatusFlag.OK.equals(copyStatus.getFlag()))
             {
                 return true;
             } else
             {
-                machineLog.error(String.format(FAILED_TO_COPY_MARK_FILE_TO_REMOTE_TEMPLATE, markFile.getAbsoluteFile(),
-                        copyStatus.toString()));
+                machineLog.error(String.format(FAILED_TO_COPY_MARK_FILE_TO_REMOTE_TEMPLATE, localMarkerFile
+                        .getAbsoluteFile(), copyStatus.toString()));
                 return false;
             }
 
         } catch (IOException e)
         {
-            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markFile.getAbsoluteFile()), e);
+            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, localMarkerFile.getAbsoluteFile()), e);
             return false;
         } finally
         {
-            markFile.delete();
+            localMarkerFile.delete();
         }
     }
 

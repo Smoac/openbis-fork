@@ -23,11 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.*;
+
 import ch.systemsx.cisd.common.utilities.CollectionIO;
-import ch.systemsx.cisd.datamover.helper.CopyFinishedMarker;
+import ch.systemsx.cisd.datamover.helper.MarkerFile;
 
 /**
- * Immutable helper for creating a sample directory structure and manipulating on it.
+ * Immutable helper for creating a sample directory structure and manipulating it.
  * 
  * @author Tomasz Pylak on Aug 29, 2007
  */
@@ -73,16 +74,26 @@ public class FileStructEngine
         createSampleFile(dir1, SAMPLE_FILE1);
     }
 
-    public void createSampleMarkerFile(File parentDir)
+    public void createSampleFinishedMarkerFile(File parentDir)
     {
-        createEmptyFile(createMarkerFile(parentDir, sampleMovedDir));
+        createEmptyFile(createFinishedMarkerFile(parentDir, sampleMovedDir));
     }
 
-    private static File createMarkerFile(File parentDir, String originalName)
+    public void createSampleDeletionInProgressMarkerFile(File parentDir)
     {
-        return new File(parentDir, CopyFinishedMarker.getMarkerName(originalName));
+        createEmptyFile(createDeletionInProgressMarkerFile(parentDir, sampleMovedDir));
     }
 
+    private static File createFinishedMarkerFile(File parentDir, String originalName)
+    {
+        return new File(parentDir, MarkerFile.getCopyFinishedMarkerName(originalName));
+    }
+    
+    private static File createDeletionInProgressMarkerFile(File parentDir, String originalName)
+    {
+        return new File(parentDir, MarkerFile.getDeletionInProgressMarkerName(originalName));
+    }
+    
     private static List<String> createSampleFileContent()
     {
         String[] lines = new String[]
@@ -114,7 +125,7 @@ public class FileStructEngine
 
     public void assertSampleStructFinishMarkerExists(File parentDir)
     {
-        File marker = createMarkerFile(parentDir, sampleMovedDir);
+        File marker = createFinishedMarkerFile(parentDir, sampleMovedDir);
         assert marker.exists();
     }
 }

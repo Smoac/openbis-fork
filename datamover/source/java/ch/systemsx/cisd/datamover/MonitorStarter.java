@@ -22,7 +22,7 @@ import java.util.Timer;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
-import ch.systemsx.cisd.datamover.helper.CopyFinishedMarker;
+import ch.systemsx.cisd.datamover.helper.MarkerFile;
 import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
 import ch.systemsx.cisd.datamover.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IPathCopier;
@@ -153,6 +153,10 @@ public class MonitorStarter
 
         for (File file : files)
         {
+            if (MarkerFile.isDeletionInProgressMarker(file))
+            {
+                continue;
+            }
             recoverIncomingAfterShutdown(file, incomingStore, incomingReadOperations, copyCompleteDir, prefixTemplate);
         }
     }
@@ -160,10 +164,10 @@ public class MonitorStarter
     private static void recoverIncomingAfterShutdown(File unfinishedFile, FileStore incomingStore,
             IReadPathOperations incomingReadOperations, File copyCompleteDir, String prefixTemplate)
     {
-        if (CopyFinishedMarker.isMarker(unfinishedFile))
+        if (MarkerFile.isCopyFinishedMarker(unfinishedFile))
         {
             final File markerFile = unfinishedFile;
-            final File localCopy = CopyFinishedMarker.extractOriginal(markerFile);
+            final File localCopy = MarkerFile.extractOriginalFromCopyFinishedMarker(markerFile);
             if (localCopy.exists())
             {
                 // copy and marker exist - do nothing, recovery will be done for copied resource
@@ -176,7 +180,7 @@ public class MonitorStarter
         // handle local copy
         {
             final File localCopy = unfinishedFile;
-            final File markerFile = CopyFinishedMarker.extractMarker(localCopy);
+            final File markerFile = MarkerFile.createCopyFinishedMarker(localCopy);
             if (markerFile.exists())
             {
                 // copy and marker exist - copy finished, but copied resource not moved
@@ -207,9 +211,13 @@ public class MonitorStarter
             return; // directory is empty, no recovery is needed
         }
 
-        for (int i = 0; i < files.length; i++)
+        for (File file : files)
         {
-            localProcessor.handle(files[i]);
+            if (MarkerFile.isDeletionInProgressMarker(file))
+            {
+                continue;
+            }
+            localProcessor.handle(file);
         }
     }
 
@@ -252,9 +260,9 @@ public class MonitorStarter
         }
         FileSystemHelper.createDestinationPath(source, null, copyInProgressDir, parameters.getPrefixForIncoming());
         final File copiedFile = new File(copyInProgressDir, source.getName());
-        assert copiedFile.exists();
-        final File markerFile = CopyFinishedMarker.extractMarker(copiedFile);
-        assert markerFile.exists();
+        assert copiedFile.exists() : copiedFile.getAbsolutePath();
+        final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
+        assert markerFile.exists() : markerFile.getAbsolutePath();
 
         // 2. Move to final directory, delete marker
         final File finalFile =

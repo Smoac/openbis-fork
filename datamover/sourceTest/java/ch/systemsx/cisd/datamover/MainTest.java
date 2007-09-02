@@ -63,7 +63,7 @@ public class MainTest
         assert unitTestRootDirectory.isDirectory();
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun=true)
     public void setUp()
     {
         FileUtilities.deleteRecursively(workingDirectory);
@@ -173,9 +173,14 @@ public class MainTest
         DEFAULT_STRUCT.createPartialSampleStructure(parentDir);
     }
 
-    private static void createSampleMarkerFile(File parentDir)
+    private static void createSampleFinishedMarkerFile(File parentDir)
     {
-        DEFAULT_STRUCT.createSampleMarkerFile(parentDir);
+        DEFAULT_STRUCT.createSampleFinishedMarkerFile(parentDir);
+    }
+
+    private static void createSampleDeletionInProgressMarkerFile(File parentDir)
+    {
+        DEFAULT_STRUCT.createSampleDeletionInProgressMarkerFile(parentDir);
     }
 
     private static void assertSampleStructureExists(File parentDir) throws IOException
@@ -345,7 +350,7 @@ public class MainTest
                 public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
-                    createSampleMarkerFile(bufferDirs.getCopyInProgressDir());
+                    createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
             });
     }
@@ -359,8 +364,24 @@ public class MainTest
             {
                 public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
                 {
-                    createSampleStructure(bufferDirs.getCopyCompleteDir());
-                    createSampleMarkerFile(bufferDirs.getCopyInProgressDir());
+                    createSampleStructure(bufferDirs.getCopyInProgressDir());
+                    createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
+                }
+            });
+    }
+
+    @Test(groups =
+        { "slow" })
+    // recovery after failure when data are copied to 'copy-completed', but before deletion has been finished
+    public void testRecoveryIncomingCompleteDeletionInProgress() throws Exception
+    {
+        performGenericTest(new IFSPreparator()
+            {
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                {
+                    createSampleStructure(bufferDirs.getCopyInProgressDir());
+                    createPartialSampleStructure(dirs.incoming);
+                    createSampleDeletionInProgressMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
             });
     }
