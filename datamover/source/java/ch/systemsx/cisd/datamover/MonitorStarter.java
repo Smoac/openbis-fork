@@ -137,8 +137,11 @@ public class MonitorStarter
     private void recoverIncomingAfterShutdown(FileStore incomingStore, IReadPathOperations incomingReadOperations,
             boolean isIncomingRemote, LazyPathHandler localProcessor)
     {
-        recoverIncomingInProgress(incomingStore, incomingReadOperations, bufferDirs.getCopyInProgressDir(), bufferDirs
-                .getCopyCompleteDir(), parameters.getPrefixForIncoming());
+        if (isIncomingRemote)
+        {
+            recoverIncomingInProgress(incomingStore, incomingReadOperations, bufferDirs.getCopyInProgressDir(),
+                    bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
+        }
         recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir(), localProcessor);
     }
 
