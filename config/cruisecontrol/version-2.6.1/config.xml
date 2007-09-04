@@ -42,6 +42,21 @@
   </plugin>
   
   <!-- Projects -->
+
+  <project name="lims (nightly build)">
+    <bootstrappers>
+      <svnbootstrapper localWorkingCopy="projects/cisd/trunk/lims"/>
+    </bootstrappers>
+    <modificationset requiremodification="false">
+      <svn localWorkingCopy="projects/cisd/trunk/lims"/>
+    </modificationset>
+    <schedule interval="10">
+      <ant target="check-dependencies" buildfile="projects/cisd/trunk/lims/build/build.xml" anthome="apache-ant-1.6.5" time="1229"/>
+    </schedule>
+    <log>
+      <merge dir="projects/cisd/trunk/lims/targets/test-output"/>
+    </log>
+  </project>
   
   <project name="build_resources">
     <schedule>
