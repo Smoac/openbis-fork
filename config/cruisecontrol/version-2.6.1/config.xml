@@ -1,5 +1,6 @@
 <cruisecontrol>
-  <property name="project.trunk" value="projects/cisd/trunk/${project.name}"/>
+  <property name="trunk" value="projects/cisd/trunk"/>
+  <property name="project.trunk" value="${trunk}/${project.name}"/>
   <property name="status.file" value="status.txt"/>
   <property name="quiet-period" value="120"/>
   
@@ -45,17 +46,38 @@
 
   <project name="lims (nightly build)">
     <bootstrappers>
-      <svnbootstrapper localWorkingCopy="projects/cisd/trunk/lims"/>
+      <svnbootstrapper localWorkingCopy="${trunk}/lims"/>
     </bootstrappers>
     <modificationset requiremodification="false">
-      <svn localWorkingCopy="projects/cisd/trunk/lims"/>
+      <svn localWorkingCopy="${trunk}/lims"/>
     </modificationset>
     <schedule interval="10">
-      <ant target="check-dependencies" buildfile="projects/cisd/trunk/lims/build/build.xml" anthome="apache-ant-1.6.5" time="1229"/>
+      <ant target="smoke-test" 
+           buildfile="${trunk}/lims/build/build.xml" 
+           anthome="apache-ant-1.6.5" 
+           time="0100"/>
     </schedule>
     <log>
-      <merge dir="projects/cisd/trunk/lims/targets/test-output"/>
+      <merge dir="${trunk}/lims/targets/test-output"/>
     </log>
+    <publishers>
+      <onsuccess>
+        <artifactspublisher dest="artifacts/lims/nightly-builds" dir="${trunk}/lims/targets/dist/"/>
+      </onsuccess>
+      <onfailure>
+        <htmlemail buildresultsurl="http://cisd-ci:8090/buildresults/lims" 
+               returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
+               xsldir="webapps/cruisecontrol/xsl/"
+               css="webapps/cruisecontrol/css/cruisecontrol.css">
+          <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
+          <!--map alias="brinn" address="bernd.rinn@systemsx.ch"/>
+          <map alias="charlesr" address="charles.ramin-wright@systemsx.ch"/>
+          <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
+          <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
+          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/-->
+        </htmlemail>
+      </onfailure>
+    </publishers>
   </project>
   
   <project name="build_resources">
