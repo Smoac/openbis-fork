@@ -1,0 +1,15 @@
+#! /bin/sh
+
+if [ -f datamover.pid ]; then
+	PID=`cat datamover.pid`
+	if [ `ps -ef |grep $PID |grep -v grep|wc -l` = 0 ] ; then
+		echo "Program (PID $PID) does not seem to run."
+		rm datamover.pid
+		exit 1
+	fi
+	kill `cat datamover.pid`
+	rm datamover.pid
+	echo "Killed PID $PID..."
+else
+	echo "No datamover.pid found."
+fi
