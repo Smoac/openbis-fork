@@ -32,6 +32,34 @@ import org.apache.commons.lang.StringUtils;
 public final class StringUtilities
 {
 
+    private static final String[] STRINGS =
+            new String[]
+                { "phalanx", "nightmare", "concierge", "asbestos", "cody", "hermit", "nbc", "couplet", "dice",
+                        "thumbnail", "finley", "figure", "exclamation", "whoosh", "punish", "servitor", "portend",
+                        "boulevard", "bacterial", "dilate", "emboss", "birmingham", "illustrate", "pomona", "truk",
+                        "bursitis", "trustworthy", "harriman", "schenectady", "obligate", "oceania", "knew",
+                        "quickstep", "woo", "strickland", "sadie", "malabar", "posit", "breadfruit", "grandfather",
+                        "vishnu", "vacuous", "melpomene", "assam", "blaine", "taskmaster", "polymeric", "hector",
+                        "counterrevolution", "compassionate", "linkage", "distant", "vet", "shako", "eagan",
+                        "neutronium", "stony", "lie", "hoydenish", "dial", "hecate", "pinch", "olin", "piglet",
+                        "basswood", "yawn", "ouzo", "scrupulosity", "bestiary", "subpoena", "nudge", "baton", "thing",
+                        "hallmark", "bossy", "preferential", "bambi", "narwhal", "brighten", "omnipotent", "forsake",
+                        "flapping", "orthodoxy", "upcome", "teaspoonful", "wabash", "lipid", "enjoin", "shoshone",
+                        "wartime", "gatekeeper", "litigate", "siderite", "sadden", "visage", "boogie", "scald",
+                        "equate", "tragic", "ordinary", "wick", "gigawatt", "desultory", "bambi", "aureomycin", "car",
+                        "especial", "rescue", "protector", "burnett", "constant", "heroes", "filmstrip", "homeown",
+                        "verdant", "governor", "cornwall", "predisposition", "sedan", "resemblant", "satellite",
+                        "committeemen", "given", "narragansett", "switzer", "clockwatcher", "sweeten", "monologist",
+                        "execrate", "gila", "lad", "mahayanist", "solicitation", "linemen", "reading", "hoard",
+                        "phyla", "carcinoma", "glycol", "polymer", "hangmen", "dualism", "betrayal", "corpsman",
+                        "stint", "hannah", "balsam", "granola", "charitable", "osborn", "party", "laboratory",
+                        "norwich", "laxative", "collude", "rockefeller", "crack", "lamarck", "purposeful",
+                        "neuroanotomy", "araby", "crucible", "oratorical", "dramaturgy", "kitty", "pit", "ephesus",
+                        "bum", "amuse", "clogging", "joker", "fobbing", "extent", "colossal", "macromolecule",
+                        "choppy", "tennessee", "primrose", "glassine", "vampire", "chap", "precursor", "incorrigible",
+                        "slither", "interrogate", "spectral", "debut", "creche", "pyrolysis", "homicidal", "sonnet",
+                        "gin", "science", "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
+
     private StringUtilities()
     {
         // This class can not be instantiated.
@@ -68,6 +96,25 @@ public final class StringUtilities
     public static String concatenateWithNewLine(List<String> list)
     {
         return StringUtils.join(list, OSUtilities.LINE_SEPARATOR);
+    }
+
+    /**
+     * Returns an array of as many strings as you request.
+     */
+    public static final String[] getStrings(int numberOfStrings)
+    {
+        String[] result = new String[numberOfStrings];
+        for (int i = 0; i < numberOfStrings; i++)
+        {
+            result[i] = getString();
+        }
+        return result;
+    }
+
+    /** Returns a random string. */
+    public static final String getString()
+    {
+        return STRINGS[(int) (Math.random() * STRINGS.length - 1)];
     }
 
 }
