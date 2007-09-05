@@ -26,7 +26,6 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -203,10 +202,6 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         { // Guard: skip faulty paths.
             return;
         }
-        if (isMarker(path))
-        {
-            return;
-        }
         try
         {
             final boolean handledOK = handler.handle(path);
@@ -222,11 +217,6 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
                 addToFaultyPaths(path);
             }
         }
-    }
-
-    private static boolean isMarker(File path)
-    {
-        return path.getName().startsWith(Constants.MARKER_PREFIX);
     }
     
     private void addToFaultyPaths(File path)
