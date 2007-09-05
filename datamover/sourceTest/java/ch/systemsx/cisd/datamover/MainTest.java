@@ -364,7 +364,7 @@ public class MainTest
             {
                 public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
                 {
-                    createSampleStructure(bufferDirs.getCopyInProgressDir());
+                    createSampleStructure(bufferDirs.getCopyCompleteDir());
                     createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
             });

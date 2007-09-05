@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Timer;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
-import ch.systemsx.cisd.datamover.helper.MarkerFile;
 import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
+import ch.systemsx.cisd.datamover.helper.MarkerFile;
 import ch.systemsx.cisd.datamover.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
@@ -121,10 +124,10 @@ public class MonitorStarter
         recoverIncomingAfterShutdown(incomingStore, readOperations, isIncomingRemote, localProcessor);
         IPathHandler pathHandler =
                 createIncomingMovingPathHandler(incomingStore.getHost(), localProcessor, isIncomingRemote);
+        FileFilter filter = createQuitePeriodFilter(readOperations);
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), new QuietPeriodFileFilter(parameters,
-                        readOperations), pathHandler);
+                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler);
         final Timer movingTimer = new Timer("Mover of Incomming Data");
         // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
         // remote share. The rationale behind this is that if new items are
@@ -132,6 +135,25 @@ public class MonitorStarter
         // the task shoulnd't sit idle for the check time when there is actually work to do.
         movingTimer.scheduleAtFixedRate(movingTask, 0, parameters.getCheckIntervalMillis());
         return movingTimer;
+    }
+
+    private FileFilter createQuitePeriodFilter(final IReadPathOperations readOperations)
+    {
+        FileFilter quitePeriodFilter = new QuietPeriodFileFilter(parameters, readOperations);
+        FileFilter filterDeletionMarkers = new NamePrefixFileFilter(Constants.DELETION_IN_PROGRESS_PREFIX, false);
+        FileFilter filter = combineFilters(filterDeletionMarkers, quitePeriodFilter);
+        return filter;
+    }
+
+    private static FileFilter combineFilters(final FileFilter filter1, final FileFilter filter2)
+    {
+        return new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    return filter1.accept(pathname) && filter2.accept(pathname);
+                }
+            };
     }
 
     private void recoverIncomingAfterShutdown(FileStore incomingStore, IReadPathOperations incomingReadOperations,
@@ -216,10 +238,6 @@ public class MonitorStarter
 
         for (File file : files)
         {
-            if (MarkerFile.isDeletionInProgressMarker(file))
-            {
-                continue;
-            }
             localProcessor.handle(file);
         }
     }
