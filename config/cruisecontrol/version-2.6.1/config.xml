@@ -55,7 +55,7 @@
       <ant target="smoke-test" 
            buildfile="${trunk}/lims/build/build.xml" 
            anthome="apache-ant-1.6.5" 
-           time="1653"/>
+           time="0100"/>
     </schedule>
     <log>
       <merge dir="${trunk}/lims/targets/test-output"/>
