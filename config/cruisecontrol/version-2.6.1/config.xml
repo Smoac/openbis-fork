@@ -44,18 +44,18 @@
   
   <!-- Projects -->
 
-  <project name="lims (nightly build)">
+  <project name="lims (nightly build)" requiremodification="false">
     <bootstrappers>
       <svnbootstrapper localWorkingCopy="${trunk}/lims"/>
     </bootstrappers>
-    <modificationset requiremodification="false">
+    <modificationset>
       <svn localWorkingCopy="${trunk}/lims"/>
     </modificationset>
     <schedule interval="10">
       <ant target="smoke-test" 
            buildfile="${trunk}/lims/build/build.xml" 
            anthome="apache-ant-1.6.5" 
-           time="0100"/>
+           time="1653"/>
     </schedule>
     <log>
       <merge dir="${trunk}/lims/targets/test-output"/>
