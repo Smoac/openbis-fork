@@ -27,58 +27,15 @@ import java.util.Iterator;
  */
 public final class CollectionUtils
 {
-
-    public final static String DEFAULT_COLLECTION_START = "[";
-
-    public final static String DEFAULT_COLLECTION_END = "]";
-
-    public final static String DEFAULT_COLLECTION_SEPARATOR = ", ";
-
-    private static String collectionStart = DEFAULT_COLLECTION_START;
-
-    private static String collectionEnd = DEFAULT_COLLECTION_END;
-
-    private static String collectionSeparator = DEFAULT_COLLECTION_SEPARATOR;
-
     private CollectionUtils()
     {
         // Can not be instantiated
     }
 
-    public static final void setCollectionEnd(String collectionEnd)
-    {
-        CollectionUtils.collectionEnd = collectionEnd;
-    }
-
-    public static final void setCollectionSeparator(String collectionSeparator)
-    {
-        CollectionUtils.collectionSeparator = collectionSeparator;
-    }
-
-    public static final void setCollectionStart(String collectionStart)
-    {
-        CollectionUtils.collectionStart = collectionStart;
-    }
-
-    public static final String getCollectionEnd()
-    {
-        return collectionEnd;
-    }
-
-    public static final String getCollectionSeparator()
-    {
-        return collectionSeparator;
-    }
-
-    public static final String getCollectionStart()
-    {
-        return collectionStart;
-    }
-
     /**
      * Abbreviates a given array of <code>Object</code> using ellipses.
      * <p>
-     * By default it shows the number of items left.
+     * By default it shows the number of items left and {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -92,7 +49,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code> using ellipses.
      * <p>
-     * By default it shows the number of items left.
+     * By default it shows the number of items left and {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -105,20 +62,49 @@ public final class CollectionUtils
 
     /**
      * Abbreviates a given array of <code>Object</code> using ellipses.
+     * <p>
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
+    public final static String abbreviate(Object[] objects, int maxLength, boolean showLeft)
+    {
+        return abbreviate(objects, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+    }
+
+    /**
+     * Abbreviates a given <code>Collection</code> using ellipses.
+     * <p>
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
+    public final static String abbreviate(Collection<?> collection, int maxLength, boolean showLeft)
+    {
+        return abbreviate(collection, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+    }
+
+    /**
+     * Abbreviates a given array of <code>Object</code> using ellipses.
      * 
      * <pre>
-     * CollectionUtils.abbreviate(new String[] { "1", "2", "3", "4", "5" }, 3, false) = "[1, 2, 3, ...]"
-     * CollectionUtils.abbreviate(new String[] { "1", "2", "3", "4", "5" }, 3, true) = "[1, 2, 3, ... (2 left)]"
+     * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, false) = &quot;[1, 2, 3, ...]&quot;
+     * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, true) = &quot;[1, 2, 3, ... (2 left)]&quot;
      * </pre>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      * @param showLeft whether the number of items left should be displayed at the end of the output. This is only
      *            relevant if you limit the number of items displayed.
+     * @param style the style that should be applied to the output.
      */
-    public final static String abbreviate(Object[] objects, int maxLength, boolean showLeft)
+    public final static String abbreviate(Object[] objects, int maxLength, boolean showLeft, CollectionStyle style)
     {
-        return abbreviate(Arrays.asList(objects), maxLength, showLeft);
+        return abbreviate(Arrays.asList(objects), maxLength, showLeft, style);
     }
 
     /**
@@ -128,31 +114,34 @@ public final class CollectionUtils
      *            displayed.
      * @param showLeft whether the number of items left should be displayed at the end of the output. This is only
      *            relevant if you limit the number of items displayed.
+     * @param style the style that should be applied to the output.
      */
-    public final static String abbreviate(Collection<?> collection, int maxLength, boolean showLeft)
+    public final static String abbreviate(Collection<?> collection, int maxLength, boolean showLeft,
+            CollectionStyle style)
     {
         assert collection != null;
-        StringBuilder builder = new StringBuilder(collectionStart);
+        StringBuilder builder = new StringBuilder(style.getCollectionStart());
         Iterator<?> iterator = collection.iterator();
         for (int i = 0; iterator.hasNext() && (i < maxLength || maxLength < 0); i++)
         {
             if (i > 0)
             {
-                builder.append(collectionSeparator);
+                builder.append(style.getCollectionSeparator());
             }
             builder.append(String.valueOf(iterator.next()));
         }
         int size = collection.size();
         if (maxLength > 0 && maxLength < size)
         {
-            builder.append(collectionSeparator);
+            builder.append(style.getCollectionSeparator());
             builder.append("...");
             if (showLeft)
             {
                 builder.append(" (").append(size - maxLength).append(" left)");
             }
         }
-        builder.append(collectionEnd);
+        builder.append(style.getCollectionEnd());
         return builder.toString();
     }
+
 }

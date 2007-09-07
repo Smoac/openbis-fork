@@ -43,9 +43,11 @@ public final class CollectionUtilsTest
             // Nothing to do here
         }
         String[] s = StringUtilities.getStrings(5);
+        CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
         String string =
-                CollectionUtils.getCollectionStart() + StringUtils.join(s, CollectionUtils.getCollectionSeparator())
-                        + CollectionUtils.getCollectionEnd();
+                collectionStyle.getCollectionStart()
+                        + StringUtils.join(s, collectionStyle.getCollectionSeparator())
+                        + collectionStyle.getCollectionEnd();
         assertEquals(string, CollectionUtils.abbreviate(s, -1, false));
         assertEquals(string, CollectionUtils.abbreviate(s, -10, false));
         assertEquals(string, CollectionUtils.abbreviate(s, 5, false));
