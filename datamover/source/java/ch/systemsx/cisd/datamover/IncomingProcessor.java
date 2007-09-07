@@ -9,13 +9,13 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
+import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.LocalFileSystem;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.utils.FileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
-import ch.systemsx.cisd.datamover.utils.MarkerFile;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 
 /*

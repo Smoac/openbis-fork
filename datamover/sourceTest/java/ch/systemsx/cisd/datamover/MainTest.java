@@ -64,7 +64,7 @@ public class MainTest
         assert unitTestRootDirectory.isDirectory();
     }
 
-    @BeforeMethod(alwaysRun=true)
+    @BeforeMethod(alwaysRun = true)
     public void setUp()
     {
         FileUtilities.deleteRecursively(workingDirectory);
@@ -265,8 +265,8 @@ public class MainTest
 
     private static LocalBufferDirs createBufferDirs(Parameters parameters)
     {
-        return new LocalBufferDirs(parameters, "test-copy-in-progress", "test-copy-complete", "test-ready-to-move",
-                "test-temp");
+        return new LocalBufferDirs(parameters.getBufferStore().getPath(), "test-copy-in-progress",
+                "test-copy-complete", "test-ready-to-move", "test-temp");
     }
 
     private static interface IFSPreparator

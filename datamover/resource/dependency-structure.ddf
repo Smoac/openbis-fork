@@ -2,15 +2,34 @@
 
 {package} = ch.systemsx.cisd.datamover
 
-[generic] = ${package}.* excluding ${package}.*.*
-check sets [generic]
+check absenceOfPackageCycles > 1 in {package}.*
 
-[rsync] = ${package}.rsync.*
-check sets [rsync]
+{fs} = ${package}.filesystem
 
-[xcopy] = ${package}.xcopy.*
-check sets [xcopy]
+[fs.common] = ${fs}.common.*
+[fs.impl] = ${fs}.impl.*
+[fs.intf] = ${fs}.intf.*
+[fs.remote] = ${fs}.remote.*
+[fs.main] = ${fs}.* excluding ${fs}.*.*
 
-layer layer0 = [rsync] [xcopy]
+layer fs.layer0 = [fs.intf] 
+layer fs.layer1 = [fs.common] 
+layer fs.layer2 = [fs.impl] [fs.remote] 
+layer fs.layer3 = [fs.main] 
 
-check layeringOf layer0
+check layeringOf fs.layer0 fs.layer1 fs.layer2 fs.layer3
+
+#-------------------------------
+
+[intf] = ${package}.intf.*
+[common] = ${package}.common.*
+[utils] = ${package}.utils.*
+[filesystem] = ${package}.filesystem.*
+[main] = ${package}.* excluding ${package}.*.* 
+
+layer layer0 = [intf] [common]
+layer layer1 = [filesystem]
+layer layer2 = [utils] 
+layer layer3 = [main]
+
+check layeringOf layer0 layer1 layer2 layer3

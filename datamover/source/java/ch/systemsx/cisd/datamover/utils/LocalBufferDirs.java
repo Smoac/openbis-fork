@@ -18,11 +18,11 @@ package ch.systemsx.cisd.datamover.utils;
 
 import java.io.File;
 
-import ch.systemsx.cisd.datamover.Parameters;
-import ch.systemsx.cisd.datamover.filesystem.LocalFileSystem;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Paths to different local buffer directories.
+ * 
  * @author Tomasz Pylak on Aug 29, 2007
  */
 public class LocalBufferDirs
@@ -35,14 +35,13 @@ public class LocalBufferDirs
 
     private final File tempDir;
 
-    public LocalBufferDirs(Parameters parameters, String copyInProgressDirName, String copyCompleteDirName,
+    public LocalBufferDirs(File bufferDir, String copyInProgressDirName, String copyCompleteDirName,
             String readyToMoveDirName, String tempDirName)
     {
-        File buffer = parameters.getBufferStore().getPath();
-        this.copyInProgressDir = LocalFileSystem.ensureDirectoryExists(buffer, copyInProgressDirName);
-        this.copyCompleteDir = LocalFileSystem.ensureDirectoryExists(buffer, copyCompleteDirName);
-        this.readyToMoveDir = LocalFileSystem.ensureDirectoryExists(buffer, readyToMoveDirName);
-        this.tempDir = LocalFileSystem.ensureDirectoryExists(buffer, tempDirName);
+        this.copyInProgressDir = ensureDirectoryExists(bufferDir, copyInProgressDirName);
+        this.copyCompleteDir = ensureDirectoryExists(bufferDir, copyCompleteDirName);
+        this.readyToMoveDir = ensureDirectoryExists(bufferDir, readyToMoveDirName);
+        this.tempDir = ensureDirectoryExists(bufferDir, tempDirName);
     }
 
     /** here data are copied from incoming */
@@ -67,5 +66,16 @@ public class LocalBufferDirs
     public File getTempDir()
     {
         return tempDir;
+    }
+
+    private static File ensureDirectoryExists(File dir, String newDirName)
+    {
+        File dataDir = new File(dir, newDirName);
+        if (dataDir.exists() == false)
+        {
+            if (dataDir.mkdir() == false)
+                throw new EnvironmentFailureException("Could not create directory " + dataDir);
+        }
+        return dataDir;
     }
 }

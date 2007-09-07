@@ -24,7 +24,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -41,17 +40,6 @@ public class LocalFileSystem
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalFileSystem.class);
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalFileSystem.class);
-
-    public static File ensureDirectoryExists(File dir, String newDirName)
-    {
-        File dataDir = new File(dir, newDirName);
-        if (dataDir.exists() == false)
-        {
-            if (dataDir.mkdir() == false)
-                throw new EnvironmentFailureException("Could not create directory " + dataDir);
-        }
-        return dataDir;
-    }
 
     /**
      * Lists all resources in a given directory, logs errors.

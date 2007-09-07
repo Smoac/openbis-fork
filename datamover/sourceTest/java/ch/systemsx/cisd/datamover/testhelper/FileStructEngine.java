@@ -25,7 +25,7 @@ import java.util.List;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.*;
 
 import ch.systemsx.cisd.common.utilities.CollectionIO;
-import ch.systemsx.cisd.datamover.utils.MarkerFile;
+import ch.systemsx.cisd.datamover.common.MarkerFile;
 
 /**
  * Immutable helper for creating a sample directory structure and manipulating it.

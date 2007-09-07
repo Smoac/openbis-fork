@@ -56,10 +56,13 @@ public class DataMover
      */
     public static final ITerminable start(Parameters parameters, IFileSysOperationsFactory factory)
     {
-        LocalBufferDirs localBufferDirs =
-                new LocalBufferDirs(parameters, LOCAL_COPY_IN_PROGRESS_DIR, LOCAL_COPY_COMPLETE_DIR,
-                        LOCAL_READY_TO_MOVE_DIR, LOCAL_TEMP_DIR);
-        return start(parameters, factory, localBufferDirs);
+        return start(parameters, factory, createLocalBufferDirs(parameters));
+    }
+
+    private static LocalBufferDirs createLocalBufferDirs(Parameters parameters)
+    {
+        return new LocalBufferDirs(parameters.getBufferStore().getPath(), LOCAL_COPY_IN_PROGRESS_DIR,
+                LOCAL_COPY_COMPLETE_DIR, LOCAL_READY_TO_MOVE_DIR, LOCAL_TEMP_DIR);
     }
 
     /** Allows to specify buffer directories. Exposed for testing purposes. */
@@ -106,7 +109,8 @@ public class DataMover
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
     {
-        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory, parameters);
+        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory,
+                parameters);
     }
 
     private static ITerminable createTerminable(final ITerminable... terminables)
