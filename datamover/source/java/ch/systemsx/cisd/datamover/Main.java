@@ -16,31 +16,22 @@
 
 package ch.systemsx.cisd.datamover;
 
-import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.hardlink.RecursiveHardLinkMaker;
-import ch.systemsx.cisd.datamover.helper.FileSystemHelper;
-import ch.systemsx.cisd.datamover.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.intf.IPathImmutableCopier;
-import ch.systemsx.cisd.datamover.intf.IReadPathOperations;
-import ch.systemsx.cisd.datamover.intf.IPathRemover;
-import ch.systemsx.cisd.datamover.rsync.RsyncCopier;
-import ch.systemsx.cisd.datamover.xcopy.XcopyCopier;
+import ch.systemsx.cisd.datamover.filesystem.FileSysOparationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.utils.FileStore;
+import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
  * The main class of the datamover.
@@ -78,144 +69,6 @@ public class Main
         parameters.log();
     }
 
-    private static IPathImmutableCopier getImmutablePathCopier(Parameters parameters)
-    {
-        String lnExec = parameters.getHardLinkExecutable();
-        if (lnExec != null)
-        {
-            return RecursiveHardLinkMaker.create(lnExec);
-        }
-
-        IPathImmutableCopier copier = null;
-        if (OSUtilities.isWindows() == false)
-        {
-            copier = RecursiveHardLinkMaker.tryCreate();
-            if (copier != null)
-            {
-                return copier;
-            }
-        }
-        return createFakedImmCopier(parameters);
-    }
-
-    private static IPathImmutableCopier createFakedImmCopier(Parameters parameters)
-    {
-        final IPathCopier normalCopier = suggestPathCopier(parameters, false);
-        return new IPathImmutableCopier()
-            {
-                public File tryCopy(File file, File destinationDirectory)
-                {
-                    Status status = normalCopier.copy(file, destinationDirectory);
-                    if (StatusFlag.OK.equals(status.getFlag()))
-                    {
-                        return new File(destinationDirectory, file.getName());
-                    } else
-                    {
-                        notificationLog.error(String.format("Copy of '%s' to '%s' failed: %s.", file.getPath(),
-                                destinationDirectory.getPath(), status));
-                        return null;
-                    }
-                }
-            };
-    }
-
-    private static IPathCopier suggestPathCopier(Parameters parameters, boolean requiresDeletionBeforeCreation)
-    {
-        final File rsyncExecutable = findRsyncExecutable(parameters.getRsyncExecutable());
-        final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
-        if (rsyncExecutable != null)
-        {
-            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation);
-        } else if (OSUtilities.isWindows())
-        {
-            return new XcopyCopier(OSUtilities.findExecutable("xcopy"), requiresDeletionBeforeCreation);
-        } else
-        {
-            throw new ConfigurationFailureException("Unable to find a copy engine.");
-        }
-    }
-
-    private static File findRsyncExecutable(final String rsyncExecutablePath)
-    {
-        final File rsyncExecutable;
-        if (rsyncExecutablePath != null)
-        {
-            rsyncExecutable = new File(rsyncExecutablePath);
-        } else if (OSUtilities.isWindows() == false)
-        {
-            rsyncExecutable = OSUtilities.findExecutable("rsync");
-        } else
-        {
-            rsyncExecutable = null;
-        }
-        if (rsyncExecutable != null && OSUtilities.executableExists(rsyncExecutable) == false)
-        {
-            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.", rsyncExecutable
-                    .getAbsoluteFile());
-        }
-        return rsyncExecutable;
-    }
-
-    private static File findSshExecutable(String sshExecutablePath)
-    {
-        final File sshExecutable;
-        if (sshExecutablePath != null)
-        {
-            if (sshExecutablePath.length() > 0)
-            {
-                sshExecutable = new File(sshExecutablePath);
-            } else
-            // Explicitly disable tunneling via ssh on the command line.
-            {
-                sshExecutable = null;
-            }
-        } else
-        {
-            sshExecutable = OSUtilities.findExecutable("ssh");
-        }
-        if (sshExecutable != null && OSUtilities.executableExists(sshExecutable) == false)
-        {
-            throw ConfigurationFailureException.fromTemplate("Cannot find ssh executable '%s'.", sshExecutable
-                    .getAbsoluteFile());
-        }
-        return sshExecutable;
-    }
-
-    private static IPathCopier getPathCopier(Parameters parameters, File destinationDirectory)
-    {
-        IPathCopier copyProcess = suggestPathCopier(parameters, false);
-        boolean requiresDeletionBeforeCreation =
-                SelfTest.requiresDeletionBeforeCreation(copyProcess, destinationDirectory);
-        return suggestPathCopier(parameters, requiresDeletionBeforeCreation);
-    }
-
-    private static IFileSysOperationsFactory createFileSysOperations(final Parameters parameters)
-    {
-        final IReadPathOperations readAccessor = FileSystemHelper.createPathReadOperations();
-        return new IFileSysOperationsFactory()
-            {
-                public IPathCopier getCopier(File destinationDirectory)
-                {
-                    return getPathCopier(parameters, destinationDirectory);
-                }
-
-                public IPathRemover getRemover()
-                {
-                    return new FSPathRemover();
-                }
-
-                public IPathImmutableCopier getImmutableCopier()
-                {
-                    return getImmutablePathCopier(parameters);
-                }
-
-                public IReadPathOperations getReadAccessor()
-                {
-                    return readAccessor;
-                }
-            };
-    }
-
     /**
      * performs a self-test.
      */
@@ -223,7 +76,7 @@ public class Main
     {
         try
         {
-            IPathCopier copyProcess = suggestPathCopier(parameters, false);
+            IPathCopier copyProcess = new FileSysOparationsFactory(parameters).getCopierNoDeletionRequired();
             ArrayList<FileStore> stores = new ArrayList<FileStore>();
             stores.add(parameters.getIncomingStore());
             stores.add(parameters.getBufferStore());
@@ -250,14 +103,14 @@ public class Main
     /** exposed for testing purposes */
     static ITerminable startupServer(Parameters parameters, LocalBufferDirs bufferDirs)
     {
-        final IFileSysOperationsFactory factory = createFileSysOperations(parameters);
-        return MonitorStarter.start(parameters, factory, bufferDirs);
+        final IFileSysOperationsFactory factory = new FileSysOparationsFactory(parameters);
+        return DataMover.start(parameters, factory, bufferDirs);
     }
 
     private static void startupServer(Parameters parameters)
     {
-        final IFileSysOperationsFactory factory = createFileSysOperations(parameters);
-        MonitorStarter.start(parameters, factory);
+        final IFileSysOperationsFactory factory = new FileSysOparationsFactory(parameters);
+        DataMover.start(parameters, factory);
     }
 
     public static void main(String[] args)

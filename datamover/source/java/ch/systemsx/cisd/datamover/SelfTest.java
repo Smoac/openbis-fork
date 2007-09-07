@@ -16,21 +16,18 @@
 
 package ch.systemsx.cisd.datamover;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.datamover.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
+import ch.systemsx.cisd.datamover.utils.FileStore;
 
 /**
  * A class that can perform a self test of the data mover.
@@ -39,9 +36,6 @@ import ch.systemsx.cisd.datamover.intf.IPathCopier;
  */
 public class SelfTest
 {
-
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, SelfTest.class);
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
     static
@@ -163,58 +157,4 @@ public class SelfTest
             throw e;
         }
     }
-
-    /**
-     * @return <code>true</code> if the <var>copyProcess</var> on the file system where the <var>destinationDirectory</var>
-     *         resides requires deleting an existing file before it can be overwritten.
-     */
-    public static boolean requiresDeletionBeforeCreation(IPathCopier copyProcess, File destinationDirectory)
-    {
-        assert copyProcess != null;
-        assert destinationDirectory != null;
-        assert destinationDirectory.isDirectory();
-
-        String fileName = ".requiresDeletionBeforeCreation";
-        final File destinationFile = new File(destinationDirectory, fileName);
-        final File tmpSourceDir = new File(destinationDirectory, ".DataMover-OverrideTest");
-        final File sourceFile = new File(tmpSourceDir, fileName);
-        try
-        {
-            tmpSourceDir.mkdir();
-            sourceFile.createNewFile();
-            destinationFile.createNewFile();
-            // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
-            final boolean OK = Status.OK.equals(copyProcess.copy(sourceFile, destinationDirectory));
-            if (machineLog.isInfoEnabled())
-            {
-                if (OK)
-                {
-                    machineLog.info(String.format("Copier %s on directory '%s' works with overwriting existing files.",
-                            copyProcess.getClass().getSimpleName(), destinationDirectory.getAbsolutePath()));
-                } else
-                {
-                    machineLog.info(String.format(
-                            "Copier %s on directory '%s' requires deletion before creation of existing files.",
-                            copyProcess.getClass().getSimpleName(), destinationDirectory.getAbsolutePath()));
-                }
-            }
-            return (OK == false);
-        } catch (IOException e)
-        {
-            if (machineLog.isInfoEnabled())
-            {
-                machineLog.info(String.format(
-                        "The file system on '%s' requires deletion before creation of existing files.",
-                        destinationDirectory.getAbsolutePath()));
-            }
-            return true;
-        } finally
-        {
-            // We don't check for success because there is nothing we can do if we fail.
-            sourceFile.delete();
-            tmpSourceDir.delete();
-            destinationFile.delete();
-        }
-    }
-
 }

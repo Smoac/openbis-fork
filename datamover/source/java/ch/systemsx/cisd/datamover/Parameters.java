@@ -38,14 +38,16 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
+import ch.systemsx.cisd.datamover.utils.FileStore;
 
 /**
  * The class to process the command line parameters.
  * 
  * @author Bernd Rinn
  */
-public class Parameters implements ITimingParameters
+public class Parameters implements ITimingParameters, IFileSysParameters
 {
 
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
