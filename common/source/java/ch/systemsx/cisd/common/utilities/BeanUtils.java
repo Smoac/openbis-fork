@@ -65,85 +65,6 @@ public final class BeanUtils
     }
 
     /**
-     * Checks the list of bean objects item by item for public getters which return <code>null</code> or 0.
-     * 
-     * @param beanListToCheck The list of beans to check. Can be <code>null</code>.
-     * @return <var>beanListToCheck</var> (the parameter itself)
-     * @see #checkGettersNotNull(Object)
-     * @throws IllegalStateException If at least one of the public getters returns <code>null</code> or 0.
-     */
-    public final static <T> List<T> checkGettersNotNull(List<T> beanListToCheck)
-    {
-        if (beanListToCheck == null)
-        {
-            return beanListToCheck;
-        }
-        for (Object bean : beanListToCheck)
-        {
-            checkGettersNotNull(bean);
-        }
-        return beanListToCheck;
-    }
-
-    /**
-     * Checks bean object for public getters which return <code>null</code> or 0.
-     * 
-     * @param beanToCheck The bean to check. Can be <code>null</code>. Must not be an array type.
-     * @return <var>beanToCheck</var> (the parameter itself)
-     * @throws IllegalArgumentException If the <var>beanToCheck</var> is an array type.
-     * @throws IllegalStateException If at least one of the public getters returns <code>null</code> or 0.
-     */
-    public final static <T> T checkGettersNotNull(T beanToCheck)
-    {
-        if (beanToCheck == null)
-        {
-            return beanToCheck;
-        }
-        // TODO 2007-07-11, Franz-Josef Elmer: Why arrays are not checked? Why they are forbidden and not ignored?
-        if (beanToCheck.getClass().isArray())
-        {
-            throw new IllegalArgumentException("Arrays are not supported.");
-        }
-        for (Method method : beanToCheck.getClass().getMethods())
-        {
-            if (method.getName().startsWith(GETTER_PREFIX) && method.getParameterTypes().length == 0
-                    && Modifier.isPublic(method.getModifiers()))
-            {
-                try
-                {
-                    final Object result = method.invoke(beanToCheck, ArrayUtils.EMPTY_OBJECT_ARRAY);
-                    if (result == null)
-                    {
-                        throw new IllegalStateException("Method '" + method.getName() + "' returns null.");
-                    } else if (isNull(result))
-                    {
-                        throw new IllegalStateException("Method '" + method.getName() + "' returns 0.");
-                    }
-                } catch (InvocationTargetException ex)
-                {
-                    final Throwable cause = ex.getCause();
-                    if (cause instanceof Error)
-                    {
-                        throw (Error) cause;
-                    }
-                    throw CheckedExceptionTunnel.wrapIfNecessary((Exception) cause);
-                } catch (IllegalAccessException ex)
-                {
-                    // Can't happen since we checked for isPublic()
-                    throw new Error("Cannot call method '" + method.getName() + "'.");
-                }
-            }
-        }
-        return beanToCheck;
-    }
-
-    // TODO 2007-07-11, Franz-Josef Elmer: Why numbers with a value rounded to 0 are forbidden?
-    private static boolean isNull(Object objectToCheck)
-    {
-        return (objectToCheck instanceof Number) && ((Number) objectToCheck).longValue() == 0;
-    }
-
-    /**
      * A map that provides annotations for given annotation classes.
      */
     public interface AnnotationMap
@@ -356,13 +277,13 @@ public final class BeanUtils
 
         try
         {
-            final T destinationBean =
+            T destinationBean =
                     (beanInstance != null) ? beanInstance : instantiateBean(beanClass, sourceBean, setterAnnotations);
             if (isArray(destinationBean))
             {
                 if (isArray(sourceBean))
                 {
-                    copyArrayToArray(destinationBean, sourceBean, converter);
+                    destinationBean = copyArrayToArray(destinationBean, sourceBean, converter);
                 } else if (isCollection(sourceBean))
                 {
                     copyCollectionToArray(destinationBean, (Collection<?>) sourceBean, converter);
@@ -502,26 +423,35 @@ public final class BeanUtils
         return (T) collectionClazz.newInstance();
     }
 
-    private static void copyArrayToArray(Object destination, Object source, Converter converter)
+    @SuppressWarnings("unchecked")
+    private static <T> T copyArrayToArray(T destination, Object source, Converter converter)
             throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
-            return;
+            return null;
         }
         final Class<?> componentType = destination.getClass().getComponentType();
-        final int length = Array.getLength(destination);
+        final int length = Array.getLength(source);
+        final T returned;
+        if (Array.getLength(destination) < length)
+        {
+            returned = (T) Array.newInstance(componentType, length);
+        } else
+        {
+            returned = destination;
+        }
         if (immutableTypes.contains(componentType))
         {
             if (componentType == source.getClass().getComponentType())
             {
-                System.arraycopy(source, 0, destination, 0, length);
+                System.arraycopy(source, 0, returned, 0, length);
             } else
             {
                 for (int index = 0; index < length; ++index)
                 {
                     final Object sourceElement = Array.get(source, index);
-                    Array.set(destination, index, sourceElement);
+                    Array.set(returned, index, sourceElement);
                 }
             }
         } else
@@ -530,9 +460,10 @@ public final class BeanUtils
             {
                 final Object sourceElement = Array.get(source, index);
                 final Object destinationElement = createBean(componentType, sourceElement, converter);
-                Array.set(destination, index, destinationElement);
+                Array.set(returned, index, destinationElement);
             }
         }
+        return returned;
     }
 
     private static void copyCollectionToArray(Object destination, Collection<?> source, Converter converter)
@@ -635,7 +566,7 @@ public final class BeanUtils
         return mapping;
     }
 
-    private static void copyBean(Object destination, Object source, Converter converter) throws IllegalAccessException,
+    private static <T> void copyBean(T destination, Object source, Converter converter) throws IllegalAccessException,
             InvocationTargetException
     {
         if (destination == null)
@@ -643,11 +574,12 @@ public final class BeanUtils
             return;
         }
         final Collection<Method> destinationSetters = scanForPublicMethods(destination, SETTER_PREFIX, 1).values();
+        final Map<String, Method> destinationGetters = scanForPublicMethods(destination, GETTER_PREFIX, 0);
         final Map<String, Method> sourceGetters = scanForPublicMethods(source, GETTER_PREFIX, 0);
         scanForPublicMethods(source, sourceGetters, BOOLEAN_GETTER_PREFIX, 0, boolean.class, Boolean.class);
         for (Method setter : destinationSetters)
         {
-            final Object newBean = emergeNewBean(setter, source, sourceGetters, converter);
+            final T newBean = emergeNewBean(setter, source, destination, sourceGetters, destinationGetters, converter);
             if (newBean != null)
             {
                 try
@@ -671,30 +603,62 @@ public final class BeanUtils
         }
     }
 
-    private static Object emergeNewBean(Method setter, Object source, Map<String, Method> sourceGetters,
-            Converter converter) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    /**
+     * Emerges the new bean.
+     * <p>
+     * The logic of this method is the following:
+     * <ol>
+     * <li>If a converter could be found for transferring the value from source bean to destination bean, then use it</li>
+     * <li>If the value is of primitive type or one of the immutable types specified, then use it tel quel</li>
+     * <li>If the value is a complexe type, then it should be filled using
+     * {@link #fillBean(Class, Object, Object, ch.systemsx.cisd.common.utilities.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * before using it</li>
+     * </ol>
+     * </p>
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T emergeNewBean(Method setter, Object source, T destination, Map<String, Method> sourceGetters,
+            Map<String, Method> destinationGetters, Converter converter) throws IllegalArgumentException,
+            IllegalAccessException, InvocationTargetException
     {
         final AnnotationMap annotationMap = new SetterAnnotationMap(setter);
         final Method converterMethod = getConverterMethod(setter, source, converter);
         if (converterMethod != null)
         {
-            return converterMethod.invoke(converter, new Object[]
+            return (T) converterMethod.invoke(converter, new Object[]
                 { source });
         }
-        final Method getter = getGetter(setter, sourceGetters, annotationMap);
+        final Object oldBean = getOldBean(setter, sourceGetters, source);
+        if (oldBean == null)
+        {
+            return null;
+        }
+        final Class<T> parameterType = (Class<T>) setter.getParameterTypes()[0];
+        if (parameterType.isPrimitive() || immutableTypes.contains(parameterType))
+        {
+            return (T) oldBean;
+        } else
+        {
+            // If a non-null value could be found in the destination bean for <code>destinationOldBean</code>,
+            // then take it.
+            T destinationOldBean = (T) getOldBean(setter, destinationGetters, destination);
+            return fillBean(parameterType, destinationOldBean, oldBean, annotationMap, converter);
+        }
+    }
+
+    /**
+     * For given <var>setter</var> method, we try to get the corresponding <i>getter</i>. If this step succeeds, we
+     * invoke the found <i>getter</i> on given <var>bean</var> and returns the value.
+     */
+    private final static Object getOldBean(Method setter, Map<String, Method> getters, Object bean)
+            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    {
+        final Method getter = getGetter(setter, getters);
         if (getter == null)
         {
             return null;
         }
-        final Object oldBean = getter.invoke(source, ArrayUtils.EMPTY_OBJECT_ARRAY);
-        final Class<?> parameterType = setter.getParameterTypes()[0];
-        if (parameterType.isPrimitive() || immutableTypes.contains(parameterType))
-        {
-            return oldBean;
-        } else
-        {
-            return fillBean(parameterType, null, oldBean, annotationMap, converter);
-        }
+        return getter.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
     }
 
     private static Method getConverterMethod(Method setter, Object sourceBean, Converter converter)
@@ -720,7 +684,7 @@ public final class BeanUtils
         return null;
     }
 
-    private static Method getGetter(Method setter, Map<String, Method> sourceGetters, AnnotationMap annotationMap)
+    private static Method getGetter(Method setter, Map<String, Method> sourceGetters)
     {
         String propertyName = setter.getName().substring(SETTER_PREFIX.length());
         final Method getter = sourceGetters.get(GETTER_PREFIX + propertyName);

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
@@ -77,85 +76,6 @@ public final class BeanUtilsTest
         method.invoke(fooBean, new Object[]
             { description });
         assertEquals(fooBean.getFoo(), description);
-    }
-
-    private static class SimpleBean
-    {
-        private final int number;
-
-        private final String string;
-
-        SimpleBean(int number, String string)
-        {
-            this.number = number;
-            this.string = string;
-        }
-
-        public int getNumber()
-        {
-            return number;
-        }
-
-        public String getString()
-        {
-            return string;
-        }
-
-        String getIgnoreThisBecauseItIsNotPublic()
-        {
-            AssertJUnit.fail("Should be ignore because not public");
-            return null;
-        }
-    }
-
-    @Test
-    public void testCheckGettersForNullOK()
-    {
-        final SimpleBean bean = new SimpleBean(1, "");
-        assert BeanUtils.checkGettersNotNull(bean) == bean;
-    }
-
-    @Test
-    public void testCheckGettersForNullOKNullBean()
-    {
-        assertNull(BeanUtils.checkGettersNotNull(null));
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullStringNull()
-    {
-        final SimpleBean bean = new SimpleBean(1, null);
-        BeanUtils.checkGettersNotNull(bean);
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullInt0()
-    {
-        final SimpleBean bean = new SimpleBean(0, "test");
-        BeanUtils.checkGettersNotNull(bean);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testCheckGettersForNullForbiddenArray()
-    {
-        BeanUtils.checkGettersNotNull(new Object[0]);
-    }
-
-    @Test
-    public void testCheckGettersForNullListOK()
-    {
-        final SimpleBean bean1 = new SimpleBean(1, "test");
-        final SimpleBean bean2 = new SimpleBean(5, "test2");
-        final List<SimpleBean> beanList = Arrays.asList(bean1, bean2);
-        assert BeanUtils.checkGettersNotNull(beanList) == beanList;
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCheckGettersForNullListInt0()
-    {
-        final SimpleBean bean1 = new SimpleBean(1, "test");
-        final SimpleBean bean2 = new SimpleBean(0, "test2");
-        BeanUtils.checkGettersNotNull(Arrays.asList(bean1, bean2));
     }
 
     public static class Bean1a
@@ -415,11 +335,7 @@ public final class BeanUtilsTest
     @Test
     public void testFillSimpleBean()
     {
-        final Bean1a b1 = new Bean1a();
-        b1.setB(true);
-        b1.setF(0.2f);
-        b1.setI(17);
-        b1.setS("test");
+        final Bean1a b1 = createBean1a();
         b1.setBb(true);
         final Bean2a b2 = BeanUtils.createBean(Bean2a.class, b1);
         assertBeansAreEqual("Beans are not equal", b1, b2);
@@ -428,11 +344,7 @@ public final class BeanUtilsTest
     @Test
     public void testFillPreinstantiatedBean()
     {
-        final Bean1a b1 = new Bean1a();
-        b1.setB(true);
-        b1.setF(0.2f);
-        b1.setI(17);
-        b1.setS("test");
+        final Bean1a b1 = createBean1a();
         b1.setBb(true);
         final Bean2a b2 = new Bean2a();
         assertSame(b2, BeanUtils.fillBean(Bean2a.class, b2, b1));
@@ -460,11 +372,7 @@ public final class BeanUtilsTest
     @Test
     public void testFillSimpleBeanWithNativeWrapper2()
     {
-        final Bean1a b1 = new Bean1a();
-        b1.setB(true);
-        b1.setF(0.2f);
-        b1.setI(17);
-        b1.setS("test");
+        final Bean1a b1 = createBean1a();
         b1.setBb(true);
         final Bean2b b2 = BeanUtils.createBean(Bean2b.class, b1);
         assertEquals(b1.isB(), b2.isB().booleanValue());
@@ -494,11 +402,7 @@ public final class BeanUtilsTest
     @Test
     public void testFillSimpleBeanArray()
     {
-        final Bean1a b1a = new Bean1a();
-        b1a.setB(true);
-        b1a.setF(0.2f);
-        b1a.setI(17);
-        b1a.setS("test");
+        final Bean1a b1a = createBean1a();
         final Bean1a b1b = new Bean1a();
         b1b.setB(false);
         b1b.setF(0.3f);
@@ -751,16 +655,38 @@ public final class BeanUtilsTest
     @Test
     public void testFillComplexBean()
     {
-        final Bean1a b1 = new Bean1a();
-        b1.setB(true);
-        b1.setF(0.2f);
-        b1.setI(17);
-        b1.setS("test");
+        final Bean1a b1 = createBean1a();
         final BeanWithBean1 b3 = new BeanWithBean1();
         b3.setBean(b1);
         final BeanWithBean2 b4 = BeanUtils.createBean(BeanWithBean2.class, b3);
         final Bean2a b2 = b4.getBean();
         assertBeansAreEqual("Bean comparison", b1, b2);
+    }
+
+    private final static Bean1a createBean1a()
+    {
+        final Bean1a b1 = new Bean1a();
+        b1.setB(true);
+        b1.setF(0.2f);
+        b1.setI(17);
+        b1.setS("test");
+        return b1;
+    }
+
+    @Test(dependsOnMethods = "testFillComplexBean")
+    public final void testFillComplexBeanWithNonNullInnerBean()
+    {
+        final BeanWithBean1 b1 = new BeanWithBean1();
+        Bean1a bean1a = createBean1a();
+        b1.setBean(bean1a);
+        final BeanWithBean2 b2 = new BeanWithBean2();
+        Bean2a bean2a = new Bean2a();
+        b2.setBean(bean2a);
+        BeanUtils.fillBean(BeanWithBean2.class, b2, b1);
+        assertBeansAreEqual("Bean comparison", bean1a, b2.getBean());
+        // Here is the main difference to 'testFillComplexBean': no new bean has been created but
+        // we 'recycled' the already present one.
+        assertTrue(bean2a == b2.getBean());
     }
 
     public static class BeanWithBeanArray1
@@ -826,7 +752,7 @@ public final class BeanUtilsTest
     }
 
     @Test
-    public void testFillBeanWithBeanCollectionFromBeanWithBeanArray1()
+    public void testCreateBeanWithBeanCollectionFromBeanWithBeanArray1()
     {
         final Bean1a b1a = new Bean1a();
         b1a.setB(true);
@@ -854,13 +780,9 @@ public final class BeanUtilsTest
     }
 
     @Test
-    public void testFillBeanWithBeanCollectionFromBeanWithBeanArray2()
+    public void testCreateBeanWithBeanCollectionFromBeanWithBeanArray2()
     {
-        final Bean2a b2a = new Bean2a();
-        b2a.setB(true);
-        b2a.setF(0.2f);
-        b2a.setI(17);
-        b2a.setS("test");
+        final Bean2a b2a = createBean2a();
         final Bean2a b2b = new Bean2a();
         b2b.setB(false);
         b2b.setF(1.1f);
@@ -881,19 +803,21 @@ public final class BeanUtilsTest
         }
     }
 
-    @Test
-    public void testFillBeanWithBeanArrayFromBeanWithBeanCollection()
+    private final static Bean2a createBean2a()
     {
-        final Bean1a b1a = new Bean1a();
-        b1a.setB(true);
-        b1a.setF(0.2f);
-        b1a.setI(17);
-        b1a.setS("test");
-        final Bean1a b1b = new Bean1a();
-        b1b.setB(false);
-        b1b.setF(1.1f);
-        b1b.setI(31);
-        b1b.setS("test2");
+        final Bean2a b2a = new Bean2a();
+        b2a.setB(true);
+        b2a.setF(0.2f);
+        b2a.setI(17);
+        b2a.setS("test");
+        return b2a;
+    }
+
+    @Test
+    public void testCreateBeanWithBeanArrayFromBeanWithBeanCollection()
+    {
+        final Bean1a b1a = createBean1a();
+        final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanCollection1 b1Collection = new BeanWithBeanCollection1();
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
@@ -910,19 +834,21 @@ public final class BeanUtilsTest
         }
     }
 
-    @Test
-    public void testFillBeanWithBeanArrayFromBeanWithBeanArray()
+    private final static Bean1a createOtherBean1a()
     {
-        final Bean1a b1a = new Bean1a();
-        b1a.setB(true);
-        b1a.setF(0.2f);
-        b1a.setI(17);
-        b1a.setS("test");
         final Bean1a b1b = new Bean1a();
         b1b.setB(false);
         b1b.setF(1.1f);
         b1b.setI(31);
         b1b.setS("test2");
+        return b1b;
+    }
+
+    @Test
+    public void testCreateBeanWithBeanArrayFromBeanWithBeanArray()
+    {
+        final Bean1a b1a = createBean1a();
+        final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanArray1 b1Array = new BeanWithBeanArray1();
         final Bean1a[] arrayb1 = new Bean1a[]
             { b1a, b1b };
@@ -930,6 +856,11 @@ public final class BeanUtilsTest
         final BeanWithBeanArray2 b2Array = BeanUtils.createBean(BeanWithBeanArray2.class, b1Array);
         final Bean2a[] arrayb2 = b2Array.getBeanArray();
         assertNotNull(arrayb2);
+        assertBeanArraysAreEqual(arrayb1, arrayb2);
+    }
+
+    private final static void assertBeanArraysAreEqual(final Bean1a[] arrayb1, final Bean2a[] arrayb2)
+    {
         assertEquals(arrayb1.length, arrayb2.length);
         for (int i = 0; i < arrayb1.length; ++i)
         {
@@ -938,18 +869,10 @@ public final class BeanUtilsTest
     }
 
     @Test
-    public void testFillBeanWithBeanCollectionFromBeanWithBeanCollection()
+    public void testCreateBeanWithBeanCollectionFromBeanWithBeanCollection()
     {
-        final Bean1a b1a = new Bean1a();
-        b1a.setB(true);
-        b1a.setF(0.2f);
-        b1a.setI(17);
-        b1a.setS("test");
-        final Bean1a b1b = new Bean1a();
-        b1b.setB(false);
-        b1b.setF(1.1f);
-        b1b.setI(31);
-        b1b.setS("test2");
+        final Bean1a b1a = createBean1a();
+        final Bean1a b1b = createOtherBean1a();
         final BeanWithBeanCollection1 b1Collection = new BeanWithBeanCollection1();
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
@@ -957,6 +880,12 @@ public final class BeanUtilsTest
         final BeanWithBeanCollection2 b2Collection = BeanUtils.createBean(BeanWithBeanCollection2.class, b1Collection);
         final Collection<Bean2a> colb2 = b2Collection.getBeanArray();
         assertNotNull(colb2);
+        assertBeanCollectionsAreEqual(colb1, colb2);
+    }
+
+    private final static void assertBeanCollectionsAreEqual(final Collection<Bean1a> colb1,
+            final Collection<Bean2a> colb2)
+    {
         assertEquals(colb1.size(), colb2.size());
         final Iterator<Bean2a> itb2 = colb2.iterator();
         int i = 0;
@@ -966,7 +895,47 @@ public final class BeanUtilsTest
         }
     }
 
-    private void assertBeansAreEqual(String msg, Bean1a b1, Bean2a b2)
+    @Test
+    public final void testFillBeanWithComplexBeanCollection()
+    {
+        final Bean1a b1a = createBean1a();
+        final Bean1a b1b = createOtherBean1a();
+        final BeanWithBeanCollection1 b1 = new BeanWithBeanCollection1();
+        final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
+            { b1a, b1b }));
+        b1.setBeanArray(colb1);
+        final BeanWithBeanCollection2 b2 = new BeanWithBeanCollection2();
+        // With empty collection
+        b2.setBeanArray(new LinkedHashSet<Bean2a>(Arrays.asList(new Bean2a[0])));
+        BeanUtils.fillBean(BeanWithBeanCollection2.class, b2, b1);
+        assertBeanCollectionsAreEqual(b1.getBeanArray(), b2.getBeanArray());
+        // With null
+        b2.setBeanArray(null);
+        BeanUtils.fillBean(BeanWithBeanCollection2.class, b2, b1);
+        assertBeanCollectionsAreEqual(b1.getBeanArray(), b2.getBeanArray());
+    }
+
+    @Test
+    public final void testFillBeanWithComplexBeanArray()
+    {
+        final Bean1a b1a = createBean1a();
+        final Bean1a b1b = createOtherBean1a();
+        final BeanWithBeanArray1 b1 = new BeanWithBeanArray1();
+        final Bean1a[] colb1 = new Bean1a[]
+            { b1a, b1b };
+        b1.setBeanArray(colb1);
+        final BeanWithBeanArray2 b2 = new BeanWithBeanArray2();
+        // With empty collection
+        b2.setBeanArray(new Bean2a[0]);
+        BeanUtils.fillBean(BeanWithBeanArray2.class, b2, b1);
+        assertBeanArraysAreEqual(b1.getBeanArray(), b2.getBeanArray());
+        // With null
+        b2.setBeanArray(null);
+        BeanUtils.fillBean(BeanWithBeanArray2.class, b2, b1);
+        assertBeanArraysAreEqual(b1.getBeanArray(), b2.getBeanArray());
+    }
+
+    private final static void assertBeansAreEqual(String msg, Bean1a b1, Bean2a b2)
     {
         assertNotNull(msg, b1);
         assertNotNull(msg, b2);
@@ -977,7 +946,7 @@ public final class BeanUtilsTest
         assertEquals(msg, b1.getBb(), b2.getBb());
     }
 
-    private void assertBeansAreEqual(String msg, Bean2a b2, Bean1a b1)
+    private final static void assertBeansAreEqual(String msg, Bean2a b2, Bean1a b1)
     {
         assertNotNull(msg, b1);
         assertNotNull(msg, b2);
