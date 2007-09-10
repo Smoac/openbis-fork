@@ -47,7 +47,7 @@ public final class DummyAuthenticationService implements IAuthenticationService
 
     public final Principal getPrincipal(String applicationToken, String user)
     {
-        return new Principal(user, "John", "Doe", "jdoe@somewhere.org");
+        return new Principal(user, "John", "Doe", "franz-josef.elmer@systemsx.ch");
     }
 
     public final void check()
