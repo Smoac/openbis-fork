@@ -59,7 +59,7 @@
     </log>
     <publishers>
       <onsuccess>
-        <artifactspublisher dest="artifacts/lims/nightly-builds" dir="${lims.trunk}/targets/dist/"/>
+        <artifactspublisher dest="artifacts/${project.name}" dir="${lims.trunk}/targets/dist/"/>
       </onsuccess>
       <onfailure>
         <htmlemail buildresultsurl="http://cisd-ci:8090/buildresults/lims" 
