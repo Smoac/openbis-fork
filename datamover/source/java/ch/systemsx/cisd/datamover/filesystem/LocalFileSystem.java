@@ -41,6 +41,11 @@ public class LocalFileSystem
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalFileSystem.class);
 
+    // TODO 2007-09-11, Bernd Rinn: make this configurable
+    
+    private static final int MAX_RETRIES_ON_FAILURE = 12;
+    private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
+
     /**
      * Lists all resources in a given directory, logs errors.
      */
@@ -86,10 +91,27 @@ public class LocalFileSystem
             operationLog.info(String.format("Moving path '%s' to '%s'", sourcePath.getPath(), destinationPath));
         }
         File destFile = new File(destinationPath);
-        boolean movedOK = sourcePath.renameTo(destFile);
+        int failures = 0;
+        boolean movedOK = false;
+        do {
+            movedOK = sourcePath.renameTo(destFile);
+            if (movedOK == false)
+            {
+                ++failures;
+                operationLog.warn(String.format("Moving path '%s' to directory '%s' failed (attempt %d).", sourcePath,
+                        destinationDirectory, failures + 1));
+                try
+                {
+                    Thread.sleep(MILLIS_TO_SLEEP_ON_FAILURE);
+                } catch (InterruptedException ex)
+                {
+                    break;
+                }
+            }
+        } while (failures < MAX_RETRIES_ON_FAILURE);
         if (movedOK == false)
         {
-            notificationLog.error(String.format("Moving path '%s' to directory '%s' failed.", sourcePath,
+            notificationLog.error(String.format("Moving path '%s' to directory '%s' failed, giving up.", sourcePath,
                     destinationDirectory));
             return null;
         } else
