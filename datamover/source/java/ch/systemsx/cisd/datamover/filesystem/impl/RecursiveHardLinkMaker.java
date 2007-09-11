@@ -74,8 +74,11 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
      */
     public File tryCopy(File resource, File destinationDirectory)
     {
-        operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", resource.getPath(),
-                destinationDirectory.getPath()));
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", resource.getPath(),
+                    destinationDirectory.getPath()));
+        }
         String resourceParent = resource.getParentFile().getAbsolutePath();
         assert resourceParent.equals(destinationDirectory.getAbsolutePath()) == false;
         return tryMakeCopy(resource, destinationDirectory);
@@ -93,11 +96,26 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
             {
                 return null;
             }
-            for (File file : resource.listFiles())
+            File[] files = resource.listFiles();
+            if (files != null)
             {
-                if (tryMakeCopy(file, dir) == null)
+                for (File file : files)
                 {
-                    return null;
+                    if (tryMakeCopy(file, dir) == null)
+                    {
+                        return null;
+                    }
+                }
+            } else
+            // Shouldn't happen, but just to be sure.
+            {
+                if (resource.exists() == false)
+                {
+                    operationLog.error(String.format("Path '%s' vanished during processing.", resource));
+                } else
+                {
+                    operationLog.error(String.format("Found path '%s' that is neither a file nor a directory.",
+                            resource));
                 }
             }
             return dir;
