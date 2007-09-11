@@ -73,21 +73,28 @@ public class LazyPathHandler implements ITerminable, IPathHandler
         @Override
         public void run()
         {
-            while (terminate == false)
+            try
             {
-                try
+                while (terminate == false)
                 {
-                    File resource = queue.take(); // blocks if empty
-                    boolean ok = handler.handle(resource);
-                    logHandlingResult(resource, ok);
-                } catch (InterruptedException ex)
-                {
-                    if (!terminate)
+                    try
                     {
-                        operationLog.info("Processing was unexpectedly interrupted. Thread stops.");
+                        File resource = queue.take(); // blocks if empty
+                        boolean ok = handler.handle(resource);
+                        logHandlingResult(resource, ok);
+                    } catch (InterruptedException ex)
+                    {
+                        if (!terminate)
+                        {
+                            operationLog.info("Processing was unexpectedly interrupted. Thread stops.");
+                        }
+                        return;
                     }
-                    return;
                 }
+            } catch (Exception ex)
+            {
+                // Just log it but ensure that the thread won't die.
+                notificationLog.error("An exception has occurred. (thread still running)", ex);
             }
         }
 
