@@ -67,11 +67,11 @@
                xsldir="webapps/cruisecontrol/xsl/"
                css="webapps/cruisecontrol/css/cruisecontrol.css">
           <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
-          <!--map alias="brinn" address="bernd.rinn@systemsx.ch"/>
+          <map alias="brinn" address="bernd.rinn@systemsx.ch"/>
           <map alias="charlesr" address="charles.ramin-wright@systemsx.ch"/>
           <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
           <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
-          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/-->
+          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
         </htmlemail>
       </onfailure>
     </publishers>
