@@ -119,7 +119,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         {
             if (operationLog.isTraceEnabled())
             {
-                operationLog.trace("Start scanning directory.");
+                operationLog.trace("Start scanning directory " + sourceDirectory + ".");
             }
             checkForFaultyPathsFileChanged();
             final File[] paths = listFiles();
@@ -140,11 +140,11 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             }
             if (operationLog.isTraceEnabled())
             {
-                operationLog.trace("Finished scanning directory.");
+                operationLog.trace("Finished scanning directory " + sourceDirectory + ".");
             }
         } catch (Exception ex)
         {
-            notificationLog.error("An exception has occurred.", ex);
+            notificationLog.error("An exception has occurred. (thread still running)", ex);
         }
     }
 
