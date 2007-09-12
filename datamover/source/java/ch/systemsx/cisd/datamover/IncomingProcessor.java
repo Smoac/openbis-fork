@@ -83,7 +83,7 @@ public class IncomingProcessor
 
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler);
-        final Timer movingTimer = new Timer("Mover of Incomming Data");
+        final Timer movingTimer = new Timer("Mover of Incoming Data");
         // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
         // remote share. The rationale behind this is that if new items are
         // added to the source directory while the remote timer task has been running for a long time, busy moving data,
