@@ -153,38 +153,38 @@ public final class BeanUtils
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param sourceList The list to fill the new bean list from. Can be <code>null</code>, in which case the method
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which case the method
      *            returns <code>null</code>.
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, S> List<T> createBeanList(Class<T> clazz, List<S> sourceList)
+    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source)
     {
-        return createBeanList(clazz, sourceList, null);
+        return createBeanList(clazz, source, null);
     }
 
     /**
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
-     * @param sourceList The list to fill the new bean list from. Can be <code>null</code>, in which case the method
+     * @param source The iterable to fill the new bean list from. Can be <code>null</code>, in which case the method
      *            returns <code>null</code>.
      * @param converter The {@link Converter} to use to perform non-standard conversions when filling the bean. Can be
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, S> List<T> createBeanList(Class<T> clazz, List<S> sourceList, Converter converter)
+    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source, Converter converter)
     {
         assert clazz != null;
 
-        if (sourceList == null)
+        if (source == null)
         {
             return null;
         }
 
         final List<T> resultList = new ArrayList<T>();
-        for (S element : sourceList)
+        for (S element : source)
         {
             resultList.add(BeanUtils.createBean(clazz, element, converter));
         }
