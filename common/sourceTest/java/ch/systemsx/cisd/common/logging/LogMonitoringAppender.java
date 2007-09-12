@@ -34,83 +34,83 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 public final class LogMonitoringAppender extends AppenderSkeleton
 {
 
-  private static Map<LogMonitoringAppender, String> appenderMap = new HashMap<LogMonitoringAppender, String>(); 
-  
-  private final String messagePart;
+    private static Map<LogMonitoringAppender, String> appenderMap = new HashMap<LogMonitoringAppender, String>();
 
-  private LogMonitoringAppender(String messagePart)
-  {
-    this.messagePart = messagePart;
-  }
+    private final String messagePart;
 
-  private boolean logHappened = false;
-
-  /**
-   * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
-   * <code>category</code> and <code>clazz</code>.
-   * 
-   * @return The created appender.
-   */
-  public static synchronized LogMonitoringAppender addAppender(LogCategory category, String messagePart)
-  {
-    final LogMonitoringAppender appender = new LogMonitoringAppender(messagePart);
-    final String loggerName = category.name();
-    Logger.getLogger(loggerName).addAppender(appender);
-    appenderMap.put(appender, loggerName);
-    return appender;
-  }
-
-  /**
-   * Removes the given <var>appender</var>.
-   */
-  public static synchronized void removeAppender(LogMonitoringAppender appender)
-  {
-    final String loggerName = appenderMap.get(appender);
-    if (loggerName != null)
+    private LogMonitoringAppender(String messagePart)
     {
-      Logger.getLogger(loggerName).removeAppender(appender);
-      appenderMap.remove(appender);
-    } else
-    {
-      // This means that the caller tries to remove the appender twice - nothing to do here really.
+        this.messagePart = messagePart;
     }
-  }
 
-  private String getThrowableStr(LoggingEvent event)
-  {
-    final ThrowableInformation info = event.getThrowableInformation();
-    if (info == null)
+    private boolean logHappened = false;
+
+    /**
+     * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
+     * <code>category</code> and <code>clazz</code>.
+     * 
+     * @return The created appender.
+     */
+    public static synchronized LogMonitoringAppender addAppender(LogCategory category, String messagePart)
     {
-      return "";
-    } else
-    {
-      return info.getThrowableStrRep()[0];
+        final LogMonitoringAppender appender = new LogMonitoringAppender(messagePart);
+        final String loggerName = category.name();
+        Logger.getLogger(loggerName).addAppender(appender);
+        appenderMap.put(appender, loggerName);
+        return appender;
     }
-  }
-  
-  @Override
-  protected void append(LoggingEvent event)
-  {
-    if (event.getMessage().toString().contains(messagePart) || getThrowableStr(event).contains(messagePart))
+
+    /**
+     * Removes the given <var>appender</var>.
+     */
+    public static synchronized void removeAppender(LogMonitoringAppender appender)
     {
-      logHappened = true;
+        final String loggerName = appenderMap.get(appender);
+        if (loggerName != null)
+        {
+            Logger.getLogger(loggerName).removeAppender(appender);
+            appenderMap.remove(appender);
+        } else
+        {
+            // This means that the caller tries to remove the appender twice - nothing to do here really.
+        }
     }
-  }
 
-  @Override
-  public void close()
-  {
-    // Nothing to do here.
-  }
+    private String getThrowableStr(LoggingEvent event)
+    {
+        final ThrowableInformation info = event.getThrowableInformation();
+        if (info == null)
+        {
+            return "";
+        } else
+        {
+            return info.getThrowableStrRep()[0];
+        }
+    }
 
-  @Override
-  public boolean requiresLayout()
-  {
-    return false;
-  }
+    @Override
+    protected void append(LoggingEvent event)
+    {
+        if (event.getMessage().toString().contains(messagePart) || getThrowableStr(event).contains(messagePart))
+        {
+            logHappened = true;
+        }
+    }
 
-  public void verifyLogHasHappened()
-  {
-      assert logHappened : "Following log snippet has been missed: " + messagePart;
-  }
+    @Override
+    public void close()
+    {
+        // Nothing to do here.
+    }
+
+    @Override
+    public boolean requiresLayout()
+    {
+        return false;
+    }
+
+    public void verifyLogHasHappened()
+    {
+        assert logHappened : "Following log snippet has been missed: " + messagePart;
+    }
 }
