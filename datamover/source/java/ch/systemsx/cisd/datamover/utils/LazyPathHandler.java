@@ -105,7 +105,7 @@ public class LazyPathHandler implements ITerminable, IPathHandler
                 operationLog.info("Processing succeded: " + resource.getAbsolutePath());
             } else
             {
-                notificationLog.error("Processing failed: " + resource.getAbsolutePath());
+                operationLog.error("Processing failed: " + resource.getAbsolutePath());
             }
         }
 
