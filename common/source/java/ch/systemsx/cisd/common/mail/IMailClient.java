@@ -19,8 +19,8 @@ package ch.systemsx.cisd.common.mail;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
+ * Implementations of this interface are able to send email.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IMailClient
