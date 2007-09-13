@@ -422,25 +422,29 @@ public final class FileUtilities
     /** A <i>Java</i> pattern matching one or more digits. */
     private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile("(\\d+)");
 
-    public final static File createNextNumberedFile(File path, String defaultFileName)
+    public final static File createNextNumberedFile(File path, Pattern regex)
     {
-        return createNextNumberedFile(path, null, defaultFileName);
+        return createNextNumberedFile(path, regex, null);
     }
 
     /**
-     * Creates the next numbered file.
+     * Creates the next numbered file if given <var>path</var> does already exist.
      * <p>
      * If the new suggested file already exists, then this method is called recursively.
      * </p>
      * 
-     * @param defaultFileName the default name for the new file if the digit pattern could not be found (probably the
-     *            starting file).
-     * @param regex pattern to find out the counter. If <code>null</code> then <code>"(\\d+)"</code> will be taken.
-     *            The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param defaultFileName the default name for the new file if the digit pattern could not be found in its name. If
+     *            empty then "1" will be appended to its name.
+     * @param regex pattern to find out the counter. If <code>null</code> then {@link #ONE_OR_MORE_DIGITS} will be
+     *            taken. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
     {
         assert path != null;
+        if (path.exists() == false)
+        {
+            return path;
+        }
         final Pattern pattern;
         if (regex == null)
         {
@@ -456,11 +460,15 @@ public final class FileUtilities
         boolean found = matcher.find();
         if (found == false)
         {
+            final String fileName;
             if (StringUtils.isEmpty(defaultFileName) == false)
             {
-                return new File(path.getParent(), defaultFileName);
+                fileName = defaultFileName;
+            } else
+            {
+                fileName = pathName + "1";
             }
-            return path;
+            return createNextNumberedFile(new File(path.getParent(), fileName), pattern, defaultFileName);
         }
         StringBuilder builder = new StringBuilder();
         int nextStart = 0;

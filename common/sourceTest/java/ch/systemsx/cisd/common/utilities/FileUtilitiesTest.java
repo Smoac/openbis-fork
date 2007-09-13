@@ -32,8 +32,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -55,6 +56,12 @@ public class FileUtilitiesTest
         LogInitializer.init();
         workingDirectory.mkdirs();
         assert workingDirectory.isDirectory();
+    }
+
+    @BeforeMethod
+    public void beforeMethod() throws IOException
+    {
+        FileUtils.cleanDirectory(workingDirectory);
     }
 
     @Test
@@ -129,18 +136,28 @@ public class FileUtilitiesTest
     }
 
     @Test
-    public final void testCreateNextNumberedFile()
+    public final void testCreateNextNumberedFile() throws IOException
     {
         File file = new File(workingDirectory, "abc_[12]");
+        // File does not exist
         assert file.exists() == false;
         Pattern pattern = Pattern.compile("_\\[(\\d+)\\]");
         File newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
-        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc_[13]").getPath()), FilenameUtils
-                .getName(newFile.getPath()));
-        file = new File(workingDirectory, "abc");
+        assertEquals(new File(workingDirectory, "abc_[12]"), newFile);
+        FileUtils.touch(file);
+        assert file.exists();
+        // File exists
         newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
-        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc").getPath()), FilenameUtils.getName(newFile
-                .getPath()));
+        assertEquals(new File(workingDirectory, "abc_[13]"), newFile);
+        // File not containing a number in it
+        file = new File(workingDirectory, "abc");
+        assert file.exists() == false;
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
+        assertEquals(new File(workingDirectory, "abc"), newFile);
+        FileUtils.touch(file);
+        assert file.exists();
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
+        assertEquals(new File(workingDirectory, "abc1"), newFile);
         try
         {
             FileUtilities.createNextNumberedFile(null, pattern, null);
@@ -149,25 +166,41 @@ public class FileUtilitiesTest
         {
             // Nothing to do here
         }
+        String defaultFileName = "abc_[1]";
         try
         {
-            FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"), "abc_[1]");
+            FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"), defaultFileName);
             fail("Must contain either '(\\d+)' or ([0-9]+).");
         } catch (AssertionError e)
         {
             // Nothing to do here
         }
-        newFile = FileUtilities.createNextNumberedFile(file, pattern, "abc_[1]");
-        assertEquals(FilenameUtils.getName(new File(workingDirectory, "abc_[1]").getPath()), FilenameUtils
-                .getName(newFile.getPath()));
+        // File already exists but default one does not
+        assertEquals(file.getName(), "abc");
+        assert file.exists();
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, defaultFileName);
+        File defaultFile = new File(workingDirectory, defaultFileName);
+        assertEquals(defaultFile, newFile);
+        // File already exists and default one also
+        FileUtils.touch(defaultFile);
+        assert defaultFile.exists();
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, defaultFileName);
+        assertEquals(new File(workingDirectory, "abc_[2]"), newFile);
+        // With no pattern (using the default one)
         file = new File(workingDirectory, "a0bc1");
+        FileUtils.touch(file);
+        assert file.exists();
         newFile = FileUtilities.createNextNumberedFile(file, null);
-        assertEquals(FilenameUtils.getName(new File(workingDirectory, "a1bc2").getPath()), FilenameUtils
-                .getName(newFile.getPath()));
+        assertEquals(new File(workingDirectory, "a1bc2"), newFile);
+        // More examples
         file = new File(workingDirectory, "12abc_[12]");
         newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
-        assertEquals(FilenameUtils.getName(new File(workingDirectory, "12abc_[13]").getPath()), FilenameUtils
-                .getName(newFile.getPath()));
+        assertEquals(new File(workingDirectory, "12abc_[12]"), newFile);
+        FileUtils.touch(file);
+        newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
+        assertEquals(new File(workingDirectory, "12abc_[13]"), newFile);
+        newFile = FileUtilities.createNextNumberedFile(file, Pattern.compile("xxx(\\d+)xxx"), "12abc_[1]");
+        assertEquals(new File(workingDirectory, "12abc_[1]"), newFile);        
     }
 
     @Test
