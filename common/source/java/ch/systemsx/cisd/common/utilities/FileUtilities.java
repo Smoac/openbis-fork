@@ -435,8 +435,8 @@ public final class FileUtilities
      * 
      * @param defaultFileName the default name for the new file if the digit pattern could not be found in its name. If
      *            empty then "1" will be appended to its name.
-     * @param regex pattern to find out the counter. If <code>null</code> then {@link #ONE_OR_MORE_DIGITS} will be
-     *            taken. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param regex pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>) will be
+     *            used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
     {
