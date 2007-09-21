@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.xml.DOMConfigurator;
 
 /**
@@ -69,6 +70,7 @@ public class LogInitializer
             }
         }
         initialized = true;
+        LogLog.setQuietMode(true);
     }
 
 }
