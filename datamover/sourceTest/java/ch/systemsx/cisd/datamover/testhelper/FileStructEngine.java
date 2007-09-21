@@ -76,7 +76,7 @@ public class FileStructEngine
 
     public void createSampleFinishedMarkerFile(File parentDir)
     {
-        createEmptyFile(createFinishedMarkerFile(parentDir, sampleMovedDir));
+        createEmptyFile(MarkerFile.createCopyFinishedMarker(parentDir, sampleMovedDir));
     }
 
     public void createSampleDeletionInProgressMarkerFile(File parentDir)
@@ -84,16 +84,11 @@ public class FileStructEngine
         createEmptyFile(createDeletionInProgressMarkerFile(parentDir, sampleMovedDir));
     }
 
-    private static File createFinishedMarkerFile(File parentDir, String originalName)
-    {
-        return new File(parentDir, MarkerFile.getCopyFinishedMarkerName(originalName));
-    }
-    
     private static File createDeletionInProgressMarkerFile(File parentDir, String originalName)
     {
-        return new File(parentDir, MarkerFile.getDeletionInProgressMarkerName(originalName));
+        return MarkerFile.createDeletionInProgressMarker(parentDir, originalName);
     }
-    
+
     private static List<String> createSampleFileContent()
     {
         String[] lines = new String[]
@@ -125,7 +120,7 @@ public class FileStructEngine
 
     public void assertSampleStructFinishMarkerExists(File parentDir)
     {
-        File marker = createFinishedMarkerFile(parentDir, sampleMovedDir);
+        File marker = MarkerFile.createCopyFinishedMarker(parentDir, sampleMovedDir);
         assert marker.exists();
     }
 }

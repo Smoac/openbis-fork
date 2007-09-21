@@ -22,24 +22,24 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Manipulations on marker files.
+ * Manipulations on marker files. Should not use string types in the interface.
  * 
  * @author Tomasz Pylak on Aug 27, 2007
  */
 public class MarkerFile
 {
 
-    public static String getCopyFinishedMarkerName(String originalFileName)
+    private static String getCopyFinishedMarkerName(String originalFileName)
     {
         return Constants.IS_FINISHED_PREFIX + originalFileName;
     }
 
-    public static String getDeletionInProgressMarkerName(File originalFile)
+    public static File createDeletionInProgressMarker(File parent, String originalFileName)
     {
-        return Constants.DELETION_IN_PROGRESS_PREFIX + originalFile.getName();
+        return new File(parent, getDeletionInProgressMarkerName(originalFileName));
     }
 
-    public static String getDeletionInProgressMarkerName(String originalFileName)
+    private static String getDeletionInProgressMarkerName(String originalFileName)
     {
         return Constants.DELETION_IN_PROGRESS_PREFIX + originalFileName;
     }
@@ -62,7 +62,11 @@ public class MarkerFile
 
     public static File createCopyFinishedMarker(File originalFile)
     {
-        return new File(originalFile.getParent(), getCopyFinishedMarkerName(originalFile.getName()));
+        return createCopyFinishedMarker(originalFile.getParentFile(), originalFile.getName());
     }
 
+    public static File createCopyFinishedMarker(File parent, String originalFileName)
+    {
+        return new File(parent, getCopyFinishedMarkerName(originalFileName));
+    }
 }

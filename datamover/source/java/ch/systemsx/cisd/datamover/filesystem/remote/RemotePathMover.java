@@ -236,7 +236,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         // the source directory
         final File markerParentDirectory = (destinationHost == null) ? destinationDirectory : path.getParentFile();
         final File markDeletionInProgressMarkerFile =
-                new File(markerParentDirectory, MarkerFile.getDeletionInProgressMarkerName(path));
+                MarkerFile.createDeletionInProgressMarker(markerParentDirectory, path.getName());
         return markDeletionInProgressMarkerFile;
     }
 
@@ -254,8 +254,7 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
 
     private boolean markAsFinished(File path)
     {
-        final File markFinishedFile =
-                new File(destinationDirectory, MarkerFile.getCopyFinishedMarkerName(path.getName()));
+        final File markFinishedFile = MarkerFile.createCopyFinishedMarker(destinationDirectory, path.getName());
         if (destinationHost == null)
         {
             return markLocal(markFinishedFile);

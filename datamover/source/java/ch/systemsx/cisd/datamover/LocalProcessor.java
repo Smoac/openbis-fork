@@ -151,8 +151,11 @@ public class LocalProcessor implements IPathHandler
         if (extraCopyDirOrNull != null)
         {
             extraTmpCopy = copier.tryCopy(path, tempDir);
-            notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
-            ok = ok && (extraTmpCopy != null);
+            if (extraTmpCopy == null)
+            {
+                notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
+                ok = false;
+            }
         }
 
         final File movedFile = LocalFileSystem.tryMoveLocal(path, outputDir);
@@ -163,16 +166,19 @@ public class LocalProcessor implements IPathHandler
         {
             notificationLog.error(String
                     .format("Moving '%s' to '%s' for final moving process failed.", path, outputDir));
+            ok = false;
         }
-        ok = ok && (movedFile != null);
 
         if (extraTmpCopy != null)
         {
             assert extraCopyDirOrNull != null;
             File extraCopy = LocalFileSystem.tryMoveLocal(extraTmpCopy, extraCopyDirOrNull);
-            notificationLog.error(String.format("Moving temporary extra copy '%s' to destination '%s' failed.",
-                    extraTmpCopy, extraCopyDirOrNull));
-            ok = ok && (extraCopy != null);
+            if (extraCopy == null)
+            {
+                notificationLog.error(String.format("Moving temporary extra copy '%s' to destination '%s' failed.",
+                        extraTmpCopy, extraCopyDirOrNull));
+                ok = false;
+            }
         }
         return ok;
     }
