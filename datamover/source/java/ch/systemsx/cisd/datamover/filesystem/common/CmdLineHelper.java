@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
@@ -98,41 +98,52 @@ public class CmdLineHelper
 
     private void logProcessExitValue(final int exitValue, final Process process, String command)
     {
-        if (operationLog.isDebugEnabled())
+        if (exitValue != 0)
         {
-            if (processTerminated(exitValue))
+            primLogProcessExitValue(Level.WARN, exitValue, command);
+            logProcessOutput(process, command);
+        } else if (operationLog.isDebugEnabled())
+        {
+            primLogProcessExitValue(Level.DEBUG, exitValue, command);
+        }
+    }
+
+    private void primLogProcessExitValue(Level logLevel, final int exitValue, String command)
+    {
+        if (processTerminated(exitValue))
+        {
+            operationLog.log(logLevel, String.format("[%s] process was destroyed.", command));
+        } else
+        {
+            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", command,
+                    exitValue));
+        }
+    }
+
+    private void logProcessOutput(final Process process, String command)
+    {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        try
+        {
+            machineLog.warn(String.format("[%s] output:", command));
+            String ln;
+            while ((ln = reader.readLine()) != null)
             {
-                operationLog.debug(String.format("[%s] process was destroyed.", command));
-            } else
-            {
-                operationLog.debug(String.format("[%s] process returned with exit value %d.", command, exitValue));
+                if (ln.trim().length() > 0)
+                    machineLog.warn(String.format("\"%s\"", ln));
             }
-            if (exitValue != 0)
+        } catch (IOException e)
+        {
+            operationLog.warn(String.format("IOException when trying to read stderr, msg='%s'.", e
+                    .getMessage()));
+        } finally
+        {
+            try
             {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                try
-                {
-                    machineLog.debug(String.format("[%s] output:", command));
-                    String ln;
-                    while ((ln = reader.readLine()) != null)
-                    {
-                        if (ln.trim().length() > 0)
-                            machineLog.debug(String.format("\"%s\"", ln));
-                    }
-                } catch (IOException e)
-                {
-                    operationLog.debug(String.format("IOException when trying to read stderr, msg='%s'.", e
-                            .getMessage()));
-                } finally
-                {
-                    try
-                    {
-                        reader.close();
-                    } catch (IOException e)
-                    {
-                        // Silence this.
-                    }
-                }
+                reader.close();
+            } catch (IOException e)
+            {
+                // Silence this.
             }
         }
     }
