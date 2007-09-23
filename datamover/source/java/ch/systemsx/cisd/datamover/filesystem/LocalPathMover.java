@@ -25,37 +25,33 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 
 /**
  * Basic file system operations helper.
  * 
  * @author Tomasz Pylak on Aug 27, 2007
  */
-public class LocalFileSystem
+public class LocalPathMover implements IPathMover
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalFileSystem.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalPathMover.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalFileSystem.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalPathMover.class);
 
     // TODO 2007-09-11, Bernd Rinn: make this configurable
 
+    /** The maximal number of retries when the move operation fails. */
     private static final int MAX_RETRIES_ON_FAILURE = 12;
 
+    /** The time to sleep when the move operation has failed before retrying it. */
     private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
 
-    /**
-     * Moves source file to destination directory.
-     */
-    public static File tryMoveLocal(File sourceFile, File destinationDir)
+    public File tryMove(File sourceFile, File destinationDir)
     {
-        return tryMoveLocal(sourceFile, destinationDir, "");
+        return tryMove(sourceFile, destinationDir, "");
     }
 
-    /**
-     * Moves source file to destination directory, putting <var>prefixTemplate</var> in front of its name after
-     * replacing '%t' with the current time stamp.
-     */
-    public static File tryMoveLocal(File sourcePath, File destinationDirectory, String prefixTemplate)
+    public File tryMove(File sourcePath, File destinationDirectory, String prefixTemplate)
     {
         assert destinationDirectory != null;
         assert FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination") == null : "Directory is not fully accessible "

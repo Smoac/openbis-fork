@@ -34,6 +34,7 @@ import ch.systemsx.cisd.datamover.filesystem.impl.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.filesystem.remote.XcopyCopier;
@@ -272,5 +273,10 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         {
             return copyProcess;
         }
+    }
+
+    public IPathMover getMover()
+    {
+        return new LocalPathMover();
     }
 }

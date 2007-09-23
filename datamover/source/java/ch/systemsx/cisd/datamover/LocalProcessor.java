@@ -30,9 +30,9 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
-import ch.systemsx.cisd.datamover.filesystem.LocalFileSystem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
 
@@ -54,6 +54,8 @@ public class LocalProcessor implements IPathHandler
 
     private final IPathImmutableCopier copier;
 
+    private final IPathMover mover;
+    
     private final IReadPathOperations readOperations;
 
     // output: from here data are moved when processing is finished.
@@ -78,6 +80,7 @@ public class LocalProcessor implements IPathHandler
         this.outgoingHandler = outgoingHandler;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = factory.getImmutableCopier();
+        this.mover = factory.getMover();
         this.readOperations = factory.getReadPathOperations();
     }
 
@@ -118,7 +121,7 @@ public class LocalProcessor implements IPathHandler
                 // could change. We move the copy to that directory to ensure clean recovery from errors.
                 if (extraCopyDirOrNull != null)
                 {
-                    LocalFileSystem.tryMoveLocal(file, extraCopyDirOrNull);
+                    mover.tryMove(file, extraCopyDirOrNull);
                 }
             }
         }
@@ -165,7 +168,7 @@ public class LocalProcessor implements IPathHandler
             }
         }
 
-        final File movedFile = LocalFileSystem.tryMoveLocal(path, outputDir);
+        final File movedFile = mover.tryMove(path, outputDir);
         if (movedFile != null)
         {
             outgoingHandler.handle(movedFile);
@@ -179,7 +182,7 @@ public class LocalProcessor implements IPathHandler
         if (extraTmpCopy != null)
         {
             assert extraCopyDirOrNull != null;
-            File extraCopy = LocalFileSystem.tryMoveLocal(extraTmpCopy, extraCopyDirOrNull);
+            File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
             if (extraCopy == null)
             {
                 notificationLog.error(String.format("Moving temporary extra copy '%s' to destination '%s' failed.",
@@ -248,7 +251,7 @@ public class LocalProcessor implements IPathHandler
         {
             log(resource, "Moving to manual intervention directory");
             File manualInterventionDir = parameters.getManualInterventionDirectory();
-            File movedFile = LocalFileSystem.tryMoveLocal(resource, manualInterventionDir);
+            File movedFile = mover.tryMove(resource, manualInterventionDir);
             return (movedFile != null) ? EFileManipResult.STOP : EFileManipResult.FAILURE;
         } else
         {

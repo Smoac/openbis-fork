@@ -13,24 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
 /**
- * A role that provides access to the roles which perform file system operations.
+ * A roles that allows moving paths within a file system, possibly adding a prefix.
  * 
  * @author Bernd Rinn
  */
-public interface IFileSysOperationsFactory
+public interface IPathMover
 {
-    public IPathCopier getCopier(File destinationDirectory);
-
-    public IPathImmutableCopier getImmutableCopier();
-
-    public IPathRemover getRemover();
     
-    public IPathMover getMover();
+    /**
+     * Moves source path (file or directory) to destination directory, putting <var>prefixTemplate</var> in front of
+     * its name, where any occurrence of '%t' in the template is replaced with the current time stamp.
+     */
+    public File tryMove(File sourcePath, File destinationDirectory, String prefixTemplate);
 
-    public IReadPathOperations getReadPathOperations();
+    /**
+     * Moves source path (file or directory) to destination directory.
+     */
+    public File tryMove(File sourcePath, File destinationDir);
+    
+
 }

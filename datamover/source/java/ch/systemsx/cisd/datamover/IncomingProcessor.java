@@ -17,9 +17,9 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.filesystem.LocalFileSystem;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.utils.FileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -55,6 +55,8 @@ public class IncomingProcessor
     private final IFileSysOperationsFactory factory;
 
     private final IReadPathOperations incomingReadOperations;
+    
+    private final IPathMover pathMover;
 
     private final LocalBufferDirs bufferDirs;
 
@@ -78,6 +80,7 @@ public class IncomingProcessor
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.isIncomingRemote = parameters.getTreatIncomingAsRemote();
         this.incomingReadOperations = factory.getReadPathOperations();
+        this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
     }
@@ -214,9 +217,9 @@ public class IncomingProcessor
         return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory, parameters);
     }
 
-    private static File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
+    private File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
     {
-        return LocalFileSystem.tryMoveLocal(sourceFile, destinationDir, prefixTemplate);
+        return pathMover.tryMove(sourceFile, destinationDir, prefixTemplate);
     }
 
     // ------------------- recovery ------------------------
