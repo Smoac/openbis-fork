@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static ch.systemsx.cisd.common.utilities.FileUtilities.ACCEPT_ALL_FILTER;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -59,14 +60,6 @@ public class DirectoryScanningTimerTaskTest
             public boolean accept(File pathname)
             {
                 return false;
-            }
-        };
-
-    private final static FileFilter ALWAYS_TRUE_FILE_FILTER = new FileFilter()
-        {
-            public boolean accept(File pathname)
-            {
-                return true;
             }
         };
 
@@ -135,7 +128,7 @@ public class DirectoryScanningTimerTaskTest
         final File nonExistentFile = new File(unitTestRootDirectory, "non-existent");
         nonExistentFile.delete();
         final DirectoryScanningTimerTask task =
-                new DirectoryScanningTimerTask(nonExistentFile, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(nonExistentFile, ACCEPT_ALL_FILTER, mockPathHandler);
         task.check();
     }
 
@@ -147,7 +140,7 @@ public class DirectoryScanningTimerTaskTest
         file.delete();
         file.deleteOnExit();
         file.createNewFile();
-        final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(file, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+        final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(file, ACCEPT_ALL_FILTER, mockPathHandler);
         task.check();
    }
 
@@ -165,7 +158,7 @@ public class DirectoryScanningTimerTaskTest
         try
         {
             // Here we should get an AssertationError
-            final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(readOnlyDirectory, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+            final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(readOnlyDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
             task.check();
         } finally
         {
@@ -185,7 +178,7 @@ public class DirectoryScanningTimerTaskTest
     {
         final File faultyPaths = new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
         CollectionIO.writeIterable(faultyPaths, Collections.singleton("some_path"));
-        new DirectoryScanningTimerTask(workingDirectory, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+        new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assert faultyPaths.length() == 0;
     }
 
@@ -196,7 +189,7 @@ public class DirectoryScanningTimerTaskTest
         someFile.createNewFile();
         someFile.deleteOnExit();
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assertEquals(0, mockPathHandler.handledPaths.size());
         scanner.run();
         assertEquals(1, mockPathHandler.handledPaths.size());
@@ -225,7 +218,7 @@ public class DirectoryScanningTimerTaskTest
         someFile.deleteOnExit();
         assert someFile.exists();
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         CollectionIO.writeIterable(faultyPaths, Collections.singleton(someFile));
         scanner.run();
         assertEquals(0, mockPathHandler.handledPaths.size());
@@ -255,7 +248,7 @@ public class DirectoryScanningTimerTaskTest
         assert someFile.exists();
         someFile.deleteOnExit();
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ALWAYS_TRUE_FILE_FILTER, myPathHandler);
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, myPathHandler);
 
         // See whether faulty_paths settings works.
         scanner.run();
@@ -297,7 +290,7 @@ public class DirectoryScanningTimerTaskTest
         f3.setLastModified(now - 1000);
         f1.setLastModified(now);
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
         scanner.run();
         assertEquals(f2, mockPathHandler.handledPaths.get(0));
         assertEquals(f4, mockPathHandler.handledPaths.get(1));
@@ -315,7 +308,7 @@ public class DirectoryScanningTimerTaskTest
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
         // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
         dir.delete();
         assert dir.exists() == false;
         scanner.run();
@@ -332,7 +325,7 @@ public class DirectoryScanningTimerTaskTest
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
         // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ALWAYS_TRUE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
         dir.delete();
         dir.createNewFile();
         dir.deleteOnExit();

@@ -59,6 +59,19 @@ public final class FileUtilities
     }
 
     /**
+     * A file filter that accepts all entries.
+     */
+    public static final FileFilter ACCEPT_ALL_FILTER = new FileFilter()
+    {
+        public boolean accept(File pathname)
+        {
+            return true;
+        }
+    };
+
+
+    
+    /**
      * Loads a text file to a {@link String}.
      * 
      * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
@@ -435,8 +448,8 @@ public final class FileUtilities
      * 
      * @param defaultFileName the default name for the new file if the digit pattern could not be found in its name. If
      *            empty then "1" will be appended to its name.
-     * @param regex pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>) will be
-     *            used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
+     * @param regex pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
+     *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
     {
@@ -518,7 +531,11 @@ public final class FileUtilities
     /**
      * Lists all resources in a given directory which match the filter.
      * 
+     * @param directory the directory to list
+     * @param filter only files matching this filter will show up in the result
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
+     * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if <var>directory</var>
+     *         does not exist or is not a directory.
      */
     public static File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
     {
