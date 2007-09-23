@@ -99,7 +99,7 @@ public class LocalProcessor implements IPathHandler
 
     private void recoverTemporaryExtraCopy(File inputDir)
     {
-        final File[] files = readOperations.listFiles(tempDir, errorLog);
+        final File[] files = readOperations.tryListFiles(tempDir, errorLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
@@ -131,7 +131,7 @@ public class LocalProcessor implements IPathHandler
 
     private void recoverRegisterReadyForOutgoing()
     {
-        File[] files = readOperations.listFiles(outputDir, errorLog);
+        File[] files = readOperations.tryListFiles(outputDir, errorLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed

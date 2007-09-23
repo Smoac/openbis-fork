@@ -121,14 +121,14 @@ public class CopyActivityMonitorTest
             return impl.exists(file);
         }
 
-        public File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+        public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
         {
-            return impl.listFiles(directory, filter, loggerOrNull);
+            return impl.tryListFiles(directory, filter, loggerOrNull);
         }
 
-        public File[] listFiles(File directory, ISimpleLogger logger)
+        public File[] tryListFiles(File directory, ISimpleLogger logger)
         {
-            return impl.listFiles(directory, logger);
+            return impl.tryListFiles(directory, logger);
         }
     }
 

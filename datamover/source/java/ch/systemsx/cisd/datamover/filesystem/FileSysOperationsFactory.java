@@ -89,14 +89,14 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 return FileUtilities.lastChanged(path);
             }
 
-            public File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+            public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
             {
-                return FileUtilities.listFiles(directory, filter, loggerOrNull);
+                return FileUtilities.tryListFiles(directory, filter, loggerOrNull);
             }
 
-            public File[] listFiles(File directory, ISimpleLogger loggerOrNull)
+            public File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
             {
-                return FileUtilities.listFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
+                return FileUtilities.tryListFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
             }
         };
     }

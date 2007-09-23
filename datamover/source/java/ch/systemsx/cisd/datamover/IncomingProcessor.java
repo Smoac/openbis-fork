@@ -235,7 +235,7 @@ public class IncomingProcessor
 
         private void recoverIncomingInProgress(FileStore incomingStore, File copyInProgressDir, File copyCompleteDir)
         {
-            final File[] files = incomingReadOperations.listFiles(copyInProgressDir, errorLog);
+            final File[] files = incomingReadOperations.tryListFiles(copyInProgressDir, errorLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed
@@ -294,7 +294,7 @@ public class IncomingProcessor
         // schedule processing of all resources which were previously copied
         private void recoverIncomingCopyComplete(File copyCompleteDir, IPathHandler localProcessor)
         {
-            final File[] files = incomingReadOperations.listFiles(copyCompleteDir, errorLog);
+            final File[] files = incomingReadOperations.tryListFiles(copyCompleteDir, errorLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed

@@ -33,10 +33,10 @@ public interface IReadPathOperations
      * 
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
      */
-    File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull);
+    File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull);
 
     /** lists all files in a given directory, logs errors */
-    File[] listFiles(File directory, ISimpleLogger logger);
+    File[] tryListFiles(File directory, ISimpleLogger logger);
 
     /** checks if a file exists */
     boolean exists(File file);
