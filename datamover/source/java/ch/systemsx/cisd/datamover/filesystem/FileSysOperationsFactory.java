@@ -43,16 +43,16 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 /**
  * @author Tomasz Pylak on Sep 7, 2007
  */
-public class FileSysOparationsFactory implements IFileSysOperationsFactory
+public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {
     private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, FileSysOparationsFactory.class);
+            LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileSysOparationsFactory.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileSysOperationsFactory.class);
 
     final private IFileSysParameters parameters;
 
-    public FileSysOparationsFactory(IFileSysParameters parameters)
+    public FileSysOperationsFactory(IFileSysParameters parameters)
     {
         assert parameters != null;
         

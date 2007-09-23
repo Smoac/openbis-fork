@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
-import ch.systemsx.cisd.datamover.filesystem.FileSysOparationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
@@ -108,7 +108,7 @@ public class CopyActivityMonitorTest
                 }
                 
             };
-            this.impl = new FileSysOparationsFactory(dummyFileSysParameters).getReadAccessor();
+            this.impl = new FileSysOperationsFactory(dummyFileSysParameters).getReadAccessor();
         }
 
         public long lastChanged(File path)

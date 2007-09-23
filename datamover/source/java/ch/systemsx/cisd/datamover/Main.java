@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.datamover.filesystem.FileSysOparationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.utils.FileStore;
@@ -76,7 +76,7 @@ public class Main
     {
         try
         {
-            IPathCopier copyProcess = new FileSysOparationsFactory(parameters).getCopierNoDeletionRequired();
+            IPathCopier copyProcess = new FileSysOperationsFactory(parameters).getCopierNoDeletionRequired();
             ArrayList<FileStore> stores = new ArrayList<FileStore>();
             stores.add(parameters.getIncomingStore());
             stores.add(parameters.getBufferStore());
@@ -103,13 +103,13 @@ public class Main
     /** exposed for testing purposes */
     static ITerminable startupServer(Parameters parameters, LocalBufferDirs bufferDirs)
     {
-        final IFileSysOperationsFactory factory = new FileSysOparationsFactory(parameters);
+        final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return DataMover.start(parameters, factory, bufferDirs);
     }
 
     private static void startupServer(Parameters parameters)
     {
-        final IFileSysOperationsFactory factory = new FileSysOparationsFactory(parameters);
+        final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         DataMover.start(parameters, factory);
     }
 
