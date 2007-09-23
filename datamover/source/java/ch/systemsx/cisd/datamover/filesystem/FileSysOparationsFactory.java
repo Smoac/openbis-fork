@@ -54,6 +54,8 @@ public class FileSysOparationsFactory implements IFileSysOperationsFactory
 
     public FileSysOparationsFactory(IFileSysParameters parameters)
     {
+        assert parameters != null;
+        
         this.parameters = parameters;
     }
 
@@ -72,36 +74,31 @@ public class FileSysOparationsFactory implements IFileSysOperationsFactory
             };
     }
 
-    public static IReadPathOperations getReadOperations()
-    {
-        return new IReadPathOperations()
-            {
-
-                public boolean exists(File file)
-                {
-                    return file.exists();
-                }
-
-                public long lastChanged(File path)
-                {
-                    return FileUtilities.lastChanged(path);
-                }
-
-                public File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
-                {
-                    return FileUtilities.listFiles(directory, filter, loggerOrNull);
-                }
-
-                public File[] listFiles(File directory, ISimpleLogger loggerOrNull)
-                {
-                    return FileUtilities.listFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
-                }
-            };
-    }
-
     public IReadPathOperations getReadAccessor()
     {
-        return getReadOperations();
+        return new IReadPathOperations()
+        {
+
+            public boolean exists(File file)
+            {
+                return file.exists();
+            }
+
+            public long lastChanged(File path)
+            {
+                return FileUtilities.lastChanged(path);
+            }
+
+            public File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+            {
+                return FileUtilities.listFiles(directory, filter, loggerOrNull);
+            }
+
+            public File[] listFiles(File directory, ISimpleLogger loggerOrNull)
+            {
+                return FileUtilities.listFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
+            }
+        };
     }
 
     public IPathImmutableCopier getImmutableCopier()

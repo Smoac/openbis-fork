@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOparationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -89,7 +90,25 @@ public class CopyActivityMonitorTest
 
         public ReadOperationsOriginalImpl()
         {
-            this.impl = FileSysOparationsFactory.getReadOperations();
+            final IFileSysParameters dummyFileSysParameters = new IFileSysParameters()
+            {
+                public String getHardLinkExecutable()
+                {
+                    return null;
+                }
+
+                public String getRsyncExecutable()
+                {
+                    return null;
+                }
+
+                public String getSshExecutable()
+                {
+                    return null;
+                }
+                
+            };
+            this.impl = new FileSysOparationsFactory(dummyFileSysParameters).getReadAccessor();
         }
 
         public long lastChanged(File path)
