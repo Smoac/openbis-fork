@@ -92,9 +92,9 @@ public class FileSysOparationsFactory implements IFileSysOperationsFactory
                     return FileUtilities.listFiles(directory, filter, loggerOrNull);
                 }
 
-                public File[] listFiles(File directory, ISimpleLogger logger)
+                public File[] listFiles(File directory, ISimpleLogger loggerOrNull)
                 {
-                    return LocalFileSystem.listFiles(directory);
+                    return FileUtilities.listFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
                 }
             };
     }

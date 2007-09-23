@@ -17,15 +17,11 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
-import java.io.FileFilter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -46,25 +42,6 @@ public class LocalFileSystem
     private static final int MAX_RETRIES_ON_FAILURE = 12;
 
     private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
-
-    /**
-     * Lists all resources in a given directory, logs errors.
-     */
-    public static File[] listFiles(File directory)
-    {
-        final ISimpleLogger errorLogger = new Log4jSimpleLogger(Level.ERROR, operationLog);
-        /**
-         * Lists all resources in a given directory, logs errors.
-         */
-        FileFilter acceptAll = new FileFilter()
-            {
-                public boolean accept(File file)
-                {
-                    return true;
-                }
-            };
-        return FileUtilities.listFiles(directory, acceptAll, errorLogger);
-    }
 
     /**
      * Moves source file to destination directory.

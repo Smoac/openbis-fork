@@ -4,7 +4,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Timer;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
@@ -39,6 +46,10 @@ import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
  */
 public class IncomingProcessor
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
+
+    private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
+    
     private final Parameters parameters;
 
     private final IFileSysOperationsFactory factory;
@@ -224,7 +235,7 @@ public class IncomingProcessor
 
         private void recoverIncomingInProgress(FileStore incomingStore, File copyInProgressDir, File copyCompleteDir)
         {
-            final File[] files = LocalFileSystem.listFiles(copyInProgressDir);
+            final File[] files = incomingReadOperations.listFiles(copyInProgressDir, errorLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed
@@ -283,7 +294,7 @@ public class IncomingProcessor
         // schedule processing of all resources which were previously copied
         private void recoverIncomingCopyComplete(File copyCompleteDir, IPathHandler localProcessor)
         {
-            final File[] files = LocalFileSystem.listFiles(copyCompleteDir);
+            final File[] files = incomingReadOperations.listFiles(copyCompleteDir, errorLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed

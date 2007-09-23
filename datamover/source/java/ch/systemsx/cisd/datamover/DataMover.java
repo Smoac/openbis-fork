@@ -22,7 +22,6 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.utils.FileStore;
 import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -94,10 +93,9 @@ public class DataMover
 
     private LazyPathHandler startupLocalProcessing(LazyPathHandler outgoingHandler)
     {
-        final IPathImmutableCopier copier = factory.getImmutableCopier();
         final IPathHandler localProcesingHandler =
                 LocalProcessor.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
-                        .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, copier);
+                        .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, factory);
         return LazyPathHandler.create(localProcesingHandler, "Local Processor");
     }
 

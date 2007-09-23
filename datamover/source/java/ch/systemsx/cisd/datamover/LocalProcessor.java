@@ -31,7 +31,9 @@ import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.LocalFileSystem;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
 
 /**
@@ -43,12 +45,16 @@ import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
 public class LocalProcessor implements IPathHandler
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
-
+    
+    private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
+    
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
     private final Parameters parameters;
 
     private final IPathImmutableCopier copier;
+
+    private final IReadPathOperations readOperations;
 
     // output: from here data are moved when processing is finished.
     private final File outputDir;
@@ -64,20 +70,21 @@ public class LocalProcessor implements IPathHandler
     private final LazyPathHandler outgoingHandler;
 
     private LocalProcessor(Parameters parameters, File outputDir, File tempDir, LazyPathHandler outgoingHandler,
-            IPathImmutableCopier copier)
+            IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
         this.outputDir = outputDir;
         this.tempDir = tempDir;
         this.outgoingHandler = outgoingHandler;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
-        this.copier = copier;
+        this.copier = factory.getImmutableCopier();
+        this.readOperations = factory.getReadAccessor();
     }
 
     public static final IPathHandler createAndRecover(Parameters parameters, File inputDir, File outputDir,
-            File bufferDir, LazyPathHandler lastStepHandler, IPathImmutableCopier copier)
+            File bufferDir, LazyPathHandler lastStepHandler, IFileSysOperationsFactory factory)
     {
-        LocalProcessor handler = new LocalProcessor(parameters, outputDir, bufferDir, lastStepHandler, copier);
+        LocalProcessor handler = new LocalProcessor(parameters, outputDir, bufferDir, lastStepHandler, factory);
         handler.recoverAfterShutdown(inputDir);
         return handler;
     }
@@ -86,13 +93,13 @@ public class LocalProcessor implements IPathHandler
 
     private void recoverAfterShutdown(File inputDir)
     {
-        recoverTemporaryExtraCopy(tempDir, inputDir, extraCopyDirOrNull);
-        recoverRegisterReadyForOutgoing(outputDir, outgoingHandler);
+        recoverTemporaryExtraCopy(inputDir);
+        recoverRegisterReadyForOutgoing();
     }
 
-    private static void recoverTemporaryExtraCopy(File tempDir, File inputDir, File extraCopyDirOrNull)
+    private void recoverTemporaryExtraCopy(File inputDir)
     {
-        final File[] files = LocalFileSystem.listFiles(tempDir);
+        final File[] files = readOperations.listFiles(tempDir, errorLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
@@ -122,9 +129,9 @@ public class LocalProcessor implements IPathHandler
         return new File(inputDir, file.getName()).exists();
     }
 
-    private static void recoverRegisterReadyForOutgoing(File outputDir, IPathHandler outgoingHandler)
+    private void recoverRegisterReadyForOutgoing()
     {
-        File[] files = LocalFileSystem.listFiles(outputDir);
+        File[] files = readOperations.listFiles(outputDir, errorLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
