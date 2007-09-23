@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -62,7 +63,7 @@ public class CmdLineHelper
     public static void logProcessExitValue(final int exitValue, final Process process, String name,
             Logger operationLog, Logger machineLog)
     {
-        new CmdLineHelper(operationLog, machineLog).logProcessExitValue(exitValue, process, name);
+        new CmdLineHelper(operationLog, machineLog).logProcessExecution(exitValue, process, name);
     }
 
     private boolean run(List<String> cmd)
@@ -92,59 +93,52 @@ public class CmdLineHelper
             machineLog.error(String.format("Execution of %s interupted", process), e2);
             return false;
         }
-        logProcessExitValue(exitValue, process, cmd.get(0).toString());
+        logProcessExecution(exitValue, process, cmd.get(0).toString());
         return (exitValue == 0);
     }
 
-    private void logProcessExitValue(final int exitValue, final Process process, String command)
+    private void logProcessExecution(final int exitValue, final Process process, String command)
     {
         if (exitValue != 0)
         {
-            primLogProcessExitValue(Level.WARN, exitValue, command);
-            logProcessOutput(process, command);
+            logProcessExitValue(Level.WARN, exitValue, command);
+            logProcessOutput(Level.WARN, process, command);
         } else if (operationLog.isDebugEnabled())
         {
-            primLogProcessExitValue(Level.DEBUG, exitValue, command);
+            logProcessExitValue(Level.DEBUG, exitValue, command);
+            logProcessOutput(Level.DEBUG, process, command);
         }
     }
 
-    private void primLogProcessExitValue(Level logLevel, final int exitValue, String command)
+    private void logProcessExitValue(final Level logLevel, final int exitValue, final String command)
     {
         if (processTerminated(exitValue))
         {
             operationLog.log(logLevel, String.format("[%s] process was destroyed.", command));
         } else
         {
-            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", command,
-                    exitValue));
+            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", command, exitValue));
         }
     }
 
-    private void logProcessOutput(final Process process, String command)
+    private void logProcessOutput(final Level logLevel, final Process process, final String command)
     {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         try
         {
-            machineLog.warn(String.format("[%s] output:", command));
+            machineLog.log(logLevel, String.format("[%s] output:", command));
             String ln;
             while ((ln = reader.readLine()) != null)
             {
                 if (ln.trim().length() > 0)
-                    machineLog.warn(String.format("\"%s\"", ln));
+                    machineLog.log(logLevel, String.format("\"%s\"", ln));
             }
         } catch (IOException e)
         {
-            operationLog.warn(String.format("IOException when trying to read stderr, msg='%s'.", e
-                    .getMessage()));
+            operationLog.warn(String.format("IOException when reading stderr, msg='%s'.", e.getMessage()));
         } finally
         {
-            try
-            {
-                reader.close();
-            } catch (IOException e)
-            {
-                // Silence this.
-            }
+            IOUtils.closeQuietly(reader);
         }
     }
 
