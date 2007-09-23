@@ -26,10 +26,12 @@ import java.io.File;
 public interface IPathImmutableCopier
 {
     /**
-     * Creates copy of <code>file</code> in <code>destinationDirectory</code> which should not be modified. Can use
-     * hard links if it is possible.
+     * Creates a copy of <code>path</code> (which may be a file or a directory) in 
+     * <code>destinationDirectory</code>, which must not be modified later.
+     * <p>
+     * <i>Can use hard links if available.</i>
      * 
-     * @return pointer to the created file or <code>null</code> if operation failed
+     * @return the new path created, or <code>null</code> if the operation fails
      */
-    File tryCopy(File file, File destinationDirectory);
+    File tryCopy(File path, File destinationDirectory);
 }

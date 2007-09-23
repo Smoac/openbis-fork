@@ -66,22 +66,23 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
     }
 
     /**
-     * Copies resource (file or directory) to <code>destinationDirectory</code> by duplicating directory structure and
-     * creating hard link for each file. Note that <code>resource</code> cannot be placed directly inside
-     * <code>destinationDirectory</code>.
+     * Copies <var>code</var> (file or directory) to <var>destinationDirectory</var> by duplicating directory
+     * structure and creating hard link for each file.
+     * <>p>
+     * <i>Note that <var>path</var> cannot be placed directly inside <var>destinationDirectory</var>.<i>
      * 
      * @return pointer to the copied resource or null if copy process failed
      */
-    public File tryCopy(File resource, File destinationDirectory)
+    public File tryCopy(File path, File destinationDirectory)
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", resource.getPath(),
+            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path.getPath(),
                     destinationDirectory.getPath()));
         }
-        String resourceParent = resource.getParentFile().getAbsolutePath();
+        String resourceParent = path.getParentFile().getAbsolutePath();
         assert resourceParent.equals(destinationDirectory.getAbsolutePath()) == false;
-        return tryMakeCopy(resource, destinationDirectory);
+        return tryMakeCopy(path, destinationDirectory);
     }
 
     private File tryMakeCopy(File resource, File destinationDirectory)
