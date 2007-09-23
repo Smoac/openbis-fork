@@ -175,7 +175,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         boolean logErrors = (errorReadingDirectory == false);
         final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
 
-        File[] paths = FileUtilities.listFiles(sourceDirectory, filter, errorLogger);
+        File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
         errorReadingDirectory = (paths == null); // Avoid mailbox flooding.
         return paths;
     }

@@ -537,7 +537,7 @@ public final class FileUtilities
      * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if <var>directory</var>
      *         does not exist or is not a directory.
      */
-    public static File[] listFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+    public static File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
     {
         File[] paths = null;
         RuntimeException ex = null;
