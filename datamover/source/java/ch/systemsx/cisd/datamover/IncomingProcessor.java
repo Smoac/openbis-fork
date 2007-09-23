@@ -77,7 +77,7 @@ public class IncomingProcessor
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.isIncomingRemote = parameters.getTreatIncomingAsRemote();
-        this.incomingReadOperations = factory.getReadAccessor();
+        this.incomingReadOperations = factory.getReadPathOperations();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
     }

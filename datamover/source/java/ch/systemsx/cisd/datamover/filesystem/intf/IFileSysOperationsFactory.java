@@ -30,5 +30,5 @@ public interface IFileSysOperationsFactory
 
     public IPathRemover getRemover();
 
-    public IReadPathOperations getReadAccessor();
+    public IReadPathOperations getReadPathOperations();
 }

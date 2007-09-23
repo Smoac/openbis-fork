@@ -78,7 +78,7 @@ public class LocalProcessor implements IPathHandler
         this.outgoingHandler = outgoingHandler;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = factory.getImmutableCopier();
-        this.readOperations = factory.getReadAccessor();
+        this.readOperations = factory.getReadPathOperations();
     }
 
     public static final IPathHandler createAndRecover(Parameters parameters, File inputDir, File outputDir,

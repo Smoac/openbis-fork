@@ -74,7 +74,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
             };
     }
 
-    public IReadPathOperations getReadAccessor()
+    public IReadPathOperations getReadPathOperations()
     {
         return new IReadPathOperations()
         {

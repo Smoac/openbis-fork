@@ -108,7 +108,7 @@ public class CopyActivityMonitorTest
                 }
                 
             };
-            this.impl = new FileSysOperationsFactory(dummyFileSysParameters).getReadAccessor();
+            this.impl = new FileSysOperationsFactory(dummyFileSysParameters).getReadPathOperations();
         }
 
         public long lastChanged(File path)

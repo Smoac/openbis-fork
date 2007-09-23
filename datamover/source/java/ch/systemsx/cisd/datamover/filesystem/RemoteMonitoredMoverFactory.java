@@ -47,7 +47,7 @@ public class RemoteMonitoredMoverFactory
     {
         final IPathCopier copier = fsFactory.getCopier(destinationDirectory);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(destinationDirectory, fsFactory.getReadAccessor(), copier, parameters);
+                new CopyActivityMonitor(destinationDirectory, fsFactory.getReadPathOperations(), copier, parameters);
         final IPathRemover remover = fsFactory.getRemover();
         return new RemotePathMover(destinationDirectory, destinationHost, monitor, remover, copier, sourceHost,
                 parameters);
