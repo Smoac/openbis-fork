@@ -200,9 +200,6 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         removeMarkerFile(removalInProgressMarkerFile);
         if (Status.OK.equals(removalStatus) == false)
         {
-            // We don't retry this, because the path is local and removal really shouldn't fail.
-            // TODO 2007-09-02, Bernd Rinn: this is no longer true, the source directory can now be remote,
-            // so we should consider retrying a failed attempt to remove it.
             notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path, removalStatus));
         } else if (operationLog.isInfoEnabled())
         {
