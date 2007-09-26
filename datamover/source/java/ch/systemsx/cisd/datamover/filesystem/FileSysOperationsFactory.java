@@ -46,6 +46,12 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  */
 public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {
+    /** The maximal number of retries when the move operation fails. */
+    private static final int MAX_RETRIES_ON_FAILURE = 12;
+
+    /** The time to sleep when the move operation has failed before retrying it. */
+    private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
+
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
 
@@ -62,17 +68,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public IPathRemover getRemover()
     {
-        return new IPathRemover()
-            {
-                private final Status STATUS_FAILED_DELETION =
-                        new Status(StatusFlag.FATAL_ERROR, "Failed to remove path.");
-
-                public Status remove(File path)
-                {
-                    final boolean deletionOK = FileUtilities.deleteRecursively(path);
-                    return deletionOK ? Status.OK : STATUS_FAILED_DELETION;
-                }
-            };
+        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
     }
 
     public IReadPathOperations getReadPathOperations()
@@ -277,6 +273,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public IPathMover getMover()
     {
-        return new LocalPathMover();
+        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
     }
 }

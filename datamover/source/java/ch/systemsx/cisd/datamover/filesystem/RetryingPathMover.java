@@ -32,20 +32,22 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
  * 
  * @author Tomasz Pylak on Aug 27, 2007
  */
-public class LocalPathMover implements IPathMover
+class RetryingPathMover implements IPathMover
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalPathMover.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalPathMover.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
+    
+    private final int maxRetriesOnFailure;
+    
+    private final long millisToSleepOnFailure;
 
-    // TODO 2007-09-11, Bernd Rinn: make this configurable
-
-    /** The maximal number of retries when the move operation fails. */
-    private static final int MAX_RETRIES_ON_FAILURE = 12;
-
-    /** The time to sleep when the move operation has failed before retrying it. */
-    private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
-
+    RetryingPathMover(int maxRetriesOnFailure, long millisToSleepOnFailure)
+    {
+        this.maxRetriesOnFailure = maxRetriesOnFailure;
+        this.millisToSleepOnFailure = millisToSleepOnFailure;
+    }
+    
     public File tryMove(File sourceFile, File destinationDir)
     {
         return tryMove(sourceFile, destinationDir, "");
@@ -83,13 +85,13 @@ public class LocalPathMover implements IPathMover
                 ++failures;
                 operationLog.warn(String.format("Moving path '%s' to directory '%s' failed (attempt %d).", sourcePath,
                         destinationDirectory, failures));
-                if (failures >= MAX_RETRIES_ON_FAILURE)
+                if (failures >= maxRetriesOnFailure)
                 {
                     break;
                 }
                 try
                 {
-                    Thread.sleep(MILLIS_TO_SLEEP_ON_FAILURE);
+                    Thread.sleep(millisToSleepOnFailure);
                 } catch (InterruptedException ex)
                 {
                     break;
