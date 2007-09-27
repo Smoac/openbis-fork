@@ -1,0 +1,23 @@
+<project name="intgration-tests" default="integration-tests" basedir="..">
+	<target name="nightly-build" depends="integration-tests" />
+
+	<target name="integration-tests">
+		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
+			<arg value="./run.sh" />
+		</exec>
+		<fail>
+			<condition>
+				<not>
+					<equals arg1="${result-code}" arg2="0" />
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
+	<target name="clean">
+		<exec executable="sh" dir="${basedir}">
+			<arg value="./run.sh" />
+			<arg value="clean" />
+		</exec>
+	</target>
+</project>

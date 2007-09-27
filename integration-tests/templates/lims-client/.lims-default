@@ -1,0 +1,3 @@
+
+service-url=https://localhost:8443/axis2/services/lims
+organization-code=DEFAULT

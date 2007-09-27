@@ -1,0 +1,4 @@
+# use control material for test purposes
+code	materialCode
+A03	SCRAM
+A04	GFP

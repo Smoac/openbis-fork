@@ -1,0 +1,6 @@
+# Example dilution plate file
+Dilution Plate	Master Plate
+3V-123	MP001-1
+3V-124	MP001-1
+3V-125	MP002-1
+3V-126	MP002-1
