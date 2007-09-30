@@ -118,9 +118,9 @@ public class DataMover
                 public boolean terminate()
                 {
                     boolean ok = true;
-                    for (int i = 0; i < terminables.length; i++)
+                    for (ITerminable terminable : terminables)
                     {
-                        ok = ok && terminables[i].terminate();
+                        ok = ok && terminable.terminate();
                     }
                     return ok;
                 }
