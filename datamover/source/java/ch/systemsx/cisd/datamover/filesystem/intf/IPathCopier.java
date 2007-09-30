@@ -34,17 +34,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
 {
 
     /**
-     * @return <code>true</code> if this copier supports explicit specifying a destination host, that is, if
-     *         {@link #copy(File, String, File, String)} may be called.
-     */
-    public boolean supportsExplicitHost();
-    
-    /**
-     * Must not be called if {@link #supportsExplicitHost()} returns <code>false</code>.
-     * 
      * @return <code>true</code> iff <var>destinationDirectory</var> on host <var>destinationHost</var> exists.
-     * @throws IllegalStateException If this copier does not support explicitely specifying a destination host, that is
-     *             if {@link #supportsExplicitHost()} returns <code>false</code>.
      */
     public boolean exists(File destinationDirectory, String destinationHost);
 
@@ -59,8 +49,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
     public Status copy(File sourcePath, File destinationDirectory);
 
     /**
-     * Copies <var>sourcePath</var> to <var>destinationDir</var> on <var>destinationHost</var>. Must not be called if
-     * {@link #supportsExplicitHost()} returns <code>false</code>.
+     * Copies <var>sourcePath</var> to <var>destinationDir</var> on <var>destinationHost</var>.
      * 
      * @param sourcePath The source to copy. Can be a file or a directory. It needs to exist and be readable.
      * @param sourceHost The host where the <var>sourcePath</var> resides or null if it is local.
@@ -68,8 +57,6 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            writable. If <var>destinationDir/sourcePath</var> exists, it will be overwritten.
      * @param destinationHost The host where the <var>destinationDirectory</var> resides  or null if it is local.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
-     * @throws IllegalStateException If this copier does not support explicitely specifying a destination host, that is
-     *             if {@link #supportsExplicitHost()} returns <code>false</code>.
      */
     public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost);
 

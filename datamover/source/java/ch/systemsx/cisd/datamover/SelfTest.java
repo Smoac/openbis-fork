@@ -125,19 +125,6 @@ public class SelfTest
     {
         try
         {
-            if (false == copier.supportsExplicitHost())
-            {
-                for (FileStore store : stores)
-                {
-                    if (null != store.getHost())
-                    {
-                        throw ConfigurationFailureException
-                                .fromTemplate(
-                                        "Copier %s does not support explicit remote hosts, but %s store is on a remote host (%s)",
-                                        copier.getClass().getSimpleName(), store.getKind(), store.getHost());
-                    }
-                }
-            }
             copier.check();
             checkPathRecords(stores, copier);
 

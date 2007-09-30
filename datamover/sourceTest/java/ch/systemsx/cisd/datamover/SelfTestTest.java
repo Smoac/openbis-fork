@@ -55,7 +55,7 @@ public class SelfTestTest
 
     private static final FileStore dummyStore = new FileStore(null, "dummy", null, false);
 
-    private static final IPathCopier mockCopier = new MockPathCopier(false, false);
+    private static final IPathCopier mockCopier = new MockPathCopier(false);
 
     // ////////////////////////////////////////
     // Initialization methods.
@@ -89,17 +89,14 @@ public class SelfTestTest
 
     private static class MockPathCopier implements IPathCopier
     {
-        private final boolean supportsExplicitHost;
-
         private final boolean existRemote;
 
         File destinationDirectoryQueried;
 
         String destinationHostQueried;
 
-        MockPathCopier(boolean supportsExplicitHost, boolean existRemote)
+        MockPathCopier(boolean existRemote)
         {
-            this.supportsExplicitHost = supportsExplicitHost;
             this.existRemote = existRemote;
         }
 
@@ -115,7 +112,6 @@ public class SelfTestTest
 
         public boolean exists(File destinationDirectory, String destinationHost)
         {
-            assert supportsExplicitHost;
             assert destinationDirectoryQueried == null;
             assert destinationHostQueried == null;
             assert destinationDirectory != null;
@@ -124,11 +120,6 @@ public class SelfTestTest
             destinationDirectoryQueried = destinationDirectory;
             destinationHostQueried = destinationHost;
             return existRemote;
-        }
-
-        public boolean supportsExplicitHost()
-        {
-            return supportsExplicitHost;
         }
 
         public boolean terminate()
@@ -157,7 +148,7 @@ public class SelfTestTest
     {
         final String outgoingHost = "some_remote_host";
         final FileStore remoteHostOutgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
-        final MockPathCopier myMockCopier = new MockPathCopier(true, true);
+        final MockPathCopier myMockCopier = new MockPathCopier(true);
         SelfTest.check(myMockCopier, incomingStore, bufferStore, remoteHostOutgoingStore, dummyStore);
         assert outgoingHost.equals(myMockCopier.destinationHostQueried);
         assert outgoingDirectory.equals(myMockCopier.destinationDirectoryQueried);
@@ -186,20 +177,11 @@ public class SelfTestTest
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
-    public void testRemoteHostNotSupported()
-    {
-        final String remoteHost = "some_remote_host";
-        final FileStore outgoingStoreWithRemoteHost = new FileStore(outgoingDirectory, "outgoing", remoteHost, true);
-        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
-    }
-
-    @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testRemoteHostAndDirectoryDoesNotExist()
     {
         final String remoteHost = "some_remote_host";
         final FileStore outgoingStoreWithRemoteHost = new FileStore(outgoingDirectory, "outgoing", remoteHost, true);
-        final MockPathCopier myMockCopier = new MockPathCopier(true, false);
-        SelfTest.check(myMockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
+        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
     }
 
 }
