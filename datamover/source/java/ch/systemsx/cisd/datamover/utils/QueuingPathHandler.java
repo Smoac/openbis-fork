@@ -33,23 +33,23 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
-public class LazyPathHandler implements ITerminable, IPathHandler
+public class QueuingPathHandler implements ITerminable, IPathHandler
 {
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LazyPathHandler.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, QueuingPathHandler.class);
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LazyPathHandler.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, QueuingPathHandler.class);
 
     private final PathHandlerThread thread;
 
-    private LazyPathHandler(PathHandlerThread thread)
+    private QueuingPathHandler(PathHandlerThread thread)
     {
         this.thread = thread;
     }
 
-    public static LazyPathHandler create(final IPathHandler handler, String threadName)
+    public static QueuingPathHandler create(final IPathHandler handler, String threadName)
     {
         PathHandlerThread thread = new PathHandlerThread(handler);
-        final LazyPathHandler lazyHandler = new LazyPathHandler(thread);
+        final QueuingPathHandler lazyHandler = new QueuingPathHandler(thread);
         thread.setName(threadName);
         thread.start();
         return lazyHandler;

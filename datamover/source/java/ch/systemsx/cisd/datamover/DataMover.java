@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.FileStore;
-import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
+import ch.systemsx.cisd.datamover.utils.QueuingPathHandler;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
@@ -80,10 +80,10 @@ public class DataMover
 
     private ITerminable start()
     {
-        LazyPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
-        LazyPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
+        QueuingPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
+        QueuingPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
         ITerminable incomingProcessor = startupIncomingMovingProcess(localProcessor);
-        return createTerminable(outgoingProcessor, localProcessor, incomingProcessor);
+        return createCompoundTerminable(outgoingProcessor, localProcessor, incomingProcessor);
     }
 
     private ITerminable startupIncomingMovingProcess(IPathHandler localProcessor)
@@ -91,18 +91,18 @@ public class DataMover
         return IncomingProcessor.startupMovingProcess(parameters, factory, bufferDirs, localProcessor);
     }
 
-    private LazyPathHandler startupLocalProcessing(LazyPathHandler outgoingHandler)
+    private QueuingPathHandler startupLocalProcessing(QueuingPathHandler outgoingHandler)
     {
-        final IPathHandler localProcesingHandler =
+        final IPathHandler localProcessingHandler =
                 LocalProcessor.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
                         .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, factory);
-        return LazyPathHandler.create(localProcesingHandler, "Local Processor");
+        return QueuingPathHandler.create(localProcessingHandler, "Local Processor");
     }
 
-    private LazyPathHandler startupOutgoingMovingProcess(FileStore outputDir)
+    private QueuingPathHandler startupOutgoingMovingProcess(FileStore outputDir)
     {
         final IPathHandler remoteMover = createRemotePathMover(null, outputDir.getPath(), outputDir.getHost());
-        return LazyPathHandler.create(remoteMover, "Final Destination Mover");
+        return QueuingPathHandler.create(remoteMover, "Final Destination Mover");
     }
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
@@ -111,7 +111,7 @@ public class DataMover
                 parameters);
     }
 
-    private static ITerminable createTerminable(final ITerminable... terminables)
+    private static ITerminable createCompoundTerminable(final ITerminable... terminables)
     {
         return new ITerminable()
             {
