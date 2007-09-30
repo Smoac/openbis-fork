@@ -93,7 +93,7 @@ public class IncomingProcessor
     private ITerminable startupIncomingMovingProcess(FileStore incomingStore, IPathHandler localProcessor)
     {
         IPathHandler pathHandler = createIncomingMovingPathHandler(incomingStore.getHost(), localProcessor);
-        FileFilter filter = createQuitePeriodFilter();
+        FileFilter filter = createQuietPeriodFilter();
 
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler);
@@ -118,7 +118,7 @@ public class IncomingProcessor
             };
     }
 
-    private FileFilter createQuitePeriodFilter()
+    private FileFilter createQuietPeriodFilter()
     {
         FileFilter quitePeriodFilter = new QuietPeriodFileFilter(parameters, incomingReadOperations);
         FileFilter filterDeletionMarkers = new NamePrefixFileFilter(Constants.DELETION_IN_PROGRESS_PREFIX, false);
