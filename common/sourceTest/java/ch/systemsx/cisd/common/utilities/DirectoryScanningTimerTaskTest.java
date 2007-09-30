@@ -88,11 +88,10 @@ public class DirectoryScanningTimerTaskTest
             handledPaths.clear();
         }
 
-        public boolean handle(File path)
+        public void handle(File path)
         {
             handledPaths.add(path);
             path.delete();
-            return true;
         }
 
     }
@@ -234,14 +233,14 @@ public class DirectoryScanningTimerTaskTest
                 boolean firstTime = true;
 
                 @Override
-                public boolean handle(File path)
+                public void handle(File path)
                 {
                     if (firstTime)
                     {
                         firstTime = false;
-                        return false;
+                        return;
                     }
-                    return super.handle(path);
+                    super.handle(path);
                 }
             };
         someFile.createNewFile();

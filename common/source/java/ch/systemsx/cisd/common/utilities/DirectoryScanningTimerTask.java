@@ -80,12 +80,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     public interface IPathHandler
     {
         /**
-         * Handles the <var>path</var>.
-         * 
-         * @return <code>true</code> if the <var>path</var> has been handled correctly and <code>false</code>
-         *         otherwise.
+         * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone when the method
+         * returns.
          */
-        public boolean handle(File path);
+        public void handle(File path);
     }
 
     /**
@@ -204,12 +202,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         }
         try
         {
-            final boolean handledOK = handler.handle(path);
-            if (handledOK && path.exists())
-            {
-                operationLog.warn(String.format("Handler %s reports path '%s' be handled OK, but path still exists.",
-                        handler.getClass().getSimpleName(), path));
-            }
+            handler.handle(path);
         } finally
         {
             if (path.exists())
@@ -218,7 +211,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             }
         }
     }
-    
+
     private void addToFaultyPaths(File path)
     {
         faultyPaths.add(path);
