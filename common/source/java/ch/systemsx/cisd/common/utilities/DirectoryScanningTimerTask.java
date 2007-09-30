@@ -75,18 +75,6 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     private long faultyPathsLastChanged;
 
     /**
-     * A handler for paths. The paths are supposed to go away when they have been handled successfully.
-     */
-    public interface IPathHandler
-    {
-        /**
-         * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone when the method
-         * returns.
-         */
-        public void handle(File path);
-    }
-
-    /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
      * @param sourceDirectory The directory to scan for entries.

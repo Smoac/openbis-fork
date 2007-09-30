@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 
 /**
