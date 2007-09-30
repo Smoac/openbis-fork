@@ -18,8 +18,8 @@ package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.FileStore;

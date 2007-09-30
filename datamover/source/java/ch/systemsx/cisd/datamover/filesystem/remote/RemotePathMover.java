@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  * 
  * @author Bernd Rinn
  */
-public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHandler
+public final class RemotePathMover implements IPathHandler
 {
 
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";

@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
 
 /**
  * Asynchronous path handler. Queues tasks and processes them in a separate thread. Use {{@link #terminate()} to clean

@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IPathHandler;
 
 /**
  * Test cases for the {@link QueuingPathHandler}.
