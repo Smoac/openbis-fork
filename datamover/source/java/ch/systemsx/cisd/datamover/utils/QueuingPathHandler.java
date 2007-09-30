@@ -61,13 +61,10 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
 
         private final IPathHandler handler;
 
-        private boolean terminate;
-
         public PathHandlerThread(IPathHandler handler)
         {
             this.queue = new LinkedBlockingQueue<File>();
             this.handler = handler;
-            this.terminate = false;
         }
 
         @Override
@@ -75,7 +72,7 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
         {
             try
             {
-                while (terminate == false)
+                while (isInterrupted() == false)
                 {
                     try
                     {
@@ -84,10 +81,6 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
                         logHandlingResult(resource, ok);
                     } catch (InterruptedException ex)
                     {
-                        if (!terminate)
-                        {
-                            operationLog.info("Processing was unexpectedly interrupted. Thread stops.");
-                        }
                         return;
                     }
                 }
@@ -114,21 +107,11 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
             queue.add(resource);
         }
 
-        public synchronized void terminate()
-        {
-            this.terminate = true;
-        }
-
-        public synchronized boolean isTerminated()
-        {
-            return terminate;
-        }
     }
 
     /** cleans resources */
     public boolean terminate()
     {
-        thread.terminate();
         thread.interrupt();
         return true;
     }
@@ -140,7 +123,8 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
      */
     public boolean handle(File resource)
     {
-        assert thread.isTerminated() == false;
+        assert thread.isInterrupted() == false;
+        
         thread.process(resource);
         return true;
     }
