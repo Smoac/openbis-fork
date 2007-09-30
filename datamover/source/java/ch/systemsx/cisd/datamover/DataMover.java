@@ -20,10 +20,10 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.QueuingPathHandler;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.FileStore;
-import ch.systemsx.cisd.datamover.utils.QueuingPathHandler;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
