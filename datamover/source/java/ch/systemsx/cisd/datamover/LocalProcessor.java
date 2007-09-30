@@ -34,7 +34,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
-import ch.systemsx.cisd.datamover.utils.LazyPathHandler;
 
 /**
  * Processing of the files on the local machine. This class does not scan its input directory, all resources must
@@ -69,9 +68,9 @@ public class LocalProcessor implements IPathHandler
 
     private final File extraCopyDirOrNull;
 
-    private final LazyPathHandler outgoingHandler;
+    private final IPathHandler outgoingHandler;
 
-    private LocalProcessor(Parameters parameters, File outputDir, File tempDir, LazyPathHandler outgoingHandler,
+    private LocalProcessor(Parameters parameters, File outputDir, File tempDir, IPathHandler outgoingHandler,
             IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
@@ -85,7 +84,7 @@ public class LocalProcessor implements IPathHandler
     }
 
     public static final IPathHandler createAndRecover(Parameters parameters, File inputDir, File outputDir,
-            File bufferDir, LazyPathHandler lastStepHandler, IFileSysOperationsFactory factory)
+            File bufferDir, IPathHandler lastStepHandler, IFileSysOperationsFactory factory)
     {
         LocalProcessor handler = new LocalProcessor(parameters, outputDir, bufferDir, lastStepHandler, factory);
         handler.recoverAfterShutdown(inputDir);
