@@ -147,15 +147,14 @@ public class LocalProcessor implements IPathHandler
 
     // ----------------
 
-    public boolean handle(File path)
+    public void handle(File path)
     {
-        final Boolean result = tryMoveManualOrClean(path);
-        if (result != null)
+        final boolean continueProcessing = doMoveManualOrClean(path);
+        if (continueProcessing == false)
         {
-            return result.booleanValue(); // stop processing
+            return; // stop processing
         }
 
-        boolean ok = true;
         File extraTmpCopy = null;
         if (extraCopyDirOrNull != null)
         {
@@ -163,7 +162,6 @@ public class LocalProcessor implements IPathHandler
             if (extraTmpCopy == null)
             {
                 notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
-                ok = false;
             }
         }
 
@@ -175,7 +173,6 @@ public class LocalProcessor implements IPathHandler
         {
             notificationLog.error(String
                     .format("Moving '%s' to '%s' for final moving process failed.", path, outputDir));
-            ok = false;
         }
 
         if (extraTmpCopy != null)
@@ -186,22 +183,20 @@ public class LocalProcessor implements IPathHandler
             {
                 notificationLog.error(String.format("Moving temporary extra copy '%s' to destination '%s' failed.",
                         extraTmpCopy, extraCopyDirOrNull));
-                ok = false;
             }
         }
-        return ok;
     }
 
-    // @return true if succeeded, false if failed, null if succeeded and file still exists
-    private Boolean tryMoveManualOrClean(File file)
+    // @return true if processing needs to continue, false otherwise
+    private boolean doMoveManualOrClean(File file)
     {
         final EFileManipResult manualMoveStatus = doManualIntervention(file);
         if (manualMoveStatus == EFileManipResult.FAILURE)
         {
-            return Boolean.FALSE;
+            return false; // stop processing
         } else if (manualMoveStatus == EFileManipResult.STOP)
         {
-            return Boolean.TRUE;
+            return false; // stop processing
         } else if (manualMoveStatus == EFileManipResult.CONTINUE)
         {
             // continue processing
@@ -209,9 +204,9 @@ public class LocalProcessor implements IPathHandler
         final boolean wholeDeleted = doCleansing(file);
         if (wholeDeleted)
         {
-            return Boolean.TRUE;
+            return false; // stop processing
         }
-        return null; // else continue processing
+        return true; // continue processing
 
     }
 
@@ -245,7 +240,7 @@ public class LocalProcessor implements IPathHandler
             manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
         }
 
-        boolean filtered = manualInterventionFilter.accept(resource);
+        final boolean filtered = manualInterventionFilter.accept(resource);
         if (filtered)
         {
             log(resource, "Moving to manual intervention directory");

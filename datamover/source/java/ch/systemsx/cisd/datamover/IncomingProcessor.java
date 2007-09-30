@@ -142,37 +142,38 @@ public class IncomingProcessor
     {
         return new IPathHandler()
             {
-                public boolean handle(File sourceFile)
+                public void handle(File sourceFile)
                 {
                     if (isIncomingRemote)
                     {
-                        return moveFromRemoteIncoming(sourceFile, sourceHostOrNull, localProcessor);
+                        moveFromRemoteIncoming(sourceFile, sourceHostOrNull, localProcessor);
                     } else
                     {
-                        return moveFromLocalIncoming(sourceFile, localProcessor);
+                        moveFromLocalIncoming(sourceFile, localProcessor);
                     }
                 }
             };
     }
 
-    private boolean moveFromLocalIncoming(File source, IPathHandler localProcessor)
+    private void moveFromLocalIncoming(File source, IPathHandler localProcessor)
     {
         final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
         if (finalFile == null)
         {
-            return false;
+            return;
         }
-        return localProcessor.handle(finalFile);
+        localProcessor.handle(finalFile);
     }
 
-    private boolean moveFromRemoteIncoming(File source, String sourceHostOrNull, IPathHandler localProcessor)
+    private void moveFromRemoteIncoming(File source, String sourceHostOrNull, IPathHandler localProcessor)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
-        final boolean ok = moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
-        if (ok == false)
+        moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
+        final File destFile = new File(copyInProgressDir, source.getName());
+        if (destFile.exists() == false)
         {
-            return false;
+            return;
         }
         final File copiedFile = new File(copyInProgressDir, source.getName());
         assert copiedFile.exists() : copiedFile.getAbsolutePath();
@@ -183,12 +184,11 @@ public class IncomingProcessor
         final File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
         if (finalFile == null)
         {
-            return false;
+            return;
         }
 
         // 3. schedule local processing, always successful
         localProcessor.handle(finalFile);
-        return true;
     }
 
     private File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
@@ -207,9 +207,9 @@ public class IncomingProcessor
         }
     }
 
-    private boolean moveFromRemoteToLocal(File source, String sourceHostOrNull, File localDestDir)
+    private void moveFromRemoteToLocal(File source, String sourceHostOrNull, File localDestDir)
     {
-        return createRemotePathMover(sourceHostOrNull, localDestDir, null).handle(source);
+        createRemotePathMover(sourceHostOrNull, localDestDir, null).handle(source);
     }
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)

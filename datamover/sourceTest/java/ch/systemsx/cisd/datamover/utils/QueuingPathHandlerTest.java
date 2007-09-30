@@ -58,7 +58,7 @@ public class QueuingPathHandlerTest
             this(0, 0L);
         }
 
-        public boolean handle(File path)
+        public void handle(File path)
         {
             if (handled.size() + 1 == blockBeforeFile)
             {
@@ -68,11 +68,10 @@ public class QueuingPathHandlerTest
                 } catch (InterruptedException ex)
                 {
                     interrupted = true;
-                    return false;
+                    return;
                 }
             }
             handled.add(path);
-            return true;
         }
 
         List<File> getHandledFiles()

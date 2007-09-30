@@ -77,8 +77,8 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
                     try
                     {
                         File resource = queue.take(); // blocks if empty
-                        boolean ok = handler.handle(resource);
-                        logHandlingResult(resource, ok);
+                        handler.handle(resource);
+                        logHandlingResult(resource, resource.exists() == false);
                     } catch (InterruptedException ex)
                     {
                         return;
@@ -118,14 +118,11 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
 
     /**
      * queues resource processing and exits immediately
-     * 
-     * @return always true
      */
-    public boolean handle(File resource)
+    public void handle(File resource)
     {
         assert thread.isInterrupted() == false;
         
         thread.process(resource);
-        return true;
     }
 }

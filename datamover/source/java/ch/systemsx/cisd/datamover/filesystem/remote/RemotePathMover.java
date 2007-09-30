@@ -120,11 +120,11 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         assert maximalNumberOfRetries >= 0;
     }
 
-    public boolean handle(File path)
+    public void handle(File path)
     {
         if (isDeletionInProgress(path))
         {
-            // That is a recovery situation: we have been interrupted removing the path and now finish the job.
+            // This is a recovery situation: we have been interrupted removing the path and now finish the job.
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format(
@@ -132,7 +132,8 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
                                 .getAbsolutePath()));
             }
             remove(path);
-            return markAsFinished(path);
+            markAsFinished(path);
+            return;
         }
         int tryCount = 0;
         do
@@ -162,9 +163,8 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
                             .getPath(), (endTime - startTime) / 1000.0));
                 }
                 remove(path);
-                // Note: we return true even if removal of the directory failed. There is no point in retrying the
-                // operation.
-                return markAsFinished(path);
+                markAsFinished(path);
+                return;
             } else
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, path.getPath(), destinationDirectory
@@ -190,7 +190,6 @@ public final class RemotePathMover implements DirectoryScanningTimerTask.IPathHa
         } while (true);
 
         notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE, path, destinationDirectory));
-        return false;
     }
 
     private void remove(File path)
