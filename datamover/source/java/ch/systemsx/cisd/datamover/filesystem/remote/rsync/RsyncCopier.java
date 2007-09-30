@@ -359,12 +359,4 @@ public class RsyncCopier implements IPathCopier
         return watchDog;
     }
 
-    /**
-     * @return <code>true</code>
-     */
-    public boolean supportsExplicitHost()
-    {
-        return true;
-    }
-
 }
