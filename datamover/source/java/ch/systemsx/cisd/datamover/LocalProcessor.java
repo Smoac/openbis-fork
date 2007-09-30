@@ -139,9 +139,9 @@ public class LocalProcessor implements IPathHandler
             return; // directory is empty, no recovery is needed
         }
 
-        for (int i = 0; i < files.length; i++)
+        for (File file : files)
         {
-            outgoingHandler.handle(files[i]);
+            outgoingHandler.handle(file);
         }
     }
 
