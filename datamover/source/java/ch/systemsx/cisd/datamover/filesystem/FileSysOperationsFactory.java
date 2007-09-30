@@ -37,7 +37,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
-import ch.systemsx.cisd.datamover.filesystem.remote.XcopyCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
@@ -146,9 +145,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         if (rsyncExecutable != null)
         {
             return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation);
-        } else if (OSUtilities.isWindows())
-        {
-            return new XcopyCopier(OSUtilities.findExecutable("xcopy"), requiresDeletionBeforeCreation);
         } else
         {
             throw new ConfigurationFailureException("Unable to find a copy engine.");
