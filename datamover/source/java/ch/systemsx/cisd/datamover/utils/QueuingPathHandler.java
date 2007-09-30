@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IPathHandler
 public class QueuingPathHandler implements ITerminable, IPathHandler
 {
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, QueuingPathHandler.class);
-
+    
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, QueuingPathHandler.class);
 
     private final PathHandlerThread thread;
@@ -76,9 +76,16 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
                 {
                     try
                     {
-                        File resource = queue.take(); // blocks if empty
-                        handler.handle(resource);
-                        logHandlingResult(resource, resource.exists() == false);
+                        if (operationLog.isTraceEnabled())
+                        {
+                            operationLog.trace("Waiting for new element in queue.");
+                        }
+                        File path = queue.take(); // blocks if empty
+                        if (operationLog.isTraceEnabled())
+                        {
+                            operationLog.trace("Processing path '" + path + "'");
+                        }
+                        handler.handle(path);
                     } catch (InterruptedException ex)
                     {
                         return;
@@ -91,18 +98,7 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
             }
         }
 
-        private void logHandlingResult(File resource, boolean ok)
-        {
-            if (ok)
-            {
-                operationLog.info("Processing succeded: " + resource.getAbsolutePath());
-            } else
-            {
-                operationLog.error("Processing failed: " + resource.getAbsolutePath());
-            }
-        }
-
-        public synchronized void process(File resource)
+        private synchronized void queue(File resource)
         {
             queue.add(resource);
         }
@@ -112,17 +108,25 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
     /** cleans resources */
     public boolean terminate()
     {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Terminating thread '" + thread.getName() + "'");
+        }
         thread.interrupt();
         return true;
     }
 
     /**
-     * queues resource processing and exits immediately
+     * Queues <var>path</var> processing and exits immediately.
      */
-    public void handle(File resource)
+    public void handle(File path)
     {
         assert thread.isInterrupted() == false;
         
-        thread.process(resource);
+        if (operationLog.isTraceEnabled())
+        {
+            operationLog.trace("Queing path '" + path + "'");
+        }
+        thread.queue(path);
     }
 }
