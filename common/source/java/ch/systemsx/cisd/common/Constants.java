@@ -32,5 +32,8 @@ public class Constants
 
     /** The prefix of marker files that indicate that the processing of some path is finished. */
     public static final String DELETION_IN_PROGRESS_PREFIX = MARKER_PREFIX + "deletion_in_progress_";
+    
+    /** Name of marker file to trigger recovery operations. */
+    public static final String RECOVERY_MARKER_FIILENAME = MARKER_PREFIX + "recovery";
 
 }

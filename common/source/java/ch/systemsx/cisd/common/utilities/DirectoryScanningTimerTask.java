@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -62,7 +63,11 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private final IPathHandler handler;
 
+    private final IRecoverable recoverableOrNull;
+
     private final File sourceDirectory;
+
+    private final File recoveryTriggerFile;
 
     private boolean errorReadingDirectory;
 
@@ -75,24 +80,42 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     private long faultyPathsLastChanged;
 
     /**
+     * Convenience form of
+     * {@link DirectoryScanningTimerTask#DirectoryScanningTimerTask(File, FileFilter, IPathHandler, IRecoverable)} with
+     * <var>recoverableOrNull</var> equal to <code>null</code>.
+     */
+    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler)
+    {
+        this(sourceDirectory, filter, handler, null);
+    }
+
+    /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
+     * <p>
+     * Performs a recovery if <var>recoverableOrNull</var> is not <code>null</code>.
      * 
      * @param sourceDirectory The directory to scan for entries.
      * @param filter The file filter that picks the entries to handle.
      * @param handler The handler that is used for treating the matching paths.
+     * @param recoverableOrNull The handler that can perform a recovery action, or <code>null</code> if there is no
+     *            recovery action available.
      */
-    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler)
+    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler,
+            IRecoverable recoverableOrNull)
     {
         assert sourceDirectory != null;
         assert filter != null;
         assert handler != null;
 
         this.sourceDirectory = sourceDirectory;
+        this.recoveryTriggerFile = new File(sourceDirectory, Constants.RECOVERY_MARKER_FIILENAME);
         this.filter = filter;
         this.handler = handler;
+        this.recoverableOrNull = recoverableOrNull;
         this.faultyPaths = new HashSet<File>();
         this.faultyPathsFile = new File(sourceDirectory, FAULTY_PATH_FILENAME);
         faultyPathsFile.delete();
+        runRecover();
     }
 
     /**
@@ -103,16 +126,17 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     {
         try
         {
+            if (recoveryTriggerFile.exists())
+            {
+                runRecover();
+                recoveryTriggerFile.delete();
+            }
             if (operationLog.isTraceEnabled())
             {
                 operationLog.trace("Start scanning directory " + sourceDirectory + ".");
             }
             checkForFaultyPathsFileChanged();
             final File[] paths = listFiles();
-            if (paths == null) // Means: error reading directory listing
-            {
-                return;
-            }
             // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
             // when doing online quality control of measurements.
             Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
@@ -132,6 +156,19 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         {
             notificationLog.error("An exception has occurred. (thread still running)", ex);
         }
+    }
+
+    private void runRecover()
+    {
+        if (recoverableOrNull != null)
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Triggering recovery on directory '" + sourceDirectory + "'.");
+            }
+            recoverableOrNull.recover();
+        }
+
     }
 
     private void checkForFaultyPathsFileChanged()
@@ -161,9 +198,9 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         boolean logErrors = (errorReadingDirectory == false);
         final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
 
-        File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
+        final File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
         errorReadingDirectory = (paths == null); // Avoid mailbox flooding.
-        return paths;
+        return (paths == null) ? new File[0] : paths;
     }
 
     private ISimpleLogger createSimpleErrorLogger()
@@ -219,4 +256,5 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             throw new ConfigurationFailureException(errorMessage);
         }
     }
+
 }

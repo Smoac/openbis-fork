@@ -45,7 +45,7 @@ public class QueuingPathHandlerTest
         private final int blockBeforeFile;
 
         private final long blockMillis;
-        
+
         private boolean interrupted;
 
         RecordingIPathHandler(int blockBeforeFile, long blockMillis)
@@ -79,7 +79,7 @@ public class QueuingPathHandlerTest
         {
             return handled;
         }
-        
+
         boolean isInterrupted()
         {
             return interrupted;
@@ -124,7 +124,7 @@ public class QueuingPathHandlerTest
         final int FILES_TO_PROCESS = 4;
         for (int i = 0; i < 10; ++i)
         {
-            final File f = new File("File " + i); 
+            final File f = new File("File " + i);
             if (i < FILES_TO_PROCESS)
             {
                 processedFileList.add(f);
@@ -144,6 +144,34 @@ public class QueuingPathHandlerTest
         Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
         assertTrue(blocker.isInterrupted());
         assertEquals(processedFileList, blocker.getHandledFiles());
+    }
+
+    private static class RecordingRecoverable implements IRecoverable
+    {
+        boolean recoverCalled;
+
+        public void recover()
+        {
+            recoverCalled = true;
+        }
+    }
+
+    @Test
+    public void testRecovery() throws InterruptedException
+    {
+        final File testFile = new File("test_file_to_handle");
+        final RecordingIPathHandler recordingHandler = new RecordingIPathHandler();
+        final RecordingRecoverable recordingRecoverable = new RecordingRecoverable();
+        final QueuingPathHandler qPathHandler =
+                QueuingPathHandler.create(recordingHandler, recordingRecoverable, "test-thread");
+        Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
+        assertTrue(recordingRecoverable.recoverCalled);
+        recordingRecoverable.recoverCalled = false;
+        qPathHandler.handle(testFile);
+        qPathHandler.recover();
+        Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
+        assertTrue(recordingRecoverable.recoverCalled);
+        assertEquals(Collections.singletonList(testFile), recordingHandler.getHandledFiles());
     }
 
 }

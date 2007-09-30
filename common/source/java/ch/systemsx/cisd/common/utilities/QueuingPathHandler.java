@@ -31,10 +31,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
-public class QueuingPathHandler implements ITerminable, IPathHandler
+public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverable
 {
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, QueuingPathHandler.class);
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, QueuingPathHandler.class);
 
     private final PathHandlerThread thread;
@@ -46,8 +46,18 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
 
     public static QueuingPathHandler create(final IPathHandler handler, String threadName)
     {
-        PathHandlerThread thread = new PathHandlerThread(handler);
+        return create(handler, null, threadName);
+    }
+
+    public static QueuingPathHandler create(final IPathHandler handler, final IRecoverable recoverableOrNull,
+            String threadName)
+    {
+        assert handler != null;
+        assert threadName != null;
+
+        final PathHandlerThread thread = new PathHandlerThread(handler, recoverableOrNull);
         final QueuingPathHandler lazyHandler = new QueuingPathHandler(thread);
+        lazyHandler.recover();
         thread.setName(threadName);
         thread.start();
         return lazyHandler;
@@ -55,14 +65,19 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
 
     private static class PathHandlerThread extends Thread
     {
+        private static final File DUMMY_FILE = new File(".");
+        
         private final BlockingQueue<File> queue;
 
         private final IPathHandler handler;
 
-        public PathHandlerThread(IPathHandler handler)
+        private final IRecoverable recoverableOrNull;
+
+        public PathHandlerThread(IPathHandler handler, IRecoverable recoverableOrNull)
         {
             this.queue = new LinkedBlockingQueue<File>();
             this.handler = handler;
+            this.recoverableOrNull = recoverableOrNull;
         }
 
         @Override
@@ -79,11 +94,17 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
                             operationLog.trace("Waiting for new element in queue.");
                         }
                         File path = queue.take(); // blocks if empty
-                        if (operationLog.isTraceEnabled())
+                        if (path == DUMMY_FILE)
                         {
-                            operationLog.trace("Processing path '" + path + "'");
+                            runRecover();
+                        } else
+                        {
+                            if (operationLog.isTraceEnabled())
+                            {
+                                operationLog.trace("Processing path '" + path + "'");
+                            }
+                            handler.handle(path);
                         }
-                        handler.handle(path);
                     } catch (InterruptedException ex)
                     {
                         return;
@@ -96,14 +117,33 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
             }
         }
 
-        private synchronized void queue(File resource)
+        synchronized void queue(File resource)
         {
             queue.add(resource);
         }
 
+        private void runRecover()
+        {
+            if (recoverableOrNull != null)
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Triggering recovery.");
+                }
+                recoverableOrNull.recover();
+            }
+        }
+
+        void queueRecover()
+        {
+            queue(DUMMY_FILE);
+        }
+
     }
 
-    /** cleans resources */
+    /**
+     * Interrupts the processing thread.
+     */
     public boolean terminate()
     {
         if (operationLog.isInfoEnabled())
@@ -120,11 +160,17 @@ public class QueuingPathHandler implements ITerminable, IPathHandler
     public void handle(File path)
     {
         assert thread.isInterrupted() == false;
-        
+
         if (operationLog.isTraceEnabled())
         {
             operationLog.trace("Queing path '" + path + "'");
         }
         thread.queue(path);
     }
+
+    public void recover()
+    {
+        thread.queueRecover();
+    }
+
 }
