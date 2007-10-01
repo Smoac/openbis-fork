@@ -86,17 +86,18 @@ public class DataMover
         return createCompoundTerminable(outgoingProcessor, localProcessor, incomingProcessor);
     }
 
-    private ITerminable startupIncomingMovingProcess(IPathHandler localProcessor)
+    private ITerminable startupIncomingMovingProcess(QueuingPathHandler localProcessor)
     {
-        return IncomingProcessor.startupMovingProcess(parameters, factory, bufferDirs, localProcessor);
+        return IncomingProcessor.startupMovingProcess(parameters, factory, bufferDirs, localProcessor, localProcessor);
     }
 
     private QueuingPathHandler startupLocalProcessing(QueuingPathHandler outgoingHandler)
     {
-        final IPathHandler localProcessingHandler =
+        final IPathHandlerRecoverable localProcessingHandlerAndRecoverable =
                 LocalProcessor.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
                         .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, factory);
-        return QueuingPathHandler.create(localProcessingHandler, "Local Processor");
+        return QueuingPathHandler.create(localProcessingHandlerAndRecoverable, localProcessingHandlerAndRecoverable,
+                "Local Processor");
     }
 
     private QueuingPathHandler startupOutgoingMovingProcess(FileStore outputDir)

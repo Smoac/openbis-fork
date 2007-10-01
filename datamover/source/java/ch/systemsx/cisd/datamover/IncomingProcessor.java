@@ -14,6 +14,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IRecoverable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
@@ -49,13 +50,13 @@ public class IncomingProcessor
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
     private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
-    
+
     private final Parameters parameters;
 
     private final IFileSysOperationsFactory factory;
 
     private final IReadPathOperations incomingReadOperations;
-    
+
     private final IPathMover pathMover;
 
     private final LocalBufferDirs bufferDirs;
@@ -65,13 +66,20 @@ public class IncomingProcessor
     private final String prefixForIncoming;
 
     public static final ITerminable startupMovingProcess(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs bufferDirs, IPathHandler localProcessor)
+            LocalBufferDirs bufferDirs, final IPathHandler localProcessor, final IRecoverable localRecoverable)
     {
-        IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
-        FileStore incomingStore = parameters.getIncomingStore();
+        final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
+        final FileStore incomingStore = parameters.getIncomingStore();
 
-        processor.recoverIncomingAfterShutdown(incomingStore, localProcessor);
-        return processor.startupIncomingMovingProcess(incomingStore, localProcessor);
+        final IRecoverable recoverable = new IRecoverable()
+        {
+            public void recover()
+            {
+                localRecoverable.recover();
+                processor.recoverIncomingAfterShutdown(incomingStore, localProcessor);
+            }
+        };
+        return processor.startupIncomingMovingProcess(incomingStore, localProcessor, recoverable);
     }
 
     private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
@@ -87,16 +95,26 @@ public class IncomingProcessor
 
     private void recoverIncomingAfterShutdown(FileStore incomingStore, IPathHandler localProcessor)
     {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Recover starts.");
+        }
         new IncomingProcessorRecovery().recoverIncomingAfterShutdown(incomingStore, localProcessor);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Recover finishs.");
+        }
     }
 
-    private ITerminable startupIncomingMovingProcess(FileStore incomingStore, IPathHandler localProcessor)
+    private ITerminable startupIncomingMovingProcess(FileStore incomingStore, IPathHandler localProcessor,
+            IRecoverable recoverable)
     {
         IPathHandler pathHandler = createIncomingMovingPathHandler(incomingStore.getHost(), localProcessor);
         FileFilter filter = createQuietPeriodFilter();
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler);
+                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler, recoverable);
+        movingTask.recover();
         final Timer movingTimer = new Timer("Mover of Incoming Data");
         // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
         // remote share. The rationale behind this is that if new items are
@@ -214,7 +232,8 @@ public class IncomingProcessor
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
     {
-        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory, parameters);
+        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory,
+                parameters);
     }
 
     private File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)

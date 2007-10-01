@@ -41,12 +41,12 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
-public class LocalProcessor implements IPathHandler
+public class LocalProcessor implements IPathHandlerRecoverable
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
-    
+
     private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
-    
+
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
     private final Parameters parameters;
@@ -54,8 +54,11 @@ public class LocalProcessor implements IPathHandler
     private final IPathImmutableCopier copier;
 
     private final IPathMover mover;
-    
+
     private final IReadPathOperations readOperations;
+
+    // input: where the data are moved from (for recovery).
+    private final File inputDir;
 
     // output: from here data are moved when processing is finished.
     private final File outputDir;
@@ -70,10 +73,11 @@ public class LocalProcessor implements IPathHandler
 
     private final IPathHandler outgoingHandler;
 
-    private LocalProcessor(Parameters parameters, File outputDir, File tempDir, IPathHandler outgoingHandler,
-            IFileSysOperationsFactory factory)
+    private LocalProcessor(Parameters parameters, File inputDir, File outputDir, File tempDir,
+            IPathHandler outgoingHandler, IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
+        this.inputDir = inputDir;
         this.outputDir = outputDir;
         this.tempDir = tempDir;
         this.outgoingHandler = outgoingHandler;
@@ -83,23 +87,31 @@ public class LocalProcessor implements IPathHandler
         this.readOperations = factory.getReadPathOperations();
     }
 
-    public static final IPathHandler createAndRecover(Parameters parameters, File inputDir, File outputDir,
+    public static final IPathHandlerRecoverable createAndRecover(Parameters parameters, File inputDir, File outputDir,
             File bufferDir, IPathHandler lastStepHandler, IFileSysOperationsFactory factory)
     {
-        LocalProcessor handler = new LocalProcessor(parameters, outputDir, bufferDir, lastStepHandler, factory);
-        handler.recoverAfterShutdown(inputDir);
-        return handler;
+        final IPathHandlerRecoverable handlerAndRecoverable =
+                new LocalProcessor(parameters, inputDir, outputDir, bufferDir, lastStepHandler, factory);
+        return handlerAndRecoverable;
     }
 
     // ----------------
 
-    private void recoverAfterShutdown(File inputDir)
+    public void recover()
     {
-        recoverTemporaryExtraCopy(inputDir);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Recover starts.");
+        }
+        recoverTemporaryExtraCopy();
         recoverRegisterReadyForOutgoing();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Recover finishs.");
+        }
     }
 
-    private void recoverTemporaryExtraCopy(File inputDir)
+    private void recoverTemporaryExtraCopy()
     {
         final File[] files = readOperations.tryListFiles(tempDir, errorLog);
         if (files == null || files.length == 0)
