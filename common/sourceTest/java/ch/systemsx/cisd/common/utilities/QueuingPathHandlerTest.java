@@ -165,7 +165,7 @@ public class QueuingPathHandlerTest
         final QueuingPathHandler qPathHandler =
                 QueuingPathHandler.create(recordingHandler, recordingRecoverable, "test-thread");
         Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
-        assertTrue(recordingRecoverable.recoverCalled);
+        assertFalse(recordingRecoverable.recoverCalled);
         recordingRecoverable.recoverCalled = false;
         qPathHandler.handle(testFile);
         qPathHandler.recover();

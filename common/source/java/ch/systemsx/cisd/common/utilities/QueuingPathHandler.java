@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 
@@ -57,7 +58,6 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
 
         final PathHandlerThread thread = new PathHandlerThread(handler, recoverableOrNull);
         final QueuingPathHandler lazyHandler = new QueuingPathHandler(thread);
-        lazyHandler.recover();
         thread.setName(threadName);
         thread.start();
         return lazyHandler;
@@ -66,6 +66,8 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
     private static class PathHandlerThread extends Thread
     {
         private static final File DUMMY_FILE = new File(".");
+        
+        private final Semaphore recoverySemaphore = new Semaphore(1);
         
         private final BlockingQueue<File> queue;
 
@@ -97,6 +99,7 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
                         if (path == DUMMY_FILE)
                         {
                             runRecover();
+                            recoverySemaphore.release();
                         } else
                         {
                             if (operationLog.isTraceEnabled())
@@ -134,9 +137,10 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
             }
         }
 
-        void queueRecover()
+        synchronized void recover() throws InterruptedException
         {
             queue(DUMMY_FILE);
+            recoverySemaphore.acquire();
         }
 
     }
@@ -170,7 +174,13 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
 
     public void recover()
     {
-        thread.queueRecover();
+        try
+        {
+            thread.recover();
+        } catch (InterruptedException ex)
+        {
+            // Recovery interrupted by shutdown - nothing we can do here.
+        }
     }
 
 }
