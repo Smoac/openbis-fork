@@ -208,8 +208,7 @@ public class DirectoryScanningTimerTaskTest
         final RecordingRecoverable mockRecoverable = new RecordingRecoverable();
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler, mockRecoverable);
-        assertTrue(mockRecoverable.recoveryCalled);
-        mockRecoverable.recoveryCalled = false;
+        assertFalse(mockRecoverable.recoveryCalled);
         assertEquals(0, mockPathHandler.handledPaths.size());
         scanner.run();
         assertFalse(mockRecoverable.recoveryCalled);

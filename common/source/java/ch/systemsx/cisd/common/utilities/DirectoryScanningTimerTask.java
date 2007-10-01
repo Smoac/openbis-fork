@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public final class DirectoryScanningTimerTask extends TimerTask implements ISelfTestable
+public final class DirectoryScanningTimerTask extends TimerTask implements ISelfTestable, IRecoverable
 {
 
     public static final String FAULTY_PATH_FILENAME = ".faulty_paths";
@@ -91,8 +91,6 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
-     * <p>
-     * Performs a recovery if <var>recoverableOrNull</var> is not <code>null</code>.
      * 
      * @param sourceDirectory The directory to scan for entries.
      * @param filter The file filter that picks the entries to handle.
@@ -115,20 +113,19 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         this.faultyPaths = new HashSet<File>();
         this.faultyPathsFile = new File(sourceDirectory, FAULTY_PATH_FILENAME);
         faultyPathsFile.delete();
-        runRecover();
     }
 
     /**
      * Handles all entries in the source directory that are picked by the filter.
      */
     @Override
-    public void run()
+    public synchronized void run()
     {
         try
         {
             if (recoveryTriggerFile.exists())
             {
-                runRecover();
+                recover();
                 recoveryTriggerFile.delete();
             }
             if (operationLog.isTraceEnabled())
@@ -158,7 +155,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         }
     }
 
-    private void runRecover()
+    public synchronized void recover()
     {
         if (recoverableOrNull != null)
         {
