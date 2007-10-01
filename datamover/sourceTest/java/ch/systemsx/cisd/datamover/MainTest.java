@@ -56,7 +56,7 @@ public class MainTest
 
     private static final File workingDirectory = new File(unitTestRootDirectory, MainTest.class.getSimpleName());
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void init()
     {
         LogInitializer.init();
