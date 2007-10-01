@@ -117,9 +117,9 @@ public class RsyncCopier implements IPathCopier
     public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost)
     {
         assert sourcePath != null;
-        assert sourceHost != null || sourcePath.exists();
+        assert sourceHost != null || sourcePath.exists() : logNonExistent(sourcePath);
         assert destinationDirectory != null;
-        assert destinationHost != null || destinationDirectory.isDirectory();
+        assert destinationHost != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
         assert sourceHost == null || destinationHost == null; // only one side can be remote
 
         final File destinationPath = new File(destinationDirectory, sourcePath.getName());
@@ -163,6 +163,17 @@ public class RsyncCopier implements IPathCopier
         }
     }
 
+    private String logNonExistent(File path)
+    {
+        if (path == null)
+        {
+            return "null";
+        } else
+        {
+            return "path '" + path.getAbsolutePath() + "' does not exist";
+        }
+    }
+    
     private List<String> createCommandLine(File sourcePath, String sourceHost, File destinationDirectory,
             String destinationHost)
     {
