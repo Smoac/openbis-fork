@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.assertFalse;
 import static ch.systemsx.cisd.common.utilities.FileUtilities.ACCEPT_ALL_FILTER;
 
 import java.io.File;
@@ -33,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -183,49 +180,18 @@ public class DirectoryScanningTimerTaskTest
         assert faultyPaths.length() == 0;
     }
 
-    private static class RecordingRecoverable implements IRecoverable
-    {
-        File pathToDeleteOrNull = null;
-        
-        boolean recoveryCalled = false;
-        
-        public void recover()
-        {
-            if (pathToDeleteOrNull != null)
-            {
-                pathToDeleteOrNull.delete();
-            }
-            recoveryCalled = true;
-        }
-    }
-    
     @Test
-    public void testRecovery() throws IOException
+    public void testProcessOK() throws IOException
     {
         final File someFile = new File(workingDirectory, "some_file");
         someFile.createNewFile();
         someFile.deleteOnExit();
-        final RecordingRecoverable mockRecoverable = new RecordingRecoverable();
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler, mockRecoverable);
-        assertFalse(mockRecoverable.recoveryCalled);
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assertEquals(0, mockPathHandler.handledPaths.size());
         scanner.run();
-        assertFalse(mockRecoverable.recoveryCalled);
         assertEquals(1, mockPathHandler.handledPaths.size());
         assertEquals(someFile, mockPathHandler.handledPaths.get(0));
-        final File recoveryFile = new File(workingDirectory, Constants.RECOVERY_MARKER_FIILENAME);
-        recoveryFile.createNewFile();
-        recoveryFile.deleteOnExit();
-        mockRecoverable.recoveryCalled = false;
-        mockRecoverable.pathToDeleteOrNull = someFile;
-        mockPathHandler.handledPaths.clear();
-        someFile.createNewFile();
-        scanner.run();
-        assertTrue(mockRecoverable.recoveryCalled);
-        assertFalse(recoveryFile.exists());
-        assertFalse(someFile.exists());
-        assertEquals(0, mockPathHandler.handledPaths.size());
     }
 
     @Test
@@ -392,5 +358,5 @@ public class DirectoryScanningTimerTaskTest
         LogMonitoringAppender.removeAppender(appender1);
         LogMonitoringAppender.removeAppender(appender2);
     }
-    
+
 }
