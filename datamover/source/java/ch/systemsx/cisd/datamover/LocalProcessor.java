@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IRecoverable;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -41,7 +42,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
-public class LocalProcessor implements IPathHandlerRecoverable
+public class LocalProcessor implements IPathHandler, IRecoverable
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
 
@@ -87,10 +88,10 @@ public class LocalProcessor implements IPathHandlerRecoverable
         this.readOperations = factory.getReadPathOperations();
     }
 
-    public static final IPathHandlerRecoverable createAndRecover(Parameters parameters, File inputDir, File outputDir,
+    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir,
             File bufferDir, IPathHandler lastStepHandler, IFileSysOperationsFactory factory)
     {
-        final IPathHandlerRecoverable handlerAndRecoverable =
+        final LocalProcessor handlerAndRecoverable =
                 new LocalProcessor(parameters, inputDir, outputDir, bufferDir, lastStepHandler, factory);
         return handlerAndRecoverable;
     }
@@ -101,13 +102,13 @@ public class LocalProcessor implements IPathHandlerRecoverable
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Recover starts.");
+            operationLog.debug("Recovery starts.");
         }
         recoverTemporaryExtraCopy();
         recoverRegisterReadyForOutgoing();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Recover finishs.");
+            operationLog.debug("Recovery is finishsed.");
         }
     }
 

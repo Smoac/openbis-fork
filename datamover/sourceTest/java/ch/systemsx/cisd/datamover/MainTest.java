@@ -19,6 +19,9 @@ package ch.systemsx.cisd.datamover;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.assertEmptyDir;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
 
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import java.util.Random;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -48,6 +52,8 @@ public class MainTest
     // adjusted.
     private static final long DATA_MOVER_COMPLETION_TIME = 4000;
 
+    private static final long DATA_MOVER_COMPLETION_TIME_LONG = 6000;
+    
     private static final int CHECK_INTERVAL = 1;
 
     private static final int QUIET_PERIOD = 2;
@@ -275,15 +281,33 @@ public class MainTest
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
-    private static void performGenericTest(IFSPreparator preparator) throws Exception
+//    private static void performGenericTest(IFSPreparator preparator) throws Exception
+//    {
+//        ExternalDirs dirs = new ExternalDirs(workingDirectory);
+//        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
+//        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+//
+//        preparator.prepareState(dirs, bufferDirs);
+//
+//        runDataMover(parameters, bufferDirs);
+//
+//        assertSampleStructMovedWithCopy(dirs, bufferDirs);
+//    }
+
+    private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep) throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
         Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
-        preparator.prepareState(dirs, bufferDirs);
-
-        runDataMover(parameters, bufferDirs);
+        if (millisToWaitForPrep == 0L)
+        {
+            preparator.prepareState(dirs, bufferDirs);
+            runDataMover(parameters, bufferDirs);
+        } else
+        {
+            runDataMover(dirs, parameters, bufferDirs, preparator, millisToWaitForPrep);
+        }
 
         assertSampleStructMovedWithCopy(dirs, bufferDirs);
     }
@@ -292,15 +316,34 @@ public class MainTest
     {
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
         Thread.sleep(DATA_MOVER_COMPLETION_TIME);
-        assert terminable.terminate();
+        assertTrue(terminable.terminate());
     }
 
+    private static void runDataMover(ExternalDirs dirs, Parameters parameters, LocalBufferDirs bufferDirs,
+            IFSPreparator preparator, long millisToWaitForPrep) throws Exception
+    {
+        ITerminable terminable = Main.startupServer(parameters, bufferDirs);
+        Thread.sleep(millisToWaitForPrep);
+        preparator.prepareState(dirs, bufferDirs);
+        final File recoveryFile = new File(DataMover.RECOVERY_MARKER_FIILENAME);
+        recoveryFile.createNewFile();
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME - millisToWaitForPrep);
+        assertTrue(terminable.terminate());
+        assertFalse(recoveryFile.exists());
+    }
+
+    @DataProvider(name="delays")
+    public Object[][] provideDelays()
+    {
+        return new Object[][] { { 0L }, { 100L } };
+    }
+    
     // --------------------- tests
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after copy from incoming has been done, but no marker exists nor the source was not deleted
-    public void testRecoveryIncomingCopiedNotDeleted() throws Exception
+    public void testRecoveryIncomingCopiedNotDeleted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -309,13 +352,13 @@ public class MainTest
                     createSampleStructure(dirs.incoming);
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure during coping from incoming
-    public void testRecoveryIncomingPartialCopy() throws Exception
+    public void testRecoveryIncomingPartialCopy(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -324,13 +367,13 @@ public class MainTest
                     createSampleStructure(dirs.incoming);
                     createPartialSampleStructure(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after data from incoming has been moved, but no marker was created yet
-    public void testRecoveryIncomingNoMarkFile() throws Exception
+    public void testRecoveryIncomingNoMarkFile(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -338,13 +381,13 @@ public class MainTest
                 {
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure before data are moved to 'copy-completed'
-    public void testRecoveryIncomingCompleteNotMoved() throws Exception
+    public void testRecoveryIncomingCompleteNotMoved(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -353,13 +396,13 @@ public class MainTest
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                     createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure when data are moved to 'copy-completed', but before the marker in in-progress is deleted
-    public void testRecoveryIncomingCompleteMarkerNotDeleted() throws Exception
+    public void testRecoveryIncomingCompleteMarkerNotDeleted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -368,13 +411,13 @@ public class MainTest
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                     createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure when data are copied to 'copy-completed', but before deletion has been finished
-    public void testRecoveryIncomingCompleteDeletionInProgress() throws Exception
+    public void testRecoveryIncomingCompleteDeletionInProgress(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -384,13 +427,13 @@ public class MainTest
                     createPartialSampleStructure(dirs.incoming);
                     createSampleDeletionInProgressMarkerFile(bufferDirs.getCopyInProgressDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure when incoming has finished processing and local processing has not started
-    public void testRecoveryLocalProcessingNotStarted() throws Exception
+    public void testRecoveryLocalProcessingNotStarted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -398,13 +441,13 @@ public class MainTest
                 {
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing when extra copy in temp dir is partial
-    public void testRecoveryLocalProcessingPartialExtraCopyInTmp() throws Exception
+    public void testRecoveryLocalProcessingPartialExtraCopyInTmp(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -413,13 +456,13 @@ public class MainTest
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                     createPartialSampleStructure(bufferDirs.getTempDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing, extra copy created in temp-dir, data moved to read-to-move
-    public void testRecoveryLocalProcessingExtraCopyInTmp() throws Exception
+    public void testRecoveryLocalProcessingExtraCopyInTmp(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -428,14 +471,14 @@ public class MainTest
                     createSampleStructure(bufferDirs.getTempDir());
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing, extra copy created in temp-dir, data moved to read-to-move,
     // outgoing processing has not started. It tests also outgoing process recovery.
-    public void testRecoveryLocalProcessingExtraCopyInTmpAndReadyToMove() throws Exception
+    public void testRecoveryLocalProcessingExtraCopyInTmpAndReadyToMove(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -444,13 +487,13 @@ public class MainTest
                     createSampleStructure(bufferDirs.getTempDir());
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // recovery after failure when partial copy has been done in outgoing
-    public void testRecoveryOutgoingPartialCopy() throws Exception
+    public void testRecoveryOutgoingPartialCopy(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -460,13 +503,13 @@ public class MainTest
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
                     createPartialSampleStructure(dirs.outgoing);
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
-        { "slow" })
+        { "slow" }, dataProvider = "delays")
     // some data are in incoming, test the whole pipeline
-    public void testWholePipeline() throws Exception
+    public void testWholePipeline(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
@@ -474,7 +517,7 @@ public class MainTest
                 {
                     createSampleStructure(dirs.incoming);
                 }
-            });
+            }, delay);
     }
 
     @Test(groups =
@@ -551,7 +594,7 @@ public class MainTest
             structs[i] = new FileStructEngine("test" + i);
             structs[i].createSampleStructure(dirs.incoming);
         }
-        Thread.sleep(DATA_MOVER_COMPLETION_TIME);
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME_LONG);
 
         for (int i = 0; i < size; i++)
         {

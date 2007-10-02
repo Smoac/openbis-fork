@@ -17,10 +17,17 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.util.Timer;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IRecoverable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.ITriggerable;
 import ch.systemsx.cisd.common.utilities.QueuingPathHandler;
+import ch.systemsx.cisd.common.utilities.SynchronizationMonitor;
+import ch.systemsx.cisd.common.utilities.TimerHelper;
+import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.FileStore;
@@ -41,6 +48,9 @@ public class DataMover
     private final static String LOCAL_READY_TO_MOVE_DIR = "ready-to-move";
 
     private final static String LOCAL_TEMP_DIR = "tmp";
+
+    //@Private
+    static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
 
     private final Parameters parameters;
 
@@ -80,21 +90,47 @@ public class DataMover
 
     private ITerminable start()
     {
-        QueuingPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
-        QueuingPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
-        ITerminable incomingProcessor = startupIncomingMovingProcess(localProcessor);
-        return createCompoundTerminable(outgoingProcessor, localProcessor, incomingProcessor);
+        final SynchronizationMonitor monitor = SynchronizationMonitor.create();
+        final QueuingPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
+        final QueuingPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
+        final IncomingProcessor.IncomingMovingProcess incomingProcess =
+                createIncomingMovingProcess(localProcessor, monitor);
+        final ITerminable recoveryProcess =
+                startupRecoveryProcess(localProcessor, incomingProcess.getProcessor(), monitor);
+        incomingProcess.startup(parameters.getCheckIntervalMillis() / 2L);
+        return createCompoundTerminable(recoveryProcess, outgoingProcessor, localProcessor, incomingProcess);
     }
 
-    private ITerminable startupIncomingMovingProcess(QueuingPathHandler localProcessor)
+    private ITerminable startupRecoveryProcess(final QueuingPathHandler localProcessor,
+            final IRecoverable incomingProcessor, SynchronizationMonitor monitor)
     {
-        return IncomingProcessor.startupMovingProcess(parameters, factory, bufferDirs, localProcessor, localProcessor);
+        final ITriggerable recoverable = new ITriggerable()
+            {
+                public void trigger()
+                {
+                    localProcessor.recover();
+                    incomingProcessor.recover();
+                }
+            };
+        // Trigger initial recovery cycle.
+        recoverable.trigger();
+        final TriggeringTimerTask recoveryingTimerTask =
+                new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable, monitor);
+        final Timer recoveryTimer = new Timer("Recovery");
+        recoveryTimer.scheduleAtFixedRate(recoveryingTimerTask, 0, parameters.getCheckIntervalMillis());
+        return TimerHelper.asTerminable(recoveryTimer);
+    }
+
+    private IncomingProcessor.IncomingMovingProcess createIncomingMovingProcess(QueuingPathHandler localProcessor,
+            SynchronizationMonitor monitor)
+    {
+        return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs, localProcessor, monitor);
     }
 
     private QueuingPathHandler startupLocalProcessing(QueuingPathHandler outgoingHandler)
     {
-        final IPathHandlerRecoverable localProcessingHandlerAndRecoverable =
-                LocalProcessor.createAndRecover(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
+        final LocalProcessor localProcessingHandlerAndRecoverable =
+                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
                         .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, factory);
         return QueuingPathHandler.create(localProcessingHandlerAndRecoverable, localProcessingHandlerAndRecoverable,
                 "Local Processor");

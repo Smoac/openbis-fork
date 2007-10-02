@@ -1,31 +1,3 @@
-package ch.systemsx.cisd.datamover;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.util.Timer;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.common.utilities.IRecoverable;
-import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
-import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
-import ch.systemsx.cisd.datamover.utils.FileStore;
-import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
-import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
-
 /*
  * Copyright 2007 ETH Zuerich, CISD
  *
@@ -42,10 +14,41 @@ import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
  * limitations under the License.
  */
 
+package ch.systemsx.cisd.datamover;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IRecoverable;
+import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
+import ch.systemsx.cisd.common.utilities.SynchronizationMonitor;
+import ch.systemsx.cisd.common.utilities.TimerHelper;
+import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
+import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.utils.FileStore;
+import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
+import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
+
 /**
  * @author Tomasz Pylak on Sep 7, 2007
  */
-public class IncomingProcessor
+public class IncomingProcessor implements IRecoverable
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
@@ -59,81 +62,98 @@ public class IncomingProcessor
 
     private final IPathMover pathMover;
 
+    private final IPathHandler localProcessor;
+
     private final LocalBufferDirs bufferDirs;
 
     private final boolean isIncomingRemote;
 
+    private final FileStore incomingStore;
+
     private final String prefixForIncoming;
 
-    public static final ITerminable startupMovingProcess(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs bufferDirs, final IPathHandler localProcessor, final IRecoverable localRecoverable)
+    /**
+     * A class that represents the incoming moving process.
+     */
+    public class IncomingMovingProcess implements ITerminable
     {
-        final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
-        final FileStore incomingStore = parameters.getIncomingStore();
+        private final Timer movingTimer;
+        private final TimerTask movingTask;
+        private final ITerminable terminable;
 
-        final IRecoverable recoverable = new IRecoverable()
+        IncomingMovingProcess(TimerTask movingTask)
         {
-            public void recover()
-            {
-                localRecoverable.recover();
-                processor.recoverIncomingAfterShutdown(incomingStore, localProcessor);
-            }
-        };
-        return processor.startupIncomingMovingProcess(incomingStore, localProcessor, recoverable);
+            this.movingTask = movingTask;
+            this.movingTimer = new Timer("Mover of Incoming Data");
+            this.terminable = TimerHelper.asTerminable(movingTimer);
+        }
+
+        public IncomingProcessor getProcessor()
+        {
+            return IncomingProcessor.this;
+        }
+
+        /** Starts up the process with <var>delay</var> milli seconds. */
+        public void startup(long delay)
+        {
+            // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
+            // remote share. The rationale behind this is that if new items are
+            // added to the source directory while the incoming timer task has been running for a long time, busy moving 
+            // data, the task shouldn't sit idle for the check time when there is actually work to do.
+            movingTimer.scheduleAtFixedRate(movingTask, delay, parameters.getCheckIntervalMillis());
+        }
+
+        public boolean terminate()
+        {
+            return terminable.terminate();
+        }
+
     }
 
-    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
+    public static final IncomingMovingProcess createMovingProcess(Parameters parameters,
+            IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs, final IPathHandler localProcessor,
+            final SynchronizationMonitor monitor)
+    {
+        final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs, localProcessor);
+
+        return processor.createIncomingMovingProcess(monitor);
+    }
+
+    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs,
+            IPathHandler localProcessor)
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.isIncomingRemote = parameters.getTreatIncomingAsRemote();
+        this.incomingStore = parameters.getIncomingStore();
         this.incomingReadOperations = factory.getReadPathOperations();
         this.pathMover = factory.getMover();
+        this.localProcessor = localProcessor;
         this.factory = factory;
         this.bufferDirs = bufferDirs;
     }
 
-    private void recoverIncomingAfterShutdown(FileStore incomingStore, IPathHandler localProcessor)
+    public void recover()
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Recover starts.");
+            operationLog.debug("Recovery cycle starts.");
         }
-        new IncomingProcessorRecovery().recoverIncomingAfterShutdown(incomingStore, localProcessor);
+        new IncomingProcessorRecovery().recoverIncomingAfterShutdown();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Recover finishs.");
+            operationLog.debug("Recovery cycle is finished.");
         }
     }
 
-    private ITerminable startupIncomingMovingProcess(FileStore incomingStore, IPathHandler localProcessor,
-            IRecoverable recoverable)
+    private IncomingMovingProcess createIncomingMovingProcess(SynchronizationMonitor monitor)
     {
-        IPathHandler pathHandler = createIncomingMovingPathHandler(incomingStore.getHost(), localProcessor);
-        FileFilter filter = createQuietPeriodFilter();
+        final IPathHandler pathHandler = createIncomingMovingPathHandler(incomingStore.getHost());
+        final FileFilter filter = createQuietPeriodFilter();
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler, recoverable);
-        movingTask.recover();
-        final Timer movingTimer = new Timer("Mover of Incoming Data");
-        // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
-        // remote share. The rationale behind this is that if new items are
-        // added to the source directory while the remote timer task has been running for a long time, busy moving data,
-        // the task shoulnd't sit idle for the check time when there is actually work to do.
-        movingTimer.scheduleAtFixedRate(movingTask, 0, parameters.getCheckIntervalMillis());
-        return asTerminable(movingTimer);
-    }
-
-    private static ITerminable asTerminable(final Timer timer)
-    {
-        return new ITerminable()
-            {
-                public boolean terminate()
-                {
-                    timer.cancel();
-                    return true;
-                }
-            };
+                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler, monitor);
+        return new IncomingMovingProcess(movingTask);
     }
 
     private FileFilter createQuietPeriodFilter()
@@ -155,8 +175,7 @@ public class IncomingProcessor
             };
     }
 
-    private IPathHandler createIncomingMovingPathHandler(final String sourceHostOrNull,
-            final IPathHandler localProcessor)
+    private IPathHandler createIncomingMovingPathHandler(final String sourceHostOrNull)
     {
         return new IPathHandler()
             {
@@ -164,16 +183,16 @@ public class IncomingProcessor
                 {
                     if (isIncomingRemote)
                     {
-                        moveFromRemoteIncoming(sourceFile, sourceHostOrNull, localProcessor);
+                        moveFromRemoteIncoming(sourceFile, sourceHostOrNull);
                     } else
                     {
-                        moveFromLocalIncoming(sourceFile, localProcessor);
+                        moveFromLocalIncoming(sourceFile);
                     }
                 }
             };
     }
 
-    private void moveFromLocalIncoming(File source, IPathHandler localProcessor)
+    private void moveFromLocalIncoming(File source)
     {
         final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
         if (finalFile == null)
@@ -183,7 +202,7 @@ public class IncomingProcessor
         localProcessor.handle(finalFile);
     }
 
-    private void moveFromRemoteIncoming(File source, String sourceHostOrNull, IPathHandler localProcessor)
+    private void moveFromRemoteIncoming(File source, String sourceHostOrNull)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
@@ -245,17 +264,16 @@ public class IncomingProcessor
 
     class IncomingProcessorRecovery
     {
-        public void recoverIncomingAfterShutdown(FileStore incomingStore, IPathHandler localProcessor)
+        public void recoverIncomingAfterShutdown()
         {
             if (isIncomingRemote)
             {
-                recoverIncomingInProgress(incomingStore, bufferDirs.getCopyInProgressDir(), bufferDirs
-                        .getCopyCompleteDir());
+                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs.getCopyCompleteDir());
             }
-            recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir(), localProcessor);
+            recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir());
         }
 
-        private void recoverIncomingInProgress(FileStore incomingStore, File copyInProgressDir, File copyCompleteDir)
+        private void recoverIncomingInProgress(File copyInProgressDir, File copyCompleteDir)
         {
             final File[] files = incomingReadOperations.tryListFiles(copyInProgressDir, errorLog);
             if (files == null || files.length == 0)
@@ -269,11 +287,11 @@ public class IncomingProcessor
                 {
                     continue;
                 }
-                recoverIncomingAfterShutdown(file, incomingStore, copyCompleteDir);
+                recoverIncomingAfterShutdown(file, copyCompleteDir);
             }
         }
 
-        private void recoverIncomingAfterShutdown(File unfinishedFile, FileStore incomingStore, File copyCompleteDir)
+        private void recoverIncomingAfterShutdown(File unfinishedFile, File copyCompleteDir)
         {
             if (MarkerFile.isCopyFinishedMarker(unfinishedFile))
             {
@@ -314,7 +332,7 @@ public class IncomingProcessor
         }
 
         // schedule processing of all resources which were previously copied
-        private void recoverIncomingCopyComplete(File copyCompleteDir, IPathHandler localProcessor)
+        private void recoverIncomingCopyComplete(File copyCompleteDir)
         {
             final File[] files = incomingReadOperations.tryListFiles(copyCompleteDir, errorLog);
             if (files == null || files.length == 0)
