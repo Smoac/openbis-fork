@@ -263,6 +263,7 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
+    @SuppressWarnings("unchecked")
     private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean,
             AnnotationMap setterAnnotations, Converter converter)
     {
@@ -286,7 +287,7 @@ public final class BeanUtils
                     destinationBean = copyArrayToArray(destinationBean, sourceBean, converter);
                 } else if (isCollection(sourceBean))
                 {
-                    copyCollectionToArray(destinationBean, (Collection<?>) sourceBean, converter);
+                    destinationBean = (T) copyCollectionToArray(destinationBean, (Collection<?>) sourceBean, converter);
                 }
             } else if (isCollection(destinationBean))
             {
@@ -415,7 +416,7 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T constructCollection(final Class<? extends Collection> collectionClazz)
+    private final static <T> T constructCollection(final Class<? extends Collection> collectionClazz)
             throws InstantiationException, IllegalAccessException
     {
         // This conversion _can_ go wrong if the concrete collection class doesn't implement the right sub-interface of
@@ -424,7 +425,7 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T copyArrayToArray(T destination, Object source, Converter converter)
+    private final static <T> T copyArrayToArray(T destination, Object source, Converter converter)
             throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
@@ -466,21 +467,30 @@ public final class BeanUtils
         return returned;
     }
 
-    private static void copyCollectionToArray(Object destination, Collection<?> source, Converter converter)
+    @SuppressWarnings("unchecked")
+    private final static <T> T[] copyCollectionToArray(Object destination, Collection<T> source, Converter converter)
             throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
-            return;
+            return null;
         }
-        assert Array.getLength(destination) == source.size();
         final Class<?> componentType = destination.getClass().getComponentType();
+        final int size = source.size();
+        final T[] returned;
+        if (Array.getLength(destination) < size)
+        {
+            returned = (T[]) Array.newInstance(componentType, size);
+        } else
+        {
+            returned = (T[]) destination;
+        }
         if (immutableTypes.contains(componentType))
         {
             int index = 0;
             for (Object sourceElement : source)
             {
-                Array.set(destination, index++, sourceElement);
+                Array.set(returned, index++, sourceElement);
             }
         } else
         {
@@ -488,9 +498,10 @@ public final class BeanUtils
             for (Object sourceElement : source)
             {
                 final Object destinationElement = createBean(componentType, sourceElement, converter);
-                Array.set(destination, index++, destinationElement);
+                Array.set(returned, index++, destinationElement);
             }
         }
+        return returned;
     }
 
     private static void copyArrayToCollection(Collection<?> destination, Object source,
