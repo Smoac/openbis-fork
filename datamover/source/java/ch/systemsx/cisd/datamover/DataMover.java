@@ -49,7 +49,7 @@ public class DataMover
 
     private final static String LOCAL_TEMP_DIR = "tmp";
 
-    //@Private
+    // @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
 
     private final Parameters parameters;
@@ -91,18 +91,34 @@ public class DataMover
     private ITerminable start()
     {
         final SynchronizationMonitor monitor = SynchronizationMonitor.create();
-        final QueuingPathHandler outgoingProcessor = startupOutgoingMovingProcess(parameters.getOutgoingStore());
-        final QueuingPathHandler localProcessor = startupLocalProcessing(outgoingProcessor);
+        final QueuingPathHandler outgoingProcessingHandler =
+                startupOutgoingMovingProcess(parameters.getOutgoingStore());
+        final LocalProcessor localProcessor = createLocalProcessor(outgoingProcessingHandler);
+        final QueuingPathHandler localProcessingHandler = QueuingPathHandler.create(localProcessor, "Local Processor");
         final IncomingProcessor.IncomingMovingProcess incomingProcess =
-                createIncomingMovingProcess(localProcessor, monitor);
+                createIncomingMovingProcess(localProcessingHandler, monitor);
+        final IRecoverable localProcessingRecoverable = new IRecoverable()
+            {
+                public void recover()
+                {
+                    localProcessingHandler.handle(new QueuingPathHandler.ISpecialCondition()
+                    {
+                        public void handle()
+                        {
+                            localProcessor.recover();
+                        }
+                    }, "recovery", false);
+                }
+            };
         final ITerminable recoveryProcess =
-                startupRecoveryProcess(localProcessor, incomingProcess.getProcessor(), monitor);
+                startupRecoveryProcess(localProcessingRecoverable, incomingProcess.getProcessor(), monitor);
         incomingProcess.startup(parameters.getCheckIntervalMillis() / 2L);
-        return createCompoundTerminable(recoveryProcess, outgoingProcessor, localProcessor, incomingProcess);
+        return createCompoundTerminable(recoveryProcess, outgoingProcessingHandler, localProcessingHandler,
+                incomingProcess);
     }
 
-    private ITerminable startupRecoveryProcess(final QueuingPathHandler localProcessor,
-            final IRecoverable incomingProcessor, SynchronizationMonitor monitor)
+    private ITerminable startupRecoveryProcess(final IRecoverable localProcessor, final IRecoverable incomingProcessor,
+            SynchronizationMonitor monitor)
     {
         final ITriggerable recoverable = new ITriggerable()
             {
@@ -127,13 +143,12 @@ public class DataMover
         return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs, localProcessor, monitor);
     }
 
-    private QueuingPathHandler startupLocalProcessing(QueuingPathHandler outgoingHandler)
+    private LocalProcessor createLocalProcessor(QueuingPathHandler outgoingHandler)
     {
-        final LocalProcessor localProcessingHandlerAndRecoverable =
-                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
-                        .getReadyToMoveDir(), bufferDirs.getTempDir(), outgoingHandler, factory);
-        return QueuingPathHandler.create(localProcessingHandlerAndRecoverable, localProcessingHandlerAndRecoverable,
-                "Local Processor");
+        final LocalProcessor localProcessor =
+                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs.getReadyToMoveDir(),
+                        bufferDirs.getTempDir(), outgoingHandler, factory);
+        return localProcessor;
     }
 
     private QueuingPathHandler startupOutgoingMovingProcess(FileStore outputDir)
