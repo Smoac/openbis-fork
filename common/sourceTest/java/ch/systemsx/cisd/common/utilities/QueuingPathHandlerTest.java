@@ -146,31 +146,31 @@ public class QueuingPathHandlerTest
         assertEquals(processedFileList, blocker.getHandledFiles());
     }
 
-    private static class RecordingRecoverable implements IRecoverable
+    private static class RecordingCondition implements QueuingPathHandler.ISpecialCondition
     {
-        boolean recoverCalled;
+        boolean called;
 
-        public void recover()
+        public void handle()
         {
-            recoverCalled = true;
+            called = true;
         }
     }
 
     @Test
-    public void testRecovery() throws InterruptedException
+    public void testHandleSpecialCondition() throws InterruptedException
     {
         final File testFile = new File("test_file_to_handle");
         final RecordingIPathHandler recordingHandler = new RecordingIPathHandler();
-        final RecordingRecoverable recordingRecoverable = new RecordingRecoverable();
+        final RecordingCondition recordingCondition = new RecordingCondition();
         final QueuingPathHandler qPathHandler =
-                QueuingPathHandler.create(recordingHandler, recordingRecoverable, "test-thread");
+                QueuingPathHandler.create(recordingHandler, "test-thread");
         Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
-        assertFalse(recordingRecoverable.recoverCalled);
-        recordingRecoverable.recoverCalled = false;
+        assertFalse(recordingCondition.called);
+        recordingCondition.called = false;
         qPathHandler.handle(testFile);
-        qPathHandler.recover();
+        qPathHandler.handle(recordingCondition, "recording", true);
+        assertTrue(recordingCondition.called);
         Thread.sleep(MILLIS_TO_WAIT_FOR_PROCESSING_TO_FINISH);
-        assertTrue(recordingRecoverable.recoverCalled);
         assertEquals(Collections.singletonList(testFile), recordingHandler.getHandledFiles());
     }
 

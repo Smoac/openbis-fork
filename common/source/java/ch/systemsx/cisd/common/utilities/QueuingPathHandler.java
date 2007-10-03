@@ -31,14 +31,22 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * resources if you do not need the instance of this class anymore.
  * 
  * @author Tomasz Pylak on Aug 24, 2007
+ * @author Bernd Rinn
  */
-public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverable
+public class QueuingPathHandler implements ITerminable, IPathHandler
 {
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, QueuingPathHandler.class);
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, QueuingPathHandler.class);
 
     private final PathHandlerThread thread;
+
+    /** An interface for special conditions. */
+    public interface ISpecialCondition
+    {
+        /** Handle the special condition. */
+        public void handle();
+    }
 
     private QueuingPathHandler(PathHandlerThread thread)
     {
@@ -47,39 +55,75 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
 
     public static QueuingPathHandler create(final IPathHandler handler, String threadName)
     {
-        return create(handler, null, threadName);
-    }
-
-    public static QueuingPathHandler create(final IPathHandler handler, final IRecoverable recoverableOrNull,
-            String threadName)
-    {
         assert handler != null;
         assert threadName != null;
 
-        final PathHandlerThread thread = new PathHandlerThread(handler, recoverableOrNull);
+        final PathHandlerThread thread = new PathHandlerThread(handler);
         final QueuingPathHandler lazyHandler = new QueuingPathHandler(thread);
         thread.setName(threadName);
         thread.start();
         return lazyHandler;
     }
 
+    /**
+     * A class representing an incident in the {@link QueuingPathHandler}.
+     */
+    private static class Incident
+    {
+        private final File path;
+
+        private final ISpecialCondition condition;
+
+        private final boolean blocking;
+
+        Incident(File path)
+        {
+            this.path = path;
+            this.condition = null;
+            this.blocking = false;
+        }
+
+        Incident(ISpecialCondition condition, boolean blocking)
+        {
+            this.condition = condition;
+            this.blocking = blocking;
+            this.path = null;
+        }
+
+        File getPath()
+        {
+            return path;
+        }
+
+        boolean isSpecialCondition()
+        {
+            return (condition != null);
+        }
+
+        void handleSpecialCondition()
+        {
+            assert condition != null;
+            condition.handle();
+        }
+
+        boolean isBlocking()
+        {
+            return blocking;
+        }
+    }
+
     private static class PathHandlerThread extends Thread
     {
-        private static final File DUMMY_FILE = new File(".");
-        
-        private final Semaphore recoverySemaphore = new Semaphore(1);
-        
-        private final BlockingQueue<File> queue;
+        private final Semaphore specialIncidentSemaphore = new Semaphore(0);
+
+        private final BlockingQueue<Incident> queue;
 
         private final IPathHandler handler;
 
-        private final IRecoverable recoverableOrNull;
-
-        public PathHandlerThread(IPathHandler handler, IRecoverable recoverableOrNull)
+        public PathHandlerThread(IPathHandler handler)
         {
-            this.queue = new LinkedBlockingQueue<File>();
+            this.queue = new LinkedBlockingQueue<Incident>();
             this.handler = handler;
-            this.recoverableOrNull = recoverableOrNull;
         }
 
         @Override
@@ -95,13 +139,17 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
                         {
                             operationLog.trace("Waiting for new element in queue.");
                         }
-                        File path = queue.take(); // blocks if empty
-                        if (path == DUMMY_FILE)
+                        final Incident incident = queue.take(); // blocks if empty
+                        if (incident.isSpecialCondition())
                         {
-                            runRecover();
-                            recoverySemaphore.release();
+                            incident.handleSpecialCondition();
+                            if (incident.isBlocking())
+                            {
+                                specialIncidentSemaphore.release();
+                            }
                         } else
                         {
+                            final File path = incident.getPath();
                             if (operationLog.isTraceEnabled())
                             {
                                 operationLog.trace("Processing path '" + path + "'");
@@ -120,29 +168,28 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
             }
         }
 
-        synchronized void queue(File resource)
+        void queue(File resource)
         {
-            queue.add(resource);
+            queue.add(new Incident(resource));
         }
 
-        private void runRecover()
+        void queue(ISpecialCondition specialCondition, boolean blocking)
         {
-            if (recoverableOrNull != null)
+            queue.add(new Incident(specialCondition, blocking));
+        }
+
+        synchronized void handleSpecialCondition(ISpecialCondition condition, String nameForLogging, boolean blocking) throws InterruptedException
+        {
+            if (operationLog.isInfoEnabled())
             {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Triggering recovery.");
-                }
-                recoverableOrNull.recover();
+                operationLog.info("Handling special condition '" + nameForLogging + "'.");
+            }
+            queue(condition, blocking);
+            if (blocking)
+            {
+                specialIncidentSemaphore.acquire();
             }
         }
-
-        synchronized void recover() throws InterruptedException
-        {
-            queue(DUMMY_FILE);
-            recoverySemaphore.acquire();
-        }
-
     }
 
     /**
@@ -171,16 +218,23 @@ public class QueuingPathHandler implements ITerminable, IPathHandler, IRecoverab
         }
         thread.queue(path);
     }
-
-    public void recover()
+    
+    /**
+     * Handles a special condition out of order.
+     * 
+     * @param specialCondition The condition to handle.
+     * @param nameForLogging The name of the condition as written to the log.
+     * @param blocking If <code>true</code>, the method will only return when the condition has been handled.
+     */
+    public void handle(ISpecialCondition specialCondition, String nameForLogging, boolean blocking)
     {
         try
         {
-            thread.recover();
+            thread.handleSpecialCondition(specialCondition, nameForLogging, blocking);
         } catch (InterruptedException ex)
         {
-            // Recovery interrupted by shutdown - nothing we can do here.
+            // terminate() has been called.
         }
     }
-
+    
 }
