@@ -74,8 +74,6 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private long faultyPathsLastChanged;
 
-    private final SynchronizationMonitor monitor;
-
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
@@ -85,29 +83,13 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
      */
     public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler)
     {
-        this(sourceDirectory, filter, handler, SynchronizationMonitor.create());
-    }
-
-    /**
-     * Creates a <var>DirectoryScanningTimerTask</var>.
-     * 
-     * @param sourceDirectory The directory to scan for entries.
-     * @param filter The file filter that picks the entries to handle.
-     * @param handler The handler that is used for treating the matching paths.
-     * @param monitor The monitor to synchronize on when running the timer task.
-     */
-    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler,
-            SynchronizationMonitor monitor)
-    {
         assert sourceDirectory != null;
         assert filter != null;
         assert handler != null;
-        assert monitor != null;
 
         this.sourceDirectory = sourceDirectory;
         this.filter = filter;
         this.handler = handler;
-        this.monitor = monitor;
         this.faultyPaths = new HashSet<File>();
         this.faultyPathsFile = new File(sourceDirectory, FAULTY_PATH_FILENAME);
         faultyPathsFile.delete();
@@ -119,35 +101,32 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     @Override
     public void run()
     {
-        synchronized(monitor)
+        try
         {
-            try
+            if (operationLog.isTraceEnabled())
             {
-                if (operationLog.isTraceEnabled())
-                {
-                    operationLog.trace("Start scanning directory " + sourceDirectory + ".");
-                }
-                checkForFaultyPathsFileChanged();
-                final File[] paths = listFiles();
-                // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
-                // when doing online quality control of measurements.
-                Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
-                for (File path : paths)
-                {
-                    if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
-                    {
-                        continue;
-                    }
-                    handle(path);
-                }
-                if (operationLog.isTraceEnabled())
-                {
-                    operationLog.trace("Finished scanning directory " + sourceDirectory + ".");
-                }
-            } catch (Exception ex)
-            {
-                notificationLog.error("An exception has occurred. (thread still running)", ex);
+                operationLog.trace("Start scanning directory " + sourceDirectory + ".");
             }
+            checkForFaultyPathsFileChanged();
+            final File[] paths = listFiles();
+            // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
+            // when doing online quality control of measurements.
+            Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
+            for (File path : paths)
+            {
+                if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
+                {
+                    continue;
+                }
+                handle(path);
+            }
+            if (operationLog.isTraceEnabled())
+            {
+                operationLog.trace("Finished scanning directory " + sourceDirectory + ".");
+            }
+        } catch (Exception ex)
+        {
+            notificationLog.error("An exception has occurred. (thread still running)", ex);
         }
     }
 
