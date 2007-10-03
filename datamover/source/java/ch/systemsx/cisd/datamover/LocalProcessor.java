@@ -99,15 +99,15 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     public TimerTask createRecoverableTimerTask()
     {
         return new TimerTask()
-        {
-            @Override
-            public void run()
             {
-                recover();
-            }
-        };
+                @Override
+                public void run()
+                {
+                    recover();
+                }
+            };
     }
-    
+
     private void recover()
     {
         if (operationLog.isDebugEnabled())
@@ -176,10 +176,23 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         File extraTmpCopy = null;
         if (extraCopyDirOrNull != null)
         {
+            extraTmpCopy = new File(tempDir, path.getName());
+            if (extraTmpCopy.exists())
+            {
+                operationLog.warn(String.format("Half-finished extra copy directory '%s' exists - removing it.",
+                        extraTmpCopy.getAbsolutePath()));
+                if (FileUtilities.deleteRecursively(extraTmpCopy) == false)
+                {
+                    notificationLog.error(String.format("Removal of half-finished extra copy directory '%s' failed.",
+                            extraTmpCopy.getAbsolutePath()));
+                    return;
+                }
+            }
             extraTmpCopy = copier.tryCopy(path, tempDir);
             if (extraTmpCopy == null)
             {
                 notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
+                return;
             }
         }
 
@@ -188,6 +201,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         {
             notificationLog.error(String
                     .format("Moving '%s' to '%s' for final moving process failed.", path, outputDir));
+            return;
         }
 
         if (extraTmpCopy != null)
