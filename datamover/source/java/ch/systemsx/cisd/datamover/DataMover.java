@@ -20,12 +20,11 @@ import java.io.File;
 import java.util.Timer;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.common.utilities.IRecoverable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
-import ch.systemsx.cisd.common.utilities.QueuingPathHandler;
-import ch.systemsx.cisd.common.utilities.SynchronizationMonitor;
 import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
@@ -90,35 +89,18 @@ public class DataMover
 
     private ITerminable start()
     {
-        final SynchronizationMonitor monitor = SynchronizationMonitor.create();
-        final QueuingPathHandler outgoingProcessingHandler =
-                startupOutgoingMovingProcess(parameters.getOutgoingStore());
-        final LocalProcessor localProcessor = createLocalProcessor(outgoingProcessingHandler);
-        final QueuingPathHandler localProcessingHandler = QueuingPathHandler.create(localProcessor, "Local Processor");
-        final IncomingProcessor.IncomingMovingProcess incomingProcess =
-                createIncomingMovingProcess(localProcessingHandler, monitor);
-        final IRecoverable localProcessingRecoverable = new IRecoverable()
-            {
-                public void recover()
-                {
-                    localProcessingHandler.handle(new QueuingPathHandler.ISpecialCondition()
-                    {
-                        public void handle()
-                        {
-                            localProcessor.recover();
-                        }
-                    }, "recovery", false);
-                }
-            };
-        final ITerminable recoveryProcess =
-                startupRecoveryProcess(localProcessingRecoverable, incomingProcess.getProcessor(), monitor);
-        incomingProcess.startup(parameters.getCheckIntervalMillis() / 2L);
-        return createCompoundTerminable(recoveryProcess, outgoingProcessingHandler, localProcessingHandler,
-                incomingProcess);
+        final DataMoverProcess outgoingMovingProcess = createOutgoingMovingProcess();
+        final DataMoverProcess localProcessor = createLocalProcessor();
+        final DataMoverProcess incomingProcess = createIncomingMovingProcess();
+        final ITerminable recoveryProcess = startupRecoveryProcess(localProcessor, incomingProcess);
+        outgoingMovingProcess.startup(0L, parameters.getCheckIntervalMillis());
+        localProcessor.startup(parameters.getCheckIntervalMillis() / 2L, parameters.getCheckIntervalMillis());
+        incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
+        return createCompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor, incomingProcess);
     }
 
-    private ITerminable startupRecoveryProcess(final IRecoverable localProcessor, final IRecoverable incomingProcessor,
-            SynchronizationMonitor monitor)
+    private ITerminable startupRecoveryProcess(final DataMoverProcess localProcessor,
+            final DataMoverProcess incomingProcessor)
     {
         final ITriggerable recoverable = new ITriggerable()
             {
@@ -131,30 +113,36 @@ public class DataMover
         // Trigger initial recovery cycle.
         recoverable.trigger();
         final TriggeringTimerTask recoveryingTimerTask =
-                new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable, monitor);
+                new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable);
         final Timer recoveryTimer = new Timer("Recovery");
         recoveryTimer.scheduleAtFixedRate(recoveryingTimerTask, 0, parameters.getCheckIntervalMillis());
         return TimerHelper.asTerminable(recoveryTimer);
     }
 
-    private IncomingProcessor.IncomingMovingProcess createIncomingMovingProcess(QueuingPathHandler localProcessor,
-            SynchronizationMonitor monitor)
+    private DataMoverProcess createIncomingMovingProcess()
     {
-        return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs, localProcessor, monitor);
+        return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs);
     }
 
-    private LocalProcessor createLocalProcessor(QueuingPathHandler outgoingHandler)
+    private DataMoverProcess createLocalProcessor()
     {
         final LocalProcessor localProcessor =
                 LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs.getReadyToMoveDir(),
-                        bufferDirs.getTempDir(), outgoingHandler, factory);
-        return localProcessor;
+                        bufferDirs.getTempDir(), factory);
+        final DirectoryScanningTimerTask localProcessingTask =
+                new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(), FileUtilities.ACCEPT_ALL_FILTER,
+                        localProcessor);
+        return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
     }
 
-    private QueuingPathHandler startupOutgoingMovingProcess(FileStore outputDir)
+    private DataMoverProcess createOutgoingMovingProcess()
     {
-        final IPathHandler remoteMover = createRemotePathMover(null, outputDir.getPath(), outputDir.getHost());
-        return QueuingPathHandler.create(remoteMover, "Final Destination Mover");
+        final FileStore outgoingStore = parameters.getOutgoingStore();
+        final IPathHandler remoteMover = createRemotePathMover(null, outgoingStore.getPath(), outgoingStore.getHost());
+        final DirectoryScanningTimerTask outgoingMovingTask =
+                new DirectoryScanningTimerTask(bufferDirs.getReadyToMoveDir(), FileUtilities.ACCEPT_ALL_FILTER,
+                        remoteMover);
+        return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
     private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
@@ -28,13 +29,13 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.common.utilities.IRecoverable;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
 /**
  * Processing of the files on the local machine. This class does not scan its input directory, all resources must
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
-public class LocalProcessor implements IPathHandler, IRecoverable
+public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactory
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
 
@@ -72,33 +73,42 @@ public class LocalProcessor implements IPathHandler, IRecoverable
 
     private final File extraCopyDirOrNull;
 
-    private final IPathHandler outgoingHandler;
-
     private LocalProcessor(Parameters parameters, File inputDir, File outputDir, File tempDir,
-            IPathHandler outgoingHandler, IFileSysOperationsFactory factory)
+            IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
         this.inputDir = inputDir;
         this.outputDir = outputDir;
         this.tempDir = tempDir;
-        this.outgoingHandler = outgoingHandler;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = factory.getImmutableCopier();
         this.mover = factory.getMover();
         this.readOperations = factory.getReadPathOperations();
     }
 
-    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir,
-            File bufferDir, IPathHandler lastStepHandler, IFileSysOperationsFactory factory)
+    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir, File bufferDir,
+            IFileSysOperationsFactory factory)
     {
         final LocalProcessor handlerAndRecoverable =
-                new LocalProcessor(parameters, inputDir, outputDir, bufferDir, lastStepHandler, factory);
+                new LocalProcessor(parameters, inputDir, outputDir, bufferDir, factory);
         return handlerAndRecoverable;
     }
 
     // ----------------
 
-    public void recover()
+    public TimerTask createRecoverableTimerTask()
+    {
+        return new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                recover();
+            }
+        };
+    }
+    
+    private void recover()
     {
         if (operationLog.isDebugEnabled())
         {
@@ -151,11 +161,6 @@ public class LocalProcessor implements IPathHandler, IRecoverable
         {
             return; // directory is empty, no recovery is needed
         }
-
-        for (File file : files)
-        {
-            outgoingHandler.handle(file);
-        }
     }
 
     // ----------------
@@ -179,10 +184,7 @@ public class LocalProcessor implements IPathHandler, IRecoverable
         }
 
         final File movedFile = mover.tryMove(path, outputDir);
-        if (movedFile != null)
-        {
-            outgoingHandler.handle(movedFile);
-        } else
+        if (movedFile == null)
         {
             notificationLog.error(String
                     .format("Moving '%s' to '%s' for final moving process failed.", path, outputDir));
