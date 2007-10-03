@@ -53,7 +53,7 @@ public class MainTest
     private static final long DATA_MOVER_COMPLETION_TIME = 4000;
 
     private static final long DATA_MOVER_COMPLETION_TIME_LONG = 6000;
-    
+
     private static final int CHECK_INTERVAL = 1;
 
     private static final int QUIET_PERIOD = 2;
@@ -281,18 +281,18 @@ public class MainTest
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
-//    private static void performGenericTest(IFSPreparator preparator) throws Exception
-//    {
-//        ExternalDirs dirs = new ExternalDirs(workingDirectory);
-//        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
-//        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
-//
-//        preparator.prepareState(dirs, bufferDirs);
-//
-//        runDataMover(parameters, bufferDirs);
-//
-//        assertSampleStructMovedWithCopy(dirs, bufferDirs);
-//    }
+    // private static void performGenericTest(IFSPreparator preparator) throws Exception
+    // {
+    // ExternalDirs dirs = new ExternalDirs(workingDirectory);
+    // Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
+    // LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+    //
+    // preparator.prepareState(dirs, bufferDirs);
+    //
+    // runDataMover(parameters, bufferDirs);
+    //
+    // assertSampleStructMovedWithCopy(dirs, bufferDirs);
+    // }
 
     private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep) throws Exception
     {
@@ -325,19 +325,23 @@ public class MainTest
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
         Thread.sleep(millisToWaitForPrep);
         preparator.prepareState(dirs, bufferDirs);
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME / 2);
         final File recoveryFile = new File(DataMover.RECOVERY_MARKER_FIILENAME);
         recoveryFile.createNewFile();
-        Thread.sleep(DATA_MOVER_COMPLETION_TIME - millisToWaitForPrep);
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME);
         assertTrue(terminable.terminate());
         assertFalse(recoveryFile.exists());
     }
 
-    @DataProvider(name="delays")
+    @DataProvider(name = "delays")
     public Object[][] provideDelays()
     {
-        return new Object[][] { { 0L }, { 100L } };
+        return new Object[][]
+            {
+                { 0L },
+                { 1000L } };
     }
-    
+
     // --------------------- tests
 
     @Test(groups =
@@ -518,6 +522,92 @@ public class MainTest
                     createSampleStructure(dirs.incoming);
                 }
             }, delay);
+    }
+
+    private FileStructEngine[] createAllThreadsPartialStruct(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+            throws Exception
+    {
+        FileStructEngine[] structs = new FileStructEngine[6];
+        int c = 0;
+        // incoming recovery: structure 1 partial in in-progress
+        structs[c] = new FileStructEngine("test" + c);
+        structs[c].createPartialSampleStructure(bufferDirs.getCopyInProgressDir());
+        structs[c].createSampleStructure(dirs.incoming);
+        c++;
+
+        // local processing recovery: structure 2 in copy-complete
+        structs[c] = new FileStructEngine("test" + c);
+        structs[c].createSampleStructure(bufferDirs.getCopyCompleteDir());
+        c++;
+
+        // outgoing and local processing recovery: structure 3 in ready-to-move and temp
+        structs[c] = new FileStructEngine("test" + c);
+        structs[c].createSampleStructure(bufferDirs.getReadyToMoveDir());
+        structs[c].createSampleStructure(bufferDirs.getTempDir());
+        c++;
+
+        // some normal input
+        for (int i = 0; i < 3; i++)
+        {
+            structs[c] = new FileStructEngine("test" + c);
+            structs[c].createSampleStructure(dirs.incoming);
+            c++;
+        }
+        return structs;
+    }
+
+    @Test(groups =
+        { "slow" })
+    // recovery after failure when all threads need recovery
+    public void testRecoveryAllThreadsPartialBis() throws Exception
+    {
+        ExternalDirs dirs = new ExternalDirs(workingDirectory);
+        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
+        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+
+        FileStructEngine[] structs = createAllThreadsPartialStruct(dirs, bufferDirs);
+        runDataMover(parameters, bufferDirs);
+
+        for (int i = 0; i < structs.length; i++)
+        {
+            assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
+        }
+        assertNumberOfResources(dirs.outgoing, structs.length * 2);
+    }
+
+    // checks recovery mode when all threads need recovery, but no restart is made
+    public void testRecoveryAllThreadsPartial(Parameters parameters, ExternalDirs dirs)
+            throws Exception
+    {
+        LocalBufferDirs bufferDirs = createBufferDirs(parameters);
+
+        ITerminable terminable = Main.startupServer(parameters, bufferDirs);
+
+        FileStructEngine[] structs = createAllThreadsPartialStruct(dirs, bufferDirs);
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME_LONG / 2);
+
+        final File recoveryFile = new File(DataMover.RECOVERY_MARKER_FIILENAME);
+        recoveryFile.createNewFile();
+
+        Thread.sleep(DATA_MOVER_COMPLETION_TIME_LONG);
+
+        for (int i = 0; i < structs.length; i++)
+        {
+            assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
+        }
+        assertNumberOfResources(dirs.outgoing, structs.length * 2);
+        assertFalse(recoveryFile.exists());
+        assert terminable.terminate();
+    }
+
+    @Test(groups =
+        { "slow" })
+    // trigger recovery mode when all threads need recovery, but no restart is made
+    public void testRecoveryRequestAllThreadsPartial() throws Exception
+    {
+        ExternalDirs dirs = new ExternalDirs(workingDirectory);
+        Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
+        testRecoveryAllThreadsPartial(parameters, dirs);
     }
 
     @Test(groups =
