@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.testng.AssertJUnit.*;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.*;
 
 import ch.systemsx.cisd.common.utilities.CollectionIO;
@@ -105,7 +106,7 @@ public class FileStructEngine
     private static void assertSampleFileContent(File dir, String fileName)
     {
         File file = new File(dir, fileName);
-        assert file.isFile();
+        assertTrue(file.getAbsolutePath(), file.isFile());
         List<String> lineList = new ArrayList<String>();
         assert CollectionIO.readCollection(file, lineList);
         assert lineList.equals(createSampleFileContent());

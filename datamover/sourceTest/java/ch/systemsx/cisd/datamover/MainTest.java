@@ -19,8 +19,7 @@ package ch.systemsx.cisd.datamover;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.assertEmptyDir;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
 
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +49,9 @@ public class MainTest
     // time needed be a single test to complete. After this time we kill data mover and check if results are correct. It
     // can happen, that tests running on slow machines fail because they need more time. Than this constant should be
     // adjusted.
-    private static final long DATA_MOVER_COMPLETION_TIME = 4000;
+    private static final long DATA_MOVER_COMPLETION_TIME = 5000;
 
-    private static final long DATA_MOVER_COMPLETION_TIME_LONG = 6000;
+    private static final long DATA_MOVER_COMPLETION_TIME_LONG = 7000;
 
     private static final int CHECK_INTERVAL = 1;
 
@@ -67,7 +66,7 @@ public class MainTest
     {
         LogInitializer.init();
         unitTestRootDirectory.mkdirs();
-        assert unitTestRootDirectory.isDirectory();
+        assertTrue(unitTestRootDirectory.isDirectory());
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -153,7 +152,7 @@ public class MainTest
         assertSampleStructureExists(dirs.outgoing);
         assertSampleStructFinishMarkerExists(dirs.outgoing);
         // we use default structure engine, so there is exactly one directory in outgoing + the marker file
-        assert dirs.outgoing.list().length == 2;
+        assertEquals(2, dirs.outgoing.list().length);
     }
 
     private static void assertEmptyIncomingAndBufferDir(ExternalDirs dirs, LocalBufferDirs bufferDirs)
@@ -201,11 +200,6 @@ public class MainTest
     }
 
     // -------------------- testing engine and configuration
-
-    private static void assertNumberOfResources(File file, int size)
-    {
-        assert file.list().length == size;
-    }
 
     private static ArrayList<String> getDefaultParameters(ExternalDirs dirs)
     {
@@ -578,7 +572,7 @@ public class MainTest
         {
             assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
         }
-        assertNumberOfResources(dirs.outgoing, structs.length * 2);
+        assertEquals(structs.length * 2, dirs.outgoing.list().length);
     }
 
     // checks recovery mode when all threads need recovery, but no restart is made
@@ -600,9 +594,9 @@ public class MainTest
         {
             assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
         }
-        assertNumberOfResources(dirs.outgoing, structs.length * 2);
+        assertEquals(structs.length * 2, dirs.outgoing.list().length);
         assertFalse(recoveryFile.exists());
-        assert terminable.terminate();
+        assertTrue(terminable.terminate());
     }
 
     @Test(groups =
@@ -643,7 +637,7 @@ public class MainTest
         assertSampleStructMovedWithCopy(dirs, bufferDirs, struct1);
         assertSampleStructMovedWithCopy(dirs, bufferDirs, struct2);
         assertSampleStructMovedWithCopy(dirs, bufferDirs, struct3);
-        assertNumberOfResources(dirs.outgoing, 6);
+        assertEquals(6, dirs.outgoing.list().length);
     }
 
     @Test(groups =
@@ -664,7 +658,7 @@ public class MainTest
 
         assertSampleStructMoved(dirs, bufferDirs, struct1);
         assertSampleStructMoved(dirs, bufferDirs, struct2);
-        assertNumberOfResources(dirs.outgoing, 4);
+        assertEquals(4, dirs.outgoing.list().length);
         assertEmptyDir(dirs.extraCopy);
     }
 
@@ -695,8 +689,8 @@ public class MainTest
         {
             assertSampleStructMovedWithCopy(dirs, bufferDirs, structs[i]);
         }
-        assertNumberOfResources(dirs.outgoing, 2 * size);
-        assert terminable.terminate();
+        assertEquals(2 * size, dirs.outgoing.list().length);
+        assertTrue(terminable.terminate());
     }
 
     @Test(groups =
@@ -722,12 +716,12 @@ public class MainTest
         runDataMover(parameters, bufferDirs);
 
         cleansinStruct.assertSampleStructureCleaned(dirs.outgoing);
-        assertNumberOfResources(dirs.outgoing, 2);
+        assertEquals(2, dirs.outgoing.list().length);
 
         cleansinStruct.assertSampleStructureCleaned(dirs.extraCopy);
-        assertNumberOfResources(dirs.extraCopy, 1);
+        assertEquals(1, dirs.extraCopy.list().length);
 
         manualIntervStruct.assertSampleStructureExists(dirs.manualIntervDir);
-        assertNumberOfResources(dirs.manualIntervDir, 1);
+        assertEquals(1, dirs.manualIntervDir.list().length);
     }
 }
