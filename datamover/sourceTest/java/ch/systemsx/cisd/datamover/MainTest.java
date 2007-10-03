@@ -314,8 +314,14 @@ public class MainTest
 
     private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs) throws InterruptedException
     {
+        runDataMover(parameters, bufferDirs, DATA_MOVER_COMPLETION_TIME);
+    }
+
+    private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs, long dataMoverCompleteionTime)
+            throws InterruptedException
+    {
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
-        Thread.sleep(DATA_MOVER_COMPLETION_TIME);
+        Thread.sleep(dataMoverCompleteionTime);
         assertTrue(terminable.terminate());
     }
 
@@ -566,7 +572,7 @@ public class MainTest
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
         FileStructEngine[] structs = createAllThreadsPartialStruct(dirs, bufferDirs);
-        runDataMover(parameters, bufferDirs);
+        runDataMover(parameters, bufferDirs, DATA_MOVER_COMPLETION_TIME_LONG);
 
         for (int i = 0; i < structs.length; i++)
         {
@@ -576,8 +582,7 @@ public class MainTest
     }
 
     // checks recovery mode when all threads need recovery, but no restart is made
-    public void testRecoveryAllThreadsPartial(Parameters parameters, ExternalDirs dirs)
-            throws Exception
+    public void testRecoveryAllThreadsPartial(Parameters parameters, ExternalDirs dirs) throws Exception
     {
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
