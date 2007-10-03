@@ -145,6 +145,19 @@
     </modificationset>
   </project>
   
+  <project name="lims_webclient">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/authentication"/>
+      <buildstatus logdir="logs/dbmigration"/>
+      <buildstatus logdir="logs/lims_base"/>
+      <buildstatus logdir="logs/lims"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
   <project name="etlserver">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
