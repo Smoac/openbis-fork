@@ -115,7 +115,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             operationLog.debug("Recovery starts.");
         }
         recoverTemporaryExtraCopy();
-        recoverRegisterReadyForOutgoing();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Recovery is finishsed.");
@@ -152,15 +151,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private static boolean fileExists(File inputDir, File file)
     {
         return new File(inputDir, file.getName()).exists();
-    }
-
-    private void recoverRegisterReadyForOutgoing()
-    {
-        File[] files = readOperations.tryListFiles(outputDir, errorLog);
-        if (files == null || files.length == 0)
-        {
-            return; // directory is empty, no recovery is needed
-        }
     }
 
     // ----------------
