@@ -86,7 +86,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.bufferDirs = bufferDirs;
     }
 
-
     public TimerTask createRecoverableTimerTask()
     {
         return new IncomingProcessorRecoveryTask();
@@ -217,7 +216,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs.getCopyCompleteDir());
             }
-            recoverIncomingCopyComplete(bufferDirs.getCopyCompleteDir());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Recovery is finished.");
@@ -279,16 +277,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                         tryMoveFromInProgressToFinished(localCopy, null, copyCompleteDir);
                     }
                 }
-            }
-        }
-
-        // schedule processing of all resources which were previously copied
-        private void recoverIncomingCopyComplete(File copyCompleteDir)
-        {
-            final File[] files = incomingReadOperations.tryListFiles(copyCompleteDir, errorLog);
-            if (files == null || files.length == 0)
-            {
-                return; // directory is empty, no recovery is needed
             }
         }
     }
