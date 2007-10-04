@@ -78,14 +78,26 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * Default interval to wait between two checks for activity (in seconds)
      */
-    static final int DEFAULT_CHECK_INTERVAL = 120;
+    static final int DEFAULT_CHECK_INTERVAL = 60;
 
     /**
      * The interval to wait between two checks for activity (in milliseconds).
      */
     @Option(name = "c", longName = "check-interval", usage = "The interval to wait between two checks (in seconds) "
-            + "[default: 120]", handler = MillisecondConversionOptionHandler.class)
+            + "[default: 160]", handler = MillisecondConversionOptionHandler.class)
     private long checkIntervalMillis;
+
+    /**
+     * Default interval to wait between two checks for activity for the internal processing queues (in seconds)
+     */
+    static final int DEFAULT_CHECK_INTERVAL_INTERNAL = 10;
+
+    /**
+     * The interval to wait between two checks for activity for the internal processing queues (in milliseconds).
+     */
+    @Option(longName = "check-interval-internal", usage = "The interval to wait between two checks for the internal processing queues (in seconds) "
+            + "[default: 10]", handler = MillisecondConversionOptionHandler.class)
+    private long checkIntervalInternalMillis;
 
     /**
      * Default period to wait before a file or directory is considered "inactive" or "stalled" (in seconds).
@@ -362,6 +374,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         checkIntervalMillis =
                 Integer.parseInt(serviceProperties.getProperty("check-interval", Integer
                         .toString(DEFAULT_CHECK_INTERVAL))) * 1000;
+        checkIntervalInternalMillis =
+                Integer.parseInt(serviceProperties.getProperty("check-interval-internal", Integer
+                        .toString(DEFAULT_CHECK_INTERVAL_INTERNAL))) * 1000;
         inactivityPeriodMillis =
                 Integer.parseInt(serviceProperties.getProperty("inactivity-period", Integer
                         .toString(DEFAULT_INACTIVITY_PERIOD))) * 1000;
@@ -462,11 +477,19 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The interval to wait beween to checks for activity (in milliseconds).
+     * @return The interval to wait between two checks for activity (in milliseconds).
      */
     public long getCheckIntervalMillis()
     {
         return checkIntervalMillis;
+    }
+
+    /**
+     * @return The interval to wait between two checks for activity for the internal threads (in milliseconds).
+     */
+    public long getCheckIntervalInternalMillis()
+    {
+        return checkIntervalInternalMillis;
     }
 
     /**
@@ -622,7 +645,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             {
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory.getAbsolutePath()));
             }
-            operationLog.info(String.format("Check intervall: %d s.", getCheckIntervalMillis() / 1000));
+            operationLog.info(String.format("Check intervall (external): %d s.", getCheckIntervalMillis() / 1000));
+            operationLog.info(String.format("Check intervall (internal): %d s.",
+                    getCheckIntervalInternalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));
             operationLog.info(String.format("Inactivity (stall) period: %d s.", getInactivityPeriodMillis() / 1000));
             operationLog.info(String.format("Intervall to wait after failure: %d s.",

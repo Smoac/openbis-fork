@@ -93,8 +93,9 @@ public class DataMover
         final DataMoverProcess localProcessor = createLocalProcessor();
         final DataMoverProcess incomingProcess = createIncomingMovingProcess();
         final ITerminable recoveryProcess = startupRecoveryProcess(localProcessor, incomingProcess);
-        outgoingMovingProcess.startup(0L, parameters.getCheckIntervalMillis());
-        localProcessor.startup(parameters.getCheckIntervalMillis() / 2L, parameters.getCheckIntervalMillis());
+        outgoingMovingProcess.startup(0L, parameters.getCheckIntervalInternalMillis());
+        localProcessor.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
+                .getCheckIntervalInternalMillis());
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
         return createCompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor, incomingProcess);
     }

@@ -55,6 +55,8 @@ public class MainTest
 
     private static final int CHECK_INTERVAL = 1;
 
+    private static final int CHECK_INTERVAL_INTERNAL = 1;
+
     private static final int QUIET_PERIOD = 2;
 
     private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
@@ -205,6 +207,7 @@ public class MainTest
     {
         return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer.getPath(),
                 "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer.toString(CHECK_INTERVAL),
+                "--check-interval-internal", Integer.toString(CHECK_INTERVAL_INTERNAL),
                 "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote");
     }
 

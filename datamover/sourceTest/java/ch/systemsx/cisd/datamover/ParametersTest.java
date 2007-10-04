@@ -131,6 +131,13 @@ public class ParametersTest
     }
 
     @Test
+    public void testDefaultCheckIntervalInternal() throws Exception
+    {
+        final Parameters parameters = parse();
+        assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL_INTERNAL, parameters.getCheckIntervalInternalMillis());
+    }
+
+    @Test
     public void testDefaultQuietPeriod() throws Exception
     {
         final Parameters parameters = parse();
@@ -179,6 +186,14 @@ public class ParametersTest
         final int CHECK_INTERVAL = 11;
         final Parameters parameters = parse("-c", Integer.toString(CHECK_INTERVAL));
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
+    }
+
+    @Test
+    public void testSetCheckIntervalInternalLong() throws Exception
+    {
+        final int CHECK_INTERVAL = 1;
+        final Parameters parameters = parse("--check-interval-internal", Integer.toString(CHECK_INTERVAL));
+        assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalInternalMillis());
     }
 
     @Test
