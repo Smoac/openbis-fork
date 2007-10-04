@@ -39,11 +39,7 @@ public class DataMoverProcess implements ITerminable
      */
     public void startup(long delay, long period)
     {
-        // The moving task is scheduled at fixed rate. It makes sense especially if the task is moving data from the
-        // remote share. The rationale behind this is that if new items are
-        // added to the source directory while the incoming timer task has been running for a long time, busy moving
-        // data, the task shouldn't sit idle for the check time when there is actually work to do.
-        timer.scheduleAtFixedRate(dataMoverTimerTask, delay, period);
+        timer.schedule(dataMoverTimerTask, delay, period);
     }
 
     public boolean terminate()
