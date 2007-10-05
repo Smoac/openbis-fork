@@ -128,11 +128,17 @@ case "$1" in
 	        $0 stop
 	        $0 start
         ;;
+	help)
+		${JAVA_HOME}java -jar lib/datamover.jar --help
+	;;
 	version)
                 ${JAVA_HOME}java -jar lib/datamover.jar --version
 	;;
+	test-notify)
+		${JAVA_HOME}java -jar lib/datamover.jar --test-notify
+	;;
         *)
-        echo $"Usage: $0 {start|stop|restart|status|recover|version}"
+        echo $"Usage: $0 {start|stop|restart|status|recover|help|version|test-notify}"
         exit 1
 esac
 exit 0
