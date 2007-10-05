@@ -283,7 +283,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             + "sent out).")
     void sendTestNotification(boolean exit)
     {
-        notificationLog.error("This is a test notification given due to specifying the --test-notify option.");
+        notificationLog.info("This is a test notification given due to specifying the --test-notify option.");
         if (exit)
         {
             System.exit(0);
