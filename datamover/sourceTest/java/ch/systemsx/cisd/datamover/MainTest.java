@@ -278,19 +278,6 @@ public class MainTest
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
-    // private static void performGenericTest(IFSPreparator preparator) throws Exception
-    // {
-    // ExternalDirs dirs = new ExternalDirs(workingDirectory);
-    // Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
-    // LocalBufferDirs bufferDirs = createBufferDirs(parameters);
-    //
-    // preparator.prepareState(dirs, bufferDirs);
-    //
-    // runDataMover(parameters, bufferDirs);
-    //
-    // assertSampleStructMovedWithCopy(dirs, bufferDirs);
-    // }
-
     private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep) throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
