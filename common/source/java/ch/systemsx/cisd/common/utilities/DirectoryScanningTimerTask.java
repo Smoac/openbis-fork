@@ -154,10 +154,17 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private File[] listFiles()
     {
-        boolean logErrors = (errorReadingDirectory == false);
+        final boolean logErrors = (errorReadingDirectory == false);
         final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
 
         final File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
+        if (errorReadingDirectory && paths != null)
+        {
+            if (notificationLog.isInfoEnabled())
+            {
+                notificationLog.info(String.format("Directory '%s' is available again.", sourceDirectory));
+            }
+        }
         errorReadingDirectory = (paths == null); // Avoid mailbox flooding.
         return (paths == null) ? new File[0] : paths;
     }
