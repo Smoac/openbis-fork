@@ -1,9 +1,0 @@
-#! /bin/sh
-./datamover.stop
-
-if [ "$JAVA_HOME" != "" ]; then
-	JAVA_HOME="$JAVA_HOME/bin/"
-fi
-
-${JAVA_HOME}java -jar lib/datamover.jar "$@" & echo $! > datamover.pid
-echo Datamover successfuly started in the background.
