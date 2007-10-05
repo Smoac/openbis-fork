@@ -116,7 +116,7 @@ public class DataMover
         final TriggeringTimerTask recoveryingTimerTask =
                 new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable);
         final Timer recoveryTimer = new Timer("Recovery");
-        recoveryTimer.scheduleAtFixedRate(recoveryingTimerTask, 0, parameters.getCheckIntervalMillis());
+        recoveryTimer.schedule(recoveryingTimerTask, 0, parameters.getCheckIntervalInternalMillis());
         return TimerHelper.asTerminable(recoveryTimer);
     }
 
