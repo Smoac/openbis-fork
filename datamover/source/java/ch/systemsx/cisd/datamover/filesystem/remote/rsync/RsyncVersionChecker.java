@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -101,6 +102,32 @@ final class RsyncVersionChecker
         {
             return rsyncPatchVersion;
         }
+        
+        /**
+         * @return <code>true</code>, if this version is newer or as new the minimal version specified. 
+         */
+        public boolean isNewerOrEqual(int minMajorVerson, int minMinorVersion, int minPatchLevel)
+        {
+            if (rsyncMajorVersion < minMajorVerson)
+            {
+                return false;
+            } else if (rsyncMajorVersion > minMajorVerson)
+            {
+                return true;
+            } else
+            {
+                if (rsyncMinorVersion < minMinorVersion)
+                {
+                    return false;
+                } else if (rsyncMinorVersion > minMinorVersion)
+                {
+                    return true;
+                } else
+                {
+                    return (rsyncPatchVersion >= minPatchLevel);
+                }
+            }
+        }
 
     }
 
@@ -115,7 +142,7 @@ final class RsyncVersionChecker
     {
         assert rsyncExecutable != null;
 
-        String rsyncVersion = getRsyncVersion(rsyncExecutable);
+        String rsyncVersion = tryGetRsyncVersion(rsyncExecutable);
         if (rsyncVersion == null)
         {
             return null;
@@ -132,18 +159,23 @@ final class RsyncVersionChecker
         return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion, rsyncPatchVersion);
     }
 
-    private static String getRsyncVersion(String rsyncExecutableToCheck)
+    private static String tryGetRsyncVersion(String rsyncExecutableToCheck)
     {
         final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
         final ProcessExecutionHelper.ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
                         TIME_TO_WAIT_FOR_COMPLETION, operationLog, machineLog);
         result.log();
-        final String versionString = extractRsyncVersion(result.getProcessOutput().get(0));
+        final List<String> processOutput = result.getProcessOutput();
+        if (processOutput.size() == 0)
+        {
+            return null;
+        }
+        final String versionString = tryExtractRsyncVersion(processOutput.get(0));
         return versionString;
     }
 
-    private static String extractRsyncVersion(String rsyncVersionLine)
+    private static String tryExtractRsyncVersion(String rsyncVersionLine)
     {
         if (rsyncVersionLine.startsWith("rsync  version") == false)
         {

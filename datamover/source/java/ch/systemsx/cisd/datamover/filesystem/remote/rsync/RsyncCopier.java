@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
 
-import static ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.getVersion;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,9 +62,13 @@ public class RsyncCopier implements IPathCopier
 
     private final String rsyncExecutable;
 
+    private final RsyncVersion rsyncVersion;
+    
     private final String sshExecutable;
 
     private final List<String> additionalCmdLineFlags;
+    
+    private final boolean overwrite;
 
     /**
      * If <code>true</code>, the file system of the destination directory requires that already existing files and
@@ -91,15 +93,17 @@ public class RsyncCopier implements IPathCopier
      *            paths).
      */
     public RsyncCopier(File rsyncExecutable, File sshExecutable,
-            boolean destinationDirectoryRequiresDeletionBeforeCreation, String... cmdLineFlags)
+            boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite, String... cmdLineFlags)
     {
         assert rsyncExecutable != null && rsyncExecutable.exists();
         assert sshExecutable == null || rsyncExecutable.exists();
 
         this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
+        this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
         this.sshExecutable = (sshExecutable != null) ? sshExecutable.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation = destinationDirectoryRequiresDeletionBeforeCreation;
         this.copyProcessReference = new AtomicReference<Process>(null);
+        this.overwrite = overwrite;
         if (cmdLineFlags.length > 0)
         {
             this.additionalCmdLineFlags = Arrays.asList(cmdLineFlags);
@@ -107,6 +111,18 @@ public class RsyncCopier implements IPathCopier
         {
             this.additionalCmdLineFlags = null;
         }
+    }
+    
+    private boolean rsyncSupportsAppend()
+    {
+        assert rsyncVersion != null;
+        
+        return rsyncVersion.isNewerOrEqual(2, 6, 7);
+    }
+    
+    private boolean isOverwriteMode()
+    {
+        return overwrite || destinationDirectoryRequiresDeletionBeforeCreation || (rsyncSupportsAppend() == false);
     }
 
     public Status copy(File sourcePath, File destinationDirectory)
@@ -182,10 +198,17 @@ public class RsyncCopier implements IPathCopier
         assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
         assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
 
-        final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace", "--whole-file");
+        final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
         commandLineList.addAll(standardParameters);
+        if (isOverwriteMode())
+        {
+            commandLineList.add("--whole-file");
+        } else
+        {
+            commandLineList.add("--append");
+        }
         if (sshExecutable != null && destinationHost != null)
         {
             commandLineList.add("--rsh");
@@ -264,8 +287,7 @@ public class RsyncCopier implements IPathCopier
     private static void logRsyncExitValue(final Process copyProcess)
     {
         final int exitValue = copyProcess.exitValue();
-        final List<String> processOutput =
-                ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
+        final List<String> processOutput = ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
         ProcessExecutionHelper.logProcessExecution("rsync", exitValue, processOutput, operationLog, machineLog);
     }
 
@@ -297,8 +319,7 @@ public class RsyncCopier implements IPathCopier
         {
             machineLog.debug(String.format("Testing rsync executable '%s'", rsyncExecutable));
         }
-        final RsyncVersion version = getVersion(rsyncExecutable);
-        if (version == null)
+        if (rsyncVersion == null)
         {
             if (OSUtilities.executableExists(rsyncExecutable))
             {
@@ -310,16 +331,16 @@ public class RsyncCopier implements IPathCopier
                         rsyncExecutable));
             }
         }
-        if (version.getMajorVersion() < 2 || (version.getMajorVersion() == 2 && version.getMinorVersion() < 6))
+        if (rsyncVersion.isNewerOrEqual(2, 6, 0) == false)
         {
             throw new ConfigurationFailureException(String.format(
-                    "Rsync executable '%s' is too old (required: 2.6.0, found: %s)", rsyncExecutable, version
+                    "Rsync executable '%s' is too old (required: 2.6.0, found: %s)", rsyncExecutable, rsyncVersion
                             .getVersionString()));
         }
         if (machineLog.isInfoEnabled())
         {
-            machineLog.info(String.format("Using rsync executable '%s', version %s", rsyncExecutable, version
-                    .getVersionString()));
+            machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s", rsyncExecutable, rsyncVersion
+                    .getVersionString(), (isOverwriteMode() ? "overwrite" : "append")));
         }
     }
 

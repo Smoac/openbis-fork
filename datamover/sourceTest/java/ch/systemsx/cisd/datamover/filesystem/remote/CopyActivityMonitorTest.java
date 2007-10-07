@@ -106,6 +106,11 @@ public class CopyActivityMonitorTest
                 {
                     return null;
                 }
+
+                public boolean isRsyncOverwrite()
+                {
+                    return false;
+                }
                 
             };
             this.impl = new FileSysOperationsFactory(dummyFileSysParameters).getReadPathOperations();

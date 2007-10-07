@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.datamover;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 
@@ -220,6 +222,20 @@ public class ParametersTest
     }
 
     @Test
+    public void testDefaultRsyncOverwrite()
+    {
+        final Parameters parameters = parse();
+        assertFalse(parameters.isRsyncOverwrite());
+    }
+    
+    @Test
+    public void testSetRsyncOverwrite()
+    {
+        final Parameters parameters = parse("--rsync-overwrite");
+        assertTrue(parameters.isRsyncOverwrite());
+    }
+    
+    @Test
     public void testSetMandatoryOptions() throws Exception
     {
         final String LOCAL_DATADIR = ".." + File.separator + "ldata";
@@ -248,7 +264,7 @@ public class ParametersTest
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR,
                         "--outgoing-host", REMOTE_HOST, "--check-interval", Integer.toString(CHECK_INTERVAL),
                         "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote",
-                        "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR);
+                        "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR, "--rsync-overwrite");
         assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
         assertEquals(REMOTE_INCOMING_HOST, parameters.getIncomingStore().getHost());
         assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
@@ -258,6 +274,7 @@ public class ParametersTest
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
         assertEquals(true, parameters.getTreatIncomingAsRemote());
+        assertTrue(parameters.isRsyncOverwrite());
     }
 
 }

@@ -61,7 +61,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public FileSysOperationsFactory(IFileSysParameters parameters)
     {
         assert parameters != null;
-        
+
         this.parameters = parameters;
     }
 
@@ -73,28 +73,28 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public IReadPathOperations getReadPathOperations()
     {
         return new IReadPathOperations()
-        {
-
-            public boolean exists(File file)
             {
-                return file.exists();
-            }
 
-            public long lastChanged(File path)
-            {
-                return FileUtilities.lastChanged(path);
-            }
+                public boolean exists(File file)
+                {
+                    return file.exists();
+                }
 
-            public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
-            {
-                return FileUtilities.tryListFiles(directory, filter, loggerOrNull);
-            }
+                public long lastChanged(File path)
+                {
+                    return FileUtilities.lastChanged(path);
+                }
 
-            public File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
-            {
-                return FileUtilities.tryListFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
-            }
-        };
+                public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+                {
+                    return FileUtilities.tryListFiles(directory, filter, loggerOrNull);
+                }
+
+                public File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
+                {
+                    return FileUtilities.tryListFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
+                }
+            };
     }
 
     public IPathImmutableCopier getImmutableCopier()
@@ -144,7 +144,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
         if (rsyncExecutable != null)
         {
-            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation);
+            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation, parameters
+                    .isRsyncOverwrite());
         } else
         {
             throw new ConfigurationFailureException("Unable to find a copy engine.");

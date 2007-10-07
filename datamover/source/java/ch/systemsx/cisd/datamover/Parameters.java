@@ -64,6 +64,14 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private String rsyncExecutable = null;
 
     /**
+     * If set to <code>true</code>, rsync is called in such a way to files that already exist are overwritten rather
+     * than appended to.
+     */
+    @Option(longName = "rsync-overwrite", usage = "If true, files that already exist on the remote side are always "
+            + "overwritten rather than appended.")
+    private boolean rsyncOverwrite = false;
+
+    /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
     @Option(longName = "ssh-executable", metaVar = "EXEC", usage = "The ssh executable to use for creating tunnels.")
@@ -369,6 +377,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     {
         final Properties serviceProperties = loadServiceProperties();
         rsyncExecutable = serviceProperties.getProperty("rsync-executable");
+        rsyncOverwrite = Boolean.parseBoolean(serviceProperties.getProperty("rsync-overwrite", "false"));
         sshExecutable = serviceProperties.getProperty("ssh-executable");
         hardLinkExecutable = serviceProperties.getProperty("hard-link-executable");
         checkIntervalMillis =
@@ -457,6 +466,15 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     public String getRsyncExecutable()
     {
         return rsyncExecutable;
+    }
+
+    /**
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist are overwritten rather
+     *         than appended to.
+     */
+    public boolean isRsyncOverwrite()
+    {
+        return rsyncOverwrite;
     }
 
     /**

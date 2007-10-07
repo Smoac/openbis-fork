@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -30,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.CollectionIO;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncCopier;
 
@@ -75,11 +80,15 @@ public class RsyncCopierTest
         destinationDirectory.deleteOnExit();
     }
 
-    private File createRsync(String... lines) throws IOException, InterruptedException
+    private File createRsync(String rsyncVersion, String... additionalLines) throws IOException, InterruptedException
     {
         final File rsyncBinary = new File(workingDirectory, "rsync");
         rsyncBinary.delete();
-        CollectionIO.writeIterable(rsyncBinary, Arrays.asList(lines));
+        final List<String> lines = new ArrayList<String>();
+        lines.addAll(Arrays.asList("#! /bin/sh", "if [ \"$1\" = \"--version\" ]; then ", String.format(
+                "  echo \"rsync  version %s\"", rsyncVersion), "exit 0", "fi"));
+        lines.addAll(Arrays.asList(additionalLines));
+        CollectionIO.writeIterable(rsyncBinary, lines);
         Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", rsyncBinary.getPath())).waitFor();
         rsyncBinary.deleteOnExit();
         return rsyncBinary;
@@ -87,7 +96,7 @@ public class RsyncCopierTest
 
     private File createRsync(int exitValue) throws IOException, InterruptedException
     {
-        return createRsync("#! /bin/sh", "exit " + exitValue);
+        return createRsync("2.6.9", "exit " + exitValue);
     }
 
     @Test(groups =
@@ -95,7 +104,7 @@ public class RsyncCopierTest
     public void testRsyncOK() throws IOException, InterruptedException
     {
         final File dummyRsyncBinary = createRsync(0);
-        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assert Status.OK == status;
     }
@@ -106,7 +115,7 @@ public class RsyncCopierTest
     {
         final int exitValue = 11;
         final File dummyRsyncBinary = createRsync(exitValue);
-        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(StatusFlag.RETRIABLE_ERROR, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
@@ -118,7 +127,7 @@ public class RsyncCopierTest
     {
         final int exitValue = 1;
         final File dummyRsyncBinary = createRsync(exitValue);
-        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(StatusFlag.FATAL_ERROR, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
@@ -126,10 +135,52 @@ public class RsyncCopierTest
 
     @Test(groups =
         { "requires_unix" })
+    public void testRsyncAppendMode() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+        final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
+        copier.copy(sourceFile, destinationDirectory);
+        String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
+        assertFalse(rsyncParameters.indexOf("--whole-file") >= 0);
+        assertTrue(rsyncParameters.indexOf("--append") >= 0);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncAppendModeWhenNotSupported() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.6", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+        final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
+        copier.copy(sourceFile, destinationDirectory);
+        String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
+        assertTrue(rsyncParameters.indexOf("--whole-file") >= 0);
+        assertFalse(rsyncParameters.indexOf("--append") >= 0);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncOverwriteMode() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+        final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, true);
+        copier.copy(sourceFile, destinationDirectory);
+        String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
+        assertTrue(rsyncParameters.indexOf("--whole-file") >= 0);
+        assertFalse(rsyncParameters.indexOf("--append") >= 0);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
     public void testRsyncTermination() throws IOException, InterruptedException
     {
-        final File sleepyRsyncBinary = createRsync("#! /bin/sh", "/bin/sleep 100");
-        final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false);
+        final File sleepyRsyncBinary = createRsync("2.6.9", "/bin/sleep 100");
+        final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false, false);
         (new Thread(new Runnable()
             {
                 public void run()

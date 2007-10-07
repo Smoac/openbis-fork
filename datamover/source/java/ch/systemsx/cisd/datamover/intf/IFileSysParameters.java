@@ -32,6 +32,13 @@ public interface IFileSysParameters
     String getRsyncExecutable();
 
     /**
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist are overwritten rather
+     *         than appended to.
+     */
+
+    boolean isRsyncOverwrite();
+
+    /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
     String getSshExecutable();
