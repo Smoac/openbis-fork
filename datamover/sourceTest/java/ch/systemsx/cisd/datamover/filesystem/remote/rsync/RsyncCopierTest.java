@@ -94,8 +94,8 @@ public class RsyncCopierTest
         { "requires_unix" })
     public void testRsyncOK() throws IOException, InterruptedException
     {
-        final File buggyRsyncBinary = createRsync(0);
-        final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false);
+        final File dummyRsyncBinary = createRsync(0);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assert Status.OK == status;
     }
@@ -105,8 +105,8 @@ public class RsyncCopierTest
     public void testRsyncRetriableFailure() throws IOException, InterruptedException
     {
         final int exitValue = 11;
-        final File buggyRsyncBinary = createRsync(exitValue);
-        final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false);
+        final File dummyRsyncBinary = createRsync(exitValue);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(StatusFlag.RETRIABLE_ERROR, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
@@ -117,8 +117,8 @@ public class RsyncCopierTest
     public void testRsyncFatalFailure() throws IOException, InterruptedException
     {
         final int exitValue = 1;
-        final File buggyRsyncBinary = createRsync(exitValue);
-        final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false);
+        final File dummyRsyncBinary = createRsync(exitValue);
+        final RsyncCopier copier = new RsyncCopier(dummyRsyncBinary, null, false);
         Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(StatusFlag.FATAL_ERROR, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
