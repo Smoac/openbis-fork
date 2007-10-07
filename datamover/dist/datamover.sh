@@ -45,7 +45,10 @@ isPIDRunning()
 
 PIDFILE=datamover.pid
 CONFFILE=etc/datamover.conf
+LOGFILE=log/datamover_log.txt
 STARTUPLOG=log/startup_log.txt
+SUCCESS_MSG="Self test successfully completed"
+MAX_LOOPS=10
 
 #
 # change to installation directory
@@ -56,31 +59,49 @@ if [ -L $bin ]; then
 fi
 WD=`dirname $bin`
 cd $WD
+SCRIPT=./`basename $0`
 
 #
 # source configuration script, if any
 #
 test -f $CONFFILE && source $CONFFILE
 if [ "$JAVA_HOME" != "" ]; then
-	JAVA_HOME="$JAVA_HOME/bin/"
+	JAVA_BIN="$JAVA_HOME/bin/java"
+else
+	JAVA_BIN="java"
 fi
 
 case "$1" in
         start)
 	        echo -n "Starting Datamover "
 
-		shift 1		
-		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+		shift 1
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
 		if [ $? -eq 0 ]; then
-			# wait for initial self-test to finish"
-			sleep 1
+			# wait for initial self-test to finish
+			n=0
+			while [ $n -lt $MAX_LOOPS ]; do
+				sleep 1
+				grep "$SUCCESS_MSG" $LOGFILE > /dev/null 2>&1
+				if [ $? -eq 0 ]; then
+					break
+				fi
+				n=$(($n+1))
+			done 
 			PID=`cat $PIDFILE`
 			isPIDRunning $PID
 			if [ $? -eq 0 ]; then
-				echo "(pid $PID)"
+				grep -q "Self test successfully completed" $LOGFILE
+				if [ $? -ne 0 ]; then
+					echo "(pid $PID - WARNING: SelfTest not yet finished)"
+				else
+					echo "(pid $PID)"
+				fi
 			else
 				rm $PIDFILE
-				echo "FAILED - see $WD/$STARTUPLOG for details"
+				echo "FAILED"
+				echo "startup log says:"
+				cat $WD/$STARTUPLOG
 			fi
 		else
 			echo "FAILED"
@@ -125,17 +146,17 @@ case "$1" in
         	touch .MARKER_recovery
         ;;
         restart)
-	        $0 stop
-	        $0 start
+	        $SCRIPT stop
+	        $SCRIPT start
         ;;
 	help)
-		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --help
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --help
 	;;
 	version)
-                ${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --version
+                ${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --version
 	;;
 	test-notify)
-		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
 	;;
         *)
         echo $"Usage: $0 {start|stop|restart|status|recover|help|version|test-notify}"
