@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
 
 /**
  * A class that helps checking an <code>rsync</code> binary for its version.
@@ -36,12 +32,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 final class RsyncVersionChecker
 {
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RsyncVersionChecker.class);
+
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RsyncVersionChecker.class);
 
     /**
      * The class holding the version information about an <code>rsync</code> binary.
-     * 
-     * @author bernd
      */
     static class RsyncVersion
     {
@@ -138,53 +134,13 @@ final class RsyncVersionChecker
 
     private static String getRsyncVersion(String rsyncExecutableToCheck)
     {
-        BufferedReader reader = null;
-        try
-        {
-            final Process process = new ProcessBuilder(rsyncExecutableToCheck, "--version").start();
-            if (machineLog.isDebugEnabled())
-            {
-                machineLog.debug("Waiting for rsync process to finish.");
-            }
-            final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
-            final Timer watchDog = new Timer("Rsync Watch Dog");
-            watchDog.schedule(new TimerTask()
-                {
-                    @Override
-                    public void run()
-                    {
-                        process.destroy();
-                    }
-                }, TIME_TO_WAIT_FOR_COMPLETION);
-            final int exitValue = process.waitFor();
-            watchDog.cancel();
-            if (machineLog.isDebugEnabled())
-            {
-                machineLog.debug(String.format("Rsync process finished with exit value %s", exitValue));
-            }
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            final String versionString = extractRsyncVersion(reader.readLine());
-            return versionString;
-        } catch (IOException e)
-        {
-            return null;
-        } catch (InterruptedException e)
-        {
-            // This should never happen.
-            throw new CheckedExceptionTunnel(e);
-        } finally
-        {
-            if (reader != null)
-            {
-                try
-                {
-                    reader.close();
-                } catch (IOException e)
-                {
-                    // Ignore.
-                }
-            }
-        }
+        final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
+        final ProcessExecutionHelper.ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
+                        TIME_TO_WAIT_FOR_COMPLETION, operationLog, machineLog);
+        result.log();
+        final String versionString = extractRsyncVersion(result.getProcessOutput().get(0));
+        return versionString;
     }
 
     private static String extractRsyncVersion(String rsyncVersionLine)

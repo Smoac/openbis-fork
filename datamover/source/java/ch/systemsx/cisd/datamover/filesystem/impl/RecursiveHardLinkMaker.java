@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.CmdLineHelper;
+import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 
@@ -151,7 +151,7 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
         assert file.isFile();
         File destFile = new File(destDir, file.getName());
         List<String> cmd = createLnCmdLine(file, destFile);
-        boolean ok = CmdLineHelper.run(cmd, operationLog, machineLog);
+        boolean ok = ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog);
         return ok ? destFile : null;
     }
 

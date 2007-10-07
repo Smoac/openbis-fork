@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.CmdLineHelper;
+import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
@@ -147,7 +147,7 @@ public class RsyncCopier implements IPathCopier
             copyProcessReference.set(copyProcess);
 
             final int exitValue = copyProcess.waitFor();
-            logRsyncExitValue(exitValue, copyProcess);
+            logRsyncExitValue(copyProcess);
             return createStatus(exitValue);
         } catch (IOException e)
         {
@@ -173,7 +173,7 @@ public class RsyncCopier implements IPathCopier
             return "path '" + path.getAbsolutePath() + "' does not exist";
         }
     }
-    
+
     private List<String> createCommandLine(File sourcePath, String sourceHost, File destinationDirectory,
             String destinationHost)
     {
@@ -249,7 +249,7 @@ public class RsyncCopier implements IPathCopier
 
     private static Status createStatus(final int exitValue)
     {
-        if (CmdLineHelper.processTerminated(exitValue))
+        if (ProcessExecutionHelper.isProcessTerminated(exitValue))
         {
             return TERMINATED_STATUS;
         }
@@ -261,9 +261,12 @@ public class RsyncCopier implements IPathCopier
         return new Status(flag, RsyncExitValueTranslator.getMessage(exitValue));
     }
 
-    private static void logRsyncExitValue(final int exitValue, final Process copyProcess)
+    private static void logRsyncExitValue(final Process copyProcess)
     {
-        CmdLineHelper.logProcessExitValue(exitValue, copyProcess, "rsync", operationLog, machineLog);
+        final int exitValue = copyProcess.exitValue();
+        final List<String> processOutput =
+                ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
+        ProcessExecutionHelper.logProcessExecution("rsync", exitValue, processOutput, operationLog, machineLog);
     }
 
     /**
@@ -339,7 +342,7 @@ public class RsyncCopier implements IPathCopier
             final Timer watchDogTimer = initWatchDog(listProcess);
             final int exitValue = listProcess.waitFor();
             watchDogTimer.cancel();
-            logRsyncExitValue(exitValue, listProcess);
+            logRsyncExitValue(listProcess);
             return Status.OK == createStatus(exitValue);
         } catch (IOException ex)
         {
