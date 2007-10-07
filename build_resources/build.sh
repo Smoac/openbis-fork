@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 protocol=http
-if [ "$1" == "--private" ]; then
+if [ "$1" = "--private" ]; then
 		protocol=svn+ssh
 		shift
 fi
