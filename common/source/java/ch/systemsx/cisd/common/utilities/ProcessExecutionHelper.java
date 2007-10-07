@@ -94,6 +94,23 @@ public class ProcessExecutionHelper
         }
 
         /**
+         * Calls the {@link Process#destroy()} method which explicitly closes some file handles.
+         * <p>
+         * <i>Note that one must not call {#link {@link #getProcessOutput()} for the first time after this method has
+         * been called.</i>
+         * <p>
+         * Whether it is necessary to call this method depends on the JRE. For some JREs there occur {@link IOException}s
+         * with code 24 ("Too many open files") when running processes with high frequency without calling this method.
+         */
+        public void destroyProcess()
+        {
+            if (processOrNull != null)
+            {
+                processOrNull.destroy();
+            }
+        }
+
+        /**
          * Returns the command line that belongs to this process.
          */
         public List<String> getCommandLine()
@@ -213,7 +230,7 @@ public class ProcessExecutionHelper
      */
     public static boolean runAndLog(List<String> commandLine, Logger operationLog, Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).run(commandLine, 0L);
+        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(commandLine, 0L);
     }
 
     /**
@@ -226,7 +243,7 @@ public class ProcessExecutionHelper
      */
     public static ProcessResult run(List<String> commandLine, Logger operationLog, Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).tryRun(commandLine, 0L);
+        return new ProcessExecutionHelper(operationLog, machineLog).run(commandLine, 0L);
     }
 
     /**
@@ -239,9 +256,10 @@ public class ProcessExecutionHelper
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      */
-    public static boolean runAndLog(List<String> cmd, long millisToWaitForCompletion, Logger operationLog, Logger machineLog)
+    public static boolean runAndLog(List<String> cmd, long millisToWaitForCompletion, Logger operationLog,
+            Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).run(cmd, millisToWaitForCompletion);
+        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(cmd, millisToWaitForCompletion);
     }
 
     /**
@@ -257,7 +275,7 @@ public class ProcessExecutionHelper
     public static ProcessResult run(List<String> cmd, long millisToWaitForCompletion, Logger operationLog,
             Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).tryRun(cmd, millisToWaitForCompletion);
+        return new ProcessExecutionHelper(operationLog, machineLog).run(cmd, millisToWaitForCompletion);
     }
 
     /**
@@ -314,7 +332,7 @@ public class ProcessExecutionHelper
         this.machineLog = machineLog;
     }
 
-    private ProcessResult tryRun(List<String> commandLine, long millisoWaitForCompletion)
+    private ProcessResult run(List<String> commandLine, long millisoWaitForCompletion)
     {
         final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
         processBuilder.redirectErrorStream(true);
@@ -373,10 +391,11 @@ public class ProcessExecutionHelper
         return watchDogOrNull;
     }
 
-    private boolean run(List<String> cmd, long millisToWaitForCompletion)
+    private boolean runAndLog(List<String> cmd, long millisToWaitForCompletion)
     {
-        final ProcessResult result = tryRun(cmd, millisToWaitForCompletion);
+        final ProcessResult result = run(cmd, millisToWaitForCompletion);
         result.log();
+        result.destroyProcess();
         return result.isOK();
     }
 
