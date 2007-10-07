@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.CmdLineHelper;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.filesystem.common.CmdLineHelper;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 
 /**
