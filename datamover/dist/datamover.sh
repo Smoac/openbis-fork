@@ -70,7 +70,7 @@ case "$1" in
 	        echo -n "Starting Datamover "
 
 		shift 1		
-		${JAVA_HOME}java -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
 		if [ $? -eq 0 ]; then
 			# wait for initial self-test to finish"
 			sleep 1
@@ -129,13 +129,13 @@ case "$1" in
 	        $0 start
         ;;
 	help)
-		${JAVA_HOME}java -jar lib/datamover.jar --help
+		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --help
 	;;
 	version)
-                ${JAVA_HOME}java -jar lib/datamover.jar --version
+                ${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --version
 	;;
 	test-notify)
-		${JAVA_HOME}java -jar lib/datamover.jar --test-notify
+		${JAVA_HOME}java ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
 	;;
         *)
         echo $"Usage: $0 {start|stop|restart|status|recover|help|version|test-notify}"
