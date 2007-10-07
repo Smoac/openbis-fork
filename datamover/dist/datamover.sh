@@ -91,7 +91,7 @@ case "$1" in
 			PID=`cat $PIDFILE`
 			isPIDRunning $PID
 			if [ $? -eq 0 ]; then
-				grep -q "Self test successfully completed" $LOGFILE
+				grep "Self test successfully completed" $LOGFILE > /dev/null 2>&1
 				if [ $? -ne 0 ]; then
 					echo "(pid $PID - WARNING: SelfTest not yet finished)"
 				else
