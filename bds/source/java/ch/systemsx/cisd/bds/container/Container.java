@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.container;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.IDataStructure;
+import ch.systemsx.cisd.bds.IDataStructureFactory;
 import ch.systemsx.cisd.bds.fs.FileDataStructureFactory;
 import ch.systemsx.cisd.bds.hdf5.HDF5DataStructureFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
