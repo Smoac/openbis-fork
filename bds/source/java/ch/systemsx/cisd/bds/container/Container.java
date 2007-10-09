@@ -18,10 +18,14 @@ package ch.systemsx.cisd.bds.container;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.AbstractDataStructure;
+import ch.systemsx.cisd.bds.DataStructureFactory;
 import ch.systemsx.cisd.bds.IDataStructure;
-import ch.systemsx.cisd.bds.IDataStructureFactory;
-import ch.systemsx.cisd.bds.fs.FileDataStructureFactory;
-import ch.systemsx.cisd.bds.hdf5.HDF5DataStructureFactory;
+import ch.systemsx.cisd.bds.IStorage;
+import ch.systemsx.cisd.bds.Utilities;
+import ch.systemsx.cisd.bds.Version;
+import ch.systemsx.cisd.bds.fs.FileStorage;
+import ch.systemsx.cisd.bds.hdf5.HDF5Storage;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -40,25 +44,32 @@ public class Container
         this.baseDir = baseDir;
     }
     
-    public IDataStructure load(String name)
+    public AbstractDataStructure load(String name)
+    {
+        IStorage storage = createStorage(name);
+        storage.load();
+        Version version = Version.loadFrom(storage.getRoot());
+        return DataStructureFactory.createDataStructure(storage, version);
+    }
+    
+    private IStorage createStorage(String name)
     {
         File file = new File(baseDir, name);
         if (file.exists() == false)
         {
             throw new UserFailureException("No container name '" + name + "' exists in " + baseDir.getAbsolutePath());
         }
-        IDataStructureFactory dataStructureFactory;
         if (file.isDirectory())
         {
-            dataStructureFactory = new FileDataStructureFactory(baseDir);
-        } else if (new File(baseDir, name + ".hdf5").exists())
-        {
-            dataStructureFactory = new HDF5DataStructureFactory(baseDir);
-        } else
-        {
-            throw new UserFailureException("Couldn't found appropriate container named '" + name + "' in "
-                    + baseDir.getAbsolutePath());
+            return new FileStorage(file);
         }
-        return dataStructureFactory.createDataStructure(name, null);
+        File hdf5File = new File(baseDir, name + ".hdf5");
+        if (hdf5File.exists())
+        {
+            return new HDF5Storage(hdf5File);
+        }
+        throw new UserFailureException("Couldn't found appropriate container named '" + name + "' in "
+                + baseDir.getAbsolutePath());
+        
     }
 }

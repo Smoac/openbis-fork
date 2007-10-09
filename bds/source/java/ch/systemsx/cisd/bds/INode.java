@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.io.File;
+
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * Role of a node in the data structure.
  *
@@ -32,4 +37,13 @@ public interface INode
      * Returns the parent directory of this node or <code>null</code> if it is the root node.
      */
     public IDirectory tryToGetParent();
+    
+    /**
+     * Extracts this node to the specified directory of the file system. All descendants are also extracted.
+     * 
+     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this
+     *      node or a descended node. 
+     * @throws EnvironmentFailureException if extraction causes an IOException.
+     */
+    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException;
 }

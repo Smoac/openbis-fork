@@ -23,32 +23,31 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataStructure implements IHasVersion
+public class Utilities
 {
-    protected final IStorage storage;
-    protected final IDirectory root;
-
-    AbstractDataStructure(IStorage storage)
+    public static IDirectory getSubDirectory(IDirectory directory, String name)
     {
-        assert storage != null: "Unspecified storage.";
-        this.storage = storage;
-        root = storage.getRoot();
-    }
-
-    public void load()
-    {
-        storage.load();
-        Version loadedVersion = Version.loadFrom(root);
-        if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
+        INode node = directory.getNode(name);
+        if (node instanceof IDirectory == false)
         {
-            throw new UserFailureException("Version of loaded data structure is " + loadedVersion
-                    + " which is not backward compatible with " + getVersion());
+            throw new UserFailureException("Is not a directory: " + node);
         }
+        return (IDirectory) node;
     }
     
-    public void save()
+    public static String getString(IDirectory directory, String name)
     {
-        getVersion().saveTo(root);
-        storage.save();
+        INode node = directory.getNode(name);
+        if (node == null)
+        {
+            throw new UserFailureException("File '" + name + "' missing in " + directory);
+        }
+        if (node instanceof IFile<?> == false)
+        {
+            throw new UserFailureException(node + " is not a file.");
+        }
+        IFile<?> file = (IFile<?>) node;
+        return file.getValue().toString();
     }
+    
 }

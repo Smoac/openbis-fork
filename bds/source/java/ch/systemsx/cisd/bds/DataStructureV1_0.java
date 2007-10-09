@@ -16,23 +16,20 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataStructureV1_0 extends AbstractDataStructure implements IDataStructureV1_0
+public class DataStructureV1_0 extends AbstractDataStructure
 {
     private static final Version VERSION = new Version(1, 0);
     
-    
-    private ExperimentIdentifier experimentIdentifier;
-    
-    private ProcessingType processingType;
-    
-    public AbstractDataStructureV1_0(String name)
+    public DataStructureV1_0(IStorage storage)
     {
-        super(name);
+        super(storage);
     }
 
     public Version getVersion()
@@ -40,25 +37,46 @@ public abstract class AbstractDataStructureV1_0 extends AbstractDataStructure im
         return VERSION;
     }
 
+    public IDirectory getOriginalData()
+    {
+        return Utilities.getSubDirectory(getDataDirectory(), "original");
+    }
+
+    public IFormatedData getFormatedData()
+    {
+        return null;
+    }
+    
     public ExperimentIdentifier getExperimentIdentifier()
     {
-        return experimentIdentifier;
+        return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
     }
-
+    
     public void setExperimentIdentifier(ExperimentIdentifier id)
     {
-        experimentIdentifier = id;
+        id.saveTo(getMetaDataDirectory());
     }
-
+    
     public ProcessingType getProcessingType()
     {
-        return processingType;
+        return ProcessingType.loadFrom(getMetaDataDirectory());
     }
-
+    
     public void setProcessingType(ProcessingType type)
     {
-        processingType = type;
+        type.saveTo(getMetaDataDirectory());
     }
-
-
+    
+    private IDirectory getDataDirectory()
+    {
+        IDirectory subDirectory = Utilities.getSubDirectory(root, "data");
+        return subDirectory;
+    }
+    
+    private IDirectory getMetaDataDirectory()
+    {
+        IDirectory subDirectory = Utilities.getSubDirectory(root, "metadata");
+        return subDirectory;
+    }
 }
+

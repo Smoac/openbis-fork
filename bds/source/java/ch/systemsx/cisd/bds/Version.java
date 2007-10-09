@@ -16,13 +16,37 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
- * Immutable value object for the version of something.
+ * Immutable value object for the version of something.        
  *
  * @author Franz-Josef Elmer
  */
 public final class Version
 {
+    private static final String VERSION = "version";
+    private static final String MAJOR = "major";
+    private static final String MINOR = "minor";
+    
+    public static Version loadFrom(IDirectory directory)
+    {
+        IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
+        return new Version(getNumber(versionFolder, MAJOR), getNumber(versionFolder, MINOR));
+    }
+    
+    private static int getNumber(IDirectory versionFolder, String name)
+    {
+        String value = Utilities.getString(versionFolder, name);
+        try
+        {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ex)
+        {
+            throw new UserFailureException("Value of " + name + " version file is not a number: " + value);
+        }
+    }
+    
     private final int major;
     private final int minor;
 
@@ -54,6 +78,36 @@ public final class Version
     public final int getMinor()
     {
         return minor;
+    }
+    
+    /**
+     * Returns true if this version is backwards compatible to the specified version. That is,
+     * if <code>version.getMajor() == this.getMajor()</code> and <code>version.getMinor() &lt;= this.getMinor()</code>.
+     */
+    public boolean isBackwardsCompatibleWith(Version version)
+    {
+        return version.major == major && version.minor <= minor;
+    }
+    
+    /**
+     * Returns the previous minor version.
+     * 
+     * @throws UserFailureException if minor version is 0.
+     */
+    public Version getPreviousMinorVersion()
+    {
+        if (minor == 0)
+        {
+            throw new UserFailureException("There is no previous minor version of " + this);
+        }
+        return new Version(major, minor - 1);
+    }
+    
+    public void saveTo(IDirectory directory)
+    {
+        IDirectory versionFolder = directory.appendDirectory(VERSION);
+        versionFolder.appendKeyValuePair(MAJOR, Integer.toString(major));
+        versionFolder.appendKeyValuePair(MINOR, Integer.toString(minor));
     }
 
     @Override

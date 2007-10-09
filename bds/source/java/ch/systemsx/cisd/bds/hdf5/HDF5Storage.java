@@ -18,33 +18,37 @@ package ch.systemsx.cisd.bds.hdf5;
 
 import java.io.File;
 
-import ch.systemsx.cisd.bds.AbstractDataStructureFactory;
-import ch.systemsx.cisd.bds.IDataStructure;
-import ch.systemsx.cisd.bds.Version;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.IDirectory;
+import ch.systemsx.cisd.bds.IStorage;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class HDF5DataStructureFactory extends AbstractDataStructureFactory
+public class HDF5Storage implements IStorage
 {
-    public HDF5DataStructureFactory(File baseDir)
+    public HDF5Storage(File hdf5File)
     {
-        super(baseDir);
+        assert hdf5File != null : "Unspecified HDF5 file.";
     }
-
-    public IDataStructure createDataStructure(String name, Version version) throws UserFailureException
+    
+    public IDirectory getRoot()
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Class<? extends IDataStructure> getDataStructureInterfaceFor(Version version) throws UserFailureException
+    public void load()
     {
         // TODO Auto-generated method stub
-        return null;
+
+    }
+
+    public void save()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

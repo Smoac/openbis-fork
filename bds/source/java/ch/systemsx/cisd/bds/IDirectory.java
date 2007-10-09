@@ -25,6 +25,10 @@ import java.io.File;
  */
 public interface IDirectory extends INode, Iterable<INode>
 {
+    public INode getNode(String name);
+    
+    public IDirectory appendDirectory(String name);
+    
     public void appendNode(INode node);
     
     public void appendRealFile(File file);

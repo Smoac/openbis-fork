@@ -24,6 +24,20 @@ package ch.systemsx.cisd.bds;
  */
 public class ExperimentIdentifier
 {
+    private static final String FOLDER = "experiment_identifier";
+    private static final String GROUP_CODE = "group_code";
+    private static final String PROJECT_CODE = "project_code";
+    private static final String EXPERIMENT_CODE = "experiment_code";
+    
+    public static ExperimentIdentifier loadFrom(IDirectory directory)
+    {
+        IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
+        String groupCode = Utilities.getString(idFolder, GROUP_CODE);
+        String projectCode = Utilities.getString(idFolder, PROJECT_CODE);
+        String experimentCode = Utilities.getString(idFolder, EXPERIMENT_CODE);
+        return new ExperimentIdentifier(groupCode, projectCode, experimentCode);
+    }
+    
     private final String groupCode;
     private final String projectCode;
     private final String experimentCode;
@@ -67,6 +81,14 @@ public class ExperimentIdentifier
     public final String getExperimentCode()
     {
         return experimentCode;
+    }
+    
+    public void saveTo(IDirectory directory)
+    {
+        IDirectory folder = directory.appendDirectory(FOLDER);
+        folder.appendKeyValuePair(GROUP_CODE, groupCode);
+        folder.appendKeyValuePair(PROJECT_CODE, projectCode);
+        folder.appendKeyValuePair(EXPERIMENT_CODE, experimentCode);
     }
 
     @Override

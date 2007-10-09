@@ -18,34 +18,34 @@ package ch.systemsx.cisd.bds.fs;
 
 import java.io.File;
 
-import ch.systemsx.cisd.bds.AbstractDataStructureFactory;
-import ch.systemsx.cisd.bds.IDataStructure;
-import ch.systemsx.cisd.bds.Version;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.IDirectory;
+import ch.systemsx.cisd.bds.IStorage;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class FileDataStructureFactory extends AbstractDataStructureFactory
+public class FileStorage implements IStorage
 {
+    private Directory root;
 
-    public FileDataStructureFactory(File baseDir)
+    public FileStorage(File folder)
     {
-        super(baseDir);
-    }
-
-    public Class<? extends IDataStructure> getDataStructureInterfaceFor(Version version) throws UserFailureException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public IDataStructure createDataStructure(String name, Version version) throws UserFailureException
-    {
-        // TODO Auto-generated method stub
-        return null;
+        root = new Directory(folder);
     }
     
+    public IDirectory getRoot()
+    {
+        return root;
+    }
+
+    public void load()
+    {
+    }
+
+    public void save()
+    {
+    }
+
 }

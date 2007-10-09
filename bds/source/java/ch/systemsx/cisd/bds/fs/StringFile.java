@@ -19,6 +19,8 @@ package ch.systemsx.cisd.bds.fs;
 import java.io.File;
 
 import ch.systemsx.cisd.bds.IFile;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -37,6 +39,11 @@ class StringFile extends AbstractNode implements IFile<String>
     public String getValue()
     {
         return FileUtilities.loadToString(fileNode);
+    }
+
+    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    {
+        // TODO Auto-generated method stub
     }
 
 }

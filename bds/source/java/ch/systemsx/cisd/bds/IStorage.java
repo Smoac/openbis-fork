@@ -16,21 +16,16 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.io.File;
-
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataStructureFactory implements IDataStructureFactory
+public interface IStorage
 {
-    protected final File baseDir;
-
-    public AbstractDataStructureFactory(File baseDir)
-    {
-        assert baseDir != null : "Unspecified base directory.";
-        assert baseDir.isDirectory() : "Is not a directory : " + baseDir.getAbsolutePath();
-        this.baseDir = baseDir;
-    }
+    public void load();
+    
+    public IDirectory getRoot();
+    
+    public void save();
 }

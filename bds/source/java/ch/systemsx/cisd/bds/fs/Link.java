@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.bds.fs;
 
+import java.io.File;
+
 import ch.systemsx.cisd.bds.IDirectory;
 import ch.systemsx.cisd.bds.ILink;
 import ch.systemsx.cisd.bds.INode;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
@@ -56,6 +60,11 @@ class Link implements ILink
     public INode getReference()
     {
         return reference;
+    }
+
+    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    {
+        // TODO Auto-generated method stub
     }
 
 }

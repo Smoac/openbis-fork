@@ -24,6 +24,7 @@ import java.util.Iterator;
 import ch.systemsx.cisd.bds.IDirectory;
 import ch.systemsx.cisd.bds.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
@@ -38,6 +39,18 @@ class Directory extends AbstractNode implements IDirectory
         assert directory.isDirectory() : "Not a directory: " + directory.getAbsolutePath();
     }
     
+    public INode getNode(String name)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public IDirectory appendDirectory(String name)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public void appendKeyValuePair(String key, String value)
     {
         File file = new File(fileNode, key);
@@ -79,6 +92,12 @@ class Directory extends AbstractNode implements IDirectory
     {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    {
+        // TODO Auto-generated method stub
+        
     }
 
 }
