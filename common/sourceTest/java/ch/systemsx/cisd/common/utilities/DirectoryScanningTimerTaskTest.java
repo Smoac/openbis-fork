@@ -138,9 +138,10 @@ public class DirectoryScanningTimerTaskTest
         file.delete();
         file.deleteOnExit();
         file.createNewFile();
-        final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(file, ACCEPT_ALL_FILTER, mockPathHandler);
+        final DirectoryScanningTimerTask task =
+                new DirectoryScanningTimerTask(file, ACCEPT_ALL_FILTER, mockPathHandler);
         task.check();
-   }
+    }
 
     @Test(groups =
         { "requires_unix" }, expectedExceptions =
@@ -156,7 +157,8 @@ public class DirectoryScanningTimerTaskTest
         try
         {
             // Here we should get an AssertationError
-            final DirectoryScanningTimerTask task = new DirectoryScanningTimerTask(readOnlyDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
+            final DirectoryScanningTimerTask task =
+                    new DirectoryScanningTimerTask(readOnlyDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
             task.check();
         } finally
         {
@@ -357,6 +359,66 @@ public class DirectoryScanningTimerTaskTest
         dir.delete();
         LogMonitoringAppender.removeAppender(appender1);
         LogMonitoringAppender.removeAppender(appender2);
+    }
+
+    @Test
+    public void testSuppressLogging() throws IOException
+    {
+        final File dir = new File(workingDirectory, "testSuppressLogging");
+        dir.mkdir();
+        LogMonitoringAppender appenderError =
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
+        LogMonitoringAppender appenderOK =
+            LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again");
+        final int numberOfErrorsToIgnore = 2;
+        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+        final DirectoryScanningTimerTask scanner =
+                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+        dir.delete();
+        assert dir.exists() == false;
+        // First error -> ignored
+        scanner.run();
+        appenderError.verifyLogHasNotHappened();
+        // Second error -> ignored
+        scanner.run();
+        appenderError.verifyLogHasNotHappened();
+        // Third error -> recorded
+        scanner.run();
+        appenderError.verifyLogHasHappened();
+        dir.mkdir();
+        assert dir.exists();
+        // Now it is OK again and that should be logged as well
+        scanner.run();
+        appenderOK.verifyLogHasHappened();
+        LogMonitoringAppender.removeAppender(appenderError);
+        LogMonitoringAppender.removeAppender(appenderOK);
+    }
+
+    @Test
+    public void testDoNotLogDirectoryAvailableWhenNoErrorWasLogged() throws IOException
+    {
+        final File dir = new File(workingDirectory, "testDoNotLogDirectoryAvailableWhenNoErrorWasLogged");
+        dir.mkdir();
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again.");
+        final int numberOfErrorsToIgnore = 2;
+        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+        final DirectoryScanningTimerTask scanner =
+                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+        dir.delete();
+        assert dir.exists() == false;
+        // First error -> ignored
+        scanner.run();
+        appender.verifyLogHasNotHappened();
+        // Second error -> ignored
+        scanner.run();
+        appender.verifyLogHasNotHappened();
+        dir.mkdir();
+        assert dir.exists();
+        // Now it's OK, but nothing should be logged because the error wasn't logged either.
+        scanner.run();
+        appender.verifyLogHasNotHappened();
+        LogMonitoringAppender.removeAppender(appender);
     }
 
 }

@@ -61,10 +61,13 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         };
 
     private final IPathHandler handler;
-    
+
     private final File sourceDirectory;
 
-    private boolean errorReadingDirectory;
+    /** The number of consecutive errors of reading a directory that need to occur before the event is logged. */
+    private final int ignoredErrorCount;
+
+    private int errorCountReadingDirectory;
 
     private final FileFilter filter;
 
@@ -83,10 +86,28 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
      */
     public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler)
     {
+        this(sourceDirectory, filter, handler, 0);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param sourceDirectory The directory to scan for entries.
+     * @param filter The file filter that picks the entries to handle.
+     * @param handler The handler that is used for treating the matching paths.
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the
+     *            next error is logged (can be used to suppress error when the directory is on a remote share and the
+     *            server is flaky sometimes)
+     */
+    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler,
+            int ignoredErrorCount)
+    {
         assert sourceDirectory != null;
         assert filter != null;
         assert handler != null;
+        assert ignoredErrorCount >= 0;
 
+        this.ignoredErrorCount = ignoredErrorCount;
         this.sourceDirectory = sourceDirectory;
         this.filter = filter;
         this.handler = handler;
@@ -154,18 +175,24 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private File[] listFiles()
     {
-        final boolean logErrors = (errorReadingDirectory == false);
+        final boolean logErrors = (errorCountReadingDirectory == ignoredErrorCount); // Avoid mailbox flooding.
         final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
 
         final File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
-        if (errorReadingDirectory && paths != null)
+        if (errorCountReadingDirectory > ignoredErrorCount && paths != null)
         {
             if (notificationLog.isInfoEnabled())
             {
                 notificationLog.info(String.format("Directory '%s' is available again.", sourceDirectory));
             }
         }
-        errorReadingDirectory = (paths == null); // Avoid mailbox flooding.
+        if (paths == null)
+        {
+            ++errorCountReadingDirectory;
+        } else
+        {
+            errorCountReadingDirectory = 0;
+        }
         return (paths == null) ? new File[0] : paths;
     }
 
