@@ -46,6 +46,12 @@ import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
  */
 public class IncomingProcessor implements IRecoverableTimerTaskFactory
 {
+    /**
+     * The number of consecutive errors of listing the incoming directories that are not reported in the log to avoid
+     * mailbox flooding.
+     */
+    private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
     private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
@@ -97,7 +103,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final FileFilter filter = createQuietPeriodFilter();
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler);
+                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler,
+                        NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
