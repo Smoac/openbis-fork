@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 
+ * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>.
  *
  * @author Franz-Josef Elmer
  */
@@ -31,8 +31,16 @@ public class TableMap<K, E> implements Iterable<E>
     private final Map<K, E> map = new LinkedHashMap<K, E>();
     private final IKeyExtractor<K, E> extractor;
     
+    /**
+     * Creates a new instance for the specified rows and key extractor.
+     * 
+     * @param rows Collection of rows of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     */
     public TableMap(Collection<E> rows, IKeyExtractor<K, E> extractor)
     {
+        assert rows != null : "Unspecified collection of rows.";
+        assert extractor != null : "Unspecified key extractor.";
         this.extractor = extractor;
         for (E row : rows)
         {
@@ -40,16 +48,26 @@ public class TableMap<K, E> implements Iterable<E>
         }
     }
     
+    /**
+     * Adds the specified row to this table. An already existing row with the same key as <code>row</code> will be
+     * replaced by <code>row</code>.
+     */
     public void add(E row)
     {
         map.put(extractor.getKey(row), row);
     }
     
-    public E get(K key)
+    /**
+     * Gets the row for the specified key or <code>null</code> if not found.
+     */
+    public E tryToGet(K key)
     {
         return map.get(key);
     }
 
+    /**
+     * Creates an iterator of the rows in the order they have been added. Removing is not supported.
+     */
     public Iterator<E> iterator()
     {
         return new Iterator<E>()
