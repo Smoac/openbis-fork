@@ -92,7 +92,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The interval to wait between two checks for activity (in milliseconds).
      */
     @Option(name = "c", longName = "check-interval", usage = "The interval to wait between two checks (in seconds) "
-            + "[default: 160]", handler = MillisecondConversionOptionHandler.class)
+            + "[default: 60]", handler = MillisecondConversionOptionHandler.class)
     private long checkIntervalMillis;
 
     /**
