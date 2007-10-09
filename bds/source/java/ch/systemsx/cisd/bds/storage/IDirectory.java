@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.storage;
 
-import ch.systemsx.cisd.bds.storage.IDirectory;
+import java.io.File;
 
 /**
- * Data structure interface for Version 1.0.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IDataStructureV1_0 extends IDataStructure
+public interface IDirectory extends INode, Iterable<INode>
 {
-    public IDirectory getOriginalData();
+    public INode getNode(String name);
     
-    public IFormatedData getFormatedData();
+    public IDirectory appendDirectory(String name);
     
-    public ExperimentIdentifier getExperimentIdentifier();
+    public void appendNode(INode node);
     
-    public void setExperimentIdentifier(ExperimentIdentifier id);
+    public void appendRealFile(File file);
     
-    public ProcessingType getProcessingType();
+    public void appendKeyValuePair(String key, String value);
     
-    public void setProcessingType(ProcessingType type);
+    public void appendLink(String name, INode node);
 }

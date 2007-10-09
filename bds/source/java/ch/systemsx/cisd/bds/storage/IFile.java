@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
-
-import ch.systemsx.cisd.bds.storage.IDirectory;
+package ch.systemsx.cisd.bds.storage;
 
 /**
- * Data structure interface for Version 1.0.
+ * Role of a file with a value (content) of type <code>T</code>.
  *
  * @author Franz-Josef Elmer
  */
-public interface IDataStructureV1_0 extends IDataStructure
+public interface IFile<T> extends INode
 {
-    public IDirectory getOriginalData();
-    
-    public IFormatedData getFormatedData();
-    
-    public ExperimentIdentifier getExperimentIdentifier();
-    
-    public void setExperimentIdentifier(ExperimentIdentifier id);
-    
-    public ProcessingType getProcessingType();
-    
-    public void setProcessingType(ProcessingType type);
+    /**
+     * Returns the value (or content) of this file node.
+     */
+    public T getValue();
 }

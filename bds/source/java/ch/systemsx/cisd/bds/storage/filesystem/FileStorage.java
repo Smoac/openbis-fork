@@ -14,43 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.storage.filesystem;
+
+import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataStructure implements IHasVersion
+public class FileStorage implements IStorage
 {
-    protected final IStorage storage;
-    protected final IDirectory root;
+    private Directory root;
 
-    AbstractDataStructure(IStorage storage)
+    public FileStorage(File folder)
     {
-        assert storage != null: "Unspecified storage.";
-        this.storage = storage;
-        root = storage.getRoot();
+        root = new Directory(folder);
+    }
+    
+    public IDirectory getRoot()
+    {
+        return root;
     }
 
     public void load()
     {
-        storage.load();
-        Version loadedVersion = Version.loadFrom(root);
-        if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
-        {
-            throw new UserFailureException("Version of loaded data structure is " + loadedVersion
-                    + " which is not backward compatible with " + getVersion());
-        }
     }
-    
+
     public void save()
     {
-        getVersion().saveTo(root);
-        storage.save();
     }
+
 }

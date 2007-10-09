@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
+
 
 /**
  * Enumeration of processing types.

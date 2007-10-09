@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**

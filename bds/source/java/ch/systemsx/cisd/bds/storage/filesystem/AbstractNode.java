@@ -14,26 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.storage.filesystem;
+
+import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * Data structure interface for Version 1.0.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IDataStructureV1_0 extends IDataStructure
+abstract class AbstractNode implements INode
 {
-    public IDirectory getOriginalData();
+    protected final File fileNode;
+
+    AbstractNode(File file)
+    {
+        assert file != null : "Unspecified file";
+        this.fileNode = file;
+    }
     
-    public IFormatedData getFormatedData();
+    public String getName()
+    {
+        return fileNode.getName();
+    }
+
+    public IDirectory tryToGetParent()
+    {
+        File dir = fileNode.getParentFile();
+        return dir == null ? null : new Directory(dir);
+    }
     
-    public ExperimentIdentifier getExperimentIdentifier();
-    
-    public void setExperimentIdentifier(ExperimentIdentifier id);
-    
-    public ProcessingType getProcessingType();
-    
-    public void setProcessingType(ProcessingType type);
 }

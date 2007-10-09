@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
-
-import ch.systemsx.cisd.bds.storage.IDirectory;
+package ch.systemsx.cisd.bds.storage;
 
 /**
- * Data structure interface for Version 1.0.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IDataStructureV1_0 extends IDataStructure
+public interface IStorage
 {
-    public IDirectory getOriginalData();
+    public void load();
     
-    public IFormatedData getFormatedData();
+    public IDirectory getRoot();
     
-    public ExperimentIdentifier getExperimentIdentifier();
-    
-    public void setExperimentIdentifier(ExperimentIdentifier id);
-    
-    public ProcessingType getProcessingType();
-    
-    public void setProcessingType(ProcessingType type);
+    public void save();
 }

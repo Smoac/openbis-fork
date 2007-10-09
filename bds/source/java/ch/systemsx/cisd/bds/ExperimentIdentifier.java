@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
+
 /**
  * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class.
  * An instance of this class allows unique identification in the database. 
