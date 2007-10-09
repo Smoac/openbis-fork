@@ -175,8 +175,11 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
 
     private File[] listFiles()
     {
-        final boolean logErrors = (errorCountReadingDirectory == ignoredErrorCount); // Avoid mailbox flooding.
-        final ISimpleLogger errorLogger = logErrors ? createSimpleErrorLogger() : null;
+        final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount); // Avoid mailbox flooding.
+        final boolean logOperationError = (errorCountReadingDirectory < ignoredErrorCount);
+        final ISimpleLogger errorLogger =
+                logNotifyError ? createSimpleErrorLogger(LogCategory.NOTIFY)
+                        : (logOperationError ? createSimpleErrorLogger(LogCategory.OPERATION) : null);
 
         final File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
         if (errorCountReadingDirectory > ignoredErrorCount && paths != null)
@@ -196,13 +199,19 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         return (paths == null) ? new File[0] : paths;
     }
 
-    private ISimpleLogger createSimpleErrorLogger()
+    private ISimpleLogger createSimpleErrorLogger(final LogCategory category)
     {
         return new ISimpleLogger()
             {
                 public void log(String message)
                 {
-                    notificationLog.log(Level.ERROR, message);
+                    if (category == LogCategory.NOTIFY)
+                    {
+                        notificationLog.log(Level.ERROR, message);
+                    } else
+                    {
+                        operationLog.log(Level.WARN, message);
+                    }
                 }
 
                 public void log(String messageTemplate, Object... args)

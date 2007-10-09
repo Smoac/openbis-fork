@@ -304,16 +304,21 @@ public class DirectoryScanningTimerTaskTest
     {
         final File dir = new File(workingDirectory, "testMissingDirectory");
         dir.mkdir();
-        LogMonitoringAppender appender =
+        final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
-        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
-        final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
-        dir.delete();
-        assert dir.exists() == false;
-        scanner.run();
-        appender.verifyLogHasHappened();
-        LogMonitoringAppender.removeAppender(appender);
+        try
+        {
+            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            final DirectoryScanningTimerTask scanner =
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
+            dir.delete();
+            assert dir.exists() == false;
+            scanner.run();
+            appender.verifyLogHasHappened();
+        } finally
+        {
+            LogMonitoringAppender.removeAppender(appender);
+        }
     }
 
     @Test
@@ -321,19 +326,25 @@ public class DirectoryScanningTimerTaskTest
     {
         final File dir = new File(workingDirectory, "testMissingDirectory");
         dir.mkdir();
-        LogMonitoringAppender appender =
+        final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
-        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
-        final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
-        dir.delete();
-        dir.createNewFile();
-        dir.deleteOnExit();
-        assert dir.isFile();
-        scanner.run();
-        appender.verifyLogHasHappened();
-        dir.delete();
-        LogMonitoringAppender.removeAppender(appender);
+        try
+        {
+            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            final DirectoryScanningTimerTask scanner =
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
+            dir.delete();
+            dir.createNewFile();
+            dir.deleteOnExit();
+            assert dir.isFile();
+            scanner.run();
+            appender.verifyLogHasHappened();
+            dir.delete();
+        }
+        finally
+        {
+            LogMonitoringAppender.removeAppender(appender);
+        }
     }
 
     @Test
@@ -345,20 +356,25 @@ public class DirectoryScanningTimerTaskTest
         final File file = new File(dir, "some.file");
         file.createNewFile();
         file.deleteOnExit();
-        LogMonitoringAppender appender1 =
+        final LogMonitoringAppender appender1 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
-        LogMonitoringAppender appender2 =
+        final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
-        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
-        final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER, mockPathHandler);
-        scanner.run();
-        appender1.verifyLogHasHappened();
-        appender2.verifyLogHasHappened();
-        file.delete();
-        dir.delete();
-        LogMonitoringAppender.removeAppender(appender1);
-        LogMonitoringAppender.removeAppender(appender2);
+        try
+        {
+            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            final DirectoryScanningTimerTask scanner =
+                    new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER, mockPathHandler);
+            scanner.run();
+            appender1.verifyLogHasHappened();
+            appender2.verifyLogHasHappened();
+            file.delete();
+            dir.delete();
+        } finally
+        {
+            LogMonitoringAppender.removeAppender(appender1);
+            LogMonitoringAppender.removeAppender(appender2);
+        }
     }
 
     @Test
@@ -366,32 +382,45 @@ public class DirectoryScanningTimerTaskTest
     {
         final File dir = new File(workingDirectory, "testSuppressLogging");
         dir.mkdir();
-        LogMonitoringAppender appenderError =
+        final LogMonitoringAppender appenderNotifyError =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
-        LogMonitoringAppender appenderOK =
+        final LogMonitoringAppender appenderOperationError =
+            LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Failed to get listing of directory");
+        final LogMonitoringAppender appenderOK =
             LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again");
-        final int numberOfErrorsToIgnore = 2;
-        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
-        final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
-        dir.delete();
-        assert dir.exists() == false;
-        // First error -> ignored
-        scanner.run();
-        appenderError.verifyLogHasNotHappened();
-        // Second error -> ignored
-        scanner.run();
-        appenderError.verifyLogHasNotHappened();
-        // Third error -> recorded
-        scanner.run();
-        appenderError.verifyLogHasHappened();
-        dir.mkdir();
-        assert dir.exists();
-        // Now it is OK again and that should be logged as well
-        scanner.run();
-        appenderOK.verifyLogHasHappened();
-        LogMonitoringAppender.removeAppender(appenderError);
-        LogMonitoringAppender.removeAppender(appenderOK);
+        try
+        {
+            final int numberOfErrorsToIgnore = 2;
+            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            final DirectoryScanningTimerTask scanner =
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+            dir.delete();
+            assert dir.exists() == false;
+            // First error -> ignored
+            scanner.run();
+            appenderOperationError.verifyLogHasHappened();
+            appenderNotifyError.verifyLogHasNotHappened();
+            // Second error -> ignored
+            appenderOperationError.reset();
+            scanner.run();
+            appenderOperationError.verifyLogHasHappened();
+            appenderNotifyError.verifyLogHasNotHappened();
+            // Third error -> recorded
+            appenderOperationError.reset();
+            scanner.run();
+            appenderOperationError.verifyLogHasNotHappened();
+            appenderNotifyError.verifyLogHasHappened();
+            dir.mkdir();
+            assert dir.exists();
+            // Now it is OK again and that should be logged as well
+            scanner.run();
+            appenderOK.verifyLogHasHappened();
+        } finally
+        {
+            LogMonitoringAppender.removeAppender(appenderNotifyError);
+            LogMonitoringAppender.removeAppender(appenderOperationError);
+            LogMonitoringAppender.removeAppender(appenderOK);
+        }
     }
 
     @Test
@@ -399,26 +428,31 @@ public class DirectoryScanningTimerTaskTest
     {
         final File dir = new File(workingDirectory, "testDoNotLogDirectoryAvailableWhenNoErrorWasLogged");
         dir.mkdir();
-        LogMonitoringAppender appender =
+        final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again.");
-        final int numberOfErrorsToIgnore = 2;
-        // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
-        final DirectoryScanningTimerTask scanner =
+        try
+        {
+            final int numberOfErrorsToIgnore = 2;
+            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
-        dir.delete();
-        assert dir.exists() == false;
-        // First error -> ignored
-        scanner.run();
-        appender.verifyLogHasNotHappened();
-        // Second error -> ignored
-        scanner.run();
-        appender.verifyLogHasNotHappened();
-        dir.mkdir();
-        assert dir.exists();
-        // Now it's OK, but nothing should be logged because the error wasn't logged either.
-        scanner.run();
-        appender.verifyLogHasNotHappened();
-        LogMonitoringAppender.removeAppender(appender);
+            dir.delete();
+            assert dir.exists() == false;
+            // First error -> ignored
+            scanner.run();
+            appender.verifyLogHasNotHappened();
+            // Second error -> ignored
+            scanner.run();
+            appender.verifyLogHasNotHappened();
+            dir.mkdir();
+            assert dir.exists();
+            // Now it's OK, but nothing should be logged because the error wasn't logged either.
+            scanner.run();
+            appender.verifyLogHasNotHappened();
+        } finally
+        {
+            LogMonitoringAppender.removeAppender(appender);
+        }
     }
 
 }
