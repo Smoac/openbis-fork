@@ -53,15 +53,30 @@ public class Main
             }
         };
 
+    private static final Runnable loggingShutdownHook = new Runnable()
+    {
+        public void run()
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Datamover is shutting down.");
+            }
+        }
+    };
+        
     private static void initLog()
     {
         LogInitializer.init();
         Thread.setDefaultUncaughtExceptionHandler(loggingExceptionHandler);
+        Runtime.getRuntime().addShutdownHook(new Thread(loggingShutdownHook, "Shutdown Hook"));
     }
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
-        operationLog.info("datamover is starting up.");
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Datamover is starting up.");
+        }
         for (String line : BuildAndEnvironmentInfo.INSTANCE.getEnvironmentInfo())
         {
             operationLog.info(line);
