@@ -20,9 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.bds.AbstractDataStructure;
 import ch.systemsx.cisd.bds.DataStructureFactory;
-import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IStorage;
-import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.fs.FileStorage;
 import ch.systemsx.cisd.bds.hdf5.HDF5Storage;
