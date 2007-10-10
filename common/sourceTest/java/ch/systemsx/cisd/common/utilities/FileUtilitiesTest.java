@@ -95,7 +95,8 @@ public class FileUtilitiesTest
         {
             Throwable cause = e.getCause();
             assertTrue(cause instanceof IOException);
-            assertEquals(dir + " (Access is denied)", cause.getMessage());
+            String message = cause.getMessage();
+            assertTrue("Exception message not as expected: " + message, cause.getMessage().startsWith(dir.toString()));
         }
     }
     
@@ -113,7 +114,8 @@ public class FileUtilitiesTest
         {
             Throwable cause = e.getCause();
             assertTrue(cause instanceof IOException);
-            assertEquals(file + " (Access is denied)", cause.getMessage());
+            String message = cause.getMessage();
+            assertTrue("Exception message not as expected: " + message, cause.getMessage().startsWith(file.toString()));
         } finally
         {
             assert file.delete();
