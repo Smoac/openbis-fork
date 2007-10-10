@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -37,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
@@ -70,6 +72,45 @@ public final class FileUtilities
         }
     };
 
+    /**
+     * Copies the content of the specified source file to the specified destination file.
+     * 
+     * @param sourceFile File to be copied.
+     * @param destinationFile File to whom content of <code>sourceFile</code> is copied.
+     * @param preservesLastModifiedDate If <code>true</code> the last modified date of <code>sourceFile</code>
+     *          will be transfered to <code>destinationFile</code>.
+     * @throws EnvironmentFailureException if a {@link IOException} occured.
+     */
+    public static void copyFileTo(File sourceFile, File destinationFile, boolean preservesLastModifiedDate)
+            throws CheckedExceptionTunnel
+    {
+        FileInputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try
+        {
+            inputStream = new FileInputStream(sourceFile);
+            outputStream = new FileOutputStream(destinationFile);
+            IOUtils.copy(inputStream, outputStream);
+        } catch (IOException ex)
+        {
+            throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '" + destinationFile
+                                                  + "'.", ex);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
+        // In Windows last modified date can only be changed of the output stream is closed
+        if (preservesLastModifiedDate)
+        {
+            boolean successful = destinationFile.setLastModified(sourceFile.lastModified());
+            if (successful == false)
+            {
+                throw new EnvironmentFailureException("Couldn't copy last modified date of file '" + sourceFile
+                        + "' to '" + destinationFile + "' for some unknown reason.");
+            }
+        }
+    }
 
     
     /**

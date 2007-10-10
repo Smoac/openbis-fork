@@ -66,6 +66,19 @@ public class FileUtilitiesTest
     }
     
     @Test
+    public void testCopyFile() throws Exception
+    {
+        File sourceFile = new File(workingDirectory, "source.txt");
+        FileUtilities.writeToFile(sourceFile, "hello world!");
+        sourceFile.setLastModified(47110000);
+        assertEquals(47110000, sourceFile.lastModified());
+        File destinationFile = new File(workingDirectory, "destination.txt");
+        FileUtilities.copyFileTo(sourceFile, destinationFile, true);
+        assertEquals(FileUtilities.loadToString(sourceFile), FileUtilities.loadToString(destinationFile));
+        assertEquals(47110000, destinationFile.lastModified());
+    }
+    
+    @Test
     public void testWriteToFile() throws Exception
     {
         File file = new File(workingDirectory, "testWriteToFile.txt");
