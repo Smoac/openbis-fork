@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -45,13 +47,13 @@ class Directory extends AbstractNode implements IDirectory
         return null;
     }
 
-    public IDirectory appendDirectory(String name)
+    public IDirectory makeDirectory(String name)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void appendKeyValuePair(String key, String value)
+    public IFile<String> addKeyValuePair(String key, String value)
     {
         File file = new File(fileNode, key);
         try
@@ -64,15 +66,16 @@ class Directory extends AbstractNode implements IDirectory
             file.delete();
             throw new EnvironmentFailureException("Can not create " + file.getAbsolutePath() + ": " + ex);
         }
+        return null;
     }
 
-    public void appendNode(INode node)
+    public void addNode(INode node)
     {
         // TODO Auto-generated method stub
 
     }
 
-    public void appendRealFile(File file)
+    public IFile<File> addRealFile(File file)
     {
         File newFile = new File(fileNode, file.getName());
         if (file.renameTo(newFile) == false)
@@ -80,12 +83,13 @@ class Directory extends AbstractNode implements IDirectory
             throw new EnvironmentFailureException("Couldn't move file " + file.getAbsolutePath() + " to "
                     + fileNode.getAbsolutePath());
         }
+        return null;
     }
 
-    public void appendLink(String name, INode node)
+    public ILink addLink(String name, INode node)
     {
         // TODO Auto-generated method stub
-        
+        return null;
     }
 
     public Iterator<INode> iterator()

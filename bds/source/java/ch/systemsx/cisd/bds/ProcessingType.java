@@ -48,6 +48,6 @@ public enum ProcessingType
     
     public void saveTo(IDirectory directory)
     {
-        directory.appendKeyValuePair(PROCESSING_TYPE, toString());
+        directory.addKeyValuePair(PROCESSING_TYPE, toString());
     }
 }

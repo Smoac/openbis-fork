@@ -27,13 +27,13 @@ public interface IDirectory extends INode, Iterable<INode>
 {
     public INode getNode(String name);
     
-    public IDirectory appendDirectory(String name);
+    public IDirectory makeDirectory(String name);
     
-    public void appendNode(INode node);
+    public void addNode(INode node);
     
-    public void appendRealFile(File file);
+    public IFile<File> addRealFile(File file);
     
-    public void appendKeyValuePair(String key, String value);
+    public IFile<String> addKeyValuePair(String key, String value);
     
-    public void appendLink(String name, INode node);
+    public ILink addLink(String name, INode node);
 }

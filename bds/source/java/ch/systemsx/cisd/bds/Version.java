@@ -106,9 +106,9 @@ public final class Version
     
     public void saveTo(IDirectory directory)
     {
-        IDirectory versionFolder = directory.appendDirectory(VERSION);
-        versionFolder.appendKeyValuePair(MAJOR, Integer.toString(major));
-        versionFolder.appendKeyValuePair(MINOR, Integer.toString(minor));
+        IDirectory versionFolder = directory.makeDirectory(VERSION);
+        versionFolder.addKeyValuePair(MAJOR, Integer.toString(major));
+        versionFolder.addKeyValuePair(MINOR, Integer.toString(minor));
     }
 
     @Override

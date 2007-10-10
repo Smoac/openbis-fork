@@ -87,10 +87,10 @@ public class ExperimentIdentifier
     
     public void saveTo(IDirectory directory)
     {
-        IDirectory folder = directory.appendDirectory(FOLDER);
-        folder.appendKeyValuePair(GROUP_CODE, groupCode);
-        folder.appendKeyValuePair(PROJECT_CODE, projectCode);
-        folder.appendKeyValuePair(EXPERIMENT_CODE, experimentCode);
+        IDirectory folder = directory.makeDirectory(FOLDER);
+        folder.addKeyValuePair(GROUP_CODE, groupCode);
+        folder.addKeyValuePair(PROJECT_CODE, projectCode);
+        folder.addKeyValuePair(EXPERIMENT_CODE, experimentCode);
     }
 
     @Override
