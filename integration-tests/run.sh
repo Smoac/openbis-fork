@@ -258,14 +258,14 @@ function switch_sth {
     if [ "$switch_on" == "on" ]; then
 	echo "Launching $dir..."
 	rm -fr $dir/log/*
-	call_in_dir $cmd_start $dir
+	call_in_dir "$cmd_start" $dir
     else
 	echo "Stopping $dir, displaying errors from the log"
 	if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
 	    report_error $dir reported errors.
 	    cat $dir/log/* | grep ERROR	    
 	fi
-	call_in_dir $cmd_stop $dir
+	call_in_dir "$cmd_stop" $dir
     fi
 }
 
@@ -274,7 +274,7 @@ function switch_etl {
 }
 
 function switch_dmv {
-    switch_sth $1 $2 datamover.start datamover.stop
+    switch_sth $1 $2 "datamover.sh start" "datamover.sh stop"
 }
 
 function switch_processing_pipeline {
