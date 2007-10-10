@@ -18,33 +18,21 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.bds.storage.INode;
-
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractNode implements INode
+class FileFile extends AbstractFileNode<File>
 {
-    protected final File nodeFile;
-
-    AbstractNode(File file)
+    public FileFile(File file)
     {
-        assert file != null : "Unspecified file";
-        this.nodeFile = file;
-    }
-    
-    public String getName()
-    {
-        return nodeFile.getName();
+        super(file);
     }
 
-    public IDirectory tryToGetParent()
+    public File getValue()
     {
-        File dir = nodeFile.getParentFile();
-        return dir == null ? null : new Directory(dir);
+        return nodeFile;
     }
-    
+
 }

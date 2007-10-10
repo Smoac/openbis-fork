@@ -29,8 +29,6 @@ public interface IDirectory extends INode, Iterable<INode>
     
     public IDirectory makeDirectory(String name);
     
-    public void addNode(INode node);
-    
     public IFile<File> addRealFile(File file);
     
     public IFile<String> addKeyValuePair(String key, String value);

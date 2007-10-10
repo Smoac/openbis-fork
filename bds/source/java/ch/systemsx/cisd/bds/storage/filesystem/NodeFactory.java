@@ -50,4 +50,8 @@ class NodeFactory
             throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath);
         }
     }
+    
+    private NodeFactory()
+    {
+    }
 }

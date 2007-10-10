@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Iterator;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
@@ -27,6 +25,7 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * 
@@ -35,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 class Directory extends AbstractNode implements IDirectory
 {
-    public Directory(File directory)
+    Directory(File directory)
     {
         super(directory);
         assert directory.isDirectory() : "Not a directory: " + directory.getAbsolutePath();
@@ -43,47 +42,45 @@ class Directory extends AbstractNode implements IDirectory
     
     public INode getNode(String name)
     {
-        // TODO Auto-generated method stub
+        File[] files = nodeFile.listFiles();
+        for (File file : files)
+        {
+            if (file.getName().equals(name))
+            {
+                return NodeFactory.createNode(file);
+            }
+        }
         return null;
     }
 
     public IDirectory makeDirectory(String name)
     {
-        // TODO Auto-generated method stub
-        return null;
+        File dir = new File(nodeFile, name);
+        if (dir.exists())
+        {
+            throw new UserFailureException("There already exists a file named '" + name + "' directory " + this);
+        }
+        boolean successful = dir.mkdir();
+        if (successful == false)
+        {
+            throw new EnvironmentFailureException("Couldn't create directory " + dir.getAbsolutePath()
+                                                  + " for some unknown reason.");
+        }
+        return new Directory(dir);
     }
 
     public IFile<String> addKeyValuePair(String key, String value)
     {
-        File file = new File(fileNode, key);
-        try
-        {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(value);
-            fileWriter.close();
-        } catch (IOException ex)
-        {
-            file.delete();
-            throw new EnvironmentFailureException("Can not create " + file.getAbsolutePath() + ": " + ex);
-        }
-        return null;
-    }
-
-    public void addNode(INode node)
-    {
-        // TODO Auto-generated method stub
-
+        File file = new File(nodeFile, key);
+        FileUtilities.writeToFile(file, value);
+        return new StringFile(file);
     }
 
     public IFile<File> addRealFile(File file)
     {
-        File newFile = new File(fileNode, file.getName());
-        if (file.renameTo(newFile) == false)
-        {
-            throw new EnvironmentFailureException("Couldn't move file " + file.getAbsolutePath() + " to "
-                    + fileNode.getAbsolutePath());
-        }
-        return null;
+        File newFile = new File(nodeFile, file.getName());
+        FileUtilities.copyFileTo(file, newFile, true);
+        return new FileFile(newFile);
     }
 
     public ILink addLink(String name, INode node)
@@ -94,14 +91,40 @@ class Directory extends AbstractNode implements IDirectory
 
     public Iterator<INode> iterator()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new Iterator<INode>()
+            {
+                private File[] files = nodeFile.listFiles();
+                private int index;
+                
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
+        
+                public INode next()
+                {
+                    return index >= files.length ? null : NodeFactory.createNode(files[index++]);
+                }
+        
+                public boolean hasNext()
+                {
+                    return index < files.length;
+                }
+            };
     }
 
     public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
     {
-        // TODO Auto-generated method stub
-        
+        File destination = new File(directory, getName());
+        if (destination.mkdirs() == false)
+        {
+            throw new EnvironmentFailureException("Couldn't create directory for some unknown reason: "
+                    + destination.getAbsolutePath());
+        }
+        for (INode node : this)
+        {
+            node.extractTo(destination);
+        }
     }
 
 }

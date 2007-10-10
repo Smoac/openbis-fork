@@ -18,9 +18,6 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.bds.storage.IFile;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -28,22 +25,16 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  *
  * @author Franz-Josef Elmer
  */
-class StringFile extends AbstractNode implements IFile<String>
+class StringFile extends AbstractFileNode<String>
 {
     StringFile(File file)
     {
         super(file);
-        assert file.isFile() : "Not a file " + file.getAbsolutePath();
     }
     
     public String getValue()
     {
-        return FileUtilities.loadToString(fileNode);
-    }
-
-    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
-    {
-        // TODO Auto-generated method stub
+        return FileUtilities.loadToString(nodeFile).trim();
     }
 
 }
