@@ -39,6 +39,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
@@ -63,7 +64,62 @@ public class FileUtilitiesTest
     {
         FileUtils.cleanDirectory(workingDirectory);
     }
+    
+    @Test
+    public void testWriteToFile() throws Exception
+    {
+        File file = new File(workingDirectory, "testWriteToFile.txt");
+        FileUtilities.writeToFile(file, "Hello world\nhow are you?");
+        assertEquals("Hello world\nhow are you?\n", FileUtilities.loadToString(file));
+    }
 
+    @Test
+    public void testWriteToExistingFile() throws Exception
+    {
+        File file = new File(workingDirectory, "testWriteToFile.txt");
+        FileUtilities.writeToFile(file, "Hello");
+        FileUtilities.writeToFile(file, "Hello world");
+        assertEquals("Hello world\n", FileUtilities.loadToString(file));
+    }
+    
+    @Test
+    public void testWriteToExistingDirectory() throws Exception
+    {
+        File dir = new File(workingDirectory, "dir");
+        assert dir.mkdir();
+        try
+        {
+            FileUtilities.writeToFile(dir, "Hello world");
+            fail("CheckedExceptionTunnel expected.");
+        } catch (CheckedExceptionTunnel e)
+        {
+            Throwable cause = e.getCause();
+            assertTrue(cause instanceof IOException);
+            assertEquals(dir + " (Access is denied)", cause.getMessage());
+        }
+    }
+    
+    @Test
+    public void testWriteToExistingReadOnlyFile() throws Exception
+    {
+        File file = new File(workingDirectory, "testWriteToFile.txt");
+        FileUtilities.writeToFile(file, "Hello");
+        assert file.setReadOnly();
+        try
+        {
+            FileUtilities.writeToFile(file, "Hello world");
+            fail("CheckedExceptionTunnel expected.");
+        } catch (CheckedExceptionTunnel e)
+        {
+            Throwable cause = e.getCause();
+            assertTrue(cause instanceof IOException);
+            assertEquals(file + " (Access is denied)", cause.getMessage());
+        } finally
+        {
+            assert file.delete();
+        }
+    }
+    
     @Test
     public void testLoadToStringFile() throws Exception
     {

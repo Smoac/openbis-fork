@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -94,6 +95,29 @@ public final class FileUtilities
         } finally
         {
             IOUtils.closeQuietly(fileReader);
+        }
+    }
+    /**
+     * Writes the specified string to the specified file.
+     * 
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}.
+     */
+    public static void writeToFile(File file, String str) throws CheckedExceptionTunnel
+    {
+        assert file != null : "Unspecified file.";
+        assert str != null : "Unspecified string.";
+        
+        FileWriter fileWriter = null;
+        try
+        {
+            fileWriter = new FileWriter(file);
+            fileWriter.write(str);
+        } catch (IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fileWriter);
         }
     }
 
