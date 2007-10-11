@@ -1,7 +1,7 @@
 #
 #
 #
-show allResults
+#show allResults
 
 {package} = ch.systemsx.cisd.bds
 
