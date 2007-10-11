@@ -42,7 +42,7 @@ public class Container
     public AbstractDataStructure load(String name)
     {
         IStorage storage = createStorage(name);
-        storage.load();
+        storage.mount();
         Version version = Version.loadFrom(storage.getRoot());
         return DataStructureFactory.createDataStructure(storage, version);
     }

@@ -39,7 +39,7 @@ public abstract class AbstractDataStructure implements IHasVersion
 
     public void load()
     {
-        storage.load();
+        storage.mount();
         Version loadedVersion = Version.loadFrom(root);
         if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
         {
@@ -51,6 +51,6 @@ public abstract class AbstractDataStructure implements IHasVersion
     public void save()
     {
         getVersion().saveTo(root);
-        storage.save();
+        storage.unmount();
     }
 }

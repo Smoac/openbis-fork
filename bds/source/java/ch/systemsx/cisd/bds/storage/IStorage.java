@@ -16,16 +16,29 @@
 
 package ch.systemsx.cisd.bds.storage;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
- * 
+ * Abstraction of a hierarchical storage.
  *
  * @author Franz-Josef Elmer
  */
 public interface IStorage
 {
-    public void load();
+    /**
+     * Mounts this storage. May perform some initializations. Should be called before calling {@link #getRoot()}.
+     */
+    public void mount();
     
-    public IDirectory getRoot();
+    /**
+     * Returns root directory of this storage. 
+     * 
+     * @throws UserFailureException if invoked before {@link #mount()} or after {@link #unmount()}.
+     */
+    public IDirectory getRoot() throws UserFailureException;
     
-    public void save();
+    /**
+     * Unmounts this storage. May perform some finalization (e.g. make cached data persistent).
+     */
+    public void unmount();
 }

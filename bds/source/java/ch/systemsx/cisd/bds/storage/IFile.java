@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.bds.storage;
 
 /**
- * Role of a file with a value (content) of type <code>T</code>.
+ * Role of a leaf node representing a file with some content.
  *
  * @author Franz-Josef Elmer
  */

@@ -34,7 +34,10 @@ class Directory extends AbstractNode implements IDirectory
     Directory(java.io.File directory)
     {
         super(directory);
-        assert directory.isDirectory() : "Not a directory: " + directory.getAbsolutePath();
+        if (directory.isDirectory() == false)
+        {
+            throw new UserFailureException("Not a directory: " + directory.getAbsolutePath());
+        }
     }
     
     public INode getNode(String name)

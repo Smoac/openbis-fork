@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
@@ -30,6 +34,37 @@ public class FileStorageTest extends StorageTestCase
     public void testGetRoot()
     {
         FileStorage fileStorage = new FileStorage(TEST_DIR);
-        AssertJUnit.assertEquals(TEST_DIR.getName(), fileStorage.getRoot().getName());
+        fileStorage.mount();
+        assertEquals(TEST_DIR.getName(), fileStorage.getRoot().getName());
+    }
+    
+    @Test
+    public void testGetRootOfNeverMountedStorage()
+    {
+        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        try
+        {
+            fileStorage.getRoot();
+            AssertJUnit.fail("UserFailureException because storage isn't mounted.");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Can not get root of an unmounted storage.", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testGetRootOfUnMountedStorage()
+    {
+        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        fileStorage.mount();
+        fileStorage.unmount();
+        try
+        {
+            fileStorage.getRoot();
+            AssertJUnit.fail("UserFailureException because storage isn't mounted.");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Can not get root of an unmounted storage.", e.getMessage());
+        }
     }
 }

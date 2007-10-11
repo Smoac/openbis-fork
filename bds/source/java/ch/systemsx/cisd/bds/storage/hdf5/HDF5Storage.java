@@ -22,7 +22,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
 
 /**
- * 
+ * Storage based on HDF5.
  *
  * @author Franz-Josef Elmer
  */
@@ -39,13 +39,13 @@ public class HDF5Storage implements IStorage
         return null;
     }
 
-    public void load()
+    public void mount()
     {
         // TODO Auto-generated method stub
 
     }
 
-    public void save()
+    public void unmount()
     {
         // TODO Auto-generated method stub
 

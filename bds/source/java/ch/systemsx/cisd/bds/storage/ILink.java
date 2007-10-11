@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.bds.storage;
 
 /**
- * 
+ * Node representing a symbolic link.
  *
  * @author Franz-Josef Elmer
  */
 public interface ILink extends INode
 {
+    /**
+     * Returns the node referred by this node.
+     */
     public INode getReference();
 }
