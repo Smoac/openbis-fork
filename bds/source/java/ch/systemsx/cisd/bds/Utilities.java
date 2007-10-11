@@ -22,12 +22,19 @@ import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Storage utility methods.
  *
  * @author Franz-Josef Elmer
  */
 public class Utilities
 {
+    /**
+     * Returns a subdirectory from the specified directory.
+     * 
+     * @param directory Parent directory of the requested directory.
+     * @param name Name of the requested directory.
+     * @throws UserFailureException if requested directory not found.
+     */
     public static IDirectory getSubDirectory(IDirectory directory, String name)
     {
         INode node = directory.getNode(name);
@@ -38,11 +45,21 @@ public class Utilities
         return (IDirectory) node;
     }
     
+    /**
+     * Convenient short cut for <code>{@link #getString(IDirectory, String)}.trim()</code>.
+     */
     public static String getTrimmedString(IDirectory directory, String name)
     {
         return getString(directory, name).trim();
     }
 
+    /**
+     * Returns the string content of a file from the specified directory.
+     * 
+     * @param directory Directory of the requested file.
+     * @param name Name of the file.
+     * @throws UserFailureException if the requested file does not exist. 
+     */
     public static String getString(IDirectory directory, String name)
     {
         INode node = directory.getNode(name);
@@ -56,6 +73,10 @@ public class Utilities
         }
         IFile file = (IFile) node;
         return file.getStringContent();
+    }
+    
+    private Utilities()
+    {
     }
     
 }

@@ -30,6 +30,9 @@ public final class Version
     private static final String MAJOR = "major";
     private static final String MINOR = "minor";
     
+    /**
+     * Loads the version from the specified directory.
+     */
     public static Version loadFrom(IDirectory directory)
     {
         IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
