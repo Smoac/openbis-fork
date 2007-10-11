@@ -43,7 +43,7 @@ public enum ProcessingType
     
     public static ProcessingType loadFrom(IDirectory directory)
     {
-        return resolve(Utilities.getString(directory, PROCESSING_TYPE));
+        return resolve(Utilities.getTrimmedString(directory, PROCESSING_TYPE));
     }
     
     public void saveTo(IDirectory directory)

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.File;
 import java.util.Iterator;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
@@ -28,13 +27,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class Directory extends AbstractNode implements IDirectory
 {
-    Directory(File directory)
+    Directory(java.io.File directory)
     {
         super(directory);
         assert directory.isDirectory() : "Not a directory: " + directory.getAbsolutePath();
@@ -42,8 +39,8 @@ class Directory extends AbstractNode implements IDirectory
     
     public INode getNode(String name)
     {
-        File[] files = nodeFile.listFiles();
-        for (File file : files)
+        java.io.File[] files = nodeFile.listFiles();
+        for (java.io.File file : files)
         {
             if (file.getName().equals(name))
             {
@@ -55,10 +52,10 @@ class Directory extends AbstractNode implements IDirectory
 
     public IDirectory makeDirectory(String name)
     {
-        File dir = new File(nodeFile, name);
+        java.io.File dir = new java.io.File(nodeFile, name);
         if (dir.exists())
         {
-            throw new UserFailureException("There already exists a file named '" + name + "' directory " + this);
+            throw new UserFailureException("There already exists a file named '" + name + "' in directory " + this);
         }
         boolean successful = dir.mkdir();
         if (successful == false)
@@ -69,18 +66,18 @@ class Directory extends AbstractNode implements IDirectory
         return new Directory(dir);
     }
 
-    public IFile<String> addKeyValuePair(String key, String value)
+    public IFile addKeyValuePair(String key, String value)
     {
-        File file = new File(nodeFile, key);
+        java.io.File file = new java.io.File(nodeFile, key);
         FileUtilities.writeToFile(file, value);
-        return new StringFile(file);
+        return new File(file);
     }
 
-    public IFile<File> addRealFile(File file)
+    public INode addFile(java.io.File file)
     {
-        File newFile = new File(nodeFile, file.getName());
-        FileUtilities.copyFileTo(file, newFile, true);
-        return new FileFile(newFile);
+        INode node = NodeFactory.createNode(file);
+        node.extractTo(nodeFile);
+        return node;
     }
 
     public ILink addLink(String name, INode node)
@@ -93,7 +90,7 @@ class Directory extends AbstractNode implements IDirectory
     {
         return new Iterator<INode>()
             {
-                private File[] files = nodeFile.listFiles();
+                private java.io.File[] files = nodeFile.listFiles();
                 private int index;
                 
                 public void remove()
@@ -113,9 +110,9 @@ class Directory extends AbstractNode implements IDirectory
             };
     }
 
-    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    public void extractTo(java.io.File directory) throws UserFailureException, EnvironmentFailureException
     {
-        File destination = new File(directory, getName());
+        java.io.File destination = new java.io.File(directory, getName());
         if (destination.mkdirs() == false)
         {
             throw new EnvironmentFailureException("Couldn't create directory for some unknown reason: "

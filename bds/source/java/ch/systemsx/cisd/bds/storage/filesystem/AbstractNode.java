@@ -33,6 +33,7 @@ abstract class AbstractNode implements INode
     AbstractNode(File file)
     {
         assert file != null : "Unspecified file";
+        assert file.exists() : "Non existing file " + file;
         this.nodeFile = file;
     }
     

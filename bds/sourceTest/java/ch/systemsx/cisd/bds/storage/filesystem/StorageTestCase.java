@@ -17,22 +17,25 @@
 package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class FileFile extends AbstractFileNode<File>
+public class StorageTestCase
 {
-    public FileFile(File file)
+    static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd");
+    
+    @BeforeMethod
+    public void setup() throws IOException
     {
-        super(file);
+        TEST_DIR.mkdirs();
+        FileUtils.cleanDirectory(TEST_DIR);
     }
-
-    public File getValue()
-    {
-        return nodeFile;
-    }
-
+    
 }

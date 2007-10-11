@@ -38,6 +38,11 @@ public class Utilities
         return (IDirectory) node;
     }
     
+    public static String getTrimmedString(IDirectory directory, String name)
+    {
+        return getString(directory, name).trim();
+    }
+
     public static String getString(IDirectory directory, String name)
     {
         INode node = directory.getNode(name);
@@ -45,12 +50,12 @@ public class Utilities
         {
             throw new UserFailureException("File '" + name + "' missing in " + directory);
         }
-        if (node instanceof IFile<?> == false)
+        if (node instanceof IFile == false)
         {
             throw new UserFailureException(node + " is not a file.");
         }
-        IFile<?> file = (IFile<?>) node;
-        return file.getValue().toString();
+        IFile file = (IFile) node;
+        return file.getStringContent();
     }
     
 }

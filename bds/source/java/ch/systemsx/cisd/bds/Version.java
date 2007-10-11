@@ -38,7 +38,7 @@ public final class Version
     
     private static int getNumber(IDirectory versionFolder, String name)
     {
-        String value = Utilities.getString(versionFolder, name);
+        String value = Utilities.getTrimmedString(versionFolder, name);
         try
         {
             return Integer.parseInt(value);

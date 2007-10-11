@@ -16,25 +16,20 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class StringFile extends AbstractFileNode<String>
+public class FileStorageTest extends StorageTestCase
 {
-    StringFile(File file)
+    @Test
+    public void testGetRoot()
     {
-        super(file);
+        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        AssertJUnit.assertEquals(TEST_DIR.getName(), fileStorage.getRoot().getName());
     }
-    
-    public String getValue()
-    {
-        return FileUtilities.loadToString(nodeFile).trim();
-    }
-
 }

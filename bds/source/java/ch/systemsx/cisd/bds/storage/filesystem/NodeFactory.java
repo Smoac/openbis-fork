@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.File;
 import java.io.IOException;
 
 import ch.systemsx.cisd.bds.storage.INode;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 class NodeFactory
 {
-    static INode createNode(File file)
+    static INode createNode(java.io.File file)
     {
         assert file != null : "Unspecified node";
         String absolutePath = file.getAbsolutePath();
@@ -38,13 +37,13 @@ class NodeFactory
             String canonicalPath = file.getCanonicalPath();
             if (absolutePath.equals(canonicalPath) == false)
             {
-                return new Link(file.getName(), createNode(new File(canonicalPath)));
+                return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
             }
             if (file.isDirectory())
             {
                 return new Directory(file);
             }
-            return new StringFile(file);
+            return new File(file);
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath);

@@ -21,10 +21,15 @@ package ch.systemsx.cisd.bds.storage;
  *
  * @author Franz-Josef Elmer
  */
-public interface IFile<T> extends INode
+public interface IFile extends INode
 {
     /**
-     * Returns the value (or content) of this file node.
+     * Returns the content of this file node as a byte array.
      */
-    public T getValue();
+    public byte[] getBinaryContent();
+    
+    /**
+     * Returns the content of this file node as a string.
+     */
+    public String getStringContent();
 }

@@ -34,9 +34,9 @@ public class ExperimentIdentifier
     public static ExperimentIdentifier loadFrom(IDirectory directory)
     {
         IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
-        String groupCode = Utilities.getString(idFolder, GROUP_CODE);
-        String projectCode = Utilities.getString(idFolder, PROJECT_CODE);
-        String experimentCode = Utilities.getString(idFolder, EXPERIMENT_CODE);
+        String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
+        String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
+        String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
         return new ExperimentIdentifier(groupCode, projectCode, experimentCode);
     }
     

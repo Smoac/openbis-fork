@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,33 +25,56 @@ import org.apache.commons.io.IOUtils;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractFileNode<T> extends AbstractNode implements IFile<T>
+class File extends AbstractNode implements IFile
 {
-    AbstractFileNode(File file)
+    File(java.io.File file)
     {
         super(file);
         assert file.isFile() : "Not a file " + file.getAbsolutePath();
     }
+    
+    public byte[] getBinaryContent()
+    {
+        FileInputStream inputStream = null;
+        try
+        {
+            inputStream = new FileInputStream(nodeFile);
+            return IOUtils.toByteArray(inputStream);
+        } catch (IOException ex)
+        {
+            throw new EnvironmentFailureException("Couldn't get data from file " + nodeFile.getAbsolutePath(), ex);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
 
-    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    public String getStringContent()
+    {
+        return FileUtilities.loadToString(nodeFile);
+    }
+
+    public void extractTo(java.io.File directory) throws UserFailureException, EnvironmentFailureException
     {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try
         {
             inputStream = new FileInputStream(nodeFile);
-            outputStream = new FileOutputStream(new File(directory, getName()));
+            directory.mkdirs();
+            outputStream = new FileOutputStream(new java.io.File(directory, getName()));
             IOUtils.copy(inputStream, outputStream);
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException("Couldn't extract file '" + this + "' to directory "
-                    + directory.getAbsolutePath());
+                    + directory.getAbsolutePath(), ex);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
