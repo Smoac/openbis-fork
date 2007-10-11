@@ -114,8 +114,8 @@ public abstract class FileStore
     /**
      * Returns <code>true</code>, if the file store resides on a remote computer and <code>false</code> otherwise.
      * <p>
-     * Note that the resource does not have to be on a remote host. Instead it can reside on a remote share mounted on
-     * local host via NFS or CIFS.
+     * Note that even if this method returns <code>true</code> paths on this file system might be reached via local
+     * file system operation, if the remote file system is provided as a remote share and mounted via NFS or CIFS.
      */
     public final boolean isRemote()
     {
