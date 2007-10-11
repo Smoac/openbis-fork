@@ -29,15 +29,19 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
-import ch.systemsx.cisd.datamover.utils.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 
@@ -60,13 +64,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final IFileSysOperationsFactory factory;
 
-    private final IReadPathOperations incomingReadOperations;
-
     private final IPathMover pathMover;
 
     private final LocalBufferDirs bufferDirs;
-
-    private final boolean isIncomingRemote;
 
     private final FileStore incomingStore;
 
@@ -84,9 +84,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
-        this.isIncomingRemote = parameters.getTreatIncomingAsRemote();
-        this.incomingStore = parameters.getIncomingStore();
-        this.incomingReadOperations = factory.getReadPathOperations();
+        this.incomingStore = parameters.getIncomingStore(factory);
         this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
@@ -99,18 +97,32 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private DataMoverProcess create()
     {
-        final IPathHandler pathHandler = createIncomingMovingPathHandler(incomingStore.getHost());
+        final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final FileFilter filter = createQuietPeriodFilter();
 
+        // TODO 2007-10-10 Tomasz Pylak: refactor not to use incomingStore.getPath()
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, pathHandler,
+                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, asPathHandler(pathHandler),
                         NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
+    // TODO 2007-10-10 Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
+    // quick hack.
+    private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
+    {
+        return new IPathHandler()
+            {
+                public void handle(File path)
+                {
+                    storeHandler.handle(new StoreItem(path.getName()));
+                }
+            };
+    }
+
     private FileFilter createQuietPeriodFilter()
     {
-        FileFilter quitePeriodFilter = new QuietPeriodFileFilter(parameters, incomingReadOperations);
+        FileFilter quitePeriodFilter = new QuietPeriodFileFilter(parameters);
         FileFilter filterDeletionMarkers = new NamePrefixFileFilter(Constants.DELETION_IN_PROGRESS_PREFIX, false);
         FileFilter filter = combineFilters(filterDeletionMarkers, quitePeriodFilter);
         return filter;
@@ -127,53 +139,43 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             };
     }
 
-    private IPathHandler createIncomingMovingPathHandler(final String sourceHostOrNull)
+    private IStoreHandler createIncomingMovingPathHandler()
     {
-        return new IPathHandler()
+        return new IStoreHandler()
             {
-                public void handle(File sourceFile)
+                public void handle(StoreItem sourceItem)
                 {
-                    if (isIncomingRemote)
+                    ExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
+                    if (extendedFileStore == null)
                     {
-                        moveFromRemoteIncoming(sourceFile, sourceHostOrNull);
+                        moveFromRemoteIncoming(sourceItem);
                     } else
                     {
-                        moveFromLocalIncoming(sourceFile);
+                        moveFromLocalIncoming(extendedFileStore, sourceItem);
                     }
                 }
             };
     }
 
-    private void moveFromLocalIncoming(File source)
+    private void moveFromLocalIncoming(ExtendedFileStore sourceStore, StoreItem sourceItem)
     {
-        final File finalFile = tryMoveLocal(source, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
-        if (finalFile == null)
-        {
-            return;
-        }
+        sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
     }
 
-    private void moveFromRemoteIncoming(File source, String sourceHostOrNull)
+    private void moveFromRemoteIncoming(StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
-        moveFromRemoteToLocal(source, sourceHostOrNull, copyInProgressDir);
-        final File destFile = new File(copyInProgressDir, source.getName());
-        if (destFile.exists() == false)
+        moveFromRemoteToLocal(sourceItem, incomingStore, copyInProgressDir);
+        final File copiedFile = new File(copyInProgressDir, sourceItem.getName());
+        if (copiedFile.exists() == false)
         {
             return;
         }
-        final File copiedFile = new File(copyInProgressDir, source.getName());
-        assert copiedFile.exists() : copiedFile.getAbsolutePath();
-        final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
-        assert markerFile.exists() : markerFile.getAbsolutePath();
 
         // 2. Move to final directory, delete marker
-        final File finalFile = tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
-        if (finalFile == null)
-        {
-            return;
-        }
+        final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
+        tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
     }
 
     private File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
@@ -183,7 +185,14 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         {
             if (markerFileOrNull != null)
             {
-                markerFileOrNull.delete(); // process even if marker file could not be deleted
+                if (markerFileOrNull.exists() == false)
+                {
+                    operationLog.error("Could not find expected copy-finished-mrker file "
+                            + markerFileOrNull.getAbsolutePath());
+                } else
+                {
+                    markerFileOrNull.delete(); // process even if marker file could not be deleted
+                }
             }
             return finalFile;
         } else
@@ -192,15 +201,15 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(File source, String sourceHostOrNull, File localDestDir)
+    private void moveFromRemoteToLocal(StoreItem sourceItem, FileStore sourceStore, File localDestDir)
     {
-        createRemotePathMover(sourceHostOrNull, localDestDir, null).handle(source);
+        createRemotePathMover(sourceStore, FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(
+                sourceItem);
     }
 
-    private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
+    private IStoreHandler createRemotePathMover(FileStore sourceDirectory, FileStore destinationDirectory)
     {
-        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory,
-                parameters);
+        return RemoteMonitoredMoverFactory.create(sourceDirectory, destinationDirectory, parameters);
     }
 
     private File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
@@ -219,7 +228,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 operationLog.debug("Recovery starts.");
             }
-            if (isIncomingRemote)
+            if (incomingStore.isRemote())
             {
                 recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs.getCopyCompleteDir());
             }
@@ -231,7 +240,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
         private void recoverIncomingInProgress(File copyInProgressDir, File copyCompleteDir)
         {
-            final File[] files = incomingReadOperations.tryListFiles(copyInProgressDir, errorLog);
+            final File[] files = FileUtilities.tryListFiles(copyInProgressDir, errorLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed
@@ -273,9 +282,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 } else
                 // no marker
                 {
-                    File incomingDir = incomingStore.getPath();
-                    File originalInIncoming = new File(incomingDir, localCopy.getName());
-                    if (incomingReadOperations.exists(originalInIncoming))
+                    if (incomingStore.exists(new StoreItem(localCopy.getName())))
                     {
                         // partial copy - nothing to do, will be copied again
                     } else

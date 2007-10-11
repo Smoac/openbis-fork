@@ -34,9 +34,9 @@ public class MarkerFile
         return Constants.IS_FINISHED_PREFIX + originalFileName;
     }
 
-    public static File createDeletionInProgressMarker(File parent, String originalFileName)
+    public static StoreItem createDeletionInProgressMarker(StoreItem originalItem)
     {
-        return new File(parent, getDeletionInProgressMarkerName(originalFileName));
+        return new StoreItem(getDeletionInProgressMarkerName(originalItem.getName()));
     }
 
     private static String getDeletionInProgressMarkerName(String originalFileName)
@@ -68,5 +68,15 @@ public class MarkerFile
     public static File createCopyFinishedMarker(File parent, String originalFileName)
     {
         return new File(parent, getCopyFinishedMarkerName(originalFileName));
+    }
+
+    public static StoreItem createCopyFinishedMarker(StoreItem originalItem)
+    {
+        return new StoreItem(getCopyFinishedMarkerName(originalItem.getName()));
+    }
+
+    public static StoreItem createRequiresDeletionBeforeCreationMarker()
+    {
+        return new StoreItem(".requiresDeletionBeforeCreation");
     }
 }

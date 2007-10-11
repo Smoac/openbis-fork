@@ -46,13 +46,14 @@ final class RetryingPathRemover implements IPathRemover
         }
         int failures = 0;
         boolean deletionOK = false;
-        while(true)
+        while (true)
         {
             deletionOK = FileUtilities.deleteRecursively(path);
             if (deletionOK)
             {
                 break;
-            } else {
+            } else
+            {
                 if (path.exists() == false)
                 {
                     operationLog.warn(String.format("Path '%s' doesn't exist, so it can't be removed.", path));
@@ -73,14 +74,14 @@ final class RetryingPathRemover implements IPathRemover
                 }
             }
         }
-        
+
         if (deletionOK == false)
         {
             notificationLog.error(String.format("Removing path '%s' failed, giving up.", path));
             return STATUS_FAILED_DELETION;
         } else
         {
-            return Status.OK; 
+            return Status.OK;
         }
     }
 }

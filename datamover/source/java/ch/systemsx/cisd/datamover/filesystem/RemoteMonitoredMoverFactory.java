@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.datamover.filesystem;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
@@ -32,24 +29,17 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 public class RemoteMonitoredMoverFactory
 {
     /**
-     * Creates a handler to move files remotely and monitor the progress
+     * Creates a handler to move files remotely from source to destination and monitor the progress
      * 
-     * @param sourceHost The host to move paths from, or <code>null</code>, if data will be moved from the local file
-     *            system
+     * @param sourceDirectory The directory to move paths from
      * @param destinationDirectory The directory to move paths to.
-     * @param destinationHost The host to move paths to, or <code>null</code>, if <var>destinationDirectory</var> is
-     *            a remote share.
-     * @param fsFactory operations on (remote) file system
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
      */
-    public static final IPathHandler create(String sourceHost, File destinationDirectory, String destinationHost,
-            IFileSysOperationsFactory fsFactory, ITimingParameters parameters)
+    public static final IStoreHandler create(FileStore sourceDirectory, FileStore destinationDirectory,
+            ITimingParameters parameters)
     {
-        final IPathCopier copier = fsFactory.getCopier(destinationDirectory);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(destinationDirectory, fsFactory.getReadPathOperations(), copier, parameters);
-        final IPathRemover remover = fsFactory.getRemover();
-        return new RemotePathMover(destinationDirectory, destinationHost, monitor, remover, copier, sourceHost,
-                parameters);
+        final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
+        final CopyActivityMonitor monitor = new CopyActivityMonitor(destinationDirectory, copier, parameters);
+        return new RemotePathMover(sourceDirectory, destinationDirectory, copier, monitor, parameters);
     }
 }

@@ -16,20 +16,18 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
+import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -38,7 +36,7 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  * 
  * @author Bernd Rinn
  */
-public final class RemotePathMover implements IPathHandler
+public final class RemotePathMover implements IStoreHandler
 {
 
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";
@@ -56,10 +54,10 @@ public final class RemotePathMover implements IPathHandler
 
     private static final String REMOVING_LOCAL_PATH_FAILED_TEMPLATE = "Removing local path '%s' failed (%s).";
 
-    private static final String FAILED_TO_CREATE_MARK_FILE_TEMPLATE = "Failed to create mark file '%s'";
+    private static final String FAILED_TO_CREATE_FILE_TEMPLATE = "Failed to create file '%s' in '%s'";
 
-    private static final String FAILED_TO_COPY_MARK_FILE_TO_REMOTE_TEMPLATE =
-            "Failed to copy mark file '%s' to remote (%s)";
+    private static final String FAILED_TO_COPY_FILE_TO_REMOTE_TEMPLATE =
+            "Failed to copy file '%s' from '%s' to remote (%s)";
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RemotePathMover.class);
 
@@ -67,15 +65,11 @@ public final class RemotePathMover implements IPathHandler
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RemotePathMover.class);
 
-    private final File destinationDirectory;
+    private final FileStore sourceDirectory;
 
-    private final String destinationHost;
+    private final FileStore destinationDirectory;
 
-    private final IPathCopier copier;
-
-    private final IPathRemover remover;
-
-    private final String sourceHost;
+    private final IStoreCopier copier;
 
     private final CopyActivityMonitor monitor;
 
@@ -86,33 +80,27 @@ public final class RemotePathMover implements IPathHandler
     /**
      * Creates a <var>PathRemoteMover</var>.
      * 
+     * @param sourceDirectory The directory to move paths from.
      * @param destinationDirectory The directory to move paths to.
-     * @param destinationHost The host to move paths to, or <code>null</code>, if <var>destinationDirectory</var> is
-     *            a remote share.
+     * @param copier Copies items from source to destination
      * @param monitor The activity monitor to inform about actions.
-     * @param remover Allows to remove files.
-     * @param copier Allows to copy files
-     * @param sourceHost The host to move paths from, or <code>null</code>, if data will be moved from the local file
-     *            system
      * @param timingParameters The timing parametes used for monitoring and reporting stall situations.
      */
-    public RemotePathMover(File destinationDirectory, String destinationHost, CopyActivityMonitor monitor,
-            IPathRemover remover, IPathCopier copier, String sourceHost, ITimingParameters timingParameters)
+    public RemotePathMover(FileStore sourceDirectory, FileStore destinationDirectory, IStoreCopier copier,
+            CopyActivityMonitor monitor, ITimingParameters timingParameters)
     {
+        assert sourceDirectory != null;
         assert destinationDirectory != null;
         assert monitor != null;
-        assert remover != null;
-        assert copier != null;
         assert timingParameters != null;
-        assert FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination") == null : FileUtilities
-                .checkDirectoryFullyAccessible(destinationDirectory, "destination");
+        String errorMsg = destinationDirectory.tryCheckDirectoryFullyAccessible();
+        assert errorMsg == null : errorMsg;
+        assert sourceDirectory.tryAsExtended() != null || destinationDirectory.tryAsExtended() != null;
 
+        this.sourceDirectory = sourceDirectory;
         this.destinationDirectory = destinationDirectory;
-        this.destinationHost = destinationHost;
-        this.monitor = monitor;
         this.copier = copier;
-        this.remover = remover;
-        this.sourceHost = sourceHost;
+        this.monitor = monitor;
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
 
@@ -120,19 +108,18 @@ public final class RemotePathMover implements IPathHandler
         assert maximalNumberOfRetries >= 0;
     }
 
-    public void handle(File path)
+    public void handle(StoreItem item)
     {
-        if (isDeletionInProgress(path))
+        if (isDeletionInProgress(item))
         {
             // This is a recovery situation: we have been interrupted removing the path and now finish the job.
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format(
-                        "Detected recovery situation: '%s' has been interrupted in deletion phase, finishing up.", path
-                                .getAbsolutePath()));
+                        "Detected recovery situation: '%s' has been interrupted in deletion phase, finishing up.",
+                        getSrcPath(item)));
             }
-            remove(path);
-            markAsFinished(path);
+            removeAndMark(item);
             return;
         }
         int tryCount = 0;
@@ -142,33 +129,30 @@ public final class RemotePathMover implements IPathHandler
             {
                 if (tryCount > 0) // This is a retry
                 {
-                    operationLog.info(String.format(START_COPYING_PATH_RETRY_TEMPLATE, path.getPath(),
-                            destinationDirectory.getPath(), tryCount));
+                    operationLog.info(String.format(START_COPYING_PATH_RETRY_TEMPLATE, getSrcPath(item),
+                            destinationDirectory, tryCount));
                 } else
                 {
-                    operationLog.info(String.format(START_COPYING_PATH_TEMPLATE, path.getPath(), destinationDirectory
-                            .getPath()));
+                    operationLog.info(String
+                            .format(START_COPYING_PATH_TEMPLATE, getSrcPath(item), destinationDirectory));
                 }
             }
             final long startTime = System.currentTimeMillis();
-            monitor.start(path);
-            final Status copyStatus = copier.copy(path, sourceHost, destinationDirectory, destinationHost);
-            monitor.stop();
+            final Status copyStatus = copyAndMonitor(item);
             if (StatusFlag.OK.equals(copyStatus.getFlag()))
             {
                 if (operationLog.isInfoEnabled())
                 {
                     final long endTime = System.currentTimeMillis();
-                    operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, path.getPath(), destinationDirectory
-                            .getPath(), (endTime - startTime) / 1000.0));
+                    operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, getSrcPath(item),
+                            destinationDirectory, (endTime - startTime) / 1000.0));
                 }
-                remove(path);
-                markAsFinished(path);
+                removeAndMark(item);
                 return;
             } else
             {
-                operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, path.getPath(), destinationDirectory
-                        .getPath(), copyStatus));
+                operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item), destinationDirectory,
+                        copyStatus));
                 if (StatusFlag.FATAL_ERROR.equals(copyStatus.getFlag()))
                 {
                     break;
@@ -189,122 +173,143 @@ public final class RemotePathMover implements IPathHandler
             }
         } while (true);
 
-        notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE, path, destinationDirectory));
+        notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE, getSrcPath(item),
+                destinationDirectory));
     }
 
-    private void remove(File path)
+    private Status copyAndMonitor(StoreItem item)
     {
-        final File removalInProgressMarkerFile = tryMarkAsDeletionInProgress(path);
-        final Status removalStatus = remover.remove(path);
-        removeMarkerFile(removalInProgressMarkerFile);
+        monitor.start(item);
+        final Status copyStatus = copier.copy(item);
+        monitor.stop();
+        return copyStatus;
+    }
+
+    private void removeAndMark(StoreItem item)
+    {
+        remove(item);
+        markAsFinished(item);
+    }
+
+    private void remove(StoreItem sourceItem)
+    {
+        final StoreItem removalInProgressMarkerFile = tryMarkAsDeletionInProgress(sourceItem);
+        final Status removalStatus = sourceDirectory.delete(sourceItem);
+        removeDeletionMarkerFile(removalInProgressMarkerFile);
+
         if (Status.OK.equals(removalStatus) == false)
         {
-            notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, path, removalStatus));
+            notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE, getSrcPath(sourceItem),
+                    removalStatus));
         } else if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format(REMOVED_PATH_TEMPLATE, path.getPath()));
+            operationLog.info(String.format(REMOVED_PATH_TEMPLATE, getSrcPath(sourceItem)));
         }
     }
 
-    private boolean isDeletionInProgress(File path)
+    private boolean isDeletionInProgress(StoreItem item)
     {
-        final File markDeletionInProgressMarkerFile = getDeletionInProgressMarkerFile(path);
-        return markDeletionInProgressMarkerFile.exists();
+        StoreItem markDeletionInProgressMarkerFile = MarkerFile.createDeletionInProgressMarker(item);
+        return getDeletionMarkerStore().exists(markDeletionInProgressMarkerFile);
     }
 
-    private File tryMarkAsDeletionInProgress(File path)
+    private StoreItem tryMarkAsDeletionInProgress(StoreItem item)
     {
-        final File markDeletionInProgressMarkerFile = getDeletionInProgressMarkerFile(path);
-        if (markLocal(markDeletionInProgressMarkerFile))
+        final StoreItem markDeletionInProgressMarkerFile = MarkerFile.createDeletionInProgressMarker(item);
+        if (createFileInside(getDeletionMarkerStore(), markDeletionInProgressMarkerFile))
         {
             return markDeletionInProgressMarkerFile;
         } else
         {
-            machineLog.error(String.format("Cannot create deletion-in-progress marker file for path '%s' [%s]", path
-                    .getAbsolutePath(), markDeletionInProgressMarkerFile.getAbsolutePath()));
+            machineLog.error(String.format("Cannot create deletion-in-progress marker file for path '%s' [%s]", item,
+                    markDeletionInProgressMarkerFile));
             return null;
         }
     }
 
-    private File getDeletionInProgressMarkerFile(File path)
+    private void removeDeletionMarkerFile(StoreItem markerOrNull)
     {
-        // When destinationHost == null, we put the marker directory in the destination directory, otherwise in
-        // the source directory
-        final File markerParentDirectory = (destinationHost == null) ? destinationDirectory : path.getParentFile();
-        final File markDeletionInProgressMarkerFile =
-                MarkerFile.createDeletionInProgressMarker(markerParentDirectory, path.getName());
-        return markDeletionInProgressMarkerFile;
-    }
-
-    private void removeMarkerFile(File markerFileOrNull)
-    {
-        if (markerFileOrNull != null)
+        if (markerOrNull != null)
         {
-            final boolean removalOK = markerFileOrNull.delete();
-            if (removalOK == false)
+            final Status status = getDeletionMarkerStore().delete(markerOrNull);
+            if (status.equals(Status.OK) == false)
             {
-                machineLog.error(String.format("Cannot remove marker file '%s'", markerFileOrNull.getAbsolutePath()));
+                machineLog.error(String.format("Cannot remove marker file '%s'", getPath(destinationDirectory,
+                        markerOrNull)));
             }
         }
     }
 
-    private boolean markAsFinished(File path)
+    private ExtendedFileStore getDeletionMarkerStore()
     {
-        final File markFinishedFile = MarkerFile.createCopyFinishedMarker(destinationDirectory, path.getName());
-        if (destinationHost == null)
+        ExtendedFileStore fileStore = destinationDirectory.tryAsExtended();
+        if (fileStore == null)
         {
-            return markLocal(markFinishedFile);
+            fileStore = sourceDirectory.tryAsExtended();
+        }
+        assert fileStore != null;
+        return fileStore;
+    }
+
+    // Creates a finish-marker inside destination directory.
+    private boolean markAsFinished(StoreItem item)
+    {
+        StoreItem markerItem = MarkerFile.createCopyFinishedMarker(item);
+        ExtendedFileStore extendedFileStore = destinationDirectory.tryAsExtended();
+        if (extendedFileStore != null)
+        {
+            // We create the marker directly inside the destination directory
+            return createFileInside(extendedFileStore, markerItem);
         } else
         {
-            return markOnSourceLocalAndCopyToRemoteDestination(markFinishedFile);
+            // When destination is remote, we put the item directory in the source directory and copy it to destination.
+            extendedFileStore = sourceDirectory.tryAsExtended();
+            assert extendedFileStore != null;
+            return markOnSourceLocalAndCopyToRemoteDestination(extendedFileStore, markerItem);
         }
     }
 
-    private boolean markLocal(File markerFile)
+    private boolean markOnSourceLocalAndCopyToRemoteDestination(ExtendedFileStore sourceFileStore, StoreItem markerFile)
     {
         try
         {
-            markerFile.createNewFile();
-            final boolean success = markerFile.exists();
-            if (success == false)
+            if (createFileInside(sourceFileStore, markerFile) == false)
             {
-                machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markerFile.getAbsoluteFile()));
+                return false;
             }
-            return success;
-        } catch (IOException e)
-        {
-            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, markerFile.getAbsoluteFile()), e);
-            return false;
-        }
-    }
-
-    private boolean markOnSourceLocalAndCopyToRemoteDestination(File markerFile)
-    {
-        final File localMarkerFile = new File(markerFile.getParent(), markerFile.getName());
-        try
-        {
-            localMarkerFile.createNewFile();
-            monitor.start(localMarkerFile);
-            final Status copyStatus = copier.copy(localMarkerFile, sourceHost, destinationDirectory, destinationHost);
-            monitor.stop();
+            final Status copyStatus = copyAndMonitor(markerFile);
             if (StatusFlag.OK.equals(copyStatus.getFlag()))
             {
                 return true;
             } else
             {
-                machineLog.error(String.format(FAILED_TO_COPY_MARK_FILE_TO_REMOTE_TEMPLATE, localMarkerFile
-                        .getAbsoluteFile(), copyStatus.toString()));
+                machineLog.error(String.format(FAILED_TO_COPY_FILE_TO_REMOTE_TEMPLATE, markerFile, sourceFileStore,
+                        copyStatus.toString()));
                 return false;
             }
-
-        } catch (IOException e)
-        {
-            machineLog.error(String.format(FAILED_TO_CREATE_MARK_FILE_TEMPLATE, localMarkerFile.getAbsoluteFile()), e);
-            return false;
         } finally
         {
-            localMarkerFile.delete();
+            sourceFileStore.delete(markerFile);
         }
     }
 
+    private static boolean createFileInside(ExtendedFileStore directory, StoreItem item)
+    {
+        boolean success = directory.createNewFile(item);
+        if (success == false)
+        {
+            machineLog.error(String.format(FAILED_TO_CREATE_FILE_TEMPLATE, item, directory));
+        }
+        return success;
+    }
+
+    private String getSrcPath(StoreItem item)
+    {
+        return getPath(sourceDirectory, item);
+    }
+
+    private static String getPath(FileStore directory, StoreItem item)
+    {
+        return item + " inside " + directory;
+    }
 }

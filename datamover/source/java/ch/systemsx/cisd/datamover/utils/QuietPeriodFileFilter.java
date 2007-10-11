@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.io.File;
 import java.io.FileFilter;
 
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -29,31 +29,23 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public class QuietPeriodFileFilter implements FileFilter
 {
-
     private final long quietPeriodMillis;
-
-    private final IReadPathOperations readOperations;
 
     /**
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param timingParameters The timing paramter object to get the quiet period from.
-     * @param readOperations Used to check when a pathname was changed.
      */
-    public QuietPeriodFileFilter(ITimingParameters timingParameters, IReadPathOperations readOperations)
+    public QuietPeriodFileFilter(ITimingParameters timingParameters)
     {
         assert timingParameters != null;
-        assert readOperations != null;
-
         this.quietPeriodMillis = timingParameters.getQuietPeriodMillis();
-        this.readOperations = readOperations;
-
         assert quietPeriodMillis > 0;
     }
 
     public boolean accept(File pathname)
     {
-        return (System.currentTimeMillis() - readOperations.lastChanged(pathname)) > quietPeriodMillis;
+        return (System.currentTimeMillis() - FileUtilities.lastChanged(pathname)) > quietPeriodMillis;
     }
 
 }

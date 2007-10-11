@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
 import java.io.File;
-import java.io.FileFilter;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -25,17 +24,20 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
-import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
-import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
+import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
+import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
@@ -84,63 +86,14 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private static class ReadOperationsOriginalImpl implements IReadPathOperations
+    private static interface LastChangedChecker
     {
-        private final IReadPathOperations impl;
-
-        public ReadOperationsOriginalImpl()
-        {
-            final IFileSysParameters dummyFileSysParameters = new IFileSysParameters()
-            {
-                public String getHardLinkExecutable()
-                {
-                    return null;
-                }
-
-                public String getRsyncExecutable()
-                {
-                    return null;
-                }
-
-                public String getSshExecutable()
-                {
-                    return null;
-                }
-
-                public boolean isRsyncOverwrite()
-                {
-                    return false;
-                }
-                
-            };
-            this.impl = new FileSysOperationsFactory(dummyFileSysParameters).getReadPathOperations();
-        }
-
-        public long lastChanged(File path)
-        {
-            return impl.lastChanged(path);
-        }
-
-        public boolean exists(File file)
-        {
-            return impl.exists(file);
-        }
-
-        public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
-        {
-            return impl.tryListFiles(directory, filter, loggerOrNull);
-        }
-
-        public File[] tryListFiles(File directory, ISimpleLogger logger)
-        {
-            return impl.tryListFiles(directory, logger);
-        }
+        public long lastChanged(StoreItem item);
     }
 
-    private final class HappyPathLastChangedChecker extends ReadOperationsOriginalImpl
+    private final class HappyPathLastChangedChecker implements LastChangedChecker
     {
-        @Override
-        public long lastChanged(File path)
+        public long lastChanged(StoreItem item)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS / 2;
         }
@@ -182,6 +135,55 @@ public class CopyActivityMonitorTest
         }
     }
 
+    private FileStore asFileStore(File directory, final LastChangedChecker checker)
+    {
+        IFileSysOperationsFactory factory = FileOperationsUtil.createTestFatory();
+        return asFileStore(directory, checker, factory);
+    }
+
+    private FileStore asFileStore(File directory, final LastChangedChecker checker, IFileSysOperationsFactory factory)
+    {
+        final FileStoreLocal localImpl = new FileStoreLocal(directory, "input-test", factory);
+        return new FileStore(directory, null, false, "input-test", factory)
+            {
+                @Override
+                public Status delete(StoreItem item)
+                {
+                    return localImpl.delete(item);
+                }
+
+                @Override
+                public boolean exists(StoreItem item)
+                {
+                    return localImpl.exists(item);
+                }
+
+                @Override
+                public long lastChanged(StoreItem item)
+                {
+                    return checker.lastChanged(item);
+                }
+
+                @Override
+                public String tryCheckDirectoryFullyAccessible()
+                {
+                    return localImpl.tryCheckDirectoryFullyAccessible();
+                }
+
+                @Override
+                public ExtendedFileStore tryAsExtended()
+                {
+                    return localImpl.tryAsExtended();
+                }
+
+                @Override
+                public IStoreCopier getCopier(FileStore destinationDirectory)
+                {
+                    return localImpl.getCopier(destinationDirectory);
+                }
+            };
+    }
+
     // ////////////////////////////////////////
     // Initialization methods.
     //
@@ -218,15 +220,13 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testHappyPath() throws Throwable
     {
-        final IReadPathOperations checker = new HappyPathLastChangedChecker();
+        final LastChangedChecker checker = new HappyPathLastChangedChecker();
         final ITerminable dummyTerminable = new DummyTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(workingDirectory, checker, dummyTerminable, parameters);
-        final File directory = new File(workingDirectory, "some-directory");
-        directory.mkdir();
-        directory.deleteOnExit();
-        monitor.start(directory);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), dummyTerminable, parameters);
+        StoreItem item = createDirectoryInside(workingDirectory);
+        monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
     }
@@ -235,24 +235,23 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testCopyStalled() throws Throwable
     {
-        final IReadPathOperations checker = new PathLastChangedCheckerStalled();
+        final LastChangedChecker checker = new PathLastChangedCheckerStalled();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
-        final File file = new File(workingDirectory, "some-directory");
-        file.mkdir();
-        monitor.start(file);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+        StoreItem item = createDirectoryInside(workingDirectory);
+        monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
         assert copyProcess.isTerminated();
     }
 
-    private final class SimulateShortInterruptionChangedChecker extends ReadOperationsOriginalImpl
+    private final class SimulateShortInterruptionChangedChecker implements LastChangedChecker
     {
         private int numberOfTimesCalled = 0;
 
-        @Override
-        public long lastChanged(File path)
+        public long lastChanged(StoreItem item)
         {
             ++numberOfTimesCalled;
             if (numberOfTimesCalled == 2)
@@ -269,33 +268,32 @@ public class CopyActivityMonitorTest
     }
 
     /**
-     * This test case catches a case that I first hadn't thought of: since we use <code>rsync</code> (or
-     * <code>xcopy</code>) in a mode where at the end of copying a file they set the "last modified" time back to the
-     * one of the source file, there is a short time interval after finishing copying one file anst starting copying the
-     * next file where the copy monitor could be tempted to trigger false alarm: the just finished file will have
-     * already the "last modified" time of the source file (which is when the data produce finished writing the source
-     * file). In fact everything is fine but still the copy process will be cancelled.
+     * This test case catches a case that I first hadn't thought of: since we use <code>rsync</code> in a mode where
+     * at the end of copying a file they set the "last modified" time back to the one of the source file, there is a
+     * short time interval after finishing copying one file anst starting copying the next file where the copy monitor
+     * could be tempted to trigger false alarm: the just finished file will have already the "last modified" time of the
+     * source file (which is when the data produce finished writing the source file). In fact everything is fine but
+     * still the copy process will be cancelled.
      */
     @Test(groups =
         { "slow" })
     public void testCopySeemsStalledButActuallyIsFine() throws Throwable
     {
-        final IReadPathOperations checker = new SimulateShortInterruptionChangedChecker();
+        final LastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
-        final File file = new File(workingDirectory, "some-directory");
-        file.mkdir();
-        monitor.start(file);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+        StoreItem item = createDirectoryInside(workingDirectory);
+        monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
         assert copyProcess.isTerminated() == false;
     }
 
-    private final class PathLastChangedCheckerStalled extends ReadOperationsOriginalImpl
+    private final class PathLastChangedCheckerStalled implements LastChangedChecker
     {
-        @Override
-        public long lastChanged(File path)
+        public long lastChanged(StoreItem item)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
         }
@@ -308,14 +306,13 @@ public class CopyActivityMonitorTest
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
         LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class).addAppender(appender);
-        final IReadPathOperations checker = new PathLastChangedCheckerStuck();
+        final LastChangedChecker checker = new PathLastChangedCheckerStuck();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor = new CopyActivityMonitor(workingDirectory, checker, copyProcess, parameters);
-        final File directory = new File(workingDirectory, "some-directory");
-        directory.mkdir();
-        directory.deleteOnExit();
-        monitor.start(directory);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+        StoreItem item = createDirectoryInside(workingDirectory);
+        monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
         LogMonitoringAppender.removeAppender(appender);
@@ -323,12 +320,20 @@ public class CopyActivityMonitorTest
         appender.verifyLogHasHappened();
     }
 
-    private final class PathLastChangedCheckerStuck extends ReadOperationsOriginalImpl
+    private StoreItem createDirectoryInside(File parentDir)
+    {
+        StoreItem item = new StoreItem("some-directory");
+        final File directory = new File(parentDir, item.getName());
+        directory.mkdir();
+        directory.deleteOnExit();
+        return item;
+    }
+
+    private final class PathLastChangedCheckerStuck implements LastChangedChecker
     {
         private boolean interrupted = false;
 
-        @Override
-        public long lastChanged(File path)
+        public long lastChanged(StoreItem item)
         {
             try
             {

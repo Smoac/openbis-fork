@@ -38,9 +38,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
-import ch.systemsx.cisd.datamover.utils.FileStore;
 
 /**
  * The class to process the command line parameters.
@@ -49,7 +51,6 @@ import ch.systemsx.cisd.datamover.utils.FileStore;
  */
 public class Parameters implements ITimingParameters, IFileSysParameters
 {
-
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
@@ -197,7 +198,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = "manual-intervention-dir", metaVar = "DIR", usage = "The local directory to "
             + "store paths that need manual intervention.")
-    private File manualInterventionDirectory = null;
+    private File manualInterventionDirectoryOrNull = null;
 
     /**
      * The directory on the remote side to move the paths to from the buffer directory.
@@ -226,26 +227,6 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
             + "moving to outgoing.")
     private Pattern cleansingRegex = null;
-
-    /**
-     * The store where the files come in.
-     */
-    private final FileStore incomingStore;
-
-    /**
-     * The store to buffer the files before copying to outgoing.
-     */
-    private final FileStore bufferStore;
-
-    /**
-     * The store to copy the files to.
-     */
-    private final FileStore outgoingStore;
-
-    /**
-     * The store to copy files to that need manual intervention.
-     */
-    private final FileStore manualInterventionStore;
 
     /**
      * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
@@ -316,6 +297,14 @@ public class Parameters implements ITimingParameters, IFileSysParameters
 
     }
 
+    static final String INCOMING_KIND_DESC = "incoming";
+
+    static final String MANUAL_INTERVENTION_KIND_DESC = "manual intervention";
+
+    static final String BUFFER_KIND_DESC = "buffer";
+
+    static final String OUTGOING_KIND_DESC = "outgoing";
+
     Parameters(String[] args)
     {
         this(args, SystemExit.SYSTEM_EXIT);
@@ -339,21 +328,36 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             {
                 throw new ConfigurationFailureException("No 'outgoing-dir' defined.");
             }
-            if (manualInterventionDirectory == null && manualInterventionRegex != null)
+            if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
             {
                 throw new ConfigurationFailureException(
                         "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
             }
-            incomingStore = new FileStore(incomingDirectory, "incoming", incomingHost, treatIncomingAsRemote);
-            bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
-            manualInterventionStore = new FileStore(manualInterventionDirectory, "manual intervention", null, false);
-            outgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
         } catch (Exception ex)
         {
             outputException(ex);
             systemExitHandler.exit(1);
             // Only reached in unit tests.
             throw new AssertionError(ex.getMessage());
+        }
+    }
+
+    private static FileStore createStore(File directory, String kind, String hostOrNull, boolean isRemote,
+            IFileSysOperationsFactory factory)
+    {
+        if (hostOrNull != null)
+        {
+            assert isRemote == true;
+            return FileStoreFactory.createRemoteHost(directory, hostOrNull, kind, factory);
+        } else
+        {
+            if (isRemote)
+            {
+                return FileStoreFactory.createRemoteShare(directory, kind, factory);
+            } else
+            {
+                return FileStoreFactory.createLocal(directory, kind, factory);
+            }
         }
     }
 
@@ -412,7 +416,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
         if (serviceProperties.getProperty("manual-intervention-dir") != null)
         {
-            manualInterventionDirectory = new File(serviceProperties.getProperty("manual-intervention-dir"));
+            manualInterventionDirectoryOrNull = new File(serviceProperties.getProperty("manual-intervention-dir"));
         }
         if (serviceProperties.getProperty("outgoing-dir") != null)
         {
@@ -548,59 +552,41 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The store to monitor for new files and directories to move to the buffer.
      */
-    public FileStore getIncomingStore()
+    public FileStore getIncomingStore(IFileSysOperationsFactory factory)
     {
-        return incomingStore;
-    }
-
-    /**
-     * @return true if directory with incoming data is supposed to be on a remote share. It implies that a special care
-     *         will be taken when coping is performed from that directory.
-     */
-    public boolean getTreatIncomingAsRemote()
-    {
-        return treatIncomingAsRemote;
+        return createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost, treatIncomingAsRemote, factory);
     }
 
     /**
      * @return The directory for local files and directories manipulations.
      */
-    public FileStore getBufferStore()
+    public File getBufferDirectoryPath()
     {
-        return bufferStore;
+        return bufferDirectory;
     }
 
     /**
      * @return The store to copy the data to.
      */
-    public FileStore getOutgoingStore()
+    public FileStore getOutgoingStore(IFileSysOperationsFactory factory)
     {
-        return outgoingStore;
+        return createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost, true, factory);
     }
 
     /**
      * @return The directory to move files and directories to that have been quiet in the local data directory for long
      *         enough and that need manual intervention. Note that this directory needs to be on the same file system as
-     *         {@link #getBufferStore}.
+     *         {@link #getBufferDirectoryPath}.
      */
-    public File getManualInterventionDirectory()
+    public File tryGetManualInterventionDir()
     {
-        return manualInterventionDirectory;
-    }
-
-    /**
-     * @return The store to move files and directories to that have been quiet in the local data directory for long
-     *         enough and that need manual intervention. Note that this directory needs to be on the same file system as
-     *         {@link #getBufferStore}.
-     */
-    public FileStore getManualInterventionStore()
-    {
-        return manualInterventionStore;
+        return manualInterventionDirectoryOrNull;
     }
 
     /**
      * @return The directory where we create an additional copy of incoming data or <code>null</code> if it is not
-     *         specified. Note that this directory needs to be on the same file system as {@link #getBufferStore}.
+     *         specified. Note that this directory needs to be on the same file system as
+     *         {@link #getBufferDirectoryPath}.
      */
     public File tryGetExtraCopyDir()
     {
@@ -611,7 +597,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The regular expression to use for cleansing on the incoming directory before moving it to the buffer or
      *         <code>null</code>, if no regular expression for cleansing has been provided.
      */
-    public Pattern getCleansingRegex()
+    public Pattern tryGetCleansingRegex()
     {
         return cleansingRegex;
     }
@@ -621,7 +607,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         intervention or <code>null</code>, if no regular expression for manual interventionpaths has been
      *         provided.
      */
-    public Pattern getManualInterventionRegex()
+    public Pattern tryGetManualInterventionRegex()
     {
         return manualInterventionRegex;
     }
@@ -654,9 +640,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             {
                 operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
             }
-            if (null != getManualInterventionDirectory())
+            if (null != tryGetManualInterventionDir())
             {
-                operationLog.info(String.format("Manual interventions directory: '%s'.", manualInterventionDirectory
+                operationLog.info(String.format("Manual interventions directory: '%s'.", tryGetManualInterventionDir()
                         .getAbsolutePath()));
             }
             if (null != extraCopyDirectory)
@@ -671,16 +657,16 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             operationLog.info(String.format("Intervall to wait after failure: %d s.",
                     getIntervalToWaitAfterFailure() / 1000));
             operationLog.info(String.format("Maximum number of retries: %d.", getMaximalNumberOfRetries()));
-            if (getCleansingRegex() != null)
+            if (tryGetCleansingRegex() != null)
             {
                 operationLog.info(String.format("Regular expression used for cleansing before moving: '%s'",
-                        getCleansingRegex().pattern()));
+                        tryGetCleansingRegex().pattern()));
             }
-            if (getManualInterventionRegex() != null)
+            if (tryGetManualInterventionRegex() != null)
             {
                 operationLog.info(String.format(
                         "Regular expression used for deciding whether a path needs manual intervention: '%s'",
-                        getManualInterventionRegex().pattern()));
+                        tryGetManualInterventionRegex().pattern()));
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -25,9 +24,8 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.utils.FileStore;
 
 /**
  * A class that can perform a self test of the data mover.
@@ -43,23 +41,17 @@ public class SelfTest
         LogInitializer.init();
     }
 
-    private static void checkPathRecords(FileStore[] pathRecords, IPathCopier copier)
+    private static void checkPathRecords(FileStore[] pathRecords)
     {
         assert pathRecords != null;
 
         checkPathRecordsContainEachOther(pathRecords);
         for (FileStore pathRecord : pathRecords)
         {
-            if (pathRecord.getPath() == null)
+            String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible();
+            if (errorMessage != null)
             {
-                continue;
-            }
-            if (pathRecord.getHost() == null)
-            {
-                checkDirectoryOnLocalHost(pathRecord);
-            } else
-            {
-                checkDirectoryOnRemoteHost(pathRecord, copier);
+                throw new ConfigurationFailureException(errorMessage);
             }
         }
     }
@@ -70,49 +62,12 @@ public class SelfTest
         {
             for (int j = 0; j < i; ++j)
             {
-                if (StringUtils.equals(store[i].getHost(), store[j].getHost())
-                        && containOneAnother(store[i].getCanonicalPath(), store[j].getCanonicalPath()))
+                if (store[i].isParentDirectory(store[j]) || store[j].isParentDirectory(store[i]))
                 {
                     throw ConfigurationFailureException.fromTemplate("Directory '%s' and '%s' contain each other",
-                            store[i].getCanonicalPath(), store[j].getCanonicalPath());
+                            store[i], store[j]);
                 }
             }
-        }
-    }
-
-    private static void checkDirectoryOnRemoteHost(FileStore pathRecord, IPathCopier copier)
-            throws ConfigurationFailureException
-    {
-        if (false == copier.exists(pathRecord.getPath(), pathRecord.getHost()))
-
-        {
-            throw ConfigurationFailureException.fromTemplate("Cannot access %s directory '%s' on host '%s'", pathRecord
-                    .getKind(), pathRecord.getCanonicalPath(), pathRecord.getHost());
-        }
-    }
-
-    private static void checkDirectoryOnLocalHost(FileStore pathRecord)
-    {
-        String errorMessage = FileUtilities.checkDirectoryFullyAccessible(pathRecord.getPath(), pathRecord.getKind());
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
-        }
-
-    }
-
-    private static boolean containOneAnother(String directory1, String directory2)
-    {
-        if (directory1 == null || directory2 == null)
-        {
-            return false;
-        }
-        if (directory1.length() < directory2.length())
-        {
-            return directory2.startsWith(directory1);
-        } else
-        {
-            return directory1.startsWith(directory2);
         }
     }
 
@@ -126,7 +81,7 @@ public class SelfTest
         try
         {
             copier.check();
-            checkPathRecords(stores, copier);
+            checkPathRecords(stores);
 
             if (operationLog.isInfoEnabled())
             {

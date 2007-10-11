@@ -13,21 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.datamover.filesystem.intf;
 
+package ch.systemsx.cisd.datamover.common;
 
 /**
- * A role that provides access to the roles which perform file system operations.
- * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak on Oct 8, 2007
  */
-public interface IFileSysOperationsFactory
+public class StoreItem
 {
-    public IPathCopier getCopier(boolean requiresDeletionBeforeCreation);
+    private final String name;
 
-    public IPathImmutableCopier getImmutableCopier();
+    public StoreItem(String name)
+    {
+        this.name = name;
+    }
 
-    public IPathRemover getRemover();
+    /** Should not be used for logging. Use toString() instead. */
+    public String getName()
+    {
+        return name;
+    }
 
-    public IPathMover getMover();
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

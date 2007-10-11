@@ -18,8 +18,9 @@ package ch.systemsx.cisd.datamover;
 
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.assertEmptyDir;
 import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
-
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class MainTest
     // time needed be a single test to complete. After this time we kill data mover and check if results are correct. It
     // can happen, that tests running on slow machines fail because they need more time. Than this constant should be
     // adjusted.
-    private static final long DATA_MOVER_COMPLETION_TIME = 5000;
+    private static final long DATA_MOVER_COMPLETION_TIME = 6000;
 
     private static final long DATA_MOVER_COMPLETION_TIME_LONG = 7000;
 
@@ -207,8 +208,8 @@ public class MainTest
     {
         return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer.getPath(),
                 "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer.toString(CHECK_INTERVAL),
-                "--check-interval-internal", Integer.toString(CHECK_INTERVAL_INTERNAL),
-                "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote");
+                "--check-interval-internal", Integer.toString(CHECK_INTERVAL_INTERNAL), "--quiet-period", Integer
+                        .toString(QUIET_PERIOD), "--treat-incoming-as-remote");
     }
 
     private static ArrayList<String> getManualInterventionParameters(ExternalDirs dirs, String filteredName)
@@ -268,8 +269,8 @@ public class MainTest
 
     private static LocalBufferDirs createBufferDirs(Parameters parameters)
     {
-        return new LocalBufferDirs(parameters.getBufferStore().getPath(), "test-copy-in-progress",
-                "test-copy-complete", "test-ready-to-move", "test-temp");
+        return new LocalBufferDirs(parameters.getBufferDirectoryPath(), "test-copy-in-progress", "test-copy-complete",
+                "test-ready-to-move", "test-temp");
     }
 
     private static interface IFSPreparator
@@ -409,7 +410,7 @@ public class MainTest
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "delays")
+        { "slowXX" }, dataProvider = "delays")
     // recovery after failure when data are copied to 'copy-completed', but before deletion has been finished
     public void testRecoveryIncomingCompleteDeletionInProgress(long delay) throws Exception
     {
@@ -631,7 +632,7 @@ public class MainTest
     }
 
     @Test(groups =
-        { "slow" })
+        { "xxx" })
     // normal work-flow tests, no extra copy is created
     public void testWholePipelineNoExtraCopy() throws Exception
     {

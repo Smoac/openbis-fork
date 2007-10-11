@@ -27,6 +27,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
+import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
 /**
  * Test cases for the {@link Parameters} class.
@@ -83,7 +88,7 @@ public class ParametersTest
     {
         final String CLEANSING_REGEX = "[0-9]+";
         final Parameters parameters = parse("--cleansing-regex", CLEANSING_REGEX);
-        assertEquals(CLEANSING_REGEX, parameters.getCleansingRegex().pattern());
+        assertEquals(CLEANSING_REGEX, parameters.tryGetCleansingRegex().pattern());
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -98,7 +103,7 @@ public class ParametersTest
     {
         final String LOCAL_DATADIR = ".." + File.separator + "test_it_data";
         final Parameters parameters = parse("--incoming-dir", LOCAL_DATADIR);
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
+        assertEquals(createIncomingStore(LOCAL_DATADIR, null, parameters), getIncomingStore(parameters));
     }
 
     @Test
@@ -106,23 +111,7 @@ public class ParametersTest
     {
         final String LOCAL_TEMPDIR = "test_it_tmp";
         final Parameters parameters = parse("--buffer-dir", LOCAL_TEMPDIR);
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
-    }
-
-    @Test
-    public void testSetRemoteDirLong() throws Exception
-    {
-        final String REMOTE_DATADIR = "test_it_remote";
-        final Parameters parameters = parse("--outgoing-dir", REMOTE_DATADIR);
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
-    }
-
-    @Test
-    public void testSetRemoteHostLong() throws Exception
-    {
-        final String REMOTE_HOST = "test_it_remote";
-        final Parameters parameters = parse("--outgoing-host", REMOTE_HOST);
-        assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectoryPath().getPath());
     }
 
     @Test
@@ -227,14 +216,14 @@ public class ParametersTest
         final Parameters parameters = parse();
         assertFalse(parameters.isRsyncOverwrite());
     }
-    
+
     @Test
     public void testSetRsyncOverwrite()
     {
         final Parameters parameters = parse("--rsync-overwrite");
         assertTrue(parameters.isRsyncOverwrite());
     }
-    
+
     @Test
     public void testSetMandatoryOptions() throws Exception
     {
@@ -243,9 +232,9 @@ public class ParametersTest
         final String REMOTE_DATADIR = "rrr";
         final Parameters parameters =
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR);
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
+        assertEquals(createIncomingStore(LOCAL_DATADIR, null, parameters), getIncomingStore(parameters));
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectoryPath().getPath());
+        assertEquals(createOutgoingStore(REMOTE_DATADIR, null, parameters), getOutgoingStore(parameters));
     }
 
     @Test
@@ -264,17 +253,58 @@ public class ParametersTest
                 parse("--incoming-dir", LOCAL_DATADIR, "--buffer-dir", LOCAL_TEMPDIR, "--outgoing-dir", REMOTE_DATADIR,
                         "--outgoing-host", REMOTE_HOST, "--check-interval", Integer.toString(CHECK_INTERVAL),
                         "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote",
-                        "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR, "--rsync-overwrite");
-        assertEquals(LOCAL_DATADIR, parameters.getIncomingStore().getPath().getPath());
-        assertEquals(REMOTE_INCOMING_HOST, parameters.getIncomingStore().getHost());
-        assertEquals(LOCAL_TEMPDIR, parameters.getBufferStore().getPath().getPath());
-        assertEquals(REMOTE_DATADIR, parameters.getOutgoingStore().getPath().getPath());
-        assertEquals(REMOTE_HOST, parameters.getOutgoingStore().getHost());
+                        "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR,
+                        "--rsync-overwrite");
+        FileStore incomingStoreExpected = createIncomingStore(LOCAL_DATADIR, REMOTE_INCOMING_HOST, parameters);
+        FileStore incomingStore = getIncomingStore(parameters);
+        FileStore outgoingStoreExpected = createOutgoingStore(REMOTE_DATADIR, REMOTE_HOST, parameters);
+        FileStore outgoingStore = getOutgoingStore(parameters);
+
+        assertEquals(incomingStoreExpected, incomingStore);
+        assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectoryPath().getPath());
+        assertEquals(outgoingStoreExpected, outgoingStore);
         assertEquals(EXTRA_COPY_DIR, parameters.tryGetExtraCopyDir().getPath());
         assertEquals(1000 * CHECK_INTERVAL, parameters.getCheckIntervalMillis());
         assertEquals(1000 * QUIET_PERIOD, parameters.getQuietPeriodMillis());
-        assertEquals(true, parameters.getTreatIncomingAsRemote());
+        assertTrue(incomingStore.isRemote());
         assertTrue(parameters.isRsyncOverwrite());
     }
 
+    private FileStore getIncomingStore(Parameters parameters)
+    {
+        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        return parameters.getIncomingStore(factory);
+    }
+
+    private FileStore getOutgoingStore(Parameters parameters)
+    {
+        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        return parameters.getOutgoingStore(factory);
+    }
+
+    private static FileStore createIncomingStore(final String path, final String hostOrNull,
+            IFileSysParameters parameters)
+    {
+        return createStore(path, hostOrNull, Parameters.INCOMING_KIND_DESC, parameters);
+    }
+
+    private static FileStore createOutgoingStore(final String path, final String hostOrNull,
+            IFileSysParameters parameters)
+    {
+        return createStore(path, hostOrNull, Parameters.OUTGOING_KIND_DESC, parameters);
+    }
+
+    private static FileStore createStore(final String path, final String hostOrNull, String kind,
+            IFileSysParameters parameters)
+    {
+        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        File file = new File(path);
+        if (hostOrNull == null)
+        {
+            return FileStoreFactory.createLocal(file, kind, factory);
+        } else
+        {
+            return FileStoreFactory.createRemoteHost(file, hostOrNull, kind, factory);
+        }
+    }
 }

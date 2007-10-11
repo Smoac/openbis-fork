@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.datamover.common.StoreItem;
 
 /**
- * A role that provides access to the roles which perform file system operations.
- * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak on Oct 10, 2007
  */
-public interface IFileSysOperationsFactory
+public interface IStoreCopier extends ITerminable
 {
-    public IPathCopier getCopier(boolean requiresDeletionBeforeCreation);
-
-    public IPathImmutableCopier getImmutableCopier();
-
-    public IPathRemover getRemover();
-
-    public IPathMover getMover();
+    Status copy(StoreItem item);
 }

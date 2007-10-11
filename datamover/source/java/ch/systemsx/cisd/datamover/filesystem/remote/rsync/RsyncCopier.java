@@ -32,9 +32,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.RsyncVersion;
 
@@ -86,21 +85,21 @@ public class RsyncCopier implements IPathCopier
      * Constructs an <code>RsyncCopier</code>.
      * 
      * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
-     * @param sshExecutable The <code>ssh</code> binary to use for creating tunnels, or <code>null</code>, if no
-     *            <code>ssh</code> is available on this machine.
+     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or <code>null</code>, if
+     *            no <code>ssh</code> is available on this machine.
      * @param destinationDirectoryRequiresDeletionBeforeCreation If <code>true</code>, already existing files and
      *            directories on the remote side will be deleted before starting the copy process (no overwriting of
      *            paths).
      */
-    public RsyncCopier(File rsyncExecutable, File sshExecutable,
+    public RsyncCopier(File rsyncExecutable, File sshExecutableOrNull, 
             boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite, String... cmdLineFlags)
     {
         assert rsyncExecutable != null && rsyncExecutable.exists();
-        assert sshExecutable == null || rsyncExecutable.exists();
+        assert sshExecutableOrNull == null || rsyncExecutable.exists();
 
         this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
         this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
-        this.sshExecutable = (sshExecutable != null) ? sshExecutable.getPath() : null;
+        this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation = destinationDirectoryRequiresDeletionBeforeCreation;
         this.copyProcessReference = new AtomicReference<Process>(null);
         this.overwrite = overwrite;
@@ -130,30 +129,30 @@ public class RsyncCopier implements IPathCopier
         return copy(sourcePath, null, destinationDirectory, null);
     }
 
-    public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost)
+    public Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory)
+    {
+        return copy(sourcePath, sourceHost, destinationDirectory, null);
+    }
+
+    public Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost)
+    {
+        return copy(sourcePath, null, destinationDirectory, destinationHost);
+    }
+
+    private Status copy(File sourcePath, String sourceHostOrNull, File destinationDirectory,
+            String destinationHostOrNull)
     {
         assert sourcePath != null;
-        assert sourceHost != null || sourcePath.exists() : logNonExistent(sourcePath);
+        assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
         assert destinationDirectory != null;
-        assert destinationHost != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
-        assert sourceHost == null || destinationHost == null; // only one side can be remote
+        assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
+        assert sourceHostOrNull == null || destinationHostOrNull == null; // only one side can be remote
 
-        final File destinationPath = new File(destinationDirectory, sourcePath.getName());
-        if (destinationDirectoryRequiresDeletionBeforeCreation && destinationPath.exists())
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format(
-                        "Remove path '%s' since it exists and the remote file system doesn't support overwriting.",
-                        destinationPath));
-            }
-            // TODO 2007-08-13 Tomasz Pylak: Bernd, what if destinationHost is set?
-            FileUtilities.deleteRecursively(destinationPath);
-        }
         try
         {
             final ProcessBuilder copyProcessBuilder =
-                    new ProcessBuilder(createCommandLine(sourcePath, sourceHost, destinationDirectory, destinationHost));
+                    new ProcessBuilder(createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
+                            destinationHostOrNull));
             copyProcessBuilder.redirectErrorStream(true);
             if (operationLog.isDebugEnabled())
             {
@@ -344,7 +343,7 @@ public class RsyncCopier implements IPathCopier
         }
     }
 
-    public boolean exists(File destinationDirectory, String destinationHost)
+    public boolean existsRemotely(File destinationDirectory, String destinationHost)
     {
         assert destinationDirectory != null && destinationDirectory.isDirectory();
         assert destinationHost != null;

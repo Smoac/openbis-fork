@@ -29,14 +29,10 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
  * <i>Note: If the copier is terminated, the <var>destinationDirectory</var> is in an undefined state afterwards.</i>
  * 
  * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
 public interface IPathCopier extends ITerminable, ISelfTestable
 {
-
-    /**
-     * @return <code>true</code> iff <var>destinationDirectory</var> on host <var>destinationHost</var> exists.
-     */
-    public boolean exists(File destinationDirectory, String destinationHost);
 
     /**
      * Copies <var>sourcePath</var> to <var>destinationDir</var>.
@@ -46,18 +42,32 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            writable. If <var>destinationDir/sourcePath</var> exists, it will be overwritten.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    public Status copy(File sourcePath, File destinationDirectory);
+    Status copy(File sourcePath, File destinationDirectory);
 
     /**
      * Copies <var>sourcePath</var> to <var>destinationDir</var> on <var>destinationHost</var>.
      * 
      * @param sourcePath The source to copy. Can be a file or a directory. It needs to exist and be readable.
-     * @param sourceHost The host where the <var>sourcePath</var> resides or null if it is local.
      * @param destinationDirectory The directory to use as a destination in the copy operation. It must be readable and
      *            writable. If <var>destinationDir/sourcePath</var> exists, it will be overwritten.
-     * @param destinationHost The host where the <var>destinationDirectory</var> resides  or null if it is local.
+     * @param destinationHost The host where the <var>destinationDirectory</var> resides or null if it is local.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost);
+    Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost);
 
+    /**
+     * Copies <var>sourcePath</var> on <var>sourceHost</var> to <var>destinationDir</var>.
+     * 
+     * @param sourcePath The source to copy. Can be a file or a directory. It needs to exist and be readable.
+     * @param sourceHost The host where the <var>sourcePath</var> resides
+     * @param destinationDirectory The directory to use as a destination in the copy operation. It must be readable and
+     *            writable. If <var>destinationDir/sourcePath</var> exists, it will be overwritten.
+     * @return The status of the operation, {@link Status#OK} if everything went OK.
+     */
+    Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory);
+
+    /**
+     * @return <code>true</code> iff <var>destinationDirectory</var> on host <var>destinationHost</var> exists.
+     */
+    public boolean existsRemotely(File destinationDirectory, String destinationHost);
 }

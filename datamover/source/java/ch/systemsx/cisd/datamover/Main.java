@@ -27,14 +27,15 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.utils.FileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * The main class of the datamover.
+ * The main class of the Datamover.
  * 
  * @author Bernd Rinn
  */
@@ -54,16 +55,16 @@ public class Main
         };
 
     private static final Runnable loggingShutdownHook = new Runnable()
-    {
-        public void run()
         {
-            if (operationLog.isInfoEnabled())
+            public void run()
             {
-                operationLog.info("Datamover is shutting down.");
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Datamover is shutting down.");
+                }
             }
-        }
-    };
-        
+        };
+
     private static void initLog()
     {
         LogInitializer.init();
@@ -91,17 +92,28 @@ public class Main
     {
         try
         {
-            IPathCopier copyProcess = new FileSysOperationsFactory(parameters).getCopierNoDeletionRequired();
             ArrayList<FileStore> stores = new ArrayList<FileStore>();
-            stores.add(parameters.getIncomingStore());
-            stores.add(parameters.getBufferStore());
-            stores.add(parameters.getOutgoingStore());
-            stores.add(parameters.getManualInterventionStore());
-            if (parameters.tryGetExtraCopyDir() != null)
+            FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+            stores.add(parameters.getIncomingStore(factory));
+            FileStore buferStore =
+                    FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(), Parameters.BUFFER_KIND_DESC,
+                            factory);
+            stores.add(buferStore);
+            stores.add(parameters.getOutgoingStore(factory));
+            if (parameters.tryGetManualInterventionDir() != null)
             {
-                FileStore dummyStore = new FileStore(parameters.tryGetExtraCopyDir(), "extra-copy", null, false);
+                FileStore dummyStore =
+                        FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(), "manual intervention",
+                                factory);
                 stores.add(dummyStore);
             }
+            if (parameters.tryGetExtraCopyDir() != null)
+            {
+                FileStore dummyStore =
+                        FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy", factory);
+                stores.add(dummyStore);
+            }
+            IPathCopier copyProcess = factory.getCopier(false);
             SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
         } catch (HighLevelException e)
         {
@@ -135,7 +147,7 @@ public class Main
         printInitialLogMessage(parameters);
         selfTest(parameters);
         startupServer(parameters);
-        operationLog.info("datamover ready and waiting for data.");
+        operationLog.info("Datamover ready and waiting for data.");
     }
 
 }

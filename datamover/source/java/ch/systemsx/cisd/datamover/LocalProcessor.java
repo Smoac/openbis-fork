@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
 /**
@@ -56,8 +55,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private final IPathImmutableCopier copier;
 
     private final IPathMover mover;
-
-    private final IReadPathOperations readOperations;
 
     // input: where the data are moved from (for recovery).
     private final File inputDir;
@@ -83,7 +80,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = factory.getImmutableCopier();
         this.mover = factory.getMover();
-        this.readOperations = factory.getReadPathOperations();
     }
 
     public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir, File bufferDir,
@@ -123,7 +119,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private void recoverTemporaryExtraCopy()
     {
-        final File[] files = readOperations.tryListFiles(tempDir, errorLog);
+        final File[] files = FileUtilities.tryListFiles(tempDir, errorLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
@@ -233,7 +229,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private boolean doCleansing(File resource)
     {
         final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        final Pattern cleansingRegex = parameters.getCleansingRegex();
+        final Pattern cleansingRegex = parameters.tryGetCleansingRegex();
         if (cleansingRegex != null)
         {
             log(resource, "Doing cleansing");
@@ -252,8 +248,13 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private EFileManipResult doManualIntervention(File resource)
     {
+        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
+        if (manualInterventionDir == null)
+        {
+            return EFileManipResult.CONTINUE;
+        }
         final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        final Pattern manualInterventionRegex = parameters.getManualInterventionRegex();
+        final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
         if (manualInterventionRegex != null)
         {
             manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
@@ -263,7 +264,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         if (filtered)
         {
             log(resource, "Moving to manual intervention directory");
-            File manualInterventionDir = parameters.getManualInterventionDirectory();
             File movedFile = mover.tryMove(resource, manualInterventionDir);
             return (movedFile != null) ? EFileManipResult.STOP : EFileManipResult.FAILURE;
         } else

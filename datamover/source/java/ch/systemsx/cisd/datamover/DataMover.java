@@ -27,9 +27,12 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
 import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
+import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.utils.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
@@ -69,7 +72,7 @@ public class DataMover
 
     private static LocalBufferDirs createLocalBufferDirs(Parameters parameters)
     {
-        return new LocalBufferDirs(parameters.getBufferStore().getPath(), LOCAL_COPY_IN_PROGRESS_DIR,
+        return new LocalBufferDirs(parameters.getBufferDirectoryPath(), LOCAL_COPY_IN_PROGRESS_DIR,
                 LOCAL_COPY_COMPLETE_DIR, LOCAL_READY_TO_MOVE_DIR, LOCAL_TEMP_DIR);
     }
 
@@ -138,18 +141,33 @@ public class DataMover
 
     private DataMoverProcess createOutgoingMovingProcess()
     {
-        final FileStore outgoingStore = parameters.getOutgoingStore();
-        final IPathHandler remoteMover = createRemotePathMover(null, outgoingStore.getPath(), outgoingStore.getHost());
+        final FileStore outgoingStore = parameters.getOutgoingStore(factory);
+        final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
+        final FileStore readyToMoveStore = FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
+        final IStoreHandler remoteStoreMover = createRemotePathMover(readyToMoveStore, outgoingStore);
+
         final DirectoryScanningTimerTask outgoingMovingTask =
-                new DirectoryScanningTimerTask(bufferDirs.getReadyToMoveDir(), FileUtilities.ACCEPT_ALL_FILTER,
-                        remoteMover);
+                new DirectoryScanningTimerTask(readyToMoveDir, FileUtilities.ACCEPT_ALL_FILTER,
+                        asPathHandler(remoteStoreMover));
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    private IPathHandler createRemotePathMover(String sourceHost, File destinationDirectory, String destinationHost)
+    // TODO 2007-10-10 Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
+    // quick hack.
+    private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
     {
-        return RemoteMonitoredMoverFactory.create(sourceHost, destinationDirectory, destinationHost, factory,
-                parameters);
+        return new IPathHandler()
+            {
+                public void handle(File path)
+                {
+                    storeHandler.handle(new StoreItem(path.getName()));
+                }
+            };
+    }
+
+    private IStoreHandler createRemotePathMover(FileStore source, FileStore destination)
+    {
+        return RemoteMonitoredMoverFactory.create(source, destination, parameters);
     }
 
     private static ITerminable createCompoundTerminable(final ITerminable... terminables)

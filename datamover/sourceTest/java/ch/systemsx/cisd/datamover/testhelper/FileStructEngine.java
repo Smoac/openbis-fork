@@ -16,17 +16,21 @@
 
 package ch.systemsx.cisd.datamover.testhelper;
 
+import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.assertDirExists;
+import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
+import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createEmptyFile;
+import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createFile;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.testng.AssertJUnit.*;
-import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.*;
-
 import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.common.StoreItem;
 
 /**
  * Immutable helper for creating a sample directory structure and manipulating it.
@@ -87,7 +91,8 @@ public class FileStructEngine
 
     private static File createDeletionInProgressMarkerFile(File parentDir, String originalName)
     {
-        return MarkerFile.createDeletionInProgressMarker(parentDir, originalName);
+        StoreItem marker = MarkerFile.createDeletionInProgressMarker(new StoreItem(originalName));
+        return new File(parentDir, marker.getName());
     }
 
     private static List<String> createSampleFileContent()

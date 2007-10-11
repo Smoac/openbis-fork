@@ -17,18 +17,14 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.impl.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -36,7 +32,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
@@ -54,8 +49,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileSysOperationsFactory.class);
-
     final private IFileSysParameters parameters;
 
     public FileSysOperationsFactory(IFileSysParameters parameters)
@@ -68,33 +61,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public IPathRemover getRemover()
     {
         return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
-    }
-
-    public IReadPathOperations getReadPathOperations()
-    {
-        return new IReadPathOperations()
-            {
-
-                public boolean exists(File file)
-                {
-                    return file.exists();
-                }
-
-                public long lastChanged(File path)
-                {
-                    return FileUtilities.lastChanged(path);
-                }
-
-                public File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
-                {
-                    return FileUtilities.tryListFiles(directory, filter, loggerOrNull);
-                }
-
-                public File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
-                {
-                    return FileUtilities.tryListFiles(directory, FileUtilities.ACCEPT_ALL_FILTER, loggerOrNull);
-                }
-            };
     }
 
     public IPathImmutableCopier getImmutableCopier()
@@ -119,7 +85,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     private IPathImmutableCopier createFakedImmCopier()
     {
-        final IPathCopier normalCopier = suggestPathCopier(false);
+        final IPathCopier normalCopier = getCopier(false);
         return new IPathImmutableCopier()
             {
                 public File tryCopy(File file, File destinationDirectory)
@@ -138,7 +104,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
             };
     }
 
-    private IPathCopier suggestPathCopier(boolean requiresDeletionBeforeCreation)
+    public IPathCopier getCopier(boolean requiresDeletionBeforeCreation)
     {
         final File rsyncExecutable = findRsyncExecutable(parameters.getRsyncExecutable());
         final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
@@ -196,76 +162,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                     .getAbsoluteFile());
         }
         return sshExecutable;
-    }
-
-    /**
-     * @return <code>true</code> if the <var>copyProcess</var> on the file system where the <var>destinationDirectory</var>
-     *         resides requires deleting an existing file before it can be overwritten.
-     */
-    private static boolean requiresDeletionBeforeCreation(IPathCopier copyProcess, File destinationDirectory)
-    {
-        assert copyProcess != null;
-        assert destinationDirectory != null;
-        assert destinationDirectory.isDirectory();
-
-        String fileName = ".requiresDeletionBeforeCreation";
-        final File destinationFile = new File(destinationDirectory, fileName);
-        final File tmpSourceDir = new File(destinationDirectory, ".DataMover-OverrideTest");
-        final File sourceFile = new File(tmpSourceDir, fileName);
-        try
-        {
-            tmpSourceDir.mkdir();
-            sourceFile.createNewFile();
-            destinationFile.createNewFile();
-            // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
-            final boolean OK = Status.OK.equals(copyProcess.copy(sourceFile, destinationDirectory));
-            if (machineLog.isInfoEnabled())
-            {
-                if (OK)
-                {
-                    machineLog.info(String.format("Copier %s on directory '%s' works with overwriting existing files.",
-                            copyProcess.getClass().getSimpleName(), destinationDirectory.getAbsolutePath()));
-                } else
-                {
-                    machineLog.info(String.format(
-                            "Copier %s on directory '%s' requires deletion before creation of existing files.",
-                            copyProcess.getClass().getSimpleName(), destinationDirectory.getAbsolutePath()));
-                }
-            }
-            return (OK == false);
-        } catch (IOException e)
-        {
-            if (machineLog.isInfoEnabled())
-            {
-                machineLog.info(String.format(
-                        "The file system on '%s' requires deletion before creation of existing files.",
-                        destinationDirectory.getAbsolutePath()));
-            }
-            return true;
-        } finally
-        {
-            // We don't check for success because there is nothing we can do if we fail.
-            sourceFile.delete();
-            tmpSourceDir.delete();
-            destinationFile.delete();
-        }
-    }
-
-    public IPathCopier getCopierNoDeletionRequired()
-    {
-        return suggestPathCopier(false);
-    }
-
-    public IPathCopier getCopier(File destinationDirectory)
-    {
-        IPathCopier copyProcess = suggestPathCopier(false);
-        if (requiresDeletionBeforeCreation(copyProcess, destinationDirectory))
-        {
-            return suggestPathCopier(true);
-        } else
-        {
-            return copyProcess;
-        }
     }
 
     public IPathMover getMover()

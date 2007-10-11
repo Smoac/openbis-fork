@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +27,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.datamover.filesystem.intf.IReadPathOperations;
+import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -44,9 +44,7 @@ public class CopyActivityMonitor
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, CopyActivityMonitor.class);
 
-    private final File destinationDirectory;
-
-    private final IReadPathOperations readOperations;
+    private final FileStore destinationDirectory;
 
     private final long checkIntervallMillis;
 
@@ -78,7 +76,7 @@ public class CopyActivityMonitor
     /**
      * A <code>null</code> reference means: no monitoring.
      */
-    private final AtomicReference<File> pathToBeCopied;
+    private final AtomicReference<StoreItem> pathToBeCopied;
 
     /**
      * The time in milliseconds since start of the epoch when the monitored path has last been changed.
@@ -94,25 +92,22 @@ public class CopyActivityMonitor
      * Creates a monitor.
      * 
      * @param destinationDirectory The directory to monitor for write access.
-     * @param readOperations Provides read-only access to the file system.
      * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(File destinationDirectory, IReadPathOperations readOperations, ITerminable copyProcess,
+    public CopyActivityMonitor(FileStore destinationDirectory, ITerminable copyProcess,
             ITimingParameters timingParameters)
     {
         this.monitoredPathLastChecked = new AtomicLong(0);
         this.monitoredPathLastChanged = new AtomicLong(0);
-        this.pathToBeCopied = new AtomicReference<File>(null);
+        this.pathToBeCopied = new AtomicReference<StoreItem>(null);
 
         assert destinationDirectory != null;
-        assert readOperations != null;
         assert copyProcess != null;
         assert timingParameters != null;
 
         this.destinationDirectory = destinationDirectory;
-        this.readOperations = readOperations;
         this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
 
         assert this.checkIntervallMillis > 0;
@@ -158,7 +153,7 @@ public class CopyActivityMonitor
      * @param newPathToBeCopied The path that will be copied to the destination directory and whose write progress
      *            should be monitored.
      */
-    public void start(File newPathToBeCopied)
+    public void start(StoreItem newPathToBeCopied)
     {
         assert newPathToBeCopied != null;
 
@@ -187,7 +182,6 @@ public class CopyActivityMonitor
 
         private ActivityMonitoringTimerTask()
         {
-            assert readOperations != null;
             assert pathToBeCopied != null;
             assert monitoredPathLastChanged != null;
             assert destinationDirectory != null;
@@ -196,8 +190,8 @@ public class CopyActivityMonitor
         @Override
         public void run()
         {
-            final File path = pathToBeCopied.get();
-            if (path == null)
+            final StoreItem item = pathToBeCopied.get();
+            if (item == null)
             {
                 return;
             }
@@ -209,24 +203,24 @@ public class CopyActivityMonitor
 
             try
             {
-                final File pathToCheck = new File(destinationDirectory, path.getName());
                 if (operationLog.isTraceEnabled())
                 {
-                    operationLog.trace(String.format("Asking checker %s for last change time of path '%s'.",
-                            readOperations.getClass().getName(), pathToCheck));
+                    operationLog.trace(String.format("Asking for last change time of '%s' inside '%s'.", item,
+                            destinationDirectory));
                 }
-                if (readOperations.exists(pathToCheck) == false)
+                if (destinationDirectory.exists(item) == false)
                 {
-                    operationLog.warn(String.format("File or directory '%s' does not (yet?) exist.", pathToCheck));
+                    operationLog.warn(String.format("File or directory '%s' inside '%s' does not (yet?) exist.", item,
+                            destinationDirectory));
                     monitoredPathLastChecked.set(System.currentTimeMillis());
                     return;
                 }
-                final long lastChangedAsFoundByPathChecker = readOperations.lastChanged(pathToCheck);
+                final long lastChangedAsFoundByPathChecker = destinationDirectory.lastChanged(item);
                 if (operationLog.isTraceEnabled())
                 {
                     operationLog.trace(String.format(
-                            "Checker %s reported last changed time of path '%s' to be %3$tF %3$tT.", readOperations
-                                    .getClass().getName(), pathToCheck.getPath(), lastChangedAsFoundByPathChecker));
+                            "Reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.", item,
+                            destinationDirectory, lastChangedAsFoundByPathChecker));
                 }
                 if (terminated.get()) // Don't modify the time variables any more if we got terminated.
                 {
@@ -303,7 +297,7 @@ public class CopyActivityMonitor
         @Override
         public void run()
         {
-            final File path = pathToBeCopied.get();
+            final StoreItem path = pathToBeCopied.get();
             if (path == null)
             {
                 return;

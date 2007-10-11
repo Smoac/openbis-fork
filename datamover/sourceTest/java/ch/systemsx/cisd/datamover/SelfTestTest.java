@@ -23,11 +23,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.utils.FileStore;
+import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
 /**
  * Test cases for the {@link SelfTest}.
@@ -43,19 +46,17 @@ public class SelfTestTest
 
     private static final File incomingDirectory = new File(workingDirectory, "local/incoming");
 
-    private static final FileStore incomingStore = new FileStore(incomingDirectory, "incoming", null, false);
+    private static final FileStore incomingStore = createLocalStore(incomingDirectory, "incoming");
 
     private static final File bufferDirectory = new File(workingDirectory, "local/buffer");
 
-    private static final FileStore bufferStore = new FileStore(bufferDirectory, "buffer", null, false);
+    private static final FileStore bufferStore = createLocalStore(bufferDirectory, "buffer");
 
     private static final File outgoingDirectory = new File(workingDirectory, "outgoing");
 
-    private static final FileStore outgoingStore = new FileStore(outgoingDirectory, "outgoing", null, false);
+    private static final FileStore outgoingStore = createLocalStore(outgoingDirectory, "outgoing");
 
-    private static final FileStore dummyStore = new FileStore(null, "dummy", null, false);
-
-    private static final IPathCopier mockCopier = new MockPathCopier(false);
+    private static final IPathCopier mockCopier = createMockCopier();
 
     // ////////////////////////////////////////
     // Initialization methods.
@@ -87,50 +88,40 @@ public class SelfTestTest
     // Mocks.
     //
 
-    private static class MockPathCopier implements IPathCopier
+    private static IPathCopier createMockCopier()
     {
-        private final boolean existRemote;
+        return new IPathCopier()
+            {
+                public Status copy(File sourcePath, File destinationDirectory)
+                {
+                    throw new AssertionError();
+                }
 
-        File destinationDirectoryQueried;
+                public Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory)
+                {
+                    throw new AssertionError();
+                }
 
-        String destinationHostQueried;
+                public Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost)
+                {
+                    throw new AssertionError();
+                }
 
-        MockPathCopier(boolean existRemote)
-        {
-            this.existRemote = existRemote;
-        }
+                public boolean existsRemotely(File destinationDirectory, String destinationHost)
+                {
+                    throw new AssertionError();
+                }
 
-        public Status copy(File sourcePath, File destinationDirectory)
-        {
-            throw new AssertionError();
-        }
+                public boolean terminate()
+                {
+                    return true;
+                }
 
-        public Status copy(File sourcePath, String sourceHost, File destinationDirectory, String destinationHost)
-        {
-            throw new AssertionError();
-        }
+                public void check() throws EnvironmentFailureException, ConfigurationFailureException
+                {
+                }
 
-        public boolean exists(File destinationDirectory, String destinationHost)
-        {
-            assert destinationDirectoryQueried == null;
-            assert destinationHostQueried == null;
-            assert destinationDirectory != null;
-            assert destinationHost != null;
-
-            destinationDirectoryQueried = destinationDirectory;
-            destinationHostQueried = destinationHost;
-            return existRemote;
-        }
-
-        public boolean terminate()
-        {
-            return false;
-        }
-
-        public void check()
-        {
-        }
-
+            };
     }
 
     // ////////////////////////////////////////
@@ -138,20 +129,11 @@ public class SelfTestTest
     //
 
     @Test
-    public void testHappyCaseWithRemoteShare()
-    {
-        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStore, dummyStore);
-    }
-
-    @Test
     public void testHappyCaseWithRemoteHost()
     {
         final String outgoingHost = "some_remote_host";
-        final FileStore remoteHostOutgoingStore = new FileStore(outgoingDirectory, "outgoing", outgoingHost, true);
-        final MockPathCopier myMockCopier = new MockPathCopier(true);
-        SelfTest.check(myMockCopier, incomingStore, bufferStore, remoteHostOutgoingStore, dummyStore);
-        assert outgoingHost.equals(myMockCopier.destinationHostQueried);
-        assert outgoingDirectory.equals(myMockCopier.destinationDirectoryQueried);
+        final FileStore remoteHostOutgoingStore = createRemoteStore(outgoingDirectory, outgoingHost, "outgoing");
+        SelfTest.check(mockCopier, remoteHostOutgoingStore);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
@@ -164,7 +146,7 @@ public class SelfTestTest
     public void testContainingPaths()
     {
         final File illegalBufferDirectory = new File(incomingDirectory, "temp");
-        final FileStore illegalBufferStore = new FileStore(illegalBufferDirectory, "buffer", null, false);
+        final FileStore illegalBufferStore = createLocalStore(illegalBufferDirectory, "buffer");
         SelfTest.check(mockCopier, incomingStore, illegalBufferStore, outgoingStore);
     }
 
@@ -172,16 +154,18 @@ public class SelfTestTest
     public void testNonExistentPaths()
     {
         final File nonExistentIncomingDirectory = new File(workingDirectory, "data");
-        final FileStore nonExistentIncomingStore = new FileStore(nonExistentIncomingDirectory, "incoming", null, false);
+        final FileStore nonExistentIncomingStore = createLocalStore(nonExistentIncomingDirectory, "incoming");
         SelfTest.check(mockCopier, nonExistentIncomingStore, bufferStore, outgoingStore);
     }
 
-    @Test(expectedExceptions = ConfigurationFailureException.class)
-    public void testRemoteHostAndDirectoryDoesNotExist()
+    private FileStore createRemoteStore(File path, String host, String description)
     {
-        final String remoteHost = "some_remote_host";
-        final FileStore outgoingStoreWithRemoteHost = new FileStore(outgoingDirectory, "outgoing", remoteHost, true);
-        SelfTest.check(mockCopier, incomingStore, bufferStore, outgoingStoreWithRemoteHost);
+        return FileStoreFactory.createRemoteHost(path, host, description, FileOperationsUtil.createTestFatory());
+    }
+
+    private static FileStore createLocalStore(File path, String description)
+    {
+        return FileStoreFactory.createLocal(path, description, FileOperationsUtil.createTestFatory());
     }
 
 }

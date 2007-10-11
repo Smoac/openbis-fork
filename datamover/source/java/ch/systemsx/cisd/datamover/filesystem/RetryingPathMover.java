@@ -37,9 +37,9 @@ class RetryingPathMover implements IPathMover
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
-    
+
     private final int maxRetriesOnFailure;
-    
+
     private final long millisToSleepOnFailure;
 
     RetryingPathMover(int maxRetriesOnFailure, long millisToSleepOnFailure)
@@ -47,7 +47,7 @@ class RetryingPathMover implements IPathMover
         this.maxRetriesOnFailure = maxRetriesOnFailure;
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
-    
+
     public File tryMove(File sourceFile, File destinationDir)
     {
         return tryMove(sourceFile, destinationDir, "");
@@ -69,13 +69,14 @@ class RetryingPathMover implements IPathMover
         File destFile = new File(destinationPath);
         int failures = 0;
         boolean movedOK = false;
-        while(true)
+        while (true)
         {
             movedOK = sourcePath.renameTo(destFile);
             if (movedOK)
             {
                 break;
-            } else {
+            } else
+            {
                 if (sourcePath.exists() == false)
                 {
                     operationLog.error(String.format("Path '%s' doesn't exist, so it can't be moved to '%s'.",
@@ -138,5 +139,4 @@ class RetryingPathMover implements IPathMover
         return StringUtils.replace(prefixTemplate, "%t", DateFormatUtils.format(System.currentTimeMillis(),
                 "yyyyMMddHHmmss"));
     }
-
 }
