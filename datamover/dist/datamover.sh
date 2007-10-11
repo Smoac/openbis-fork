@@ -71,7 +71,10 @@ else
 	JAVA_BIN="java"
 fi
 
-case "$1" in
+command=$1
+# ensure that we ignore a possible prefix "--" for any command 
+command="${command#--*}"
+case "$command" in
         start)
 	        echo -n "Starting Datamover "
 
