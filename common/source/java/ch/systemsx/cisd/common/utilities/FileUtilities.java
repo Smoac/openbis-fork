@@ -65,20 +65,20 @@ public final class FileUtilities
      * A file filter that accepts all entries.
      */
     public static final FileFilter ACCEPT_ALL_FILTER = new FileFilter()
-    {
-        public boolean accept(File pathname)
         {
-            return true;
-        }
-    };
+            public boolean accept(File pathname)
+            {
+                return true;
+            }
+        };
 
     /**
      * Copies the content of the specified source file to the specified destination file.
      * 
      * @param sourceFile File to be copied.
      * @param destinationFile File to whom content of <code>sourceFile</code> is copied.
-     * @param preservesLastModifiedDate If <code>true</code> the last modified date of <code>sourceFile</code>
-     *          will be transfered to <code>destinationFile</code>.
+     * @param preservesLastModifiedDate If <code>true</code> the last modified date of <code>sourceFile</code> will
+     *            be transfered to <code>destinationFile</code>.
      * @throws EnvironmentFailureException if a {@link IOException} occured.
      */
     public static void copyFileTo(File sourceFile, File destinationFile, boolean preservesLastModifiedDate)
@@ -94,7 +94,7 @@ public final class FileUtilities
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '" + destinationFile
-                                                  + "'.", ex);
+                    + "'.", ex);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
@@ -112,7 +112,6 @@ public final class FileUtilities
         }
     }
 
-    
     /**
      * Loads a text file to a {@link String}.
      * 
@@ -138,6 +137,7 @@ public final class FileUtilities
             IOUtils.closeQuietly(fileReader);
         }
     }
+
     /**
      * Writes the specified string to the specified file.
      * 
@@ -147,7 +147,7 @@ public final class FileUtilities
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";
-        
+
         FileWriter fileWriter = null;
         try
         {
@@ -591,6 +591,19 @@ public final class FileUtilities
         {
             return null;
         }
+    }
+
+    /**
+     * Lists all resources in a given directory.
+     * 
+     * @param directory the directory to list
+     * @param loggerOrNull logger, if <code>null</code> than no logging occurs
+     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var> does not exist or is
+     *         not a directory.
+     */
+    public static File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
+    {
+        return tryListFiles(directory, ACCEPT_ALL_FILTER, loggerOrNull);
     }
 
     /**
