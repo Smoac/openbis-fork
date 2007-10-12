@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * @author Tomasz Pylak on Oct 10, 2007

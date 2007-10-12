@@ -19,7 +19,8 @@ package ch.systemsx.cisd.datamover.filesystem.store;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
@@ -58,6 +59,12 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
+    public String getLocationDescription(StoreItem item)
+    {
+        return localImpl.getLocationDescription(item);
+    }
+
+    @Override
     public Status delete(StoreItem item)
     {
         return localImpl.delete(item);
@@ -79,5 +86,11 @@ public class FileStoreRemoteMounted extends FileStore
     public String tryCheckDirectoryFullyAccessible()
     {
         return localImpl.tryCheckDirectoryFullyAccessible();
+    }
+
+    @Override
+    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    {
+        return localImpl.tryListSortByLastModified(loggerOrNull);
     }
 }

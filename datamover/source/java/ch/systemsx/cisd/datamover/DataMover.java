@@ -23,16 +23,16 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
-import ch.systemsx.cisd.datamover.common.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**

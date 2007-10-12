@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.CollectionIO;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.common.StoreItem;
 
 /**
  * Immutable helper for creating a sample directory structure and manipulating it.

@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.datamover.filesystem;
 
+import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;

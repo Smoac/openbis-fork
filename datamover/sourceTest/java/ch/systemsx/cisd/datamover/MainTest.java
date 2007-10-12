@@ -410,7 +410,7 @@ public class MainTest
     }
 
     @Test(groups =
-        { "slowXX" }, dataProvider = "delays")
+        { "slow" }, dataProvider = "delays")
     // recovery after failure when data are copied to 'copy-completed', but before deletion has been finished
     public void testRecoveryIncomingCompleteDeletionInProgress(long delay) throws Exception
     {
@@ -632,7 +632,7 @@ public class MainTest
     }
 
     @Test(groups =
-        { "xxx" })
+        { "slow" })
     // normal work-flow tests, no extra copy is created
     public void testWholePipelineNoExtraCopy() throws Exception
     {

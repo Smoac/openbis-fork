@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -30,17 +30,16 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.common.utilities.NamePrefixFileFilter;
+import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.common.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
@@ -98,45 +97,61 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private DataMoverProcess create()
     {
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
-        final FileFilter filter = createQuietPeriodFilter();
 
-        // TODO 2007-10-10, Tomasz Pylak: refactor not to use incomingStore.getPath()
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(incomingStore.getPath(), filter, asPathHandler(pathHandler),
-                        NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
+                new DirectoryScanningTimerTask(createIncomingStoreScanner(), bufferDirs.getCopyInProgressDir(),
+                        pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
-    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
-    // quick hack.
-    private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
+    private IScannedStore createIncomingStoreScanner()
     {
-        return new IPathHandler()
+        return new IScannedStore()
             {
-                public void handle(File path)
+                public boolean exists(StoreItem item)
                 {
-                    storeHandler.handle(new StoreItem(path.getName()));
+                    return incomingStore.exists(item);
+                }
+
+                public String getLocationDescription(StoreItem item)
+                {
+                    return incomingStore.getLocationDescription(item);
+                }
+
+                public StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull)
+                {
+                    // Older items will be handled before newer items.
+                    // This becomes important when doing online quality control of measurements.
+                    StoreItem[] items = incomingStore.tryListSortByLastModified(loggerOrNull);
+                    if (items == null)
+                    {
+                        return null;
+                    }
+                    return filterReadyToProcess(items);
                 }
             };
     }
 
-    private FileFilter createQuietPeriodFilter()
+    private StoreItem[] filterReadyToProcess(StoreItem[] items)
     {
-        FileFilter quitePeriodFilter = new QuietPeriodFileFilter(parameters);
-        FileFilter filterDeletionMarkers = new NamePrefixFileFilter(Constants.DELETION_IN_PROGRESS_PREFIX, false);
-        FileFilter filter = combineFilters(filterDeletionMarkers, quitePeriodFilter);
-        return filter;
+        Vector<StoreItem> result = new Vector<StoreItem>();
+        for (StoreItem item : items)
+        {
+            if (isReadyToProcess(item))
+            {
+                result.add(item);
+            }
+        }
+        return result.toArray(StoreItem.EMPTY_ARRAY);
     }
 
-    private static FileFilter combineFilters(final FileFilter filter1, final FileFilter filter2)
+    private boolean isReadyToProcess(StoreItem item)
     {
-        return new FileFilter()
-            {
-                public boolean accept(File pathname)
-                {
-                    return filter1.accept(pathname) && filter2.accept(pathname);
-                }
-            };
+        if (item.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX))
+        {
+            return false;
+        }
+        return new QuietPeriodFileFilter(incomingStore, parameters).accept(item);
     }
 
     private IStoreHandler createIncomingMovingPathHandler()

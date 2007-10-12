@@ -22,11 +22,11 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.common.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 

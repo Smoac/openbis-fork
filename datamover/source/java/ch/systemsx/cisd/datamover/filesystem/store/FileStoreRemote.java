@@ -19,7 +19,8 @@ package ch.systemsx.cisd.datamover.filesystem.store;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
@@ -79,5 +80,18 @@ public class FileStoreRemote extends FileStore
     {
         String pathStr = path.getPath();
         return "[remote fs]" + hostOrNull + ":" + pathStr;
+    }
+
+    @Override
+    public String getLocationDescription(StoreItem item)
+    {
+        return hostOrNull + ":" + getChildFile(item).getPath();
+    }
+
+    @Override
+    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    {
+        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode.
+        return null;
     }
 }

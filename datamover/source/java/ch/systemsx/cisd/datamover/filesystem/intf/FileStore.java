@@ -23,7 +23,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.datamover.common.StoreItem;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * A class to holds the information about a file store.
@@ -54,8 +55,7 @@ public abstract class FileStore
         this.factory = factory;
     }
 
-    // TODO 2007-10-10, Tomasz Pylak: change visibility to protected after changing DirectoryScanningTimerTask
-    public final File getPath()
+    protected final File getPath()
     {
         return path;
     }
@@ -179,6 +179,11 @@ public abstract class FileStore
      */
     public abstract long lastChanged(StoreItem item);
 
+    /**
+     * List files in the scanned store. Sort in order of "oldest first".  
+     */
+    public abstract StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull);
+
     public abstract Status delete(StoreItem item);
 
     /**
@@ -187,7 +192,10 @@ public abstract class FileStore
      */
     public abstract IStoreCopier getCopier(FileStore destinationDirectory);
 
-    // public boolean isParentDirectory(FileStoreIntf child);
+    // returned description should give the user the idea about file location. You should not use the result for
+    // something else than printing it for user. It should not be especially assumed that the result is the path
+    // which could be used in java.io.File constructor.
+    public abstract String getLocationDescription(StoreItem item);
 
     public abstract ExtendedFileStore tryAsExtended();
 

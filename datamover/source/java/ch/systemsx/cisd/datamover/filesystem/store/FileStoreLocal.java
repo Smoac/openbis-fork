@@ -22,11 +22,12 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.common.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
@@ -123,6 +124,36 @@ public class FileStoreLocal extends ExtendedFileStore
     {
         String pathStr = super.path.getPath();
         return "[local fs]" + pathStr;
+    }
+
+    @Override
+    public String getLocationDescription(StoreItem item)
+    {
+        return getChildFile(item).getPath();
+    }
+
+    @Override
+    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    {
+        File[] files = FileUtilities.tryListFiles(path, loggerOrNull);
+        if (files != null)
+        {
+            FileUtilities.sortByLastModified(files);
+            return asItems(files);
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static StoreItem[] asItems(File[] files)
+    {
+        StoreItem[] items = new StoreItem[files.length];
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = new StoreItem(files[i].getName());
+        }
+        return items;
     }
 
     // ------
