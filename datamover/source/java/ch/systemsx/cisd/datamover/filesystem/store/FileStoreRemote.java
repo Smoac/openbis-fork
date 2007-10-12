@@ -43,7 +43,7 @@ public class FileStoreRemote extends FileStore
     @Override
     public Status delete(StoreItem item)
     {
-        // TODO 2007-10-09 implement ssh tunneling mode
+        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
         return Status.OK;
     }
 
@@ -63,14 +63,14 @@ public class FileStoreRemote extends FileStore
     @Override
     public long lastChanged(StoreItem item)
     {
-        // TODO 2007-10-09 implement ssh tunneling mode
+        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
         return 0;
     }
 
     @Override
     public String tryCheckDirectoryFullyAccessible()
     {
-        // TODO 2007-10-09 implement ssh tunneling mode. E.g. check if directory exists
+        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode. E.g. check if directory exists
         return null;
     }
 

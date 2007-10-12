@@ -152,7 +152,7 @@ public class DataMover
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    // TODO 2007-10-10 Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
+    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
     // quick hack.
     private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
     {

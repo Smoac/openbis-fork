@@ -54,7 +54,7 @@ public abstract class FileStore
         this.factory = factory;
     }
 
-    // TODO 2007-10-10 Tomasz Pylak: change visibility to protected after changing DirectoryScanningTimerTask
+    // TODO 2007-10-10, Tomasz Pylak: change visibility to protected after changing DirectoryScanningTimerTask
     public final File getPath()
     {
         return path;

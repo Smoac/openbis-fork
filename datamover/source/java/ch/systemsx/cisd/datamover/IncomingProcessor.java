@@ -100,14 +100,14 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final FileFilter filter = createQuietPeriodFilter();
 
-        // TODO 2007-10-10 Tomasz Pylak: refactor not to use incomingStore.getPath()
+        // TODO 2007-10-10, Tomasz Pylak: refactor not to use incomingStore.getPath()
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(incomingStore.getPath(), filter, asPathHandler(pathHandler),
                         NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
-    // TODO 2007-10-10 Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
+    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
     // quick hack.
     private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
     {
