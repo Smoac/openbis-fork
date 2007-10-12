@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
@@ -26,7 +25,6 @@ import java.util.TimerTask;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -41,10 +39,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public final class DirectoryScanningTimerTask extends TimerTask implements ISelfTestable
+public final class DirectoryScanningTimerTask extends TimerTask
 {
 
-    public static final String FAULTY_PATH_FILENAME = ".faulty_paths";
+    static final String FAULTY_PATH_FILENAME = ".faulty_paths";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DirectoryScanningTimerTask.class);
@@ -52,26 +50,33 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DirectoryScanningTimerTask.class);
 
-    private static final IFromStringConverter<File> FILE_CONVERTER = new IFromStringConverter<File>()
-        {
-            public File fromString(String value)
-            {
-                return new File(value);
-            }
-        };
+    public static interface IScannedStore
+    {
+        /**
+         * List items in the scanned store in order in which they should be handled.
+         */
+        StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
 
-    private final IPathHandler handler;
+        boolean exists(StoreItem item);
 
-    private final File sourceDirectory;
+        /**
+         * returned description should give the user the idea about file location. You should not use the result for
+         * something else than printing it for user. It should not be especially assumed that the result is the path
+         * which could be used in java.io.File constructor.
+         */
+        String getLocationDescription(StoreItem item);
+    }
+
+    private final IStoreHandler handler;
+
+    private final IScannedStore sourceDirectory;
 
     /** The number of consecutive errors of reading a directory that need to occur before the event is logged. */
     private final int ignoredErrorCount;
 
     private int errorCountReadingDirectory;
 
-    private final FileFilter filter;
-
-    private final Set<File> faultyPaths;
+    private final Set<String> faultyPaths;
 
     private final File faultyPathsFile;
 
@@ -102,18 +107,99 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
     public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler,
             int ignoredErrorCount)
     {
-        assert sourceDirectory != null;
-        assert filter != null;
+        this(asScannedStore(sourceDirectory, filter), sourceDirectory, asScanningHandler(sourceDirectory, handler),
+                ignoredErrorCount);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param scannedStore The store which is scan for entries.
+     * @param faultyPathDirectory The directory in which file with faulty paths is should be stored.
+     * @param handler The handler that is used for treating the matching paths.
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the
+     *            next error is logged (can be used to suppress error when the directory is on a remote share and the
+     *            server is flaky sometimes)
+     */
+    public DirectoryScanningTimerTask(IScannedStore scannedStore, File faultyPathDirectory, IStoreHandler handler,
+            int ignoredErrorCount)
+    {
+        assert scannedStore != null;
         assert handler != null;
         assert ignoredErrorCount >= 0;
 
         this.ignoredErrorCount = ignoredErrorCount;
-        this.sourceDirectory = sourceDirectory;
-        this.filter = filter;
+        this.sourceDirectory = scannedStore;
         this.handler = handler;
-        this.faultyPaths = new HashSet<File>();
-        this.faultyPathsFile = new File(sourceDirectory, FAULTY_PATH_FILENAME);
+        this.faultyPaths = new HashSet<String>();
+        this.faultyPathsFile = new File(faultyPathDirectory, FAULTY_PATH_FILENAME);
         faultyPathsFile.delete();
+    }
+
+    private static IStoreHandler asScanningHandler(final File directory, final IPathHandler handler)
+    {
+        return new IStoreHandler()
+            {
+                public void handle(StoreItem item)
+                {
+                    File path = asFile(directory, item);
+                    handler.handle(path);
+                }
+            };
+    }
+
+    private static IScannedStore asScannedStore(final File directory, final FileFilter filter)
+    {
+        return new IScannedStore()
+            {
+                public String getLocationDescription(StoreItem item)
+                {
+                    return DirectoryScanningTimerTask.getLocationDescription(asFile(item));
+                }
+
+                public boolean exists(StoreItem item)
+                {
+                    return asFile(item).exists();
+                }
+
+                public StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull)
+                {
+                    File[] files = FileUtilities.tryListFiles(directory, filter, loggerOrNull);
+                    if (files != null)
+                    {
+                        FileUtilities.sortByLastModified(files);
+                        return asItems(files);
+                    } else
+                    {
+                        return null;
+                    }
+                }
+
+                private StoreItem[] asItems(File[] files)
+                {
+                    StoreItem[] items = new StoreItem[files.length];
+                    for (int i = 0; i < items.length; i++)
+                    {
+                        items[i] = new StoreItem(files[i].getName());
+                    }
+                    return items;
+                }
+
+                private File asFile(StoreItem item)
+                {
+                    return DirectoryScanningTimerTask.asFile(directory, item);
+                }
+            };
+    }
+
+    private static String getLocationDescription(File file)
+    {
+        return file.getPath();
+    }
+
+    private static File asFile(File parentDirectory, StoreItem item)
+    {
+        return new File(parentDirectory, item.getName());
     }
 
     /**
@@ -129,13 +215,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
                 operationLog.trace("Start scanning directory " + sourceDirectory + ".");
             }
             checkForFaultyPathsFileChanged();
-            final File[] paths = listFiles();
-            // Sort in order of "oldest first" in order to move older items before newer items. This becomes important
-            // when doing online quality control of measurements.
-            Arrays.sort(paths, FileComparator.BY_LAST_MODIFIED);
-            for (File path : paths)
+            final StoreItem[] paths = listFiles();
+            for (StoreItem path : paths)
             {
-                if (faultyPathsFile.equals(path)) // Never touch the faultyPathsFile.
+                if (isFaultyPathsFile(path)) // Never touch the faultyPathsFile.
                 {
                     continue;
                 }
@@ -151,6 +234,13 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         }
     }
 
+    private boolean isFaultyPathsFile(StoreItem item)
+    {
+        String itemLocation = sourceDirectory.getLocationDescription(item);
+        String faultyPathsLocation = getLocationDescription(faultyPathsFile);
+        return itemLocation.equals(faultyPathsLocation);
+    }
+
     private void checkForFaultyPathsFileChanged()
     {
         if (faultyPathsFile.exists())
@@ -158,12 +248,12 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             if (faultyPathsFile.lastModified() > faultyPathsLastChanged) // Handles manual manipulation.
             {
                 faultyPaths.clear();
-                CollectionIO.readCollection(faultyPathsFile, faultyPaths, FILE_CONVERTER);
+                CollectionIO.readCollection(faultyPathsFile, faultyPaths);
                 faultyPathsLastChanged = faultyPathsFile.lastModified();
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(String.format("Reread faulty paths file (%s), new set contains %d entries",
-                            faultyPathsFile.getPath(), faultyPaths.size()));
+                            getLocationDescription(faultyPathsFile), faultyPaths.size()));
                 }
             }
         } else
@@ -173,7 +263,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         }
     }
 
-    private File[] listFiles()
+    private StoreItem[] listFiles()
     {
         final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount); // Avoid mailbox flooding.
         final boolean logOperationError = (errorCountReadingDirectory < ignoredErrorCount);
@@ -181,7 +271,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
                 logNotifyError ? createSimpleErrorLogger(LogCategory.NOTIFY)
                         : (logOperationError ? createSimpleErrorLogger(LogCategory.OPERATION) : null);
 
-        final File[] paths = FileUtilities.tryListFiles(sourceDirectory, filter, errorLogger);
+        final StoreItem[] paths = sourceDirectory.tryListSortedReadyToProcess(errorLogger);
         if (errorCountReadingDirectory > ignoredErrorCount && paths != null)
         {
             if (notificationLog.isInfoEnabled())
@@ -196,7 +286,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
         {
             errorCountReadingDirectory = 0;
         }
-        return (paths == null) ? new File[0] : paths;
+        return (paths == null) ? new StoreItem[0] : paths;
     }
 
     private ISimpleLogger createSimpleErrorLogger(final LogCategory category)
@@ -221,41 +311,35 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ISelf
             };
     }
 
-    private void handle(File path)
+    private void handle(StoreItem item)
     {
-        if (faultyPaths.contains(path))
+        if (isFaultyPath(item))
         { // Guard: skip faulty paths.
             return;
         }
         try
         {
-            handler.handle(path);
+            handler.handle(item);
         } finally
         {
-            if (path.exists())
+            if (sourceDirectory.exists(item))
             {
-                addToFaultyPaths(path);
+                addToFaultyPaths(item);
             }
         }
     }
 
-    private void addToFaultyPaths(File path)
+    private boolean isFaultyPath(StoreItem item)
     {
+        String path = sourceDirectory.getLocationDescription(item);
+        return faultyPaths.contains(path);
+    }
+
+    private void addToFaultyPaths(StoreItem item)
+    {
+        String path = sourceDirectory.getLocationDescription(item);
         faultyPaths.add(path);
         CollectionIO.writeIterable(faultyPathsFile, faultyPaths);
         faultyPathsLastChanged = faultyPathsFile.lastModified();
-    }
-
-    public void check() throws ConfigurationFailureException
-    {
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Checking source directory '" + sourceDirectory.getAbsolutePath() + "'.");
-        }
-        final String errorMessage = FileUtilities.checkDirectoryFullyAccessible(sourceDirectory, "source");
-        if (errorMessage != null)
-        {
-            throw new ConfigurationFailureException(errorMessage);
-        }
     }
 }

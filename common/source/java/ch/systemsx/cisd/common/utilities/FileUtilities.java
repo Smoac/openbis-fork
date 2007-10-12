@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -631,6 +632,11 @@ public final class FileUtilities
             logFailureInDirectoryListing(ex, directory, loggerOrNull);
         }
         return paths;
+    }
+
+    public static void sortByLastModified(File[] files)
+    {
+        Arrays.sort(files, FileComparator.BY_LAST_MODIFIED);
     }
 
     private static void logFailureInDirectoryListing(RuntimeException exOrNull, File directory, ISimpleLogger logger)

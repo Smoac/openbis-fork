@@ -64,7 +64,51 @@ public class FileUtilitiesTest
     {
         FileUtils.cleanDirectory(workingDirectory);
     }
-    
+
+    @Test
+    public void testFailedConstructionNonExistent()
+    {
+        final File nonExistentFile = new File(workingDirectory, "non-existent");
+        nonExistentFile.delete();
+        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(nonExistentFile, "test");
+        assertNotNull(errorMsg);
+    }
+
+    @Test
+    public void testFailedConstructionFileInsteadOfDirectory() throws IOException
+    {
+        final File file = new File(workingDirectory, "existent_file");
+        file.delete();
+        file.deleteOnExit();
+        file.createNewFile();
+        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(file, "test");
+        assertNotNull(errorMsg);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testFailedConstructionReadOnly() throws IOException, InterruptedException
+    {
+        final File readOnlyDirectory = new File(workingDirectory, "read_only_directory");
+        readOnlyDirectory.delete();
+        readOnlyDirectory.mkdir();
+        readOnlyDirectory.deleteOnExit();
+        assert readOnlyDirectory.setReadOnly();
+
+        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(readOnlyDirectory, "test");
+
+        // --- clean before checking results
+        // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write, once
+        // it has been set read-only, thus this test 'requires_unix' for the time being.
+        Runtime.getRuntime().exec(String.format("/bin/chmod u+w %s", readOnlyDirectory.getPath())).waitFor();
+        if (readOnlyDirectory.canWrite() == false)
+        {
+            // Can't use assert here since we expect an AssertationError
+            throw new IllegalStateException();
+        }
+        assertNotNull(errorMsg);
+    }
+
     @Test
     public void testCopyFile() throws Exception
     {
@@ -77,7 +121,7 @@ public class FileUtilitiesTest
         assertEquals(FileUtilities.loadToString(sourceFile), FileUtilities.loadToString(destinationFile));
         assertEquals(47110000, destinationFile.lastModified());
     }
-    
+
     @Test
     public void testWriteToFile() throws Exception
     {
@@ -94,7 +138,7 @@ public class FileUtilitiesTest
         FileUtilities.writeToFile(file, "Hello world");
         assertEquals("Hello world\n", FileUtilities.loadToString(file));
     }
-    
+
     @Test
     public void testWriteToExistingDirectory() throws Exception
     {
@@ -112,7 +156,7 @@ public class FileUtilitiesTest
             assertTrue("Exception message not as expected: " + message, cause.getMessage().startsWith(dir.toString()));
         }
     }
-    
+
     @Test
     public void testWriteToExistingReadOnlyFile() throws Exception
     {
@@ -134,7 +178,7 @@ public class FileUtilitiesTest
             assert file.delete();
         }
     }
-    
+
     @Test
     public void testLoadToStringFile() throws Exception
     {
@@ -271,7 +315,7 @@ public class FileUtilitiesTest
         newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
         assertEquals(new File(workingDirectory, "12abc_[13]"), newFile);
         newFile = FileUtilities.createNextNumberedFile(file, Pattern.compile("xxx(\\d+)xxx"), "12abc_[1]");
-        assertEquals(new File(workingDirectory, "12abc_[1]"), newFile);        
+        assertEquals(new File(workingDirectory, "12abc_[1]"), newFile);
     }
 
     @Test

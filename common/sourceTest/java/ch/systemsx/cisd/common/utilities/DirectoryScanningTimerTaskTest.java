@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static ch.systemsx.cisd.common.utilities.FileUtilities.ACCEPT_ALL_FILTER;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,14 +31,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
-import ch.systemsx.cisd.common.utilities.CollectionIO;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 
 /**
  * Test cases for the {@link DirectoryScanningTimerTask}.
@@ -119,60 +114,6 @@ public class DirectoryScanningTimerTaskTest
         exceptionHandler.checkAndRethrowException();
     }
 
-    @Test(expectedExceptions =
-        { ConfigurationFailureException.class })
-    public void testFailedConstructionNonExistent()
-    {
-        final File nonExistentFile = new File(unitTestRootDirectory, "non-existent");
-        nonExistentFile.delete();
-        final DirectoryScanningTimerTask task =
-                new DirectoryScanningTimerTask(nonExistentFile, ACCEPT_ALL_FILTER, mockPathHandler);
-        task.check();
-    }
-
-    @Test(expectedExceptions =
-        { ConfigurationFailureException.class })
-    public void testFailedConstructionFileInsteadOfDirectory() throws IOException
-    {
-        final File file = new File(unitTestRootDirectory, "existent_file");
-        file.delete();
-        file.deleteOnExit();
-        file.createNewFile();
-        final DirectoryScanningTimerTask task =
-                new DirectoryScanningTimerTask(file, ACCEPT_ALL_FILTER, mockPathHandler);
-        task.check();
-    }
-
-    @Test(groups =
-        { "requires_unix" }, expectedExceptions =
-        { ConfigurationFailureException.class })
-    public void testFailedConstructionReadOnly() throws IOException, InterruptedException
-    {
-        final File readOnlyDirectory = new File(unitTestRootDirectory, "read_only_directory");
-        readOnlyDirectory.delete();
-        readOnlyDirectory.mkdir();
-        readOnlyDirectory.deleteOnExit();
-        assert readOnlyDirectory.setReadOnly();
-
-        try
-        {
-            // Here we should get an AssertationError
-            final DirectoryScanningTimerTask task =
-                    new DirectoryScanningTimerTask(readOnlyDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
-            task.check();
-        } finally
-        {
-            // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write, once
-            // it has been set read-only, thus this test 'requires_unix' for the time being.
-            Runtime.getRuntime().exec(String.format("/bin/chmod u+w %s", readOnlyDirectory.getPath())).waitFor();
-            if (readOnlyDirectory.canWrite() == false)
-            {
-                // Can't use assert here since we expect an AssertationError
-                throw new IllegalStateException();
-            }
-        }
-    }
-
     @Test
     public void testFaultyPathsDeletion()
     {
@@ -219,7 +160,8 @@ public class DirectoryScanningTimerTaskTest
         assert someFile.exists();
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
-        CollectionIO.writeIterable(faultyPaths, Collections.singleton(someFile));
+        String fileLocation = someFile.getPath();
+        CollectionIO.writeIterable(faultyPaths, Collections.singleton(fileLocation));
         scanner.run();
         assertEquals(0, mockPathHandler.handledPaths.size());
     }
@@ -340,8 +282,7 @@ public class DirectoryScanningTimerTaskTest
             scanner.run();
             appender.verifyLogHasHappened();
             dir.delete();
-        }
-        finally
+        } finally
         {
             LogMonitoringAppender.removeAppender(appender);
         }
@@ -385,9 +326,9 @@ public class DirectoryScanningTimerTaskTest
         final LogMonitoringAppender appenderNotifyError =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
         final LogMonitoringAppender appenderOperationError =
-            LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Failed to get listing of directory");
         final LogMonitoringAppender appenderOK =
-            LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again");
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again");
         try
         {
             final int numberOfErrorsToIgnore = 2;
@@ -435,7 +376,7 @@ public class DirectoryScanningTimerTaskTest
             final int numberOfErrorsToIgnore = 2;
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
             final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
             dir.delete();
             assert dir.exists() == false;
             // First error -> ignored
