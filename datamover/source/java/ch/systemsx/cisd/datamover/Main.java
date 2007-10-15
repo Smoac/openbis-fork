@@ -69,7 +69,6 @@ public class Main
     {
         LogInitializer.init();
         Thread.setDefaultUncaughtExceptionHandler(loggingExceptionHandler);
-        Runtime.getRuntime().addShutdownHook(new Thread(loggingShutdownHook, "Shutdown Hook"));
     }
 
     private static void printInitialLogMessage(final Parameters parameters)
@@ -83,6 +82,7 @@ public class Main
             operationLog.info(line);
         }
         parameters.log();
+        Runtime.getRuntime().addShutdownHook(new Thread(loggingShutdownHook, "Shutdown Hook"));
     }
 
     /**
