@@ -169,7 +169,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * is tried is one more).
      */
     @Option(name = "m", longName = "max-retries", usage = "The number of retries of a failed operation before the "
-            + "datamover gives up on it. [default: 10].")
+            + "Datamover gives up on it. [default: 10].")
     private int maximalNumberOfRetries;
 
     /**
@@ -251,7 +251,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(boolean exit)
     {
-        parser.printHelp("datamover", "<required options> [option [...]]", "", ExampleMode.ALL);
+        parser.printHelp("Datamover", "<required options> [option [...]]", "", ExampleMode.ALL);
         if (exit)
         {
             System.exit(0);
@@ -261,7 +261,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
     void printVersion(boolean exit)
     {
-        System.err.println("datamover version " + BuildAndEnvironmentInfo.INSTANCE.getBuildNumber());
+        System.err.println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getBuildNumber());
         if (exit)
         {
             System.exit(0);

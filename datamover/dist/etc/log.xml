@@ -39,7 +39,7 @@
     <param name="SMTPHost" value="localhost" />
     <param name="From" value="datamover@localhost" />
     <param name="To" value="root@localhost" />
-    <param name="Subject" value="ATTENTION: data mover" />
+    <param name="Subject" value="ATTENTION: Datamover" />
     <param name="EvaluatorClass" value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
 
     <layout class="org.apache.log4j.PatternLayout">
