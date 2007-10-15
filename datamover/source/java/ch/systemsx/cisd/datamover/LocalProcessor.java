@@ -113,7 +113,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         recoverTemporaryExtraCopy();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Recovery is finishsed.");
+            operationLog.debug("Recovery is finished.");
         }
     }
 
