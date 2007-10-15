@@ -393,5 +393,10 @@ function clean_after_tests {
 if [ "$1" = "clean" ]; then
     clean_after_tests
 else
-    integration_tests false false
+    force_rebuild=false
+    force_reinstall=false
+    if [ "$1" = "--force-rebuild" ]; then
+			force_rebuild=true
+		fi
+    integration_tests $force_rebuild $force_reinstall
 fi

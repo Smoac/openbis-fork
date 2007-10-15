@@ -4,6 +4,7 @@
 	<target name="integration-tests">
 		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./run.sh" />
+			<arg value="--force-rebuild" />
 		</exec>
 		<fail>
 			<condition>
