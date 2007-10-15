@@ -65,12 +65,17 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private String rsyncExecutable = null;
 
     /**
+     * Default of whether rsync should use overwrite or append mode, if append mode is available.
+     */
+    private static final boolean DEFAULT_RSYNC_OVERWRITE = false;
+
+    /**
      * If set to <code>true</code>, rsync is called in such a way to files that already exist are overwritten rather
      * than appended to.
      */
     @Option(longName = "rsync-overwrite", usage = "If true, files that already exist on the remote side are always "
             + "overwritten rather than appended.")
-    private boolean rsyncOverwrite = false;
+    private boolean rsyncOverwrite;
 
     /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
@@ -381,9 +386,23 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     {
         final Properties serviceProperties = loadServiceProperties();
         rsyncExecutable = serviceProperties.getProperty("rsync-executable");
-        rsyncOverwrite = Boolean.parseBoolean(serviceProperties.getProperty("rsync-overwrite", "false"));
+        if (rsyncExecutable != null)
+        {
+            rsyncExecutable = rsyncExecutable.trim();
+        }
+        rsyncOverwrite =
+                Boolean.parseBoolean(serviceProperties.getProperty("rsync-overwrite",
+                        Boolean.toString(DEFAULT_RSYNC_OVERWRITE)).trim());
         sshExecutable = serviceProperties.getProperty("ssh-executable");
+        if (sshExecutable != null)
+        {
+            sshExecutable = sshExecutable.trim();
+        }
         hardLinkExecutable = serviceProperties.getProperty("hard-link-executable");
+        if (hardLinkExecutable != null)
+        {
+            hardLinkExecutable = hardLinkExecutable.trim();
+        }
         checkIntervalMillis =
                 Integer.parseInt(serviceProperties.getProperty("check-interval", Integer
                         .toString(DEFAULT_CHECK_INTERVAL))) * 1000;
@@ -403,29 +422,29 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                         .toString(DEFAULT_MAXIMAL_NUMBER_OF_RETRIES)));
         treatIncomingAsRemote =
                 Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote", Boolean
-                        .toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)));
-        prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "");
+                        .toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
+        prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "").trim();
         if (serviceProperties.getProperty("incoming-dir") != null)
         {
-            incomingDirectory = new File(serviceProperties.getProperty("incoming-dir"));
+            incomingDirectory = new File(serviceProperties.getProperty("incoming-dir").trim());
         }
         incomingHost = serviceProperties.getProperty("incoming-host");
         if (serviceProperties.getProperty("buffer-dir") != null)
         {
-            bufferDirectory = new File(serviceProperties.getProperty("buffer-dir"));
+            bufferDirectory = new File(serviceProperties.getProperty("buffer-dir").trim());
         }
         if (serviceProperties.getProperty("manual-intervention-dir") != null)
         {
-            manualInterventionDirectoryOrNull = new File(serviceProperties.getProperty("manual-intervention-dir"));
+            manualInterventionDirectoryOrNull = new File(serviceProperties.getProperty("manual-intervention-dir").trim());
         }
         if (serviceProperties.getProperty("outgoing-dir") != null)
         {
-            outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir"));
+            outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir").trim());
         }
         outgoingHost = serviceProperties.getProperty("outgoing-host");
         if (serviceProperties.getProperty("extra-copy-dir") != null)
         {
-            extraCopyDirectory = new File(serviceProperties.getProperty("extra-copy-dir"));
+            extraCopyDirectory = new File(serviceProperties.getProperty("extra-copy-dir").trim());
         }
         if (serviceProperties.getProperty("cleansing-regex") != null)
         {
