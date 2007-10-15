@@ -4,7 +4,8 @@
 # - the current directory after calling a function does not change
 
 TEST_FAILED=false # if true then some tests failed
-SVN=/opt/local/bin/svn
+SVN_PATHS="/opt/local/bin /usr/bin"
+LSOF_PATHS="/usr/sbin"
 
 # all paths are relative to the template directory
 TEMPLATE=templates
@@ -21,10 +22,32 @@ ERR_LOG=$WORK/all_err_log.txt
 
 # -------------------------- instalation
 
+function get_env_path {
+    echo $PATH | tr ":" " "
+}
+
+# looks for a specified file in environment paths and paths giben as a parameter (space separated)
+function locate_file {
+    local file=$1
+    shift
+    local additional_paths=$@
+    for dir in `get_env_path` $additional_paths; do 
+	local full_path=$dir/$file
+	if [ -f $full_path ]; then
+    	    echo $full_path;
+	    return
+	fi 
+    done
+}
+
+function run_svn {
+    `locate_file svn $SVN_PATHS` $@
+}
+
 function build_zips {
     RSC=build_resources
     rm -fr $RSC
-    $SVN checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
+    run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
     cd $RSC
     ./build.sh lims 
     ./build.sh datamover
@@ -60,8 +83,12 @@ function remove_unpacked {
     rm -fR $WORK/$1
 }
 
+function run_lsof {
+    `locate_file lsof $LSOF_PATHS` $@
+}
+
 function check_server_port {
-    lsof -i -n -P | grep 8443
+    run_lsof -i -n -P | grep 8443
 }
 
 function wait_for_server {
@@ -168,6 +195,10 @@ function is_empty_dir {
 
 # ----------------------------- assertions
 
+function init_log {
+    rm -fr $ERR_LOG
+}
+
 function report_error {
     local msg=$@
 
@@ -247,13 +278,21 @@ function generate_test_data {
 
 # ----------------------- Launching 
 
+function chmod_exec {
+    for file in $@; do
+        if [ -f $file ]; then
+	    chmod u+x $file
+	fi
+    done 
+}
+
 function switch_sth {
     switch_on=$1 # on/off
     dir=$WORK/$2
     cmd_start=$3
     cmd_stop=$4
-    chmod u+x $dir/$cmd_start
-    chmod u+x $dir/$cmd_stop
+    chmod_exec $dir/$cmd_start
+    chmod_exec $dir/$cmd_stop
 
     if [ "$switch_on" == "on" ]; then
 	echo "Launching $dir..."
@@ -268,6 +307,7 @@ function switch_sth {
 	call_in_dir "$cmd_stop" $dir
     fi
 }
+
 
 function switch_etl {
     switch_sth $1 $2 etlserver.sh shutdown.sh
@@ -323,6 +363,7 @@ function integration_tests {
     force_rebuild=$1
     force_reinstall=$2
 
+    init_log
     if [ ! -d $INSTALL -o "$force_rebuild" == "true" ]; then
         build_zips
         install
@@ -345,7 +386,6 @@ function clean_after_tests {
 }
 
 # -- MAIN ------------ 
-
 if [ "$1" = "clean" ]; then
     clean_after_tests
 else
