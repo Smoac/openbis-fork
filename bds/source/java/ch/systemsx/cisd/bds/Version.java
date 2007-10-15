@@ -26,14 +26,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public final class Version
 {
-    private static final String VERSION = "version";
-    private static final String MAJOR = "major";
-    private static final String MINOR = "minor";
+    static final String VERSION = "version";
+    static final String MAJOR = "major";
+    static final String MINOR = "minor";
     
     /**
      * Loads the version from the specified directory.
      */
-    public static Version loadFrom(IDirectory directory)
+    static Version loadFrom(IDirectory directory)
     {
         IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
         return new Version(getNumber(versionFolder, MAJOR), getNumber(versionFolder, MINOR));
@@ -85,7 +85,7 @@ public final class Version
     }
     
     /**
-     * Returns true if this version is backwards compatible to the specified version. That is,
+     * Returns <code>true</code> if this version is backwards compatible to the specified version. That is,
      * if <code>version.getMajor() == this.getMajor()</code> and <code>version.getMinor() &lt;= this.getMinor()</code>.
      */
     public boolean isBackwardsCompatibleWith(Version version)
@@ -107,7 +107,7 @@ public final class Version
         return new Version(major, minor - 1);
     }
     
-    public void saveTo(IDirectory directory)
+    void saveTo(IDirectory directory)
     {
         IDirectory versionFolder = directory.makeDirectory(VERSION);
         versionFolder.addKeyValuePair(MAJOR, Integer.toString(major));

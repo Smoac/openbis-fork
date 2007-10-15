@@ -21,11 +21,11 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Abstract superclass of classes implementing {@link IDataStructure}.
  *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataStructure implements IHasVersion
+abstract class AbstractDataStructure implements IDataStructure
 {
     protected final IStorage storage;
     protected final IDirectory root;
@@ -34,14 +34,14 @@ public abstract class AbstractDataStructure implements IHasVersion
     {
         assert storage != null: "Unspecified storage.";
         this.storage = storage;
+        storage.mount();
         root = storage.getRoot();
     }
 
     public void load()
     {
-        storage.mount();
         Version loadedVersion = Version.loadFrom(root);
-        if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
+        if (loadedVersion.isBackwardsCompatibleWith(getVersion()) == false)
         {
             throw new UserFailureException("Version of loaded data structure is " + loadedVersion
                     + " which is not backward compatible with " + getVersion());

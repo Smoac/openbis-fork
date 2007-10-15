@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Role of a node in the data structure.
+ * Abstraction of a node in a hierarchical data structure.
  *
  * @author Franz-Josef Elmer
  */

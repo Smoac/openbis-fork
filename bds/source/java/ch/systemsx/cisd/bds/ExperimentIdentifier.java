@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class.
@@ -26,12 +27,17 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class ExperimentIdentifier
 {
-    private static final String FOLDER = "experiment_identifier";
-    private static final String GROUP_CODE = "group_code";
-    private static final String PROJECT_CODE = "project_code";
-    private static final String EXPERIMENT_CODE = "experiment_code";
+    static final String FOLDER = "experiment_identifier";
+    static final String GROUP_CODE = "group_code";
+    static final String PROJECT_CODE = "project_code";
+    static final String EXPERIMENT_CODE = "experiment_code";
     
-    public static ExperimentIdentifier loadFrom(IDirectory directory)
+    /**
+     * Loads the experiment identifier from the specified directory.
+     * 
+     * @throws UserFailureException if file missing.
+     */
+    static ExperimentIdentifier loadFrom(IDirectory directory)
     {
         IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
@@ -85,7 +91,10 @@ public class ExperimentIdentifier
         return experimentCode;
     }
     
-    public void saveTo(IDirectory directory)
+    /**
+     * Saves this instance to the specified directory.
+     */
+    void saveTo(IDirectory directory)
     {
         IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(GROUP_CODE, groupCode);

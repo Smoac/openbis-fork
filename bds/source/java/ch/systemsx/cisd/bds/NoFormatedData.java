@@ -16,22 +16,35 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
+
 /**
- * Unknown Format V1.0.
+ * Most simplest implementation of {@link IFormatedData}. It is associated with {@link UnknownFormat1_0}.
+ * It can be subclassed provided {@link #getFormat()} will be overridden.
  *
  * @author Franz-Josef Elmer
  */
-public final class UnknownFormat1_0 extends Format
+public class NoFormatedData implements IFormatedData
 {
     /**
-     * The one and only one instance.
+     * Root directory of formated data.
      */
-    public static final Format UNKNOWN_1_0 = new UnknownFormat1_0();
+    protected final IDirectory dataDirectory;
 
-    private UnknownFormat1_0()
+    /**
+     * Creates an instance for the specified data directory.
+     */
+    public NoFormatedData(IDirectory dataDirectory)
     {
-        super("UNKNOWN", new Version(1, 0));
+        this.dataDirectory = dataDirectory;
+    }
+    
+    /**
+     * Returns {@link UnknownFormat1_0#UNKNOWN_1_0}.
+     */
+    public Format getFormat()
+    {
+        return UnknownFormat1_0.UNKNOWN_1_0;
     }
 
-    
 }

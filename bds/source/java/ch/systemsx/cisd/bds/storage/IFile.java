@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.bds.storage;
 
 /**
- * Role of a leaf node representing a file with some content.
+ * Node representing a file with some content.
  *
  * @author Franz-Josef Elmer
  */

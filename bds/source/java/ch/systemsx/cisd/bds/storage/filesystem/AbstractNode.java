@@ -54,5 +54,13 @@ abstract class AbstractNode implements INode
         File dir = nodeFile.getParentFile();
         return dir == null ? null : new Directory(dir);
     }
+
+    @Override
+    public String toString()
+    {
+        return nodeFile.getAbsolutePath();
+    }
+    
+    
     
 }

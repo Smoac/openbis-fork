@@ -17,14 +17,20 @@
 package ch.systemsx.cisd.bds;
 
 /**
- * Format interface.
+ * Common interface of all data structures.
  *
  * @author Franz-Josef Elmer
  */
-public interface IFormat extends IHasVersion
+public interface IDataStructure extends IHasVersion
 {
     /**
-     * Returns the code of this format.
+     * Loads the data structure.
      */
-    public String getCode();
+    public void load();
+
+    /**
+     * Saves the data structure.
+     */
+    public void save();
+
 }

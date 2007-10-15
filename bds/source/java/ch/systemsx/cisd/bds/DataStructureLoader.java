@@ -24,22 +24,28 @@ import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Loader for {@link IDataStructure}s from the file system. 
  *
  * @author Franz-Josef Elmer
  */
-public class Container
+public class DataStructureLoader
 {
     private final File baseDir;
 
-    public Container(File baseDir)
+    /**
+     * Creates an instance for the specified base directory where all data structures to be loaded have to exist.
+     */
+    public DataStructureLoader(File baseDir)
     {
         assert baseDir != null : "Unspecified base directory.";
         assert baseDir.isDirectory() : "Is not a directory : " + baseDir.getAbsolutePath();
         this.baseDir = baseDir;
     }
-    
-    public AbstractDataStructure load(String name)
+
+    /**
+     * Loads the data structure with specified name.
+     */
+    public IDataStructure load(String name)
     {
         IStorage storage = createStorage(name);
         storage.mount();

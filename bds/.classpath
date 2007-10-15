@@ -6,5 +6,11 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/cglib-2.1_3-src.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/cglib-nodep-2.1_3.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-api-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-library-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

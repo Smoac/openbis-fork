@@ -29,6 +29,25 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class Utilities
 {
     /**
+     * Returns a subdirectory from the specified directory. If it does not exist it will be created.
+     * 
+     * @throws UserFailureException if there is already a node named <code>name</code> but which isn't a directory. 
+     */
+    public static IDirectory getOrCreateSubDirectory(IDirectory directory, String name)
+    {
+        INode node = directory.tryToGetNode(name);
+        if (node == null)
+        {
+            return directory.makeDirectory(name);
+        }
+        if (node instanceof IDirectory)
+        {
+            return (IDirectory) node;
+        }
+        throw new UserFailureException("There is already a node named '" + name + "' but which isn't a directory.");
+    }
+    
+    /**
      * Returns a subdirectory from the specified directory.
      * 
      * @param directory Parent directory of the requested directory.
@@ -37,7 +56,11 @@ public class Utilities
      */
     public static IDirectory getSubDirectory(IDirectory directory, String name)
     {
-        INode node = directory.getNode(name);
+        INode node = directory.tryToGetNode(name);
+        if (node == null)
+        {
+            throw new UserFailureException("No directory named '" + name + "' found in " + directory);
+        }
         if (node instanceof IDirectory == false)
         {
             throw new UserFailureException("Is not a directory: " + node);
@@ -62,7 +85,7 @@ public class Utilities
      */
     public static String getString(IDirectory directory, String name)
     {
-        INode node = directory.getNode(name);
+        INode node = directory.tryToGetNode(name);
         if (node == null)
         {
             throw new UserFailureException("File '" + name + "' missing in " + directory);

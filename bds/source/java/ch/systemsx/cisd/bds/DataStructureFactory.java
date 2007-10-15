@@ -16,66 +16,47 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Factory of data structures.
+ * Currently only structures compatible with Version 1.0 can be created.
  *
  * @author Franz-Josef Elmer
  */
 public class DataStructureFactory
 {
-    private static final Map<Version, Class<? extends AbstractDataStructure>> repository =
-            new HashMap<Version, Class<? extends AbstractDataStructure>>();
+    private static final Factory<IDataStructure> factory = new Factory<IDataStructure>();
     
-    void register(Version version, Class<? extends AbstractDataStructure> clazz)
+    static
     {
-        repository.put(version, clazz);
+        factory.register(new Version(1, 0), DataStructureV1_0.class);
     }
     
-    public static Class<? extends AbstractDataStructure> getDataStructureClassFor(Version version)
+    /**
+     * Returns the class of the object returned after invoking {@link #createDataStructure(IStorage, Version)}.
+     * 
+     * @param version Version of the data structure.
+     * @throws UserFailureException if no data structure can be created for the specified version.
+     */
+    public static Class<? extends IDataStructure> getDataStructureClassFor(Version version)
     {
-        Class<? extends AbstractDataStructure> clazz = null;
-        for (Version v = version; v.getMinor() >= 0 && clazz == null; v = v.getPreviousMinorVersion())
-        {
-            clazz = repository.get(v);
-        }
-        if (clazz == null)
-        {
-            throw new UserFailureException("No data structure class found for version " + version);
-        }
-        return clazz;
+        return factory.getClassFor(version);
     }
     
-    public static AbstractDataStructure createDataStructure(IStorage storage, Version version)
+    /**
+     * Creates a data structure for the specified version.
+     * 
+     * @param storage Storage behind the data structure.
+     * @param version Version of the data structure to be created.
+     * @throws EnvironmentFailureException found data structure class has not an appropriated constructor. 
+     * @throws UserFailureException if no data structure can be created for the specified version.
+     */
+    public static IDataStructure createDataStructure(IStorage storage, Version version)
     {
-        Class<? extends AbstractDataStructure> clazz = getDataStructureClassFor(version);
-        Constructor<? extends AbstractDataStructure> constructor;
-        try
-        {
-            constructor = clazz.getConstructor(new Class[] {IStorage.class});
-        } catch (Exception ex1)
-        {
-            throw new EnvironmentFailureException(clazz + " has no constructor with argument of type "
-                    + IStorage.class.getCanonicalName());
-        }
-        try
-        {
-            return constructor.newInstance(new Object[] {storage});
-        } catch (InvocationTargetException ex)
-        {
-            throw new UserFailureException("Couldn't create data structure for version " + version, ex.getCause());
-        } catch (Exception ex)
-        {
-            throw new UserFailureException("Couldn't create data structure for version " + version, ex);
-        }
+        return factory.create(IStorage.class, storage, version);
     }
 
     private DataStructureFactory()

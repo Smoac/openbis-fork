@@ -63,10 +63,23 @@ public class DirectoryTest extends StorageTestCase
     {
         Directory directory = new Directory(TEST_DIR);
         directory.makeDirectory("sub-directory");
+        IDirectory subdirectory = directory.makeDirectory("sub-directory");
+        
+        assertEquals("sub-directory", subdirectory.getName());
+        File subdir = new File(TEST_DIR, "sub-directory");
+        assertEquals(true, subdir.exists());
+        assertEquals(true, subdir.isDirectory());
+    }
+    
+    @Test
+    public void testMakeDirectoryButThereIsAlreadyAFileWithSameName()
+    {
+        Directory directory = new Directory(TEST_DIR);
+        directory.addKeyValuePair("sub-directory", "value");
         try
         {
             directory.makeDirectory("sub-directory");
-            AssertJUnit.fail("UserFailureException because a directory can made only once.");
+            AssertJUnit.fail("UserFailureException expected.");
         } catch (UserFailureException e)
         {
             assertTrue(e.getMessage().indexOf("sub-directory") >= 0);
@@ -124,16 +137,16 @@ public class DirectoryTest extends StorageTestCase
         File copiedRealDir = new File(dest, "dir");
         assertTrue(copiedRealDir.isDirectory());
         IDirectory cd = (IDirectory) copiedDir;
-        INode node = cd.getNode("p1");
+        INode node = cd.tryToGetNode("p1");
         assertNotNull(node);
         assertTrue(node instanceof IFile);
         assertEquals("property 1\n", ((IFile) node).getStringContent());
         assertEquals("property 1\n", FileUtilities.loadToString(new File(copiedRealDir, "p1")));
-        node = cd.getNode("subdir");
+        node = cd.tryToGetNode("subdir");
         assertEquals("subdir", node.getName());
         assertNotNull(node);
         assertTrue(node instanceof IDirectory);
-        node = ((IDirectory) node).getNode("p2");
+        node = ((IDirectory) node).tryToGetNode("p2");
         File copiedRealSubDir = new File(copiedRealDir, "subdir");
         assertTrue(copiedRealSubDir.isDirectory());
         assertEquals("p2", node.getName());

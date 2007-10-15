@@ -40,7 +40,7 @@ class Directory extends AbstractNode implements IDirectory
         }
     }
     
-    public INode getNode(String name)
+    public INode tryToGetNode(String name)
     {
         java.io.File[] files = nodeFile.listFiles();
         for (java.io.File file : files)
@@ -58,7 +58,11 @@ class Directory extends AbstractNode implements IDirectory
         java.io.File dir = new java.io.File(nodeFile, name);
         if (dir.exists())
         {
-            throw new UserFailureException("There already exists a file named '" + name + "' in directory " + this);
+            if (dir.isDirectory() == false)
+            {
+                throw new UserFailureException("There already exists a file named '" + name + "' in directory " + this);
+            }
+            return new Directory(dir);
         }
         boolean successful = dir.mkdir();
         if (successful == false)

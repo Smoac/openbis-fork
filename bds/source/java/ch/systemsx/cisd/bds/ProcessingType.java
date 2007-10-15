@@ -28,7 +28,7 @@ public enum ProcessingType
 {
     OTHER, RAW_DATA, COMPUTED_DATA;
     
-    private static final String PROCESSING_TYPE = "processing_type";
+    static final String PROCESSING_TYPE = "processing_type";
     
     /**
      * Resolves the specified string representation of a processing type.
@@ -37,16 +37,23 @@ public enum ProcessingType
      */
     public static ProcessingType resolve(String processingTypeString)
     {
-        ProcessingType type = valueOf(processingTypeString);
-        return type == null ? OTHER : type;
+        ProcessingType[] values = values();
+        for (ProcessingType type : values)
+        {
+            if (type.toString().equals(processingTypeString))
+            {
+                return type;
+            }
+        }
+        return OTHER;
     }
     
-    public static ProcessingType loadFrom(IDirectory directory)
+    static ProcessingType loadFrom(IDirectory directory)
     {
         return resolve(Utilities.getTrimmedString(directory, PROCESSING_TYPE));
     }
     
-    public void saveTo(IDirectory directory)
+    void saveTo(IDirectory directory)
     {
         directory.addKeyValuePair(PROCESSING_TYPE, toString());
     }
