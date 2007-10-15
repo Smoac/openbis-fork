@@ -3,7 +3,8 @@
 # Implementation assumptions:
 # - the current directory after calling a function does not change
 
-TEST_FAILED=false # if true then some tests failed
+# ----------------------------- configuration
+TIME_TO_COMPLETE=40 # time (in seconds) needed by the whole pipline to process everything
 SVN_PATHS="/opt/local/bin /usr/bin"
 LSOF_PATHS="/usr/sbin"
 
@@ -19,6 +20,9 @@ LIMS_CLIENT=$WORK/$LIMS_CLIENT_NAME
 
 DATA=$WORK/data
 ERR_LOG=$WORK/all_err_log.txt
+
+# ---- global state
+TEST_FAILED=false # working variable, if true then some tests failed
 
 # -------------------------- instalation
 
@@ -49,7 +53,7 @@ function build_zips {
     rm -fr $RSC
     run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
     cd $RSC
-    ./build.sh lims 
+    ./build.sh lims_webclient
     ./build.sh datamover
     ./build.sh etlserver
     cd ..
@@ -337,7 +341,7 @@ function launch_tests {
     sleep 4
 
     generate_test_data
-    sleep 30
+    sleep $TIME_TO_COMPLETE
 
     switch_processing_pipeline "off"
 }

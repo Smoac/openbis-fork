@@ -1,0 +1,3 @@
+code	description
+SCRAM	scrambled materials
+GFP	Green fluorescent protein

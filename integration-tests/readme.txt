@@ -21,7 +21,8 @@ Directories
 
 Launching
 -----------------
-Simply run ant with default target in build directory to start tests. Target 'clean' cleans everything afterwards.  
+Tests are run automatically in Continuous Integration process. 
+You can also run them manually. To do that, simply run ant with default target in build directory (integration-tests/build). 
 Testing is fully automatic. Script returns non-zero value if error occurs. 
 When testing is launched, following things happen:
 - source code is fetched from the repository and is built
@@ -29,5 +30,7 @@ When testing is launched, following things happen:
 - all pieces of software are launched
 - Approriate assertions are made to ensure the result is ok. 
 Exact reason of an error can be checked by reading standard output or playground/all_err_log.txt.
-If you want to restart tests without building from source, delete playground directory and leave install directory untouched.
+Launching run.sh again will redo the tests without rebuilding or reinstaling anything. 
+To reinstall everything without rebuilding binaries, delete playground directory.
+If you want to starting tests from the scratch, run ant with 'clean' target before.
  

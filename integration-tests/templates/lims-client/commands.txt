@@ -1,5 +1,6 @@
 login -o 3V -u test -p <password>
 register-project NEMO
+register-controls testdata/controlMaterials.txt
 register-master-plate testdata/MP001-1.txt code1
 register-master-plate testdata/MP002-1.txt code2
 register-dilution-plates testdata/exampleDilutionPlates.txt
