@@ -40,6 +40,7 @@
     <param name="From" value="datamover@localhost" />
     <param name="To" value="root@localhost" />
     <param name="Subject" value="ATTENTION: data mover" />
+    <param name="EvaluatorClass" value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
 
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
