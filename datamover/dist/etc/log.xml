@@ -14,7 +14,7 @@
   
   </appender>
 
-  <appender name="MANUAL_INTERVENTION" class="org.apache.log4j.DailyRollingFileAppender">
+  <appender name="MANUAL_INTERVENTION_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
 
     <param name="File" value="log/manual_intervention.txt"/>
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
@@ -58,9 +58,9 @@
     <appender-ref ref="EMAIL" />
   </category>    
   
-  <logger name="OPERATION.ch.systemsx.cisd.datamover.GatePathHandlerDecorator">
+  <logger name="MANUAL_INTERVENTION">
      <level value ="info" />
-     <appender-ref ref="MANUAL_INTERVENTION" />
+     <appender-ref ref="MANUAL_INTERVENTION_APPENDER" />
   </logger>
 
   <root>

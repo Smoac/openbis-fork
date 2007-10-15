@@ -46,6 +46,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
 
+    private static final Logger manualInterventionLog = Logger.getLogger("MANUAL_INTERVENTION");
+
     private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
@@ -260,8 +262,9 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
         }
 
-        final boolean filtered = manualInterventionFilter.accept(resource);
-        if (filtered)
+        final boolean needsManualIntervention = manualInterventionFilter.accept(resource);
+        logManualIntervention(resource, needsManualIntervention);
+        if (needsManualIntervention)
         {
             log(resource, "Moving to manual intervention directory");
             File movedFile = mover.tryMove(resource, manualInterventionDir);
@@ -279,4 +282,14 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             operationLog.info(String.format("%s on %s", description, path.getPath()));
         }
     }
+    
+    private static void logManualIntervention(File path, boolean needsManualIntervention)
+    {
+        if (manualInterventionLog.isInfoEnabled())
+        {
+            manualInterventionLog.info(String.format("%s %s [created: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS]",
+                    needsManualIntervention ? "ATTENTION" : "DEFAULT", path.getAbsolutePath(), path.lastModified()));
+        }
+    }
+
 }
