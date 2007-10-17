@@ -186,7 +186,7 @@ public class DataStructureV1_0Test
             fail("UserFailureException expected.");
         } catch (UserFailureException e)
         {
-            assertEquals("Empty orginal data directory.", e.getMessage());
+            assertEquals("Empty original data directory.", e.getMessage());
         }
     }
     
