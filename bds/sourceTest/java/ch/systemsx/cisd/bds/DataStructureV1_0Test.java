@@ -70,8 +70,8 @@ public class DataStructureV1_0Test
     public void testGetFormatedData()
     {
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
-        IFormatedData formatedData = dataStructure.getFormatedData();
-        assertTrue(formatedData instanceof NoFormatedData);
+        IFormattedData formatedData = dataStructure.getFormatedData();
+        assertTrue(formatedData instanceof NoFormattedData);
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formatedData.getFormat());
     }
     

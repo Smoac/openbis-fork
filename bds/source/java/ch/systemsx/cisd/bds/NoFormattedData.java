@@ -19,12 +19,12 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Most simplest implementation of {@link IFormatedData}. It is associated with {@link UnknownFormat1_0}.
+ * Most simplest implementation of {@link IFormattedData}. It is associated with {@link UnknownFormat1_0}.
  * It can be subclassed provided {@link #getFormat()} will be overridden.
  *
  * @author Franz-Josef Elmer
  */
-public class NoFormatedData implements IFormatedData
+public class NoFormattedData implements IFormattedData
 {
     /**
      * Root directory of formated data.
@@ -34,7 +34,7 @@ public class NoFormatedData implements IFormatedData
     /**
      * Creates an instance for the specified data directory.
      */
-    public NoFormatedData(IDirectory dataDirectory)
+    public NoFormattedData(IDirectory dataDirectory)
     {
         this.dataDirectory = dataDirectory;
     }

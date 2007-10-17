@@ -21,7 +21,7 @@ package ch.systemsx.cisd.bds;
  *
  * @author Franz-Josef Elmer
  */
-public interface IFormatedData
+public interface IFormattedData
 {
     /**
      * Returns the format of data.

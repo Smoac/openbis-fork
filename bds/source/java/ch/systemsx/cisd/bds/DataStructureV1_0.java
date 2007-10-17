@@ -68,7 +68,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * 
      * @throws UserFailureException if this method has been invoked before the format has been set.
      */
-    public IFormatedData getFormatedData()
+    public IFormattedData getFormatedData()
     {
         if (format == null)
         {
@@ -141,7 +141,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         if (getOriginalData().iterator().hasNext() == false)
         {
-            throw new UserFailureException("Empty orginal data directory.");
+            throw new UserFailureException("Empty original data directory.");
         }
         IDirectory metaDataDirectory = getMetaDataDirectory();
         if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null)
