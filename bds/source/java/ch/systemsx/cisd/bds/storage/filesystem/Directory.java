@@ -39,7 +39,7 @@ class Directory extends AbstractNode implements IDirectory
             throw new UserFailureException("Not a directory: " + directory.getAbsolutePath());
         }
     }
-    
+
     public INode tryToGetNode(String name)
     {
         java.io.File[] files = nodeFile.listFiles();
@@ -68,7 +68,7 @@ class Directory extends AbstractNode implements IDirectory
         if (successful == false)
         {
             throw new EnvironmentFailureException("Couldn't create directory " + dir.getAbsolutePath()
-                                                  + " for some unknown reason.");
+                    + " for some unknown reason.");
         }
         return new Directory(dir);
     }
@@ -80,7 +80,7 @@ class Directory extends AbstractNode implements IDirectory
         return new File(file);
     }
 
-    public INode addFile(java.io.File file)
+    public INode addFile(java.io.File file) throws UserFailureException, EnvironmentFailureException
     {
         INode node = NodeFactory.createNode(file);
         node.extractTo(nodeFile);
@@ -98,18 +98,19 @@ class Directory extends AbstractNode implements IDirectory
         return new Iterator<INode>()
             {
                 private java.io.File[] files = nodeFile.listFiles();
+
                 private int index;
-                
+
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
                 }
-        
+
                 public INode next()
                 {
                     return index >= files.length ? null : NodeFactory.createNode(files[index++]);
                 }
-        
+
                 public boolean hasNext()
                 {
                     return index < files.length;
