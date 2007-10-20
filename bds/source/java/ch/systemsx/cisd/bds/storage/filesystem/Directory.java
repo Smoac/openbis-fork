@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
+import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.io.FileUtils;
+
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
@@ -42,7 +46,7 @@ class Directory extends AbstractNode implements IDirectory
 
     public INode tryToGetNode(String name)
     {
-        java.io.File[] files = nodeFile.listFiles();
+        final java.io.File[] files = Utilities.listFiles(nodeFile);
         for (java.io.File file : files)
         {
             if (file.getName().equals(name))
@@ -83,7 +87,7 @@ class Directory extends AbstractNode implements IDirectory
     public INode addFile(java.io.File file) throws UserFailureException, EnvironmentFailureException
     {
         INode node = NodeFactory.createNode(file);
-        node.extractTo(nodeFile);
+        node.moveTo(nodeFile);
         return node;
     }
 
@@ -97,9 +101,13 @@ class Directory extends AbstractNode implements IDirectory
     {
         return new Iterator<INode>()
             {
-                private java.io.File[] files = nodeFile.listFiles();
+                private java.io.File[] files = Utilities.listFiles(nodeFile);
 
                 private int index;
+
+                //
+                // Iterator
+                //
 
                 public void remove()
                 {
@@ -118,18 +126,43 @@ class Directory extends AbstractNode implements IDirectory
             };
     }
 
-    public void extractTo(java.io.File directory) throws UserFailureException, EnvironmentFailureException
+    public final void copyTo(final java.io.File directory) throws EnvironmentFailureException
     {
-        java.io.File destination = new java.io.File(directory, getName());
-        if (destination.mkdirs() == false)
+        assert directory != null;
+        try
         {
-            throw new EnvironmentFailureException("Couldn't create directory for some unknown reason: "
-                    + destination.getAbsolutePath());
-        }
-        for (INode node : this)
+            FileUtils.copyDirectoryToDirectory(nodeFile, directory);
+        } catch (IOException ex)
         {
-            node.extractTo(destination);
+            throw EnvironmentFailureException.fromTemplate(ex, "Couldn't copy directory '%s' to directory '%s'.",
+                    nodeFile.getAbsolutePath(), directory.getAbsolutePath());
         }
     }
 
+    public final void moveTo(java.io.File directory) throws EnvironmentFailureException
+    {
+        assert directory != null;
+        directory.mkdirs();
+        final java.io.File destination = new java.io.File(directory, getName());
+        if (destination.exists() == false)
+        {
+            // Note that 'renameTo' does not change 'nodeFile' path
+            final boolean successful = nodeFile.renameTo(destination);
+            if (successful == false)
+            {
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move directory '%s' to directory '%s'.",
+                        nodeFile.getAbsolutePath(), directory.getAbsolutePath());
+            }
+            assert nodeFile.exists() == false;
+        }
+        if (nodeFile.equals(destination) == false)
+        {
+            nodeFile = destination;
+        }
+        // Update children
+        for (INode node : this)
+        {
+            node.moveTo(destination);
+        }
+    }
 }

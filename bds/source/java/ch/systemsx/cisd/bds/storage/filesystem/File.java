@@ -17,19 +17,16 @@
 package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class File extends AbstractNode implements IFile
@@ -39,7 +36,7 @@ class File extends AbstractNode implements IFile
         super(file);
         assert file.isFile() : "Not a file " + file.getAbsolutePath();
     }
-    
+
     public byte[] getBinaryContent()
     {
         FileInputStream inputStream = null;
@@ -61,26 +58,35 @@ class File extends AbstractNode implements IFile
         return FileUtilities.loadToString(nodeFile);
     }
 
-    public void extractTo(java.io.File directory) throws UserFailureException, EnvironmentFailureException
+    public final void copyTo(final java.io.File directory) throws EnvironmentFailureException
     {
-        FileInputStream inputStream = null;
-        FileOutputStream outputStream = null;
         try
         {
-            inputStream = new FileInputStream(nodeFile);
-            directory.mkdirs();
-            outputStream = new FileOutputStream(new java.io.File(directory, getName()));
-            IOUtils.copy(inputStream, outputStream);
+            FileUtils.copyFileToDirectory(nodeFile, directory);
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't extract file '" + this + "' to directory "
-                    + directory.getAbsolutePath(), ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
+            throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
+                    nodeFile.getAbsolutePath(), directory.getAbsolutePath());
         }
-        
     }
 
+    public final void moveTo(java.io.File directory) throws EnvironmentFailureException
+    {
+        assert directory != null;
+        final java.io.File destination = new java.io.File(directory, getName());
+        if (destination.exists() == false)
+        {
+            // Note that 'renameTo' does not change 'nodeFile' path
+            final boolean successful = nodeFile.renameTo(destination);
+            if (successful == false)
+            {
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.",
+                        nodeFile.getAbsolutePath(), directory.getAbsolutePath());
+            }
+        }
+        if (nodeFile.equals(destination) == false)
+        {
+            nodeFile = destination;
+        }
+    }
 }

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Abstraction of a node in a hierarchical data structure.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface INode
@@ -32,18 +32,27 @@ public interface INode
      * Returns the name of this node.
      */
     public String getName();
-    
+
     /**
      * Returns the parent directory of this node or <code>null</code> if it is the root node.
      */
     public IDirectory tryToGetParent();
-    
+
     /**
-     * Extracts this node to the specified directory of the file system. All descendants are also extracted.
+     * Copies this node to the specified directory of the file system. All descendants are also copied.
      * 
-     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this
-     *      node or a descended node. 
+     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this node or
+     *             a descended node.
      * @throws EnvironmentFailureException if extraction causes an IOException.
      */
-    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException;
+    public void copyTo(File directory) throws UserFailureException, EnvironmentFailureException;
+
+    /**
+     * Moves this node to the specified directory of the file system. All descendants are also moved.
+     * 
+     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this node or
+     *             a descended node.
+     * @throws EnvironmentFailureException if extraction causes an IOException.
+     */
+    public void moveTo(File directory) throws UserFailureException, EnvironmentFailureException;
 }

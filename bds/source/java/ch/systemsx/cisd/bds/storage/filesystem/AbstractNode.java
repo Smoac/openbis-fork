@@ -23,13 +23,11 @@ import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractNode implements INode
 {
-    protected final File nodeFile;
+    protected File nodeFile;
 
     AbstractNode(File file)
     {
@@ -43,7 +41,7 @@ abstract class AbstractNode implements INode
         }
         this.nodeFile = file;
     }
-    
+
     public String getName()
     {
         return nodeFile.getName();
@@ -60,7 +58,4 @@ abstract class AbstractNode implements INode
     {
         return nodeFile.getAbsolutePath();
     }
-    
-    
-    
 }

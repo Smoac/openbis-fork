@@ -23,8 +23,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileTest extends StorageTestCase
@@ -40,7 +38,7 @@ public class FileTest extends StorageTestCase
         assertEquals("Hello\nworld!\n", stringFile.getStringContent());
         assertEquals("Hello\nworld!\n", new String(stringFile.getBinaryContent()));
     }
-    
+
     @Test
     public void testExtractTo()
     {
@@ -49,7 +47,8 @@ public class FileTest extends StorageTestCase
         File stringFile = new File(file);
 
         java.io.File subdir = new java.io.File(TEST_DIR, "subdir");
-        stringFile.extractTo(subdir);
+        stringFile.copyTo(subdir);
         assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
     }
+
 }

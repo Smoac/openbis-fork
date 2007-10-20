@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.io.File;
+
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Storage utility methods.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Utilities
@@ -31,7 +34,7 @@ public class Utilities
     /**
      * Returns a subdirectory from the specified directory. If it does not exist it will be created.
      * 
-     * @throws UserFailureException if there is already a node named <code>name</code> but which isn't a directory. 
+     * @throws UserFailureException if there is already a node named <code>name</code> but which isn't a directory.
      */
     public static IDirectory getOrCreateSubDirectory(IDirectory directory, String name)
     {
@@ -46,7 +49,7 @@ public class Utilities
         }
         throw new UserFailureException("There is already a node named '" + name + "' but which isn't a directory.");
     }
-    
+
     /**
      * Returns a subdirectory from the specified directory.
      * 
@@ -67,7 +70,7 @@ public class Utilities
         }
         return (IDirectory) node;
     }
-    
+
     /**
      * Convenient short cut for <code>{@link #getString(IDirectory, String)}.trim()</code>.
      */
@@ -81,7 +84,7 @@ public class Utilities
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
-     * @throws UserFailureException if the requested file does not exist. 
+     * @throws UserFailureException if the requested file does not exist.
      */
     public static String getString(IDirectory directory, String name)
     {
@@ -97,9 +100,29 @@ public class Utilities
         IFile file = (IFile) node;
         return file.getStringContent();
     }
-    
+
+    /**
+     * Lists files of given <var>directory</var>.
+     * <p>
+     * Throws an <code>EnvironmentFailureException</code> if {@link File#listFiles()} returns <code>null</code>.
+     * </p>
+     * 
+     * @param directory must be a directory.
+     */
+    public final static File[] listFiles(final File directory) throws EnvironmentFailureException
+    {
+        assert directory.isDirectory();
+        final File[] fileList = directory.listFiles();
+        if (fileList == null)
+        {
+            throw EnvironmentFailureException.fromTemplate("Was not able to list files of directory '%s'", directory
+                    .getAbsolutePath());
+        }
+        return fileList;
+    }
+
     private Utilities()
     {
     }
-    
+
 }

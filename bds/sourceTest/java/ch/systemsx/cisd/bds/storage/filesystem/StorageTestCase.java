@@ -23,19 +23,17 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class StorageTestCase
 {
     static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd");
-    
+
     @BeforeMethod
     public void setup() throws IOException
     {
         TEST_DIR.mkdirs();
         FileUtils.cleanDirectory(TEST_DIR);
     }
-    
+
 }

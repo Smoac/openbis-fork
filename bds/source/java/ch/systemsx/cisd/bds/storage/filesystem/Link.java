@@ -25,15 +25,15 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class Link implements ILink
 {
 
     private final String name;
+
     private IDirectory parent;
+
     private final INode reference;
 
     Link(String name, INode reference)
@@ -51,7 +51,7 @@ class Link implements ILink
     {
         parent = parentOrNull;
     }
-    
+
     public IDirectory tryToGetParent()
     {
         return parent;
@@ -62,9 +62,15 @@ class Link implements ILink
         return reference;
     }
 
-    public void extractTo(File directory) throws UserFailureException, EnvironmentFailureException
+    public void copyTo(File directory) throws UserFailureException, EnvironmentFailureException
     {
         // TODO Auto-generated method stub
+    }
+
+    public void moveTo(File directory) throws UserFailureException, EnvironmentFailureException
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

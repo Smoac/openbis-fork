@@ -22,13 +22,11 @@ import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class NodeFactory
 {
-    static INode createNode(java.io.File file)
+    static INode createNode(java.io.File file) throws EnvironmentFailureException
     {
         assert file != null : "Unspecified node";
         String absolutePath = file.getAbsolutePath();
@@ -49,7 +47,7 @@ class NodeFactory
             throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath);
         }
     }
-    
+
     private NodeFactory()
     {
     }
