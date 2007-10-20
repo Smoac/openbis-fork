@@ -24,7 +24,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileRenamingProcess;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.ProcessRunner;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 
 /**
@@ -67,39 +69,10 @@ class RetryingPathMover implements IPathMover
             operationLog.info(String.format("Moving path '%s' to '%s'", sourcePath.getPath(), destinationPath));
         }
         File destFile = new File(destinationPath);
-        int failures = 0;
-        boolean movedOK = false;
-        while (true)
-        {
-            movedOK = sourcePath.renameTo(destFile);
-            if (movedOK)
-            {
-                break;
-            } else
-            {
-                if (sourcePath.exists() == false)
-                {
-                    operationLog.error(String.format("Path '%s' doesn't exist, so it can't be moved to '%s'.",
-                            sourcePath, destinationDirectory));
-                    break;
-                }
-                ++failures;
-                operationLog.warn(String.format("Moving path '%s' to directory '%s' failed (attempt %d).", sourcePath,
-                        destinationDirectory, failures));
-                if (failures >= maxRetriesOnFailure)
-                {
-                    break;
-                }
-                try
-                {
-                    Thread.sleep(millisToSleepOnFailure);
-                } catch (InterruptedException ex)
-                {
-                    break;
-                }
-            }
-        }
-        if (movedOK == false)
+        final FileRenamingProcess process =
+                new FileRenamingProcess(maxRetriesOnFailure, millisToSleepOnFailure, sourcePath, destFile);
+        new ProcessRunner(process);
+        if (process.isRenamed() == false)
         {
             notificationLog.error(String.format("Moving path '%s' to directory '%s' failed, giving up.", sourcePath,
                     destinationDirectory));
