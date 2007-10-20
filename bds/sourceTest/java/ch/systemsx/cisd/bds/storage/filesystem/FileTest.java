@@ -33,7 +33,7 @@ public class FileTest extends StorageTestCase
         java.io.File file = new java.io.File(TEST_DIR, "test.txt");
         FileUtilities.writeToFile(file, "Hello\nworld!\n");
         File stringFile = new File(file);
-        
+
         assertEquals("test.txt", stringFile.getName());
         assertEquals("Hello\nworld!\n", stringFile.getStringContent());
         assertEquals("Hello\nworld!\n", new String(stringFile.getBinaryContent()));
@@ -47,7 +47,8 @@ public class FileTest extends StorageTestCase
         File stringFile = new File(file);
 
         java.io.File subdir = new java.io.File(TEST_DIR, "subdir");
-        stringFile.copyTo(subdir);
+        subdir.mkdir();
+        stringFile.extractTo(subdir);
         assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
     }
 

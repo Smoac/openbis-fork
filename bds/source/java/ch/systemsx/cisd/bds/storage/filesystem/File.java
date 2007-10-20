@@ -58,8 +58,9 @@ class File extends AbstractNode implements IFile
         return FileUtilities.loadToString(nodeFile);
     }
 
-    public final void copyTo(final java.io.File directory) throws EnvironmentFailureException
+    public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
+        assert directory != null && directory.isDirectory();
         try
         {
             FileUtils.copyFileToDirectory(nodeFile, directory);
@@ -67,26 +68,6 @@ class File extends AbstractNode implements IFile
         {
             throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
                     nodeFile.getAbsolutePath(), directory.getAbsolutePath());
-        }
-    }
-
-    public final void moveTo(java.io.File directory) throws EnvironmentFailureException
-    {
-        assert directory != null;
-        final java.io.File destination = new java.io.File(directory, getName());
-        if (destination.exists() == false)
-        {
-            // Note that 'renameTo' does not change 'nodeFile' path
-            final boolean successful = nodeFile.renameTo(destination);
-            if (successful == false)
-            {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.",
-                        nodeFile.getAbsolutePath(), directory.getAbsolutePath());
-            }
-        }
-        if (nodeFile.equals(destination) == false)
-        {
-            nodeFile = destination;
         }
     }
 }

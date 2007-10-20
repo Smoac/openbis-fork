@@ -39,20 +39,14 @@ public interface INode
     public IDirectory tryToGetParent();
 
     /**
-     * Copies this node to the specified directory of the file system. All descendants are also copied.
+     * Extracts this node to the specified directory of the file system.
+     * <p>
+     * All descendants are also extracted. This is a copy operation.
+     * </p>
      * 
      * @throws UserFailureException if this or a descended node is a link referring to a node which is not this node or
      *             a descended node.
      * @throws EnvironmentFailureException if extraction causes an IOException.
      */
-    public void copyTo(File directory) throws UserFailureException, EnvironmentFailureException;
-
-    /**
-     * Moves this node to the specified directory of the file system. All descendants are also moved.
-     * 
-     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this node or
-     *             a descended node.
-     * @throws EnvironmentFailureException if extraction causes an IOException.
-     */
-    public void moveTo(File directory) throws UserFailureException, EnvironmentFailureException;
+    public void extractTo(final File directory) throws UserFailureException, EnvironmentFailureException;
 }

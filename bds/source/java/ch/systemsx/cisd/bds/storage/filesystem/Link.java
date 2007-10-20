@@ -62,15 +62,8 @@ class Link implements ILink
         return reference;
     }
 
-    public void copyTo(File directory) throws UserFailureException, EnvironmentFailureException
+    public void extractTo(final File directory) throws UserFailureException, EnvironmentFailureException
     {
         // TODO Auto-generated method stub
     }
-
-    public void moveTo(File directory) throws UserFailureException, EnvironmentFailureException
-    {
-        // TODO Auto-generated method stub
-
-    }
-
 }

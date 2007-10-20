@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 abstract class AbstractNode implements INode
 {
-    protected File nodeFile;
+    protected final File nodeFile;
 
     AbstractNode(File file)
     {

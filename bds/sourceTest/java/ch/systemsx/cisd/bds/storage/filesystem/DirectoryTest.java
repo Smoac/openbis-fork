@@ -93,7 +93,7 @@ public class DirectoryTest extends StorageTestCase
     }
 
     @Test
-    public void testCopyTo()
+    public void testExtractTo()
     {
         File dir = new File(TEST_DIR, "dir");
         dir.mkdirs();
@@ -103,7 +103,7 @@ public class DirectoryTest extends StorageTestCase
         subdir.addKeyValuePair("p2", "property 2");
         File destination = new File(TEST_DIR, "destination");
         assertFalse(destination.exists());
-        directory.copyTo(destination);
+        directory.extractTo(destination);
         assertTrue(destination.exists());
         File copiedDir = new File(destination, "dir");
         assertTrue(copiedDir.exists());
@@ -113,29 +113,6 @@ public class DirectoryTest extends StorageTestCase
         assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedSubDir, "p2")));
         // Source directory still exists
         assertEquals(true, new File(TEST_DIR, "dir").exists());
-    }
-
-    @Test
-    public void testMoveTo()
-    {
-        File dir = new File(TEST_DIR, "dir");
-        dir.mkdirs();
-        Directory directory = new Directory(dir);
-        directory.addKeyValuePair("p1", "property 1");
-        IDirectory subdir = directory.makeDirectory("subdir");
-        subdir.addKeyValuePair("p2", "property 2");
-        File destination = new File(TEST_DIR, "destination");
-        assertFalse(destination.exists());
-        directory.moveTo(destination);
-        assertTrue(destination.exists());
-        File copiedDir = new File(destination, "dir");
-        assertTrue(copiedDir.exists());
-        assertEquals("property 1\n", FileUtilities.loadToString(new File(copiedDir, "p1")));
-        File copiedSubDir = new File(copiedDir, "subdir");
-        assertTrue(copiedSubDir.isDirectory());
-        assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedSubDir, "p2")));
-        // Source directory does no longer exist
-        assertEquals(false, new File(TEST_DIR, "dir").exists());
     }
 
     @Test
@@ -151,7 +128,7 @@ public class DirectoryTest extends StorageTestCase
         dest.mkdir();
         Directory directory = new Directory(dest);
 
-        INode copiedDir = directory.addFile(dir);
+        INode copiedDir = directory.addFile(dir, false);
 
         assertEquals("dir", copiedDir.getName());
         assertTrue(copiedDir instanceof IDirectory);

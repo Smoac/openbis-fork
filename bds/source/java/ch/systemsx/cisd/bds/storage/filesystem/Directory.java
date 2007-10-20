@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -27,6 +28,8 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -34,6 +37,9 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  */
 class Directory extends AbstractNode implements IDirectory
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractNode.class);
+
     Directory(java.io.File directory)
     {
         super(directory);
@@ -83,11 +89,31 @@ class Directory extends AbstractNode implements IDirectory
         return new File(file);
     }
 
-    public INode addFile(java.io.File file) throws UserFailureException, EnvironmentFailureException
+    public INode addFile(final java.io.File file, final boolean move) throws UserFailureException,
+            EnvironmentFailureException
     {
-        INode node = NodeFactory.createNode(file);
-        node.moveTo(nodeFile);
-        return node;
+        final java.io.File newFile = new java.io.File(nodeFile, file.getName());
+        if (move)
+        {
+            moveFileToDirectory(file, nodeFile);
+        } else
+        {
+            try
+            {
+                if (file.isDirectory())
+                {
+                    FileUtils.copyDirectory(file, newFile);
+                } else
+                {
+                    FileUtils.copyFile(file, newFile);
+                }
+            } catch (IOException ex)
+            {
+                throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
+                        file, nodeFile.getAbsolutePath());
+            }
+        }
+        return NodeFactory.createNode(newFile);
     }
 
     public ILink addLink(String name, INode node)
@@ -125,7 +151,7 @@ class Directory extends AbstractNode implements IDirectory
             };
     }
 
-    public final void copyTo(final java.io.File directory) throws EnvironmentFailureException
+    public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
         assert directory != null;
         try
@@ -138,30 +164,27 @@ class Directory extends AbstractNode implements IDirectory
         }
     }
 
-    public final void moveTo(java.io.File directory) throws EnvironmentFailureException
+    private final static void moveFileToDirectory(final java.io.File source, final java.io.File directory)
+            throws EnvironmentFailureException
     {
-        assert directory != null;
-        directory.mkdirs();
-        final java.io.File destination = new java.io.File(directory, getName());
+        assert source != null;
+        assert directory != null && directory.isDirectory();
+        final java.io.File destination = new java.io.File(directory, source.getName());
         if (destination.exists() == false)
         {
-            // Note that 'renameTo' does not change 'nodeFile' path
-            final boolean successful = nodeFile.renameTo(destination);
+            final boolean successful = source.renameTo(destination);
             if (successful == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move directory '%s' to directory '%s'.",
-                        nodeFile.getAbsolutePath(), directory.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
+                        .getAbsolutePath(), directory.getAbsolutePath());
             }
-            assert nodeFile.exists() == false;
-        }
-        if (nodeFile.equals(destination) == false)
+        } else
         {
-            nodeFile = destination;
-        }
-        // Update children
-        for (INode node : this)
-        {
-            node.moveTo(destination);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("Destination file '%s' already exists. Will not overwrite", destination
+                        .getAbsolutePath()));
+            }
         }
     }
 }
