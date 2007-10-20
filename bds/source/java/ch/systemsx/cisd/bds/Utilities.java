@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -99,26 +97,6 @@ public class Utilities
         }
         IFile file = (IFile) node;
         return file.getStringContent();
-    }
-
-    /**
-     * Lists files of given <var>directory</var>.
-     * <p>
-     * Throws an <code>EnvironmentFailureException</code> if {@link File#listFiles()} returns <code>null</code>.
-     * </p>
-     * 
-     * @param directory must be a directory.
-     */
-    public final static File[] listFiles(final File directory) throws EnvironmentFailureException
-    {
-        assert directory.isDirectory();
-        final File[] fileList = directory.listFiles();
-        if (fileList == null)
-        {
-            throw EnvironmentFailureException.fromTemplate("Was not able to list files of directory '%s'", directory
-                    .getAbsolutePath());
-        }
-        return fileList;
     }
 
     private Utilities()

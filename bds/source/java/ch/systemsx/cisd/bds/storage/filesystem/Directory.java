@@ -21,7 +21,6 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
@@ -46,7 +45,7 @@ class Directory extends AbstractNode implements IDirectory
 
     public INode tryToGetNode(String name)
     {
-        final java.io.File[] files = Utilities.listFiles(nodeFile);
+        final java.io.File[] files = FileUtilities.listFiles(nodeFile);
         for (java.io.File file : files)
         {
             if (file.getName().equals(name))
@@ -101,7 +100,7 @@ class Directory extends AbstractNode implements IDirectory
     {
         return new Iterator<INode>()
             {
-                private java.io.File[] files = Utilities.listFiles(nodeFile);
+                private java.io.File[] files = FileUtilities.listFiles(nodeFile);
 
                 private int index;
 

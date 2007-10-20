@@ -717,4 +717,24 @@ public final class FileUtilities
             return null;
         }
     }
+
+    /**
+     * Lists files of given <var>directory</var>.
+     * <p>
+     * Throws an <code>EnvironmentFailureException</code> if {@link File#listFiles()} returns <code>null</code>.
+     * </p>
+     * 
+     * @param directory must be a directory.
+     */
+    public final static File[] listFiles(final File directory) throws EnvironmentFailureException
+    {
+        assert directory.isDirectory();
+        final File[] fileList = directory.listFiles();
+        if (fileList == null)
+        {
+            throw EnvironmentFailureException.fromTemplate("Failed to get listing of directory '%s'", directory
+                    .getAbsolutePath());
+        }
+        return fileList;
+    }
 }
