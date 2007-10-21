@@ -419,7 +419,7 @@ public final class FileUtilities
 
         if (filter.accept(path))
         {
-            return FileUtilities.deleteRecursively(path, logger);
+            return deleteRecursively(path, logger);
         } else
         {
             if (path.isDirectory())
