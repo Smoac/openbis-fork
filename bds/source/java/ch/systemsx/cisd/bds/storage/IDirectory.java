@@ -55,6 +55,13 @@ public interface IDirectory extends INode, Iterable<INode>
     public INode addFile(final File file, final boolean move) throws UserFailureException, EnvironmentFailureException;
 
     /**
+     * Removes given <var>node</var> from this directory.
+     * 
+     * @throws EnvironmentFailureException if given <var>node</var> could be removed for some other reason.
+     */
+    public void removeNode(final INode node) throws UserFailureException, EnvironmentFailureException;
+
+    /**
      * Adds a plain file named <code>key</code> with content <code>value</code> to this directory.
      */
     public IFile addKeyValuePair(String key, String value);

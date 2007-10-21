@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -40,6 +42,8 @@ class Directory extends AbstractNode implements IDirectory
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractNode.class);
 
+    private static final Log4jSimpleLogger errorLogger = new Log4jSimpleLogger(Level.ERROR, operationLog);
+
     Directory(java.io.File directory)
     {
         super(directory);
@@ -48,6 +52,34 @@ class Directory extends AbstractNode implements IDirectory
             throw new UserFailureException("Not a directory: " + directory.getAbsolutePath());
         }
     }
+
+    private final static void moveFileToDirectory(final java.io.File source, final java.io.File directory)
+            throws EnvironmentFailureException
+    {
+        assert source != null;
+        assert directory != null && directory.isDirectory();
+        final java.io.File destination = new java.io.File(directory, source.getName());
+        if (destination.exists() == false)
+        {
+            final boolean successful = source.renameTo(destination);
+            if (successful == false)
+            {
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
+                        .getAbsolutePath(), directory.getAbsolutePath());
+            }
+        } else
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("Destination file '%s' already exists. Will not overwrite", destination
+                        .getAbsolutePath()));
+            }
+        }
+    }
+
+    //
+    // IDirectory
+    //
 
     public INode tryToGetNode(String name)
     {
@@ -153,7 +185,8 @@ class Directory extends AbstractNode implements IDirectory
 
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
-        assert directory != null;
+        assert directory != null : "Directory could not be null";
+        // ...but might not exist
         try
         {
             FileUtils.copyDirectoryToDirectory(nodeFile, directory);
@@ -164,26 +197,23 @@ class Directory extends AbstractNode implements IDirectory
         }
     }
 
-    private final static void moveFileToDirectory(final java.io.File source, final java.io.File directory)
-            throws EnvironmentFailureException
+    public final void removeNode(final INode node) throws UserFailureException, EnvironmentFailureException
     {
-        assert source != null;
-        assert directory != null && directory.isDirectory();
-        final java.io.File destination = new java.io.File(directory, source.getName());
-        if (destination.exists() == false)
+        assert node != null : "Node could not be null";
+        AbstractNode abstractNode = (AbstractNode) node;
+        final java.io.File file = abstractNode.nodeFile;
+        if (file.isDirectory())
         {
-            final boolean successful = source.renameTo(destination);
-            if (successful == false)
+            if (FileUtilities.deleteRecursively(file, errorLogger) == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
-                        .getAbsolutePath(), directory.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.", file
+                        .getAbsolutePath());
             }
-        } else
+        } else if (file.isFile())
         {
-            if (operationLog.isInfoEnabled())
+            if (file.delete() == false)
             {
-                operationLog.info(String.format("Destination file '%s' already exists. Will not overwrite", destination
-                        .getAbsolutePath()));
+                throw EnvironmentFailureException.fromTemplate("Couldn't remove file '%s'.", file.getAbsolutePath());
             }
         }
     }

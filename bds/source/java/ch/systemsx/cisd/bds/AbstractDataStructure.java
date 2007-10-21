@@ -37,6 +37,10 @@ abstract class AbstractDataStructure implements IDataStructure
         storage.mount();
         root = storage.getRoot();
     }
+    
+    //
+    // IDataStructure
+    //
 
     public void load()
     {

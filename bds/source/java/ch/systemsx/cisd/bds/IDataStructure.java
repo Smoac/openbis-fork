@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * Common interface of all data structures.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataStructure extends IHasVersion
@@ -26,7 +28,7 @@ public interface IDataStructure extends IHasVersion
     /**
      * Loads the data structure.
      */
-    public void load();
+    public void load() throws UserFailureException;
 
     /**
      * Saves the data structure.
