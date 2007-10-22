@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import static org.testng.AssertJUnit.fail;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -88,6 +90,43 @@ public class ProcessRunnerTest
 
                     one(process).getMaxRetryOnFailure();
                     will(returnValue(tries));
+                }
+            });
+        new ProcessRunner(process);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRunWithNegativeValues()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(process).getMillisToSleepOnFailure();
+                    will(returnValue(-1L));
+
+                    one(process).getMaxRetryOnFailure();
+                    will(returnValue(-1));
+                }
+            });
+        try
+        {
+            new ProcessRunner(process);
+            fail("Negative value for millis to sleep on failure not allowed");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here
+        }
+        context.checking(new Expectations()
+            {
+                {
+                    one(process).getMillisToSleepOnFailure();
+                    will(returnValue(0L));
+
+                    one(process).getMaxRetryOnFailure();
+                    will(returnValue(-100));
+
+                    one(process).run();
                 }
             });
         new ProcessRunner(process);

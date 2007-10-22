@@ -33,10 +33,49 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * Test cases for corresponding {@link Directory} class.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DirectoryTest extends StorageTestCase
 {
+
+    private final void testInternalAddFile(final boolean move)
+    {
+        File dir = new File(TEST_DIR, "dir");
+        dir.mkdirs();
+        FileUtilities.writeToFile(new File(dir, "p1"), "property 1");
+        File subDir = new File(dir, "subdir");
+        subDir.mkdir();
+        FileUtilities.writeToFile(new File(subDir, "p2"), "property 2");
+        File dest = new File(TEST_DIR, "destination");
+        dest.mkdir();
+        Directory directory = new Directory(dest);
+        INode copiedDir = directory.addFile(dir, move);
+        assertEquals("dir", copiedDir.getName());
+        assertTrue(copiedDir instanceof IDirectory);
+        File copiedRealDir = new File(dest, "dir");
+        assertTrue(copiedRealDir.isDirectory());
+        IDirectory cd = (IDirectory) copiedDir;
+        INode node = cd.tryToGetNode("p1");
+        assertNotNull(node);
+        assertTrue(node instanceof IFile);
+        assertEquals("property 1\n", ((IFile) node).getStringContent());
+        assertEquals("property 1\n", FileUtilities.loadToString(new File(copiedRealDir, "p1")));
+        node = cd.tryToGetNode("subdir");
+        assertEquals("subdir", node.getName());
+        assertNotNull(node);
+        assertTrue(node instanceof IDirectory);
+        node = ((IDirectory) node).tryToGetNode("p2");
+        File copiedRealSubDir = new File(copiedRealDir, "subdir");
+        assertTrue(copiedRealSubDir.isDirectory());
+        assertEquals("p2", node.getName());
+        assertTrue(node instanceof IFile);
+        assertEquals("property 2\n", ((IFile) node).getStringContent());
+        assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedRealSubDir, "p2")));
+        assertEquals(move == false, new File(TEST_DIR, "dir").exists());
+    }
+
     @Test
     public void testGetName()
     {
@@ -116,40 +155,14 @@ public class DirectoryTest extends StorageTestCase
     }
 
     @Test
-    public void testAddFile()
+    public void testAddFileWithCopy()
     {
-        File dir = new File(TEST_DIR, "dir");
-        dir.mkdirs();
-        FileUtilities.writeToFile(new File(dir, "p1"), "property 1");
-        File subDir = new File(dir, "subdir");
-        subDir.mkdir();
-        FileUtilities.writeToFile(new File(subDir, "p2"), "property 2");
-        File dest = new File(TEST_DIR, "destination");
-        dest.mkdir();
-        Directory directory = new Directory(dest);
+        testInternalAddFile(false);
+    }
 
-        INode copiedDir = directory.addFile(dir, false);
-
-        assertEquals("dir", copiedDir.getName());
-        assertTrue(copiedDir instanceof IDirectory);
-        File copiedRealDir = new File(dest, "dir");
-        assertTrue(copiedRealDir.isDirectory());
-        IDirectory cd = (IDirectory) copiedDir;
-        INode node = cd.tryToGetNode("p1");
-        assertNotNull(node);
-        assertTrue(node instanceof IFile);
-        assertEquals("property 1\n", ((IFile) node).getStringContent());
-        assertEquals("property 1\n", FileUtilities.loadToString(new File(copiedRealDir, "p1")));
-        node = cd.tryToGetNode("subdir");
-        assertEquals("subdir", node.getName());
-        assertNotNull(node);
-        assertTrue(node instanceof IDirectory);
-        node = ((IDirectory) node).tryToGetNode("p2");
-        File copiedRealSubDir = new File(copiedRealDir, "subdir");
-        assertTrue(copiedRealSubDir.isDirectory());
-        assertEquals("p2", node.getName());
-        assertTrue(node instanceof IFile);
-        assertEquals("property 2\n", ((IFile) node).getStringContent());
-        assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedRealSubDir, "p2")));
+    @Test
+    public void testAddFileWithMove()
+    {
+        testInternalAddFile(true);
     }
 }
