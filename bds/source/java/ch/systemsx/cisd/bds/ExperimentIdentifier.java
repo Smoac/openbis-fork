@@ -127,7 +127,7 @@ public class ExperimentIdentifier
     @Override
     public String toString()
     {
-        return "[group:" + groupCode + ",project:" + projectCode + ",experiment" + experimentCode;
+        return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode + "]";
     }
     
     
