@@ -106,7 +106,7 @@ public class CrowdAuthenticationServiceTest
             });
         String result = authenticationService.authenticateApplication();
         assertEquals(APPLICATION_TOKEN, result);
-        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION + "' successfully authenticated."),
+        assertEquals(createDebugLogEntry("?CROWD: application '" + APPLICATION + "' successfully authenticated."),
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();

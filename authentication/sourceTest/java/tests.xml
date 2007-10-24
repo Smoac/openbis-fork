@@ -1,7 +1,7 @@
 <suite name="All" verbose="1" >
   <test name="All" >
     <packages>
-      <package name="ch.systemsx.*" />
+      <package name="ch.systemsx.cisd.authentication.*" />
    </packages>
  </test>
 </suite>
