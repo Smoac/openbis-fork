@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -191,6 +192,48 @@ public class DataStructureV1_0Test
     }
     
     @Test
+    public void testAddReference()
+    {
+        dataStructure.create();
+        dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
+        Map<String, Reference> mapping = dataStructure.getStandardOriginalMapping();
+        assertEquals(1, mapping.size());
+        Reference actualReference = mapping.get("a");
+        assertEquals("a", actualReference.getPath());
+        assertEquals(ReferenceType.IDENTICAL, actualReference.getReferenceType());
+        assertEquals("b", actualReference.getOriginalPath());
+    }
+    
+    @Test
+    public void testAddReferenceTwice()
+    {
+        dataStructure.create();
+        dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
+        try
+        {
+            dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
+            fail("DataStructureException expected");
+        } catch (DataStructureException e)
+        {
+            assertEquals("There is already a reference for file 'a'.", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testThatGetStandardOriginalMappingReturnsAnUnmodifiableMap()
+    {
+        dataStructure.create();
+        try
+        {
+            dataStructure.getStandardOriginalMapping().put("a", null);
+            fail("DataStructureException expected");
+        } catch (UnsupportedOperationException e)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
     public void testCloseForEmptyData()
     {
         dataStructure.create();
@@ -326,6 +369,8 @@ public class DataStructureV1_0Test
         MeasurementEntity measurementEntity = new MeasurementEntity("cp001", "plate");
         dataStructure.setMeasurementEntity(measurementEntity);
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
+        dataStructure.addReference(new Reference("a/b/c", "a6b8/x.t", ReferenceType.IDENTICAL));
+        dataStructure.addReference(new Reference("a78/jjh", "a b/x\tt", ReferenceType.TRANSFORMED));
         
         IDirectory root = storage.getRoot();
         dataStructure.close();
@@ -348,6 +393,16 @@ public class DataStructureV1_0Test
         assertEquals(experimentRegistrator, reloadedDataStructure.getExperimentRegistrator());
         assertEquals(measurementEntity, reloadedDataStructure.getMeasurementEntity());
         assertEquals(ProcessingType.RAW_DATA, reloadedDataStructure.getProcessingType());
+        Map<String, Reference> mapping = reloadedDataStructure.getStandardOriginalMapping();
+        assertEquals(2, mapping.size());
+        Reference reference = mapping.get("a/b/c");
+        assertEquals("a/b/c", reference.getPath());
+        assertEquals(ReferenceType.IDENTICAL, reference.getReferenceType());
+        assertEquals("a6b8/x.t", reference.getOriginalPath());
+        reference = mapping.get("a78/jjh");
+        assertEquals("a78/jjh", reference.getPath());
+        assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
+        assertEquals("a b/x\tt", reference.getOriginalPath());
     }
     
     @Test
@@ -427,9 +482,9 @@ public class DataStructureV1_0Test
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
         storage.unmount();
+        dataStructure.open();
         try
         {
-            dataStructure.open();
             dataStructure.getFormatedData();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
@@ -466,6 +521,7 @@ public class DataStructureV1_0Test
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
         new MeasurementEntity("a", "b").saveTo(metaData);
+        metaData.addKeyValuePair(DataStructureV1_0.MAPPING_FILE, "");
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
         
