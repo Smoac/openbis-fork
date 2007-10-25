@@ -65,13 +65,13 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * Returns the formated data. This method can be called only after method {@link #setFormat(Format)} has been
      * invoked. If the format is not known {@link UnknownFormat1_0} will be assumed.
      * 
-     * @throws UserFailureException if this method has been invoked before the format has been set.
+     * @throws DataStructureException if this method has been invoked before the format has been set.
      */
     public IFormattedData getFormatedData()
     {
         if (format == null)
         {
-            throw new UserFailureException("Couldn't create formated data because of undefined format.");
+            throw new DataStructureException("Couldn't create formated data because of undefined format.");
         }
         return FormatedDataFactory.createFormatedData(getMetaDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0);
     }
@@ -88,7 +88,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Returns the experiment identifier.
      * 
-     * @throws UserFailureException if the experiment identifier hasn't be loaded nor hasn't be set by
+     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be set by
      *             {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      */
     public ExperimentIdentifier getExperimentIdentifier()
@@ -108,7 +108,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Returns the processing type.
      * 
-     * @throws UserFailureException if the processing type hasn't be loaded nor hasn't be set by
+     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
      *             {@link #setProcessingType(ProcessingType)}.
      */
     public ProcessingType getProcessingType()
@@ -136,28 +136,28 @@ public class DataStructureV1_0 extends AbstractDataStructure
     }
 
     @Override
-    public void save() throws UserFailureException
+    public void save()
     {
         if (getOriginalData().iterator().hasNext() == false)
         {
-            throw new UserFailureException("Empty original data directory.");
+            throw new DataStructureException("Empty original data directory.");
         }
         IDirectory metaDataDirectory = getMetaDataDirectory();
         if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null)
         {
             if (format == null)
             {
-                throw new UserFailureException("Unspecified format.");
+                throw new DataStructureException("Unspecified format.");
             }
             format.saveTo(metaDataDirectory);
         }
         if (metaDataDirectory.tryToGetNode(ExperimentIdentifier.FOLDER) == null)
         {
-            throw new UserFailureException("Unspecified experiment identifier.");
+            throw new DataStructureException("Unspecified experiment identifier.");
         }
         if (metaDataDirectory.tryToGetNode(ProcessingType.PROCESSING_TYPE) == null)
         {
-            throw new UserFailureException("Unspecified processing type.");
+            throw new DataStructureException("Unspecified processing type.");
         }
         super.save();
     }

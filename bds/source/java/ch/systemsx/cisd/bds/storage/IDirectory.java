@@ -18,9 +18,6 @@ package ch.systemsx.cisd.bds.storage;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
  * Node representing a directory.
  * 
@@ -40,9 +37,8 @@ public interface IDirectory extends INode, Iterable<INode>
      * 
      * @param name Name of the new subdirectory.
      * @return the new subdirectory.
-     * @throws EnvironmentFailureException if the subdirectory cannot be created because of some other reason.
      */
-    public IDirectory makeDirectory(String name) throws UserFailureException, EnvironmentFailureException;
+    public IDirectory makeDirectory(String name);
 
     /**
      * Adds the specified real file to this directory. The content of <code>file</code> will be copied. If it is a
@@ -52,14 +48,12 @@ public interface IDirectory extends INode, Iterable<INode>
      * @return the new node. It will be a {@link ILink} if <code>file</code> is a symbolic link, a {@link IDirectory}
      *         if <code>file</code> is a folder, or {@link IFile} if <code>file</code> is a plain file.
      */
-    public INode addFile(final File file, final boolean move) throws UserFailureException, EnvironmentFailureException;
+    public INode addFile(final File file, final boolean move);
 
     /**
      * Removes given <var>node</var> from this directory.
-     * 
-     * @throws EnvironmentFailureException if given <var>node</var> could be removed for some other reason.
      */
-    public void removeNode(final INode node) throws UserFailureException, EnvironmentFailureException;
+    public void removeNode(final INode node);
 
     /**
      * Adds a plain file named <code>key</code> with content <code>value</code> to this directory.

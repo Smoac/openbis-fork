@@ -21,7 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Loader for {@link IDataStructure}s from the file system. 
@@ -58,7 +57,7 @@ public class DataStructureLoader
         File file = new File(baseDir, name);
         if (file.exists() == false)
         {
-            throw new UserFailureException("No container name '" + name + "' exists in " + baseDir.getAbsolutePath());
+            throw new DataStructureException("No container name '" + name + "' exists in " + baseDir.getAbsolutePath());
         }
         if (file.isDirectory())
         {
@@ -69,7 +68,7 @@ public class DataStructureLoader
         {
             return new HDF5Storage(hdf5File);
         }
-        throw new UserFailureException("Couldn't found appropriate container named '" + name + "' in "
+        throw new DataStructureException("Couldn't found appropriate container named '" + name + "' in "
                 + baseDir.getAbsolutePath());
         
     }

@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * Implementation of {@link IStorage} based on the file system.
@@ -36,7 +36,7 @@ public class FileStorage implements IStorage
     /**
      * Creates an instance with the specified folder as the root directory.
      * 
-     * @throws UserFailureException if <code>folder</code> does not exist or is not a directory in the file system.
+     * @throws StorageException if <code>folder</code> does not exist or is not a directory in the file system.
      */
     public FileStorage(File folder)
     {
@@ -47,7 +47,7 @@ public class FileStorage implements IStorage
     {
         if (mounted == false)
         {
-            throw new UserFailureException("Can not get root of an unmounted storage.");
+            throw new StorageException("Can not get root of an unmounted storage.");
         }
         return root;
     }

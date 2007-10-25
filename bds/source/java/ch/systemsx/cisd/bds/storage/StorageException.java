@@ -16,28 +16,32 @@
 
 package ch.systemsx.cisd.bds.storage;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * Abstraction of a hierarchical storage.
+ * Exception thrown if some problem occured during operations in the Storage API which can not be classified
+ * convincingly as an {@link EnvironmentFailureException}.
  *
  * @author Franz-Josef Elmer
  */
-public interface IStorage
+public class StorageException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+
     /**
-     * Mounts this storage. May perform some initializations. Should be called before calling {@link #getRoot()}.
+     * Creates an instance with the specified message.
      */
-    public void mount();
-    
+    public StorageException(String message)
+    {
+        super(message);
+    }
+
     /**
-     * Returns root directory of this storage. 
-     * 
-     * @throws StorageException if invoked before {@link #mount()} or after {@link #unmount()}.
+     * Creates an instance with the specified message and throwable causing this exception.
      */
-    public IDirectory getRoot();
-    
-    /**
-     * Unmounts this storage. May perform some finalization (e.g. make cached data persistent).
-     */
-    public void unmount();
+    public StorageException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+
 }

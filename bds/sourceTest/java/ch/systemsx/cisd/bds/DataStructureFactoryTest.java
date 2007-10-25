@@ -25,7 +25,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
@@ -57,8 +56,8 @@ public class DataStructureFactoryTest
         try
         {
             DataStructureFactory.getDataStructureClassFor(new Version(2, 0));
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("No class found for version V2.0", e.getMessage());
         }

@@ -44,7 +44,7 @@ class NodeFactory
             return new File(file);
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath);
+            throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath, ex);
         }
     }
 

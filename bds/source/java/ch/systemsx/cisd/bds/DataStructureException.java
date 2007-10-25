@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.storage;
+package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
- * Abstraction of a hierarchical storage.
+ * Exception thrown by manipulations of BDS data structures which can not be classified as {@link StorageException}.
  *
  * @author Franz-Josef Elmer
  */
-public interface IStorage
+public class DataStructureException extends RuntimeException
 {
-    /**
-     * Mounts this storage. May perform some initializations. Should be called before calling {@link #getRoot()}.
-     */
-    public void mount();
+    private static final long serialVersionUID = 1L;
     
     /**
-     * Returns root directory of this storage. 
-     * 
-     * @throws StorageException if invoked before {@link #mount()} or after {@link #unmount()}.
+     *  Creates an instance with the specified message.
      */
-    public IDirectory getRoot();
-    
+    public DataStructureException(String message)
+    {
+        super(message);
+    }
+
     /**
-     * Unmounts this storage. May perform some finalization (e.g. make cached data persistent).
+     * Creates an instance with the specified message and throwable causing this exception.
      */
-    public void unmount();
+    public DataStructureException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

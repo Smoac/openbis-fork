@@ -28,8 +28,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
@@ -81,8 +81,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.getFormatedData();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Couldn't create formated data because of undefined format.", e.getMessage());
         }
@@ -156,8 +156,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.getExperimentIdentifier();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertPartOfString(ExperimentIdentifier.FOLDER, e.getMessage());
         }
@@ -183,8 +183,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.save();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Empty original data directory.", e.getMessage());
         }
@@ -197,8 +197,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.save();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Unspecified format.", e.getMessage());
         }
@@ -212,8 +212,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.save();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Unspecified experiment identifier.", e.getMessage());
         }
@@ -228,8 +228,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.save();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Unspecified processing type.", e.getMessage());
         }
@@ -250,8 +250,8 @@ public class DataStructureV1_0Test
         try
         {
             storage.getRoot();
-            fail("UserFailureException expected because save() should unmount storage.");
-        } catch (UserFailureException e)
+            fail("StorageException expected because save() should unmount storage.");
+        } catch (StorageException e)
         {
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }
@@ -270,8 +270,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.load();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertPartOfString(Version.VERSION, e.getMessage());
         }
@@ -305,8 +305,8 @@ public class DataStructureV1_0Test
         try
         {
             dataStructure.load();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("Version of loaded data structure is V2.0 which is not backward compatible with V1.0", 
                     e.getMessage());
@@ -335,8 +335,8 @@ public class DataStructureV1_0Test
         {
             dataStructure.load();
             dataStructure.getFormatedData();
-            fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
         {
             assertEquals("No class found for version V2.0", e.getMessage());
         }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class.
@@ -35,7 +34,7 @@ public class ExperimentIdentifier
     /**
      * Loads the experiment identifier from the specified directory.
      * 
-     * @throws UserFailureException if file missing.
+     * @throws DataStructureException if file missing.
      */
     static ExperimentIdentifier loadFrom(IDirectory directory)
     {

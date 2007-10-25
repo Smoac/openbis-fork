@@ -21,7 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * 
@@ -45,8 +45,8 @@ public class FileStorageTest extends StorageTestCase
         try
         {
             fileStorage.getRoot();
-            AssertJUnit.fail("UserFailureException because storage isn't mounted.");
-        } catch (UserFailureException e)
+            AssertJUnit.fail("StorageException because storage isn't mounted.");
+        } catch (StorageException e)
         {
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }
@@ -61,8 +61,8 @@ public class FileStorageTest extends StorageTestCase
         try
         {
             fileStorage.getRoot();
-            AssertJUnit.fail("UserFailureException because storage isn't mounted.");
-        } catch (UserFailureException e)
+            AssertJUnit.fail("StorageException because storage isn't mounted.");
+        } catch (StorageException e)
         {
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }

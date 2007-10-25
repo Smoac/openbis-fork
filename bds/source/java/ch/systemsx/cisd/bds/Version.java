@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Immutable value object for the version of something.        
@@ -47,7 +46,7 @@ public final class Version
             return Integer.parseInt(value);
         } catch (NumberFormatException ex)
         {
-            throw new UserFailureException("Value of " + name + " version file is not a number: " + value);
+            throw new DataStructureException("Value of " + name + " version file is not a number: " + value);
         }
     }
     
@@ -96,13 +95,13 @@ public final class Version
     /**
      * Returns the previous minor version.
      * 
-     * @throws UserFailureException if minor version is 0.
+     * @throws DataStructureException if minor version is 0.
      */
     public Version getPreviousMinorVersion()
     {
         if (minor == 0)
         {
-            throw new UserFailureException("There is no previous minor version of " + this);
+            throw new DataStructureException("There is no previous minor version of " + this);
         }
         return new Version(major, minor - 1);
     }

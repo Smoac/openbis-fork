@@ -19,7 +19,6 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Inmutable value object of a versioned format.
@@ -34,20 +33,20 @@ public class Format
     /**
      * Loads the format from the specified directory.
      * 
-     * @throws UserFailureException if the format could be loaded.
+     * @throws DataStructureException if the format could be loaded.
      */
     static Format loadFrom(IDirectory directory)
     {
         INode dir = directory.tryToGetNode(FORMAT_DIR);
         if (dir instanceof IDirectory == false)
         {
-            throw new UserFailureException("Not a directory: " + dir);
+            throw new DataStructureException("Not a directory: " + dir);
         }
         IDirectory formatDir = (IDirectory) dir;
         INode file = formatDir.tryToGetNode(FORMAT_CODE_FILE);
         if (file instanceof IFile == false)
         {
-            throw new UserFailureException("Not a plain file: " + file);
+            throw new DataStructureException("Not a plain file: " + file);
         }
         IFile codeFile = (IFile) file;
         String formatCode = codeFile.getStringContent().trim();

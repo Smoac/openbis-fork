@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * @author Franz-Josef Elmer
@@ -33,11 +33,11 @@ abstract class AbstractNode implements INode
     {
         if (file == null)
         {
-            throw new UserFailureException("Unspecified file");
+            throw new StorageException("Unspecified file");
         }
         if (file.exists() == false)
         {
-            throw new UserFailureException("Non existing file " + file);
+            throw new StorageException("Non existing file " + file);
         }
         this.nodeFile = file;
     }

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Abstract superclass of classes implementing {@link IDataStructure}.
@@ -47,7 +46,7 @@ abstract class AbstractDataStructure implements IDataStructure
         Version loadedVersion = Version.loadFrom(root);
         if (loadedVersion.isBackwardsCompatibleWith(getVersion()) == false)
         {
-            throw new UserFailureException("Version of loaded data structure is " + loadedVersion
+            throw new DataStructureException("Version of loaded data structure is " + loadedVersion
                     + " which is not backward compatible with " + getVersion());
         }
     }

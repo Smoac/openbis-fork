@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -116,8 +116,8 @@ public class DirectoryTest extends StorageTestCase
         try
         {
             directory.makeDirectory("sub-directory");
-            AssertJUnit.fail("UserFailureException expected.");
-        } catch (UserFailureException e)
+            AssertJUnit.fail("StorageException expected.");
+        } catch (StorageException e)
         {
             assertTrue(e.getMessage().indexOf("sub-directory") >= 0);
         }

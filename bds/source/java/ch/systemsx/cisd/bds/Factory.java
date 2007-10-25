@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * General purpose factory for versioned classes with one-argument constructors.
@@ -51,7 +50,7 @@ class Factory<T>
             }
             if (v.getMinor() == 0)
             {
-                throw new UserFailureException("No class found for version " + version);
+                throw new DataStructureException("No class found for version " + version);
             }
             v = v.getPreviousMinorVersion();
         }
@@ -74,11 +73,11 @@ class Factory<T>
             return constructor.newInstance(new Object[] {argument});
         } catch (InvocationTargetException ex)
         {
-            throw new UserFailureException("Couldn't create instance of " + clazz + " for version " + version, ex
+            throw new DataStructureException("Couldn't create instance of " + clazz + " for version " + version, ex
                     .getCause());
         } catch (Exception ex)
         {
-            throw new UserFailureException("Couldn't create instance of " + clazz + " for version " + version, ex);
+            throw new DataStructureException("Couldn't create instance of " + clazz + " for version " + version, ex);
         }
     }
 

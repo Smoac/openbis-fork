@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 
 /**
@@ -75,7 +74,7 @@ class FormatedDataFactory
             {
                 return getFactory(defaultFormat, null);
             }
-            throw new UserFailureException("Unknown format code: " + code);
+            throw new DataStructureException("Unknown format code: " + code);
         }
         return factory;
     }

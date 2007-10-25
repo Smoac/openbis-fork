@@ -21,8 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Franz-Josef Elmer
@@ -62,7 +60,7 @@ class Link implements ILink
         return reference;
     }
 
-    public void extractTo(final File directory) throws UserFailureException, EnvironmentFailureException
+    public void extractTo(final File directory)
     {
         // TODO Auto-generated method stub
     }

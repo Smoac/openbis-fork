@@ -18,9 +18,6 @@ package ch.systemsx.cisd.bds.storage;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
  * Abstraction of a node in a hierarchical data structure.
  * 
@@ -43,10 +40,6 @@ public interface INode
      * <p>
      * All descendants are also extracted. This is a copy operation.
      * </p>
-     * 
-     * @throws UserFailureException if this or a descended node is a link referring to a node which is not this node or
-     *             a descended node.
-     * @throws EnvironmentFailureException if extraction causes an IOException.
      */
-    public void extractTo(final File directory) throws UserFailureException, EnvironmentFailureException;
+    public void extractTo(final File directory);
 }

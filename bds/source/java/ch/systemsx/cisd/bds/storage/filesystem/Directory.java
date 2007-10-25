@@ -27,8 +27,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -49,7 +49,7 @@ class Directory extends AbstractNode implements IDirectory
         super(directory);
         if (directory.isDirectory() == false)
         {
-            throw new UserFailureException("Not a directory: " + directory.getAbsolutePath());
+            throw new StorageException("Not a directory: " + directory.getAbsolutePath());
         }
     }
 
@@ -101,7 +101,7 @@ class Directory extends AbstractNode implements IDirectory
         {
             if (dir.isDirectory() == false)
             {
-                throw new UserFailureException("There already exists a file named '" + name + "' in directory " + this);
+                throw new StorageException("There already exists a file named '" + name + "' in directory " + this);
             }
             return new Directory(dir);
         }
@@ -121,8 +121,7 @@ class Directory extends AbstractNode implements IDirectory
         return new File(file);
     }
 
-    public INode addFile(final java.io.File file, final boolean move) throws UserFailureException,
-            EnvironmentFailureException
+    public INode addFile(final java.io.File file, final boolean move)
     {
         final java.io.File newFile = new java.io.File(nodeFile, file.getName());
         if (move)
@@ -197,7 +196,7 @@ class Directory extends AbstractNode implements IDirectory
         }
     }
 
-    public final void removeNode(final INode node) throws UserFailureException, EnvironmentFailureException
+    public final void removeNode(final INode node)
     {
         assert node != null : "Node could not be null";
         AbstractNode abstractNode = (AbstractNode) node;

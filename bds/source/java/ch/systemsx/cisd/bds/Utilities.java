@@ -20,7 +20,6 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Storage utility methods.
@@ -32,7 +31,7 @@ public class Utilities
     /**
      * Returns a subdirectory from the specified directory. If it does not exist it will be created.
      * 
-     * @throws UserFailureException if there is already a node named <code>name</code> but which isn't a directory.
+     * @throws DataStructureException if there is already a node named <code>name</code> but which isn't a directory.
      */
     public static IDirectory getOrCreateSubDirectory(IDirectory directory, String name)
     {
@@ -45,7 +44,7 @@ public class Utilities
         {
             return (IDirectory) node;
         }
-        throw new UserFailureException("There is already a node named '" + name + "' but which isn't a directory.");
+        throw new DataStructureException("There is already a node named '" + name + "' but which isn't a directory.");
     }
 
     /**
@@ -53,18 +52,18 @@ public class Utilities
      * 
      * @param directory Parent directory of the requested directory.
      * @param name Name of the requested directory.
-     * @throws UserFailureException if requested directory not found.
+     * @throws DataStructureException if requested directory not found.
      */
     public static IDirectory getSubDirectory(IDirectory directory, String name)
     {
         INode node = directory.tryToGetNode(name);
         if (node == null)
         {
-            throw new UserFailureException("No directory named '" + name + "' found in " + directory);
+            throw new DataStructureException("No directory named '" + name + "' found in " + directory);
         }
         if (node instanceof IDirectory == false)
         {
-            throw new UserFailureException("Is not a directory: " + node);
+            throw new DataStructureException("Is not a directory: " + node);
         }
         return (IDirectory) node;
     }
@@ -82,18 +81,18 @@ public class Utilities
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
-     * @throws UserFailureException if the requested file does not exist.
+     * @throws DataStructureException if the requested file does not exist.
      */
     public static String getString(IDirectory directory, String name)
     {
         INode node = directory.tryToGetNode(name);
         if (node == null)
         {
-            throw new UserFailureException("File '" + name + "' missing in " + directory);
+            throw new DataStructureException("File '" + name + "' missing in " + directory);
         }
         if (node instanceof IFile == false)
         {
-            throw new UserFailureException(node + " is not a file.");
+            throw new DataStructureException(node + " is not a file.");
         }
         IFile file = (IFile) node;
         return file.getStringContent();
