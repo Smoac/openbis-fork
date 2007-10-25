@@ -108,6 +108,68 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         id.saveTo(getMetaDataDirectory());
     }
+    
+    /**
+     * Returns the date of registration of the experiment.
+     * 
+     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
+     *             {@link #setExperimentRegistrator(ExperimentRegistrator)}.
+     */
+    public ExperimentRegistratorDate getExperimentRegistratorDate()
+    {
+        assertOpenOrCreated();
+        return ExperimentRegistratorDate.loadFrom(getMetaDataDirectory());
+    }
+    
+    /**
+     * Sets the date of registration of the experiment.
+     */
+    public void setExperimentRegistartionDate(ExperimentRegistratorDate date)
+    {
+        assertOpenOrCreated();
+        date.saveTo(getMetaDataDirectory());
+    }
+
+    /**
+     * Returns the experiment registrator.
+     * 
+     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
+     *             {@link #setExperimentRegistrator(ExperimentRegistrator)}.
+     */
+    public ExperimentRegistrator getExperimentRegistrator()
+    {
+        assertOpenOrCreated();
+        return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
+    }
+    
+    public void setExperimentRegistrator(ExperimentRegistrator registrator)
+    {
+        assert registrator != null : "Unspecified experiment registrator.";
+        assertOpenOrCreated();
+        registrator.saveTo(getMetaDataDirectory());
+    }
+    
+    /**
+     * Returns the measurement entity.
+     * 
+     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
+     *             {@link #setProcessingType(ProcessingType)}.
+     */
+    public MeasurementEntity getMeasurementEntity()
+    {
+        assertOpenOrCreated();
+        return MeasurementEntity.loadFrom(getMetaDataDirectory());
+    }
+
+    /**
+     * Sets the measurement entity. Overwrites an already set or loaded value.
+     */
+    public void setMeasurementEntity(MeasurementEntity entity)
+    {
+        assert entity != null : "Unspecified measurement entity.";
+        assertOpenOrCreated();
+        entity.saveTo(getMetaDataDirectory());
+    }
 
     /**
      * Returns the processing type.
@@ -120,7 +182,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         return ProcessingType.loadFrom(getMetaDataDirectory());
     }
-
+    
     /**
      * Sets the processing type. Overwrites an already set or loaded value.
      */
@@ -130,7 +192,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         type.saveTo(getMetaDataDirectory());
     }
-
+    
     @Override
     protected void assertValid()
     {
@@ -146,6 +208,18 @@ public class DataStructureV1_0 extends AbstractDataStructure
         if (metaDataDirectory.tryToGetNode(ExperimentIdentifier.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified experiment identifier.");
+        }
+        if (metaDataDirectory.tryToGetNode(ExperimentRegistratorDate.FILE_NAME) == null)
+        {
+            throw new DataStructureException("Unspecified experiment registration date.");
+        }
+        if (metaDataDirectory.tryToGetNode(ExperimentRegistrator.FOLDER) == null)
+        {
+            throw new DataStructureException("Unspecified experiment registrator.");
+        }
+        if (metaDataDirectory.tryToGetNode(MeasurementEntity.FOLDER) == null)
+        {
+            throw new DataStructureException("Unspecified measurement entity.");
         }
         if (metaDataDirectory.tryToGetNode(ProcessingType.PROCESSING_TYPE) == null)
         {

@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -235,12 +236,70 @@ public class DataStructureV1_0Test
     }
     
     @Test
+    public void testCloseIfNoExperimentRegistrator()
+    {
+        dataStructure.create();
+        dataStructure.getOriginalData().addKeyValuePair("answer", "42");
+        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        try
+        {
+            dataStructure.close();
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
+        {
+            assertEquals("Unspecified experiment registrator.", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testCloseIfNoExperimentRegistrationDate()
+    {
+        dataStructure.create();
+        dataStructure.getOriginalData().addKeyValuePair("answer", "42");
+        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
+        try
+        {
+            dataStructure.close();
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
+        {
+            assertEquals("Unspecified experiment registration date.", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testCloseIfNoMeasurementEntity()
+    {
+        dataStructure.create();
+        dataStructure.getOriginalData().addKeyValuePair("answer", "42");
+        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
+        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        try
+        {
+            dataStructure.close();
+            fail("DataStructureException expected.");
+        } catch (DataStructureException e)
+        {
+            assertEquals("Unspecified measurement entity.", e.getMessage());
+        }
+    }
+    
+    @Test
     public void testCloseIfNoProcessingType()
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
+        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        dataStructure.setMeasurementEntity(new MeasurementEntity("a", "b"));
         try
         {
             dataStructure.close();
@@ -259,6 +318,13 @@ public class DataStructureV1_0Test
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
+        ExperimentRegistratorDate experimentRegistratorDate = new ExperimentRegistratorDate(new Date(4711L * 4711000L));
+        System.out.println(experimentRegistratorDate);
+        dataStructure.setExperimentRegistartionDate(experimentRegistratorDate);
+        ExperimentRegistrator experimentRegistrator = new ExperimentRegistrator("john", "doe", "j@doe");
+        dataStructure.setExperimentRegistrator(experimentRegistrator);
+        MeasurementEntity measurementEntity = new MeasurementEntity("cp001", "plate");
+        dataStructure.setMeasurementEntity(measurementEntity);
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         
         IDirectory root = storage.getRoot();
@@ -278,6 +344,9 @@ public class DataStructureV1_0Test
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, reloadedDataStructure.getFormatedData().getFormat());
         assertEquals(experimentIdentifier, reloadedDataStructure.getExperimentIdentifier());
+        assertEquals(experimentRegistratorDate, reloadedDataStructure.getExperimentRegistratorDate());
+        assertEquals(experimentRegistrator, reloadedDataStructure.getExperimentRegistrator());
+        assertEquals(measurementEntity, reloadedDataStructure.getMeasurementEntity());
         assertEquals(ProcessingType.RAW_DATA, reloadedDataStructure.getProcessingType());
     }
     
@@ -394,6 +463,9 @@ public class DataStructureV1_0Test
         IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
+        new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
+        new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
+        new MeasurementEntity("a", "b").saveTo(metaData);
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
         

@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
@@ -53,6 +54,10 @@ public class DataStructureLoaderTest
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
+        ExperimentRegistrator experimentRegistrator = new ExperimentRegistrator("john", "doe", "j@doe");
+        dataStructure.setExperimentRegistrator(experimentRegistrator);
+        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        dataStructure.setMeasurementEntity(new MeasurementEntity("a", "b"));
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.close();
         
