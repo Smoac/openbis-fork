@@ -30,7 +30,7 @@ public final class UnknownFormat1_0 extends Format
 
     private UnknownFormat1_0()
     {
-        super("UNKNOWN", new Version(1, 0));
+        super("UNKNOWN", new Version(1, 0), null);
     }
 
     

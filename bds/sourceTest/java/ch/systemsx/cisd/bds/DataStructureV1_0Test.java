@@ -467,7 +467,7 @@ public class DataStructureV1_0Test
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(1, 1)).saveTo(metaData);
+        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
@@ -480,7 +480,7 @@ public class DataStructureV1_0Test
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
+        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         try
@@ -500,7 +500,7 @@ public class DataStructureV1_0Test
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format("another format", new Version(1,1)).saveTo(metaData);
+        new Format("another format", new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
@@ -516,7 +516,7 @@ public class DataStructureV1_0Test
         IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
         originalDataDir.addKeyValuePair("hello", "world");
         IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
+        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);

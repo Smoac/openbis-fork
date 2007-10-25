@@ -29,6 +29,7 @@ public class Format
 {
     static final String FORMAT_CODE_FILE = "format_code";
     static final String FORMAT_DIR = "format";
+    static final String FORMAT_VARIANT_FILE = "format_variant";
 
     /**
      * Loads the format from the specified directory.
@@ -51,21 +52,33 @@ public class Format
         IFile codeFile = (IFile) file;
         String formatCode = codeFile.getStringContent().trim();
         Version formatVersion = Version.loadFrom(formatDir);
-        return new Format(formatCode, formatVersion);
+        String variant = null;
+        file = formatDir.tryToGetNode(FORMAT_VARIANT_FILE);
+        if (file != null)
+        {
+            if (file instanceof IFile == false)
+            {
+                throw new DataStructureException("Not a plain file: " + file);
+            }
+            variant = ((IFile) file).getStringContent().trim();
+        }
+        return new Format(formatCode, formatVersion, variant);
     }
     
     private final String code;
     private final Version version;
+    private final String variant;
 
     /**
-     * Creates a new instance based on the specified format code and version.
+     * Creates a new instance based on the specified format code, format variant (optional), and version.
      */
-    public Format(String code, Version version)
+    public Format(String code, Version version, String variantOrNull)
     {
         assert code != null : "Unspecified format code.";
         assert version != null : "Unpsecified version.";
         this.code = code;
         this.version = version;
+        variant = variantOrNull;
     }
     
     /**
@@ -84,11 +97,25 @@ public class Format
         return version;
     }
 
+    /**
+     * Returns the format variant.
+     * 
+     * @return <code>null</code> if undefined.
+     */
+    public final String getVariant()
+    {
+        return variant;
+    }
+
     void saveTo(IDirectory directory)
     {
         IDirectory dir = directory.makeDirectory(FORMAT_DIR);
         dir.addKeyValuePair(FORMAT_CODE_FILE, code);
         version.saveTo(dir);
+        if (variant != null)
+        {
+            dir.addKeyValuePair(FORMAT_VARIANT_FILE, variant);
+        }
     }
 
     @Override
@@ -103,19 +130,20 @@ public class Format
             return false;
         }
         Format format = (Format) obj;
-        return format.code.equals(code) && format.version.equals(version);
+        return format.code.equals(code) && format.version.equals(version) 
+                && (format.variant == null ? null == variant : format.variant.equals(variant));
     }
 
     @Override
     public int hashCode()
     {
-        return code.hashCode() * 37 + version.hashCode();
+        return (code.hashCode() * 37 + version.hashCode()) * 37 + (variant == null ? 0 : variant.hashCode());
     }
 
     @Override
     public String toString()
     {
-        return "Format: " + code + " " + version;
+        return "Format: " + code + " " + version + (variant == null ? "" : "[" + variant + "]");
     }
 
 }
