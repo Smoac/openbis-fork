@@ -43,17 +43,18 @@ public class DataStructureLoaderTest
     }
     
     @Test
-    public void testLoad()
+    public void testOpen()
     {
         File dir = new File(TEST_DIR, "ds");
         assert dir.mkdir();
         DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
+        dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
-        dataStructure.save();
+        dataStructure.close();
         
         IDataStructure ds = new DataStructureLoader(TEST_DIR).load("ds");
         assertEquals(DataStructureV1_0.class, ds.getClass());

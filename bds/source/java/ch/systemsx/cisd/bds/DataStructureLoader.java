@@ -49,7 +49,9 @@ public class DataStructureLoader
         IStorage storage = createStorage(name);
         storage.mount();
         Version version = Version.loadFrom(storage.getRoot());
-        return DataStructureFactory.createDataStructure(storage, version);
+        IDataStructure dataStructure = DataStructureFactory.createDataStructure(storage, version);
+        dataStructure.open();
+        return dataStructure;
     }
     
     private IStorage createStorage(String name)

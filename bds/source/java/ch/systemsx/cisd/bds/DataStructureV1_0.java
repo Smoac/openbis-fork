@@ -57,6 +57,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      */
     public IDirectory getOriginalData()
     {
+        assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_ORIGINAL);
     }
 
@@ -68,6 +69,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      */
     public IFormattedData getFormatedData()
     {
+        assertOpenOrCreated();
         if (format == null)
         {
             throw new DataStructureException("Couldn't create formated data because of undefined format.");
@@ -81,6 +83,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     public void setFormat(Format format)
     {
         assert format != null : "Unspecified format.";
+        assertOpenOrCreated();
         this.format = format;
     }
 
@@ -92,6 +95,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      */
     public ExperimentIdentifier getExperimentIdentifier()
     {
+        assertOpenOrCreated();
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
     }
 
@@ -101,6 +105,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     public void setExperimentIdentifier(ExperimentIdentifier id)
     {
         assert id != null : "Unspecified experiment identifier";
+        assertOpenOrCreated();
         id.saveTo(getMetaDataDirectory());
     }
 
@@ -112,6 +117,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      */
     public ProcessingType getProcessingType()
     {
+        assertOpenOrCreated();
         return ProcessingType.loadFrom(getMetaDataDirectory());
     }
 
@@ -121,34 +127,21 @@ public class DataStructureV1_0 extends AbstractDataStructure
     public void setProcessingType(ProcessingType type)
     {
         assert type != null : "Unspecified processing type.";
+        assertOpenOrCreated();
         type.saveTo(getMetaDataDirectory());
     }
 
-    /**
-     * Loads the data structure from the storage and sets the format.
-     */
     @Override
-    public void load()
-    {
-        super.load();
-        setFormat(Format.loadFrom(getMetaDataDirectory()));
-    }
-
-    @Override
-    public void save()
+    protected void assertValid()
     {
         if (getOriginalData().iterator().hasNext() == false)
         {
             throw new DataStructureException("Empty original data directory.");
         }
         IDirectory metaDataDirectory = getMetaDataDirectory();
-        if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null)
+        if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format == null)
         {
-            if (format == null)
-            {
-                throw new DataStructureException("Unspecified format.");
-            }
-            format.saveTo(metaDataDirectory);
+            throw new DataStructureException("Unspecified format.");
         }
         if (metaDataDirectory.tryToGetNode(ExperimentIdentifier.FOLDER) == null)
         {
@@ -158,7 +151,22 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Unspecified processing type.");
         }
-        super.save();
+    }
+
+    @Override
+    protected void performOpening()
+    {
+        setFormat(Format.loadFrom(getMetaDataDirectory()));
+    }
+    
+    @Override
+    protected void performClosing()
+    {
+        IDirectory metaDataDirectory = getMetaDataDirectory();
+        if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format != null)
+        {
+            format.saveTo(metaDataDirectory);
+        }
     }
 
     private IDirectory getDataDirectory()

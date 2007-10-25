@@ -61,6 +61,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetOriginalData()
     {
+        dataStructure.create();
         IDirectory dataFolder = dataStructure.getOriginalData();
         assertEquals(DataStructureV1_0.DIR_ORIGINAL, dataFolder.getName());
         assertEquals(DataStructureV1_0.DIR_DATA, dataFolder.tryToGetParent().getName());
@@ -69,6 +70,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetFormatedData()
     {
+        dataStructure.create();
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         IFormattedData formatedData = dataStructure.getFormatedData();
         assertTrue(formatedData instanceof NoFormattedData);
@@ -78,6 +80,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetFormatedDataBeforeInvokingSetVersion()
     {
+        dataStructure.create();
         try
         {
             dataStructure.getFormatedData();
@@ -91,6 +94,7 @@ public class DataStructureV1_0Test
     @Test
     public void testSetProcessingType()
     {
+        dataStructure.create();
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
@@ -100,6 +104,7 @@ public class DataStructureV1_0Test
     @Test
     public void testSetProcessingTypeTwice()
     {
+        dataStructure.create();
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         IDirectory root = storage.getRoot();
@@ -110,6 +115,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetProcessingType()
     {
+        dataStructure.create();
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         assertEquals(ProcessingType.COMPUTED_DATA, dataStructure.getProcessingType());
     }
@@ -117,6 +123,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetUnknownProcessingType()
     {
+        dataStructure.create();
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         IDirectory s = Utilities.getSubDirectory(storage.getRoot(), DataStructureV1_0.DIR_METADATA);
         s.addKeyValuePair(ProcessingType.PROCESSING_TYPE, "blabla");
@@ -126,6 +133,7 @@ public class DataStructureV1_0Test
     @Test
     public void testSetExperimentIdentifier()
     {
+        dataStructure.create();
         ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         IDirectory root = storage.getRoot();
@@ -139,6 +147,7 @@ public class DataStructureV1_0Test
     @Test
     public void testSetExperimentIdentifierTwice()
     {
+        dataStructure.create();
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("a", "b", "c"));
         ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
@@ -153,6 +162,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetNonExistingExperimentIdentifier()
     {
+        dataStructure.create();
         try
         {
             dataStructure.getExperimentIdentifier();
@@ -166,6 +176,7 @@ public class DataStructureV1_0Test
     @Test
     public void testGetExperimentIdentifier()
     {
+        dataStructure.create();
         ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         assertEquals(id, dataStructure.getExperimentIdentifier());
@@ -174,15 +185,17 @@ public class DataStructureV1_0Test
     @Test
     public void testGetVersion()
     {
+        dataStructure.create();
         assertEquals(new Version(1, 0), dataStructure.getVersion());
     }
     
     @Test
-    public void testSaveForEmptyData()
+    public void testCloseForEmptyData()
     {
+        dataStructure.create();
         try
         {
-            dataStructure.save();
+            dataStructure.close();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -191,12 +204,13 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testSaveIfNoFormat()
+    public void testCloseIfNoFormat()
     {
+        dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         try
         {
-            dataStructure.save();
+            dataStructure.close();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -205,13 +219,14 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testSaveIfNoExperimentID()
+    public void testCloseIfNoExperimentID()
     {
+        dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         try
         {
-            dataStructure.save();
+            dataStructure.close();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -220,14 +235,15 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testSaveIfNoProcessingType()
+    public void testCloseIfNoProcessingType()
     {
+        dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         try
         {
-            dataStructure.save();
+            dataStructure.close();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -236,8 +252,9 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testSave()
+    public void testClose()
     {
+        dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
@@ -245,7 +262,7 @@ public class DataStructureV1_0Test
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         
         IDirectory root = storage.getRoot();
-        dataStructure.save();
+        dataStructure.close();
         assertEquals(dataStructure.getVersion(), Version.loadFrom(root));
         try
         {
@@ -257,7 +274,7 @@ public class DataStructureV1_0Test
         }
         
         DataStructureV1_0 reloadedDataStructure = new DataStructureV1_0(storage);
-        reloadedDataStructure.load();
+        reloadedDataStructure.open();
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, reloadedDataStructure.getFormatedData().getFormat());
         assertEquals(experimentIdentifier, reloadedDataStructure.getExperimentIdentifier());
@@ -265,11 +282,16 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testLoadIfVersionMissing()
+    public void testOpenIfVersionMissing()
     {
+        createExampleDataStructure();
+        storage.mount();
+        IDirectory root = storage.getRoot();
+        root.removeNode(Utilities.getSubDirectory(root, Version.VERSION));
+        storage.unmount();
         try
         {
-            dataStructure.load();
+            dataStructure.open();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -278,33 +300,34 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testLoad()
+    public void testOpen()
     {
-        IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
-        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        UnknownFormat1_0.UNKNOWN_1_0.saveTo(metaData);
-        dataStructure.load();
+        createExampleDataStructure();
+        dataStructure.open();
     }
     
     @Test
-    public void testLoadVersion1_1()
+    public void testOpenVersion1_1()
     {
+        createExampleDataStructure();
+        storage.mount();
         IDirectory root = storage.getRoot();
         new Version(1, 1).saveTo(root);
-        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        UnknownFormat1_0.UNKNOWN_1_0.saveTo(metaData);
-        dataStructure.load();
+        storage.unmount();
+        dataStructure.open();
     }
     
     @Test
-    public void testLoadVersion2_0()
+    public void testOpenVersion2_0()
     {
+        createExampleDataStructure();
+        storage.mount();
         IDirectory root = storage.getRoot();
         new Version(2, 0).saveTo(root);
+        storage.unmount();
         try
         {
-            dataStructure.load();
+            dataStructure.open();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -314,26 +337,30 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testLoadWithUnknownFormat1_1()
+    public void testOpenWithUnknownFormat1_1()
     {
+        createExampleDataStructure();
+        storage.mount();
         IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
-        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
+        IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(1, 1)).saveTo(metaData);
-        dataStructure.load();
+        storage.unmount();
+        dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
     }
     
     @Test
-    public void testLoadWithUnknownFormat2_0()
+    public void testOpenWithUnknownFormat2_0()
     {
+        createExampleDataStructure();
+        storage.mount();
         IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
-        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
+        IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
+        storage.unmount();
         try
         {
-            dataStructure.load();
+            dataStructure.open();
             dataStructure.getFormatedData();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
@@ -343,14 +370,32 @@ public class DataStructureV1_0Test
     }
     
     @Test
-    public void testLoadWithAnotherFormat()
+    public void testOpenWithAnotherFormat()
     {
+        createExampleDataStructure();
+        storage.mount();
         IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
-        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
+        IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         new Format("another format", new Version(1,1)).saveTo(metaData);
-        dataStructure.load();
+        storage.unmount();
+        dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
     }
     
+    
+    private void createExampleDataStructure()
+    {
+        storage.mount();
+        IDirectory root = storage.getRoot();
+        new Version(1, 0).saveTo(root);
+        IDirectory data = root.makeDirectory(DataStructureV1_0.DIR_DATA);
+        IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
+        originalDataDir.addKeyValuePair("hello", "world");
+        IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
+        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0)).saveTo(metaData);
+        new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
+        ProcessingType.COMPUTED_DATA.saveTo(metaData);
+        storage.unmount();
+        
+    }
 }

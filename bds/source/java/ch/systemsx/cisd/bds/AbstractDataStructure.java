@@ -27,33 +27,77 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 abstract class AbstractDataStructure implements IDataStructure
 {
     protected final IStorage storage;
-    protected final IDirectory root;
+    
+    protected IDirectory root;
 
     AbstractDataStructure(IStorage storage)
     {
         assert storage != null: "Unspecified storage.";
         this.storage = storage;
+    }
+
+    private void mountStorage()
+    {
         storage.mount();
         root = storage.getRoot();
     }
     
+    /**
+     * Asserts that this instance is already opened or created otherwise a {@link IllegalStateException} is thrown.
+     */
+    protected void assertOpenOrCreated()
+    {
+        if (root == null)
+        {
+            throw new IllegalStateException("Data structure should first be opened or created.");
+        }
+    }
+    
+    /**
+     * Validates this data structure and throws {@link DataStructureException} if invalid. 
+     */
+    protected abstract void assertValid(); 
+    
+    /**
+     * Performs opening specific for the concrete data structure. Will be invoked after the common part of
+     * {@link #open()} but before validation with {@link #assertValid()}. 
+     */
+    protected abstract void performOpening();
+    
+    /**
+     * Performs closing specific for the concrete data structure. Will be invoked before validation with
+     * {@link #assertValid()}.
+     */
+    protected abstract void performClosing();
+    
     //
     // IDataStructure
     //
-
-    public void load()
+    
+    public final void create()
     {
+        mountStorage();
+    }
+
+    public final void open()
+    {
+        mountStorage();
+        performOpening();
         Version loadedVersion = Version.loadFrom(root);
         if (loadedVersion.isBackwardsCompatibleWith(getVersion()) == false)
         {
             throw new DataStructureException("Version of loaded data structure is " + loadedVersion
                     + " which is not backward compatible with " + getVersion());
         }
+        assertValid();
     }
     
-    public void save()
+    public final void close()
     {
+        assertOpenOrCreated();
         getVersion().saveTo(root);
+        performClosing();
+        assertValid();
         storage.unmount();
     }
 }
