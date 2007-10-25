@@ -18,7 +18,6 @@ package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Data structure Version 1.0.
