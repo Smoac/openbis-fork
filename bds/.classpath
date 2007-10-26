@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-library-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
