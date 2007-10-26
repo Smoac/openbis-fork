@@ -23,9 +23,11 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 
 /**
+ * An <code>abtract</code> storage test case.
+ * 
  * @author Franz-Josef Elmer
  */
-public class StorageTestCase
+public abstract class StorageTestCase
 {
     static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd");
 

@@ -27,13 +27,14 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.bds.storage.IStorage;
 
 /**
+ * Test cases for corresponding {@link DataStructureFactory} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataStructureFactoryTest
 {
     private Mockery context;
+
     private IStorage storage;
 
     @BeforeMethod
@@ -42,14 +43,14 @@ public class DataStructureFactoryTest
         context = new Mockery();
         storage = context.mock(IStorage.class);
     }
-    
+
     @Test
     public void testGetDataStructureClassFor()
     {
         assertEquals(DataStructureV1_0.class, DataStructureFactory.getDataStructureClassFor(new Version(1, 0)));
         assertEquals(DataStructureV1_0.class, DataStructureFactory.getDataStructureClassFor(new Version(1, 1)));
     }
-    
+
     @Test
     public void testGetDataStructureClassForIncompatibleVersion()
     {
@@ -62,7 +63,7 @@ public class DataStructureFactoryTest
             assertEquals("No class found for version V2.0", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCreateDataStructure()
     {

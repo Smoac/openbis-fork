@@ -34,23 +34,23 @@ import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 
 /**
+ * Test cases for corresponding {@link DataStructureV1_0} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataStructureV1_0Test
 {
     static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd" + File.separator + "ds");
-    
+
     private static void assertPartOfString(String part, String string)
     {
         assertTrue("Expected <" + part + "> is part of <" + string + ">", string.indexOf(part) >= 0);
     }
-    
+
     private FileStorage storage;
 
     private DataStructureV1_0 dataStructure;
-    
+
     @BeforeMethod
     public void setup() throws IOException
     {
@@ -59,7 +59,7 @@ public class DataStructureV1_0Test
         storage = new FileStorage(TEST_DIR);
         dataStructure = new DataStructureV1_0(storage);
     }
-    
+
     @Test
     public void testGetOriginalData()
     {
@@ -68,7 +68,7 @@ public class DataStructureV1_0Test
         assertEquals(DataStructureV1_0.DIR_ORIGINAL, dataFolder.getName());
         assertEquals(DataStructureV1_0.DIR_DATA, dataFolder.tryToGetParent().getName());
     }
-    
+
     @Test
     public void testGetFormatedData()
     {
@@ -78,7 +78,7 @@ public class DataStructureV1_0Test
         assertTrue(formatedData instanceof NoFormattedData);
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formatedData.getFormat());
     }
-    
+
     @Test
     public void testGetFormatedDataBeforeInvokingSetVersion()
     {
@@ -92,7 +92,7 @@ public class DataStructureV1_0Test
             assertEquals("Couldn't create formated data because of undefined format.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testSetProcessingType()
     {
@@ -102,7 +102,7 @@ public class DataStructureV1_0Test
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData, ProcessingType.PROCESSING_TYPE));
     }
-    
+
     @Test
     public void testSetProcessingTypeTwice()
     {
@@ -113,7 +113,7 @@ public class DataStructureV1_0Test
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData, ProcessingType.PROCESSING_TYPE));
     }
-    
+
     @Test
     public void testGetProcessingType()
     {
@@ -121,7 +121,7 @@ public class DataStructureV1_0Test
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         assertEquals(ProcessingType.COMPUTED_DATA, dataStructure.getProcessingType());
     }
-    
+
     @Test
     public void testGetUnknownProcessingType()
     {
@@ -131,7 +131,7 @@ public class DataStructureV1_0Test
         s.addKeyValuePair(ProcessingType.PROCESSING_TYPE, "blabla");
         assertEquals(ProcessingType.OTHER, dataStructure.getProcessingType());
     }
-    
+
     @Test
     public void testSetExperimentIdentifier()
     {
@@ -145,7 +145,7 @@ public class DataStructureV1_0Test
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
         assertEquals("e\n", Utilities.getString(idDir, ExperimentIdentifier.EXPERIMENT_CODE));
     }
-    
+
     @Test
     public void testSetExperimentIdentifierTwice()
     {
@@ -160,7 +160,7 @@ public class DataStructureV1_0Test
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
         assertEquals("e\n", Utilities.getString(idDir, ExperimentIdentifier.EXPERIMENT_CODE));
     }
-    
+
     @Test
     public void testGetNonExistingExperimentIdentifier()
     {
@@ -174,7 +174,7 @@ public class DataStructureV1_0Test
             assertPartOfString(ExperimentIdentifier.FOLDER, e.getMessage());
         }
     }
-    
+
     @Test
     public void testGetExperimentIdentifier()
     {
@@ -183,14 +183,14 @@ public class DataStructureV1_0Test
         dataStructure.setExperimentIdentifier(id);
         assertEquals(id, dataStructure.getExperimentIdentifier());
     }
-    
+
     @Test
     public void testGetVersion()
     {
         dataStructure.create();
         assertEquals(new Version(1, 0), dataStructure.getVersion());
     }
-    
+
     @Test
     public void testAddReference()
     {
@@ -203,7 +203,7 @@ public class DataStructureV1_0Test
         assertEquals(ReferenceType.IDENTICAL, actualReference.getReferenceType());
         assertEquals("b", actualReference.getOriginalPath());
     }
-    
+
     @Test
     public void testAddReferenceTwice()
     {
@@ -218,7 +218,7 @@ public class DataStructureV1_0Test
             assertEquals("There is already a reference for file 'a'.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testThatGetStandardOriginalMappingReturnsAnUnmodifiableMap()
     {
@@ -232,7 +232,7 @@ public class DataStructureV1_0Test
             // ignored
         }
     }
-    
+
     @Test
     public void testCloseForEmptyData()
     {
@@ -246,7 +246,7 @@ public class DataStructureV1_0Test
             assertEquals("Empty original data directory.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoFormat()
     {
@@ -261,7 +261,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified format.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoExperimentID()
     {
@@ -277,7 +277,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified experiment identifier.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoExperimentRegistrator()
     {
@@ -295,7 +295,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified experiment registrator.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoExperimentRegistrationDate()
     {
@@ -313,7 +313,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified experiment registration date.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoMeasurementEntity()
     {
@@ -332,7 +332,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified measurement entity.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCloseIfNoProcessingType()
     {
@@ -352,7 +352,7 @@ public class DataStructureV1_0Test
             assertEquals("Unspecified processing type.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testClose()
     {
@@ -371,7 +371,7 @@ public class DataStructureV1_0Test
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.addReference(new Reference("a/b/c", "a6b8/x.t", ReferenceType.IDENTICAL));
         dataStructure.addReference(new Reference("a78/jjh", "a b/x\tt", ReferenceType.TRANSFORMED));
-        
+
         IDirectory root = storage.getRoot();
         dataStructure.close();
         assertEquals(dataStructure.getVersion(), Version.loadFrom(root));
@@ -383,7 +383,7 @@ public class DataStructureV1_0Test
         {
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }
-        
+
         DataStructureV1_0 reloadedDataStructure = new DataStructureV1_0(storage);
         reloadedDataStructure.open();
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
@@ -404,7 +404,7 @@ public class DataStructureV1_0Test
         assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
         assertEquals("a b/x\tt", reference.getOriginalPath());
     }
-    
+
     @Test
     public void testOpenIfVersionMissing()
     {
@@ -422,14 +422,14 @@ public class DataStructureV1_0Test
             assertPartOfString(Version.VERSION, e.getMessage());
         }
     }
-    
+
     @Test
     public void testOpen()
     {
         createExampleDataStructure();
         dataStructure.open();
     }
-    
+
     @Test
     public void testOpenVersion1_1()
     {
@@ -440,7 +440,7 @@ public class DataStructureV1_0Test
         storage.unmount();
         dataStructure.open();
     }
-    
+
     @Test
     public void testOpenVersion2_0()
     {
@@ -455,11 +455,11 @@ public class DataStructureV1_0Test
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
-            assertEquals("Version of loaded data structure is V2.0 which is not backward compatible with V1.0", 
-                    e.getMessage());
+            assertEquals("Version of loaded data structure is V2.0 which is not backward compatible with V1.0", e
+                    .getMessage());
         }
     }
-    
+
     @Test
     public void testOpenWithUnknownFormat1_1()
     {
@@ -472,7 +472,7 @@ public class DataStructureV1_0Test
         dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
     }
-    
+
     @Test
     public void testOpenWithUnknownFormat2_0()
     {
@@ -492,7 +492,7 @@ public class DataStructureV1_0Test
             assertEquals("No class found for version V2.0", e.getMessage());
         }
     }
-    
+
     @Test
     public void testOpenWithAnotherFormat()
     {
@@ -505,8 +505,7 @@ public class DataStructureV1_0Test
         dataStructure.open();
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
     }
-    
-    
+
     private void createExampleDataStructure()
     {
         storage.mount();
@@ -524,6 +523,6 @@ public class DataStructureV1_0Test
         metaData.addKeyValuePair(DataStructureV1_0.MAPPING_FILE, "");
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
-        
+
     }
 }

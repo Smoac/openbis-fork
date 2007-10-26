@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 
 /**
+ * Test cases for corresponding {@link DataStructureLoader} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataStructureLoaderTest
@@ -42,7 +42,7 @@ public class DataStructureLoaderTest
         TEST_DIR.mkdirs();
         FileUtils.cleanDirectory(TEST_DIR);
     }
-    
+
     @Test
     public void testOpen()
     {
@@ -60,7 +60,7 @@ public class DataStructureLoaderTest
         dataStructure.setMeasurementEntity(new MeasurementEntity("a", "b"));
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.close();
-        
+
         IDataStructure ds = new DataStructureLoader(TEST_DIR).load("ds");
         assertEquals(DataStructureV1_0.class, ds.getClass());
         assertEquals(experimentIdentifier, ((DataStructureV1_0) ds).getExperimentIdentifier());
