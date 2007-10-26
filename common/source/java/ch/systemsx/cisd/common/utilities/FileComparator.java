@@ -44,8 +44,9 @@ public final class FileComparator
             // Comparator
             //
 
-            public int compare(File o1, File o2)
+            public final int compare(final File o1, final File o2)
             {
+                assert o1 != null && o2 != null;
                 return (int) (o1.lastModified() - o2.lastModified());
             }
         };
@@ -62,9 +63,29 @@ public final class FileComparator
             // Comparator
             //
 
-            public int compare(File o1, File o2)
+            public final int compare(final File o1, final File o2)
             {
+                assert o1 != null && o2 != null;
                 return o1.getName().compareTo(o2.getName());
+            }
+        };
+
+    /**
+     * A {@link File} <code>Comparator</code> implementation that sorts by type (file or directory): first the files
+     * are listed then come the directories.
+     * 
+     * @author Christian Ribeaud
+     */
+    public final static Comparator<File> BY_TYPE = new Comparator<File>()
+        {
+            //
+            // Comparator
+            //
+
+            public final int compare(final File o1, final File o2)
+            {
+                assert o1 != null && o2 != null;
+                return o1.isFile() ? o2.isFile() ? 0 : -1 : +1;
             }
         };
 }
