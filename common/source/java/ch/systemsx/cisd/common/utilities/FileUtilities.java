@@ -574,20 +574,20 @@ public final class FileUtilities
      * If given <var>file</var> does not contain given <var>root</var> path in its absolute path, then returns
      * <code>null</code> (as the relative file could not be determined).
      * </p>
+     * 
+     * @return a relative file with no starting separator.
      */
-    public final static File getRelativeFile(File root, File file)
+    public final static String getRelativeFile(final String root, final String file)
     {
         assert file != null;
-        if (root == null)
+        if (StringUtils.isEmpty(root))
         {
             return file;
         }
-        String absolutePath = root.getAbsolutePath();
-        final String strRoot = absolutePath + File.separator;
-        final String absoluteFile = file.getAbsolutePath();
-        if (absoluteFile.startsWith(strRoot))
+        final String strRoot = root + File.separator;
+        if (file.startsWith(strRoot))
         {
-            return new File(absoluteFile.substring(strRoot.length()));
+            return file.substring(strRoot.length());
         } else
         {
             return null;

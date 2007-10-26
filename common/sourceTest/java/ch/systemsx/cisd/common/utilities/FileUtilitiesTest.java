@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -331,16 +330,15 @@ public class FileUtilitiesTest
         }
         File file = new File(workingDirectory, "hello");
         assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file.getAbsolutePath());
-        assertEquals(file, FileUtilities.getRelativeFile(null, file));
-        assertEquals(file, FileUtilities.getRelativeFile(new File(""), file));
-        File root = new File("/temp");
-        assertEquals("/temp", root.getAbsolutePath());
-        File relativeFile = FileUtilities.getRelativeFile(root, file);
+        assertEquals(file.getAbsolutePath(), FileUtilities.getRelativeFile(null, file.getAbsolutePath()));
+        assertEquals(file.getAbsolutePath(), FileUtilities.getRelativeFile("", file.getAbsolutePath()));
+        String root = "/temp";
+        assertEquals("/temp", root);
+        String relativeFile = FileUtilities.getRelativeFile(root, file.getAbsolutePath());
         assertNull(relativeFile);
-        root = workingDirectory;
-        relativeFile = FileUtilities.getRelativeFile(root, file);
-        assertFalse(relativeFile.isAbsolute());
-        assertEquals("hello", relativeFile.getPath());
+        root = workingDirectory.getAbsolutePath();
+        relativeFile = FileUtilities.getRelativeFile(root, file.getAbsolutePath());
+        assertEquals("hello", relativeFile);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
