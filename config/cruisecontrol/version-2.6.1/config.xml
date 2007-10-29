@@ -181,6 +181,7 @@
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/bds"/>
       <buildstatus logdir="logs/lims_base"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
