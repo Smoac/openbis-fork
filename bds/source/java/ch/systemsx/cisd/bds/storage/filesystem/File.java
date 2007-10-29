@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -39,10 +43,9 @@ class File extends AbstractNode implements IFile
 
     public byte[] getBinaryContent()
     {
-        FileInputStream inputStream = null;
+        InputStream inputStream = getInputStream();
         try
         {
-            inputStream = new FileInputStream(nodeFile);
             return IOUtils.toByteArray(inputStream);
         } catch (IOException ex)
         {
@@ -53,11 +56,33 @@ class File extends AbstractNode implements IFile
         }
     }
 
+    public InputStream getInputStream()
+    {
+        try
+        {
+            return new FileInputStream(nodeFile);
+        } catch (FileNotFoundException ex)
+        {
+            throw new EnvironmentFailureException("Couldn't open input stream for file " + nodeFile.getAbsolutePath());
+        }
+    }
+
     public String getStringContent()
     {
         return FileUtilities.loadToString(nodeFile);
     }
 
+    public Reader getReader()
+    {
+        try
+        {
+            return new FileReader(nodeFile);
+        } catch (FileNotFoundException ex)
+        {
+            throw new EnvironmentFailureException("Couldn't open reader for file " + nodeFile.getAbsolutePath());
+        }
+    }
+    
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
         assert directory != null && directory.isDirectory();

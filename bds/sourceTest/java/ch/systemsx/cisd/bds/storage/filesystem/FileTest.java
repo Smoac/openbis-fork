@@ -18,6 +18,11 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -52,4 +57,40 @@ public class FileTest extends StorageTestCase
         assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
     }
 
+    @Test
+    public void testGetInputStream() throws Exception
+    {
+        java.io.File file = new java.io.File(TEST_DIR, "test");
+        FileOutputStream fileOutputStream = null;
+        try
+        {
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(new byte[] {1, 2, 3, 4});
+        } catch (IOException ex)
+        {
+            throw ex;
+        } finally
+        {
+            IOUtils.closeQuietly(fileOutputStream);
+        }
+        
+        File binaryFile = new File(file);
+        InputStream inputStream = binaryFile.getInputStream();
+        try
+        {
+            byte[] bytes = new byte[5];
+            inputStream.read(bytes);
+            assertEquals(1, bytes[0]);
+            assertEquals(2, bytes[1]);
+            assertEquals(3, bytes[2]);
+            assertEquals(4, bytes[3]);
+            assertEquals(0, bytes[4]);
+        } catch (IOException ex)
+        {
+            throw ex;
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
 }
