@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import static ch.systemsx.cisd.bds.DataStructureV1_0.CHECKSUM_DIRECTORY;
+import static ch.systemsx.cisd.bds.DataStructureV1_0.DIR_METADATA;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -403,6 +405,11 @@ public class DataStructureV1_0Test
         assertEquals("a78/jjh", reference.getPath());
         assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
         assertEquals("a b/x\tt", reference.getOriginalPath());
+        
+        IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
+        IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, CHECKSUM_DIRECTORY);
+        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", 
+                     Utilities.getString(checksumDir, DataStructureV1_0.DIR_ORIGINAL));
     }
 
     @Test

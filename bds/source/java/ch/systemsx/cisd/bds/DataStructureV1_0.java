@@ -39,6 +39,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class DataStructureV1_0 extends AbstractDataStructure
 {
+    static final String CHECKSUM_DIRECTORY = "md5sum";
+
     static final String DIR_METADATA = "metadata";
 
     static final String DIR_DATA = "data";
@@ -48,9 +50,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
     static final String MAPPING_FILE = "standard_original_mapping";
 
     private static final Version VERSION = new Version(1, 0);
+    
+    private final ChecksumBuilder checksumBuilder = new ChecksumBuilder(new MD5ChecksumCalculator());
+    private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
 
     private Format format;
-    private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
 
     /**
      * Creates a new instance relying on the specified storage.
@@ -316,6 +320,10 @@ public class DataStructureV1_0 extends AbstractDataStructure
     protected void performClosing()
     {
         IDirectory metaDataDirectory = getMetaDataDirectory();
+        IDirectory checksumDirectory = metaDataDirectory.makeDirectory(CHECKSUM_DIRECTORY);
+        String checksumsOfOriginal = checksumBuilder.buildChecksumsForAllFilesIn(getOriginalData());
+        checksumDirectory.addKeyValuePair(DIR_ORIGINAL, checksumsOfOriginal);
+        
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer, true);
         Collection<Reference> values = standardOriginalMapping.values();

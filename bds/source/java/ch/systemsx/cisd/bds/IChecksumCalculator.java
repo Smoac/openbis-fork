@@ -16,27 +16,22 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.io.File;
-import java.io.Writer;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Implementations write computed checksums to some specified {@link Writer}.
+ * Implementations know how to compute a <a href="http://en.wikipedia.org/wiki/Checksum">checksum</a> from a file.
  * 
  * @author Christian Ribeaud
  */
-public interface IChecksumWriter
+public interface IChecksumCalculator
 {
 
     /**
-     * Appends computed checksum for given <var>file</var> to given <var>writer</var>.
-     * <p>
-     * If given <var>file</var> is a directory, then recursively calls this method for each file composing the
-     * directory.
-     * </p>
+     * Returns the checksum of the bytes read from the specified input stream.
      * 
-     * @param file can not be <code>null</code> and must exist.
-     * @param writer can not be <code>null</code>.
+     * @param inputStream Input stream from whom the bytes are read to calculate checksum.
+     * @throws IOException if reading from <code>inputStream</code> causes an <code>IOException</code>.
      */
-    public void writeChecksum(final File file, final Writer writer);
-
+    public String calculateChecksum(InputStream inputStream) throws IOException;
 }
