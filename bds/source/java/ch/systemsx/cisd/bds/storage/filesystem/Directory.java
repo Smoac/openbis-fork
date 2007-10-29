@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -29,9 +27,6 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -40,40 +35,12 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 class Directory extends AbstractNode implements IDirectory
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractNode.class);
-
-    private static final Log4jSimpleLogger errorLogger = new Log4jSimpleLogger(Level.ERROR, operationLog);
-
     Directory(java.io.File directory)
     {
         super(directory);
         if (directory.isDirectory() == false)
         {
             throw new StorageException("Not a directory: " + directory.getAbsolutePath());
-        }
-    }
-
-    private final static void moveFileToDirectory(final java.io.File source, final java.io.File directory)
-            throws EnvironmentFailureException
-    {
-        assert source != null;
-        assert directory != null && directory.isDirectory();
-        final java.io.File destination = new java.io.File(directory, source.getName());
-        if (destination.exists() == false)
-        {
-            final boolean successful = source.renameTo(destination);
-            if (successful == false)
-            {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
-                        .getAbsolutePath(), directory.getAbsolutePath());
-            }
-        } else
-        {
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("Destination file '%s' already exists. Will not overwrite", destination
-                        .getAbsolutePath()));
-            }
         }
     }
 
@@ -203,7 +170,7 @@ class Directory extends AbstractNode implements IDirectory
         final java.io.File file = abstractNode.nodeFile;
         if (file.isDirectory())
         {
-            if (FileUtilities.deleteRecursively(file, errorLogger) == false)
+            if (FileUtilities.deleteRecursively(file, null) == false)
             {
                 throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.", file
                         .getAbsolutePath());

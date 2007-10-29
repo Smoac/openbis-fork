@@ -42,4 +42,10 @@ public interface INode
      * </p>
      */
     public void extractTo(final File directory);
+    
+    /**
+     * Moves this node and all descendants to the specified directory of the file system.
+     * This node will be automatically removed from its parent.
+     */
+    public void moveTo(final File directory);
 }

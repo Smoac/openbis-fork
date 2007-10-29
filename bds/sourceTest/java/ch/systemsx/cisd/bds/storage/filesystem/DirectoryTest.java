@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
+import java.util.Iterator;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -154,6 +155,28 @@ public class DirectoryTest extends StorageTestCase
         assertEquals(true, new File(TEST_DIR, "dir").exists());
     }
 
+    @Test
+    public void testMoveTo()
+    {
+        File dir = new File(TEST_DIR, "dir");
+        dir.mkdirs();
+        IDirectory directory = new Directory(dir);
+        directory.addKeyValuePair("p1", "property 1");
+        IDirectory subdir = directory.makeDirectory("subdir");
+        subdir.addKeyValuePair("p2", "property 2");
+        subdir.moveTo(TEST_DIR);
+        
+        Iterator<INode> iterator = directory.iterator();
+        assertEquals(true, iterator.hasNext());
+        INode node = iterator.next();
+        assertEquals("p1", node.getName());
+        assertEquals("property 1", ((IFile) node).getStringContent().trim());
+        assertEquals(false, iterator.hasNext());
+        File subdir2 = new File(TEST_DIR, "subdir");
+        assertEquals(true, subdir2.isDirectory());
+        assertEquals("property 2", FileUtilities.loadToString(new File(subdir2, "p2")).trim());
+    }
+    
     @Test
     public void testAddFileWithCopy()
     {

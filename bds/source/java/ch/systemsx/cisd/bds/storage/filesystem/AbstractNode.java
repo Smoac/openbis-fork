@@ -21,12 +21,30 @@ import java.io.File;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.StorageException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * @author Franz-Josef Elmer
  */
 abstract class AbstractNode implements INode
 {
+    protected final static void moveFileToDirectory(final File source, final File directory)
+            throws EnvironmentFailureException
+    {
+        assert source != null;
+        assert directory != null && directory.isDirectory();
+        final File destination = new File(directory, source.getName());
+        if (destination.exists() == false)
+        {
+            final boolean successful = source.renameTo(destination);
+            if (successful == false)
+            {
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", 
+                                                               source.getAbsolutePath(), directory.getAbsolutePath());
+            }
+        }
+    }
+
     protected final File nodeFile;
 
     AbstractNode(File file)
@@ -51,6 +69,11 @@ abstract class AbstractNode implements INode
     {
         File dir = nodeFile.getParentFile();
         return dir == null ? null : new Directory(dir);
+    }
+
+    public void moveTo(File directory)
+    {
+        moveFileToDirectory(nodeFile, directory);
     }
 
     @Override

@@ -64,4 +64,10 @@ class Link implements ILink
     {
         // TODO Auto-generated method stub
     }
+
+    public void moveTo(File directory)
+    {
+        // TODO Auto-generated method stub
+    }
+        
 }

@@ -25,6 +25,8 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -57,6 +59,20 @@ public class FileTest extends StorageTestCase
         assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
     }
 
+    @Test
+    public void testMoveTo()
+    {
+        java.io.File dir = new java.io.File(TEST_DIR, "dir");
+        dir.mkdirs();
+        IDirectory directory = new Directory(dir);
+        IFile file = directory.addKeyValuePair("p1", "property 1");
+        
+        file.moveTo(TEST_DIR);
+        
+        assertEquals(false, directory.iterator().hasNext());
+        assertEquals("property 1", FileUtilities.loadToString(new java.io.File(TEST_DIR, "p1")).trim());
+    }
+    
     @Test
     public void testGetInputStream() throws Exception
     {
