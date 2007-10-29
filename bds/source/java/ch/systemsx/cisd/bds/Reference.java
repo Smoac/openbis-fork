@@ -18,7 +18,7 @@ package ch.systemsx.cisd.bds;
 
 
 /**
- * 
+ * Immutable class defining a reference between to paths.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,6 +28,13 @@ public class Reference
     private final String originalPath;
     private final ReferenceType referenceType;
 
+    /**
+     * Creates an instance for the specified paths and reference type.
+     *
+     * @param path Path which referes to <code>originalPath</code>.
+     * @param originalPath Path to which <code>path</code> referes.
+     * @param referenceType Type of reference.
+     */
     public Reference(String path, String originalPath, ReferenceType referenceType)
     {
         this.path = path;
@@ -35,16 +42,25 @@ public class Reference
         this.referenceType = referenceType;
     }
 
+    /**
+     * Returns the original path.
+     */
     public final String getOriginalPath()
     {
         return originalPath;
     }
 
+    /**
+     * Returns the reference path.
+     */
     public final String getPath()
     {
         return path;
     }
 
+    /**
+     * Returns the type of reference.
+     */
     public final ReferenceType getReferenceType()
     {
         return referenceType;

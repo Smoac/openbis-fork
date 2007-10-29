@@ -51,5 +51,5 @@ abstract class AbstractFormattedData implements IFormattedData
      * 
      * @throws DataStructureException if format of format parameters are invalid.
      */
-    protected abstract void assertValidFormatAndFormatParameters();
+    abstract void assertValidFormatAndFormatParameters();
 }
