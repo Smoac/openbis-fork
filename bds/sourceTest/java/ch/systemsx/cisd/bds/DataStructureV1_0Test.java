@@ -19,12 +19,14 @@ package ch.systemsx.cisd.bds;
 import static ch.systemsx.cisd.bds.DataStructureV1_0.CHECKSUM_DIRECTORY;
 import static ch.systemsx.cisd.bds.DataStructureV1_0.DIR_METADATA;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -76,7 +78,7 @@ public class DataStructureV1_0Test
     {
         dataStructure.create();
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
-        IFormattedData formatedData = dataStructure.getFormatedData();
+        IFormattedData formatedData = dataStructure.getFormattedData();
         assertTrue(formatedData instanceof NoFormattedData);
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formatedData.getFormat());
     }
@@ -87,11 +89,11 @@ public class DataStructureV1_0Test
         dataStructure.create();
         try
         {
-            dataStructure.getFormatedData();
+            dataStructure.getFormattedData();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
-            assertEquals("Couldn't create formated data because of undefined format.", e.getMessage());
+            assertEquals("Couldn't create formated data because of unspecified format.", e.getMessage());
         }
     }
 
@@ -373,6 +375,8 @@ public class DataStructureV1_0Test
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.addReference(new Reference("a/b/c", "a6b8/x.t", ReferenceType.IDENTICAL));
         dataStructure.addReference(new Reference("a78/jjh", "a b/x\tt", ReferenceType.TRANSFORMED));
+        dataStructure.addFormatParameter(new FormatParameter("plate_dimension", "16x24"));
+        checkFormattedData(dataStructure.getFormattedData());
 
         IDirectory root = storage.getRoot();
         dataStructure.close();
@@ -389,7 +393,6 @@ public class DataStructureV1_0Test
         DataStructureV1_0 reloadedDataStructure = new DataStructureV1_0(storage);
         reloadedDataStructure.open();
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, reloadedDataStructure.getFormatedData().getFormat());
         assertEquals(experimentIdentifier, reloadedDataStructure.getExperimentIdentifier());
         assertEquals(experimentRegistratorDate, reloadedDataStructure.getExperimentRegistratorDate());
         assertEquals(experimentRegistrator, reloadedDataStructure.getExperimentRegistrator());
@@ -405,11 +408,24 @@ public class DataStructureV1_0Test
         assertEquals("a78/jjh", reference.getPath());
         assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
         assertEquals("a b/x\tt", reference.getOriginalPath());
+        checkFormattedData(reloadedDataStructure.getFormattedData());
         
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
         IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, CHECKSUM_DIRECTORY);
         assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", 
                      Utilities.getString(checksumDir, DataStructureV1_0.DIR_ORIGINAL));
+    }
+
+    private void checkFormattedData(IFormattedData formattedData)
+    {
+        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formattedData.getFormat());
+        IFormatParameters formatParameters = formattedData.getFormatParameters();
+        Iterator<FormatParameter> iterator = formatParameters.iterator();
+        assertTrue(iterator.hasNext());
+        FormatParameter parameter = iterator.next();
+        assertEquals("plate_dimension", parameter.getName());
+        assertEquals("16x24", parameter.getValue());
+        assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -477,7 +493,7 @@ public class DataStructureV1_0Test
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
+        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
     @Test
@@ -492,7 +508,7 @@ public class DataStructureV1_0Test
         dataStructure.open();
         try
         {
-            dataStructure.getFormatedData();
+            dataStructure.getFormattedData();
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
@@ -510,7 +526,7 @@ public class DataStructureV1_0Test
         new Format("another format", new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormatedData().getFormat());
+        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
     private void createExampleDataStructure()

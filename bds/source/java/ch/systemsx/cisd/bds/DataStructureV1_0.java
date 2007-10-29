@@ -42,6 +42,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
     static final String CHECKSUM_DIRECTORY = "md5sum";
 
     static final String DIR_METADATA = "metadata";
+    
+    static final String DIR_PARAMETERS = "parameters";
 
     static final String DIR_DATA = "data";
 
@@ -53,6 +55,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     
     private final ChecksumBuilder checksumBuilder = new ChecksumBuilder(new MD5ChecksumCalculator());
     private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
+    private final FormatParameters formatParameters = new FormatParameters();
 
     private Format format;
 
@@ -87,14 +90,15 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * 
      * @throws DataStructureException if this method has been invoked before the format has been set.
      */
-    public IFormattedData getFormatedData()
+    public IFormattedData getFormattedData()
     {
         assertOpenOrCreated();
         if (format == null)
         {
-            throw new DataStructureException("Couldn't create formated data because of undefined format.");
+            throw new DataStructureException("Couldn't create formated data because of unspecified format.");
         }
-        return FormatedDataFactory.createFormatedData(getMetaDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0);
+        IDirectory metaData = getMetaDataDirectory();
+        return FormatedDataFactory.createFormatedData(metaData, format, UnknownFormat1_0.UNKNOWN_1_0, formatParameters);
     }
 
     /**
@@ -107,6 +111,17 @@ public class DataStructureV1_0 extends AbstractDataStructure
         this.format = format;
     }
 
+    /**
+     * Adds the specified format parameter.
+     * 
+     * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
+     */
+    public void addFormatParameter(FormatParameter formatParameter)
+    {
+        assert formatParameter != null : "Unspecified format parameter.";
+        formatParameters.addParameter(formatParameter);
+    }
+    
     /**
      * Returns the experiment identifier.
      * 
@@ -279,7 +294,12 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         IDirectory metaDataDirectory = getMetaDataDirectory();
         setFormat(Format.loadFrom(metaDataDirectory));
-        
+        formatParameters.loadFrom(getParametersDirectory());
+        loadStandardOriginalMapping(metaDataDirectory);
+    }
+
+    private void loadStandardOriginalMapping(IDirectory metaDataDirectory)
+    {
         StringReader stringReader = new StringReader(Utilities.getString(metaDataDirectory, MAPPING_FILE));
         BufferedReader reader = new BufferedReader(stringReader);
         List<String> lines = new ArrayList<String>();
@@ -315,7 +335,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
             standardOriginalMapping.put(path, new Reference(path, referenceDefinition.substring(i2 + 1), type));
         }
     }
-
+    
     @Override
     protected void performClosing()
     {
@@ -323,6 +343,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
         IDirectory checksumDirectory = metaDataDirectory.makeDirectory(CHECKSUM_DIRECTORY);
         String checksumsOfOriginal = checksumBuilder.buildChecksumsForAllFilesIn(getOriginalData());
         checksumDirectory.addKeyValuePair(DIR_ORIGINAL, checksumsOfOriginal);
+        
+        formatParameters.saveTo(getParametersDirectory());
         
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer, true);
@@ -352,4 +374,10 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
     }
+    
+    private IDirectory getParametersDirectory()
+    {
+        return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
+    }
+    
 }

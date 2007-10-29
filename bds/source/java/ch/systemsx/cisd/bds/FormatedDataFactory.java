@@ -54,10 +54,13 @@ class FormatedDataFactory
         return factory.getClassFor(format.getVersion());
     }
 
-    static IFormattedData createFormatedData(IDirectory dataDirectory, Format format, Format defaultFormat)
+    static IFormattedData createFormatedData(IDirectory dataDirectory, Format format, Format defaultFormat, 
+                                             IFormatParameters formatParameters)
     {
         Factory<IFormattedData> factory = getFactory(format, defaultFormat);
-        return factory.create(IDirectory.class, dataDirectory, format.getVersion());
+        Format f = chooseSupportedFormat(format, defaultFormat);
+        FormattedDataContext context = new FormattedDataContext(dataDirectory, f, formatParameters);
+        return factory.create(FormattedDataContext.class, context, format.getVersion());
     }
 
     private static Factory<IFormattedData> getFactory(Format format, Format defaultFormat)
@@ -77,6 +80,11 @@ class FormatedDataFactory
             throw new DataStructureException("Unknown format code: " + code);
         }
         return factory;
+    }
+    
+    private static Format chooseSupportedFormat(Format format, Format defaultFormat)
+    {
+        return factories.get(format.getCode()) == null ? defaultFormat : format;
     }
     
 }

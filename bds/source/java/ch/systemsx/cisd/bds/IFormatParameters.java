@@ -16,21 +16,17 @@
 
 package ch.systemsx.cisd.bds;
 
-
 /**
- * Interface common for all classes handling formated data.
+ * Read-only access interface for a set of {@link FormatParameter} objects.
  *
  * @author Franz-Josef Elmer
  */
-public interface IFormattedData
+public interface IFormatParameters extends Iterable<FormatParameter>
 {
     /**
-     * Returns the format of data.
+     * Returns the value of the specified parameter.
+     * 
+     * @throws IllegalArgumentException if there is no parameter named as specified.
      */
-    public Format getFormat();
-    
-    /**
-     * Returns the parameters of the data format.
-     */
-    public IFormatParameters getFormatParameters();
+    public String getValue(String parameterName);
 }

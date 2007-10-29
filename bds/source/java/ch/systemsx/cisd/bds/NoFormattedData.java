@@ -16,35 +16,43 @@
 
 package ch.systemsx.cisd.bds;
 
-import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
  * Most simplest implementation of {@link IFormattedData}. It is associated with {@link UnknownFormat1_0}.
- * It can be subclassed provided {@link #getFormat()} will be overridden.
  *
  * @author Franz-Josef Elmer
  */
-public class NoFormattedData implements IFormattedData
+public class NoFormattedData extends AbstractFormattedData
 {
     /**
-     * Root directory of formated data.
+     * Creates a new instance for the specified context. The format has to be backward-compatible with 
+     * {@link UnknownFormat1_0}. The format parameters are ignored.
      */
-    protected final IDirectory dataDirectory;
-
-    /**
-     * Creates an instance for the specified data directory.
-     */
-    public NoFormattedData(IDirectory dataDirectory)
+    public NoFormattedData(FormattedDataContext context)
     {
-        this.dataDirectory = dataDirectory;
+        super(context);
     }
-    
+
     /**
      * Returns {@link UnknownFormat1_0#UNKNOWN_1_0}.
      */
     public Format getFormat()
     {
         return UnknownFormat1_0.UNKNOWN_1_0;
+    }
+    
+    @Override
+    protected void assertValidFormatAndFormatParameters()
+    {
+        if (format.getCode().equals(getFormat().getCode()) == false)
+        {
+            throw new DataStructureException("Invalid format code: " + format.getCode());
+        }
+        if (format.getVersion().isBackwardsCompatibleWith(getFormat().getVersion()) == false)
+        {
+            throw new DataStructureException("Incompatible format version: " + format.getVersion());
+            
+        }
     }
 
 }
