@@ -28,7 +28,7 @@ public class NoFormattedData extends AbstractFormattedData
      * Creates a new instance for the specified context. The format has to be backward-compatible with 
      * {@link UnknownFormat1_0}. The format parameters are ignored.
      */
-    NoFormattedData(FormattedDataContext context)
+    public NoFormattedData(FormattedDataContext context)
     {
         super(context);
     }
