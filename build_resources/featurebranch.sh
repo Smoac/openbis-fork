@@ -14,4 +14,4 @@ else
 fi
 
 dir=`dirname $0`
-ant -f $dir/ant/build.xml -Dname=$name -Dbranch=$branch -Drevision=$revision branch
+ant -f $dir/ant/build.xml -Dname=$name -Dbranch=$branch -Drevision=$revision feature-branch

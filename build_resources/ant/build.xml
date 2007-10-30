@@ -52,8 +52,33 @@
         <isset property="group" />
       </not>
     </condition>
+    <condition property="revision" value="HEAD">
+      <not>
+        <isset property="revision" />
+      </not>
+    </condition>
     <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}" 
-                            releaseBranch="${branch}" />
+                            revision="${revision}" releaseBranch="${branch}" />
+  </target>
+
+  <target name="feature-branch">
+    <condition property="repositoryRoot" value="${repositoryRoot.default}">
+      <not>
+        <isset property="repositoryRoot" />
+      </not>
+    </condition>
+    <condition property="group" value="cisd">
+      <not>
+        <isset property="group" />
+      </not>
+    </condition>
+    <condition property="revision" value="HEAD">
+      <not>
+        <isset property="revision" />
+      </not>
+    </condition>
+    <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}"
+                            revision="${revision}" featureBranch="${branch}" />
   </target>
 
   <target name="tag">
