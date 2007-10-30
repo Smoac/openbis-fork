@@ -678,10 +678,10 @@ public final class BeanUtils
         {
             try
             {
-                final Method converterMethod =
-                        converter.getClass().getMethod(
-                                "convertTo" + setter.getName().substring(SETTER_PREFIX.length()), new Class[]
-                                    { sourceBean.getClass() });
+                String methodName = "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
+                Class<? extends Converter> converterClasss = converter.getClass();
+                final Method converterMethod = converterClasss.getMethod(methodName, new Class[]
+                    { sourceBean.getClass() });
                 if (converterMethod.isAccessible() == false)
                 {
                     converterMethod.setAccessible(true);
