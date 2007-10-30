@@ -290,6 +290,17 @@ public class SVNBranchAndTagTask extends Task
         }
     }
 
+    public void setRevision(String revision)
+    {
+        try
+        {
+            sourceContext.setRevision(revision);
+        } catch (UserFailureException ex)
+        {
+            throw new BuildException(ex);
+        }
+    }
+    
     public void setGroup(String groupName)
     {
         try
