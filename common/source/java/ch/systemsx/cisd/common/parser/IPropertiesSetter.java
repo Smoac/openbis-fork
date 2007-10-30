@@ -16,31 +16,15 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
- * Signals that an error has been reached unexpectedly while parsing.
+ * Used to construct object by setting its properties
  * 
- * @author Christian Ribeaud
+ * @author Tomasz Pylak on Oct 29, 2007
  */
-public final class ParseException extends UserFailureException
+public interface IPropertiesSetter<ConstructedType>
 {
+    void setProperty(String name, String valueOrNull);
 
-    private static final long serialVersionUID = 1L;
-
-    private final int lineNumber;
-
-    public ParseException(String message, Throwable cause, int lineNumber)
-    {
-        super(message, cause);
-        this.lineNumber = lineNumber;
-    }
-
-    /**
-     * Returns the line where the error was found.
-     */
-    public final int getLineNumber()
-    {
-        return lineNumber;
-    }
+    /** returns constructed object, called after setting properties values */
+    ConstructedType done();
 }

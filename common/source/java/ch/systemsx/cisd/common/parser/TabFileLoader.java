@@ -29,12 +29,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class TabFileLoader<T>
 {
-    
+
     private final IParserObjectFactoryFactory<T> factory;
 
     /**
@@ -49,8 +49,8 @@ public class TabFileLoader<T>
     /**
      * Loads from the specified tab file a list of objects of type <code>T</code>.
      * 
-     * @throws UserFailureException if the file does not exists, the header line with correct column 
-     *      bean attribute names is missing, or a parsing error occurs.
+     * @throws UserFailureException if the file does not exists, the header line with correct column bean attribute
+     *             names is missing, or a parsing error occurs.
      * @throws EnvironmentFailureException if a IOException occured.
      */
     public List<T> load(File file)

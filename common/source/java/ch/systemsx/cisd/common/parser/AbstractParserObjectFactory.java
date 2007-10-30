@@ -17,14 +17,11 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,8 +48,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      */
     private final Map<String, PropertyDescriptor> propertyDescriptors;
 
-    /** The list of mandatory <code>Field</code>s for {@link NewExperiment}, keyed by their name. */
-    private final Map<String, Field> mandatoryFields;
+    /** The set of mandatory field names for {@link NewExperiment} */
+    private final Set<String> mandatoryFields;
 
     /** The pool of {@link Converter}s. */
     private final ConverterPool converterPool;
@@ -65,7 +62,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         assert beanClass != null;
         assert propertyMapper != null;
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
-        mandatoryFields = createMandatoryFields(beanClass);
+        mandatoryFields = ClassUtils.getMandatoryFields(beanClass);
+        assert mandatoryFields != null;
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
         converterPool = createConverterPool();
@@ -126,8 +124,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         propertyNames.removeAll(propertyDescriptors.keySet());
         if (propertyNames.size() > 0)
         {
-            throw UserFailureException.fromTemplate("The following header columns are not part of '%s': %s",
-                    clazz.getSimpleName(), format(propertyNames));
+            throw UserFailureException.fromTemplate("The following header columns are not part of '%s': %s", clazz
+                    .getSimpleName(), format(propertyNames));
         }
     }
 
@@ -144,27 +142,11 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         builder.setLength(builder.length() - 2);
         return builder.toString();
     }
-    
-    /**
-     * Analyzes given <code>Class</code> and returns a <code>Map</code> containing the mandatory <code>Field</code>s
-     * keyed by {@link Field#getName()}.
-     */
-    private final static Map<String, Field> createMandatoryFields(Class<?> clazz)
-    {
-        Map<String, Field> map = new HashMap<String, Field>();
-        List<Field> fields = ClassUtils.getMandatoryFields(clazz);
-        for (Field field : fields)
-        {
-            map.put(field.getName(), field);
-        }
-        return map;
-    }
 
     /** Whether given field name is mandatory. */
     private final boolean isMandatory(String fieldName)
     {
-        assert mandatoryFields != null;
-        return mandatoryFields.containsKey(fieldName);
+        return mandatoryFields.contains(fieldName);
     }
 
     private String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)

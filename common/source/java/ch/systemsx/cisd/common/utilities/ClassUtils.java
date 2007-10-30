@@ -21,8 +21,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -41,9 +43,23 @@ public final class ClassUtils
     }
 
     /**
+     * For given <code>Class</code> returns a set of field names that are annotated with {@link Mandatory}.
+     */
+    public final static Set<String> getMandatoryFields(Class<?> clazz)
+    {
+        Set<String> set = new HashSet<String>();
+        List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
+        for (Field field : fields)
+        {
+            set.add(field.getName());
+        }
+        return set;
+    }
+
+    /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      */
-    public final static List<Field> getMandatoryFields(Class<?> clazz)
+    private final static List<Field> getMandatoryFieldsList(Class<?> clazz)
     {
         return getMandatoryFields(clazz, null);
     }
@@ -142,7 +158,7 @@ public final class ClassUtils
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
-        
+
         try
         {
             final Class<?> clazz = Class.forName(className);
@@ -152,7 +168,8 @@ public final class ClassUtils
             {
                 return createInstance(clazz);
             }
-            final Constructor<?> constructor = clazz.getConstructor(new Class[] {Properties.class});
+            final Constructor<?> constructor = clazz.getConstructor(new Class[]
+                { Properties.class });
             return createInstance(constructor, properties);
         } catch (Exception ex)
         {
@@ -165,12 +182,13 @@ public final class ClassUtils
     {
         return (T) clazz.newInstance();
     }
-    
+
     @SuppressWarnings("unchecked")
     private static <T> T createInstance(final Constructor<?> constructor, Properties properties)
             throws InstantiationException, IllegalAccessException, InvocationTargetException
     {
-        return (T) constructor.newInstance(new Object[] {properties});
+        return (T) constructor.newInstance(new Object[]
+            { properties });
     }
-    
+
 }
