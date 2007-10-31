@@ -1,15 +1,15 @@
- <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
 
-<suite name="Fast" verbose="1" >
-  <test name="Fast" >
-    <groups>
-      <run>
-        <exclude name="slow" />
-      </run>
-    </groups>
-
-    <packages>
-      <package name="ch.systemsx.*" />
-    </packages>
-  </test>
+<suite name="Fast" verbose="1">
+    <test name="Fast">
+        <groups>
+            <run>
+                <exclude name="slow" />
+                <exclude name="broken" />
+            </run>
+        </groups>
+        <packages>
+            <package name="ch.systemsx.*" />
+        </packages>
+    </test>
 </suite>

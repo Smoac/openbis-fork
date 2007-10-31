@@ -1,7 +1,12 @@
-<suite name="All" verbose="1" >
-  <test name="All" >
-    <packages>
-      <package name="ch.systemsx.*" />
-   </packages>
- </test>
+<suite name="All" verbose="1">
+    <test name="All">
+        <groups>
+            <run>
+                <exclude name="broken" />
+            </run>
+        </groups>
+        <packages>
+            <package name="ch.systemsx.*" />
+        </packages>
+    </test>
 </suite>
