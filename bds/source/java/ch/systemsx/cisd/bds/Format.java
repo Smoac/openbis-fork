@@ -143,7 +143,7 @@ public class Format
     @Override
     public String toString()
     {
-        return "Format: " + code + " " + version + (variant == null ? "" : "[" + variant + "]");
+        return "Format: " + code + " " + version + (variant == null ? "" : " [" + variant + "]");
     }
 
 }
