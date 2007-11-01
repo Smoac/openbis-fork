@@ -36,6 +36,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     private static Map<LogMonitoringAppender, String> appenderMap = new HashMap<LogMonitoringAppender, String>();
 
+    private final StringBuilder eventRecorder = new StringBuilder();
     private final String messagePart;
 
     private LogMonitoringAppender(String messagePart)
@@ -91,7 +92,14 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     @Override
     protected void append(LoggingEvent event)
     {
-        if (event.getMessage().toString().contains(messagePart) || getThrowableStr(event).contains(messagePart))
+        String eventMessage = event.getMessage().toString();
+        eventRecorder.append("event message: ").append(eventMessage).append('\n');
+        String throwableStr = getThrowableStr(event);
+        if (throwableStr.length() > 0)
+        {
+            eventRecorder.append("event throwable: ").append(throwableStr).append('\n');
+        }
+        if (eventMessage.contains(messagePart) || throwableStr.contains(messagePart))
         {
             logHappened = true;
         }
@@ -111,12 +119,13 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     public void verifyLogHasNotHappened()
     {
-        assert logHappened == false : "Following log snipped was found but shouldn't have: " + messagePart;
+        assert logHappened == false : "Log snippet '" + messagePart + "' has been unexpectedly found in log:\n"
+                + eventRecorder;
     }
     
     public void verifyLogHasHappened()
     {
-        assert logHappened : "Following log snippet has been missed: " + messagePart;
+        assert logHappened : "Log snippet '" + messagePart + "' has been missed in log:\n" + eventRecorder;
     }
     
     public void reset()
