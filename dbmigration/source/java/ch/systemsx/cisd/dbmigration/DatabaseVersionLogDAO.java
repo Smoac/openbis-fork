@@ -148,7 +148,6 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         List<LogEntry> entries = template.query(SELECT_LAST_ENTRY, new LogEntryRowMapper(lobHandler));
-        System.out.println(entries);
         
         return entries.size() == 0 ? null : entries.get(entries.size() - 1);
     }
