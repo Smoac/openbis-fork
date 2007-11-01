@@ -33,6 +33,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DatabaseConfigurationContext
 {
+    private String databaseVersion;
+    
     private String driver;
 
     private LobHandler lobHandler;
@@ -130,6 +132,31 @@ public class DatabaseConfigurationContext
             adminDataSource = myDataSource;
         }
         return adminDataSource;
+    }
+
+    /**
+     * Returns the database version which should be used. If not set by {@link #setDatabaseVersion(String)} 
+     * <code>defaultDatabaseVersion</code> will be returned.
+     * 
+     * @throws ConfigurationFailureException if the database version is beyound the default one.
+     */
+    public final String getDatabaseVersion(String defaultDatabaseVersion)
+    {
+        if (databaseVersion == null)
+        {
+            return defaultDatabaseVersion;
+        }
+        if (databaseVersion.compareTo(defaultDatabaseVersion) > 0)
+        {
+            throw new ConfigurationFailureException("Database version " + databaseVersion
+                    + " is not supported. Latest supported database version is " + defaultDatabaseVersion);
+        }
+        return databaseVersion;
+    }
+
+    public final void setDatabaseVersion(String databaseVersion)
+    {
+        this.databaseVersion = databaseVersion;
     }
 
     /**
