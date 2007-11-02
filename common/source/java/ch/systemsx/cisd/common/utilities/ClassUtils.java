@@ -154,7 +154,7 @@ public final class ClassUtils
      *            <code>Properties</code> argument is expected. Otherwise the default constructor will used.
      * @return an instance of type <code>interfaze</code>.
      */
-    public static <T> T create(Class<T> superClazz, String className, Properties properties)
+    public static <T> T create(final Class<T> superClazz, final String className, final Properties properties)
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
@@ -162,8 +162,9 @@ public final class ClassUtils
         try
         {
             final Class<?> clazz = Class.forName(className);
-            assert clazz.isInterface() == false : clazz + " can not be instanciated";
-            assert superClazz.isAssignableFrom(clazz) : clazz + " does not implements/extends " + superClazz.getName();
+            assert clazz.isInterface() == false : "'" + clazz + "' can not be instanciated as it is an interface.";
+            assert superClazz.isAssignableFrom(clazz) : "'" + clazz + "' does not implements/extends '"
+                    + superClazz.getName() + "'.";
             if (properties == null)
             {
                 return createInstance(clazz);
@@ -173,7 +174,7 @@ public final class ClassUtils
             return createInstance(constructor, properties);
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot instanitate class " + className, ex);
+            throw new ConfigurationFailureException("Cannot instanitate class '" + className + "'.", ex);
         }
     }
 
