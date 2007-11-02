@@ -26,10 +26,10 @@ import ch.systemsx.cisd.bds.storage.INode;
 
 /**
  * Implementation of {@link IFormatParameters} which allows to add {@link FormatParameter} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-class FormatParameters implements IFormatParameters
+class FormatParameters implements IFormatParameters, IStorable
 {
     private final Map<String, FormatParameter> parameters = new LinkedHashMap<String, FormatParameter>();
 
@@ -45,15 +45,19 @@ class FormatParameters implements IFormatParameters
             }
         }
     }
-    
-    void saveTo(IDirectory directory)
+
+    //
+    // IStorable
+    //
+
+    public final void saveTo(final IDirectory directory)
     {
         for (FormatParameter parameter : parameters.values())
         {
             directory.addKeyValuePair(parameter.getName(), parameter.getValue());
         }
     }
-    
+
     /**
      * Adds the specified parameter.
      * 
@@ -68,7 +72,7 @@ class FormatParameters implements IFormatParameters
         }
         parameters.put(name, parameter);
     }
-    
+
     public String getValue(String parameterName)
     {
         FormatParameter formatParameter = parameters.get(parameterName);

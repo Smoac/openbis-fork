@@ -18,18 +18,17 @@ package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
-
 /**
  * Enumeration of processing types.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public enum ProcessingType
+public enum ProcessingType implements IStorable
 {
     OTHER, RAW_DATA, COMPUTED_DATA;
-    
+
     static final String PROCESSING_TYPE = "processing_type";
-    
+
     /**
      * Resolves the specified string representation of a processing type.
      * 
@@ -47,13 +46,17 @@ public enum ProcessingType
         }
         return OTHER;
     }
-    
+
     static ProcessingType loadFrom(IDirectory directory)
     {
         return resolve(Utilities.getTrimmedString(directory, PROCESSING_TYPE));
     }
-    
-    void saveTo(IDirectory directory)
+
+    //
+    // IStorable
+    //
+
+    public final void saveTo(IDirectory directory)
     {
         directory.addKeyValuePair(PROCESSING_TYPE, toString());
     }

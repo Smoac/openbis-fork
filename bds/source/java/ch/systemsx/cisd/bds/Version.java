@@ -19,43 +19,34 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Immutable value object for the version of something.        
- *
+ * Immutable value object for the version of something.
+ * 
  * @author Franz-Josef Elmer
  */
 public final class Version
 {
     static final String VERSION = "version";
+
     static final String MAJOR = "major";
+
     static final String MINOR = "minor";
-    
+
     /**
      * Loads the version from the specified directory.
      */
     static Version loadFrom(IDirectory directory)
     {
         IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
-        return new Version(getNumber(versionFolder, MAJOR), getNumber(versionFolder, MINOR));
+        return new Version(Utilities.getNumber(versionFolder, MAJOR), Utilities.getNumber(versionFolder, MINOR));
     }
-    
-    private static int getNumber(IDirectory versionFolder, String name)
-    {
-        String value = Utilities.getTrimmedString(versionFolder, name);
-        try
-        {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ex)
-        {
-            throw new DataStructureException("Value of " + name + " version file is not a number: " + value);
-        }
-    }
-    
+
     private final int major;
+
     private final int minor;
 
     /**
      * Creates a new instance for the specified major and minor number.
-     *
+     * 
      * @param major A positive number.
      * @param minor A non-negative number.
      */
@@ -82,16 +73,16 @@ public final class Version
     {
         return minor;
     }
-    
+
     /**
-     * Returns <code>true</code> if this version is backwards compatible to the specified version. That is,
-     * if <code>version.getMajor() == this.getMajor()</code> and <code>version.getMinor() &lt;= this.getMinor()</code>.
+     * Returns <code>true</code> if this version is backwards compatible to the specified version. That is, if
+     * <code>version.getMajor() == this.getMajor()</code> and <code>version.getMinor() &lt;= this.getMinor()</code>.
      */
     public boolean isBackwardsCompatibleWith(Version version)
     {
         return version.major == major && version.minor <= minor;
     }
-    
+
     /**
      * Returns the previous minor version.
      * 
@@ -105,7 +96,7 @@ public final class Version
         }
         return new Version(major, minor - 1);
     }
-    
+
     void saveTo(IDirectory directory)
     {
         IDirectory versionFolder = directory.makeDirectory(VERSION);
@@ -139,7 +130,5 @@ public final class Version
     {
         return "V" + major + "." + minor;
     }
-    
-    
-    
+
 }

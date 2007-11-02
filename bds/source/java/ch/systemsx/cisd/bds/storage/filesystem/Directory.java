@@ -30,6 +30,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * An <code>IDirectory</code> implementation.
+ * 
  * @author Franz-Josef Elmer
  */
 class Directory extends AbstractNode implements IDirectory

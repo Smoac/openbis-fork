@@ -17,18 +17,19 @@
 package ch.systemsx.cisd.bds;
 
 /**
- * A format parameter with a name and a string value. 
- *
+ * A format parameter with a name and a string value.
+ * 
  * @author Franz-Josef Elmer
  */
 public final class FormatParameter
 {
     private final String name;
+
     private final String value;
 
     /**
      * Creates an instance for the specified name and value.
-     *
+     * 
      * @param name A non-empty string as the name of the parameter.
      * @param value A non-<code>null</code> string as the value.
      */

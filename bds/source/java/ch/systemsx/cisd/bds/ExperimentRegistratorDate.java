@@ -23,15 +23,16 @@ import java.util.Date;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Immutable class which holds the date of registration of an experiment. 
- *
+ * Immutable class which holds the date of registration of an experiment.
+ * 
  * @author Franz-Josef Elmer
  */
-public final class ExperimentRegistratorDate
+public final class ExperimentRegistratorDate implements IStorable
 {
     static final String FILE_NAME = "experiment_registration_date";
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-    
+
     static ExperimentRegistratorDate loadFrom(IDirectory directory)
     {
         String dateAsString = Utilities.getTrimmedString(directory, FILE_NAME);
@@ -43,9 +44,9 @@ public final class ExperimentRegistratorDate
             throw new DataStructureException("Couldn't be parsed as a date: " + dateAsString);
         }
     }
-    
+
     private final Date date;
-    
+
     /**
      * Creates an instance for the specified date.
      */
@@ -61,11 +62,15 @@ public final class ExperimentRegistratorDate
     {
         return date;
     }
-    
+
+    //
+    // IStorable
+    //
+
     /**
      * Saves this instance to the specified directory.
      */
-    void saveTo(IDirectory directory)
+    public final void saveTo(IDirectory directory)
     {
         directory.addKeyValuePair(FILE_NAME, DATE_FORMAT.format(date));
     }
@@ -95,5 +100,5 @@ public final class ExperimentRegistratorDate
     {
         return DATE_FORMAT.format(date);
     }
-    
+
 }

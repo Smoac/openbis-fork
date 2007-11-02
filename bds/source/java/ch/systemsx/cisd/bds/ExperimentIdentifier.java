@@ -20,17 +20,20 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
  * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class.
- * An instance of this class allows unique identification in the database. 
- *
+ * An instance of this class allows unique identification in the database.
+ * 
  * @author Franz-Josef Elmer
  */
-public class ExperimentIdentifier
+public class ExperimentIdentifier implements IStorable
 {
     static final String FOLDER = "experiment_identifier";
+
     static final String GROUP_CODE = "group_code";
+
     static final String PROJECT_CODE = "project_code";
+
     static final String EXPERIMENT_CODE = "experiment_code";
-    
+
     /**
      * Loads the experiment identifier from the specified directory.
      * 
@@ -44,14 +47,16 @@ public class ExperimentIdentifier
         String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
         return new ExperimentIdentifier(groupCode, projectCode, experimentCode);
     }
-    
+
     private final String groupCode;
+
     private final String projectCode;
+
     private final String experimentCode;
 
     /**
      * Creates an instance for the specified codes of group, project, and experiment.
-     *
+     * 
      * @param groupCode A non-empty string of the group code.
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
@@ -81,7 +86,7 @@ public class ExperimentIdentifier
     {
         return projectCode;
     }
-    
+
     /**
      * Returns the experiment code;
      */
@@ -89,11 +94,15 @@ public class ExperimentIdentifier
     {
         return experimentCode;
     }
-    
+
+    //
+    // IStorable
+    //
+
     /**
      * Saves this instance to the specified directory.
      */
-    void saveTo(IDirectory directory)
+    public final void saveTo(final IDirectory directory)
     {
         IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
@@ -128,6 +137,5 @@ public class ExperimentIdentifier
     {
         return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode + "]";
     }
-    
-    
+
 }

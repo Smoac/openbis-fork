@@ -19,15 +19,17 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Context of {@link IFormattedData}. Argument of all constructores of concrete implementations of
- * {@link IFormattedData}. 
- *
+ * Context of {@link IFormattedData}. Argument of all constructors of concrete implementations of
+ * {@link IFormattedData}.
+ * 
  * @author Franz-Josef Elmer
  */
 class FormattedDataContext
 {
     private final IDirectory dataDirectory;
+
     private final Format format;
+
     private final IFormatParameters formatParameters;
 
     FormattedDataContext(IDirectory dataDirectory, Format format, IFormatParameters formatParameters)

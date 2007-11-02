@@ -42,19 +42,21 @@ public class DataStructureV1_0 extends AbstractDataStructure
     static final String CHECKSUM_DIRECTORY = "md5sum";
 
     static final String DIR_METADATA = "metadata";
-    
+
     static final String DIR_PARAMETERS = "parameters";
 
     static final String DIR_DATA = "data";
 
     static final String DIR_ORIGINAL = "original";
-    
+
     static final String MAPPING_FILE = "standard_original_mapping";
 
     private static final Version VERSION = new Version(1, 0);
-    
+
     private final ChecksumBuilder checksumBuilder = new ChecksumBuilder(new MD5ChecksumCalculator());
+
     private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
+
     private final FormatParameters formatParameters = new FormatParameters();
 
     private Format format;
@@ -121,7 +123,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assert formatParameter != null : "Unspecified format parameter.";
         formatParameters.addParameter(formatParameter);
     }
-    
+
     /**
      * Returns the experiment identifier.
      * 
@@ -143,7 +145,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         id.saveTo(getMetaDataDirectory());
     }
-    
+
     /**
      * Returns the date of registration of the experiment.
      * 
@@ -155,7 +157,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         return ExperimentRegistratorDate.loadFrom(getMetaDataDirectory());
     }
-    
+
     /**
      * Sets the date of registration of the experiment.
      */
@@ -176,14 +178,14 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
     }
-    
+
     public void setExperimentRegistrator(ExperimentRegistrator registrator)
     {
         assert registrator != null : "Unspecified experiment registrator.";
         assertOpenOrCreated();
         registrator.saveTo(getMetaDataDirectory());
     }
-    
+
     /**
      * Returns the measurement entity.
      * 
@@ -217,7 +219,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         return ProcessingType.loadFrom(getMetaDataDirectory());
     }
-    
+
     /**
      * Sets the processing type. Overwrites an already set or loaded value.
      */
@@ -227,7 +229,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         type.saveTo(getMetaDataDirectory());
     }
-    
+
     /**
      * Returns the standard-original mapping.
      * 
@@ -237,7 +239,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         return Collections.unmodifiableMap(standardOriginalMapping);
     }
-    
+
     /**
      * Adds a reference to the standard-original mapping.
      * 
@@ -254,7 +256,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         }
         standardOriginalMapping.put(path, reference);
     }
-    
+
     @Override
     protected void assertValid()
     {
@@ -335,7 +337,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
             standardOriginalMapping.put(path, new Reference(path, referenceDefinition.substring(i2 + 1), type));
         }
     }
-    
+
     @Override
     protected void performClosing()
     {
@@ -343,9 +345,9 @@ public class DataStructureV1_0 extends AbstractDataStructure
         IDirectory checksumDirectory = metaDataDirectory.makeDirectory(CHECKSUM_DIRECTORY);
         String checksumsOfOriginal = checksumBuilder.buildChecksumsForAllFilesIn(getOriginalData());
         checksumDirectory.addKeyValuePair(DIR_ORIGINAL, checksumsOfOriginal);
-        
+
         formatParameters.saveTo(getParametersDirectory());
-        
+
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer, true);
         Collection<Reference> values = standardOriginalMapping.values();
@@ -358,7 +360,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         }
         printWriter.close();
         metaDataDirectory.addKeyValuePair(MAPPING_FILE, writer.toString());
-        
+
         if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
@@ -374,10 +376,10 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
     }
-    
+
     private IDirectory getParametersDirectory()
     {
         return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
     }
-    
+
 }

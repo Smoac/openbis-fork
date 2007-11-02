@@ -22,11 +22,21 @@ import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
+ * A <code>INode</code> factory class.
+ * <p>
+ * You should prefer to use this class instead of directly instantiate the corresponding <code>INode</code>
+ * implementations.
+ * </p>
+ * 
  * @author Franz-Josef Elmer
  */
-class NodeFactory
+public final class NodeFactory
 {
-    static INode createNode(java.io.File file) throws EnvironmentFailureException
+
+    /**
+     * A <code>INode</code> factory method for given <var>file</var>.
+     */
+    public static INode createNode(final java.io.File file) throws EnvironmentFailureException
     {
         assert file != null : "Unspecified node";
         String absolutePath = file.getAbsolutePath();
@@ -50,5 +60,6 @@ class NodeFactory
 
     private NodeFactory()
     {
+        // Can not be instantiated.
     }
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.bds;
 
-
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -83,12 +82,14 @@ public class Utilities
      * @param name Name of the file.
      * @throws DataStructureException if the requested file does not exist.
      */
-    public static String getString(IDirectory directory, String name)
+    public static String getString(final IDirectory directory, final String name)
     {
+        assert directory != null : String.format("Given directory can not be null.");
+        assert name != null : String.format("Given name can not be null.");
         INode node = directory.tryToGetNode(name);
         if (node == null)
         {
-            throw new DataStructureException("File '" + name + "' missing in " + directory);
+            throw new DataStructureException("File '" + name + "' missing in '" + directory + "'.");
         }
         if (node instanceof IFile == false)
         {
@@ -102,4 +103,17 @@ public class Utilities
     {
     }
 
+    /** For given <code>IDirectory</code> returns the number value corresponding to given <var>name</var>. */
+    public final static int getNumber(final IDirectory directory, final String name)
+    {
+        // No assertion here as 'getString(IDirectory, String)' already does it.
+        String value = getTrimmedString(directory, name);
+        try
+        {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ex)
+        {
+            throw new DataStructureException("Value of " + name + " version file is not a number: " + value);
+        }
+    }
 }

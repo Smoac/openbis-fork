@@ -22,13 +22,15 @@ import ch.systemsx.cisd.bds.storage.INode;
 
 /**
  * Inmutable value object of a versioned format.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class Format
+public class Format implements IStorable
 {
     static final String FORMAT_CODE_FILE = "format_code";
+
     static final String FORMAT_DIR = "format";
+
     static final String FORMAT_VARIANT_FILE = "format_variant";
 
     /**
@@ -64,9 +66,11 @@ public class Format
         }
         return new Format(formatCode, formatVersion, variant);
     }
-    
+
     private final String code;
+
     private final Version version;
+
     private final String variant;
 
     /**
@@ -80,7 +84,7 @@ public class Format
         this.version = version;
         variant = variantOrNull;
     }
-    
+
     /**
      * Returns the format code.
      */
@@ -107,7 +111,11 @@ public class Format
         return variant;
     }
 
-    void saveTo(IDirectory directory)
+    //
+    // IStorable
+    //
+
+    public final void saveTo(final IDirectory directory)
     {
         IDirectory dir = directory.makeDirectory(FORMAT_DIR);
         dir.addKeyValuePair(FORMAT_CODE_FILE, code);
@@ -130,7 +138,7 @@ public class Format
             return false;
         }
         Format format = (Format) obj;
-        return format.code.equals(code) && format.version.equals(version) 
+        return format.code.equals(code) && format.version.equals(version)
                 && (format.variant == null ? null == variant : format.variant.equals(variant));
     }
 

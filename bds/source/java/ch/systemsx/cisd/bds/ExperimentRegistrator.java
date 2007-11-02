@@ -20,18 +20,21 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
  * Registrator of the experiment which corresponds to the data. This is an immutable value object class.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public final class ExperimentRegistrator
+public final class ExperimentRegistrator implements IStorable
 {
     static final String FOLDER = "experiment_registrator";
+
     static final String FIRST_NAME = "first_name";
+
     static final String SECOND_NAME = "last_name";
+
     static final String EMAIL = "email";
-    
+
     /**
-     * Loads the experiment registaror from the specified directory.
+     * Loads the experiment registrator from the specified directory.
      * 
      * @throws DataStructureException if file missing.
      */
@@ -43,14 +46,16 @@ public final class ExperimentRegistrator
         String email = Utilities.getTrimmedString(folder, EMAIL);
         return new ExperimentRegistrator(firstName, secondName, email);
     }
-    
+
     private final String firstName;
+
     private final String secondName;
+
     private final String email;
 
     /**
      * Creates an instance for the specified name and e-mail of the registrator.
-     *
+     * 
      * @param firstName A non-empty string of the first name.
      * @param secondName A non-empty string of the second name.
      * @param email A non-empty string of the email.
@@ -80,7 +85,7 @@ public final class ExperimentRegistrator
     {
         return secondName;
     }
-    
+
     /**
      * Returns the email.
      */
@@ -88,11 +93,15 @@ public final class ExperimentRegistrator
     {
         return email;
     }
-    
+
+    //
+    // IStorable
+    //
+
     /**
      * Saves this instance to the specified directory.
      */
-    void saveTo(IDirectory directory)
+    public final void saveTo(final IDirectory directory)
     {
         IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(FIRST_NAME, firstName);
@@ -127,6 +136,5 @@ public final class ExperimentRegistrator
     {
         return firstName + " " + secondName + ", e-mail:" + email;
     }
-    
-    
+
 }

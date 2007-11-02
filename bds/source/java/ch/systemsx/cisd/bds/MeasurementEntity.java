@@ -20,15 +20,17 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
  * Enity of measurement or calculation covered by the data. This is an immutable value object class.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public final class MeasurementEntity
+public final class MeasurementEntity implements IStorable
 {
     static final String FOLDER = "measurement_entity";
+
     static final String ENTITY_TYPE_DESCRIPTION = "entity_type_description";
+
     static final String ENTITY_CODE = "entity_code";
-    
+
     /**
      * Loads the enity from the specified directory.
      * 
@@ -41,8 +43,9 @@ public final class MeasurementEntity
         String entityCode = Utilities.getTrimmedString(folder, ENTITY_CODE);
         return new MeasurementEntity(entityCode, entityTypeDescription);
     }
-    
+
     private final String entityTypeDescription;
+
     private final String entityCode;
 
     /**
@@ -74,11 +77,15 @@ public final class MeasurementEntity
     {
         return entityCode;
     }
-    
+
+    //
+    // IStorable
+    //
+
     /**
      * Saves this instance to the specified directory.
      */
-    void saveTo(IDirectory directory)
+    public final void saveTo(IDirectory directory)
     {
         IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(ENTITY_TYPE_DESCRIPTION, entityTypeDescription);
@@ -111,6 +118,5 @@ public final class MeasurementEntity
     {
         return "[" + entityCode + ": " + entityTypeDescription + "]";
     }
-    
-    
+
 }
