@@ -406,7 +406,7 @@ public final class BeanUtils
     @SuppressWarnings("unchecked")
     private static <T> T createArray(Class<T> beanClass, int length) throws NegativeArraySizeException
     {
-        return (T) createArrayOfType(beanClass.getComponentType(), length);
+        return (T) Array.newInstance(beanClass.getComponentType(), length);
     }
 
     @SuppressWarnings("unchecked")
