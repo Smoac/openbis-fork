@@ -49,6 +49,13 @@ abstract public class AbstractPropertiesSetter<ConstructedType> implements IProp
         this.availableProperties = toLowerCase(getAvailableProperties(beanClass));
     }
 
+    protected AbstractPropertiesSetter(Set<String> availableProperties, Set<String> mandatoryFields)
+    {
+        this.properties = new HashMap<String, String>();
+        this.mandatoryFields = mandatoryFields;
+        this.availableProperties = availableProperties;
+    }
+
     private static Set<String> toLowerCase(Set<String> set)
     {
         Set<String> result = new HashSet<String>();

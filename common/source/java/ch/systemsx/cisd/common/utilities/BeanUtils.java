@@ -164,6 +164,29 @@ public final class BeanUtils
     }
 
     /**
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter
+     * specification.
+     */
+    public static <T, S> T[] createBeanArray(Class<T> clazz, Collection<S> source, Converter converter)
+    {
+        assert clazz != null;
+
+        if (source == null)
+        {
+            return null;
+        }
+
+        final T result[] = createArrayOfType(clazz, source.size());
+        int i = 0;
+        for (S element : source)
+        {
+            result[i] = BeanUtils.createBean(clazz, element, converter);
+            i++;
+        }
+        return result;
+    }
+
+    /**
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
@@ -383,7 +406,13 @@ public final class BeanUtils
     @SuppressWarnings("unchecked")
     private static <T> T createArray(Class<T> beanClass, int length) throws NegativeArraySizeException
     {
-        return (T) Array.newInstance(beanClass.getComponentType(), length);
+        return (T) createArrayOfType(beanClass.getComponentType(), length);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E> E[] createArrayOfType(Class<E> elemClass, int length) throws NegativeArraySizeException
+    {
+        return (E[]) Array.newInstance(elemClass, length);
     }
 
     @SuppressWarnings("unchecked")
@@ -777,5 +806,4 @@ public final class BeanUtils
             throw new CheckedExceptionTunnel(ex);
         }
     }
-
 }
