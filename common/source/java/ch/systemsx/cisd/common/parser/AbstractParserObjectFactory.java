@@ -48,7 +48,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      */
     private final Map<String, PropertyDescriptor> propertyDescriptors;
 
-    /** The set of mandatory field names for {@link NewExperiment} */
+    /** The set of mandatory field names. */
     private final Set<String> mandatoryFields;
 
     /** The pool of {@link Converter}s. */

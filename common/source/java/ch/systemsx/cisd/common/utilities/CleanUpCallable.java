@@ -21,7 +21,8 @@ import java.util.List;
 
 /**
  * A class that implements the logic of cleaning up a resource even in case of an exception but re-throws an exception
- * of the clean up procedure only when the main procedure didn't throw one. <code>CleanUpRunner</code>s can be stacked.
+ * of the clean up procedure only when the main procedure didn't throw one. <code>CleanUpRunner</code>s can be
+ * stacked.
  * 
  * @author Bernd Rinn
  */
@@ -29,14 +30,14 @@ public final class CleanUpCallable
 {
 
     private final List<Runnable> cleanUpList;
-    
+
     private final ICleanUpRegistry theRegistry = new ICleanUpRegistry()
-    {
-        public void registerCleanUp(Runnable cleanUp)
         {
-            cleanUpList.add(cleanUp);
-        }
-    };
+            public void registerCleanUp(Runnable cleanUp)
+            {
+                cleanUpList.add(cleanUp);
+            }
+        };
 
     public CleanUpCallable()
     {
@@ -59,9 +60,9 @@ public final class CleanUpCallable
             runCleanUps(exceptionThrown);
         }
     }
-    
+
     /**
-     * Runs all clean-ups in {@link cleanUpList}.
+     * Runs all clean-ups in {@link #cleanUpList}.
      * 
      * @param exceptionThrown If <code>true</code>, all exceptions that happen during clean-up will be supressed.
      */
