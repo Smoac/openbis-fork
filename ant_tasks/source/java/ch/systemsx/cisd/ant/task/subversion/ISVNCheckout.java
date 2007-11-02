@@ -19,7 +19,7 @@ package ch.systemsx.cisd.ant.task.subversion;
 /**
  * A role that performs a <code>checkout</code> command on a subversion repository.
  * <p>
- * This command works on a subversion repsitory.
+ * This command works on a subversion repository.
  * 
  * @author Bernd Rinn
  */
