@@ -162,8 +162,9 @@ public final class ClassUtils
         try
         {
             final Class<?> clazz = Class.forName(className);
-            assert clazz.isInterface() == false : "'" + clazz + "' can not be instanciated as it is an interface.";
-            assert superClazz.isAssignableFrom(clazz) : "'" + clazz + "' does not implements/extends '"
+            assert clazz.isInterface() == false : "Interface '" + clazz.getName()
+                    + "' can not be instanciated as it is an interface.";
+            assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName() + "' does not implements/extends '"
                     + superClazz.getName() + "'.";
             if (properties == null)
             {
@@ -174,7 +175,7 @@ public final class ClassUtils
             return createInstance(constructor, properties);
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot instanitate class '" + className + "'.", ex);
+            throw new ConfigurationFailureException("Cannot instantiate class '" + className + "'.", ex);
         }
     }
 

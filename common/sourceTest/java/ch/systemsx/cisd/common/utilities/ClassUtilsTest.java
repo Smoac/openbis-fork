@@ -78,7 +78,7 @@ public final class ClassUtilsTest
         // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()' here.
         assertNull(ClassUtils.getMethodOnStack(1));
     }
-    
+
     @Test
     public void testCreateWithDefaultConstructor()
     {
@@ -86,7 +86,7 @@ public final class ClassUtilsTest
         assertTrue(cs instanceof StringBuffer);
         assertEquals(0, cs.length());
     }
-    
+
     @Test
     public void testCreateWithPropertiesConstructor()
     {
@@ -95,7 +95,7 @@ public final class ClassUtilsTest
         assertTrue(appendable instanceof MyClass);
         assertSame(properties, ((MyClass) appendable).getProperties());
     }
-    
+
     public static class MyClass implements Appendable
     {
         private final Properties properties;
@@ -104,7 +104,7 @@ public final class ClassUtilsTest
         {
             this.properties = properties;
         }
-        
+
         public final Properties getProperties()
         {
             return properties;
@@ -124,9 +124,9 @@ public final class ClassUtilsTest
         {
             return null;
         }
-        
+
     }
-    
+
     @Test
     public void testCreateWithIncompatibleSuperclass()
     {
@@ -136,10 +136,10 @@ public final class ClassUtilsTest
             fail("AssertionError expected.");
         } catch (AssertionError e)
         {
-            assertEquals("class java.lang.Integer does not implements/extends java.lang.Float", e.getMessage());
+            assertEquals("Class 'java.lang.Integer' does not implements/extends 'java.lang.Float'.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCreateInstanceOfAnInterface()
     {
@@ -149,7 +149,8 @@ public final class ClassUtilsTest
             fail("AssertionError expected.");
         } catch (AssertionError e)
         {
-            assertEquals("interface java.lang.CharSequence can not be instanciated", e.getMessage());
+            assertEquals("Interface 'java.lang.CharSequence' can not be instanciated as it is an interface.", e
+                    .getMessage());
         }
     }
 }
