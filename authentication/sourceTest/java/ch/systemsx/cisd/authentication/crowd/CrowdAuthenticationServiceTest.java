@@ -145,7 +145,7 @@ public class CrowdAuthenticationServiceTest
                         { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED, USER_PASSWORD_ESCAPED };
                     String message = CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
-                    will(returnValue(createXMLElement(CrowdSoapElements.OUT, APPLICATION_TOKEN_ESACPED)));
+                    will(returnValue(createXMLElement("n:" + CrowdSoapElements.OUT, APPLICATION_TOKEN_ESACPED)));
                 }
             });
         boolean result = authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);

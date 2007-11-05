@@ -21,6 +21,8 @@ import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -343,7 +345,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
             return null;
         }
 
-        int index = xmlString.indexOf("<" + element);
+        int index = getIndex(xmlString, "<", element, 0);
         if (index < 0)
         {
             if (operationLog.isDebugEnabled())
@@ -360,7 +362,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }
-        int endIndex = xmlString.indexOf("</" + element + ">", index);
+        int endIndex = getIndex(xmlString, "</", element + ">", index);
         if (endIndex < 0)
         {
             operationLog.error("Start tag of element '" + element + "' is present but end tag is missing: '"
@@ -370,4 +372,18 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return xmlString.substring(index + 1, endIndex);
     }
 
+    private static int getIndex(String xmlString, String begin, String element, int startIndex)
+    {
+        String regex = ".*(" + begin + "(\\w*:)?" + element + ").*";
+        Pattern p = Pattern.compile(regex);
+        Matcher matcher = p.matcher(xmlString);
+        boolean result = matcher.matches();
+        if (result == false)
+        {
+            return -1;
+        }
+        int index = matcher.start(1);
+        System.out.println(result+" "+index);
+        return index;
+    }
 }
