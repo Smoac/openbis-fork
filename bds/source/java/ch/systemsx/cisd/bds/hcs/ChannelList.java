@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.bds.hcs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.DataStructureException;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-public final class ChannelList implements IStorable
+public final class ChannelList implements IStorable, Iterable<Channel>
 {
     static final String NUMBER_OF_CHANNELS = "number_of_channels";
 
@@ -66,10 +66,10 @@ public final class ChannelList implements IStorable
         return new ChannelList(channels);
     }
 
-    /** Returns an unmodifiable list of <code>Channel</code>. */
-    public final List<Channel> getChannels()
+    /** Returns the number of channels. */
+    public final int getChannelCount()
     {
-        return Collections.unmodifiableList(channels);
+        return channels.size();
     }
 
     //
@@ -78,10 +78,19 @@ public final class ChannelList implements IStorable
 
     public final void saveTo(final IDirectory directory)
     {
-        directory.addKeyValuePair(NUMBER_OF_CHANNELS, channels.size() + "");
+        directory.addKeyValuePair(NUMBER_OF_CHANNELS, getChannelCount() + "");
         for (Channel channel : channels)
         {
             channel.saveTo(directory);
         }
+    }
+
+    //
+    // Iterable
+    //
+
+    public final Iterator<Channel> iterator()
+    {
+        return channels.iterator();
     }
 }

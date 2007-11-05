@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -41,6 +43,20 @@ public final class ChannelListTest extends AbstractFileSystemTestCase
         list.add(new Channel(1, 123));
         list.add(new Channel(2, 456));
         return new ChannelList(list);
+    }
+
+    private final static void checkFile(final File file)
+    {
+        assertTrue(file.getName().equals(ChannelList.NUMBER_OF_CHANNELS) || file.getName().startsWith(Channel.CHANNEL));
+    }
+
+    private final static void checkChannelFile(final File channelFile)
+    {
+        assertNotNull(channelFile);
+        assertTrue(channelFile.isDirectory());
+        final File[] files = channelFile.listFiles();
+        assertEquals(1, files.length);
+        assertEquals(files[0].getName(), Channel.WAVELENGTH);
     }
 
     @Test
@@ -78,6 +94,29 @@ public final class ChannelListTest extends AbstractFileSystemTestCase
         final ChannelList channelList = createChannelList();
         final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
         channelList.saveTo(dir);
-        
+        final File[] files = workingDirectory.listFiles();
+        assertEquals(3, files.length);
+        for (File file : files)
+        {
+            checkFile(file);
+            if (file.getName().startsWith(Channel.CHANNEL))
+            {
+                checkChannelFile(file);
+            }
+        }
+    }
+
+    @Test(dependsOnMethods = "testSaveTo")
+    public final void testLoadFrom()
+    {
+        testSaveTo();
+        final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
+        final ChannelList channelList = ChannelList.loadFrom(dir);
+        assertEquals(2, channelList.getChannelCount());
+        final Iterator<Channel> iterator = channelList.iterator();
+        Channel channel = iterator.next();
+        assertEquals(123, channel.getWavelength());
+        channel = iterator.next();
+        assertEquals(456, channel.getWavelength());
     }
 }
