@@ -135,14 +135,14 @@ public class DatabaseConfigurationContext
     }
 
     /**
-     * Returns the database version which should be used. If not set by {@link #setDatabaseVersion(String)} 
-     * <code>defaultDatabaseVersion</code> will be returned.
+     * Returns the database version which should be used. If not set by {@link #setDatabaseVersion(String)} or
+     * does not start with a digit <code>defaultDatabaseVersion</code> will be returned.
      * 
      * @throws ConfigurationFailureException if the database version is beyound the default one.
      */
     public final String getDatabaseVersion(String defaultDatabaseVersion)
     {
-        if (databaseVersion == null)
+        if (isValidDatabaseVersion(databaseVersion) == false)
         {
             return defaultDatabaseVersion;
         }
@@ -152,6 +152,11 @@ public class DatabaseConfigurationContext
                     + " is not supported. Latest supported database version is " + defaultDatabaseVersion);
         }
         return databaseVersion;
+    }
+    
+    private boolean isValidDatabaseVersion(String version)
+    {
+        return version != null && version.length() > 0 && Character.isDigit(version.charAt(0));
     }
 
     public final void setDatabaseVersion(String databaseVersion)
