@@ -16,12 +16,68 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
+
+import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
+
 /**
  * Test cases for corresponding {@link ChannelList} class.
  * 
  * @author Christian Ribeaud
  */
-public final class ChannelListTest
+public final class ChannelListTest extends AbstractFileSystemTestCase
 {
 
+    private final static ChannelList createChannelList()
+    {
+        final List<Channel> list = new ArrayList<Channel>();
+        list.add(new Channel(1, 123));
+        list.add(new Channel(2, 456));
+        return new ChannelList(list);
+    }
+
+    @Test
+    public final void testConstructor()
+    {
+        try
+        {
+            new ChannelList(null);
+            fail("Channel list can not be null.");
+        } catch (AssertionError ex)
+        {
+        }
+        try
+        {
+            new ChannelList(new ArrayList<Channel>());
+            fail("Channel list can not be empty.");
+        } catch (AssertionError ex)
+        {
+        }
+        final List<Channel> list = new ArrayList<Channel>();
+        list.add(new Channel(1, 123));
+        list.add(new Channel(1, 456));
+        try
+        {
+            new ChannelList(list);
+            fail("Duplicate channels are not allowed.");
+        } catch (DataStructureException e)
+        {
+        }
+    }
+
+    @Test
+    public final void testSaveTo()
+    {
+        final ChannelList channelList = createChannelList();
+        final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
+        channelList.saveTo(dir);
+        
+    }
 }

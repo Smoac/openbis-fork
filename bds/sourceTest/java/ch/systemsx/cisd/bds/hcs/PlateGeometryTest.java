@@ -72,8 +72,10 @@ public final class PlateGeometryTest extends AbstractFileSystemTestCase
         assertEquals(PlateGeometry.PLATE_GEOMETRY, geometryDir.getName());
         files = geometryDir.listFiles();
         assertEquals(2, files.length);
-        assertEquals(PlateGeometry.COLUMNS, files[0].getName());
-        assertEquals(PlateGeometry.ROWS, files[1].getName());
+        File file = files[0];
+        assertTrue(file.getName().equals(Geometry.COLUMNS) || file.getName().equals(Geometry.ROWS));
+        file = files[1];
+        assertTrue(file.getName().equals(Geometry.COLUMNS) || file.getName().equals(Geometry.ROWS));
     }
 
     @Test(dependsOnMethods = "testSaveTo")

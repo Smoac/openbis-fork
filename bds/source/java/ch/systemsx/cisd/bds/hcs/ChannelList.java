@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds.hcs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.DataStructureException;
@@ -38,7 +39,11 @@ public final class ChannelList implements IStorable
 
     public ChannelList(final List<Channel> channels)
     {
-        assert channels.size() > 0 : "At least one channel must be specified.";
+        assert channels != null && channels.size() > 0 : "At least one channel must be specified.";
+        if (new HashSet<Channel>(channels).size() != channels.size())
+        {
+            throw new DataStructureException(String.format("Some duplicate channels in '%s'.", channels));
+        }
         this.channels = channels;
     }
 

@@ -72,8 +72,10 @@ public final class WellGeometryTest extends AbstractFileSystemTestCase
         assertEquals(WellGeometry.WELL_GEOMETRY, geometryDir.getName());
         files = geometryDir.listFiles();
         assertEquals(2, files.length);
-        assertEquals(WellGeometry.COLUMNS, files[0].getName());
-        assertEquals(WellGeometry.ROWS, files[1].getName());
+        File file = files[0];
+        assertTrue(file.getName().equals(Geometry.COLUMNS) || file.getName().equals(Geometry.ROWS));
+        file = files[1];
+        assertTrue(file.getName().equals(Geometry.COLUMNS) || file.getName().equals(Geometry.ROWS));
     }
 
     @Test(dependsOnMethods = "testSaveTo")
