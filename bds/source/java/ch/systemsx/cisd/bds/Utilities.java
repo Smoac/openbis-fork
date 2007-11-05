@@ -107,13 +107,13 @@ public class Utilities
     public final static int getNumber(final IDirectory directory, final String name)
     {
         // No assertion here as 'getString(IDirectory, String)' already does it.
-        String value = getTrimmedString(directory, name);
+        final String value = getTrimmedString(directory, name);
         try
         {
             return Integer.parseInt(value);
         } catch (NumberFormatException ex)
         {
-            throw new DataStructureException("Value of " + name + " version file is not a number: " + value);
+            throw new DataStructureException("Value of '" + name + "' version file is not a number: " + value);
         }
     }
 }

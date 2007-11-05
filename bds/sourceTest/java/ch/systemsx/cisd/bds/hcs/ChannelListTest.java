@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.storage.filesystem;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.BeforeMethod;
+package ch.systemsx.cisd.bds.hcs;
 
 /**
- * An <code>abtract</code> storage test case.
+ * Test cases for corresponding {@link ChannelList} class.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public abstract class StorageTestCase
+public final class ChannelListTest
 {
-    static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd");
-
-    @BeforeMethod
-    public void setup() throws IOException
-    {
-        TEST_DIR.mkdirs();
-        FileUtils.cleanDirectory(TEST_DIR);
-    }
 
 }

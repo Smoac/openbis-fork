@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.hcs;
 
+import ch.systemsx.cisd.bds.IStorable;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
@@ -73,6 +75,8 @@ public class Geometry implements IStorable
      */
     final static Geometry loadFrom(final IDirectory directory, final String geometryDirectoryName)
     {
+        assert directory != null : "Given directory can not be null.";
+        assert geometryDirectoryName != null && geometryDirectoryName.trim().length() > 0 : "Given subdirectory name can not be empty.";
         final IDirectory geometryFolder = Utilities.getSubDirectory(directory, geometryDirectoryName);
         return new Geometry(Utilities.getNumber(geometryFolder, ROWS), Utilities.getNumber(geometryFolder, COLUMNS));
     }
@@ -83,6 +87,7 @@ public class Geometry implements IStorable
 
     public final void saveTo(final IDirectory directory)
     {
+        assert directory != null : "Given directory can not be null.";
         final IDirectory geometryDirectory = directory.makeDirectory(getGeometryDirectoryName());
         geometryDirectory.addKeyValuePair(ROWS, toString(getRows()));
         geometryDirectory.addKeyValuePair(COLUMNS, toString(getColumns()));

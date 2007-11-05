@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.hcs;
 
+import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.IStorable;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**

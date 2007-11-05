@@ -18,6 +18,8 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.IOException;
 
+import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -39,23 +41,56 @@ public final class NodeFactory
     public static INode createNode(final java.io.File file) throws EnvironmentFailureException
     {
         assert file != null : "Unspecified node";
-        String absolutePath = file.getAbsolutePath();
+        final String absolutePath = file.getAbsolutePath();
+        final String canonicalPath = getCanonicalPath(file);
+        if (absolutePath.equals(canonicalPath) == false)
+        {
+            return createLinkNode(file);
+        }
+        if (file.isDirectory())
+        {
+            return createDirectoryNode(file);
+        }
+        return createFileNode(file);
+    }
+
+    private final static String getCanonicalPath(final java.io.File file)
+    {
+        assert file != null : "Unspecified node";
         try
         {
-            String canonicalPath = file.getCanonicalPath();
-            if (absolutePath.equals(canonicalPath) == false)
-            {
-                return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
-            }
-            if (file.isDirectory())
-            {
-                return new Directory(file);
-            }
-            return new File(file);
+            return file.getCanonicalPath();
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't get canonical path of file " + absolutePath, ex);
+            throw new EnvironmentFailureException("Couldn't get canonical path of file '" + file.getAbsolutePath()
+                    + "'", ex);
         }
+    }
+
+    private static Link createLinkNode(final java.io.File file) throws EnvironmentFailureException
+    {
+        final String absolutePath = file.getAbsolutePath();
+        final String canonicalPath = getCanonicalPath(file);
+        assert absolutePath.equals(canonicalPath) == false : "Given file must be a link";
+        return new Link(file.getName(), createNode(new java.io.File(getCanonicalPath(file))));
+    }
+
+    /**
+     * Creates a <code>IFile</code> from given <var>file</var>.
+     */
+    public final static IFile createFileNode(final java.io.File file)
+    {
+        assert file != null && file.isFile() : "Given file must be a file";
+        return new File(file);
+    }
+
+    /**
+     * Creates a <code>IDirectory</code> from given <var>file</var>.
+     */
+    public final static IDirectory createDirectoryNode(final java.io.File file)
+    {
+        assert file != null && file.isDirectory() : "Given file must be a directory";
+        return new Directory(file);
     }
 
     private NodeFactory()

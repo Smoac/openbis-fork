@@ -16,49 +16,33 @@
 
 package ch.systemsx.cisd.bds;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
-
-import static org.testng.AssertJUnit.*;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link Utilities} class.
  * 
  * @author Christian Ribeaud
  */
-public class UtilitiesTest
+public class UtilitiesTest extends AbstractFileSystemTestCase
 {
-    private static final File UNIT_TEST_ROOT_DIRECTORY = new File("targets" + File.separator + "unit-test-wd");
-
-    private static final File WORKING_DIRECTORY =
-            new File(UNIT_TEST_ROOT_DIRECTORY, UtilitiesTest.class.getSimpleName());
-
-    @BeforeMethod
-    public final void setUp()
-    {
-        LogInitializer.init();
-        FileUtilities.deleteRecursively(WORKING_DIRECTORY);
-        WORKING_DIRECTORY.mkdirs();
-        assert WORKING_DIRECTORY.isDirectory() && WORKING_DIRECTORY.listFiles().length == 0;
-        WORKING_DIRECTORY.deleteOnExit();
-    }
-
     @Test
     public final void testGetNumber()
     {
-        final IDirectory directory = (IDirectory) NodeFactory.createNode(WORKING_DIRECTORY);
+        final IDirectory directory = (IDirectory) NodeFactory.createNode(workingDirectory);
         final String key = "age";
         final String value = "35";
         final IFile file = directory.addKeyValuePair(key, value);
-        final File[] listFiles = WORKING_DIRECTORY.listFiles();
+        final File[] listFiles = workingDirectory.listFiles();
         assertEquals(1, listFiles.length);
         assertEquals(key, listFiles[0].getName());
         assertEquals(value, file.getStringContent().trim());

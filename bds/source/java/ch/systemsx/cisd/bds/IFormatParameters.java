@@ -28,5 +28,5 @@ public interface IFormatParameters extends Iterable<FormatParameter>
      * 
      * @throws IllegalArgumentException if there is no parameter named as specified.
      */
-    public String getValue(String parameterName);
+    public Object getValue(final String parameterName);
 }

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.hcs;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.IStorable;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 

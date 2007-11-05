@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.hcs;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 

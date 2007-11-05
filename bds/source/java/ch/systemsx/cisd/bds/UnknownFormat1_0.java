@@ -23,6 +23,7 @@ package ch.systemsx.cisd.bds;
  */
 public final class UnknownFormat1_0 extends Format
 {
+    private static final String FORMAT_CODE = "UNKNOWN";
     /**
      * The one and only one instance.
      */
@@ -30,7 +31,7 @@ public final class UnknownFormat1_0 extends Format
 
     private UnknownFormat1_0()
     {
-        super("UNKNOWN", new Version(1, 0), null);
+        super(FORMAT_CODE, new Version(1, 0), null);
     }
 
     

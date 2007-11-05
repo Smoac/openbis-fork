@@ -64,7 +64,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Creates a new instance relying on the specified storage.
      */
-    public DataStructureV1_0(IStorage storage)
+    public DataStructureV1_0(final IStorage storage)
     {
         super(storage);
     }
@@ -255,6 +255,15 @@ public class DataStructureV1_0 extends AbstractDataStructure
             throw new DataStructureException("There is already a reference for file '" + path + "'.");
         }
         standardOriginalMapping.put(path, reference);
+    }
+
+    /**
+     * Sets a different <code>IFormatParameterFactory</code> implementation than the default one to encapsulated
+     * <code>FormatParameters</code>.
+     */
+    public void setFormatParametersFactory(final IFormatParameterFactory formatParameterFactory)
+    {
+        formatParameters.setFormatParameterFactory(formatParameterFactory);
     }
 
     @Override

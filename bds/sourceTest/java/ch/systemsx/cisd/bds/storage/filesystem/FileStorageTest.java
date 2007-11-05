@@ -22,26 +22,27 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.StorageException;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
+ * Test cases for corresponding {@link FileStorage} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class FileStorageTest extends StorageTestCase
+public final class FileStorageTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testGetRoot()
     {
-        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        FileStorage fileStorage = new FileStorage(workingDirectory);
         fileStorage.mount();
-        assertEquals(TEST_DIR.getName(), fileStorage.getRoot().getName());
+        assertEquals(workingDirectory.getName(), fileStorage.getRoot().getName());
     }
-    
+
     @Test
     public void testGetRootOfNeverMountedStorage()
     {
-        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        FileStorage fileStorage = new FileStorage(workingDirectory);
         try
         {
             fileStorage.getRoot();
@@ -51,11 +52,11 @@ public class FileStorageTest extends StorageTestCase
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testGetRootOfUnMountedStorage()
     {
-        FileStorage fileStorage = new FileStorage(TEST_DIR);
+        FileStorage fileStorage = new FileStorage(workingDirectory);
         fileStorage.mount();
         fileStorage.unmount();
         try

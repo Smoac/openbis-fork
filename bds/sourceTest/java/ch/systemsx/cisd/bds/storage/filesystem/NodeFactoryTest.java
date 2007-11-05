@@ -24,19 +24,20 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * 
+ * Test cases for corresponding {@link NodeFactory} class.
  *
  * @author Franz-Josef Elmer
  */
-public class NodeFactoryTest extends StorageTestCase
+public class NodeFactoryTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testCreateFileNode()
     {
-        java.io.File file = new java.io.File(TEST_DIR, "text.txt");
+        java.io.File file = new java.io.File(workingDirectory, "text.txt");
         FileUtilities.writeToFile(file, "hello");
         INode node = NodeFactory.createNode(file);
         assertTrue(node instanceof IFile);
@@ -46,7 +47,7 @@ public class NodeFactoryTest extends StorageTestCase
     @Test
     public void testCreateDirectoryNode()
     {
-        java.io.File file = new java.io.File(TEST_DIR, "dir");
+        java.io.File file = new java.io.File(workingDirectory, "dir");
         file.mkdir();
         INode node = NodeFactory.createNode(file);
         assertTrue(node instanceof IDirectory);

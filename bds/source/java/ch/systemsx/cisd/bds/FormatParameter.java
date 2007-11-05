@@ -25,7 +25,7 @@ public final class FormatParameter
 {
     private final String name;
 
-    private final String value;
+    private final Object value;
 
     /**
      * Creates an instance for the specified name and value.
@@ -33,7 +33,7 @@ public final class FormatParameter
      * @param name A non-empty string as the name of the parameter.
      * @param value A non-<code>null</code> string as the value.
      */
-    public FormatParameter(String name, String value)
+    public FormatParameter(final String name, final Object value)
     {
         assert name != null && name.length() > 0 : "Unspecified parameter name.";
         this.name = name;
@@ -52,7 +52,7 @@ public final class FormatParameter
     /**
      * Returns the value of this parameter.
      */
-    public final String getValue()
+    public final Object getValue()
     {
         return value;
     }

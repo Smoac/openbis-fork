@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
@@ -29,19 +28,27 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Franz-Josef Elmer
  */
-class FormatParameters implements IFormatParameters, IStorable
+final class FormatParameters implements IFormatParameters, IStorable
 {
     private final Map<String, FormatParameter> parameters = new LinkedHashMap<String, FormatParameter>();
 
-    void loadFrom(IDirectory directory)
+    /**
+     * The <code>IFormatParameterFactory</code> implementation used here.
+     * <p>
+     * Initialized with the default implementation {@link IFormatParameterFactory#DEFAULT_FORMAT_PARAMETER_FACTORY}.
+     * </p>
+     */
+    private IFormatParameterFactory formatParameterFactory = IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
+
+    final void loadFrom(final IDirectory directory)
     {
         parameters.clear();
         for (INode node : directory)
         {
-            if (node instanceof IFile)
+            final FormatParameter formatParameter = formatParameterFactory.createFormatParameter(node);
+            if (formatParameter != null)
             {
-                IFile file = (IFile) node;
-                addParameter(new FormatParameter(file.getName(), file.getStringContent().trim()));
+                addParameter(formatParameter);
             }
         }
     }
@@ -52,10 +59,28 @@ class FormatParameters implements IFormatParameters, IStorable
 
     public final void saveTo(final IDirectory directory)
     {
-        for (FormatParameter parameter : parameters.values())
+        for (final FormatParameter parameter : parameters.values())
         {
-            directory.addKeyValuePair(parameter.getName(), parameter.getValue());
+            final Object value = parameter.getValue();
+            assert value != null : "Parameter value can not be null.";
+            if (value instanceof String)
+            {
+                directory.addKeyValuePair(parameter.getName(), (String) value);
+            } else if (value instanceof IStorable)
+            {
+                ((IStorable) value).saveTo(directory);
+            } else
+            {
+                throw new IllegalArgumentException(String.format(
+                        "Parameter value '%s' must be a String or an IStorable implementation.", value));
+            }
         }
+    }
+
+    /** Sets a different <code>IFormatParameterFactory</code> implementation than the default one. */
+    final void setFormatParameterFactory(final IFormatParameterFactory formatParameterFactory)
+    {
+        this.formatParameterFactory = formatParameterFactory;
     }
 
     /**
@@ -63,7 +88,7 @@ class FormatParameters implements IFormatParameters, IStorable
      * 
      * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
      */
-    void addParameter(FormatParameter parameter)
+    final void addParameter(final FormatParameter parameter)
     {
         String name = parameter.getName();
         if (parameters.containsKey(name))
@@ -73,7 +98,11 @@ class FormatParameters implements IFormatParameters, IStorable
         parameters.put(name, parameter);
     }
 
-    public String getValue(String parameterName)
+    //
+    // IFormatParameters
+    //
+
+    public final Object getValue(final String parameterName)
     {
         FormatParameter formatParameter = parameters.get(parameterName);
         if (formatParameter == null)
@@ -83,9 +112,8 @@ class FormatParameters implements IFormatParameters, IStorable
         return formatParameter.getValue();
     }
 
-    public Iterator<FormatParameter> iterator()
+    public final Iterator<FormatParameter> iterator()
     {
         return parameters.values().iterator();
     }
-
 }

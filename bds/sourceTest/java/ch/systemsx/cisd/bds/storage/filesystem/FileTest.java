@@ -27,17 +27,20 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * Test cases for corresponding {@link File} class.
+ * 
  * @author Franz-Josef Elmer
  */
-public class FileTest extends StorageTestCase
+public final class FileTest extends AbstractFileSystemTestCase
 {
     @Test
     public void testGetValueAndGetName()
     {
-        java.io.File file = new java.io.File(TEST_DIR, "test.txt");
+        java.io.File file = new java.io.File(workingDirectory, "test.txt");
         FileUtilities.writeToFile(file, "Hello\nworld!\n");
         File stringFile = new File(file);
 
@@ -49,11 +52,11 @@ public class FileTest extends StorageTestCase
     @Test
     public void testExtractTo()
     {
-        java.io.File file = new java.io.File(TEST_DIR, "test.txt");
+        java.io.File file = new java.io.File(workingDirectory, "test.txt");
         FileUtilities.writeToFile(file, "Hello\nworld!\n");
         File stringFile = new File(file);
 
-        java.io.File subdir = new java.io.File(TEST_DIR, "subdir");
+        java.io.File subdir = new java.io.File(workingDirectory, "subdir");
         subdir.mkdir();
         stringFile.extractTo(subdir);
         assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
@@ -62,26 +65,27 @@ public class FileTest extends StorageTestCase
     @Test
     public void testMoveTo()
     {
-        java.io.File dir = new java.io.File(TEST_DIR, "dir");
+        java.io.File dir = new java.io.File(workingDirectory, "dir");
         dir.mkdirs();
         IDirectory directory = new Directory(dir);
         IFile file = directory.addKeyValuePair("p1", "property 1");
-        
-        file.moveTo(TEST_DIR);
-        
+
+        file.moveTo(workingDirectory);
+
         assertEquals(false, directory.iterator().hasNext());
-        assertEquals("property 1", FileUtilities.loadToString(new java.io.File(TEST_DIR, "p1")).trim());
+        assertEquals("property 1", FileUtilities.loadToString(new java.io.File(workingDirectory, "p1")).trim());
     }
-    
+
     @Test
     public void testGetInputStream() throws Exception
     {
-        java.io.File file = new java.io.File(TEST_DIR, "test");
+        java.io.File file = new java.io.File(workingDirectory, "test");
         FileOutputStream fileOutputStream = null;
         try
         {
             fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(new byte[] {1, 2, 3, 4});
+            fileOutputStream.write(new byte[]
+                { 1, 2, 3, 4 });
         } catch (IOException ex)
         {
             throw ex;
@@ -89,7 +93,7 @@ public class FileTest extends StorageTestCase
         {
             IOUtils.closeQuietly(fileOutputStream);
         }
-        
+
         File binaryFile = new File(file);
         InputStream inputStream = binaryFile.getInputStream();
         try

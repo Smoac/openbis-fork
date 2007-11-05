@@ -31,6 +31,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.StorageException;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -38,18 +39,18 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Franz-Josef Elmer
  */
-public class DirectoryTest extends StorageTestCase
+public final class DirectoryTest extends AbstractFileSystemTestCase
 {
 
     private final void testInternalAddFile(final boolean move)
     {
-        File dir = new File(TEST_DIR, "dir");
+        File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
         FileUtilities.writeToFile(new File(dir, "p1"), "property 1");
         File subDir = new File(dir, "subdir");
         subDir.mkdir();
         FileUtilities.writeToFile(new File(subDir, "p2"), "property 2");
-        File dest = new File(TEST_DIR, "destination");
+        File dest = new File(workingDirectory, "destination");
         dest.mkdir();
         Directory directory = new Directory(dest);
         INode copiedDir = directory.addFile(dir, move);
@@ -74,24 +75,24 @@ public class DirectoryTest extends StorageTestCase
         assertTrue(node instanceof IFile);
         assertEquals("property 2\n", ((IFile) node).getStringContent());
         assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedRealSubDir, "p2")));
-        assertEquals(move == false, new File(TEST_DIR, "dir").exists());
+        assertEquals(move == false, new File(workingDirectory, "dir").exists());
     }
 
     @Test
     public void testGetName()
     {
-        Directory directory = new Directory(TEST_DIR);
-        assertEquals(TEST_DIR.getName(), directory.getName());
+        Directory directory = new Directory(workingDirectory);
+        assertEquals(workingDirectory.getName(), directory.getName());
     }
 
     @Test
     public void testMakeDirectory()
     {
-        Directory directory = new Directory(TEST_DIR);
+        Directory directory = new Directory(workingDirectory);
         IDirectory subdirectory = directory.makeDirectory("sub-directory");
 
         assertEquals("sub-directory", subdirectory.getName());
-        File subdir = new File(TEST_DIR, "sub-directory");
+        File subdir = new File(workingDirectory, "sub-directory");
         assertEquals(true, subdir.exists());
         assertEquals(true, subdir.isDirectory());
     }
@@ -99,12 +100,12 @@ public class DirectoryTest extends StorageTestCase
     @Test
     public void testMakeDirectoryTwice()
     {
-        Directory directory = new Directory(TEST_DIR);
+        Directory directory = new Directory(workingDirectory);
         directory.makeDirectory("sub-directory");
         IDirectory subdirectory = directory.makeDirectory("sub-directory");
 
         assertEquals("sub-directory", subdirectory.getName());
-        File subdir = new File(TEST_DIR, "sub-directory");
+        File subdir = new File(workingDirectory, "sub-directory");
         assertEquals(true, subdir.exists());
         assertEquals(true, subdir.isDirectory());
     }
@@ -112,7 +113,7 @@ public class DirectoryTest extends StorageTestCase
     @Test
     public void testMakeDirectoryButThereIsAlreadyAFileWithSameName()
     {
-        Directory directory = new Directory(TEST_DIR);
+        Directory directory = new Directory(workingDirectory);
         directory.addKeyValuePair("sub-directory", "value");
         try
         {
@@ -127,21 +128,21 @@ public class DirectoryTest extends StorageTestCase
     @Test
     public void testAddKeyValuePair()
     {
-        IFile stringFile = new Directory(TEST_DIR).addKeyValuePair("answer", "42");
-        assertEquals("42\n", FileUtilities.loadToString(new File(TEST_DIR, "answer")));
+        IFile stringFile = new Directory(workingDirectory).addKeyValuePair("answer", "42");
+        assertEquals("42\n", FileUtilities.loadToString(new File(workingDirectory, "answer")));
         assertEquals("42\n", stringFile.getStringContent());
     }
 
     @Test
     public void testExtractTo()
     {
-        File dir = new File(TEST_DIR, "dir");
+        File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
         Directory directory = new Directory(dir);
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");
-        File destination = new File(TEST_DIR, "destination");
+        File destination = new File(workingDirectory, "destination");
         assertFalse(destination.exists());
         directory.extractTo(destination);
         assertTrue(destination.exists());
@@ -152,31 +153,31 @@ public class DirectoryTest extends StorageTestCase
         assertTrue(copiedSubDir.isDirectory());
         assertEquals("property 2\n", FileUtilities.loadToString(new File(copiedSubDir, "p2")));
         // Source directory still exists
-        assertEquals(true, new File(TEST_DIR, "dir").exists());
+        assertEquals(true, new File(workingDirectory, "dir").exists());
     }
 
     @Test
     public void testMoveTo()
     {
-        File dir = new File(TEST_DIR, "dir");
+        File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
         IDirectory directory = new Directory(dir);
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");
-        subdir.moveTo(TEST_DIR);
-        
+        subdir.moveTo(workingDirectory);
+
         Iterator<INode> iterator = directory.iterator();
         assertEquals(true, iterator.hasNext());
         INode node = iterator.next();
         assertEquals("p1", node.getName());
         assertEquals("property 1", ((IFile) node).getStringContent().trim());
         assertEquals(false, iterator.hasNext());
-        File subdir2 = new File(TEST_DIR, "subdir");
+        File subdir2 = new File(workingDirectory, "subdir");
         assertEquals(true, subdir2.isDirectory());
         assertEquals("property 2", FileUtilities.loadToString(new File(subdir2, "p2")).trim());
     }
-    
+
     @Test
     public void testAddFileWithCopy()
     {
