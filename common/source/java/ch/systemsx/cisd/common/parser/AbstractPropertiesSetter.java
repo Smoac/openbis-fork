@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
  * super class for constructing and holding key-value pairs
@@ -42,18 +40,11 @@ abstract public class AbstractPropertiesSetter<ConstructedType> implements IProp
 
     private final Set<String> availableProperties;
 
-    protected AbstractPropertiesSetter(Class<?> beanClass)
-    {
-        this.properties = new HashMap<String, String>();
-        this.mandatoryFields = toLowerCase(ClassUtils.getMandatoryFields(beanClass));
-        this.availableProperties = toLowerCase(getAvailableProperties(beanClass));
-    }
-
     protected AbstractPropertiesSetter(Set<String> availableProperties, Set<String> mandatoryFields)
     {
         this.properties = new HashMap<String, String>();
-        this.mandatoryFields = mandatoryFields;
-        this.availableProperties = availableProperties;
+        this.mandatoryFields = toLowerCase(mandatoryFields);
+        this.availableProperties = toLowerCase(availableProperties);
     }
 
     private static Set<String> toLowerCase(Set<String> set)
@@ -88,23 +79,6 @@ abstract public class AbstractPropertiesSetter<ConstructedType> implements IProp
     {
         return UserFailureException.fromTemplate("Property '%s' is mandatory and cannot be set to the empty value.",
                 name);
-    }
-
-    // temporary method, this information will be fetched from db
-    private Set<String> getAvailableProperties(Class<?> clazz)
-    {
-        Set<String> fieldNames = new HashSet<String>();
-        for (Field field : clazz.getDeclaredFields())
-        {
-            fieldNames.add(field.getName());
-        }
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null)
-        {
-            Set<String> superFieldNames = getAvailableProperties(superclass);
-            fieldNames.addAll(superFieldNames);
-        }
-        return fieldNames;
     }
 
     /** return true if property is mandatory, false if it is optional and null if the property does not exist */
