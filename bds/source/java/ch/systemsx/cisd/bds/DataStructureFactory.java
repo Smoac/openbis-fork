@@ -20,45 +20,45 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * Factory of data structures.
- * Currently only structures compatible with Version 1.0 can be created.
- *
+ * Factory of data structures. Currently only structures compatible with Version 1.0 can be created.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStructureFactory
 {
     private static final Factory<IDataStructure> factory = new Factory<IDataStructure>();
-    
+
     static
     {
         factory.register(new Version(1, 0), DataStructureV1_0.class);
     }
-    
+
     /**
      * Returns the class of the object returned after invoking {@link #createDataStructure(IStorage, Version)}.
      * 
      * @param version Version of the data structure.
      * @throws DataStructureException if no data structure can be created for the specified version.
      */
-    public static Class<? extends IDataStructure> getDataStructureClassFor(Version version)
+    public static Class<? extends IDataStructure> getDataStructureClassFor(final Version version)
     {
         return factory.getClassFor(version);
     }
-    
+
     /**
      * Creates a data structure for the specified version.
      * 
      * @param storage Storage behind the data structure.
      * @param version Version of the data structure to be created.
-     * @throws EnvironmentFailureException found data structure class has not an appropriated constructor. 
+     * @throws EnvironmentFailureException found data structure class has not an appropriated constructor.
      * @throws DataStructureException if no data structure can be created for the specified version.
      */
-    public static IDataStructure createDataStructure(IStorage storage, Version version)
+    public static IDataStructure createDataStructure(final IStorage storage, final Version version)
     {
         return factory.create(IStorage.class, storage, version);
     }
 
     private DataStructureFactory()
     {
+        // Can not be instantiated
     }
 }

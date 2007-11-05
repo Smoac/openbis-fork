@@ -16,37 +16,28 @@
 
 package ch.systemsx.cisd.bds;
 
-import static ch.systemsx.cisd.bds.DataStructureV1_0Test.TEST_DIR;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link DataStructureLoader} class.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureLoaderTest
+public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
 {
-    @BeforeMethod
-    public void setUp() throws IOException
-    {
-        TEST_DIR.mkdirs();
-        FileUtils.cleanDirectory(TEST_DIR);
-    }
 
     @Test
-    public void testOpen()
+    public final void testOpen()
     {
-        File dir = new File(TEST_DIR, "ds");
+        File dir = new File(workingDirectory, "ds");
         assert dir.mkdir();
         DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
         dataStructure.create();
@@ -61,7 +52,7 @@ public class DataStructureLoaderTest
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
         dataStructure.close();
 
-        IDataStructure ds = new DataStructureLoader(TEST_DIR).load("ds");
+        IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
         assertEquals(DataStructureV1_0.class, ds.getClass());
         assertEquals(experimentIdentifier, ((DataStructureV1_0) ds).getExperimentIdentifier());
     }

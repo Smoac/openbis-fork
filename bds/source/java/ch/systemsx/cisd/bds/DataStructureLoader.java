@@ -23,8 +23,8 @@ import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
 
 /**
- * Loader for {@link IDataStructure}s from the file system. 
- *
+ * Loader for {@link IDataStructure}s from the file system.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStructureLoader
@@ -34,7 +34,7 @@ public class DataStructureLoader
     /**
      * Creates an instance for the specified base directory where all data structures to be loaded have to exist.
      */
-    public DataStructureLoader(File baseDir)
+    public DataStructureLoader(final File baseDir)
     {
         assert baseDir != null : "Unspecified base directory.";
         assert baseDir.isDirectory() : "Is not a directory : " + baseDir.getAbsolutePath();
@@ -44,19 +44,19 @@ public class DataStructureLoader
     /**
      * Loads the data structure with specified name.
      */
-    public IDataStructure load(String name)
+    public final IDataStructure load(final String name)
     {
-        IStorage storage = createStorage(name);
+        final IStorage storage = createStorage(name);
         storage.mount();
-        Version version = Version.loadFrom(storage.getRoot());
-        IDataStructure dataStructure = DataStructureFactory.createDataStructure(storage, version);
+        final Version version = Version.loadFrom(storage.getRoot());
+        final IDataStructure dataStructure = DataStructureFactory.createDataStructure(storage, version);
         dataStructure.open();
         return dataStructure;
     }
-    
-    private IStorage createStorage(String name)
+
+    private final IStorage createStorage(final String name)
     {
-        File file = new File(baseDir, name);
+        final File file = new File(baseDir, name);
         if (file.exists() == false)
         {
             throw new DataStructureException("No container name '" + name + "' exists in " + baseDir.getAbsolutePath());
@@ -65,13 +65,13 @@ public class DataStructureLoader
         {
             return new FileStorage(file);
         }
-        File hdf5File = new File(baseDir, name + ".hdf5");
+        final File hdf5File = new File(baseDir, name + ".hdf5");
         if (hdf5File.exists())
         {
             return new HDF5Storage(hdf5File);
         }
         throw new DataStructureException("Couldn't found appropriate container named '" + name + "' in "
                 + baseDir.getAbsolutePath());
-        
+
     }
 }

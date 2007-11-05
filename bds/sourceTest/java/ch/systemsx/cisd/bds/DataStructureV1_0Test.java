@@ -23,29 +23,26 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link DataStructureV1_0} class.
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureV1_0Test
+public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 {
-    static final File TEST_DIR = new File("targets" + File.separator + "unit-test-wd" + File.separator + "ds");
-
     private static void assertPartOfString(String part, String string)
     {
         assertTrue("Expected <" + part + "> is part of <" + string + ">", string.indexOf(part) >= 0);
@@ -55,12 +52,16 @@ public class DataStructureV1_0Test
 
     private DataStructureV1_0 dataStructure;
 
+    //
+    // AbstractFileSystemTestCase
+    //
+
+    @Override
     @BeforeMethod
-    public void setup() throws IOException
+    public final void setup() throws IOException
     {
-        TEST_DIR.mkdirs();
-        FileUtils.cleanDirectory(TEST_DIR);
-        storage = new FileStorage(TEST_DIR);
+        super.setup();
+        storage = new FileStorage(workingDirectory);
         dataStructure = new DataStructureV1_0(storage);
     }
 
@@ -409,11 +410,11 @@ public class DataStructureV1_0Test
         assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
         assertEquals("a b/x\tt", reference.getOriginalPath());
         checkFormattedData(reloadedDataStructure.getFormattedData());
-        
+
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
         IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, CHECKSUM_DIRECTORY);
-        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", 
-                     Utilities.getString(checksumDir, DataStructureV1_0.DIR_ORIGINAL));
+        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", Utilities.getString(checksumDir,
+                DataStructureV1_0.DIR_ORIGINAL));
     }
 
     private void checkFormattedData(IFormattedData formattedData)
@@ -546,6 +547,5 @@ public class DataStructureV1_0Test
         metaData.addKeyValuePair(DataStructureV1_0.MAPPING_FILE, "");
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
-
     }
 }

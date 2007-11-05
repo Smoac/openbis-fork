@@ -63,16 +63,12 @@ final class FormatParameters implements IFormatParameters, IStorable
         {
             final Object value = parameter.getValue();
             assert value != null : "Parameter value can not be null.";
-            if (value instanceof String)
-            {
-                directory.addKeyValuePair(parameter.getName(), (String) value);
-            } else if (value instanceof IStorable)
+            if (value instanceof IStorable)
             {
                 ((IStorable) value).saveTo(directory);
             } else
             {
-                throw new IllegalArgumentException(String.format(
-                        "Parameter value '%s' must be a String or an IStorable implementation.", value));
+                directory.addKeyValuePair(parameter.getName(), value.toString());
             }
         }
     }

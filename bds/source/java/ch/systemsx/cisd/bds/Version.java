@@ -23,7 +23,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Version
+public final class Version implements IStorable
 {
     static final String VERSION = "version";
 
@@ -97,7 +97,11 @@ public final class Version
         return new Version(major, minor - 1);
     }
 
-    void saveTo(IDirectory directory)
+    //
+    // IStorable
+    //
+
+    public final void saveTo(IDirectory directory)
     {
         IDirectory versionFolder = directory.makeDirectory(VERSION);
         versionFolder.addKeyValuePair(MAJOR, Integer.toString(major));

@@ -72,13 +72,15 @@ public class Geometry implements IStorable
 
     /**
      * Loads the geometry from the specified directory.
+     * 
+     * @param directory the geometry directory. Its name must start with given <var>geometryDirectoryName</var>.
      */
     final static Geometry loadFrom(final IDirectory directory, final String geometryDirectoryName)
     {
         assert directory != null : "Given directory can not be null.";
-        assert geometryDirectoryName != null && geometryDirectoryName.trim().length() > 0 : "Given subdirectory name can not be empty.";
-        final IDirectory geometryFolder = Utilities.getSubDirectory(directory, geometryDirectoryName);
-        return new Geometry(Utilities.getNumber(geometryFolder, ROWS), Utilities.getNumber(geometryFolder, COLUMNS));
+        assert directory.getName().startsWith(geometryDirectoryName) : "Given directory name must start with given '"
+                + geometryDirectoryName + "'.";
+        return new Geometry(Utilities.getNumber(directory, ROWS), Utilities.getNumber(directory, COLUMNS));
     }
 
     //

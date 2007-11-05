@@ -21,7 +21,7 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * Inmutable value object of a versioned format.
+ * Immutable value object of a versioned format.
  * 
  * @author Franz-Josef Elmer
  */
@@ -64,7 +64,12 @@ public class Format implements IStorable
             }
             variant = ((IFile) file).getStringContent().trim();
         }
-        return new Format(formatCode, formatVersion, variant);
+        Format format = FormatStore.getFormat(formatCode, formatVersion, variant);
+        if (format == null)
+        {
+            format = new Format(formatCode, formatVersion, variant);
+        }
+        return format;
     }
 
     private final String code;
@@ -76,7 +81,7 @@ public class Format implements IStorable
     /**
      * Creates a new instance based on the specified format code, format variant (optional), and version.
      */
-    public Format(String code, Version version, String variantOrNull)
+    public Format(final String code, final Version version, final String variantOrNull)
     {
         assert code != null : "Unspecified format code.";
         assert version != null : "Unpsecified version.";
@@ -111,6 +116,14 @@ public class Format implements IStorable
         return variant;
     }
 
+    /**
+     * Returns the <code>IFormatParameterFactory</code> implementation for this <code>Format</code>.
+     */
+    public IFormatParameterFactory getFormatParameterFactory()
+    {
+        return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
+    }
+
     //
     // IStorable
     //
@@ -125,6 +138,10 @@ public class Format implements IStorable
             dir.addKeyValuePair(FORMAT_VARIANT_FILE, variant);
         }
     }
+
+    //
+    // Object
+    //
 
     @Override
     public boolean equals(Object obj)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds.hcs;
 
 import ch.systemsx.cisd.bds.Format;
+import ch.systemsx.cisd.bds.IFormatParameterFactory;
 import ch.systemsx.cisd.bds.Version;
 
 /**
@@ -41,10 +42,21 @@ public final class ImageHCSFormat1_0 extends Format
     /**
      * The one and only one instance.
      */
-    public static final Format UNKNOWN_1_0 = new ImageHCSFormat1_0();
+    public static final Format IMAGE_HCS_1_0 = new ImageHCSFormat1_0();
 
     private ImageHCSFormat1_0()
     {
         super(FORMAT_CODE, new Version(1, 0), null);
     }
+
+    //
+    // Format
+    //
+
+    @Override
+    public final IFormatParameterFactory getFormatParameterFactory()
+    {
+        return new FormatParameterFactory();
+    }
+
 }

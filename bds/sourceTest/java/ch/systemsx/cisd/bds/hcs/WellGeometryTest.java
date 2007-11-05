@@ -26,6 +26,7 @@ import java.io.File;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -83,7 +84,8 @@ public final class WellGeometryTest extends AbstractFileSystemTestCase
     {
         testSaveTo();
         final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
-        final Geometry loaded = WellGeometry.loadFrom(dir);
+        final IDirectory geoDir = Utilities.getOrCreateSubDirectory(dir, WellGeometry.WELL_GEOMETRY);
+        final Geometry loaded = WellGeometry.loadFrom(geoDir);
         assertNotNull(loaded);
         assertTrue(loaded.getRows() == 2);
         assertTrue(loaded.getColumns() == 3);

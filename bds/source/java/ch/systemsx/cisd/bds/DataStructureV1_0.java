@@ -39,17 +39,17 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class DataStructureV1_0 extends AbstractDataStructure
 {
-    static final String CHECKSUM_DIRECTORY = "md5sum";
+    public static final String CHECKSUM_DIRECTORY = "md5sum";
 
-    static final String DIR_METADATA = "metadata";
+    public static final String DIR_METADATA = "metadata";
 
-    static final String DIR_PARAMETERS = "parameters";
+    public static final String DIR_PARAMETERS = "parameters";
 
-    static final String DIR_DATA = "data";
+    public static final String DIR_DATA = "data";
 
-    static final String DIR_ORIGINAL = "original";
+    public static final String DIR_ORIGINAL = "original";
 
-    static final String MAPPING_FILE = "standard_original_mapping";
+    public static final String MAPPING_FILE = "standard_original_mapping";
 
     private static final Version VERSION = new Version(1, 0);
 
@@ -106,11 +106,12 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the data format of this structure.
      */
-    public void setFormat(Format format)
+    public final void setFormat(final Format format)
     {
         assert format != null : "Unspecified format.";
         assertOpenOrCreated();
         this.format = format;
+        formatParameters.setFormatParameterFactory(format.getFormatParameterFactory());
     }
 
     /**
@@ -118,7 +119,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * 
      * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
      */
-    public void addFormatParameter(FormatParameter formatParameter)
+    public void addFormatParameter(final FormatParameter formatParameter)
     {
         assert formatParameter != null : "Unspecified format parameter.";
         formatParameters.addParameter(formatParameter);
@@ -255,15 +256,6 @@ public class DataStructureV1_0 extends AbstractDataStructure
             throw new DataStructureException("There is already a reference for file '" + path + "'.");
         }
         standardOriginalMapping.put(path, reference);
-    }
-
-    /**
-     * Sets a different <code>IFormatParameterFactory</code> implementation than the default one to encapsulated
-     * <code>FormatParameters</code>.
-     */
-    public void setFormatParametersFactory(final IFormatParameterFactory formatParameterFactory)
-    {
-        formatParameters.setFormatParameterFactory(formatParameterFactory);
     }
 
     @Override
