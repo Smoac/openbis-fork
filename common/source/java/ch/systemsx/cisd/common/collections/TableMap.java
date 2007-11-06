@@ -16,28 +16,28 @@
 
 package ch.systemsx.cisd.common.collections;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class TableMap<K, E> implements Iterable<E>
 {
     private final Map<K, E> map = new LinkedHashMap<K, E>();
+
     private final IKeyExtractor<K, E> extractor;
-    
+
     /**
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
      * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
      */
-    public TableMap(Collection<E> rows, IKeyExtractor<K, E> extractor)
+    public TableMap(Iterable<E> rows, IKeyExtractor<K, E> extractor)
     {
         assert rows != null : "Unspecified collection of rows.";
         assert extractor != null : "Unspecified key extractor.";
@@ -47,7 +47,7 @@ public class TableMap<K, E> implements Iterable<E>
             add(row);
         }
     }
-    
+
     /**
      * Adds the specified row to this table. An already existing row with the same key as <code>row</code> will be
      * replaced by <code>row</code>.
@@ -56,7 +56,7 @@ public class TableMap<K, E> implements Iterable<E>
     {
         map.put(extractor.getKey(row), row);
     }
-    
+
     /**
      * Gets the row for the specified key or <code>null</code> if not found.
      */
@@ -73,7 +73,7 @@ public class TableMap<K, E> implements Iterable<E>
         return new Iterator<E>()
             {
                 private Iterator<Map.Entry<K, E>> iterator = map.entrySet().iterator();
-                
+
                 public boolean hasNext()
                 {
                     return iterator.hasNext();
@@ -88,7 +88,7 @@ public class TableMap<K, E> implements Iterable<E>
                 {
                     throw new UnsupportedOperationException("Can not remove an element.");
                 }
-        
+
             };
     }
 }
