@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a file.
  * 
@@ -47,7 +49,12 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
             final String token = tokens[i];
             if (token != null)
             {
-                map.put(token.toLowerCase(), new MappedProperty(i, token));
+                String key = token.toLowerCase();
+                if (map.containsKey(key))
+                {
+                    throw new UserFailureException("Duplicated column name '" + key + "'.");
+                }
+                map.put(key, new MappedProperty(i, token));
             }
         }
         return map;
