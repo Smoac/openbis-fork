@@ -28,11 +28,14 @@ import java.util.StringTokenizer;
  * Bean with build and environment information.
  * <p>
  * Does <em>not</em> depend on any library jar files.
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */
 public final class BuildAndEnvironmentInfo
 {
+    private static final String UNKNOWN = "UNKNOWN";
+
     /**
      * The one-and-only instance.
      */
@@ -46,8 +49,8 @@ public final class BuildAndEnvironmentInfo
 
     private BuildAndEnvironmentInfo()
     {
-        String extractedVersion = "unknown";
-        String extractedRevision = "unknown";
+        String extractedVersion = UNKNOWN;
+        String extractedRevision = UNKNOWN;
         boolean extractedCleanFlag = false;
         InputStream stream = BuildAndEnvironmentInfo.class.getResourceAsStream("/BUILD.INFO");
         if (stream != null)
@@ -78,44 +81,66 @@ public final class BuildAndEnvironmentInfo
         this.cleanSources = extractedCleanFlag;
     }
 
+    private final static String getProperty(final String property)
+    {
+        return System.getProperty(property, UNKNOWN);
+    }
+
+    private final static boolean isUnknown(final String osName)
+    {
+        return osName.equals(UNKNOWN);
+    }
+
     /**
      * @return Name of the CPU architecture.
      */
-    public String getCPUArchitecture()
+    public final String getCPUArchitecture()
     {
-        return System.getProperty("os.arch");
+        return getProperty("os.arch");
     }
-    
+
     /**
      * @return Name and version of the operating system.
      */
-    public String getOS()
+    public final String getOS()
     {
-        return System.getProperty("os.name") + " " + System.getProperty("os.version");
+        final String osName = getProperty("os.name");
+        final String osVersion = getProperty("os.version");
+        if (isUnknown(osName) || isUnknown(osVersion))
+        {
+            return osName;
+        }
+        return osName + " (v" + osVersion + ")";
     }
 
     /**
      * @return Name and version of the Java Virtual Machine.
      */
-    public String getJavaVM()
+    public final String getJavaVM()
     {
-        return System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version");
+        final String vmName = getProperty("java.vm.name");
+        final String vmVersion = getProperty("java.vm.version");
+        if (isUnknown(vmName) || isUnknown(vmVersion))
+        {
+            return vmName;
+        }
+        return vmName + " (v" + vmVersion + ")";
     }
 
     /**
      * @return The version of the software.
      */
-    public String getVersion()
+    public final String getVersion()
     {
         return version;
     }
 
     /**
      * @return <code>true</code> if the versioned entities of the working copy have been clean when this build has
-     *         been made, in other words, whether the revision given by {@link #getRevision()} does really identify 
-     *         the source that is build has been produced from.
+     *         been made, in other words, whether the revision given by {@link #getRevision()} does really identify the
+     *         source that is build has been produced from.
      */
-    public boolean isCleanSources()
+    public final boolean isCleanSources()
     {
         return cleanSources;
     }
@@ -123,7 +148,7 @@ public final class BuildAndEnvironmentInfo
     /**
      * @return The revision number.
      */
-    public String getRevision()
+    public final String getRevision()
     {
         return revision;
     }
@@ -131,15 +156,28 @@ public final class BuildAndEnvironmentInfo
     /**
      * Returns the build number of the software,
      */
-    public String getBuildNumber()
+    public final String getBuildNumber()
     {
-        if (isCleanSources())
+        final StringBuilder builder = new StringBuilder();
+        final String rev = getRevision();
+        final boolean isDirty = isCleanSources() == false;
+        builder.append(getVersion());
+        if (isUnknown(rev) == false)
         {
-            return version + " (r" + revision + ")";
+            builder.append(" (r").append(rev);
+            if (isDirty)
+            {
+                builder.append("*");
+            }
+            builder.append(")");
         } else
         {
-            return version + " (r" + revision + "*)";
+            if (isDirty)
+            {
+                builder.append("*");
+            }
         }
+        return builder.toString();
     }
 
     /**
@@ -148,11 +186,11 @@ public final class BuildAndEnvironmentInfo
     public List<String> getEnvironmentInfo()
     {
         final List<String> environmentInfo = new ArrayList<String>();
-        environmentInfo.add("Version:\t" + getVersion());
-        environmentInfo.add("Build number:\t" + getBuildNumber());
-        environmentInfo.add("Java VM:\t" + getJavaVM());
-        environmentInfo.add("CPU architecture:\t" + getCPUArchitecture());
-        environmentInfo.add("OS:\t\t" + getOS());
+        environmentInfo.add("Version: " + getVersion());
+        environmentInfo.add("Build Number: " + getBuildNumber());
+        environmentInfo.add("Java VM: " + getJavaVM());
+        environmentInfo.add("CPU Architecture: " + getCPUArchitecture());
+        environmentInfo.add("OS: " + getOS());
         return environmentInfo;
     }
 
