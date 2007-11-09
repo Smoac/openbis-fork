@@ -86,9 +86,9 @@ public final class BuildAndEnvironmentInfo
         return System.getProperty(property, UNKNOWN);
     }
 
-    private final static boolean isUnknown(final String osName)
+    private final static boolean isUnknown(final String property)
     {
-        return osName.equals(UNKNOWN);
+        return property.equals(UNKNOWN);
     }
 
     /**
@@ -183,7 +183,7 @@ public final class BuildAndEnvironmentInfo
     /**
      * Returns version, build number, Java VM, and OS as a {@link List} with four entries.
      */
-    public List<String> getEnvironmentInfo()
+    public final List<String> getEnvironmentInfo()
     {
         final List<String> environmentInfo = new ArrayList<String>();
         environmentInfo.add("Version: " + getVersion());
@@ -198,7 +198,7 @@ public final class BuildAndEnvironmentInfo
      * Returns version, build number, Java VM, and OS in a four-liner as one {@link String}.
      */
     @Override
-    public String toString()
+    public final String toString()
     {
         StringBuilder builder = new StringBuilder();
         List<String> environmentInfo = getEnvironmentInfo();
