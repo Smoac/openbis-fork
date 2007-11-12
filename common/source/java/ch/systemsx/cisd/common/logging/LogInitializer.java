@@ -30,21 +30,24 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public class LogInitializer
 {
-    static {
+    static
+    {
         // Do not let log4j configure itself. We will do it our own way.
         // Look at page 84 of the manual to get to know the default initialization.
         System.setProperty("log4j.defaultInitOverride", "true");
     }
-    
+
     private static boolean initialized = false;
 
     /**
      * Initializes logging system. Does nothing if already initialized.
-     * Logging configuration file is assumed to be in <code>&lt;working directory&gt;/ect/log.xml</code>.
-     * If not found we look for a classpath resource named <code>/etc/log.xml</code>. If nothing found in both
-     * locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
+     * <p>
+     * Logging configuration file is assumed to be in <code>&lt;working directory&gt;/etc/log.xml</code>. If not
+     * found we look for a classpath resource named <code>/etc/log.xml</code>.<br>
+     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code> is used.
+     * </p>
      */
-    public static synchronized void init()
+    public final static synchronized void init()
     {
         if (initialized)
         {
@@ -60,7 +63,7 @@ public class LogInitializer
             DOMConfigurator.configureAndWatch(logFile.getPath());
         } else
         {
-            URL url = LogInitializer.class.getResource("/" + logDirectory + "/" + logFilename);
+            final URL url = LogInitializer.class.getResource("/" + logDirectory + "/" + logFilename);
             if (url != null)
             {
                 DOMConfigurator.configure(url);
