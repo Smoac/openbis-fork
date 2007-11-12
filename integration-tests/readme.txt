@@ -28,8 +28,8 @@ When testing is launched, following things happen:
 - source code is fetched from the repository and is built
 - all pieces of software are installed, configuration is copied from templates directory
 - all pieces of software are launched
-- Approriate assertions are made to ensure the result is ok. 
+- Appropriate assertions are made to ensure the result is ok. 
 Exact reason of an error can be checked by reading standard output or playground/all_err_log.txt.
-Launching run.sh again will redo the tests without rebuilding or reinstaling anything. 
+Launching run.sh again will redo the tests without rebuilding or reinstalling anything. 
 To reinstall everything without rebuilding binaries, delete playground directory.
 If you want to starting tests from the scratch, launch run.sh with --force-rebuild option.
