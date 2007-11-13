@@ -1,7 +1,31 @@
 <project name="intgration-tests" default="integration-tests" basedir="..">
+
+	<property name="work.dir" value="playground" />
+
 	<target name="nightly-build" depends="integration-tests" />
 
-	<target name="integration-tests">
+	<!--
+	// Runs integration tests (WITHOUT rebuilding everything). It assumes that it will find the
+	// libraries in 'install' directory. It starts by cleaning the 'playground' directory.
+	-->
+	<target name="run" description="Runs integration tests (WITHOUT rebuilding everything).">
+		<delete dir="{work.dir}" failonerror="true" />
+		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
+			<arg value="./run.sh" />
+		</exec>
+		<fail>
+			<condition>
+				<not>
+					<equals arg1="${result-code}" arg2="0" />
+				</not>
+			</condition>
+		</fail>
+	</target>
+
+	<!--
+	// Runs integration tests (with 'force-rebuild' argument activated).
+	-->
+	<target name="integration-tests" description="Runs integration tests (with 'force-rebuild' argument activated).">
 		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./run.sh" />
 			<arg value="--force-rebuild" />
@@ -14,8 +38,11 @@
 			</condition>
 		</fail>
 	</target>
-	
-	<target name="clean">
+
+	<!--
+	// Cleans 'install' and 'playground' directories.
+	-->
+	<target name="clean" description="Cleans 'install' and 'playground' directories.">
 		<exec executable="sh" dir="${basedir}">
 			<arg value="./run.sh" />
 			<arg value="clean" />
