@@ -385,7 +385,9 @@ function integration_tests {
 }
 
 function clean_after_tests {
+	echo "Cleaning $INSTALL..."
     rm -fr $INSTALL
+	echo "Cleaning $WORK..."
     rm -fr $WORK
 }
 
