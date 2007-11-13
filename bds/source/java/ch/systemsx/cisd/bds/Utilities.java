@@ -43,7 +43,8 @@ public class Utilities
         {
             return (IDirectory) node;
         }
-        throw new DataStructureException("There is already a node named '" + name + "' but which isn't a directory.");
+        throw new DataStructureException("There is already a node named '" + name + "' but which isn't a directory ("
+                + node + ").");
     }
 
     /**

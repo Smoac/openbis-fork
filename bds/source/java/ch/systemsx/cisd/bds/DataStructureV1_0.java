@@ -162,7 +162,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the date of registration of the experiment.
      */
-    public void setExperimentRegistartionDate(ExperimentRegistratorDate date)
+    public void setExperimentRegistrationDate(ExperimentRegistratorDate date)
     {
         assertOpenOrCreated();
         date.saveTo(getMetaDataDirectory());

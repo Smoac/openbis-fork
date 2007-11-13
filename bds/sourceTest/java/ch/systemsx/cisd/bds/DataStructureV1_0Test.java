@@ -290,7 +290,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
-        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
         try
         {
             dataStructure.close();
@@ -327,7 +327,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
-        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
         try
         {
             dataStructure.close();
@@ -346,7 +346,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
-        dataStructure.setExperimentRegistartionDate(new ExperimentRegistratorDate(new Date(0)));
+        dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
         dataStructure.setMeasurementEntity(new MeasurementEntity("a", "b"));
         try
         {
@@ -368,7 +368,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         ExperimentRegistratorDate experimentRegistratorDate = new ExperimentRegistratorDate(new Date(4711L * 4711000L));
         System.out.println(experimentRegistratorDate);
-        dataStructure.setExperimentRegistartionDate(experimentRegistratorDate);
+        dataStructure.setExperimentRegistrationDate(experimentRegistratorDate);
         ExperimentRegistrator experimentRegistrator = new ExperimentRegistrator("john", "doe", "j@doe");
         dataStructure.setExperimentRegistrator(experimentRegistrator);
         MeasurementEntity measurementEntity = new MeasurementEntity("cp001", "plate");
