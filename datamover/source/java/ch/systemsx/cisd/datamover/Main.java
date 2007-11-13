@@ -90,6 +90,7 @@ public class Main
      */
     private static void selfTest(final Parameters parameters)
     {
+        final String msgStart = "Datamover self test failed:";
         try
         {
             ArrayList<FileStore> stores = new ArrayList<FileStore>();
@@ -117,11 +118,11 @@ public class Main
             SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
         } catch (HighLevelException e)
         {
-            System.err.printf("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
+            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
             System.exit(1);
         } catch (RuntimeException e)
         {
-            System.err.println("Self test failed:");
+            System.err.println(msgStart);
             e.printStackTrace();
             System.exit(1);
         }
