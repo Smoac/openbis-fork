@@ -9,7 +9,7 @@
 	// libraries in 'install' directory. It starts by cleaning the 'playground' directory.
 	-->
 	<target name="run" description="Runs integration tests (WITHOUT rebuilding everything).">
-		<delete dir="{work.dir}" failonerror="true" />
+		<delete dir="${work.dir}" failonerror="true" />
 		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./run.sh" />
 		</exec>
