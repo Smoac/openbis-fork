@@ -187,6 +187,17 @@ public final class BeanUtils
     }
 
     /**
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter
+     * specification.
+     */
+    public static <T, S> T[] createBeanArray(Class<T> clazz, Iterable<S> source, Converter converter)
+    {
+        List<T> list = createBeanList(clazz, source, converter);
+        final T result[] = createArrayOfType(clazz, list.size());
+        return list.toArray(result);
+    }
+
+    /**
      * Creates a new list of Beans of type <var>clazz</var>.
      * 
      * @param clazz element type of the new list.
@@ -197,7 +208,7 @@ public final class BeanUtils
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source, Converter converter)
+    private final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source, Converter converter)
     {
         assert clazz != null;
 
