@@ -359,7 +359,7 @@ function assert_correct_results {
     assert_dir_empty $DATA/analys-copy
     imgAnalys="$DATA/store-analys/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE ANALYSIS/Barcode_3VCP1/1"
     assert_dir_exists "$imgAnalys"
-    rawData="$DATA/store-raw/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
+    rawData="$DATA/store-raw/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
     assert_dir_exists "$rawData"
 }
 
