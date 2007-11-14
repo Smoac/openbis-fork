@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -736,5 +737,24 @@ public final class FileUtilities
                     .getAbsolutePath());
         }
         return fileList;
+    }
+
+    /**
+     * Normalizes given <var>file</var> path, removing double and single dot path steps.
+     * <p>
+     * It first tries to call {@link File#getCanonicalFile()}. If this fails, works with the file name returned by
+     * {@link File#getAbsolutePath()}.
+     * </p>
+     */
+    public final static File normalizeFile(final File file)
+    {
+        assert file != null : "Given file can not be null.";
+        try
+        {
+            return file.getCanonicalFile();
+        } catch (IOException ex)
+        {
+            return new File(FilenameUtils.normalize(file.getAbsolutePath()));
+        }
     }
 }
