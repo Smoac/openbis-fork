@@ -37,12 +37,12 @@ public class InterfaceForRMIChecker
      * @throws AssertionError if <code>interfaze</code> is not an interface or a parameter type or
      *          a return value is not serializable.
      */
-    public static void assertInterfaceForRMI(Class interfaze)
+    public static void assertInterfaceForRMI(Class<?> interfaze)
     {
         assert interfaze != null : "Unspecified interface.";
         assert interfaze.isInterface() : "Not an interface " + interfaze;
         
-        Set<Class> visitedClasses = new HashSet<Class>();
+        Set<Class<?>> visitedClasses = new HashSet<Class<?>>();
         Method[] methods = interfaze.getMethods();
         for (Method method : methods)
         {
@@ -50,7 +50,7 @@ public class InterfaceForRMIChecker
         }
     }
     
-    private static void assertMethodForRMI(Method method, Set<Class> visitedClasses)
+    private static void assertMethodForRMI(Method method, Set<Class<?>> visitedClasses)
     {
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (Class<?> parameterType : parameterTypes)
@@ -70,12 +70,12 @@ public class InterfaceForRMIChecker
      * @throws AssertionError if <code>clazz</code> is not serializable or a non-transient non-static
      *          attribute isn't serializable.
      */
-    public static void assertSerializable(Class clazz)
+    public static void assertSerializable(Class<?> clazz)
     {
-        assertSerializable(clazz, new HashSet<Class>());
+        assertSerializable(clazz, new HashSet<Class<?>>());
     }
 
-    private static void assertSerializable(Class clazz, Set<Class> visitedClasses)
+    private static void assertSerializable(Class<?> clazz, Set<Class<?>> visitedClasses)
     {
         assert clazz != null : "Unspecified class.";
         if (clazz.isPrimitive() || visitedClasses.contains(clazz))
