@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -398,4 +399,22 @@ public class FileUtilitiesTest
         }
 
     }
+
+    @Test
+    public final void testNormalizeFile() throws IOException
+    {
+        try
+        {
+            FileUtilities.normalizeFile(null);
+            fail("Given file can not be null.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+        final File file = new File(workingDirectory, "../dir");
+        final String canonicalPath = file.getCanonicalPath();
+        assertFalse(canonicalPath.equals(file.getAbsolutePath()));
+        assertEquals(canonicalPath, FileUtilities.normalizeFile(file).getAbsolutePath());
+    }
+
 }
