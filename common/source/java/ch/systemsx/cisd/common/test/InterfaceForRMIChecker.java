@@ -57,12 +57,12 @@ public class InterfaceForRMIChecker
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (Class<?> parameterType : parameterTypes)
         {
-            assertSerializable(parameterType, visitedClasses);
+            assertSerializable(parameterType, visitedClasses, true);
         }
         Class<?> returnType = method.getReturnType();
         if (Void.class.isAssignableFrom(returnType) == false)
         {
-            assertSerializable(returnType, visitedClasses);
+            assertSerializable(returnType, visitedClasses, true);
         }
     }
     
@@ -74,10 +74,10 @@ public class InterfaceForRMIChecker
      */
     public static void assertSerializable(Class<?> clazz)
     {
-        assertSerializable(clazz, new HashSet<Class<?>>());
+        assertSerializable(clazz, new HashSet<Class<?>>(), true);
     }
 
-    private static void assertSerializable(Class<?> clazz, Set<Class<?>> visitedClasses)
+    private static void assertSerializable(Class<?> clazz, Set<Class<?>> visitedClasses, boolean checkImplementsSerializable)
     {
         assert clazz != null : "Unspecified class.";
         if (clazz.isPrimitive() || visitedClasses.contains(clazz))
@@ -87,10 +87,13 @@ public class InterfaceForRMIChecker
         visitedClasses.add(clazz);
         if (clazz.isArray())
         {
-            assertSerializable(clazz.getComponentType(), visitedClasses);
+            assertSerializable(clazz.getComponentType(), visitedClasses, true);
         } else
         {
-            assert Serializable.class.isAssignableFrom(clazz) : clazz + " does not implements java.io.Serializable";
+            if (checkImplementsSerializable)
+            {
+                assert Serializable.class.isAssignableFrom(clazz) : clazz + " does not implements java.io.Serializable";
+            }
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields)
             {
@@ -103,7 +106,7 @@ public class InterfaceForRMIChecker
                     Class<?> attributeClass = field.getType();
                     if (attributeClass.isInterface() == false)
                     {
-                        assertSerializable(attributeClass, visitedClasses);
+                        assertSerializable(attributeClass, visitedClasses, true);
                     } else
                     {
                         Type genericType = field.getGenericType();
@@ -115,7 +118,7 @@ public class InterfaceForRMIChecker
                             {
                                 if (type instanceof Class<?>)
                                 {
-                                    assertSerializable((Class<?>) type, visitedClasses);
+                                    assertSerializable((Class<?>) type, visitedClasses, true);
                                 }
                             }
                         }
@@ -125,7 +128,7 @@ public class InterfaceForRMIChecker
             Class<?> superclass = clazz.getSuperclass();
             if (superclass != null && superclass.equals(Object.class) == false)
             {
-                assertSerializable(superclass, visitedClasses);
+                assertSerializable(superclass, visitedClasses, false);
             }
         }
     }

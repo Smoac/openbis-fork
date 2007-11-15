@@ -113,6 +113,27 @@ public class InterfaceForRMICheckerTest
     }
     
     @Test
+    public void testSerializablityOfSerializableClassExtendsNonSerializableClass()
+    {
+        InterfaceForRMIChecker.assertSerializable(SerializableClassExtendsNonSerializableClass.class);
+    }
+    
+    public static class SerializableClassExtendsNonSerializableClass extends NonSerializableClass implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+        private static NonSerializableClass non;
+        private int n;
+        private transient NonSerializableClass transientNon;
+        public List<String> list;
+        
+        @Override
+        public String toString()
+        {
+            return non.toString() + n + transientNon;
+        }
+    }
+    
+    @Test
     public void testSerializablityOfNonSerializableClass()
     {
         checkNonSerializableClass(NonSerializableClass.class);
