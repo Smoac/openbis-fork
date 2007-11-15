@@ -54,7 +54,7 @@ public class Utilities
      * @param name Name of the requested directory.
      * @throws DataStructureException if requested directory not found.
      */
-    public static IDirectory getSubDirectory(IDirectory directory, String name)
+    public final static IDirectory getSubDirectory(final IDirectory directory, final String name)
     {
         INode node = directory.tryToGetNode(name);
         if (node == null)

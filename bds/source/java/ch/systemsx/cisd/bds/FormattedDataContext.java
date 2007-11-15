@@ -24,7 +24,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  * 
  * @author Franz-Josef Elmer
  */
-class FormattedDataContext
+public final class FormattedDataContext
 {
     private final IDirectory dataDirectory;
 
@@ -32,7 +32,7 @@ class FormattedDataContext
 
     private final IFormatParameters formatParameters;
 
-    FormattedDataContext(IDirectory dataDirectory, Format format, IFormatParameters formatParameters)
+    FormattedDataContext(final IDirectory dataDirectory, final Format format, final IFormatParameters formatParameters)
     {
         assert dataDirectory != null : "Unspecified data directory.";
         this.dataDirectory = dataDirectory;

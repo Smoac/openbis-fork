@@ -16,21 +16,25 @@
 
 package ch.systemsx.cisd.bds;
 
-
 /**
  * Immutable class defining a reference between to paths.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Reference
 {
+    /** The only accepted path separator (system independent). */
+    public final static char PATH_SEPARATOR = '/';
+
     private final String path;
+
     private final String originalPath;
+
     private final ReferenceType referenceType;
 
     /**
      * Creates an instance for the specified paths and reference type.
-     *
+     * 
      * @param path Path which referes to <code>originalPath</code>.
      * @param originalPath Path to which <code>path</code> referes.
      * @param referenceType Type of reference.

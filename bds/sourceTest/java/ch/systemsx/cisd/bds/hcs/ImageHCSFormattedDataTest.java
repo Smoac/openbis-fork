@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.hcs;
 
 /**
- * Read-only access interface for a set of {@link FormatParameter} objects.
+ * Test cases for corresponding {@link ImageHCSFormattedData} class.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public interface IFormatParameters extends Iterable<FormatParameter>
+public class ImageHCSFormattedDataTest
 {
-    /**
-     * Returns the value of the specified parameter.
-     * 
-     * @throws IllegalArgumentException if there is no parameter named as specified.
-     */
-    public Object getValue(final String parameterName);
 
-    /** Whether given <var>parameterName</var> has already been added. */
-    public boolean containsParameter(final String parameterName);
 }

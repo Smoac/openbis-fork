@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which builds checksums of all files in a {@link IDirectory}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 class ChecksumBuilder
@@ -45,9 +45,9 @@ class ChecksumBuilder
     {
         this.checksumCalculator = checksumCalculator;
     }
-    
+
     /**
-     *  Builds a multiline string which contains checksum and path of all files in the specified directory.
+     * Builds a multiline string which contains checksum and path of all files in the specified directory.
      */
     String buildChecksumsForAllFilesIn(IDirectory directory)
     {
@@ -57,7 +57,7 @@ class ChecksumBuilder
         addChecksums(printWriter, null, directory);
         return writer.toString();
     }
-    
+
     private void addChecksums(PrintWriter printWriter, String nodePath, IDirectory directory)
     {
         List<INode> children = new ArrayList<INode>();
@@ -77,10 +77,10 @@ class ChecksumBuilder
             addChecksum(printWriter, nodePath, child);
         }
     }
-    
+
     private void addChecksum(PrintWriter printWriter, String path, INode node)
     {
-        String nodePath = (path == null ? "" : path + "/") + node.getName();
+        String nodePath = (path == null ? "" : path + Reference.PATH_SEPARATOR) + node.getName();
         if (node instanceof IFile)
         {
             IFile file = (IFile) node;

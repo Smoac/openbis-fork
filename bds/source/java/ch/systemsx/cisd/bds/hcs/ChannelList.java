@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IStorable;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -33,6 +34,10 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 public final class ChannelList implements IStorable, Iterable<Channel>
 {
+
+    /**
+     * Unique identifier when used as {@link FormatParameter}.
+     */
     static final String NUMBER_OF_CHANNELS = "number_of_channels";
 
     private final List<Channel> channels;

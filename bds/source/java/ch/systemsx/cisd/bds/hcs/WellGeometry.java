@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
@@ -26,6 +27,12 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 public final class WellGeometry extends Geometry
 {
 
+    /**
+     * Directory name which contains the well geometry.
+     * <p>
+     * Also used as unique identifier when used as {@link FormatParameter}.
+     * </p>
+     */
     static final String WELL_GEOMETRY = "well_geometry";
 
     public WellGeometry(final int rows, final int columns)
@@ -36,7 +43,7 @@ public final class WellGeometry extends Geometry
     /**
      * Loads the geometry from the specified directory.
      */
-    static Geometry loadFrom(final IDirectory directory)
+    final static Geometry loadFrom(final IDirectory directory)
     {
         return loadFrom(directory, WELL_GEOMETRY);
     }

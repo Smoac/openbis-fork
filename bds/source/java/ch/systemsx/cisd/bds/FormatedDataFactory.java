@@ -19,23 +19,31 @@ package ch.systemsx.cisd.bds;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.bds.hcs.ImageHCSFormat1_0;
+import ch.systemsx.cisd.bds.hcs.ImageHCSFormattedData;
 import ch.systemsx.cisd.bds.storage.IDirectory;
-
 
 /**
  * Factory for objects of type {@link IFormattedData}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-class FormatedDataFactory
+final class FormatedDataFactory
 {
-    private static final Map<String, Factory<IFormattedData>> factories = new HashMap<String, Factory<IFormattedData>>();
-    
+    private static final Map<String, Factory<IFormattedData>> factories =
+            new HashMap<String, Factory<IFormattedData>>();
+
     static
     {
         register(UnknownFormat1_0.UNKNOWN_1_0, NoFormattedData.class);
+        register(ImageHCSFormat1_0.IMAGE_HCS_1_0, ImageHCSFormattedData.class);
     }
-    
+
+    private FormatedDataFactory()
+    {
+        // This class cannot be instantiated.
+    }
+
     static void register(Format format, Class<? extends IFormattedData> clazz)
     {
         String code = format.getCode();
@@ -47,15 +55,15 @@ class FormatedDataFactory
         }
         factory.register(format.getVersion(), clazz);
     }
-    
+
     static Class<? extends IFormattedData> getFormatedDataInterfaceFor(Format format, Format defaultFormat)
     {
         Factory<IFormattedData> factory = getFactory(format, defaultFormat);
         return factory.getClassFor(format.getVersion());
     }
 
-    static IFormattedData createFormatedData(IDirectory dataDirectory, Format format, Format defaultFormat, 
-                                             IFormatParameters formatParameters)
+    static IFormattedData createFormatedData(IDirectory dataDirectory, Format format, Format defaultFormat,
+            IFormatParameters formatParameters)
     {
         Factory<IFormattedData> factory = getFactory(format, defaultFormat);
         Format f = chooseSupportedFormat(format, defaultFormat);
@@ -69,7 +77,7 @@ class FormatedDataFactory
         String code = format.getCode();
         assert code != null : "Unspecified format code.";
         assert format.getVersion() != null : "Unspecified version.";
-        
+
         Factory<IFormattedData> factory = factories.get(code);
         if (factory == null)
         {
@@ -81,10 +89,10 @@ class FormatedDataFactory
         }
         return factory;
     }
-    
+
     private static Format chooseSupportedFormat(Format format, Format defaultFormat)
     {
         return factories.get(format.getCode()) == null ? defaultFormat : format;
     }
-    
+
 }

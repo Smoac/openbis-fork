@@ -19,9 +19,9 @@ package ch.systemsx.cisd.bds.storage;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * Exception thrown if some problem occured during operations in the Storage API which can not be classified
+ * Exception thrown if some problem occurred during operations in the Storage API which can not be classified
  * convincingly as an {@link EnvironmentFailureException}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class StorageException extends RuntimeException

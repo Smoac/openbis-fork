@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,13 +29,16 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.ExperimentIdentifier;
 import ch.systemsx.cisd.bds.ExperimentRegistrator;
 import ch.systemsx.cisd.bds.ExperimentRegistratorDate;
+import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
+import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.MeasurementEntity;
 import ch.systemsx.cisd.bds.ProcessingType;
 import ch.systemsx.cisd.bds.Version;
@@ -59,7 +65,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         return new ChannelList(list);
     }
 
-    private void createExampleDataStructure()
+    private final void createExampleDataStructure()
     {
         storage.mount();
         IDirectory root = storage.getRoot();
@@ -77,6 +83,16 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         storage.unmount();
     }
 
+    private final void setFormatAndFormatParameters()
+    {
+        dataStructure.setFormat(ImageHCSFormat1_0.IMAGE_HCS_1_0);
+        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.DEVICE_ID, "M1"));
+        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
+        dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS, createChannelList()));
+        dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, new PlateGeometry(2, 3)));
+        dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY, new WellGeometry(7, 5)));
+    }
+
     //
     // AbstractFileSystemTestCase
     //
@@ -91,17 +107,31 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testGetFormatedData()
+    {
+        dataStructure.create();
+        final Format format = ImageHCSFormat1_0.IMAGE_HCS_1_0;
+        try
+        {
+            dataStructure.getFormattedData();
+            fail("Not all needed format parameters have been set.");
+        } catch (DataStructureException ex)
+        {
+            // Nothing to do here
+        }
+        setFormatAndFormatParameters();
+        final IFormattedData formatedData = dataStructure.getFormattedData();
+        assertTrue(formatedData instanceof ImageHCSFormattedData);
+        assertEquals(format, formatedData.getFormat());
+    }
+
+    @Test
     public final void testHCSImageDataStructure()
     {
         // Creating...
         dataStructure.create();
         createExampleDataStructure();
-        dataStructure.setFormat(ImageHCSFormat1_0.IMAGE_HCS_1_0);
-        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.DEVICE_ID, "M1"));
-        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
-        dataStructure.addFormatParameter(new FormatParameter("doesNotMatter", createChannelList()));
-        dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, new PlateGeometry(2, 3)));
-        dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY, new WellGeometry(7, 5)));
+        setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...
         final IDataStructure ds =

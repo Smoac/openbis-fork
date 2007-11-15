@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
@@ -25,7 +26,13 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class PlateGeometry extends Geometry
 {
-
+    
+    /**
+     * Directory name which contains the plate geometry.
+     * <p>
+     * Also used as unique identifier when used as {@link FormatParameter}.
+     * </p>
+     */
     static final String PLATE_GEOMETRY = "plate_geometry";
 
     public PlateGeometry(final int rows, final int columns)
@@ -36,7 +43,7 @@ public final class PlateGeometry extends Geometry
     /**
      * Loads the geometry from the specified directory.
      */
-    static Geometry loadFrom(final IDirectory directory)
+    final static Geometry loadFrom(final IDirectory directory)
     {
         return loadFrom(directory, PLATE_GEOMETRY);
     }

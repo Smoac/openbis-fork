@@ -47,8 +47,19 @@ public class DataStructureV1_0 extends AbstractDataStructure
 
     public static final String DIR_DATA = "data";
 
+    /** The directory where <i>original</i> data could be found. */
     public static final String DIR_ORIGINAL = "original";
 
+    /** The directory where <i>standardized</i> data could be found. */
+    public static final String DIR_STANDARD = "standard";
+
+    /**
+     * The mapping relating <i>standard</i> with <i>original</i> data.
+     * <p>
+     * Note that under format specific conditions this mapping file could be empty, meaning that the <i>standard</i>
+     * directory contains the real data and not only links.
+     * </p>
+     */
     public static final String MAPPING_FILE = "standard_original_mapping";
 
     private static final Version VERSION = new Version(1, 0);
@@ -92,7 +103,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * 
      * @throws DataStructureException if this method has been invoked before the format has been set.
      */
-    public IFormattedData getFormattedData()
+    public IFormattedData getFormattedData() throws DataStructureException
     {
         assertOpenOrCreated();
         if (format == null)

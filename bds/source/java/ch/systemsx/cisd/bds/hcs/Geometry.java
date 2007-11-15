@@ -35,7 +35,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class Geometry implements IStorable
 {
-    static final String NOT_POSITIVE = "Given number '%d' must be > 0.";
+    static final String NOT_POSITIVE = "Given geometry component '%s' must be > 0 (%d <= 0).";
 
     final static String ROWS = "rows";
 
@@ -47,9 +47,9 @@ public class Geometry implements IStorable
 
     protected Geometry(final int rows, final int columns)
     {
-        assert columns > 0 : String.format(NOT_POSITIVE, columns);
+        assert columns > 0 : String.format(NOT_POSITIVE, "columns", columns);
         this.columns = columns;
-        assert rows > 0 : String.format(NOT_POSITIVE, rows);
+        assert rows > 0 : String.format(NOT_POSITIVE, "rows", rows);
         this.rows = rows;
     }
 
@@ -93,6 +93,16 @@ public class Geometry implements IStorable
         final IDirectory geometryDirectory = directory.makeDirectory(getGeometryDirectoryName());
         geometryDirectory.addKeyValuePair(ROWS, toString(getRows()));
         geometryDirectory.addKeyValuePair(COLUMNS, toString(getColumns()));
+    }
+
+    /**
+     * Whether this <code>Geometry</code> contains given <var>location</var>, meaning that it is a valid
+     * <code>Location</code>.
+     */
+    public final boolean contains(final Location location)
+    {
+        assert location != null : "Given location can not be null.";
+        return location.x <= getColumns() && location.y <= getRows();
     }
 
     /**

@@ -16,43 +16,32 @@
 
 package ch.systemsx.cisd.bds;
 
-
 /**
  * Most simplest implementation of {@link IFormattedData}. It is associated with {@link UnknownFormat1_0}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class NoFormattedData extends AbstractFormattedData
+public final class NoFormattedData extends AbstractFormattedData
 {
     /**
-     * Creates a new instance for the specified context. The format has to be backward-compatible with 
+     * Creates a new instance for the specified context. The format has to be backward-compatible with
      * {@link UnknownFormat1_0}. The format parameters are ignored.
      */
-    public NoFormattedData(FormattedDataContext context)
+    public NoFormattedData(final FormattedDataContext context)
     {
         super(context);
     }
 
+    //
+    // AbstractFormattedData
+    //
+
     /**
      * Returns {@link UnknownFormat1_0#UNKNOWN_1_0}.
      */
-    public Format getFormat()
+    public final Format getFormat()
     {
         return UnknownFormat1_0.UNKNOWN_1_0;
-    }
-    
-    @Override
-    void assertValidFormatAndFormatParameters()
-    {
-        if (format.getCode().equals(getFormat().getCode()) == false)
-        {
-            throw new DataStructureException("Invalid format code: " + format.getCode());
-        }
-        if (format.getVersion().isBackwardsCompatibleWith(getFormat().getVersion()) == false)
-        {
-            throw new DataStructureException("Incompatible format version: " + format.getVersion());
-            
-        }
     }
 
 }

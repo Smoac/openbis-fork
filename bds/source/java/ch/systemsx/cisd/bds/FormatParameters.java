@@ -82,16 +82,17 @@ final class FormatParameters implements IFormatParameters, IStorable
     /**
      * Adds the specified parameter.
      * 
-     * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
+     * @throws IllegalArgumentException if a parameter with same name as given <var>parameter</var> already exists. To
+     *             check whether given <var>parameter</var> is already present, use {@link #containsParameter(String)}.
      */
     final void addParameter(final FormatParameter parameter)
     {
-        String name = parameter.getName();
-        if (parameters.containsKey(name))
+        final String parameterName = parameter.getName();
+        if (containsParameter(parameterName))
         {
-            throw new IllegalArgumentException("There is already a parameter named '" + name + "'.");
+            throw new IllegalArgumentException("There is already a parameter named '" + parameterName + "'.");
         }
-        parameters.put(name, parameter);
+        parameters.put(parameterName, parameter);
     }
 
     //
@@ -111,5 +112,10 @@ final class FormatParameters implements IFormatParameters, IStorable
     public final Iterator<FormatParameter> iterator()
     {
         return parameters.values().iterator();
+    }
+
+    public final boolean containsParameter(final String parameterName)
+    {
+        return parameters.containsKey(parameterName);
     }
 }
