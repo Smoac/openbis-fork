@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -98,8 +100,32 @@ public class InterfaceForRMIChecker
                 boolean isTransient = Modifier.isTransient(modifiers);
                 if (isNative == false && isStatic == false && isTransient == false)
                 {
-                    assertSerializable(field.getType(), visitedClasses);
+                    Class<?> attributeClass = field.getType();
+                    if (attributeClass.isInterface() == false)
+                    {
+                        assertSerializable(attributeClass, visitedClasses);
+                    } else
+                    {
+                        Type genericType = field.getGenericType();
+                        if (genericType instanceof ParameterizedType)
+                        {
+                            ParameterizedType pt = (ParameterizedType) genericType;
+                            Type[] actualTypeArguments = pt.getActualTypeArguments();
+                            for (Type type : actualTypeArguments)
+                            {
+                                if (type instanceof Class<?>)
+                                {
+                                    assertSerializable((Class<?>) type, visitedClasses);
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && superclass.equals(Object.class) == false)
+            {
+                assertSerializable(superclass, visitedClasses);
             }
         }
     }
