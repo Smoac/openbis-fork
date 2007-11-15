@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.logging;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.log4j.BasicConfigurator;
@@ -30,6 +31,10 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public class LogInitializer
 {
+    private static final String LOG_DIRECTORY = "etc";
+
+    private static final String LOG_FILENAME = "log.xml";
+
     static
     {
         // Do not let log4j configure itself. We will do it our own way.
@@ -38,6 +43,43 @@ public class LogInitializer
     }
 
     private static boolean initialized = false;
+
+    private final static URL createURL()
+    {
+        return LogInitializer.class.getResource("/" + LOG_DIRECTORY + "/" + LOG_FILENAME);
+    }
+
+    private final static File createLogFile()
+    {
+        return new File(LOG_DIRECTORY, LOG_FILENAME);
+    }
+
+    private final static void configureFromFile(final File logFile)
+    {
+        assert logFile != null && logFile.exists() : "Given log file must be not null and must exist.";
+        // For non-XML files, you will use <code>PropertyConfigurator.configureAndWatch(String)</code>
+        DOMConfigurator.configureAndWatch(logFile.getPath());
+        LogLog.debug(String.format("Log configured from file '%s' (watching).", logFile.getAbsolutePath()));
+    }
+
+    private final static void configureFromURL(final URL url)
+    {
+        assert url != null : "Given url can not be null.";
+        try
+        {
+            final File logFile = new File(url.toURI());
+            if (logFile.exists())
+            {
+                configureFromFile(logFile);
+                return;
+            }
+        } catch (URISyntaxException ex)
+        {
+            LogLog.warn(String.format("Given url '%s' could not be parsed.", url), ex);
+        }
+        DOMConfigurator.configure(url);
+        LogLog.debug(String.format("Log configured from URL '%s' (NOT watching).", url));
+    }
 
     /**
      * Initializes logging system. Does nothing if already initialized.
@@ -53,20 +95,16 @@ public class LogInitializer
         {
             return;
         }
-
-        final String logDirectory = "etc";
-        final String logFilename = "log.xml";
-        final File logFile = new File(logDirectory, logFilename);
+        final File logFile = createLogFile();
         if (logFile.exists())
         {
-            // For non-XML files, you will use <code>PropertyConfigurator.configureAndWatch(String)</code>
-            DOMConfigurator.configureAndWatch(logFile.getPath());
+            configureFromFile(logFile);
         } else
         {
-            final URL url = LogInitializer.class.getResource("/" + logDirectory + "/" + logFilename);
+            final URL url = createURL();
             if (url != null)
             {
-                DOMConfigurator.configure(url);
+                configureFromURL(url);
             } else
             {
                 BasicConfigurator.configure();
@@ -75,5 +113,4 @@ public class LogInitializer
         initialized = true;
         LogLog.setQuietMode(true);
     }
-
 }
