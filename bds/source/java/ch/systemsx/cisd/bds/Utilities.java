@@ -59,7 +59,8 @@ public class Utilities
         INode node = directory.tryToGetNode(name);
         if (node == null)
         {
-            throw new DataStructureException("No directory named '" + name + "' found in " + directory);
+            throw new DataStructureException(String.format("No directory named '%s' found in directory '%s'.", name,
+                    directory));
         }
         if (node instanceof IDirectory == false)
         {

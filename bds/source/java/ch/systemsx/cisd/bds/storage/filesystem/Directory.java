@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Franz-Josef Elmer
  */
-class Directory extends AbstractNode implements IDirectory
+final class Directory extends AbstractNode implements IDirectory
 {
 
     Directory(java.io.File directory)
@@ -42,7 +42,7 @@ class Directory extends AbstractNode implements IDirectory
         super(directory);
         if (directory.isDirectory() == false)
         {
-            throw new StorageException("Not a directory: " + directory.getAbsolutePath());
+            throw new StorageException(String.format("Not a directory '%s'.", directory.getAbsolutePath()));
         }
     }
 
@@ -50,8 +50,9 @@ class Directory extends AbstractNode implements IDirectory
     // IDirectory
     //
 
-    public INode tryToGetNode(String name)
+    public final INode tryToGetNode(final String name)
     {
+        assert name != null : "Given name can not be null.";
         final java.io.File[] files = FileUtilities.listFiles(nodeFile);
         for (java.io.File file : files)
         {
@@ -63,8 +64,9 @@ class Directory extends AbstractNode implements IDirectory
         return null;
     }
 
-    public IDirectory makeDirectory(String name)
+    public final IDirectory makeDirectory(final String name)
     {
+        assert name != null : "Given name can not be null.";
         java.io.File dir = new java.io.File(nodeFile, name);
         if (dir.exists())
         {
@@ -83,15 +85,18 @@ class Directory extends AbstractNode implements IDirectory
         return new Directory(dir);
     }
 
-    public IFile addKeyValuePair(String key, String value)
+    public final IFile addKeyValuePair(final String key, final String value)
     {
+        assert key != null : "Given key can not be null.";
+        assert value != null : "Given value can not be null.";
         java.io.File file = new java.io.File(nodeFile, key);
         FileUtilities.writeToFile(file, value);
         return new File(file);
     }
 
-    public INode addFile(final java.io.File file, final boolean move)
+    public final INode addFile(final java.io.File file, final boolean move)
     {
+        checkFile(file);
         final java.io.File newFile = new java.io.File(nodeFile, file.getName());
         if (move)
         {
@@ -116,13 +121,13 @@ class Directory extends AbstractNode implements IDirectory
         return NodeFactory.createNode(newFile);
     }
 
-    public ILink addLink(String name, INode node)
+    public final ILink addLink(final String name, final INode node)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Iterator<INode> iterator()
+    public final Iterator<INode> iterator()
     {
         return new Iterator<INode>()
             {

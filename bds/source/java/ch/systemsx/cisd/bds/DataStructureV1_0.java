@@ -91,10 +91,19 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Returns the directory containing the original data.
      */
-    public IDirectory getOriginalData()
+    public final IDirectory getOriginalData()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_ORIGINAL);
+    }
+
+    /**
+     * Returns the directory containing the standardized data.
+     */
+    public final IDirectory getStandardData()
+    {
+        assertOpenOrCreated();
+        return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
     }
 
     /**
@@ -110,8 +119,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Couldn't create formated data because of unspecified format.");
         }
-        IDirectory metaData = getMetaDataDirectory();
-        return FormatedDataFactory.createFormatedData(metaData, format, UnknownFormat1_0.UNKNOWN_1_0, formatParameters);
+        return FormatedDataFactory.createFormatedData(getDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0,
+                formatParameters);
     }
 
     /**

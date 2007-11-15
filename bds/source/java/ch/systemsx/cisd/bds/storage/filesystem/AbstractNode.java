@@ -24,6 +24,8 @@ import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
+ * An abstract implementation of <code>INode</code>.
+ * 
  * @author Franz-Josef Elmer
  */
 abstract class AbstractNode implements INode
@@ -39,8 +41,8 @@ abstract class AbstractNode implements INode
             final boolean successful = source.renameTo(destination);
             if (successful == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", 
-                                                               source.getAbsolutePath(), directory.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
+                        .getAbsolutePath(), directory.getAbsolutePath());
             }
         }
     }
@@ -49,35 +51,48 @@ abstract class AbstractNode implements INode
 
     AbstractNode(File file)
     {
-        if (file == null)
-        {
-            throw new StorageException("Unspecified file");
-        }
-        if (file.exists() == false)
-        {
-            throw new StorageException("Non existing file " + file);
-        }
+        checkFile(file);
         this.nodeFile = file;
     }
 
-    public String getName()
+    static void checkFile(final File file)
+    {
+        if (file == null)
+        {
+            throw new StorageException("Unspecified file.");
+        }
+        if (file.exists() == false)
+        {
+            throw new StorageException(String.format("Non existing file '%s'.", file.getAbsolutePath()));
+        }
+    }
+
+    //
+    // INode
+    //
+
+    public final String getName()
     {
         return nodeFile.getName();
     }
 
-    public IDirectory tryToGetParent()
+    public final IDirectory tryToGetParent()
     {
         File dir = nodeFile.getParentFile();
         return dir == null ? null : new Directory(dir);
     }
 
-    public void moveTo(File directory)
+    public final void moveTo(final File directory)
     {
         moveFileToDirectory(nodeFile, directory);
     }
 
+    //
+    // Object
+    //
+
     @Override
-    public String toString()
+    public final String toString()
     {
         return nodeFile.getAbsolutePath();
     }

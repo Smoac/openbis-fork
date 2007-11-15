@@ -21,33 +21,30 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
-import ch.systemsx.cisd.bds.ExperimentIdentifier;
-import ch.systemsx.cisd.bds.ExperimentRegistrator;
-import ch.systemsx.cisd.bds.ExperimentRegistratorDate;
+import ch.systemsx.cisd.bds.DataStructureV1_0Test;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IFormattedData;
-import ch.systemsx.cisd.bds.MeasurementEntity;
-import ch.systemsx.cisd.bds.ProcessingType;
-import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
- * Test cases for corresponding {@link DataStructureV1_0} class.
+ * Test cases for corresponding {@link DataStructureV1_0} class specific to <i>HCS (High-Content Screening) with Images</i>.
  * 
  * @author Christian Ribeaud
  */
@@ -57,30 +54,17 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private DataStructureV1_0 dataStructure;
 
+    public HCSDataStructureV1_0Test()
+    {
+        super(false);
+    }
+
     private final static ChannelList createChannelList()
     {
         final List<Channel> list = new ArrayList<Channel>();
         list.add(new Channel(1, 123));
         list.add(new Channel(2, 456));
         return new ChannelList(list);
-    }
-
-    private final void createExampleDataStructure()
-    {
-        storage.mount();
-        IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
-        final IDirectory data = root.makeDirectory(DataStructureV1_0.DIR_DATA);
-        final IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
-        originalDataDir.addKeyValuePair("hello", "world");
-        final IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
-        new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
-        new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
-        new MeasurementEntity("a", "b").saveTo(metaData);
-        metaData.addKeyValuePair(DataStructureV1_0.MAPPING_FILE, "");
-        ProcessingType.COMPUTED_DATA.saveTo(metaData);
-        storage.unmount();
     }
 
     private final void setFormatAndFormatParameters()
@@ -120,9 +104,53 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
             // Nothing to do here
         }
         setFormatAndFormatParameters();
-        final IFormattedData formatedData = dataStructure.getFormattedData();
-        assertTrue(formatedData instanceof ImageHCSFormattedData);
-        assertEquals(format, formatedData.getFormat());
+        final IFormattedData formattedData = dataStructure.getFormattedData();
+        assertTrue(formattedData instanceof IHCSFormattedData);
+        assertEquals(format, formattedData.getFormat());
+    }
+
+    @Test
+    public final void testGetNodeAt() throws IOException
+    {
+        dataStructure.create();
+        DataStructureV1_0Test.createExampleDataStructure(storage);
+        setFormatAndFormatParameters();
+        final IDirectory standardData = dataStructure.getStandardData();
+        final IDirectory channelDir = standardData.makeDirectory(Channel.CHANNEL + "1");
+        final IDirectory plateRowDir = channelDir.makeDirectory(ImageHCSFormattedData.ROW + "1");
+        final IDirectory plateColumnDir = plateRowDir.makeDirectory(ImageHCSFormattedData.COLUMN + "1");
+        final String wellFileName = ImageHCSFormattedData.createWellFileName(new Location(1, 1));
+        final File wellFile = new File(workingDirectory, wellFileName);
+        FileUtils.writeStringToFile(wellFile, "This is an image...");
+        plateColumnDir.addFile(wellFile, true);
+        final IHCSFormattedData formattedData = (IHCSFormattedData) dataStructure.getFormattedData();
+        try
+        {
+            formattedData.getNodeAt(3, new Location(1, 1), new Location(1, 1));
+            fail("3 > 2");
+        } catch (IndexOutOfBoundsException ex)
+        {
+            // Nothing to do here.
+        }
+        try
+        {
+            formattedData.getNodeAt(2, new Location(1, 1), new Location(1, 1));
+            fail("No directory named 'channel2' found.");
+        } catch (DataStructureException ex)
+        {
+            assertTrue(ex.getMessage().indexOf("'channel2'") > -1);
+        }
+        try
+        {
+            formattedData.getNodeAt(1, new Location(1, 3), new Location(1, 1));
+            fail("Given geometry '2x3' does not contain location '[x=1,y=3]'.");
+        } catch (IllegalArgumentException ex)
+        {
+            assertTrue(ex.getMessage().indexOf("does not contain location") > -1);
+        }
+        final INode node = formattedData.getNodeAt(1, new Location(1, 1), new Location(1, 1));
+        assertEquals("row1_column1.tiff", node.getName());
+        dataStructure.close();
     }
 
     @Test
@@ -130,7 +158,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         // Creating...
         dataStructure.create();
-        createExampleDataStructure();
+        DataStructureV1_0Test.createExampleDataStructure(storage);
         setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...

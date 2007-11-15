@@ -36,16 +36,14 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2007-11-15, Christian Ribeaud: Make a test of this class. Maybe we can extract some of
-// 'HCSDataStructureV1_0Test' class.
 public final class ImageHCSFormattedData extends AbstractFormattedData implements IHCSFormattedData
 {
 
     /** The <i>column</i> (or <i>x</i>) coordinate. */
-    private static final String COLUMN = "column";
+    public static final String COLUMN = "column";
 
     /** The <i>row</i> (or <i>y</i>) coordinate. */
-    private static final String ROW = "row";
+    public static final String ROW = "row";
 
     /**
      * The mandatory format parameters that must be defined so that this implementation is able to work properly.
@@ -103,16 +101,17 @@ public final class ImageHCSFormattedData extends AbstractFormattedData implement
         }
     }
 
-    private final static String createWellFileName(final Location wellLocation)
+    /** From given <var>wellLocation</var> creates the leaf file name that is found in <code>data/standard</code>. */
+    final static String createWellFileName(final Location wellLocation)
     {
-        return ROW + wellLocation.y + COLUMN + wellLocation.x + ".tiff";
+        assert wellLocation != null : "Well location can not be null.";
+        return ROW + wellLocation.y + "_" + COLUMN + wellLocation.x + ".tiff";
     }
 
     //
     // IHCSFormattedData
     //
 
-    // TODO 2007-11-15, Christian Ribeaud: Should we consider to use 'standard_original_mapping' here?
     public final INode getNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
             throws DataStructureException
     {

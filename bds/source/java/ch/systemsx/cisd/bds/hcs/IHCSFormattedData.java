@@ -27,7 +27,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-public interface IHCSFormattedData
+public interface IHCSFormattedData extends IFormattedData
 {
 
     /**

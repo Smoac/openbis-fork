@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -530,7 +531,12 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
-    private void createExampleDataStructure()
+    private final void createExampleDataStructure()
+    {
+        createExampleDataStructure(storage);
+    }
+
+    public final static void createExampleDataStructure(final IStorage storage)
     {
         storage.mount();
         IDirectory root = storage.getRoot();

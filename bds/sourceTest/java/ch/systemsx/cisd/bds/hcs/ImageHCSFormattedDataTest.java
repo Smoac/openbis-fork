@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
+
 /**
  * Test cases for corresponding {@link ImageHCSFormattedData} class.
  * 
@@ -24,4 +27,19 @@ package ch.systemsx.cisd.bds.hcs;
 public class ImageHCSFormattedDataTest
 {
 
+    @Test
+    public final void testCreateWellFileName()
+    {
+        try
+        {
+            ImageHCSFormattedData.createWellFileName(null);
+            fail("Location can not be null.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+        final Location location = new Location(1, 2);
+        final String expected = "row2_column1.tiff";
+        assertEquals(expected, ImageHCSFormattedData.createWellFileName(location));
+    }
 }
