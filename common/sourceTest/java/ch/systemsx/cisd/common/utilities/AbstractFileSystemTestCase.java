@@ -40,8 +40,16 @@ public abstract class AbstractFileSystemTestCase
 
     protected AbstractFileSystemTestCase()
     {
+        this(true);
+    }
+
+    protected AbstractFileSystemTestCase(final boolean deleteOnExit)
+    {
         workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getSimpleName());
-        workingDirectory.deleteOnExit();
+        if (deleteOnExit)
+        {
+            workingDirectory.deleteOnExit();
+        }
         LogInitializer.init();
     }
 
