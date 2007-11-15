@@ -757,4 +757,22 @@ public final class FileUtilities
             return new File(FilenameUtils.normalize(file.getAbsolutePath()));
         }
     }
+
+    /**
+     * Tries to get the canonical path of given <var>file</var>.
+     * <p>
+     * If it fails (by throwing an <code>IOException</code>), then returns the absolute path.
+     * </p>
+     */
+    public static final String getCanonicalPath(final File file)
+    {
+        assert file != null : "Given file can not be null.";
+        try
+        {
+            return file.getCanonicalPath();
+        } catch (IOException ex)
+        {
+            return file.getAbsolutePath();
+        }
+    }
 }
