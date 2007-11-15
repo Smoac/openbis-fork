@@ -266,7 +266,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
     void printVersion(boolean exit)
     {
-        System.err.println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getBuildNumber());
+        System.err.println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         if (exit)
         {
             System.exit(0);

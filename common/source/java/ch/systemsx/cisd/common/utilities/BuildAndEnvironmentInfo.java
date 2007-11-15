@@ -154,9 +154,9 @@ public final class BuildAndEnvironmentInfo
     }
 
     /**
-     * Returns the build number of the software,
+     * Returns the version accompanied by the build number of the software (if known).
      */
-    public final String getBuildNumber()
+    public final String getFullVersion()
     {
         final StringBuilder builder = new StringBuilder();
         final String rev = getRevision();
@@ -186,8 +186,7 @@ public final class BuildAndEnvironmentInfo
     public final List<String> getEnvironmentInfo()
     {
         final List<String> environmentInfo = new ArrayList<String>();
-        environmentInfo.add("Version: " + getVersion());
-        environmentInfo.add("Build Number: " + getBuildNumber());
+        environmentInfo.add("Version: " + getFullVersion());
         environmentInfo.add("Java VM: " + getJavaVM());
         environmentInfo.add("CPU Architecture: " + getCPUArchitecture());
         environmentInfo.add("OS: " + getOS());
