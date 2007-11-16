@@ -56,10 +56,22 @@ public class PropertiesParserObjectFactory<E> implements IParserObjectFactory<E>
         int column = propertyModel.getColumn();
         if (column >= lineTokens.length)
         {
-            throw UserFailureException.fromTemplate("Not enough tokens are available (index: %d, available: %d)",
-                    column, lineTokens.length);
+            throw UserFailureException.fromTemplate("Value for column '%s' cannot be found in line '%s'", propertyModel
+                    .getName(), merge(lineTokens));
         }
         return lineTokens[column];
+    }
+
+    private static String merge(String[] lineTokens)
+    {
+        StringBuffer sb = new StringBuffer();
+        for (String col : lineTokens)
+        {
+            sb.append("<");
+            sb.append(col);
+            sb.append("> ");
+        }
+        return sb.toString();
     }
 
 }
