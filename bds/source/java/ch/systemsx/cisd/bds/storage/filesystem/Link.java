@@ -21,6 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * @author Franz-Josef Elmer
@@ -62,12 +63,11 @@ class Link implements ILink
 
     public void extractTo(final File directory)
     {
-        // TODO Auto-generated method stub
+        throw new NotImplementedException();
     }
 
     public void moveTo(File directory)
     {
-        // TODO Auto-generated method stub
+        throw new NotImplementedException();
     }
-        
 }

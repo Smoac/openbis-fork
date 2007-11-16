@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * Storage based on HDF5.
@@ -35,20 +36,17 @@ public class HDF5Storage implements IStorage
     
     public IDirectory getRoot()
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new NotImplementedException();
     }
 
     public void mount()
     {
-        // TODO Auto-generated method stub
-
+        throw new NotImplementedException();
     }
 
     public void unmount()
     {
-        // TODO Auto-generated method stub
-
+        throw new NotImplementedException();
     }
 
 }

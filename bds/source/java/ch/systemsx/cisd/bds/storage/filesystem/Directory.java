@@ -27,6 +27,7 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -123,8 +124,7 @@ final class Directory extends AbstractNode implements IDirectory
 
     public final ILink addLink(final String name, final INode node)
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new NotImplementedException();
     }
 
     public final Iterator<INode> iterator()
