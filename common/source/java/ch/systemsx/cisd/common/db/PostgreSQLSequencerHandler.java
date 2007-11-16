@@ -18,29 +18,32 @@ package ch.systemsx.cisd.common.db;
 
 /**
  * Implementation of {@link ISequencerHandler} for PostgreSQL.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PostgreSQLSequencerHandler implements ISequencerHandler
 {
 
     private final ISequenceNameMapper sequenceNameMapper;
-    
-    public PostgreSQLSequencerHandler(ISequenceNameMapper sequenceNameMapper) {
+
+    public PostgreSQLSequencerHandler(ISequenceNameMapper sequenceNameMapper)
+    {
         this.sequenceNameMapper = sequenceNameMapper;
     }
-    
+
     //
     // ISequencerProvider
     //
 
-    public final String getNextValueScript(String sequencer)
+    public final String getNextValueScript(final String sequencer)
     {
+        assert sequencer != null : "Given sequencer can not be null.";
         return "select nextval('" + sequencer + "')";
     }
-    
-    public final String getSequencerForTable(String tableName)
+
+    public final String getSequencerForTable(final String tableName)
     {
+        assert tableName != null : "Given table name can not be null.";
         return sequenceNameMapper.map(tableName);
     }
 
