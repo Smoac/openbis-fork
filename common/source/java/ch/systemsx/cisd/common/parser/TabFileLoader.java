@@ -40,7 +40,7 @@ public class TabFileLoader<T>
     /**
      * Creates a new instance based on the specified factory.
      */
-    public TabFileLoader(IParserObjectFactoryFactory<T> factory)
+    public TabFileLoader(final IParserObjectFactoryFactory<T> factory)
     {
         assert factory != null : "Undefined factory";
         this.factory = factory;
@@ -53,7 +53,7 @@ public class TabFileLoader<T>
      *             names is missing, or a parsing error occurs.
      * @throws EnvironmentFailureException if a IOException occured.
      */
-    public List<T> load(File file)
+    public final List<T> load(final File file)
     {
         // Just check whether the file exists. Lets <code>FileUtils</code> do the rest.
         if (file.exists() == false)
@@ -68,7 +68,7 @@ public class TabFileLoader<T>
             throw new UserFailureException("No header line found in file '" + file.getAbsolutePath() + "'.");
         }
         final HeaderLineFilter lineFilter = new HeaderLineFilter(headerLine.number);
-        IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(StringUtils.split(headerLine.text));
+        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(StringUtils.split(headerLine.text));
         parser.setObjectFactory(factory.createFactory(propertyMapper));
         FileReader reader = null;
         try
