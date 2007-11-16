@@ -18,17 +18,19 @@ package ch.systemsx.cisd.common.utilities;
 
 /**
  * Exit handler based on <code>System.exit()</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SystemExit implements IExitHandler
 {
+    public static final String EXIT_MESSAGE = "Exit called with exit code %d";
+
     /** The one and only one instance. */
     public static final IExitHandler SYSTEM_EXIT = new SystemExit();
-    
-    //@Private
+
+    // @Private
     public static boolean throwException;
-    
+
     private SystemExit()
     {
     }
@@ -37,7 +39,7 @@ public class SystemExit implements IExitHandler
     {
         if (throwException)
         {
-            throw new RuntimeException("Exit called with exit code " + exitCode);
+            throw new RuntimeException(String.format(EXIT_MESSAGE, exitCode));
         }
         System.exit(exitCode);
     }
