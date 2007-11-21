@@ -10,8 +10,9 @@ LSOF_PATHS="/usr/sbin"
 
 # all paths are relative to the template directory
 TEMPLATE=templates
-WORK=playground
-INSTALL=install
+TARGETS=targets
+WORK=$TARGETS/playground
+INSTALL=$TARGETS/install
 
 LIMS_SERVER_NAME=lims-server
 LIMS_SERVER=$WORK/$LIMS_SERVER_NAME
