@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Some convenience methods/utilities around {@link Collection}.
  * 
@@ -142,6 +144,22 @@ public final class CollectionUtils
         }
         builder.append(style.getCollectionEnd());
         return builder.toString();
+    }
+
+    /**
+     * Gets each item composing given <var>iterable</var> and checks whether it is not empty using {@link StringUtils}.
+     */
+    public final static boolean isEmpty(final Iterable<String> iterable)
+    {
+        assert iterable != null : "Given iterable can not be null";
+        for (final String element : iterable)
+        {
+            if (StringUtils.isNotEmpty(element))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

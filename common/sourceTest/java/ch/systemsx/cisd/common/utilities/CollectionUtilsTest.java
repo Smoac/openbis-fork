@@ -18,7 +18,9 @@ package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
@@ -45,8 +47,7 @@ public final class CollectionUtilsTest
         String[] s = StringUtilities.getStrings(5);
         CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
         String string =
-                collectionStyle.getCollectionStart()
-                        + StringUtils.join(s, collectionStyle.getCollectionSeparator())
+                collectionStyle.getCollectionStart() + StringUtils.join(s, collectionStyle.getCollectionSeparator())
                         + collectionStyle.getCollectionEnd();
         assertEquals(string, CollectionUtils.abbreviate(s, -1, false));
         assertEquals(string, CollectionUtils.abbreviate(s, -10, false));
@@ -63,5 +64,27 @@ public final class CollectionUtilsTest
         assertEquals("[1, ... (4 left)]", CollectionUtils.abbreviate(s, 1));
         assertEquals("[1, 2, ... (3 left)]", CollectionUtils.abbreviate(s, 2));
         assertEquals(CollectionUtils.abbreviate(s, 10, false), CollectionUtils.abbreviate(s, 10));
+    }
+
+    @Test
+    public final void testIsEmpty()
+    {
+        try
+        {
+            CollectionUtils.isEmpty(null);
+            fail("Given iterable can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here.
+        }
+        final List<String> list = new ArrayList<String>();
+        assertEquals(true, CollectionUtils.isEmpty(list));
+        list.add("");
+        assertEquals(true, CollectionUtils.isEmpty(list));
+        list.add(" ");
+        assertEquals(false, CollectionUtils.isEmpty(list));
+        list.clear();
+        list.add("x");
+        assertEquals(false, CollectionUtils.isEmpty(list));
     }
 }
