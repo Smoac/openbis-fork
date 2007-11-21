@@ -32,6 +32,8 @@ import java.io.Serializable;
 public final class NotImplementedException extends RuntimeException
 {
 
+    static final String MESSAGE_TEMPLATE = "'%s' method not implemented in '%s'.";
+
     private static final long serialVersionUID = 1L;
 
     /** The error message for this exception. */
@@ -40,16 +42,16 @@ public final class NotImplementedException extends RuntimeException
     public NotImplementedException()
     {
         super();
-        StackTraceExtractor extractor = new StackTraceExtractor(this);
-        setMessage(extractor.getMethodName() + " method not implemented in " + extractor.getSimpleClassName());
+        final StackTraceExtractor extractor = new StackTraceExtractor(this);
+        setMessage(String.format(MESSAGE_TEMPLATE, extractor.getMethodName(), extractor.getSimpleClassName()));
     }
 
-    public NotImplementedException(String message)
+    public NotImplementedException(final String message)
     {
         super(message);
     }
 
-    public NotImplementedException(Throwable cause)
+    public NotImplementedException(final Throwable cause)
     {
         super(cause);
     }
@@ -64,6 +66,10 @@ public final class NotImplementedException extends RuntimeException
     {
         this.message = message;
     }
+
+    //
+    // RuntimeException
+    //
 
     /**
      * Returns the error message for this exception. If the error message has not been defined in this class, returns
