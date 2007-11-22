@@ -42,6 +42,10 @@ package ch.systemsx.cisd.common.exceptions;
  * 
  * @author Tomasz Pylak on Sep 3, 2007
  */
+// TODO 2007-11-22, Christian Ribeaud: remove this class as, when used, it did not give any clue about what the problem
+// is. Additionally, if assertions are disabled, you will get an exception with a stack trace with does not match
+// the current state. Instead of using this class, we should use 'assert condition : cause' or throw a fresh new
+// IllegalArgumentException.
 public class InternalErr extends RuntimeException
 {
     private static final InternalErr instance = new InternalErr();
