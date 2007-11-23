@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * Exception representing internal error in the program caused by programmer error. It should never be caught. <br>
- * <br>
+ * Exception representing internal error in the program caused by programmer error. It should never be caught. We throw
+ * this exception to say the system (e.g. some data structure) is in the state, in which it never meant to be when a
+ * particular piece of code was written. This is something different from the situation when a user has provided wrong
+ * input data. <br>
  * This class becomes handy when we do comparition of some value with the enumerator. The following 'enum-match' pattern
  * should be applied: 1. all values of the enumerator should be checked 2. if no matching of the value and enumerator is
  * found, it is a programmer mistake and internal error occurs. It means that when one adds a new enumerator value, one
@@ -42,23 +44,22 @@ package ch.systemsx.cisd.common.exceptions;
  * 
  * @author Tomasz Pylak on Sep 3, 2007
  */
-// TODO 2007-11-22, Christian Ribeaud: remove this class as, when used, it did not give any clue about what the problem
-// is. Additionally, if assertions are disabled, you will get an exception with a stack trace with does not match
-// the current state. Instead of using this class, we should use 'assert condition : cause' or throw a fresh new
-// IllegalArgumentException.
 public class InternalErr extends RuntimeException
 {
-    private static final InternalErr instance = new InternalErr();
-
     private static final long serialVersionUID = 1L;
 
-    private InternalErr()
+    private InternalErr(String message)
     {
+        super(message);
     }
 
     public static final RuntimeException error()
     {
-        assert false : "This should never happen";
-        return instance;
+        return new InternalErr("This should never happen");
+    }
+
+    public static final RuntimeException error(String errorMessage)
+    {
+        return new InternalErr(errorMessage);
     }
 }
