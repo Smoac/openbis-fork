@@ -19,7 +19,9 @@ package ch.systemsx.cisd.common.parser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +55,7 @@ public class TabFileLoader<T>
      *             names is missing, or a parsing error occurs.
      * @throws EnvironmentFailureException if a IOException occured.
      */
-    public final List<T> load(final File file)
+    public final List<T> load(final File file) throws UserFailureException
     {
         // Just check whether the file exists. Lets <code>FileUtils</code> do the rest.
         if (file.exists() == false)
@@ -68,7 +70,9 @@ public class TabFileLoader<T>
             throw new UserFailureException("No header line found in file '" + file.getAbsolutePath() + "'.");
         }
         final HeaderLineFilter lineFilter = new HeaderLineFilter(headerLine.number);
-        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(StringUtils.split(headerLine.text));
+        final String[] tokens = StringUtils.split(headerLine.text, "\t");
+        notUnique(tokens);
+        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
         FileReader reader = null;
         try
@@ -87,5 +91,26 @@ public class TabFileLoader<T>
             IOUtils.closeQuietly(reader);
         }
 
+    }
+
+    /**
+     * Checks given <var>tokens</var> whether there is no duplicate.
+     * <p>
+     * Note that the search is case-insensitive.
+     * </p>
+     * 
+     * @throws UserFailureException if there is at least one duplicate in the given <var>tokens</var>.
+     */
+    private final static void notUnique(final String[] tokens)
+    {
+        assert tokens != null : "Given tokens can not be null.";
+        final Set<String> unique = new HashSet<String>();
+        for (final String token : tokens)
+        {
+            if (unique.add(token.toLowerCase()) == false)
+            {
+                throw UserFailureException.fromTemplate("Duplicated column name '%s'.", token);
+            }
+        }
     }
 }

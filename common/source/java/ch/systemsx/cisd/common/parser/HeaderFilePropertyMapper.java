@@ -32,7 +32,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 
     private final Map<String, String> aliases;
 
-    public HeaderFilePropertyMapper(final String[] headerTokens)
+    public HeaderFilePropertyMapper(final String[] headerTokens) throws IllegalArgumentException
     {
         assert headerTokens != null;
         aliases = new HashMap<String, String>();
@@ -47,12 +47,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
             final String token = tokens[i];
             if (token != null)
             {
-                String key = token.toLowerCase();
-                if (map.containsKey(key))
-                {
-                    throw new IllegalArgumentException("Duplicated column name '" + key + "'.");
-                }
-                map.put(key, new MappedProperty(i, token));
+                map.put(token.toLowerCase(), new MappedProperty(i, token));
             }
         }
         return map;
