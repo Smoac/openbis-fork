@@ -34,5 +34,5 @@ public interface IAliasPropertyMapper extends IPropertyMapper
      * @param aliasName can not be <code>null</code>.
      * @param propertyName can not be <code>null</code>.
      */
-    public void setAlias(String aliasName, String propertyName);
+    public void setAlias(String aliasName, String propertyName) throws IllegalArgumentException;
 }

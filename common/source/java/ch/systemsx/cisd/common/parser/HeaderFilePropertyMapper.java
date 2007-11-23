@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
  * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a file.
  * 
@@ -34,14 +32,14 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 
     private final Map<String, String> aliases;
 
-    public HeaderFilePropertyMapper(String[] headerTokens)
+    public HeaderFilePropertyMapper(final String[] headerTokens)
     {
         assert headerTokens != null;
         aliases = new HashMap<String, String>();
         this.properties = tokensToMap(headerTokens);
     }
 
-    private final static Map<String, IPropertyModel> tokensToMap(String[] tokens)
+    private final static Map<String, IPropertyModel> tokensToMap(final String[] tokens) throws IllegalArgumentException
     {
         final Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
         for (int i = 0; i < tokens.length; i++)
@@ -52,7 +50,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
                 String key = token.toLowerCase();
                 if (map.containsKey(key))
                 {
-                    throw new UserFailureException("Duplicated column name '" + key + "'.");
+                    throw new IllegalArgumentException("Duplicated column name '" + key + "'.");
                 }
                 map.put(key, new MappedProperty(i, token));
             }
@@ -60,7 +58,8 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
         return map;
     }
 
-    private final void checkOneToOneRelation(String aliasName, String propertyName)
+    private final void checkOneToOneRelation(final String aliasName, final String propertyName)
+            throws IllegalArgumentException
     {
         // No more than one alias for a given property
         if (aliases.containsValue(propertyName))
@@ -68,7 +67,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
             throw new IllegalArgumentException("Following alias '" + getPropertyAlias(propertyName)
                     + "' already exists for property '" + propertyName + "'.");
         }
-        String alias = aliasName.toLowerCase();
+        final String alias = aliasName.toLowerCase();
         // No alias for two different properties.
         if (aliases.containsKey(alias))
         {
@@ -82,7 +81,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
      * 
      * @return <code>null</code> if no alias could be found.
      */
-    private final String getPropertyAlias(String property)
+    private final String getPropertyAlias(final String property)
     {
         for (Map.Entry<String, String> entry : aliases.entrySet())
         {
@@ -98,7 +97,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
     // IAliasPropertyMapper
     //
 
-    public final void setAlias(String aliasName, String propertyName)
+    public final void setAlias(final String aliasName, final String propertyName) throws IllegalArgumentException
     {
         assert aliasName != null;
         assert propertyName != null;
@@ -113,7 +112,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
      * <code>IPropertyModel</code>.
      * </p>
      */
-    public final IPropertyModel getProperty(String propertyName)
+    public final IPropertyModel getProperty(final String propertyName)
     {
         String property = propertyName.toLowerCase();
         // Given <code>propertyName</code> could be an alias.
@@ -139,7 +138,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
      */
     public final Set<String> getAllPropertyNames()
     {
-        Set<String> set = new HashSet<String>();
+        final Set<String> set = new HashSet<String>();
         for (String property : properties.keySet())
         {
             if (aliases.containsValue(property))
