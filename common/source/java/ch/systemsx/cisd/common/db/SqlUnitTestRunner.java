@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  *         ...
  *      ...
  * </pre>
+ * Folder starting with '.' or <code>migration</code> are ignored.
  * The test cases are executed in lexicographical order of their name. For each test case <code>buildup.sql</code>
  * will be executed first. The test scripts follow the naming schema
  * <pre>
@@ -63,6 +64,9 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  */
 public class SqlUnitTestRunner
 {
+    /** Name of ignored migration folder. */
+    public static final String MIGRATION_FOLDER = "migration";
+
     private static final class TestResult
     {
         private final boolean ok;
@@ -135,7 +139,9 @@ public class SqlUnitTestRunner
             {
                 public boolean accept(File pathname)
                 {
-                    return pathname.isDirectory() && pathname.getName().startsWith(".") == false;
+                    String name = pathname.getName();
+                    return pathname.isDirectory() && name.startsWith(".") == false
+                            && name.startsWith(MIGRATION_FOLDER) == false;
                 }
             });
         Arrays.sort(testCases);
