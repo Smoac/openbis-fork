@@ -48,7 +48,7 @@ public class PropertiesParserObjectFactory<E> implements IParserObjectFactory<E>
             String propertyValue = getPropertyValue(lineTokens, propertyModel);
             setter.setProperty(name, propertyValue);
         }
-        return setter.done();
+        return setter.getConstructedObject();
     }
 
     private String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
@@ -56,8 +56,10 @@ public class PropertiesParserObjectFactory<E> implements IParserObjectFactory<E>
         int column = propertyModel.getColumn();
         if (column >= lineTokens.length)
         {
-            throw UserFailureException.fromTemplate("Value for column '%s' cannot be found in line '%s'", propertyModel
-                    .getName(), merge(lineTokens));
+            String name = propertyModel.getName();
+            String mergedTokens = merge(lineTokens);
+            throw UserFailureException.fromTemplate("Value for column '%s' cannot be found in line '%s'", name,
+                    mergedTokens);
         }
         return lineTokens[column];
     }

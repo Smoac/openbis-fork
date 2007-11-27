@@ -21,10 +21,10 @@ package ch.systemsx.cisd.common.parser;
  * 
  * @author Tomasz Pylak on Oct 29, 2007
  */
-public interface IPropertiesSetter<ConstructedType>
+public interface IPropertiesSetter<T>
 {
     void setProperty(String name, String valueOrNull);
 
     /** returns constructed object, called after setting properties values */
-    ConstructedType done();
+    T getConstructedObject();
 }
