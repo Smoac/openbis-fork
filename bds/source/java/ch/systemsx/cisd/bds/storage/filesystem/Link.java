@@ -21,53 +21,76 @@ import java.io.File;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
+ * An <code>ILink</code> implementation.
+ * 
  * @author Franz-Josef Elmer
  */
-class Link implements ILink
+final class Link implements ILink
 {
 
     private final String name;
 
-    private IDirectory parent;
-
     private final INode reference;
 
-    Link(String name, INode reference)
+    private IDirectory parent;
+
+    Link(final String name, final INode reference)
     {
+        assert name != null : "A name must be specified.";
+        assert reference != null : "Reference can not be null.";
+        assert reference instanceof ILink : "Link of link not supported.";
         this.name = name;
         this.reference = reference;
     }
 
-    public String getName()
-    {
-        return name;
-    }
-
-    void setParent(IDirectory parentOrNull)
+    /** Sets the parent of this {@link INode}. */
+    final void setParent(final IDirectory parentOrNull)
     {
         parent = parentOrNull;
     }
 
-    public IDirectory tryToGetParent()
+    //
+    // ILink
+    //
+
+    public final String getName()
+    {
+        return name;
+    }
+
+    public final IDirectory tryToGetParent()
     {
         return parent;
     }
 
-    public INode getReference()
+    public final INode getReference()
     {
         return reference;
     }
 
-    public void extractTo(final File directory)
+    public final void extractTo(final File directory)
     {
-        throw new NotImplementedException();
+        reference.extractTo(directory);
     }
 
-    public void moveTo(File directory)
+    public final void moveTo(final File directory)
     {
-        throw new NotImplementedException();
+        reference.moveTo(directory);
+    }
+
+    public final boolean isValid()
+    {
+        if (reference.isValid() == false)
+        {
+            return false;
+        }
+        if (parent != null)
+        {
+            final INode node = parent.tryToGetNode(name);
+            return node != null && node.isValid();
+        }
+        return true;
     }
 }

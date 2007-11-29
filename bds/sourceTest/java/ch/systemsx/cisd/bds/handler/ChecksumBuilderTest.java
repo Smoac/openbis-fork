@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.handler;
 
 import static ch.systemsx.cisd.common.utilities.OSUtilities.LINE_SEPARATOR;
 import static org.testng.AssertJUnit.assertEquals;
@@ -27,6 +27,8 @@ import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.handler.ChecksumBuilder;
+import ch.systemsx.cisd.bds.handler.MD5ChecksumCalculator;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;

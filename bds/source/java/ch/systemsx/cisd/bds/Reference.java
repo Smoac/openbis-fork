@@ -21,7 +21,7 @@ package ch.systemsx.cisd.bds;
  * 
  * @author Franz-Josef Elmer
  */
-public class Reference
+public final class Reference
 {
     /** The only accepted path separator (system independent). */
     public final static char PATH_SEPARATOR = '/';
@@ -35,12 +35,14 @@ public class Reference
     /**
      * Creates an instance for the specified paths and reference type.
      * 
-     * @param path Path which referes to <code>originalPath</code>.
-     * @param originalPath Path to which <code>path</code> referes.
+     * @param path Path which refers to <code>originalPath</code>.
+     * @param originalPath Path to which <code>path</code> refers. This can be <code>null</code>.
      * @param referenceType Type of reference.
      */
-    public Reference(String path, String originalPath, ReferenceType referenceType)
+    public Reference(final String path, final String originalPath, final ReferenceType referenceType)
     {
+        assert path != null : "Path can not be null.";
+        assert originalPath != null : "Original path can not be null.";
         this.path = path;
         this.originalPath = originalPath;
         this.referenceType = referenceType;

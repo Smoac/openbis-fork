@@ -16,24 +16,30 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
 
 /**
  * Abstract superclass of classes implementing {@link IDataStructure}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractDataStructure implements IDataStructure
+abstract class AbstractDataStructure implements IDataStructure, IDataStructureHandler
 {
     protected final IStorage storage;
-    
+
     protected IDirectory root;
 
-    AbstractDataStructure(IStorage storage)
+    private final List<IDataStructureHandler> handlers;
+
+    AbstractDataStructure(final IStorage storage)
     {
-        assert storage != null: "Unspecified storage.";
+        assert storage != null : "Unspecified storage.";
         this.storage = storage;
+        handlers = new ArrayList<IDataStructureHandler>();
     }
 
     private void mountStorage()
@@ -41,42 +47,71 @@ abstract class AbstractDataStructure implements IDataStructure
         storage.mount();
         root = storage.getRoot();
     }
-    
+
+    protected final void registerHandler(final IDataStructureHandler handler)
+    {
+        assert handler != null : "Given handler can not be null.";
+        handlers.add(handler);
+    }
+
     /**
      * Asserts that this instance is already opened or created otherwise a {@link IllegalStateException} is thrown.
      */
-    protected void assertOpenOrCreated()
+    protected final void assertOpenOrCreated()
     {
         if (root == null)
         {
             throw new IllegalStateException("Data structure should first be opened or created.");
         }
     }
-    
+
     /**
-     * Validates this data structure and throws {@link DataStructureException} if invalid. 
+     * After-creation jobs that should be done. Kind of initialization for subclasses when they create a new data
+     * structure.
+     * <p>
+     * By default this method does nothing.
+     * </p>
      */
-    protected abstract void assertValid(); 
-    
-    /**
-     * Performs opening specific for the concrete data structure. Will be invoked after the common part of
-     * {@link #open()} but before validation with {@link #assertValid()}. 
-     */
-    protected abstract void performOpening();
-    
-    /**
-     * Performs closing specific for the concrete data structure. Will be invoked before validation with
-     * {@link #assertValid()}.
-     */
-    protected abstract void performClosing();
-    
+    protected void afterCreation()
+    {
+    }
+
+    //
+    // IDataStructureHandler
+    //
+
+    public void assertValid()
+    {
+        for (final IDataStructureHandler handler : handlers)
+        {
+            handler.assertValid();
+        }
+    }
+
+    public void performOpening()
+    {
+        for (final IDataStructureHandler handler : handlers)
+        {
+            handler.performOpening();
+        }
+    }
+
+    public void performClosing()
+    {
+        for (final IDataStructureHandler handler : handlers)
+        {
+            handler.performClosing();
+        }
+    }
+
     //
     // IDataStructure
     //
-    
+
     public final void create()
     {
         mountStorage();
+        afterCreation();
     }
 
     public final void open()
@@ -91,7 +126,7 @@ abstract class AbstractDataStructure implements IDataStructure
         }
         assertValid();
     }
-    
+
     public final void close()
     {
         assertOpenOrCreated();

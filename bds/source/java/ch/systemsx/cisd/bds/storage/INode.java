@@ -36,16 +36,21 @@ public interface INode
     public IDirectory tryToGetParent();
 
     /**
+     * Whether this <code>INode</code> is valid.
+     */
+    public boolean isValid();
+
+    /**
      * Extracts this node to the specified directory of the file system.
      * <p>
      * All descendants are also extracted. This is a copy operation.
      * </p>
      */
     public void extractTo(final File directory);
-    
+
     /**
-     * Moves this node and all descendants to the specified directory of the file system.
-     * This node will be automatically removed from its parent.
+     * Moves this node and all descendants to the specified directory of the file system. This node will be
+     * automatically removed from its parent.
      */
     public void moveTo(final File directory);
 }

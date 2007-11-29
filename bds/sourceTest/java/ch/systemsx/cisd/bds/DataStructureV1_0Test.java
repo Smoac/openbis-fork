@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.bds;
 
-import static ch.systemsx.cisd.bds.DataStructureV1_0.CHECKSUM_DIRECTORY;
 import static ch.systemsx.cisd.bds.DataStructureV1_0.DIR_METADATA;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -31,6 +30,8 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.handler.ChecksumHandler;
+import ch.systemsx.cisd.bds.handler.MappingFileHandler;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.StorageException;
@@ -413,7 +414,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         checkFormattedData(reloadedDataStructure.getFormattedData());
 
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
-        IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, CHECKSUM_DIRECTORY);
+        IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, ChecksumHandler.CHECKSUM_DIRECTORY);
         assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", Utilities.getString(checksumDir,
                 DataStructureV1_0.DIR_ORIGINAL));
     }
@@ -550,7 +551,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
         new MeasurementEntity("a", "b").saveTo(metaData);
-        metaData.addKeyValuePair(DataStructureV1_0.MAPPING_FILE, "");
+        metaData.addKeyValuePair(MappingFileHandler.MAPPING_FILE, "");
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
     }

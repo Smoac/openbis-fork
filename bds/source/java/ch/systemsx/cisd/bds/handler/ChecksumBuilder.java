@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import ch.systemsx.cisd.bds.Reference;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -41,7 +42,7 @@ class ChecksumBuilder
 {
     private final IChecksumCalculator checksumCalculator;
 
-    ChecksumBuilder(IChecksumCalculator checksumCalculator)
+    ChecksumBuilder(final IChecksumCalculator checksumCalculator)
     {
         this.checksumCalculator = checksumCalculator;
     }

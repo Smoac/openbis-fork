@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.bds.storage;
 
 import java.io.InputStream;
-import java.io.Reader;
+import java.util.List;
 
 /**
  * Node representing a file with some content.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IFile extends INode
@@ -30,19 +30,20 @@ public interface IFile extends INode
      * Returns the content of this file node as a byte array.
      */
     public byte[] getBinaryContent();
-    
+
     /**
      * Returns the content of this file node as an input stream.
      */
     public InputStream getInputStream();
-    
+
     /**
      * Returns the content of this file node as a string.
      */
     public String getStringContent();
-    
+
     /**
-     * Returns the content of this file node as a reader.
+     * Returns the content of this file node as a list of <code>String</code> objects.
      */
-    public Reader getReader();
+    public List<String> getStringContentList();
+
 }

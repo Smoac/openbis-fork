@@ -16,21 +16,12 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.bds.handler.ChecksumHandler;
+import ch.systemsx.cisd.bds.handler.MappingFileHandler;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Data structure Version 1.0.
@@ -39,8 +30,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class DataStructureV1_0 extends AbstractDataStructure
 {
-    public static final String CHECKSUM_DIRECTORY = "md5sum";
-
     public static final String DIR_METADATA = "metadata";
 
     public static final String DIR_PARAMETERS = "parameters";
@@ -53,22 +42,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /** The directory where <i>standardized</i> data could be found. */
     public static final String DIR_STANDARD = "standard";
 
-    /**
-     * The mapping relating <i>standard</i> with <i>original</i> data.
-     * <p>
-     * Note that under format specific conditions this mapping file could be empty, meaning that the <i>standard</i>
-     * directory contains the real data and not only links.
-     * </p>
-     */
-    public static final String MAPPING_FILE = "standard_original_mapping";
-
     private static final Version VERSION = new Version(1, 0);
 
-    private final ChecksumBuilder checksumBuilder = new ChecksumBuilder(new MD5ChecksumCalculator());
-
-    private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
-
     private final FormatParameters formatParameters = new FormatParameters();
+
+    private MappingFileHandler mappingFileHandler;
 
     private Format format;
 
@@ -80,12 +58,12 @@ public class DataStructureV1_0 extends AbstractDataStructure
         super(storage);
     }
 
-    /**
-     * Returns version 1.0.
-     */
-    public Version getVersion()
+    private final void registerHandlers()
     {
-        return VERSION;
+        mappingFileHandler = new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
+        registerHandler(mappingFileHandler);
+        registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY),
+                getOriginalData()));
     }
 
     /**
@@ -104,6 +82,24 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
+    }
+
+    public final IDirectory getDataDirectory()
+    {
+        assertOpenOrCreated();
+        return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
+    }
+
+    public final IDirectory getMetaDataDirectory()
+    {
+        assertOpenOrCreated();
+        return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
+    }
+
+    public final IDirectory getParametersDirectory()
+    {
+        assertOpenOrCreated();
+        return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
     }
 
     /**
@@ -251,36 +247,31 @@ public class DataStructureV1_0 extends AbstractDataStructure
         type.saveTo(getMetaDataDirectory());
     }
 
-    /**
-     * Returns the standard-original mapping.
-     * 
-     * @return an unmodifiable version of this map.
-     */
-    public Map<String, Reference> getStandardOriginalMapping()
+    public final void addReference(final Reference reference)
     {
-        return Collections.unmodifiableMap(standardOriginalMapping);
+        assertOpenOrCreated();
+        mappingFileHandler.addReference(reference);
     }
 
-    /**
-     * Adds a reference to the standard-original mapping.
-     * 
-     * @throws DataStructureException if a reference with the same path has already been registered.
-     */
-    public void addReference(Reference reference)
+    public final Map<String, Reference> getStandardOriginalMapping()
     {
-        assert reference != null : "Unspecified reference.";
-        assertOpenOrCreated();
-        String path = reference.getPath();
-        if (standardOriginalMapping.containsKey(path))
-        {
-            throw new DataStructureException("There is already a reference for file '" + path + "'.");
-        }
-        standardOriginalMapping.put(path, reference);
+        return mappingFileHandler.getStandardOriginalMapping();
+    }
+
+    //
+    // AbstractDataStructure
+    //
+
+    @Override
+    protected void afterCreation()
+    {
+        registerHandlers();
     }
 
     @Override
-    protected void assertValid()
+    public final void assertValid()
     {
+        super.assertValid();
         if (getOriginalData().iterator().hasNext() == false)
         {
             throw new DataStructureException("Empty original data directory.");
@@ -313,94 +304,29 @@ public class DataStructureV1_0 extends AbstractDataStructure
     }
 
     @Override
-    protected void performOpening()
+    public final void performOpening()
     {
-        IDirectory metaDataDirectory = getMetaDataDirectory();
-        setFormat(Format.loadFrom(metaDataDirectory));
+        registerHandlers();
+        super.performOpening();
+        setFormat(Format.loadFrom(getMetaDataDirectory()));
         formatParameters.loadFrom(getParametersDirectory());
-        loadStandardOriginalMapping(metaDataDirectory);
-    }
-
-    private void loadStandardOriginalMapping(IDirectory metaDataDirectory)
-    {
-        StringReader stringReader = new StringReader(Utilities.getString(metaDataDirectory, MAPPING_FILE));
-        BufferedReader reader = new BufferedReader(stringReader);
-        List<String> lines = new ArrayList<String>();
-        String line;
-        try
-        {
-            while ((line = reader.readLine()) != null)
-            {
-                lines.add(line);
-            }
-        } catch (IOException ex)
-        {
-            throw new EnvironmentFailureException("Unexpected IOException.", ex);
-        }
-        standardOriginalMapping.clear();
-        for (int i = 0; i < lines.size(); i++)
-        {
-            String referenceDefinition = lines.get(i);
-            int i1 = referenceDefinition.indexOf('\t');
-            if (i1 < 0)
-            {
-                throw new DataStructureException("Error in standard-original mapping line " + (i + 1)
-                        + ": missing first tab character: " + referenceDefinition);
-            }
-            String path = referenceDefinition.substring(0, i1);
-            int i2 = referenceDefinition.indexOf('\t', i1 + 1);
-            if (i2 < 0)
-            {
-                throw new DataStructureException("Error in standard-original mapping line " + (i + 1)
-                        + ": missing second tab character: " + referenceDefinition);
-            }
-            ReferenceType type = ReferenceType.tryToResolveByShortName(referenceDefinition.substring(i1 + 1, i2));
-            standardOriginalMapping.put(path, new Reference(path, referenceDefinition.substring(i2 + 1), type));
-        }
     }
 
     @Override
-    protected void performClosing()
+    public final void performClosing()
     {
-        IDirectory metaDataDirectory = getMetaDataDirectory();
-        IDirectory checksumDirectory = metaDataDirectory.makeDirectory(CHECKSUM_DIRECTORY);
-        String checksumsOfOriginal = checksumBuilder.buildChecksumsForAllFilesIn(getOriginalData());
-        checksumDirectory.addKeyValuePair(DIR_ORIGINAL, checksumsOfOriginal);
-
+        super.performClosing();
+        final IDirectory metaDataDirectory = getMetaDataDirectory();
         formatParameters.saveTo(getParametersDirectory());
-
-        StringWriter writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer, true);
-        Collection<Reference> values = standardOriginalMapping.values();
-        for (Reference reference : values)
-        {
-            String path = reference.getPath();
-            String shortName = reference.getReferenceType().getShortName();
-            String originalPath = reference.getOriginalPath();
-            printWriter.println(path + "\t" + shortName + "\t" + originalPath);
-        }
-        printWriter.close();
-        metaDataDirectory.addKeyValuePair(MAPPING_FILE, writer.toString());
-
         if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
         }
     }
 
-    private IDirectory getDataDirectory()
+    public final Version getVersion()
     {
-        return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
-    }
-
-    private IDirectory getMetaDataDirectory()
-    {
-        return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
-    }
-
-    private IDirectory getParametersDirectory()
-    {
-        return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
+        return VERSION;
     }
 
 }

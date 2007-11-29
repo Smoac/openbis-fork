@@ -18,10 +18,9 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +30,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * An <code>IFile</code> implementation.
+ * 
  * @author Franz-Josef Elmer
  */
 class File extends AbstractNode implements IFile
@@ -56,7 +57,7 @@ class File extends AbstractNode implements IFile
         }
     }
 
-    public InputStream getInputStream()
+    public final InputStream getInputStream()
     {
         try
         {
@@ -67,22 +68,16 @@ class File extends AbstractNode implements IFile
         }
     }
 
-    public String getStringContent()
+    public final String getStringContent()
     {
         return FileUtilities.loadToString(nodeFile);
     }
 
-    public Reader getReader()
+    public final List<String> getStringContentList()
     {
-        try
-        {
-            return new FileReader(nodeFile);
-        } catch (FileNotFoundException ex)
-        {
-            throw new EnvironmentFailureException("Couldn't open reader for file " + nodeFile.getAbsolutePath());
-        }
+        return FileUtilities.loadToStringList(nodeFile);
     }
-    
+
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
     {
         assert directory != null && directory.isDirectory();
@@ -94,5 +89,11 @@ class File extends AbstractNode implements IFile
             throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
                     nodeFile.getAbsolutePath(), directory.getAbsolutePath());
         }
+    }
+
+    @Override
+    public final boolean isValid()
+    {
+        return super.isValid() && FileUtilities.checkPathFullyAccessible(nodeFile, "") == null;
     }
 }

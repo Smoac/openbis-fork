@@ -18,19 +18,17 @@ package ch.systemsx.cisd.bds;
 
 /**
  * Type of reference between a file in <tt>data/standard</tt> and <tt>data/original</tt>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public enum ReferenceType
 {
     IDENTICAL("I"), TRANSFORMED("T");
-    
+
     /**
-     * Tries to resolve the reference type from the specified short name.
-     * 
-     * @return <code>null</code> if there is no reference type with the specified short name.
+     * Resolves the reference type from the specified short name.
      */
-    public static ReferenceType tryToResolveByShortName(String shortName)
+    public final static ReferenceType resolveByShortName(final String shortName)
     {
         for (ReferenceType type : values())
         {
@@ -39,12 +37,12 @@ public enum ReferenceType
                 return type;
             }
         }
-        return null;
+        throw new IllegalArgumentException(String.format("No type for short name '%s'", shortName));
     }
 
     private final String shortName;
 
-    private ReferenceType(String shortName)
+    private ReferenceType(final String shortName)
     {
         this.shortName = shortName;
     }
@@ -56,6 +54,5 @@ public enum ReferenceType
     {
         return shortName;
     }
-    
-    
+
 }

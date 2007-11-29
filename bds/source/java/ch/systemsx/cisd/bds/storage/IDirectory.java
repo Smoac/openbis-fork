@@ -30,7 +30,7 @@ public interface IDirectory extends INode, Iterable<INode>
      * 
      * @return <code>null</code> if there is no child node named <code>name</code>.
      */
-    public INode tryToGetNode(String name);
+    public INode tryToGetNode(final String name);
 
     /**
      * Makes a new subdirectory in this directory. Does nothing if the subdirectory already exists.
@@ -58,10 +58,10 @@ public interface IDirectory extends INode, Iterable<INode>
     /**
      * Adds a plain file named <code>key</code> with content <code>value</code> to this directory.
      */
-    public IFile addKeyValuePair(String key, String value);
+    public IFile addKeyValuePair(final String key, final String value);
 
     /**
      * Adds the link named <code>name</code> to this directory which refers to the specified node.
      */
-    public ILink addLink(String name, INode node);
+    public ILink addLink(final String name, final INode node);
 }

@@ -87,6 +87,11 @@ abstract class AbstractNode implements INode
         moveFileToDirectory(nodeFile, directory);
     }
 
+    public boolean isValid()
+    {
+        return nodeFile.exists();
+    }
+
     //
     // Object
     //

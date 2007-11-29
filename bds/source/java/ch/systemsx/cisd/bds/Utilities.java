@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.List;
+
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -86,9 +88,30 @@ public class Utilities
      */
     public static String getString(final IDirectory directory, final String name)
     {
+        final INode node = tryGetNode(directory, name);
+        final IFile file = (IFile) node;
+        return file.getStringContent();
+    }
+
+    /**
+     * Returns the string content of a file from the specified directory as list of <code>String</code> objects.
+     * 
+     * @param directory Directory of the requested file.
+     * @param name Name of the file.
+     * @throws DataStructureException if the requested file does not exist.
+     */
+    public static List<String> getStringList(final IDirectory directory, final String name)
+    {
+        final INode node = tryGetNode(directory, name);
+        final IFile file = (IFile) node;
+        return file.getStringContentList();
+    }
+
+    private final static INode tryGetNode(final IDirectory directory, final String name)
+    {
         assert directory != null : String.format("Given directory can not be null.");
         assert name != null : String.format("Given name can not be null.");
-        INode node = directory.tryToGetNode(name);
+        final INode node = directory.tryToGetNode(name);
         if (node == null)
         {
             throw new DataStructureException("File '" + name + "' missing in '" + directory + "'.");
@@ -97,8 +120,7 @@ public class Utilities
         {
             throw new DataStructureException(node + " is not a file.");
         }
-        IFile file = (IFile) node;
-        return file.getStringContent();
+        return node;
     }
 
     private Utilities()

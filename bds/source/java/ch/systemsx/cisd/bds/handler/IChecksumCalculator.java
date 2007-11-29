@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.io.InputStream;
  * 
  * @author Christian Ribeaud
  */
-public interface IChecksumCalculator
+interface IChecksumCalculator
 {
 
     /**
@@ -33,5 +33,5 @@ public interface IChecksumCalculator
      * @param inputStream Input stream from whom the bytes are read to calculate checksum.
      * @throws IOException if reading from <code>inputStream</code> causes an <code>IOException</code>.
      */
-    public String calculateChecksum(InputStream inputStream) throws IOException;
+    String calculateChecksum(InputStream inputStream) throws IOException;
 }
