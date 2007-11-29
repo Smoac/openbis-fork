@@ -434,51 +434,136 @@ public final class FileUtilities
         }
     }
 
-    /**
-     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
-     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
-     *             readable.
-     * @throws CheckedExceptionTunnel of an {@link InterruptedException} if the thread that the method runs in gets
-     *             interrupted.
-     */
-    public static long lastChanged(File path)
+    private static final class LastChangedWorker
     {
-        assert path != null;
+        private boolean subDirectoriesOnly;
 
-        if (path.canRead() == false)
+        private final long stopWhenFindYounger;
+
+        private long lastChanged;
+
+        private boolean terminated;
+
+        LastChangedWorker(File root, boolean subDirectoriesOnly, long stopWhenFindYounger)
         {
-            throw new CheckedExceptionTunnel(
-                    new IOException(String.format("Path '%s' cannot be read.", path.getPath())));
+            assert root != null;
+
+            this.subDirectoriesOnly = subDirectoriesOnly;
+            this.stopWhenFindYounger = stopWhenFindYounger;
+            this.terminated = false;
+            this.lastChanged = 0;
+            updateLastChanged(root);
+            if (terminated == false)
+            {
+                traverse(root);
+            }
         }
 
-        long lastChanged = path.lastModified();
-        if (path.isDirectory())
+        private void updateLastChanged(File path)
         {
-            for (File subDirectory : getSubDirectories(path))
+            assert path != null;
+
+            if (path.canRead() == false)
             {
+                throw new CheckedExceptionTunnel(new IOException(String.format("Path '%s' cannot be read.", path
+                        .getPath())));
+            }
+            final long lastModified = path.lastModified();
+            lastChanged = Math.max(lastModified, lastChanged);
+            if (stopWhenFindYounger > 0 && lastChanged >= stopWhenFindYounger)
+            {
+                terminated = true;
+            }
+        }
+
+        private void traverse(File path)
+        {
+            assert path != null;
+            assert path.canRead();
+
+            if (path.isDirectory() == false)
+            {
+                return;
+            }
+            for (File entry : getEntries(path))
+            {
+                updateLastChanged(entry);
+                if (terminated)
+                {
+                    return;
+                }
                 if (Thread.interrupted())
                 {
                     throw new CheckedExceptionTunnel(new InterruptedException("lastChanged() interrupted"));
                 }
-                lastChanged = Math.max(lastChanged, lastChanged(subDirectory));
+                traverse(entry);
             }
         }
-        return lastChanged;
+
+        private File[] getEntries(File directory)
+        {
+            assert directory != null;
+            assert directory.canRead();
+            assert directory.isDirectory();
+
+            if (subDirectoriesOnly)
+            {
+                return directory.listFiles(new FileFilter()
+                    {
+                        public boolean accept(File pathname)
+                        {
+                            return pathname.isDirectory();
+                        }
+                    });
+            } else
+            {
+                return directory.listFiles();
+            }
+        }
+
+        /**
+         * Returns the time of last change of the youngest file found below <var>root</var>.
+         */
+        long getLastChanged()
+        {
+            return lastChanged;
+        }
     }
 
-    private static File[] getSubDirectories(File superDirectory)
+    /**
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var> has last been
+     * changed in the file system.
+     * 
+     * @param path The path (file or directory) to check for last change.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are checked, if
+     *            <var>path</var> is a directory. If <var>path</var> is a file, this parameter is ignored. When
+     *            considering what this parameter is good for, note that the mtime of a directory is changed when an
+     *            entry in the directory changes.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or
+     *            directory is found that is as young as or younger than the time specified in this parameter. Supposed
+     *            to be used when one does not care about the absolute youngest entry, but only, if there are entries
+     *            that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
+     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
+     *             readable.
+     * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the method runs in gets
+     *             interrupted.
+     */
+    public static long lastChanged(File path, boolean subDirectoriesOnly, long stopWhenFindYounger)
     {
-        assert superDirectory.canRead() && superDirectory.isDirectory();
+        return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYounger)).getLastChanged();
+    }
 
-        return superDirectory.listFiles(new FileFilter()
-            {
-
-                public boolean accept(File pathname)
-                {
-                    return pathname.isDirectory();
-                }
-
-            });
+    /**
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
+     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
+     *             readable.
+     * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the method runs in gets
+     *             interrupted.
+     */
+    public static long lastChanged(File path)
+    {
+        return lastChanged(path, false, 0L);
     }
 
     /**

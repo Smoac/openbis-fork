@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
@@ -26,6 +27,8 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+
+import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link FileUtilities#lastChanged(File)} method.
@@ -102,6 +105,27 @@ public class FileUtilitiesLastChangedTest
         // We need to wait for more than 1s because that's the granularity of the changed time attribute saved with
         // files.
         restALittleBit();
+    }
+
+    @Test
+    public void testLastChangedSpecialFeatures() throws IOException
+    {
+        final File dirA = new File(workingDirectory, "a");
+        dirA.mkdir();
+        dirA.deleteOnExit();
+        final File dirB = new File(dirA, "b");
+        dirB.mkdir();
+        dirB.deleteOnExit();
+        final File fileC = new File(dirB, "c");
+        fileC.createNewFile();
+        fileC.deleteOnExit();
+        fileC.setLastModified(3000L);
+        dirB.setLastModified(2000L);
+        dirA.setLastModified(1000L);
+        assertEquals(3000L, FileUtilities.lastChanged(dirA, false, 0L));
+        assertEquals(2000L, FileUtilities.lastChanged(dirA, true, 0L));
+        assertEquals(1000L, FileUtilities.lastChanged(dirA, false, 1000L));
+        assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 1000L));
     }
 
 }
