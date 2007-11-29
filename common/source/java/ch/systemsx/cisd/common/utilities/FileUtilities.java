@@ -438,6 +438,8 @@ public final class FileUtilities
      * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
      *             readable.
+     * @throws CheckedExceptionTunnel of an {@link InterruptedException} if the thread that the method runs in gets
+     *             interrupted.
      */
     public static long lastChanged(File path)
     {
@@ -454,6 +456,10 @@ public final class FileUtilities
         {
             for (File subDirectory : getSubDirectories(path))
             {
+                if (Thread.interrupted())
+                {
+                    throw new CheckedExceptionTunnel(new InterruptedException("lastChanged() interrupted"));
+                }
                 lastChanged = Math.max(lastChanged, lastChanged(subDirectory));
             }
         }
