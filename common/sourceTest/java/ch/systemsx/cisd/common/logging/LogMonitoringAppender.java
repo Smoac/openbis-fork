@@ -37,6 +37,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     private static Map<LogMonitoringAppender, String> appenderMap = new HashMap<LogMonitoringAppender, String>();
 
     private final StringBuilder eventRecorder = new StringBuilder();
+
     private final String messagePart;
 
     private LogMonitoringAppender(String messagePart)
@@ -44,7 +45,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         this.messagePart = messagePart;
     }
 
-    private boolean logHappened = false;
+    private int logCount = 0;
 
     /**
      * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
@@ -101,7 +102,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         }
         if (eventMessage.contains(messagePart) || throwableStr.contains(messagePart))
         {
-            logHappened = true;
+            ++logCount;
         }
     }
 
@@ -119,17 +120,24 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     public void verifyLogHasNotHappened()
     {
-        assert logHappened == false : "Log snippet '" + messagePart + "' has been unexpectedly found in log:\n"
+        assert logCount == 0 : "Log snippet '" + messagePart + "' has been unexpectedly found in log:\n"
                 + eventRecorder;
     }
-    
+
     public void verifyLogHasHappened()
     {
-        assert logHappened : "Log snippet '" + messagePart + "' has been missed in log:\n" + eventRecorder;
+        assert logCount > 0 : "Log snippet '" + messagePart + "' has been missed in log:\n" + eventRecorder;
     }
-    
+
+    public void verifyLogHappendNTimes(int n)
+    {
+        assert logCount == n : String.format(
+                "Log snippet '%s' should have found %d times, but has been found %d times: %s", messagePart, n,
+                logCount);
+    }
+
     public void reset()
     {
-        logHappened = false;
+        logCount = 0;
     }
 }
