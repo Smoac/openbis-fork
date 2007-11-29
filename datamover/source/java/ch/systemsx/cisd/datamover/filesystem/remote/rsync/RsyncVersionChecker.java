@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.utilities.ProcessResult;
 
 /**
  * A class that helps checking an <code>rsync</code> binary for its version.
@@ -162,7 +163,7 @@ final class RsyncVersionChecker
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)
     {
         final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
-        final ProcessExecutionHelper.ProcessResult result =
+        final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
                         TIME_TO_WAIT_FOR_COMPLETION, operationLog, machineLog);
         result.log();
