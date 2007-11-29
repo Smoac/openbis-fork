@@ -66,10 +66,11 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
     }
 
     /**
-     * Copies <var>code</var> (file or directory) to <var>destinationDirectory</var> by duplicating directory
+     * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by duplicating directory
      * structure and creating hard link for each file.
-     * <>p>
+     * <p>
      * <i>Note that <var>path</var> cannot be placed directly inside <var>destinationDirectory</var>.<i>
+     * </p>
      * 
      * @return pointer to the copied resource or null if copy process failed
      */
