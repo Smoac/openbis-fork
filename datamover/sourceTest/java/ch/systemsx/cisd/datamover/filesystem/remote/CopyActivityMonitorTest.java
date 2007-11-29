@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -39,6 +38,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
+
+import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
@@ -318,19 +319,45 @@ public class CopyActivityMonitorTest
     {
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
-        LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class).addAppender(appender);
-        final LastChangedChecker checker = new PathLastChangedCheckerStuck();
+        final PathLastChangedCheckerDelayed checker = new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
                 new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
-        StoreItem item = createDirectoryInside(workingDirectory);
+        final StoreItem item = createDirectoryInside(workingDirectory);
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
         LogMonitoringAppender.removeAppender(appender);
-        assert copyProcess.isTerminated();
+        assertTrue(checker.interrupted());
+        assertTrue(copyProcess.isTerminated());
         appender.verifyLogHasHappened();
+    }
+
+    @Test(groups =
+        { "slow" })
+    public void testActivityMonitorFirstStuckSecondWorking() throws Throwable
+    {
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "got stuck, starting a new one");
+        final PathLastChangedCheckerDelayed checker =
+                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS,
+                        (long) (INACTIVITY_PERIOD_MILLIS / 10 * 1.5));
+        final MockTerminable copyProcess = new MockTerminable();
+        final ITimingParameters parameters = new MyTimingParameters(0);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+        final File directory = new File(workingDirectory, "some-directory");
+        directory.mkdir();
+        directory.deleteOnExit();
+        final StoreItem item = createDirectoryInside(directory);
+        monitor.start(item);
+        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
+        monitor.stop();
+        LogMonitoringAppender.removeAppender(appender);
+        assertFalse(checker.interrupted());
+        assertFalse(copyProcess.isTerminated());
+        appender.verifyLogHappendNTimes(1);
     }
 
     private StoreItem createDirectoryInside(File parentDir)
@@ -342,31 +369,56 @@ public class CopyActivityMonitorTest
         return item;
     }
 
-    private final class PathLastChangedCheckerStuck implements LastChangedChecker
+    private final class PathLastChangedCheckerDelayed implements LastChangedChecker
     {
-        private boolean interrupted = false;
+        private final long[] delayMillis;
+
+        private int callNumber;
+
+        private boolean interrupted;
+
+        public PathLastChangedCheckerDelayed(long... delayMillis)
+        {
+            assert delayMillis.length > 0;
+
+            this.interrupted = false;
+            this.delayMillis = delayMillis;
+        }
+
+        private long timeToSleepMillis()
+        {
+            try
+            {
+                return delayMillis[callNumber];
+            } finally
+            {
+                if (callNumber < delayMillis.length - 1)
+                {
+                    ++callNumber;
+                }
+            }
+        }
 
         public long lastChanged(StoreItem item)
         {
             try
             {
-                Thread.sleep(INACTIVITY_PERIOD_MILLIS); // Wait longer than the activity monitor is willing to wait for
-                // us.
+                Thread.sleep(timeToSleepMillis()); // Wait predefined time.
             } catch (InterruptedException e)
             {
-                // Can't happen since this method runs in a TimerThread which isn't interrupted.
-                throw new CheckedExceptionTunnel(e);
+                this.interrupted = true;
+                // That is what we expect if we are terminated.
+                throw new CheckedExceptionTunnel(new InterruptedException(e.getMessage()));
             }
-            return 0; // Return value doesn't matter because the TImerTask is already terminated.
+            this.interrupted = false;
+            return System.currentTimeMillis();
         }
 
-        /**
-         * @return If the checker has been interrupted.
-         */
-        public boolean isInterrupted()
+        boolean interrupted()
         {
             return interrupted;
         }
+
     }
 
 }

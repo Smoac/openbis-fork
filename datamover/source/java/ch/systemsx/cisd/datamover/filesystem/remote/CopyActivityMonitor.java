@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -179,12 +180,15 @@ public class CopyActivityMonitor
     {
 
         private AtomicBoolean terminated = new AtomicBoolean(false);
+        private AtomicReference<Thread> timerThread = new AtomicReference<Thread>(null);
 
         private ActivityMonitoringTimerTask()
         {
             assert pathToBeCopied != null;
             assert monitoredPathLastChanged != null;
             assert destinationDirectory != null;
+            
+            monitoredPathLastChecked.set(System.currentTimeMillis());
         }
 
         @Override
@@ -201,6 +205,7 @@ public class CopyActivityMonitor
                 operationLog.trace("Start activity monitoring run.");
             }
 
+            timerThread.set(Thread.currentThread());
             try
             {
                 if (operationLog.isTraceEnabled())
@@ -244,8 +249,18 @@ public class CopyActivityMonitor
                 }
                 monitoredPathLastChecked.set(now);
                 monitoredPathLastChanged.set(lastChanged);
+            } catch (CheckedExceptionTunnel ex)
+            {
+                if (ex.getCause() instanceof InterruptedException)
+                {
+                    operationLog.warn("Activity monitor got terminated.");
+                } else
+                {
+                    throw ex;
+                }
             } finally
             {
+                timerThread.set(null);
                 if (operationLog.isTraceEnabled())
                 {
                     operationLog.trace("Finished activity monitoring run.");
@@ -258,6 +273,11 @@ public class CopyActivityMonitor
          */
         public boolean terminate()
         {
+            final Thread timerThreadOrNull = timerThread.get();
+            if (timerThreadOrNull != null)
+            {
+                timerThreadOrNull.interrupt();
+            }
             terminated.set(true);
             return true;
         }
@@ -322,6 +342,8 @@ public class CopyActivityMonitor
                         noProgressSinceMillis / 1000.0f));
                 operationLog.warn(String.format(TERMINATION_LOG_TEMPLATE, terminable.getClass().getName()));
                 terminable.terminate();
+                activityMonitoringTimer.cancel();
+                activityMonitoringTimerTask.terminate();
                 stop();
             }
 
