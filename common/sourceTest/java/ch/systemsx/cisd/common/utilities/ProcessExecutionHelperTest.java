@@ -159,7 +159,7 @@ public class ProcessExecutionHelperTest
     public void testTryExecutionFailedWithWatchDogHitting() throws Exception
     {
         final File dummyExec = createSleepingExecutable("dummy.sh", 2 * WATCHDOG_WAIT_MILLIS);
-        final ProcessExecutionHelper.ProcessResult result =
+        final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
                         operationLog, machineLog);
         assertTrue(ProcessExecutionHelper.isProcessTerminated(result.exitValue()));
@@ -175,7 +175,7 @@ public class ProcessExecutionHelperTest
         final String stderr2 = "This goes to stderr, 2";
         final File dummyExec =
                 createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1, "echo " + stdout2, "echo " + stderr2);
-        final ProcessExecutionHelper.ProcessResult result =
+        final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog);
         final int exitValue = result.exitValue();
         assertEquals(0, exitValue);
