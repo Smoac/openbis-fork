@@ -29,6 +29,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+
 /**
  * Test cases for the {@link FileWatcher}.
  * <p>
@@ -47,7 +49,7 @@ public class FileWatcherTest
 
     private static final File tmpFile2 = new File(workingDirectory, "tmpFile2");
 
-    private TestAppender testAppender;
+    private BufferedAppender testAppender;
 
     private volatile boolean onChangeCalled;
 
@@ -67,7 +69,7 @@ public class FileWatcherTest
         createNewFile(tmpFile1);
         createNewFile(tmpFile2);
         workingDirectory.deleteOnExit();
-        testAppender = new TestAppender(Level.TRACE);
+        testAppender = new BufferedAppender(Level.TRACE);
     }
 
     @AfterMethod(alwaysRun = true)

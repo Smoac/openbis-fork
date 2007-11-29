@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.logging;
 
 import java.io.ByteArrayOutputStream;
 
@@ -25,7 +25,8 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 
 /**
- * A <code>WriterAppender</code> extension for unit tests that are interested in log output and want to test it.
+ * A <code>WriterAppender</code> extension that buffers its output in a <code>ByteArrayOutputStream</code> until you
+ * ask for it by using {@link #getLogContent()}.
  * <p>
  * It internally uses a <code>ByteArrayOutputStream</code> which collect the log output and can return it using
  * {@link #getLogContent()}. It is a good idea to reset the log recorder by calling {@link #resetLogContent()} before
@@ -34,7 +35,7 @@ import org.apache.log4j.WriterAppender;
  * 
  * @author Christian Ribeaud
  */
-public final class TestAppender extends WriterAppender
+public final class BufferedAppender extends WriterAppender
 {
     private final ByteArrayOutputStream logRecorder;
 
@@ -42,7 +43,7 @@ public final class TestAppender extends WriterAppender
      * Constructor with default pattern layout (which is {@link PatternLayout#DEFAULT_CONVERSION_PATTERN}) and
      * {@link Level#DEBUG} as log level.
      */
-    public TestAppender()
+    public BufferedAppender()
     {
         this(Level.DEBUG);
     }
@@ -52,12 +53,12 @@ public final class TestAppender extends WriterAppender
      * 
      * @param logLevel
      */
-    public TestAppender(Level logLevel)
+    public BufferedAppender(final Level logLevel)
     {
         this(null, logLevel);
     }
 
-    public TestAppender(String pattern, Level logLevel)
+    public BufferedAppender(final String pattern, final Level logLevel)
     {
         super();
         logRecorder = new ByteArrayOutputStream();
@@ -66,18 +67,24 @@ public final class TestAppender extends WriterAppender
         configureRootLogger(logLevel);
     }
 
-    private void configureRootLogger(Level logLevel)
+    private final void configureRootLogger(final Level logLevel)
     {
-        Logger root = Logger.getRootLogger();
+        final Logger root = Logger.getRootLogger();
         root.addAppender(this);
         root.setLevel(logLevel);
     }
 
-    protected Layout createLayout(String pattern)
+    protected Layout createLayout(final String pattern)
     {
         return new PatternLayout(pattern);
     }
 
+    /**
+     * Returns the content of this log appender.
+     * <p>
+     * Never returns <code>null</code> but could return an empty string.
+     * </p>
+     */
     public final String getLogContent()
     {
         return new String(logRecorder.toByteArray()).trim();
@@ -97,5 +104,15 @@ public final class TestAppender extends WriterAppender
     {
         Logger.getRootLogger().removeAppender(this);
         super.reset();
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return getEncoding();
     }
 }

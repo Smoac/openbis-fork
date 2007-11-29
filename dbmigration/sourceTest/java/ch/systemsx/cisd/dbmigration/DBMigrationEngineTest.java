@@ -36,8 +36,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.common.utilities.TestAppender;
 
 /**
  * Tests of {@link DBMigrationEngine} using mocks for database and {@link SqlScriptProvider}.
@@ -79,7 +79,7 @@ public class DBMigrationEngineTest
 
     private IMassUploader massUploader;
 
-    private TestAppender logRecorder;
+    private BufferedAppender logRecorder;
 
     @BeforeMethod
     public void setUp()
@@ -91,7 +91,7 @@ public class DBMigrationEngineTest
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
         massUploader = context.mock(IMassUploader.class);
-        logRecorder = new TestAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod

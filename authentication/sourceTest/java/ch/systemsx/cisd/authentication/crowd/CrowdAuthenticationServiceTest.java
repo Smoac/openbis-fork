@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.common.utilities.TestAppender;
 
 /**
  * Tests for {@link CrowdAuthenticationService}.
@@ -70,7 +70,7 @@ public class CrowdAuthenticationServiceTest
 
     private IAuthenticationService authenticationService;
 
-    private TestAppender logRecorder;
+    private BufferedAppender logRecorder;
 
     @BeforeMethod
     public void setup()
@@ -78,7 +78,7 @@ public class CrowdAuthenticationServiceTest
         context = new Mockery();
         executor = context.mock(IRequestExecutor.class);
         authenticationService = new CrowdAuthenticationService(URL, APPLICATION, APPLICATION_PASSWORD, executor);
-        logRecorder = new TestAppender("%-5p %c - %m%n", Level.DEBUG);
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod
