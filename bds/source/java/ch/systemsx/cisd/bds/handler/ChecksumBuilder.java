@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.bds.Reference;
+import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -81,7 +81,7 @@ class ChecksumBuilder
 
     private void addChecksum(PrintWriter printWriter, String path, INode node)
     {
-        String nodePath = (path == null ? "" : path + Reference.PATH_SEPARATOR) + node.getName();
+        String nodePath = (path == null ? "" : path + Constants.PATH_SEPARATOR) + node.getName();
         if (node instanceof IFile)
         {
             IFile file = (IFile) node;

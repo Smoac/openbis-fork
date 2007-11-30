@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
 import ch.systemsx.cisd.bds.handler.MappingFileHandler;
@@ -60,7 +60,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
 
     private final void registerHandlers()
     {
-        mappingFileHandler = new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
+        mappingFileHandler =
+                new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData(), false);
         registerHandler(mappingFileHandler);
         registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY),
                 getOriginalData()));
@@ -253,9 +254,9 @@ public class DataStructureV1_0 extends AbstractDataStructure
         mappingFileHandler.addReference(reference);
     }
 
-    public final Map<String, Reference> getStandardOriginalMapping()
+    public final Set<Reference> getStandardOriginalMapping()
     {
-        return mappingFileHandler.getStandardOriginalMapping();
+        return mappingFileHandler.getReferences();
     }
 
     //

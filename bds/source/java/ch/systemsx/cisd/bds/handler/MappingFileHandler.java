@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.bds.handler;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.IDataStructureHandler;
@@ -38,18 +35,19 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class MappingFileHandler implements IDataStructureHandler
 {
-    private final Map<String, Reference> standardOriginalMapping = new LinkedHashMap<String, Reference>();
+    private final Set<Reference> references = new HashSet<Reference>();
 
     /** The directory the mapping is going to be written to. */
     private final IDirectory mappingDirectory;
 
     /** The root of {@link Reference#getPath()}. Usually the path to <code>standard</code> directory. */
-    @SuppressWarnings("unused")
     private final IDirectory pathRoot;
 
     /** The root of {@link Reference#getOriginalPath()}. Usually the path to <code>original</code> directory. */
-    @SuppressWarnings("unused")
     private final IDirectory originalPathRoot;
+
+    /** Whether we should allow call to {@link #assertValid()}. */
+    private final boolean doValidation;
 
     /**
      * The mapping relating <i>standard</i> with <i>original</i> data.
@@ -61,7 +59,7 @@ public final class MappingFileHandler implements IDataStructureHandler
     public static final String MAPPING_FILE = "standard_original_mapping";
 
     public MappingFileHandler(final IDirectory mappingDirectory, final IDirectory pathRoot,
-            final IDirectory originalPathRoot)
+            final IDirectory originalPathRoot, final boolean doValidation)
     {
         assert mappingDirectory != null : "Given mapping directory can not be null.";
         assert pathRoot != null : "Given path root can not be null.";
@@ -69,6 +67,7 @@ public final class MappingFileHandler implements IDataStructureHandler
         this.mappingDirectory = mappingDirectory;
         this.pathRoot = pathRoot;
         this.originalPathRoot = originalPathRoot;
+        this.doValidation = doValidation;
     }
 
     /**
@@ -76,9 +75,9 @@ public final class MappingFileHandler implements IDataStructureHandler
      * 
      * @return an unmodifiable version of this map.
      */
-    public final Map<String, Reference> getStandardOriginalMapping()
+    public final Set<Reference> getReferences()
     {
-        return Collections.unmodifiableMap(standardOriginalMapping);
+        return Collections.unmodifiableSet(references);
     }
 
     /**
@@ -89,18 +88,17 @@ public final class MappingFileHandler implements IDataStructureHandler
     public final void addReference(final Reference reference) throws DataStructureException
     {
         assert reference != null : "Unspecified reference.";
-        final String path = reference.getPath();
-        if (standardOriginalMapping.containsKey(path))
+        if (references.contains(reference))
         {
-            throw new DataStructureException("There is already a reference for file '" + path + "'.");
+            throw new DataStructureException("There is already a reference for file '" + reference + "'.");
         }
-        standardOriginalMapping.put(path, reference);
+        references.add(reference);
     }
 
     private final void loadStandardOriginalMapping()
     {
         final List<String> mappingLines = Utilities.getStringList(mappingDirectory, MAPPING_FILE);
-        standardOriginalMapping.clear();
+        references.clear();
         for (int i = 0; i < mappingLines.size(); i++)
         {
             String referenceDefinition = mappingLines.get(i);
@@ -118,25 +116,23 @@ public final class MappingFileHandler implements IDataStructureHandler
                         + ": missing second tab character: " + referenceDefinition);
             }
             final ReferenceType type = ReferenceType.resolveByShortName(referenceDefinition.substring(i1 + 1, i2));
-            standardOriginalMapping.put(path, new Reference(path, referenceDefinition.substring(i2 + 1), type));
+            references.add(new Reference(path, referenceDefinition.substring(i2 + 1), type));
         }
     }
-    
-    // TODO 2007-11-30, Christian Ribeaud: list all nodes present in the standard directory. 
+
     private final String createMappingFile()
     {
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer, true);
-        final Collection<Reference> values = standardOriginalMapping.values();
-        for (final Reference reference : values)
+        final StringBuilder builder = new StringBuilder();
+        for (final Reference reference : references)
         {
             final String path = reference.getPath();
             final String shortName = reference.getReferenceType().getShortName();
             final String originalPath = reference.getOriginalPath();
-            printWriter.println(path + "\t" + shortName + "\t" + originalPath);
+            builder.append(path).append("\t");
+            builder.append(shortName).append("\t");
+            builder.append(originalPath).append("\n");
         }
-        printWriter.close();
-        return writer.toString();
+        return builder.toString();
     }
 
     //
@@ -145,9 +141,24 @@ public final class MappingFileHandler implements IDataStructureHandler
 
     public final void assertValid() throws DataStructureException
     {
-        // TODO 2007-11-29, Christian Ribeaud: validation of loaded references. Note that this could interfere with
-        // checksum validation. To validate a checksum, the file must exist. So we would not need to check the original
-        // path existence here.
+        if (doValidation == false)
+        {
+            return;
+        }
+        final String errMsg = "Node '%s' not found in directory '%s'";
+        for (final Reference reference : references)
+        {
+            final String path = reference.getPath();
+            if (pathRoot.tryGetNode(path) == null)
+            {
+                throw new DataStructureException(String.format(errMsg, path, pathRoot));
+            }
+            final String originalPath = reference.getOriginalPath();
+            if (originalPathRoot.tryGetNode(originalPath) == null)
+            {
+                throw new DataStructureException(String.format(errMsg, originalPath, originalPathRoot));
+            }
+        }
     }
 
     public final void performClosing()

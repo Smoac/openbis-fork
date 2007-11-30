@@ -146,6 +146,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
     {
         checkChannel(channel);
+        assert plateLocation != null : "Plate location can not be null.";
+        assert wellLocation != null : "Well location can not be null.";
         checkLocation(getPlateGeometry(), plateLocation);
         checkLocation(getWellGeometry(), wellLocation);
         final IDirectory standardDir = getStandardDataDirectory();

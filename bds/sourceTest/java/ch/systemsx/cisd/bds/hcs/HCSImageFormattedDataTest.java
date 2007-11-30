@@ -18,6 +18,8 @@ package ch.systemsx.cisd.bds.hcs;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -36,6 +38,8 @@ import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.FormatedDataFactory;
 import ch.systemsx.cisd.bds.IFormatParameters;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -86,9 +90,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     private final void prepareStandardNode()
     {
         standardNode = NodeFactory.createDirectoryNode(workingDirectory);
-        final IDirectory channel1 = standardNode.makeDirectory("channel1");
-        final IDirectory row1 = channel1.makeDirectory("row1");
-        leafDirectory = row1.makeDirectory("column2");
+        final IDirectory channel1 = standardNode.makeDirectory(Channel.CHANNEL + "1");
+        final IDirectory row1 = channel1.makeDirectory(HCSImageFormattedData.ROW + "1");
+        leafDirectory = row1.makeDirectory(HCSImageFormattedData.COLUMN + "2");
     }
 
     private final void addParameterCheckExpectations(final Expectations exp)
@@ -163,9 +167,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     public final void testAddStandardNodeWithOriginalData() throws IOException
     {
         final String originalFileName = "original.txt";
-        FileUtils.touch(new File(workingDirectory, originalFileName));
+        FileUtils.writeStringToFile(new File(workingDirectory, originalFileName), "This is my original file...");
         final int channelIndex = 1;
-        final IDirectory workingDirectoryNode = NodeFactory.createDirectoryNode(workingDirectory);
+        final IDirectory originalNode = NodeFactory.createDirectoryNode(workingDirectory);
         context.checking(new Expectations()
             {
                 {
@@ -175,25 +179,166 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     will(returnValue(standardNode));
 
                     one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
-                    will(returnValue(workingDirectoryNode));
+                    will(returnValue(originalNode));
 
                     one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
                     will(returnValue(Boolean.FALSE));
                 }
             });
         final INode node = formattedData.addStandardNode(originalFileName, channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        final String standardFileName = "row2_column1.tiff";
         assertNotNull(node);
-        assertEquals(originalFileName, node.getName());
-        final INode standardFile = leafDirectory.tryGetNode(originalFileName);
+        assertEquals(standardFileName, node.getName());
+        // Look at the standard leaf directory if the node is there as well.
+        final INode standardFile = leafDirectory.tryGetNode(standardFileName);
         assertNotNull(standardFile);
-        assertEquals(originalFileName, standardFile.getName());
+        assertTrue(standardFile instanceof IFile);
+        assertEquals(standardFileName, standardFile.getName());
+        // Node should no longer be in original directory
+        assertNull(originalNode.tryGetNode(originalFileName));
         context.assertIsSatisfied();
     }
 
     @Test
-    public final void testTryGetStandardNodeAt()
+    public final void testAddStandardNodeWithoutOriginalData() throws IOException
     {
+        final String originalFileName = "original.tiff";
+        FileUtils.writeStringToFile(new File(workingDirectory, originalFileName), "This is my original file...");
+        final int channelIndex = 1;
+        final IDirectory originalNode = NodeFactory.createDirectoryNode(workingDirectory);
+        context.checking(new Expectations()
+            {
+                {
+                    addParameterCheckExpectations(this);
 
+                    exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
+                    will(returnValue(standardNode));
+
+                    one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
+                    will(returnValue(originalNode));
+
+                    one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
+                    will(returnValue(Boolean.TRUE));
+                }
+            });
+        final INode node = formattedData.addStandardNode(originalFileName, channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        final String standardFileName = "row2_column1.tiff";
+        assertNotNull(node);
+        assertTrue(node instanceof ILink);
+        assertEquals(standardFileName, node.getName());
+        // Look at the standard leaf directory if the node is there as well.
+        final INode standardFile = leafDirectory.tryGetNode(standardFileName);
+        assertNotNull(standardFile);
+        assertTrue(standardFile instanceof IFile);
+        assertEquals(standardFileName, standardFile.getName());
+        // Node should still be in original directory
+        assertNotNull(originalNode.tryGetNode(originalFileName));
+        context.assertIsSatisfied();
+
+    }
+
+    @Test
+    public final void testTryGetStandardNodeAtWithNoFile()
+    {
+        final int channelIndex = 1;
+        context.checking(new Expectations()
+            {
+                {
+                    addParameterCheckExpectations(this);
+
+                    one(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
+                    will(returnValue(standardNode));
+                }
+            });
+        final INode node = formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        assertNull(node);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testTryGetStandardNodeAtWithFile() throws IOException
+    {
+        final File file = new File(workingDirectory, "row2_column1.tiff");
+        FileUtils.writeStringToFile(file, "This is my original file...");
+        leafDirectory.addFile(file, true);
+        final int channelIndex = 1;
+        context.checking(new Expectations()
+            {
+                {
+                    addParameterCheckExpectations(this);
+
+                    one(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
+                    will(returnValue(standardNode));
+                }
+            });
+        final INode node = formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        assertNotNull(node);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testTryGetStandardNodeAtWithWrongChannelIndex()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(formatParameters).getValue(ChannelList.NUMBER_OF_CHANNELS);
+                    will(returnValue(createChannelList()));
+                }
+            });
+        try
+        {
+            formattedData.tryGetStandardNodeAt(2, null, null);
+            fail("2 > 1");
+        } catch (IndexOutOfBoundsException ex)
+        {
+            // Nothing to do here.
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testTryGetStandardNodeAtWithWrongPlateLocation()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(formatParameters).getValue(ChannelList.NUMBER_OF_CHANNELS);
+                    will(returnValue(createChannelList()));
+
+                    one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
+                    will(returnValue(new Geometry(2, 2)));
+                }
+            });
+        try
+        {
+            final Location location = new Location(2, 3);
+            formattedData.tryGetStandardNodeAt(1, location, location);
+            fail("Given geometry '2x2' does not contain location '[x=2,y=3]'");
+        } catch (IllegalArgumentException ex)
+        {
+            // Nothing to do here.
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testTryGetStandardNodeAtWithWrongWellLocation()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    addParameterCheckExpectations(this);
+                }
+            });
+        try
+        {
+            formattedData.tryGetStandardNodeAt(1, new Location(2, 2), new Location(3, 2));
+            fail("Given geometry '2x2' does not contain location '[x=3,y=2]'");
+        } catch (IllegalArgumentException ex)
+        {
+            // Nothing to do here.
+        }
         context.assertIsSatisfied();
     }
 }

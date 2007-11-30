@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -37,6 +38,10 @@ public final class NodeFactory
 
     /**
      * A <code>INode</code> factory method for given <var>file</var>.
+     * <p>
+     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether it is a link or not.
+     * This only works for <i>symbolic</i> links and not for <i>hard</i> links.
+     * </p>
      */
     public static INode createNode(final java.io.File file) throws EnvironmentFailureException
     {
@@ -67,11 +72,29 @@ public final class NodeFactory
         }
     }
 
-    public final static Link createLinkNode(final java.io.File file) throws EnvironmentFailureException
+    /**
+     * Creates a new <code>ILink</code> with given <var>name</var> which points to given <var>file</var>.
+     */
+    public final static ILink createLinkNode(final String name, final java.io.File file)
     {
-        final String absolutePath = file.getAbsolutePath();
+        assert file != null : "Given file can not be null.";
+        assert name != null : "Given name can not be null.";
+        return new Link(name, createNode(file));
+    }
+
+    /**
+     * Creates a new <code>ILink</code>.
+     * <p>
+     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether it is a link or not.
+     * This only works for <i>symbolic</i> links and not for <i>hard</i> links.
+     * </p>
+     */
+    public final static ILink createLinkNode(final java.io.File file) throws EnvironmentFailureException
+    {
         final String canonicalPath = getCanonicalPath(file);
-        assert absolutePath.equals(canonicalPath) == false : "Given file must be a link.";
+        final String absolutePath = file.getAbsolutePath();
+        assert absolutePath.equals(canonicalPath) == false : String.format(
+                "Given file must be a link [absolute=%s,canonical=%s].", absolutePath, canonicalPath);
         return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
     }
 

@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
@@ -52,6 +53,29 @@ final class Directory extends AbstractNode implements IDirectory
         return ((AbstractNode) node).nodeFile;
     }
 
+    private final java.io.File findFile(final String name)
+    {
+        final java.io.File[] files = FileUtilities.listFiles(nodeFile);
+        for (final java.io.File file : files)
+        {
+            if (file.getName().equals(name))
+            {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private final static String cleanName(final String name)
+    {
+        final int index = name.indexOf(Constants.PATH_SEPARATOR);
+        if (index == 0)
+        {
+            return name.substring(1);
+        }
+        return name;
+    }
+
     //
     // IDirectory
     //
@@ -59,10 +83,19 @@ final class Directory extends AbstractNode implements IDirectory
     public final INode tryGetNode(final String name)
     {
         assert name != null : "Given name can not be null.";
-        final java.io.File[] files = FileUtilities.listFiles(nodeFile);
-        for (java.io.File file : files)
+        final String path = cleanName(name);
+        final int index = path.indexOf(Constants.PATH_SEPARATOR);
+        if (index > -1)
         {
-            if (file.getName().equals(name))
+            final java.io.File dir = findFile(path.substring(0, index));
+            if (dir != null)
+            {
+                return NodeFactory.createDirectoryNode(dir).tryGetNode(path.substring(index + 1));
+            }
+        } else
+        {
+            final java.io.File file = findFile(path);
+            if (file != null)
             {
                 return NodeFactory.createNode(file);
             }
@@ -106,7 +139,7 @@ final class Directory extends AbstractNode implements IDirectory
         final java.io.File newFile = new java.io.File(nodeFile, file.getName());
         if (move)
         {
-            moveFileToDirectory(file, nodeFile);
+            moveFileToDirectory(file, nodeFile, null);
         } else
         {
             try
@@ -135,7 +168,7 @@ final class Directory extends AbstractNode implements IDirectory
         final java.io.File fileLink = LinkMakerProvider.getDefaultLinkMaker().tryCreateLink(file, nodeFile, name);
         if (fileLink != null)
         {
-            final Link link = NodeFactory.createLinkNode(fileLink);
+            final Link link = (Link) NodeFactory.createLinkNode(name, file);
             link.setParent(this);
             return link;
         }
@@ -190,7 +223,7 @@ final class Directory extends AbstractNode implements IDirectory
         assert node != null : "Node can not be null";
         assert name != null : "Name can not be null.";
         final java.io.File file = getNodeFile(node);
-        return addFile(file, true);
+        return NodeFactory.createNode(moveFileToDirectory(file, nodeFile, name));
     }
 
     public final void removeNode(final INode node)

@@ -23,9 +23,6 @@ package ch.systemsx.cisd.bds;
  */
 public final class Reference
 {
-    /** The only accepted path separator (system independent). */
-    public final static char PATH_SEPARATOR = '/';
-
     private final String path;
 
     private final String originalPath;
@@ -70,5 +67,36 @@ public final class Reference
     public final ReferenceType getReferenceType()
     {
         return referenceType;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Reference == false)
+        {
+            return false;
+        }
+        final Reference that = (Reference) obj;
+        return that.path.equals(path);
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return path.hashCode();
+    }
+
+    @Override
+    public final String toString()
+    {
+        return getPath();
     }
 }

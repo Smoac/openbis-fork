@@ -21,12 +21,10 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -38,8 +36,6 @@ import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IFormattedData;
-import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
@@ -109,51 +105,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         assertEquals(format, formattedData.getFormat());
     }
 
-    @Test
-    public final void testGetNodeAt() throws IOException
-    {
-        dataStructure.create();
-        DataStructureV1_0Test.createExampleDataStructure(storage);
-        setFormatAndFormatParameters();
-        final IDirectory standardData = dataStructure.getStandardData();
-        final IDirectory channelDir = standardData.makeDirectory(Channel.CHANNEL + "1");
-        final IDirectory plateRowDir = channelDir.makeDirectory(HCSImageFormattedData.ROW + "1");
-        final IDirectory plateColumnDir = plateRowDir.makeDirectory(HCSImageFormattedData.COLUMN + "1");
-        final String wellFileName = HCSImageFormattedData.createWellFileName(new Location(1, 1));
-        final File wellFile = new File(workingDirectory, wellFileName);
-        FileUtils.writeStringToFile(wellFile, "This is an image...");
-        plateColumnDir.addFile(wellFile, true);
-        final IHCSFormattedData formattedData = (IHCSFormattedData) dataStructure.getFormattedData();
-        try
-        {
-            formattedData.tryGetStandardNodeAt(3, new Location(1, 1), new Location(1, 1));
-            fail("3 > 2");
-        } catch (IndexOutOfBoundsException ex)
-        {
-            // Nothing to do here.
-        }
-        try
-        {
-            formattedData.tryGetStandardNodeAt(2, new Location(1, 1), new Location(1, 1));
-            fail("No directory named 'channel2' found.");
-        } catch (DataStructureException ex)
-        {
-            assertTrue(ex.getMessage().indexOf("'channel2'") > -1);
-        }
-        try
-        {
-            formattedData.tryGetStandardNodeAt(1, new Location(1, 3), new Location(1, 1));
-            fail("Given geometry '2x3' does not contain location '[x=1,y=3]'.");
-        } catch (IllegalArgumentException ex)
-        {
-            assertTrue(ex.getMessage().indexOf("does not contain location") > -1);
-        }
-        final INode node = formattedData.tryGetStandardNodeAt(1, new Location(1, 1), new Location(1, 1));
-        assertEquals("row1_column1.tiff", node.getName());
-        dataStructure.close();
-    }
-
-    @Test
+    @Test(dependsOnMethods="testGetFormatedData")
     public final void testHCSImageDataStructure()
     {
         // Creating...

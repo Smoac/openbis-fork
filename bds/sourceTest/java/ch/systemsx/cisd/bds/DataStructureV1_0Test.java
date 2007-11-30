@@ -25,7 +25,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -203,9 +203,9 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.addReference(new Reference("a", "b", ReferenceType.IDENTICAL));
-        Map<String, Reference> mapping = dataStructure.getStandardOriginalMapping();
+        final Set<Reference> mapping = dataStructure.getStandardOriginalMapping();
         assertEquals(1, mapping.size());
-        Reference actualReference = mapping.get("a");
+        final Reference actualReference = mapping.iterator().next();
         assertEquals("a", actualReference.getPath());
         assertEquals(ReferenceType.IDENTICAL, actualReference.getReferenceType());
         assertEquals("b", actualReference.getOriginalPath());
@@ -232,7 +232,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         dataStructure.create();
         try
         {
-            dataStructure.getStandardOriginalMapping().put("a", null);
+            dataStructure.getStandardOriginalMapping().add(null);
             fail("DataStructureException expected");
         } catch (UnsupportedOperationException e)
         {
@@ -401,16 +401,8 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         assertEquals(experimentRegistrator, reloadedDataStructure.getExperimentRegistrator());
         assertEquals(measurementEntity, reloadedDataStructure.getMeasurementEntity());
         assertEquals(ProcessingType.RAW_DATA, reloadedDataStructure.getProcessingType());
-        Map<String, Reference> mapping = reloadedDataStructure.getStandardOriginalMapping();
+        final Set<Reference> mapping = reloadedDataStructure.getStandardOriginalMapping();
         assertEquals(2, mapping.size());
-        Reference reference = mapping.get("a/b/c");
-        assertEquals("a/b/c", reference.getPath());
-        assertEquals(ReferenceType.IDENTICAL, reference.getReferenceType());
-        assertEquals("a6b8/x.t", reference.getOriginalPath());
-        reference = mapping.get("a78/jjh");
-        assertEquals("a78/jjh", reference.getPath());
-        assertEquals(ReferenceType.TRANSFORMED, reference.getReferenceType());
-        assertEquals("a b/x\tt", reference.getOriginalPath());
         checkFormattedData(reloadedDataStructure.getFormattedData());
 
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);

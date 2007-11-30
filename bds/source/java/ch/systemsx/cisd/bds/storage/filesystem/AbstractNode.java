@@ -30,12 +30,20 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 abstract class AbstractNode implements INode
 {
-    protected final static void moveFileToDirectory(final File source, final File directory)
+    protected final static File moveFileToDirectory(final File source, final File directory, final String nameOrNull)
             throws EnvironmentFailureException
     {
         assert source != null;
         assert directory != null && directory.isDirectory();
-        final File destination = new File(directory, source.getName());
+        final String newName;
+        if (nameOrNull == null)
+        {
+            newName = source.getName();
+        } else
+        {
+            newName = nameOrNull;
+        }
+        final File destination = new File(directory, newName);
         if (destination.exists() == false)
         {
             final boolean successful = source.renameTo(destination);
@@ -45,6 +53,7 @@ abstract class AbstractNode implements INode
                         .getAbsolutePath(), directory.getAbsolutePath());
             }
         }
+        return destination;
     }
 
     protected final File nodeFile;
@@ -84,7 +93,7 @@ abstract class AbstractNode implements INode
 
     public final void moveTo(final File directory)
     {
-        moveFileToDirectory(nodeFile, directory);
+        moveFileToDirectory(nodeFile, directory, null);
     }
 
     public boolean isValid()
