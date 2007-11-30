@@ -34,6 +34,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
  */
 public class SelfTest
 {
+    private static final long TIMEOUT_MILLIS = 3000L;
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
     static
@@ -48,7 +50,7 @@ public class SelfTest
         checkPathRecordsContainEachOther(pathRecords);
         for (FileStore pathRecord : pathRecords)
         {
-            String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible();
+            String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible(TIMEOUT_MILLIS);
             if (errorMessage != null)
             {
                 throw new ConfigurationFailureException(errorMessage);

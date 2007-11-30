@@ -165,16 +165,18 @@ public abstract class FileStore
     /**
      * Checks whether this store is a directory and is fully accessible to the program.
      * 
+     * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available if it is not
+     *            initially.
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error message describing the
      *         problem with the <var>directory</var> otherwise.
      */
-    public abstract String tryCheckDirectoryFullyAccessible();
+    public abstract String tryCheckDirectoryFullyAccessible(final long timeOutMillis);
 
     public abstract boolean exists(StoreItem item);
 
     /**
      * Returns the last time when there was a write access to <var>item</var>.
-     *
+     * 
      * @param item The {@link StoreItem} to check.
      * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or
      *            directory is found that is as young as or younger than the time specified in this parameter.
@@ -183,7 +185,7 @@ public abstract class FileStore
     public abstract long lastChanged(StoreItem item, long stopWhenFindYounger);
 
     /**
-     * List files in the scanned store. Sort in order of "oldest first".  
+     * List files in the scanned store. Sort in order of "oldest first".
      */
     public abstract StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull);
 

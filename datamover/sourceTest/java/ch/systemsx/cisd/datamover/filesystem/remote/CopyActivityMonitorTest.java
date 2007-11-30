@@ -167,9 +167,9 @@ public class CopyActivityMonitorTest
                 }
 
                 @Override
-                public String tryCheckDirectoryFullyAccessible()
+                public String tryCheckDirectoryFullyAccessible(long timeOutMillis)
                 {
-                    return localImpl.tryCheckDirectoryFullyAccessible();
+                    return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
                 }
 
                 @Override
@@ -341,8 +341,7 @@ public class CopyActivityMonitorTest
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "got stuck, starting a new one");
         final PathLastChangedCheckerDelayed checker =
-                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS,
-                        (long) (INACTIVITY_PERIOD_MILLIS / 10 * 1.5));
+                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =

@@ -83,9 +83,9 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible()
+    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        return localImpl.tryCheckDirectoryFullyAccessible();
+        return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
     }
 
     @Override

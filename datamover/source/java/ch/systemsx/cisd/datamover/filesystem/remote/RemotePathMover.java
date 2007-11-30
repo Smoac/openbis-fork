@@ -39,6 +39,8 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 public final class RemotePathMover implements IStoreHandler
 {
 
+    private static final long TIMEOUT_DESTINATION_MILLIS = 3000L;
+
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";
 
     private static final String START_COPYING_PATH_RETRY_TEMPLATE = "Start copying path '%s' to '%s' [retry: %d].";
@@ -93,8 +95,8 @@ public final class RemotePathMover implements IStoreHandler
         assert destinationDirectory != null;
         assert monitor != null;
         assert timingParameters != null;
-        String errorMsg = destinationDirectory.tryCheckDirectoryFullyAccessible();
-        assert errorMsg == null : errorMsg;
+        String errorMsg;
+        assert (errorMsg = destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS)) == null : errorMsg;
         assert sourceDirectory.tryAsExtended() != null || destinationDirectory.tryAsExtended() != null;
 
         this.sourceDirectory = sourceDirectory;
@@ -136,6 +138,10 @@ public final class RemotePathMover implements IStoreHandler
                     operationLog.info(String
                             .format(START_COPYING_PATH_TEMPLATE, getSrcPath(item), destinationDirectory));
                 }
+            }
+            if (checkTargetAvailable() == false)
+            {
+                return;
             }
             final long startTime = System.currentTimeMillis();
             final Status copyStatus = copyAndMonitor(item);
@@ -189,6 +195,17 @@ public final class RemotePathMover implements IStoreHandler
     {
         remove(item);
         markAsFinished(item);
+    }
+
+    private boolean checkTargetAvailable()
+    {
+        final String msg = destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS);
+        if (msg != null)
+        {
+            machineLog.error(msg);
+            return false;
+        }
+        return true;
     }
 
     private void remove(StoreItem sourceItem)

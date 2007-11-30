@@ -69,7 +69,7 @@ public class FileStoreRemote extends FileStore
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible()
+    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode. E.g. check if directory exists
         return null;

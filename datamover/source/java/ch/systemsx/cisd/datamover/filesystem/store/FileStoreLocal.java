@@ -72,9 +72,15 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible()
+    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        return FileUtilities.checkDirectoryFullyAccessible(super.getPath(), super.getDescription());
+        final boolean available = FileUtilities.isAvailable(getPath(), timeOutMillis);
+        if (available == false)
+        {
+            return String.format("Path '%s' which is supposed to be a %s directory is not available.", getPath(),
+                    getDescription());
+        }
+        return FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
     }
 
     @Override
