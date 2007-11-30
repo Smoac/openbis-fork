@@ -29,6 +29,7 @@ import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is associated with
@@ -56,6 +57,11 @@ public final class ImageHCSFormattedData extends AbstractFormattedData implement
     public ImageHCSFormattedData(final FormattedDataContext context)
     {
         super(context);
+    }
+
+    private final boolean containsOriginalData()
+    {
+        return (Boolean) getFormatParameters().getValue(ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA);
     }
 
     private final Geometry getWellGeometry()
@@ -108,26 +114,85 @@ public final class ImageHCSFormattedData extends AbstractFormattedData implement
         return ROW + wellLocation.y + "_" + COLUMN + wellLocation.x + ".tiff";
     }
 
+    private final IDirectory getStandardDataDirectory()
+    {
+        return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
+    }
+
+    private final IDirectory getOriginalDataDirectory()
+    {
+        return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_ORIGINAL);
+    }
+
+    private final static String getPlateColumnDir(final Location plateLocation)
+    {
+        return COLUMN + plateLocation.x;
+    }
+
+    private final static String getPlateRowDirName(final Location plateLocation)
+    {
+        return ROW + plateLocation.y;
+    }
+
+    private final static String getChannelName(final int channel)
+    {
+        return Channel.CHANNEL + channel;
+    }
+
     //
     // IHCSFormattedData
     //
 
-    public final INode getNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
-            throws DataStructureException
+    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
     {
         checkChannel(channel);
         checkLocation(getPlateGeometry(), plateLocation);
         checkLocation(getWellGeometry(), wellLocation);
-        final IDirectory standardDir = Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
-        final IDirectory channelDir = Utilities.getSubDirectory(standardDir, Channel.CHANNEL + channel);
-        final IDirectory plateRowDir = Utilities.getSubDirectory(channelDir, ROW + plateLocation.y);
-        final IDirectory plateColumnDir = Utilities.getSubDirectory(plateRowDir, COLUMN + plateLocation.x);
-        final INode node = plateColumnDir.tryToGetNode(createWellFileName(wellLocation));
-        if (node == null)
+        final IDirectory standardDir = getStandardDataDirectory();
+        final IDirectory channelDir = Utilities.getSubDirectory(standardDir, getChannelName(channel));
+        final IDirectory plateRowDir = Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+        final IDirectory plateColumnDir = Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
+        return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
+    }
+
+    public final INode addStandardNode(final String originalFileName, int channel, final Location plateLocation,
+            final Location wellLocation)
+    {
+        // This will check all parameters but originalFileName.
+        INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
+        if (node != null)
         {
             throw new DataStructureException(String.format(
-                    "No node could be found at channel %d, plate location '%s' and well location '%s'.", channel,
+                    "A node already exists at channel %d, plate location '%s' and well location '%s'.", channel,
                     plateLocation, wellLocation));
+        }
+        assert originalFileName != null : "Given original file name can not be null.";
+        final IDirectory standardDir = getStandardDataDirectory();
+        final IDirectory channelDir = Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
+        final IDirectory plateRowDir = Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+        final IDirectory plateColumnDir =
+                Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
+        final String wellFileName = createWellFileName(wellLocation);
+        final INode originalNode = getOriginalDataDirectory().tryGetNode(originalFileName);
+        if (originalNode == null)
+        {
+            throw new DataStructureException(String.format("No original node with name '%s' could be found.",
+                    originalFileName));
+        }
+        if (containsOriginalData())
+        {
+            node = plateColumnDir.tryAddLink(wellFileName, originalNode);
+        } else
+        {
+            node = plateColumnDir.tryAddNode(wellFileName, originalNode);
+        }
+        if (node == null)
+        {
+            throw new StorageException(
+                    String
+                            .format(
+                                    "Original file name '%s' could not be added at channel %d, plate location '%s' and well location '%s'.",
+                                    originalFileName, channel, plateLocation, wellLocation));
         }
         return node;
     }

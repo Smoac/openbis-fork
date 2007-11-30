@@ -30,7 +30,7 @@ public interface IDirectory extends INode, Iterable<INode>
      * 
      * @return <code>null</code> if there is no child node named <code>name</code>.
      */
-    public INode tryToGetNode(final String name);
+    public INode tryGetNode(final String name);
 
     /**
      * Makes a new subdirectory in this directory. Does nothing if the subdirectory already exists.
@@ -38,7 +38,7 @@ public interface IDirectory extends INode, Iterable<INode>
      * @param name Name of the new subdirectory.
      * @return the new subdirectory.
      */
-    public IDirectory makeDirectory(String name);
+    public IDirectory makeDirectory(final String name);
 
     /**
      * Adds the specified real file to this directory. The content of <code>file</code> will be copied. If it is a
@@ -62,6 +62,16 @@ public interface IDirectory extends INode, Iterable<INode>
 
     /**
      * Adds the link named <code>name</code> to this directory which refers to the specified node.
+     * 
+     * @return <code>null</code> if the operation did not succeed.
      */
-    public ILink addLink(final String name, final INode node);
+    public ILink tryAddLink(final String name, final INode node);
+
+    /**
+     * Adds given <code>node</code> to this <code>IDirectory</code> and returns a new node with given
+     * <code>name</code> (rename operation).
+     * 
+     * @return <code>null</code> if the operation did not succeed.
+     */
+    public INode tryAddNode(final String name, final INode node);
 }

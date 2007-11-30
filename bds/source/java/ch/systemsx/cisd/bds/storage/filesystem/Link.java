@@ -19,6 +19,7 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 import java.io.File;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 final class Link implements ILink
 {
-
     private final String name;
 
     private final INode reference;
@@ -40,7 +40,7 @@ final class Link implements ILink
     {
         assert name != null : "A name must be specified.";
         assert reference != null : "Reference can not be null.";
-        assert reference instanceof ILink : "Link of link not supported.";
+        assert reference instanceof IFile && reference.isValid() : "Given reference must be a valid IFile implementation";
         this.name = name;
         this.reference = reference;
     }
@@ -88,7 +88,7 @@ final class Link implements ILink
         }
         if (parent != null)
         {
-            final INode node = parent.tryToGetNode(name);
+            final INode node = parent.tryGetNode(name);
             return node != null && node.isValid();
         }
         return true;

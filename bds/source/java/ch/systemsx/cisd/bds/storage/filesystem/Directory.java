@@ -27,7 +27,6 @@ import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -38,7 +37,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 final class Directory extends AbstractNode implements IDirectory
 {
 
-    Directory(java.io.File directory)
+    Directory(final java.io.File directory)
     {
         super(directory);
         if (directory.isDirectory() == false)
@@ -47,11 +46,17 @@ final class Directory extends AbstractNode implements IDirectory
         }
     }
 
+    private final static java.io.File getNodeFile(final INode node)
+    {
+        assert node instanceof AbstractNode : "Must be an instance of AbstractNode.";
+        return ((AbstractNode) node).nodeFile;
+    }
+
     //
     // IDirectory
     //
 
-    public final INode tryToGetNode(final String name)
+    public final INode tryGetNode(final String name)
     {
         assert name != null : "Given name can not be null.";
         final java.io.File[] files = FileUtilities.listFiles(nodeFile);
@@ -122,9 +127,19 @@ final class Directory extends AbstractNode implements IDirectory
         return NodeFactory.createNode(newFile);
     }
 
-    public final ILink addLink(final String name, final INode node)
+    public final ILink tryAddLink(final String name, final INode node)
     {
-        throw new NotImplementedException();
+        assert node != null : "Node can not be null.";
+        assert name != null : "Name can not be null.";
+        final java.io.File file = getNodeFile(node);
+        final java.io.File fileLink = LinkMakerProvider.getDefaultLinkMaker().tryCreateLink(file, nodeFile, name);
+        if (fileLink != null)
+        {
+            final Link link = NodeFactory.createLinkNode(fileLink);
+            link.setParent(this);
+            return link;
+        }
+        return null;
     }
 
     public final Iterator<INode> iterator()
@@ -170,11 +185,18 @@ final class Directory extends AbstractNode implements IDirectory
         }
     }
 
+    public final INode tryAddNode(final String name, final INode node)
+    {
+        assert node != null : "Node can not be null";
+        assert name != null : "Name can not be null.";
+        final java.io.File file = getNodeFile(node);
+        return addFile(file, true);
+    }
+
     public final void removeNode(final INode node)
     {
         assert node != null : "Node could not be null";
-        AbstractNode abstractNode = (AbstractNode) node;
-        final java.io.File file = abstractNode.nodeFile;
+        final java.io.File file = getNodeFile(node);
         if (file.isDirectory())
         {
             if (FileUtilities.deleteRecursively(file, null) == false)

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.bds.storage;
 
-import java.io.File;
-
 /**
  * Abstraction of a node in a hierarchical data structure.
  * 
@@ -46,11 +44,11 @@ public interface INode
      * All descendants are also extracted. This is a copy operation.
      * </p>
      */
-    public void extractTo(final File directory);
+    public void extractTo(final java.io.File directory);
 
     /**
      * Moves this node and all descendants to the specified directory of the file system. This node will be
      * automatically removed from its parent.
      */
-    public void moveTo(final File directory);
+    public void moveTo(final java.io.File directory);
 }

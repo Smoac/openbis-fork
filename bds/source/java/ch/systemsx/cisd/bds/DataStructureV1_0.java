@@ -277,27 +277,27 @@ public class DataStructureV1_0 extends AbstractDataStructure
             throw new DataStructureException("Empty original data directory.");
         }
         IDirectory metaDataDirectory = getMetaDataDirectory();
-        if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format == null)
+        if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format == null)
         {
             throw new DataStructureException("Unspecified format.");
         }
-        if (metaDataDirectory.tryToGetNode(ExperimentIdentifier.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentIdentifier.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified experiment identifier.");
         }
-        if (metaDataDirectory.tryToGetNode(ExperimentRegistratorDate.FILE_NAME) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentRegistratorDate.FILE_NAME) == null)
         {
             throw new DataStructureException("Unspecified experiment registration date.");
         }
-        if (metaDataDirectory.tryToGetNode(ExperimentRegistrator.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentRegistrator.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified experiment registrator.");
         }
-        if (metaDataDirectory.tryToGetNode(MeasurementEntity.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(MeasurementEntity.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified measurement entity.");
         }
-        if (metaDataDirectory.tryToGetNode(ProcessingType.PROCESSING_TYPE) == null)
+        if (metaDataDirectory.tryGetNode(ProcessingType.PROCESSING_TYPE) == null)
         {
             throw new DataStructureException("Unspecified processing type.");
         }
@@ -318,7 +318,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         super.performClosing();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         formatParameters.saveTo(getParametersDirectory());
-        if (metaDataDirectory.tryToGetNode(Format.FORMAT_DIR) == null && format != null)
+        if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
         }

@@ -35,9 +35,17 @@ public interface IHCSFormattedData extends IFormattedData
      * corresponding <code>INode</code> (found in <code>data/standard</code> directory).
      * 
      * @return this could be, for instance, a {@link ILink} pointing to the <code>data/original</code> directory or a
-     *         {@link IFile} that can be extracted somewhere. Never returns <code>null</code>.
-     * @throws DataStructureException if a problem occurs while trying to find out the node in the whole data structure.
+     *         {@link IFile} that can be extracted somewhere. Might return <code>null</code>.
      */
-    public INode getNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
-            throws DataStructureException;
+    public INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation);
+
+    /**
+     * Adds a new node at given coordinates and returns it.
+     * 
+     * @return the new <code>INode</code> just added. Never returns <code>null</code>.
+     * @param originalFileName name of the <code>original</code> directory file that is going to be added in the
+     *            <code>standard</code> directory.
+     */
+    public INode addStandardNode(final String originalFileName, final int channel, final Location plateLocation,
+            final Location wellLocation) throws DataStructureException;
 }

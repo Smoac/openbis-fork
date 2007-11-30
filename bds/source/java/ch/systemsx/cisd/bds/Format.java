@@ -40,13 +40,13 @@ public class Format implements IStorable
      */
     static Format loadFrom(IDirectory directory)
     {
-        INode dir = directory.tryToGetNode(FORMAT_DIR);
+        INode dir = directory.tryGetNode(FORMAT_DIR);
         if (dir instanceof IDirectory == false)
         {
             throw new DataStructureException("Not a directory: " + dir);
         }
         IDirectory formatDir = (IDirectory) dir;
-        INode file = formatDir.tryToGetNode(FORMAT_CODE_FILE);
+        INode file = formatDir.tryGetNode(FORMAT_CODE_FILE);
         if (file instanceof IFile == false)
         {
             throw new DataStructureException("Not a plain file: " + file);
@@ -55,7 +55,7 @@ public class Format implements IStorable
         String formatCode = codeFile.getStringContent().trim();
         Version formatVersion = Version.loadFrom(formatDir);
         String variant = null;
-        file = formatDir.tryToGetNode(FORMAT_VARIANT_FILE);
+        file = formatDir.tryGetNode(FORMAT_VARIANT_FILE);
         if (file != null)
         {
             if (file instanceof IFile == false)

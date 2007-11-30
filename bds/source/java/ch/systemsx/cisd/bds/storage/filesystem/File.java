@@ -34,15 +34,19 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Franz-Josef Elmer
  */
-class File extends AbstractNode implements IFile
+final class File extends AbstractNode implements IFile
 {
-    File(java.io.File file)
+    File(final java.io.File file)
     {
         super(file);
         assert file.isFile() : "Not a file " + file.getAbsolutePath();
     }
 
-    public byte[] getBinaryContent()
+    //
+    // IFile
+    //
+
+    public final byte[] getBinaryContent()
     {
         InputStream inputStream = getInputStream();
         try

@@ -126,7 +126,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         final IHCSFormattedData formattedData = (IHCSFormattedData) dataStructure.getFormattedData();
         try
         {
-            formattedData.getNodeAt(3, new Location(1, 1), new Location(1, 1));
+            formattedData.tryGetStandardNodeAt(3, new Location(1, 1), new Location(1, 1));
             fail("3 > 2");
         } catch (IndexOutOfBoundsException ex)
         {
@@ -134,7 +134,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         }
         try
         {
-            formattedData.getNodeAt(2, new Location(1, 1), new Location(1, 1));
+            formattedData.tryGetStandardNodeAt(2, new Location(1, 1), new Location(1, 1));
             fail("No directory named 'channel2' found.");
         } catch (DataStructureException ex)
         {
@@ -142,13 +142,13 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         }
         try
         {
-            formattedData.getNodeAt(1, new Location(1, 3), new Location(1, 1));
+            formattedData.tryGetStandardNodeAt(1, new Location(1, 3), new Location(1, 1));
             fail("Given geometry '2x3' does not contain location '[x=1,y=3]'.");
         } catch (IllegalArgumentException ex)
         {
             assertTrue(ex.getMessage().indexOf("does not contain location") > -1);
         }
-        final INode node = formattedData.getNodeAt(1, new Location(1, 1), new Location(1, 1));
+        final INode node = formattedData.tryGetStandardNodeAt(1, new Location(1, 1), new Location(1, 1));
         assertEquals("row1_column1.tiff", node.getName());
         dataStructure.close();
     }

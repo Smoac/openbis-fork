@@ -36,7 +36,7 @@ public class Utilities
      */
     public static IDirectory getOrCreateSubDirectory(IDirectory directory, String name)
     {
-        INode node = directory.tryToGetNode(name);
+        INode node = directory.tryGetNode(name);
         if (node == null)
         {
             return directory.makeDirectory(name);
@@ -58,7 +58,7 @@ public class Utilities
      */
     public final static IDirectory getSubDirectory(final IDirectory directory, final String name)
     {
-        INode node = directory.tryToGetNode(name);
+        INode node = directory.tryGetNode(name);
         if (node == null)
         {
             throw new DataStructureException(String.format("No directory named '%s' found in directory '%s'.", name,
@@ -111,7 +111,7 @@ public class Utilities
     {
         assert directory != null : String.format("Given directory can not be null.");
         assert name != null : String.format("Given name can not be null.");
-        final INode node = directory.tryToGetNode(name);
+        final INode node = directory.tryGetNode(name);
         if (node == null)
         {
             throw new DataStructureException("File '" + name + "' missing in '" + directory + "'.");

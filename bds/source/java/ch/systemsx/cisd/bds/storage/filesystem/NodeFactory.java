@@ -67,12 +67,12 @@ public final class NodeFactory
         }
     }
 
-    private static Link createLinkNode(final java.io.File file) throws EnvironmentFailureException
+    public final static Link createLinkNode(final java.io.File file) throws EnvironmentFailureException
     {
         final String absolutePath = file.getAbsolutePath();
         final String canonicalPath = getCanonicalPath(file);
-        assert absolutePath.equals(canonicalPath) == false : "Given file must be a link";
-        return new Link(file.getName(), createNode(new java.io.File(getCanonicalPath(file))));
+        assert absolutePath.equals(canonicalPath) == false : "Given file must be a link.";
+        return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
     }
 
     /**

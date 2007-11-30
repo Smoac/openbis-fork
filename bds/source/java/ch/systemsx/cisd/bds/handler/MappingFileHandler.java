@@ -44,9 +44,11 @@ public final class MappingFileHandler implements IDataStructureHandler
     private final IDirectory mappingDirectory;
 
     /** The root of {@link Reference#getPath()}. Usually the path to <code>standard</code> directory. */
+    @SuppressWarnings("unused")
     private final IDirectory pathRoot;
 
     /** The root of {@link Reference#getOriginalPath()}. Usually the path to <code>original</code> directory. */
+    @SuppressWarnings("unused")
     private final IDirectory originalPathRoot;
 
     /**
@@ -119,7 +121,8 @@ public final class MappingFileHandler implements IDataStructureHandler
             standardOriginalMapping.put(path, new Reference(path, referenceDefinition.substring(i2 + 1), type));
         }
     }
-
+    
+    // TODO 2007-11-30, Christian Ribeaud: list all nodes present in the standard directory. 
     private final String createMappingFile()
     {
         final StringWriter writer = new StringWriter();

@@ -43,6 +43,9 @@ public interface IFile extends INode
 
     /**
      * Returns the content of this file node as a list of <code>String</code> objects.
+     * <p>
+     * This is useful when you know that the file content is composed of several lines.
+     * </p>
      */
     public List<String> getStringContentList();
 
