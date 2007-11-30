@@ -69,9 +69,9 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private final void setFormatAndFormatParameters()
     {
-        dataStructure.setFormat(ImageHCSFormat1_0.IMAGE_HCS_1_0);
-        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.DEVICE_ID, "M1"));
-        dataStructure.addFormatParameter(new FormatParameter(ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
+        dataStructure.setFormat(HCSImageFormat1_0.HCS_IMAGE_1_0);
+        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormat1_0.DEVICE_ID, "M1"));
+        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
         dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS, createChannelList()));
         dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, new PlateGeometry(2, 3)));
         dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY, new WellGeometry(7, 5)));
@@ -94,7 +94,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     public void testGetFormatedData()
     {
         dataStructure.create();
-        final Format format = ImageHCSFormat1_0.IMAGE_HCS_1_0;
+        final Format format = HCSImageFormat1_0.HCS_IMAGE_1_0;
         try
         {
             dataStructure.getFormattedData();
@@ -117,9 +117,9 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         setFormatAndFormatParameters();
         final IDirectory standardData = dataStructure.getStandardData();
         final IDirectory channelDir = standardData.makeDirectory(Channel.CHANNEL + "1");
-        final IDirectory plateRowDir = channelDir.makeDirectory(ImageHCSFormattedData.ROW + "1");
-        final IDirectory plateColumnDir = plateRowDir.makeDirectory(ImageHCSFormattedData.COLUMN + "1");
-        final String wellFileName = ImageHCSFormattedData.createWellFileName(new Location(1, 1));
+        final IDirectory plateRowDir = channelDir.makeDirectory(HCSImageFormattedData.ROW + "1");
+        final IDirectory plateColumnDir = plateRowDir.makeDirectory(HCSImageFormattedData.COLUMN + "1");
+        final String wellFileName = HCSImageFormattedData.createWellFileName(new Location(1, 1));
         final File wellFile = new File(workingDirectory, wellFileName);
         FileUtils.writeStringToFile(wellFile, "This is an image...");
         plateColumnDir.addFile(wellFile, true);

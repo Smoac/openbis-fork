@@ -25,10 +25,10 @@ import ch.systemsx.cisd.bds.Version;
  * 
  * @author Christian Ribeaud
  */
-public final class ImageHCSFormat1_0 extends Format
+public final class HCSImageFormat1_0 extends Format
 {
 
-    private static final String FORMAT_CODE = "IMAGE_HCS";
+    private static final String FORMAT_CODE = "HCS_IMAGE";
 
     /** Key for setting the measurement device that was used to take the data of this data set. */
     public final static String DEVICE_ID = "device_id";
@@ -42,9 +42,9 @@ public final class ImageHCSFormat1_0 extends Format
     /**
      * The one and only one instance.
      */
-    public static final Format IMAGE_HCS_1_0 = new ImageHCSFormat1_0();
+    public static final Format HCS_IMAGE_1_0 = new HCSImageFormat1_0();
 
-    private ImageHCSFormat1_0()
+    private HCSImageFormat1_0()
     {
         super(FORMAT_CODE, new Version(1, 0), null);
     }

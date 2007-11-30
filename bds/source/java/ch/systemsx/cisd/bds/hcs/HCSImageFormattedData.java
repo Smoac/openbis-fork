@@ -33,11 +33,11 @@ import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is associated with
- * {@link ImageHCSFormat1_0}.
+ * {@link HCSImageFormat1_0}.
  * 
  * @author Christian Ribeaud
  */
-public final class ImageHCSFormattedData extends AbstractFormattedData implements IHCSFormattedData
+public final class HCSImageFormattedData extends AbstractFormattedData implements IHCSFormattedData
 {
 
     /** The <i>column</i> (or <i>x</i>) coordinate. */
@@ -49,19 +49,19 @@ public final class ImageHCSFormattedData extends AbstractFormattedData implement
     /**
      * The mandatory format parameters that must be defined so that this implementation is able to work properly.
      */
-    private final static String[] MANDATORY_FORMAT_PARAMETERS =
+    final static String[] MANDATORY_FORMAT_PARAMETERS =
             new String[]
                 { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, ChannelList.NUMBER_OF_CHANNELS,
-                        ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA, ImageHCSFormat1_0.DEVICE_ID };
+                        HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA, HCSImageFormat1_0.DEVICE_ID };
 
-    public ImageHCSFormattedData(final FormattedDataContext context)
+    public HCSImageFormattedData(final FormattedDataContext context)
     {
         super(context);
     }
 
     private final boolean containsOriginalData()
     {
-        return (Boolean) getFormatParameters().getValue(ImageHCSFormat1_0.CONTAINS_ORIGINAL_DATA);
+        return (Boolean) getFormatParameters().getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
     }
 
     private final Geometry getWellGeometry()
@@ -203,7 +203,7 @@ public final class ImageHCSFormattedData extends AbstractFormattedData implement
 
     public final Format getFormat()
     {
-        return ImageHCSFormat1_0.IMAGE_HCS_1_0;
+        return HCSImageFormat1_0.HCS_IMAGE_1_0;
     }
 
     @Override
