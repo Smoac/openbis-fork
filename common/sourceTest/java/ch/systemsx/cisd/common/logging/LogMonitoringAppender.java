@@ -132,7 +132,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     public void verifyLogHappendNTimes(int n)
     {
         assert logCount == n : String.format(
-                "Log snippet '%s' should have found %d times, but has been found %d times: %s", messagePart, n,
+                "Log snippet '%s' should have found %d times, but has been found %d times.", messagePart, n,
                 logCount);
     }
 
