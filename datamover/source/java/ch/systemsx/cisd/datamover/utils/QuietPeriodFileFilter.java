@@ -29,6 +29,9 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public class QuietPeriodFileFilter
 {
+
+    private static final long SAFETY_MARGIN_MILLIS = 2000L;
+
     private final long quietPeriodMillis;
 
     private final FileStore store;
@@ -37,10 +40,13 @@ public class QuietPeriodFileFilter
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param store The store in which items reside
-     * @param timingParameters The timing paramter object to get the quiet period from.
+     * @param timingParameters The timing parameter object to get the quiet period from.
      */
     public QuietPeriodFileFilter(FileStore store, ITimingParameters timingParameters)
     {
+    	assert store != null;
+    	assert timingParameters != null;
+    
         this.store = store;
         this.quietPeriodMillis = timingParameters.getQuietPeriodMillis();
         assert quietPeriodMillis > 0;
@@ -48,7 +54,9 @@ public class QuietPeriodFileFilter
 
     public boolean accept(StoreItem item)
     {
-        return (System.currentTimeMillis() - store.lastChanged(item)) > quietPeriodMillis;
+        final long now = System.currentTimeMillis();
+        final long stopWhenFindYounger = now - (quietPeriodMillis - SAFETY_MARGIN_MILLIS); 
+        return (System.currentTimeMillis() - store.lastChanged(item, stopWhenFindYounger)) > quietPeriodMillis;
     }
 
 }

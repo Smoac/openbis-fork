@@ -49,6 +49,8 @@ public class CopyActivityMonitor
 
     private final long checkIntervallMillis;
 
+    private final long inactivityPeriodMillis;
+
     private final String threadNamePrefix;
 
     /**
@@ -110,6 +112,7 @@ public class CopyActivityMonitor
 
         this.destinationDirectory = destinationDirectory;
         this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
+        this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
 
         assert this.checkIntervallMillis > 0;
 
@@ -126,8 +129,8 @@ public class CopyActivityMonitor
         startNewActivityMonitor();
 
         this.inactivityReportingTimer = new Timer(threadNamePrefix + "Inactivity Reporter", true);
-        this.inactivityReportingTimer.schedule(new InactivityReportingTimerTask(copyProcess, timingParameters
-                .getInactivityPeriodMillis()), 0, timingParameters.getCheckIntervalMillis());
+        this.inactivityReportingTimer.schedule(new InactivityReportingTimerTask(copyProcess), 0, timingParameters
+                .getCheckIntervalMillis());
     }
 
     /**
@@ -179,6 +182,8 @@ public class CopyActivityMonitor
     private final class ActivityMonitoringTimerTask extends TimerTask implements ITerminable
     {
 
+        private final static long SAFETY_MARGIN_MILLIS = 20000L;
+
         private AtomicBoolean terminated = new AtomicBoolean(false);
         private AtomicReference<Thread> timerThread = new AtomicReference<Thread>(null);
 
@@ -220,11 +225,11 @@ public class CopyActivityMonitor
                     monitoredPathLastChecked.set(System.currentTimeMillis());
                     return;
                 }
-                final long lastChangedAsFoundByPathChecker = destinationDirectory.lastChanged(item);
+                final long lastChangedAsFoundByPathChecker = lastChanged(destinationDirectory, item);
                 if (operationLog.isTraceEnabled())
                 {
                     operationLog.trace(String.format(
-                            "Reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.", item,
+                            "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.", item,
                             destinationDirectory, lastChangedAsFoundByPathChecker));
                 }
                 if (terminated.get()) // Don't modify the time variables any more if we got terminated.
@@ -234,12 +239,12 @@ public class CopyActivityMonitor
                 }
                 final long lastChecked = monitoredPathLastChecked.get();
                 final long lastLastChanged = monitoredPathLastChanged.get();
-                final long now = System.currentTimeMillis();
                 // This catches the case where since the last check copying a files has been finished (and consequently
                 // the
                 // "last changed" time has been set to that of the source file), but copying of the next file has not
                 // yet been
                 // started.
+                final long now = System.currentTimeMillis();
                 final long lastChanged =
                         Math.max(lastChangedAsFoundByPathChecker, lastLastChanged + (now - lastChecked) - 1);
                 if (lastChanged > now) // That can happen if the system clock of the data producer is screwed up.
@@ -268,6 +273,22 @@ public class CopyActivityMonitor
             }
         }
 
+        private long lastChanged(FileStore store, StoreItem item)
+        {
+            final long now = System.currentTimeMillis();
+            final long stopWhenYoungerThan = now - (inactivityPeriodMillis - SAFETY_MARGIN_MILLIS);
+            final long lastChangedAsFoundByPathChecker =
+                    store.lastChanged(item, stopWhenYoungerThan);
+            // Check if it took too long to find the value.
+            if (System.currentTimeMillis() - now > SAFETY_MARGIN_MILLIS / 2)
+            {
+                return store.lastChanged(item, 0L);
+            } else
+            {
+                return lastChangedAsFoundByPathChecker;
+            }
+        }
+        
         /**
          * @return Always <code>true</code>.
          */
@@ -299,11 +320,9 @@ public class CopyActivityMonitor
         private static final String INACTIVITY_REPORT_TEMPLATE =
                 "No progress on copying '%s' to '%s' for %f seconds - network connection might be stalled.";
 
-        private final long inactivityPeriodMillis;
-
         private final ITerminable terminable;
 
-        public InactivityReportingTimerTask(ITerminable terminable, long inactivityPeriodMillis)
+        public InactivityReportingTimerTask(ITerminable terminable)
         {
             assert terminable != null;
             assert inactivityPeriodMillis > 0;
@@ -311,7 +330,6 @@ public class CopyActivityMonitor
             assert destinationDirectory != null;
 
             this.terminable = terminable;
-            this.inactivityPeriodMillis = inactivityPeriodMillis;
         }
 
         @Override

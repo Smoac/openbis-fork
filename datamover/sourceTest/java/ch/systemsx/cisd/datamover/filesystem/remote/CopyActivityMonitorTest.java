@@ -90,12 +90,12 @@ public class CopyActivityMonitorTest
 
     private static interface LastChangedChecker
     {
-        public long lastChanged(StoreItem item);
+        public long lastChanged(StoreItem item, long stopWhenFindYounger);
     }
 
     private final class HappyPathLastChangedChecker implements LastChangedChecker
     {
-        public long lastChanged(StoreItem item)
+        public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS / 2;
         }
@@ -161,9 +161,9 @@ public class CopyActivityMonitorTest
                 }
 
                 @Override
-                public long lastChanged(StoreItem item)
+                public long lastChanged(StoreItem item, long stopWhenFindYounger)
                 {
-                    return checker.lastChanged(item);
+                    return checker.lastChanged(item, stopWhenFindYounger);
                 }
 
                 @Override
@@ -265,7 +265,7 @@ public class CopyActivityMonitorTest
     {
         private int numberOfTimesCalled = 0;
 
-        public long lastChanged(StoreItem item)
+        public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
             ++numberOfTimesCalled;
             if (numberOfTimesCalled == 2)
@@ -307,7 +307,7 @@ public class CopyActivityMonitorTest
 
     private final class PathLastChangedCheckerStalled implements LastChangedChecker
     {
-        public long lastChanged(StoreItem item)
+        public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
         }
@@ -399,7 +399,7 @@ public class CopyActivityMonitorTest
             }
         }
 
-        public long lastChanged(StoreItem item)
+        public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
             try
             {

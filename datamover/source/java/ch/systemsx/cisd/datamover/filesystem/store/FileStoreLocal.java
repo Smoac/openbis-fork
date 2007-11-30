@@ -66,9 +66,9 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public long lastChanged(StoreItem item)
+    public long lastChanged(StoreItem item, long stopWhenFindYounger)
     {
-        return FileUtilities.lastChanged(getChildFile(item));
+        return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
     }
 
     @Override
