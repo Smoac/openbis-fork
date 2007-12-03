@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.exception;
 
-import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * Exception thrown by manipulations of BDS data structures which can not be classified as {@link StorageException}.

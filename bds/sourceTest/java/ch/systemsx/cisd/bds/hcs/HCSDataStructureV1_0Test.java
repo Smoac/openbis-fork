@@ -28,7 +28,6 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.DataStructureV1_0Test;
@@ -36,6 +35,7 @@ import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 

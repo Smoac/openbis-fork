@@ -18,9 +18,9 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.bds.storage.StorageException;
 
 /**
  * Implementation of {@link IStorage} based on the file system.

@@ -26,10 +26,10 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.bds.Constants;
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.IDataStructureHandler;
 import ch.systemsx.cisd.bds.Utilities;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;

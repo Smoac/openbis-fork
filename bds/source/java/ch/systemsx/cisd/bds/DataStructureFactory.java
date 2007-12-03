@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 

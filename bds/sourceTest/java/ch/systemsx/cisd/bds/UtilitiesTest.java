@@ -23,6 +23,7 @@ import java.io.File;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;

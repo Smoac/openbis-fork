@@ -24,7 +24,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
-import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;

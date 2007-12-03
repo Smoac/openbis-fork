@@ -22,12 +22,12 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.bds.Constants;
-import ch.systemsx.cisd.bds.DataStructureException;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
+import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 

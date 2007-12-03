@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
 import ch.systemsx.cisd.bds.handler.MappingFileHandler;
 import ch.systemsx.cisd.bds.storage.IDirectory;
@@ -117,7 +118,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Couldn't create formated data because of unspecified format.");
         }
-        return FormatedDataFactory.createFormatedData(getDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0,
+        return FormattedDataFactory.createFormatedData(getDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0,
                 formatParameters);
     }
 

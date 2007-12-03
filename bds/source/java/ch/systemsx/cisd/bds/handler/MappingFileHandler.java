@@ -22,11 +22,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.IDataStructureHandler;
 import ch.systemsx.cisd.bds.Reference;
 import ch.systemsx.cisd.bds.ReferenceType;
 import ch.systemsx.cisd.bds.Utilities;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.common.utilities.IToStringConverter;

@@ -35,7 +35,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.DataStructureV1_0;
-import ch.systemsx.cisd.bds.FormatedDataFactory;
+import ch.systemsx.cisd.bds.FormattedDataFactory;
 import ch.systemsx.cisd.bds.IFormatParameters;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -83,7 +83,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         formattedData =
-                (HCSImageFormattedData) FormatedDataFactory.createFormatedData(directory,
+                (HCSImageFormattedData) FormattedDataFactory.createFormatedData(directory,
                         HCSImageFormat1_0.HCS_IMAGE_1_0, null, formatParameters);
     }
 

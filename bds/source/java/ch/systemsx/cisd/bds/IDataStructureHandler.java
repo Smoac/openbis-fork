@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
+
 /**
  * The aim of this interface is to delegate the work that should be done in {@link AbstractDataStructure} to smaller
  * parties.

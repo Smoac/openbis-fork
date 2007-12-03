@@ -30,11 +30,12 @@ import java.util.Set;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
+import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
 import ch.systemsx.cisd.bds.handler.MappingFileHandler;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
-import ch.systemsx.cisd.bds.storage.StorageException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 

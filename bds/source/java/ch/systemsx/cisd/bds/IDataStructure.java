@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
+
 
 /**
  * Common interface of all data structures. Implementations of this interface provide methods to manipulate a data

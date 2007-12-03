@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;

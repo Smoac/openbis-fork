@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;

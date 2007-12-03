@@ -21,9 +21,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IStorable;
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 

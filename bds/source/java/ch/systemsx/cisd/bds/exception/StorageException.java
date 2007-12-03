@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.storage;
+package ch.systemsx.cisd.bds.exception;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 

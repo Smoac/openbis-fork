@@ -21,7 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.storage.StorageException;
+import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds.storage;
 
+import ch.systemsx.cisd.bds.exception.StorageException;
+
 
 /**
  * Abstraction of a hierarchical storage.

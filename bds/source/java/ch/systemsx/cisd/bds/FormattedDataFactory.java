@@ -19,6 +19,7 @@ package ch.systemsx.cisd.bds;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.hcs.HCSImageFormat1_0;
 import ch.systemsx.cisd.bds.hcs.HCSImageFormattedData;
 import ch.systemsx.cisd.bds.storage.IDirectory;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  * 
  * @author Franz-Josef Elmer
  */
-public final class FormatedDataFactory
+public final class FormattedDataFactory
 {
     private static final Map<String, Factory<IFormattedData>> factories =
             new HashMap<String, Factory<IFormattedData>>();
@@ -39,7 +40,7 @@ public final class FormatedDataFactory
         register(HCSImageFormat1_0.HCS_IMAGE_1_0, HCSImageFormattedData.class);
     }
 
-    private FormatedDataFactory()
+    private FormattedDataFactory()
     {
         // This class cannot be instantiated.
     }

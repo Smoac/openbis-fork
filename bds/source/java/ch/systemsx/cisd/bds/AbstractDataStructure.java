@@ -19,6 +19,7 @@ package ch.systemsx.cisd.bds;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
 
