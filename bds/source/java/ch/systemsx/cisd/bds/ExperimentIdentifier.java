@@ -75,6 +75,7 @@ public class ExperimentIdentifier implements IStorable
     /**
      * Returns the group code;
      */
+    // TODO 2007-12-03 Tomasz Pylak review: should not we use the term organization as everywhere else instead of group?
     public final String getGroupCode()
     {
         return groupCode;

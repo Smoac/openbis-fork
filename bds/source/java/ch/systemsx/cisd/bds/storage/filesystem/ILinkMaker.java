@@ -42,6 +42,7 @@ public interface ILinkMaker
             public final File tryCreateLink(final File file, final File destDir, final String nameOrNull)
                     throws EnvironmentFailureException
             {
+                // TODO 2007-12-03 Tomasz Pylak review: should not we just make a copy here? 
                 return null;
             }
         };
