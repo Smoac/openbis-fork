@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Some convenience methods/utilities around {@link Collection}.
  * 
@@ -43,7 +41,7 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(Object[] objects, int maxLength)
+    public final static String abbreviate(final Object[] objects, final int maxLength)
     {
         return abbreviate(objects, maxLength, true);
     }
@@ -57,7 +55,7 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(Collection<?> collection, int maxLength)
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength)
     {
         return abbreviate(collection, maxLength, true);
     }
@@ -71,7 +69,7 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(Object[] objects, int maxLength, boolean showLeft)
+    public final static String abbreviate(final Object[] objects, final int maxLength, final boolean showLeft)
     {
         return abbreviate(objects, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
@@ -85,7 +83,7 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(Collection<?> collection, int maxLength, boolean showLeft)
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength, final boolean showLeft)
     {
         return abbreviate(collection, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
@@ -104,7 +102,8 @@ public final class CollectionUtils
      *            relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
-    public final static String abbreviate(Object[] objects, int maxLength, boolean showLeft, CollectionStyle style)
+    public final static String abbreviate(final Object[] objects, final int maxLength, final boolean showLeft,
+            final CollectionStyle style)
     {
         return abbreviate(Arrays.asList(objects), maxLength, showLeft, style);
     }
@@ -118,8 +117,8 @@ public final class CollectionUtils
      *            relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
-    public final static String abbreviate(Collection<?> collection, int maxLength, boolean showLeft,
-            CollectionStyle style)
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength, final boolean showLeft,
+            final CollectionStyle style)
     {
         assert collection != null;
         StringBuilder builder = new StringBuilder(style.getCollectionStart());
@@ -145,21 +144,4 @@ public final class CollectionUtils
         builder.append(style.getCollectionEnd());
         return builder.toString();
     }
-
-    /**
-     * Gets each item composing given <var>iterable</var> and checks whether it is not empty using {@link StringUtils}.
-     */
-    public final static boolean isEmpty(final Iterable<String> iterable)
-    {
-        assert iterable != null : "Given iterable can not be null";
-        for (final String element : iterable)
-        {
-            if (StringUtils.isNotEmpty(element))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }
