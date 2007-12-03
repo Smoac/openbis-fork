@@ -42,6 +42,14 @@ public interface ISqlScriptProvider
     public Script getDataScript(String version);
     
     /**
+     * Returns the script to be executed to finish up database creation.
+     * 
+     * @param version Version of the database.
+     * @return <code>null</code> if there isn't such a script.
+     */
+    public Script getFinishScript(String version);
+    
+    /**
      * Returns the migration script for migrating a database.
      * 
      * @param fromVersion The version of the current database.

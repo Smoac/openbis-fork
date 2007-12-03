@@ -66,7 +66,7 @@ public class SqlScriptExecutorTest
         write(new File(TEMP_INTERNAL_SCRIPT_FOLDER, "hello.script"), "hello world!");
         File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
         massUploaadVersionFolder.mkdirs();
-        write(new File(massUploaadVersionFolder, "1=test.csv"), "id,code\n1,bla");
+        write(new File(massUploaadVersionFolder, "1=test.tsv"), "1\tbla");
         sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, 
                                                   TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
                                                   TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME,
@@ -137,7 +137,7 @@ public class SqlScriptExecutorTest
     {
         final File[] massUploadFiles = sqlScriptProvider.getMassUploadFiles(VERSION);
         assertEquals(1, massUploadFiles.length);
-        assertEquals("1=test.csv", massUploadFiles[0].getName());
+        assertEquals("1=test.tsv", massUploadFiles[0].getName());
         assertTrue(massUploadFiles[0].exists());
     }
     

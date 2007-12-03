@@ -139,13 +139,28 @@ public class DBMigrationEngine
     private void setupDatabase(String version)
     {
         adminDAO.createOwner();
-        createEmptyDatabase(version);
-        fillWithInitialData(version);
+        Script finishScript = scriptProvider.getFinishScript(version);
+        if (finishScript == null)
+        {
+            createEmptyDatabase(version);
+            fillWithInitialData(version, true);
+        } else
+        {
+            createDatabaseFromDump(version, finishScript);
+        }
         if (operationLog.isInfoEnabled())
         {
             String databaseName = adminDAO.getDatabaseName();
             operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
         }
+    }
+    
+    private void createDatabaseFromDump(String version, Script finishScript)
+    {
+        adminDAO.createDatabase();
+        executeSchemaScript(version, false);
+        fillWithInitialData(version, false);
+        executeScript(finishScript, version, false);
     }
 
     private void createEmptyDatabase(String version)
@@ -168,6 +183,11 @@ public class DBMigrationEngine
             throw e;
         }
         
+        executeSchemaScript(version, true);
+    }
+
+    private void executeSchemaScript(String version, boolean logEnabled)
+    {
         Script script = scriptProvider.getSchemaScript(version);
         if (script == null)
         {
@@ -175,15 +195,15 @@ public class DBMigrationEngine
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
-        executeScript(script, version);
+        executeScript(script, version, logEnabled);
     }
 
-    private void fillWithInitialData(String version)
+    private void fillWithInitialData(String version, boolean logEnabled)
     {
         Script initialDataScript = scriptProvider.getDataScript(version);
         if (initialDataScript != null)
         {
-            executeScript(initialDataScript, version);
+            executeScript(initialDataScript, version, logEnabled);
         }
         File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
         for (File f : massUploadFiles)
@@ -234,17 +254,31 @@ public class DBMigrationEngine
 
     private void executeScript(Script script, String version)
     {
+        executeScript(script, version, true);
+    }
+    
+    private void executeScript(Script script, String version, boolean logEnabled)
+    {
         final String name = script.getName();
         final String code = script.getCode();
-        logDAO.logStart(version, name, code);
+        if (logEnabled)
+        {
+            logDAO.logStart(version, name, code);
+        }
         try
         {
             scriptExecutor.execute(code);
-            logDAO.logSuccess(version, name);
+            if (logEnabled)
+            {
+                logDAO.logSuccess(version, name);
+            }
         } catch (Throwable t)
         {
             operationLog.error("Executing script '" + name + "' failed.", t);
-            logDAO.logFailure(version, name, t);
+            if (logEnabled)
+            {
+                logDAO.logFailure(version, name, t);
+            }
             if (t instanceof RuntimeException)
             {
                 RuntimeException re = (RuntimeException) t;

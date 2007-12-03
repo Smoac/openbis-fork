@@ -148,6 +148,7 @@ public class DBMigrationEngineTest
                     one(massUploader).performMassUpload(massUploadFile);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
@@ -232,6 +233,7 @@ public class DBMigrationEngineTest
                     will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -274,6 +276,7 @@ public class DBMigrationEngineTest
                     will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -310,6 +313,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
                     one(scriptProvider).getSchemaScript(version);
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -353,6 +357,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).createOwner();
                     one(adminDAO).createDatabase();
                     one(scriptProvider).getScript(DBMigrationEngine.CREATE_LOG_SQL);
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -398,6 +403,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
                     will(throwException(exception));
+                    one(scriptProvider).getFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);

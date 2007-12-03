@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.dbmigration.postgresql;
 
+import static ch.systemsx.cisd.dbmigration.MassUploadFileType.CSV;
+import static ch.systemsx.cisd.dbmigration.MassUploadFileType.TSV;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -46,12 +49,12 @@ import ch.systemsx.cisd.dbmigration.IMassUploader;
  */
 public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMassUploader
 {
-    private static final String FILE_TYPE = ".csv";
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLMassUploader.class);
 
     private final DataSource dataSource;
+
+    private CopyManager copyManager;
 
     private final ISequencerHandler sequencerHandler;
 
@@ -65,18 +68,28 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         setDataSource(dataSource);
     }
 
+    private CopyManager getCopyManager() throws SQLException, NoSuchFieldException, IllegalAccessException
+    {
+        if (copyManager == null)
+        {
+            copyManager = getPGConnection().getCopyAPI();
+        }
+        return copyManager;
+    }
+
     public void performMassUpload(File massUploadFile)
     {
         try
         {
-            final CopyManager copyManager = getPGConnection().getCopyAPI();
             final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
             assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
             final String tableNameWithExtension = splitName[1];
-            assert tableNameWithExtension.endsWith(FILE_TYPE) : "Not of expected file type " + FILE_TYPE + ": "
-                    + massUploadFile.getName();
+            boolean csvFileType = CSV.isOfType(tableNameWithExtension);
+            boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
+            assert tsvFileType || csvFileType : "Non of expected file types [" + TSV.getFileType() + ", "
+                    + CSV.getFileType() + "]: " + massUploadFile.getName();
             final String tableName =
-                    tableNameWithExtension.substring(0, tableNameWithExtension.length() - FILE_TYPE.length());
+                    tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Perform mass upload of file '" + massUploadFile + "' to table '" + tableName + "'.");
@@ -84,12 +97,18 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             final InputStream is = new FileInputStream(massUploadFile);
             try
             {
-                copyManager.copyInQuery("COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
+                if (tsvFileType)
+                {
+                    getCopyManager().copyIn(tableName, is);
+                } else
+                {
+                    getCopyManager().copyInQuery("COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
+                    fixSequence(tableName);
+                }
             } finally
             {
                 IOUtils.closeQuietly(is);
             }
-            fixSequence(tableName);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -114,6 +133,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             }
         }
     }
+
 
     private PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException
     {

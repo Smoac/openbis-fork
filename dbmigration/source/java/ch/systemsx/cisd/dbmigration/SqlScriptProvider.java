@@ -80,6 +80,18 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * Returns the data script for the specified version. The name of the script is expected to be
      * 
      * <pre>
+     * &lt;data script folder&gt;/&lt;version&gt;/finish-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script getFinishScript(String version)
+    {
+        return loadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE);
+    }
+
+    /**
+     * Returns the data script for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
      * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
      * </pre>
      */
@@ -87,7 +99,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
     {
         return loadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
     }
-
+    
     /**
      * Returns the migration script for the specified versions. The name of the script is expected to be
      * 
@@ -160,7 +172,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
             {
                 public boolean accept(File dir, String name)
                 {
-                    return name.endsWith(".csv");
+                    return MassUploadFileType.CSV.isOfType(name) || MassUploadFileType.TSV.isOfType(name);
                 }
             });
         if (csvFiles == null)
