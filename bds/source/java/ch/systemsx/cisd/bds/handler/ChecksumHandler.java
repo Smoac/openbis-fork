@@ -189,8 +189,8 @@ public final class ChecksumHandler implements IDataStructureHandler
         public final int hashCode()
         {
             int hashCode = 17;
-            hashCode *= 37 + path.hashCode();
-            hashCode *= 37 + checksum.hashCode();
+            hashCode = hashCode * 37 + path.hashCode();
+            hashCode = hashCode * 37 + checksum.hashCode();
             return hashCode;
         }
 
