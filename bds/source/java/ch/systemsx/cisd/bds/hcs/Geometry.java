@@ -138,8 +138,10 @@ public class Geometry implements IStorable
     @Override
     public final int hashCode()
     {
-
-        return 17 * 37 + getRows() + getColumns();
+        int hashCode = 17;
+        hashCode = hashCode * 37 + getRows();
+        hashCode = hashCode * 37 + getColumns();
+        return hashCode;
     }
 
     @Override

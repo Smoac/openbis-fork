@@ -65,8 +65,10 @@ public final class Location
     @Override
     public final int hashCode()
     {
-
-        return 17 * 37 + x + y;
+        int hashCode = 17;
+        hashCode = hashCode * 37 + x;
+        hashCode = hashCode * 37 + y;
+        return hashCode;
     }
 
     @Override
