@@ -18,7 +18,7 @@ package ch.systemsx.cisd.bds;
 
 
 /**
- * Interface common for all classes handling formated data.
+ * Interface common for all classes handling formatted data.
  *
  * @author Franz-Josef Elmer
  */

@@ -78,17 +78,17 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetFormatedData()
+    public void testGetFormattedData()
     {
         dataStructure.create();
         dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
-        IFormattedData formatedData = dataStructure.getFormattedData();
-        assertTrue(formatedData instanceof NoFormattedData);
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formatedData.getFormat());
+        IFormattedData formattedData = dataStructure.getFormattedData();
+        assertTrue(formattedData instanceof NoFormattedData);
+        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formattedData.getFormat());
     }
 
     @Test
-    public void testGetFormatedDataBeforeInvokingSetVersion()
+    public void testGetFormattedDataBeforeInvokingSetVersion()
     {
         dataStructure.create();
         try
@@ -97,7 +97,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
-            assertEquals("Couldn't create formated data because of unspecified format.", e.getMessage());
+            assertEquals("Couldn't create formatted data because of unspecified format.", e.getMessage());
         }
     }
 

@@ -106,7 +106,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     }
 
     /**
-     * Returns the formated data. This method can be called only after method {@link #setFormat(Format)} has been
+     * Returns the formatted data. This method can be called only after method {@link #setFormat(Format)} has been
      * invoked. If the format is not known {@link UnknownFormat1_0} will be assumed.
      * 
      * @throws DataStructureException if this method has been invoked before the format has been set.
@@ -116,9 +116,9 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         if (format == null)
         {
-            throw new DataStructureException("Couldn't create formated data because of unspecified format.");
+            throw new DataStructureException("Couldn't create formatted data because of unspecified format.");
         }
-        return FormattedDataFactory.createFormatedData(getDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0,
+        return FormattedDataFactory.createFormattedData(getDataDirectory(), format, UnknownFormat1_0.UNKNOWN_1_0,
                 formatParameters);
     }
 

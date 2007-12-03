@@ -87,7 +87,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetFormatedData()
+    public void testGetFormattedData()
     {
         dataStructure.create();
         final Format format = HCSImageFormat1_0.HCS_IMAGE_1_0;
@@ -105,7 +105,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         assertEquals(format, formattedData.getFormat());
     }
 
-    @Test(dependsOnMethods="testGetFormatedData")
+    @Test(dependsOnMethods="testGetFormattedData")
     public final void testHCSImageDataStructure()
     {
         // Creating...

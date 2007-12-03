@@ -83,7 +83,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         formattedData =
-                (HCSImageFormattedData) FormattedDataFactory.createFormatedData(directory,
+                (HCSImageFormattedData) FormattedDataFactory.createFormattedData(directory,
                         HCSImageFormat1_0.HCS_IMAGE_1_0, null, formatParameters);
     }
 

@@ -58,7 +58,7 @@ public final class FormattedDataFactory
     }
 
     /** Uses this public method to create a new instance of <code>IFormattedData</code>. */
-    public final static IFormattedData createFormatedData(final IDirectory dataDirectory, final Format format,
+    public final static IFormattedData createFormattedData(final IDirectory dataDirectory, final Format format,
             final Format defaultFormatOrNull, final IFormatParameters formatParameters)
     {
         final Format supportedFormat = getSupportedFormat(format, defaultFormatOrNull);
