@@ -25,9 +25,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.bds.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IFile;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
@@ -76,24 +74,12 @@ final class File extends AbstractNode implements IFile
 
     public final String getStringContent()
     {
-        try
-        {
-            return FileUtilities.loadToString(nodeFile);
-        } catch (CheckedExceptionTunnel ex)
-        {
-            throw new DataStructureException(ex.getMessage());
-        }
+        return FileUtilities.loadToString(nodeFile);
     }
 
     public final List<String> getStringContentList()
     {
-        try
-        {
-            return FileUtilities.loadToStringList(nodeFile);
-        } catch (CheckedExceptionTunnel ex)
-        {
-            throw new DataStructureException(ex.getMessage());
-        }
+        return FileUtilities.loadToStringList(nodeFile);
     }
 
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
