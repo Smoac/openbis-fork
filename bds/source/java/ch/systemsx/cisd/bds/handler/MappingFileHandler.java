@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds.handler;
 
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,8 @@ import ch.systemsx.cisd.bds.Reference;
 import ch.systemsx.cisd.bds.ReferenceType;
 import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.common.utilities.CollectionIO;
+import ch.systemsx.cisd.common.utilities.IToStringConverter;
 
 /**
  * A <code>IDataStructureHandler</code> implementation for the <code>standard_original_mapping</code> file.
@@ -122,17 +125,9 @@ public final class MappingFileHandler implements IDataStructureHandler
 
     private final String createMappingFile()
     {
-        final StringBuilder builder = new StringBuilder();
-        for (final Reference reference : references)
-        {
-            final String path = reference.getPath();
-            final String shortName = reference.getReferenceType().getShortName();
-            final String originalPath = reference.getOriginalPath();
-            builder.append(path).append("\t");
-            builder.append(shortName).append("\t");
-            builder.append(originalPath).append("\n");
-        }
-        return builder.toString();
+        final StringWriter writer = new StringWriter();
+        CollectionIO.writeIterable(writer, references, new ReferenceToStringConverter());
+        return writer.toString();
     }
 
     //
@@ -171,4 +166,28 @@ public final class MappingFileHandler implements IDataStructureHandler
         loadStandardOriginalMapping();
     }
 
+    //
+    // Helper classes
+    //
+
+    private final static class ReferenceToStringConverter implements IToStringConverter<Reference>
+    {
+
+        private static final String ITEM_SEPARATOR = "\t";
+
+        private final StringBuilder builder = new StringBuilder();
+
+        //
+        // IToStringConverter
+        //
+
+        public final String toString(final Reference reference)
+        {
+            builder.setLength(0);
+            builder.append(reference.getPath()).append(ITEM_SEPARATOR);
+            builder.append(reference.getReferenceType().getShortName()).append(ITEM_SEPARATOR);
+            builder.append(reference.getOriginalPath());
+            return builder.toString();
+        }
+    }
 }

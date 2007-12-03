@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.bds.Constants;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
@@ -53,28 +53,6 @@ final class Directory extends AbstractNode implements IDirectory
         return ((AbstractNode) node).nodeFile;
     }
 
-    private final java.io.File findFile(final String name)
-    {
-        final java.io.File[] files = FileUtilities.listFiles(nodeFile);
-        for (final java.io.File file : files)
-        {
-            if (file.getName().equals(name))
-            {
-                return file;
-            }
-        }
-        return null;
-    }
-
-    private final static String cleanName(final String name)
-    {
-        final int index = name.indexOf(Constants.PATH_SEPARATOR);
-        if (index == 0)
-        {
-            return name.substring(1);
-        }
-        return name;
-    }
 
     //
     // IDirectory
@@ -83,24 +61,7 @@ final class Directory extends AbstractNode implements IDirectory
     public final INode tryGetNode(final String name)
     {
         assert name != null : "Given name can not be null.";
-        final String path = cleanName(name);
-        final int index = path.indexOf(Constants.PATH_SEPARATOR);
-        if (index > -1)
-        {
-            final java.io.File dir = findFile(path.substring(0, index));
-            if (dir != null)
-            {
-                return NodeFactory.createDirectoryNode(dir).tryGetNode(path.substring(index + 1));
-            }
-        } else
-        {
-            final java.io.File file = findFile(path);
-            if (file != null)
-            {
-                return NodeFactory.createNode(file);
-            }
-        }
-        return null;
+        return Utilities.tryGetNodeRecursively(this, name);
     }
 
     public final IDirectory makeDirectory(final String name)

@@ -88,7 +88,7 @@ public class Utilities
      */
     public static String getString(final IDirectory directory, final String name)
     {
-        final INode node = tryGetNode(directory, name);
+        final INode node = tryGetFileNode(directory, name);
         final IFile file = (IFile) node;
         return file.getStringContent();
     }
@@ -102,12 +102,12 @@ public class Utilities
      */
     public static List<String> getStringList(final IDirectory directory, final String name)
     {
-        final INode node = tryGetNode(directory, name);
+        final INode node = tryGetFileNode(directory, name);
         final IFile file = (IFile) node;
         return file.getStringContentList();
     }
 
-    private final static INode tryGetNode(final IDirectory directory, final String name)
+    private final static INode tryGetFileNode(final IDirectory directory, final String name)
     {
         assert directory != null : String.format("Given directory can not be null.");
         assert name != null : String.format("Given name can not be null.");
@@ -139,5 +139,57 @@ public class Utilities
         {
             throw new DataStructureException("Value of '" + name + "' version file is not a number: " + value);
         }
+    }
+
+    /**
+     * Founds a node with given <var>name</var> in given <var>directory</var>.
+     * 
+     * @param name has the format of a path and may contain <code>/</code> as system-independent default
+     *            name-separator character.
+     */
+    public final static INode tryGetNodeRecursively(final IDirectory directory, final String name)
+            throws DataStructureException
+    {
+        final String path = cleanName(name);
+        final int index = path.indexOf(Constants.PATH_SEPARATOR);
+        if (index > -1)
+        {
+            final INode node = tryGetNode(directory, path.substring(0, index));
+            if (node != null)
+            {
+                if (node instanceof IDirectory == false)
+                {
+                    throw new DataStructureException(String.format("Found node '%s' is expected to be a directory.",
+                            node));
+                }
+                return ((IDirectory) node).tryGetNode(path.substring(index + 1));
+            }
+        } else
+        {
+            return tryGetNode(directory, path);
+        }
+        return null;
+    }
+
+    private final static INode tryGetNode(final IDirectory directory, final String name)
+    {
+        for (final INode node : directory)
+        {
+            if (node.getName().equals(name))
+            {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    private final static String cleanName(final String name)
+    {
+        final int index = name.indexOf(Constants.PATH_SEPARATOR);
+        if (index == 0)
+        {
+            return name.substring(1);
+        }
+        return name;
     }
 }
