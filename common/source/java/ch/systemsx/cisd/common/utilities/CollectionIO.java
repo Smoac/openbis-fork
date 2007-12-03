@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -145,8 +147,8 @@ public class CollectionIO
     }
 
     /**
-     * Reads a collection from a <var>istream</var>. One line read read from the stream corresponds to one entry in 
-     * the collection.
+     * Reads a collection from a <var>istream</var>. One line read read from the stream corresponds to one entry in the
+     * collection.
      * 
      * @param istream The stream to read the collection from.
      * @param collection The collection to add the entries from the file to. It will <i>not</i> be cleared initially.
@@ -202,7 +204,7 @@ public class CollectionIO
         }
         return true;
     }
-
+    
     /**
      * Reads a list of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one entry
      * in the list.
@@ -395,8 +397,8 @@ public class CollectionIO
     }
 
     /**
-     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to the
-     * stream.
+     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to
+     * the stream.
      * 
      * @param ostream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
@@ -406,10 +408,10 @@ public class CollectionIO
     {
         return writeIterable(ostream, iterable, ToStringDefaultConverter.getInstance());
     }
-    
+
     /**
-     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to the
-     * stream.
+     * Writes a collection to a {@link OutputStream}. One entry in the collection corresponds to one line written to
+     * the stream.
      * 
      * @param ostream The stream to write the collection to.
      * @param iterable The iterable to write to the file.
@@ -420,7 +422,7 @@ public class CollectionIO
             IToStringConverter<? super T> converter)
     {
         assert ostream != null;
-        
+
         return writeIterable(new PrintStream(ostream), iterable, converter);
     }
 
@@ -459,5 +461,48 @@ public class CollectionIO
     {
         return writeIterable(printStream, iterable, ToStringDefaultConverter.getInstance());
     }
-    
+
+    /**
+     * Writes a collection to a {@link Writer}. One entry in the collection corresponds to one line written to the
+     * stream.
+     * 
+     * @param writer The writer to write the collection to.
+     * @param iterable The iterable to write to the writer.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
+     */
+    public final static <T> boolean writeIterable(final Writer writer, final Iterable<T> iterable,
+            final IToStringConverter<? super T> converter)
+    {
+        assert writer != null : "Given Writer can not be null.";
+        return writeIterable(new PrintWriter(writer), iterable, converter);
+    }
+
+    /**
+     * Writes a collection to a {@link PrintWriter}. One entry in the collection corresponds to one line written to the
+     * stream.
+     * 
+     * @param writer The writer to write the collection to.
+     * @param iterable The iterable to write to the writer.
+     * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
+     */
+    public final static <T> boolean writeIterable(final PrintWriter writer, final Iterable<T> iterable,
+            final IToStringConverter<? super T> converterOrNull)
+    {
+        assert writer != null : "Given PrintWriter can not be null";
+        assert iterable != null : "Given Iterable can not be null";
+        final IToStringConverter<? super T> converter;
+        if (converterOrNull == null)
+        {
+            converter = ToStringDefaultConverter.getInstance();
+        } else
+        {
+            converter = converterOrNull;
+        }
+        for (final T entry : iterable)
+        {
+            writer.println(converter.toString(entry));
+        }
+        return writer.checkError() == false;
+    }
+
 }
