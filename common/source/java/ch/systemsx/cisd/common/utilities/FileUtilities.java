@@ -147,10 +147,11 @@ public final class FileUtilities
      * 
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}.
      */
-    public static void writeToFile(File file, String str) throws CheckedExceptionTunnel
+    public static void writeToFile(final File file, final String str) throws CheckedExceptionTunnel
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";
+        assert file.isDirectory() == false : String.format("Given file '%s' already exists and is a directory.", file);
 
         FileWriter fileWriter = null;
         try
@@ -868,7 +869,7 @@ public final class FileUtilities
             return file.getAbsolutePath();
         }
     }
-    
+
     /**
      * Returns <code>true</code>, if the (remote resource) <var>path</var> becomes available within
      * <var>timeOutMillis</var> milli-seconds.
@@ -878,28 +879,28 @@ public final class FileUtilities
         final Semaphore sem = new Semaphore(1);
         sem.acquireUninterruptibly();
         final Thread t = new Thread(new Runnable()
-        {
-            public void run()
             {
-                boolean pathExists = false;
-                do
+                public void run()
                 {
-                    pathExists = path.exists();
-                    if (pathExists)
+                    boolean pathExists = false;
+                    do
                     {
-                        sem.release();
-                        return;
-                    }
-                    try
-                    {
-                        Thread.sleep(timeOutMillis / 10L);
-                    } catch (InterruptedException ex)
-                    {
-                        return;
-                    }
-                } while (true);
-            }
-        }, "Path Availability Checker: " + path.getPath());
+                        pathExists = path.exists();
+                        if (pathExists)
+                        {
+                            sem.release();
+                            return;
+                        }
+                        try
+                        {
+                            Thread.sleep(timeOutMillis / 10L);
+                        } catch (InterruptedException ex)
+                        {
+                            return;
+                        }
+                    } while (true);
+                }
+            }, "Path Availability Checker: " + path.getPath());
         t.start();
         try
         {
