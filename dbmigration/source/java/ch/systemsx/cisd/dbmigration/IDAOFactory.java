@@ -20,26 +20,27 @@ import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 
 /**
  * Factory for DAOs.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+// TODO 2007-12-03 Tomasz Pylak: Rename to IMigrationDAOFactory to avoid name confusion
 public interface IDAOFactory
 {
     /**
      * Returns an Data Access Object for administration of the database.
      */
     public IDatabaseAdminDAO getDatabaseDAO();
-    
+
     /**
      * Returns an executor of SQL scripts.
      */
     public ISqlScriptExecutor getSqlScriptExecutor();
-    
+
     /**
      * Returns the DAO for the database version log.
      */
     public IDatabaseVersionLogDAO getDatabaseVersionLogDAO();
-    
+
     /**
      * Returns the mass uploader used for initial data uploading.
      */
