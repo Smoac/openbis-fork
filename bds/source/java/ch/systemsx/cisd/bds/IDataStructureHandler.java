@@ -27,6 +27,10 @@ public interface IDataStructureHandler
 
     /**
      * Validates this data structure and throws {@link DataStructureException} if invalid.
+     * <p>
+     * This is typically called after {@link #performClosing()} or {@link #performOpening()} has been successfully
+     * invoked.
+     * </p>
      */
     public void assertValid() throws DataStructureException;
 
