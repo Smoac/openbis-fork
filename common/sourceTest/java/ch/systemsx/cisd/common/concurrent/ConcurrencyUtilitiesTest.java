@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -48,6 +49,12 @@ public class ConcurrencyUtilitiesTest
     {
         LogInitializer.init();
         eservice = (ThreadPoolExecutor) ConcurrencyUtilities.newNamedPool(name, 1, 2);
+    }
+    
+    @AfterMethod
+    public void reset()
+    {
+        Thread.interrupted();
     }
     
     @Test 
