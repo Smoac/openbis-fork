@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import ch.systemsx.cisd.common.utilities.StringUtilities;
+
 /**
  * A location in (x, y) coordinate space, specified in integer precision.
  * 
@@ -35,12 +37,51 @@ public final class Location
      */
     public final int y;
 
-    public Location(int x, int y)
+    public Location(final int x, final int y)
     {
         assert x > 0 : String.format(NOT_POSITIVE, "x", x);
         this.x = x;
         assert y > 0 : String.format(NOT_POSITIVE, "y", y);
         this.y = y;
+    }
+
+    /** For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>. */
+    public static final Location createLocationFromPosition(final int position, final Geometry geometry)
+    {
+        assert geometry != null : "Given geometry can not be null.";
+        final int columns = geometry.getColumns();
+        final int max = columns * geometry.getRows();
+        assert position > 0 && position < max : String.format("Given position %d is out of range (%s).", position,
+                geometry);
+        final int modulo = position % columns;
+        final int x = modulo == 0 ? columns : modulo;
+        final int y = (int) Math.ceil(position / (float) columns);
+        return new Location(x, y);
+    }
+
+    /**
+     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns corresponding
+     * <code>Location</code>.
+     * 
+     * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
+     */
+    public static final Location createLocationFromMatrixCoordinate(final String coordinate)
+    {
+        assert coordinate != null : "Coordinate can not be null.";
+        final String[] split = StringUtilities.splitMatrixCoordinate(coordinate);
+        if (split == null)
+        {
+            return null;
+        }
+        try
+        {
+            final int y = split[0].toLowerCase().charAt(0) - 96;
+            final int x = Integer.parseInt(split[1]);
+            return new Location(x, y);
+        } catch (NumberFormatException ex)
+        {
+            return null;
+        }
     }
 
     //

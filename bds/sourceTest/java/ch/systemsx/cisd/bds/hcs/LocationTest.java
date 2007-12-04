@@ -65,4 +65,48 @@ public final class LocationTest
         assertFalse(location.equals(null));
     }
 
+    @Test
+    public final void testCreateLocationFromPosition()
+    {
+        final Geometry geometry = new Geometry(4, 5);
+        try
+        {
+            Location.createLocationFromPosition(1, null);
+            fail("Null geometry not allowed.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+        assertEquals(new Location(2, 3), Location.createLocationFromPosition(12, geometry));
+        assertEquals(new Location(5, 3), Location.createLocationFromPosition(15, geometry));
+        assertEquals(new Location(2, 1), Location.createLocationFromPosition(2, geometry));
+        assertEquals(new Location(1, 2), Location.createLocationFromPosition(6, geometry));
+        try
+        {
+            Location.createLocationFromPosition(100, geometry);
+            fail("Position is out of range.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+    }
+
+    @Test
+    public final void testCreateLocationFromMatrixCoordinate()
+    {
+        try
+        {
+            Location.createLocationFromMatrixCoordinate(null);
+            fail("Coordinate can not be null.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+        assertNull(Location.createLocationFromMatrixCoordinate(""));
+        assertNull(Location.createLocationFromMatrixCoordinate("8"));
+        assertNull(Location.createLocationFromMatrixCoordinate("M"));
+        assertEquals(new Location(2, 1), Location.createLocationFromMatrixCoordinate("A02"));
+        assertEquals(new Location(7, 26), Location.createLocationFromMatrixCoordinate("z7"));
+        assertEquals(new Location(34, 15), Location.createLocationFromMatrixCoordinate("O34"));
+    }
 }
