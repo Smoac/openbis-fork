@@ -26,14 +26,14 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class PlateGeometry extends Geometry
 {
-    
+
     /**
      * Directory name which contains the plate geometry.
      * <p>
      * Also used as unique identifier when used as {@link FormatParameter}.
      * </p>
      */
-    static final String PLATE_GEOMETRY = "plate_geometry";
+    public static final String PLATE_GEOMETRY = "plate_geometry";
 
     public PlateGeometry(final int rows, final int columns)
     {

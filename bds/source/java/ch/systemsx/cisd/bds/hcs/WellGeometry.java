@@ -33,7 +33,7 @@ public final class WellGeometry extends Geometry
      * Also used as unique identifier when used as {@link FormatParameter}.
      * </p>
      */
-    static final String WELL_GEOMETRY = "well_geometry";
+    public static final String WELL_GEOMETRY = "well_geometry";
 
     public WellGeometry(final int rows, final int columns)
     {
