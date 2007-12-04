@@ -38,7 +38,7 @@ package ch.systemsx.cisd.common.exceptions;
  *   } else if (value.equals(TypeX.C) {
  *      // process C
  *   } else
- *     throw InternalErr.error();
+ *     throw InternalErr.error(value);
  * }
  * </pre>
  * 
@@ -61,5 +61,10 @@ public class InternalErr extends RuntimeException
     public static final RuntimeException error(String errorMessage)
     {
         return new InternalErr(errorMessage);
+    }
+
+    public static RuntimeException error(Object enumValue)
+    {
+        return error("Internal error: action for enum " + enumValue + " is missing.");
     }
 }
