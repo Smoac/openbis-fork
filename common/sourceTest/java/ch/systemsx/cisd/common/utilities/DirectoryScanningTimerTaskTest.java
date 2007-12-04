@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -46,8 +45,6 @@ public class DirectoryScanningTimerTaskTest
     private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "DirectoryScanningTimerTaskTest");
-
-    private final StoringUncaughtExceptionHandler exceptionHandler = new StoringUncaughtExceptionHandler();
 
     private final static FileFilter ALWAYS_FALSE_FILE_FILTER = new FileFilter()
         {
@@ -96,7 +93,6 @@ public class DirectoryScanningTimerTaskTest
         LogInitializer.init();
         unitTestRootDirectory.mkdirs();
         assert unitTestRootDirectory.isDirectory();
-        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
     }
 
     @BeforeMethod
@@ -108,19 +104,13 @@ public class DirectoryScanningTimerTaskTest
         mockPathHandler.clear();
     }
 
-    @AfterMethod
-    public void checkException()
-    {
-        exceptionHandler.checkAndRethrowException();
-    }
-
     @Test
     public void testFaultyPathsDeletion()
     {
         final File faultyPaths = new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
         CollectionIO.writeIterable(faultyPaths, Collections.singleton("some_path"));
         new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
-        assert faultyPaths.length() == 0;
+        assertEquals(0, faultyPaths.length());
     }
 
     @Test

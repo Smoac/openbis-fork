@@ -50,8 +50,6 @@ public class ProcessExecutionHelperTest
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "ProcessExecutionHelperTest");
 
-    private final StoringUncaughtExceptionHandler exceptionHandler = new StoringUncaughtExceptionHandler();
-
     private File createExecutable(String name, String... lines) throws IOException, InterruptedException
     {
         final File executable = new File(workingDirectory, name);
@@ -78,7 +76,6 @@ public class ProcessExecutionHelperTest
         LogInitializer.init();
         unitTestRootDirectory.mkdirs();
         assert unitTestRootDirectory.isDirectory();
-        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
     }
 
     @BeforeMethod
@@ -87,7 +84,6 @@ public class ProcessExecutionHelperTest
         workingDirectory.delete();
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
-        exceptionHandler.reset();
     }
 
     @Test(groups =
