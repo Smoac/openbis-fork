@@ -345,7 +345,7 @@ public class RsyncCopier implements IPathCopier
 
     public boolean existsRemotely(File destinationDirectory, String destinationHost)
     {
-        assert destinationDirectory != null && destinationDirectory.isDirectory();
+        assert destinationDirectory != null;
         assert destinationHost != null;
 
         final String destination = buildPath(destinationHost, destinationDirectory, true);
