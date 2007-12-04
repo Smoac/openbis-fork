@@ -481,7 +481,6 @@ public final class FileUtilities
         private void traverse(File path)
         {
             assert path != null;
-            assert path.canRead();
 
             if (path.isDirectory() == false)
             {
@@ -505,8 +504,6 @@ public final class FileUtilities
         private File[] getEntries(File directory)
         {
             assert directory != null;
-            assert directory.canRead();
-            assert directory.isDirectory();
 
             if (subDirectoriesOnly)
             {
@@ -606,12 +603,12 @@ public final class FileUtilities
      * If the new suggested file already exists, then this method is called recursively.
      * </p>
      * 
-     * @param defaultFileName the default name for the new file if the digit pattern could not be found in its name. If
+     * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not be found in its name. If
      *            empty then "1" will be appended to its name.
-     * @param regex pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
+     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
      *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
-    public final static File createNextNumberedFile(File path, Pattern regex, String defaultFileName)
+    public final static File createNextNumberedFile(File path, Pattern regexOrNull, String defaultFileNameOrNull)
     {
         assert path != null;
         if (path.exists() == false)
@@ -619,14 +616,14 @@ public final class FileUtilities
             return path;
         }
         final Pattern pattern;
-        if (regex == null)
+        if (regexOrNull == null)
         {
             pattern = ONE_OR_MORE_DIGITS;
         } else
         {
-            pattern = regex;
+            assert regexOrNull.pattern().indexOf("(\\d+)") > -1 || regexOrNull.pattern().indexOf("([0-9]+)") > -1;
+            pattern = regexOrNull;
         }
-        assert pattern.pattern().indexOf("(\\d+)") > -1 || pattern.pattern().indexOf("([0-9]+)") > -1;
 
         String pathName = path.getName();
         final Matcher matcher = pattern.matcher(pathName);
@@ -634,14 +631,14 @@ public final class FileUtilities
         if (found == false)
         {
             final String fileName;
-            if (StringUtils.isEmpty(defaultFileName) == false)
+            if (StringUtils.isEmpty(defaultFileNameOrNull) == false)
             {
-                fileName = defaultFileName;
+                fileName = defaultFileNameOrNull;
             } else
             {
                 fileName = pathName + "1";
             }
-            return createNextNumberedFile(new File(path.getParent(), fileName), pattern, defaultFileName);
+            return createNextNumberedFile(new File(path.getParent(), fileName), pattern, defaultFileNameOrNull);
         }
         StringBuilder builder = new StringBuilder();
         int nextStart = 0;
@@ -657,7 +654,7 @@ public final class FileUtilities
         File newFile = new File(path.getParent(), builder.toString());
         if (newFile.exists())
         {
-            return createNextNumberedFile(newFile, pattern, defaultFileName);
+            return createNextNumberedFile(newFile, pattern, defaultFileNameOrNull);
         }
         return newFile;
     }
@@ -823,7 +820,6 @@ public final class FileUtilities
      */
     public final static File[] listFiles(final File directory) throws EnvironmentFailureException
     {
-        assert directory.isDirectory();
         final File[] fileList = directory.listFiles();
         if (fileList == null)
         {
