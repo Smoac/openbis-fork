@@ -78,6 +78,18 @@ public class DumpPreparator
             dumpFile = new File(args[1]);
         }
         System.out.println("Parsing PostgreSQL dump file " + dumpFile.getAbsolutePath());
+        createUploadFiles(dumpFile, destination);
+        System.out.println("Dump preparation successfully finished.");
+    }
+
+    /**
+     * Creates all files necessary to setup a database from the specified PostgreSQL dump file.
+     * 
+     * @param destination Destination folder in which the folder with the files will be created. The folder
+     *      will be named after the database version extracted from the dump. 
+     */
+    public static void createUploadFiles(File dumpFile, File destination) throws IOException
+    {
         Reader reader = new FileReader(dumpFile);
         try
         {
@@ -85,7 +97,6 @@ public class DumpPreparator
         } finally {
             reader.close();
         }
-        System.out.println("Dump preparation successfully finished.");
     }
     
     static void createUploadFiles(Reader dumpReader, File destinationFolder) throws IOException
