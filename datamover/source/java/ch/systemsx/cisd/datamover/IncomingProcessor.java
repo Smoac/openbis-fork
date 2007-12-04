@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
@@ -57,7 +56,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
-    private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
+    private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
     private final Parameters parameters;
 
@@ -255,7 +254,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
         private void recoverIncomingInProgress(File copyInProgressDir, File copyCompleteDir)
         {
-            final File[] files = FileUtilities.tryListFiles(copyInProgressDir, errorLog);
+            final File[] files = FileUtilities.tryListFiles(copyInProgressDir, simpleOperationLog);
             if (files == null || files.length == 0)
             {
                 return; // directory is empty, no recovery is needed

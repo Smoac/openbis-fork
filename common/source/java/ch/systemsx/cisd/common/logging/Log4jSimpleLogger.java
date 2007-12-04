@@ -21,29 +21,64 @@ import org.apache.log4j.Priority;
 
 /**
  * A {@link ISimpleLogger} that is based on log4j.
- *
+ * 
  * @author Bernd Rinn
  */
 public class Log4jSimpleLogger implements ISimpleLogger
 {
-    private final Priority log4jPriority;
-    
+    private final Priority log4jOverridePriorityOrNull;
+
     private final Logger log4jLogger;
-    
-    public Log4jSimpleLogger(Priority log4jPriority, Logger log4jLogger)
+
+    private static final Priority toLog4jPriority(Level level)
     {
-        this.log4jPriority = log4jPriority;
+        switch (level)
+        {
+            case ERROR:
+                return org.apache.log4j.Level.ERROR;
+            case WARN:
+                return org.apache.log4j.Level.WARN;
+            case INFO:
+                return org.apache.log4j.Level.INFO;
+            case DEBUG:
+                return org.apache.log4j.Level.DEBUG;
+            default:
+                throw new IllegalArgumentException("Unknown log level " + level);
+        }
+    }
+
+    /**
+     * Creates a logger that uses <var>log4jLogger<var> to do the real logging.
+     * 
+     * @param log4jLogger The log4j logger to use.
+     * @param log4jOverridePriorityOrNull If not <code>null</code>, use this log level instead of the one provided to
+     *            the {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.ISimpleLogger.Level, String)}.
+     */
+    public Log4jSimpleLogger(Logger log4jLogger, Priority log4jOverridePriorityOrNull)
+    {
+        this.log4jOverridePriorityOrNull = log4jOverridePriorityOrNull;
         this.log4jLogger = log4jLogger;
     }
 
-    public void log(String message)
+    /**
+     * Creates a logger that uses <var>log4jLogger<var> to do the real logging.
+     * 
+     * @param log4jLogger The log4j logger to use.
+     */
+    public Log4jSimpleLogger(Logger log4jLogger)
     {
-        log4jLogger.log(log4jPriority, message);
+        this(log4jLogger, null);
     }
 
-    public void log(String messageTemplate, Object... args)
+    public void log(Level level, String message)
     {
-        log4jLogger.log(log4jPriority, String.format(messageTemplate, args));
+        if (log4jOverridePriorityOrNull != null)
+        {
+            log4jLogger.log(log4jOverridePriorityOrNull, message);
+        } else
+        {
+            log4jLogger.log(toLog4jPriority(level), message);
+        }
     }
 
 }

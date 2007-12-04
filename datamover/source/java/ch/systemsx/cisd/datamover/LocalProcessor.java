@@ -48,7 +48,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private static final Logger manualInterventionLog = Logger.getLogger("MANUAL_INTERVENTION");
 
-    private static final ISimpleLogger errorLog = new Log4jSimpleLogger(Level.ERROR, operationLog);
+    private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
@@ -121,7 +121,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private void recoverTemporaryExtraCopy()
     {
-        final File[] files = FileUtilities.tryListFiles(tempDir, errorLog);
+        final File[] files = FileUtilities.tryListFiles(tempDir, simpleOperationLog);
         if (files == null || files.length == 0)
         {
             return; // directory is empty, no recovery is needed
@@ -238,7 +238,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             cleansingFilter.add(PathType.FILE, cleansingRegex);
         }
         final ISimpleLogger logger =
-                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(Level.DEBUG, operationLog) : null;
+                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG) : null;
         final boolean pathDeleted = FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
         return pathDeleted;
     }

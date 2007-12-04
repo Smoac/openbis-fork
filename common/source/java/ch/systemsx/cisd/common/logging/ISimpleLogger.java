@@ -24,10 +24,10 @@ package ch.systemsx.cisd.common.logging;
 public interface ISimpleLogger
 {
 
-    /** Log <var>message</var> out to some log file or display. */
-    public void log(String message);
+    /** A simple form of log levels. */
+    public enum Level { ERROR, WARN, INFO, DEBUG }
     
-    /** Log the <var>args</var> with the <var>messageTemplate</var>. */
-    public void log(String messageTemplate, Object... args);
+    /** Log <var>message</var> at log <var>level</var> out to some log file or display. */
+    public void log(Level level, String message);
     
 }

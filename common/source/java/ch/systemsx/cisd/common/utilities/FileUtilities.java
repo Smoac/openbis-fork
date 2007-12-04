@@ -372,11 +372,11 @@ public final class FileUtilities
      * itself.
      * 
      * @param path Path of the file or directory to delete.
-     * @param logger The logger that should be used to log deletion of path entries, or <code>null</code> if nothing
-     *            should be logged.
+     * @param loggerOrNull The logger that should be used to log deletion of path entries, or <code>null</code> if
+     *            nothing should be logged.
      * @return <code>true</code> if the path has been delete successfully, <code>false</code> otherwise.
      */
-    public static boolean deleteRecursively(File path, ISimpleLogger logger)
+    public static boolean deleteRecursively(File path, ISimpleLogger loggerOrNull)
     {
         assert path != null;
 
@@ -386,20 +386,20 @@ public final class FileUtilities
             {
                 if (file.isDirectory())
                 {
-                    deleteRecursively(file, logger);
+                    deleteRecursively(file, loggerOrNull);
                 } else
                 {
-                    if (logger != null)
+                    if (loggerOrNull != null)
                     {
-                        logger.log("Deleting file '%s'", file.getPath());
+                        loggerOrNull.log(ISimpleLogger.Level.INFO, String.format("Deleting file '%s'", file.getPath()));
                     }
                     file.delete();
                 }
             }
         }
-        if (logger != null)
+        if (loggerOrNull != null)
         {
-            logger.log("Deleting directory '%s'", path.getPath());
+            loggerOrNull.log(ISimpleLogger.Level.INFO, String.format("Deleting directory '%s'", path.getPath()));
         }
         return path.delete();
     }
@@ -739,18 +739,19 @@ public final class FileUtilities
         {
             if (directory.isFile())
             {
-                logger.log(String.format(
+                logger.log(ISimpleLogger.Level.ERROR, String.format(
                         "Failed to get listing of directory '%s' (path is file instead of directory).", directory));
             } else
             {
-                logger.log(String.format("Failed to get listing of directory '%s' (path not found).", directory));
+                logger.log(ISimpleLogger.Level.ERROR, String.format(
+                        "Failed to get listing of directory '%s' (path not found).", directory));
             }
         } else
         {
             StringWriter exStackWriter = new StringWriter();
             exOrNull.printStackTrace(new PrintWriter(exStackWriter));
-            logger.log(String.format("Failed to get listing of directory '%s'. Exception: %s", directory, exStackWriter
-                    .toString()));
+            logger.log(ISimpleLogger.Level.ERROR, String.format(
+                    "Failed to get listing of directory '%s'. Exception: %s", directory, exStackWriter.toString()));
         }
     }
 

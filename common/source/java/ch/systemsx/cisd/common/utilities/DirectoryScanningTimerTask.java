@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -293,20 +292,15 @@ public final class DirectoryScanningTimerTask extends TimerTask
     {
         return new ISimpleLogger()
             {
-                public void log(String message)
+                public void log(ISimpleLogger.Level dummyLevel, String message)
                 {
                     if (category == LogCategory.NOTIFY)
                     {
-                        notificationLog.log(Level.ERROR, message);
+                        notificationLog.log(org.apache.log4j.Level.ERROR, message);
                     } else
                     {
-                        operationLog.log(Level.WARN, message);
+                        operationLog.log(org.apache.log4j.Level.WARN, message);
                     }
-                }
-
-                public void log(String messageTemplate, Object... args)
-                {
-                    log(String.format(messageTemplate, args));
                 }
             };
     }
