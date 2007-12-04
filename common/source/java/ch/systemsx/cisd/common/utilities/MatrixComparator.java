@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.util.Comparator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A <code>Comparator</code> implementation that is based on matrix labelling having the following form:
@@ -33,8 +31,6 @@ import java.util.regex.Pattern;
 public final class MatrixComparator implements Comparator<String>
 {
 
-    private final static Pattern pattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
-
     private final boolean letterFirst;
 
     public MatrixComparator()
@@ -47,25 +43,10 @@ public final class MatrixComparator implements Comparator<String>
         this.letterFirst = letterFirst;
     }
 
-    private final static String[] decompose(String entry)
-    {
-        Matcher matcher = pattern.matcher(entry);
-        if (matcher.matches())
-        {
-            return new String[]
-                { matcher.group(1), matcher.group(2) };
-        }
-        return null;
-    }
-
-    //
-    // Comparator
-    //
-
     public final int compare(String o1, String o2)
     {
-        String[] s1 = decompose(o1);
-        String[] s2 = decompose(o2);
+        final String[] s1 = StringUtilities.splitMatrixCoordinate(o1);
+        final String[] s2 = StringUtilities.splitMatrixCoordinate(o2);
         if (s1 != null && s2 != null)
         {
             int sCompare = s1[0].compareTo(s2[0]);

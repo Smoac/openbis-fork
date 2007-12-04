@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -59,6 +61,8 @@ public final class StringUtilities
                         "choppy", "tennessee", "primrose", "glassine", "vampire", "chap", "precursor", "incorrigible",
                         "slither", "interrogate", "spectral", "debut", "creche", "pyrolysis", "homicidal", "sonnet",
                         "gin", "science", "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
+
+    private final static Pattern pattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
 
     private StringUtilities()
     {
@@ -115,6 +119,27 @@ public final class StringUtilities
     public static final String getString()
     {
         return STRINGS[(int) (Math.random() * STRINGS.length - 1)];
+    }
+
+    /**
+     * Splits a matrix coordinate and returns the result in a two-dimensional array.
+     * <p>
+     * For instance the following matrix coordinate <code>H24</code> will returns the following array
+     * <code>[H, 24]</code>.
+     * </p>
+     * 
+     * @return <code>null</code> if the operation fails.
+     */
+    public final static String[] splitMatrixCoordinate(final String text)
+    {
+        assert text != null : "Given text can not be null.";
+        final Matcher matcher = pattern.matcher(text);
+        if (matcher.matches())
+        {
+            return new String[]
+                { matcher.group(1), matcher.group(2) };
+        }
+        return null;
     }
 
 }
