@@ -98,6 +98,7 @@ public final class ConcurrencyUtilities
             return null;
         } catch (InterruptedException ex)
         {
+            Thread.interrupted(); // Clear interrupted flag.
             future.cancel(true);
             if (loggerOrNull != null)
             {
