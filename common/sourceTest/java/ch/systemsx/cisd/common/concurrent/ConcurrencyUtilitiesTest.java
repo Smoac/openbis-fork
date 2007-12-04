@@ -72,7 +72,7 @@ public class ConcurrencyUtilitiesTest
     }
     
     
-    @Test
+    @Test(groups="broken")
     public void testTryGetFutureTimeout()
     {
         final Future<String> future = eservice.submit(new Callable<String>()
