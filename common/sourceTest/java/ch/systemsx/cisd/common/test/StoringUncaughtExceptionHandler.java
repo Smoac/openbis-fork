@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.test;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
@@ -27,18 +27,18 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * 
  * @author Bernd Rinn
  */
-public class StoringUncaughtExceptionHandler implements UncaughtExceptionHandler
+public final class StoringUncaughtExceptionHandler implements UncaughtExceptionHandler
 {
 
     private Throwable throwable;
 
     private String threadName;
 
-    public void uncaughtException(Thread t, Throwable e)
+    public void uncaughtException(Thread t, Throwable th)
     {
         if (throwable == null) // Only store the first throwable
         {
-            throwable = e;
+            throwable = th;
             threadName = t.getName();
         }
     }
@@ -59,7 +59,7 @@ public class StoringUncaughtExceptionHandler implements UncaughtExceptionHandler
     }
 
     /**
-     * @return The throwable, if any has been occurred, or <code>null</code> otherwise.
+     * @return The {@link Throwable}, if any has been occurred, or <code>null</code> otherwise.
      */
     public Throwable getThrowable()
     {
