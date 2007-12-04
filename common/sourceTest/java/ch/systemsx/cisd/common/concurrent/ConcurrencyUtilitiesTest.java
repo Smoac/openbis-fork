@@ -94,7 +94,7 @@ public class ConcurrencyUtilitiesTest
         assertTrue(future.isDone());
     }
 
-    @Test
+    @Test(groups="broken")
     public void testTryGetFutureInterrupted()
     {
         final Thread thread = Thread.currentThread();
