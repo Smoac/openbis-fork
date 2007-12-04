@@ -33,9 +33,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.StoringUncaughtExceptionHandler;
 
 /**
  * Test cases for the {@link RsyncCopier} class.
