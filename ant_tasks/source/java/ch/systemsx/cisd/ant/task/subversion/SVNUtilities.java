@@ -32,6 +32,7 @@ import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.ISimpleLogger.Level;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
@@ -270,7 +271,7 @@ class SVNUtilities
         final ProcessBuilder builder = new ProcessBuilder(fullCommand);
         builder.redirectErrorStream(redirectErrorStream);
         final String commandString = StringUtils.join(builder.command(), " ");
-        logger.log(String.format("Executing '%s'", commandString));
+        logger.log(Level.INFO, String.format("Executing '%s'", commandString));
         try
         {
             final Process process = builder.start();
@@ -317,7 +318,7 @@ class SVNUtilities
         final ProcessBuilder builder = new ProcessBuilder(fullCommand);
         builder.redirectErrorStream(true);
         final String commandString = StringUtils.join(builder.command(), " ");
-        logger.log(String.format("Executing '%s'", commandString));
+        logger.log(Level.INFO, String.format("Executing '%s'", commandString));
         try
         {
             final Process process = builder.start();
@@ -346,7 +347,7 @@ class SVNUtilities
     {
         for (String line : output)
         {
-            logger.log("SVN > %s", line);
+            logger.log(Level.INFO, String.format("SVN > %s", line));
         }
     }
 

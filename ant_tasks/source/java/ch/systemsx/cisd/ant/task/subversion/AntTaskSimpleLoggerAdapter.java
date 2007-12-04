@@ -16,33 +16,41 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
  * An adapter of a ant task to an {@link ISimpleLogger}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
 {
- 
+
     private final Task antTask;
-    
+
+    private final static int toAntLogLevel(ISimpleLogger.Level level)
+    {
+        switch (level)
+        {
+            case ERROR: return Project.MSG_ERR;
+            case WARN: return Project.MSG_WARN;
+            case INFO: return Project.MSG_INFO;
+            case DEBUG: return Project.MSG_DEBUG;
+            default: throw new IllegalArgumentException("Unknonwn log level " + level);
+        }
+    }
+
     public AntTaskSimpleLoggerAdapter(Task antTask)
     {
         this.antTask = antTask;
     }
 
-    public void log(String message)
+    public void log(ISimpleLogger.Level level, String message)
     {
-        antTask.log(message);
-    }
-
-    public void log(String messageTemplate, Object... parameters)
-    {
-        antTask.log(String.format(messageTemplate, parameters));
+        antTask.log(message, toAntLogLevel(level));
     }
 
 }
