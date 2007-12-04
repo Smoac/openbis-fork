@@ -98,7 +98,9 @@ public final class ChecksumHandler implements IDataStructureHandler
             final InputStream inputStream = file.getInputStream();
             try
             {
-                checksums.add(new Checksum(checksumCalculator.calculateChecksum(inputStream), nodePath));
+                final Checksum checksum = new Checksum(checksumCalculator.calculateChecksum(inputStream), nodePath);
+                assert checksums.contains(checksum) == false : String.format("Checksum '%s' is not unique.", checksum);
+                checksums.add(checksum);
             } catch (IOException ex)
             {
                 throw new EnvironmentFailureException("Couldn't calculate checksum for file '" + nodePath + "'");
@@ -122,7 +124,8 @@ public final class ChecksumHandler implements IDataStructureHandler
         {
             return;
         }
-        final List<String> expected = Utilities.getStringList(checksumDirectory, DataStructureV1_0.DIR_ORIGINAL);
+        final String checksumFile = DataStructureV1_0.DIR_ORIGINAL;
+        final List<String> expected = Utilities.getStringList(checksumDirectory, checksumFile);
         final List<Checksum> actual = loadChecksumsForAllFilesIn(originalDataDirectory);
         for (final String value : expected)
         {
@@ -132,6 +135,11 @@ public final class ChecksumHandler implements IDataStructureHandler
                 throw new DataStructureException(String.format("Given checksum '%s' not found in directory '%s'",
                         checkum, originalDataDirectory));
             }
+        }
+        if (actual.size() > 0)
+        {
+            throw new DataStructureException(String.format(
+                    "Following checksums '%s' are not present in the checksum file '%s'.", actual, checksumFile));
         }
     }
 
@@ -167,7 +175,7 @@ public final class ChecksumHandler implements IDataStructureHandler
         }
 
         //
-        // Checksum
+        // Object
         //
 
         @Override
@@ -182,7 +190,7 @@ public final class ChecksumHandler implements IDataStructureHandler
                 return false;
             }
             final Checksum that = (Checksum) obj;
-            return that.checksum.equals(checksum) && that.path.equals(path);
+            return that.path.equals(path);
         }
 
         @Override
@@ -190,14 +198,13 @@ public final class ChecksumHandler implements IDataStructureHandler
         {
             int hashCode = 17;
             hashCode = hashCode * 37 + path.hashCode();
-            hashCode = hashCode * 37 + checksum.hashCode();
             return hashCode;
         }
 
         @Override
         public final String toString()
         {
-            return "[checksum=" + checksum + ",path=" + path + "]";
+            return path;
         }
     }
 
