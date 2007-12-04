@@ -151,7 +151,6 @@ public final class FileUtilities
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";
-        assert file.isDirectory() == false : String.format("Given file '%s' already exists and is a directory.", file);
 
         FileWriter fileWriter = null;
         try
