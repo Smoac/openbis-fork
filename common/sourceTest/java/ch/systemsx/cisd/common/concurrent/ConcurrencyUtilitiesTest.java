@@ -50,7 +50,7 @@ public class ConcurrencyUtilitiesTest
         eservice = (ThreadPoolExecutor) ConcurrencyUtilities.newNamedPool(name, 1, 2);
     }
     
-    @Test(groups="broken")
+    @Test
     public void testNewNamedPool() throws Throwable
     {
         assertEquals(1, eservice.getCorePoolSize());
@@ -72,7 +72,7 @@ public class ConcurrencyUtilitiesTest
     }
     
     
-    @Test(groups="broken")
+    @Test
     public void testTryGetFutureTimeout()
     {
         final Future<String> future = eservice.submit(new Callable<String>()
@@ -94,7 +94,7 @@ public class ConcurrencyUtilitiesTest
         assertTrue(future.isDone());
     }
 
-    @Test(groups="broken")
+    @Test
     public void testTryGetFutureInterrupted()
     {
         final Thread thread = Thread.currentThread();
@@ -121,6 +121,7 @@ public class ConcurrencyUtilitiesTest
             }
         }, 20L);
         final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 200L);
+        t.cancel();
         assertNull(shouldBeNull);
         assertTrue(future.isCancelled());
         assertFalse(Thread.interrupted());
@@ -131,10 +132,9 @@ public class ConcurrencyUtilitiesTest
         private static final long serialVersionUID = 1L;
     }
     
-    @Test(groups="broken")
+    @Test
     public void testTryGetFutureException()
     {
-        final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
                 {
                     public String call() throws Exception
@@ -142,14 +142,6 @@ public class ConcurrencyUtilitiesTest
                         throw new TaggedException(); 
                     }
                 });
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run()
-            {
-                thread.interrupt();
-            }
-        }, 20L);
         try
         {
             ConcurrencyUtilities.tryGetResult(future, 100L);
