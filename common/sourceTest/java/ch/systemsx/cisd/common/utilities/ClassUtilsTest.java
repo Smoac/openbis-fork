@@ -82,7 +82,7 @@ public final class ClassUtilsTest
     @Test
     public void testCreateWithDefaultConstructor()
     {
-        CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), null);
+        CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), (Object) null);
         assertTrue(cs instanceof StringBuffer);
         assertEquals(0, cs.length());
     }
@@ -132,7 +132,7 @@ public final class ClassUtilsTest
     {
         try
         {
-            ClassUtils.create(Float.class, Integer.class.getName(), null);
+            ClassUtils.create(Float.class, Integer.class.getName(), (Object) null);
             fail("AssertionError expected.");
         } catch (AssertionError e)
         {
@@ -145,7 +145,7 @@ public final class ClassUtilsTest
     {
         try
         {
-            ClassUtils.create(Float.class, CharSequence.class.getName(), null);
+            ClassUtils.create(Float.class, CharSequence.class.getName(), (Object) null);
             fail("AssertionError expected.");
         } catch (AssertionError e)
         {

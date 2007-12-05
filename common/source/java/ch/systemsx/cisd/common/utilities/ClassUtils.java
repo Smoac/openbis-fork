@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
@@ -150,11 +149,11 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param className Fully-qualified class name.
-     * @param properties Optional constructor argument. If not <code>null</code> an constructor with one single
+     * @param initargs Optional constructor argument. If not <code>null</code> an constructor with one single
      *            <code>Properties</code> argument is expected. Otherwise the default constructor will used.
-     * @return an instance of type <code>interfaze</code>.
+     * @return an instance of type <code>interface</code>.
      */
-    public static <T> T create(final Class<T> superClazz, final String className, final Properties properties)
+    public static <T> T create(final Class<T> superClazz, final String className, final Object... initargs)
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
@@ -166,31 +165,41 @@ public final class ClassUtils
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName() + "' does not implements/extends '"
                     + superClazz.getName() + "'.";
-            if (properties == null)
+            if (initargs == null)
             {
                 return createInstance(clazz);
             }
-            final Constructor<?> constructor = clazz.getConstructor(new Class[]
-                { Properties.class });
-            return createInstance(constructor, properties);
+            final Constructor<?> constructor = clazz.getConstructor(getClasses());
+            return createInstance(constructor, initargs);
         } catch (Exception ex)
         {
             throw new ConfigurationFailureException("Cannot instantiate class '" + className + "'.", ex);
         }
     }
 
+    private final static Class<?>[] getClasses(final Object... initargs)
+    {
+        final Class<?>[] classes = new Class<?>[initargs.length];
+        int i = 0;
+        for (final Object initarg : initargs)
+        {
+            classes[i++] = initarg.getClass();
+        }
+        return classes;
+    }
+
     @SuppressWarnings("unchecked")
-    private static <T> T createInstance(final Class<?> clazz) throws InstantiationException, IllegalAccessException
+    private final static <T> T createInstance(final Class<?> clazz) throws InstantiationException,
+            IllegalAccessException
     {
         return (T) clazz.newInstance();
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T createInstance(final Constructor<?> constructor, Properties properties)
+    private final static <T> T createInstance(final Constructor<?> constructor, final Object... initargs)
             throws InstantiationException, IllegalAccessException, InvocationTargetException
     {
-        return (T) constructor.newInstance(new Object[]
-            { properties });
+        return (T) constructor.newInstance(initargs);
     }
 
 }
