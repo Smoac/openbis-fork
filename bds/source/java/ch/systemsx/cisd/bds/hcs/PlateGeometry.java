@@ -35,6 +35,11 @@ public final class PlateGeometry extends Geometry
      */
     public static final String PLATE_GEOMETRY = "plate_geometry";
 
+    public PlateGeometry(final Geometry geometry)
+    {
+        this(geometry.getRows(), geometry.getColumns());
+    }
+
     public PlateGeometry(final int rows, final int columns)
     {
         super(rows, columns);

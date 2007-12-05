@@ -35,6 +35,11 @@ public final class WellGeometry extends Geometry
      */
     public static final String WELL_GEOMETRY = "well_geometry";
 
+    public WellGeometry(final Geometry geometry)
+    {
+        this(geometry.getRows(), geometry.getColumns());
+    }
+
     public WellGeometry(final int rows, final int columns)
     {
         super(rows, columns);
