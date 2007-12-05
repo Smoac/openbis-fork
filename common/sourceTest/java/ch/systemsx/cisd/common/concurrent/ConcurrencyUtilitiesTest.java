@@ -55,7 +55,7 @@ public class ConcurrencyUtilitiesTest
     {
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(2, eservice.getMaximumPoolSize());
-        final Future future = eservice.submit(new Runnable()
+        final Future<?> future = eservice.submit(new Runnable()
         {
             public void run()
             {
