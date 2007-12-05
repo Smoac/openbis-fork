@@ -35,6 +35,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class Geometry implements IStorable
 {
+    /** The <code>rows</code>-<code>columns</code> separator in the string representation of this object. */
+    private static final String X = "x";
+
     static final String NOT_POSITIVE = "Given geometry component '%s' must be > 0 (%d <= 0).";
 
     final static String ROWS = "rows";
@@ -68,6 +71,31 @@ public class Geometry implements IStorable
     private final String toString(int number)
     {
         return Integer.toString(number);
+    }
+
+    /**
+     * Loads a <code>Geometry</code> from given <var>toString</var>.
+     * 
+     * @param toString the output you get when calling {@link #toString()}.
+     * @return <code>null</code> if operation fails.
+     */
+    public final static Geometry createFromString(final String toString)
+    {
+        assert toString != null : "Given string can not be null.";
+        final int index = toString.indexOf(X);
+        if (index > -1)
+        {
+            try
+            {
+                int rows = Integer.parseInt(toString.substring(0, index));
+                int columns = Integer.parseInt(toString.substring(index + X.length()));
+                return new Geometry(rows, columns);
+            } catch (NumberFormatException ex)
+            {
+                // Nothing to do here.
+            }
+        }
+        return null;
     }
 
     /**
@@ -147,6 +175,6 @@ public class Geometry implements IStorable
     @Override
     public final String toString()
     {
-        return getRows() + "x" + getColumns();
+        return getRows() + X + getColumns();
     }
 }

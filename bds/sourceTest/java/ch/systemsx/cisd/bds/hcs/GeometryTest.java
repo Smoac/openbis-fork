@@ -44,4 +44,31 @@ public final class GeometryTest
         assertTrue(geometry.contains(new Location(3, 1)));
         assertFalse(geometry.contains(new Location(4, 1)));
     }
+
+    @Test
+    public final void testCreateFromString()
+    {
+        try
+        {
+            Geometry.createFromString(null);
+            fail("Null value not allowed here.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here.
+        }
+        assertNull(Geometry.createFromString("a"));
+        assertNull(Geometry.createFromString("x4"));
+        final Geometry geometry = Geometry.createFromString("1x4");
+        assertNotNull(geometry);
+        assertEquals(1, geometry.getRows());
+        assertEquals(4, geometry.getColumns());
+        try
+        {
+            Geometry.createFromString("0x4");
+            fail("0 row not possible.");
+        } catch (AssertionError ex)
+        {
+            // Nothing to do here.
+        }
+    }
 }
