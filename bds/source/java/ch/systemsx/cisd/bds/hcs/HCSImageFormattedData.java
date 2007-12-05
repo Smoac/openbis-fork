@@ -199,7 +199,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =
-                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir + sep + wellFileName;
+                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName() + sep + wellFileName;
         return new NodePath(node, standardNodePath);
     }
 
