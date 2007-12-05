@@ -101,11 +101,11 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         }
         setFormatAndFormatParameters();
         final IFormattedData formattedData = dataStructure.getFormattedData();
-        assertTrue(formattedData instanceof IHCSFormattedData);
+        assertTrue(formattedData instanceof IHCSImageFormattedData);
         assertEquals(format, formattedData.getFormat());
     }
 
-    @Test(dependsOnMethods="testGetFormattedData")
+    @Test(dependsOnMethods = "testGetFormattedData")
     public final void testHCSImageDataStructure()
     {
         // Creating...

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-public interface IHCSFormattedData extends IFormattedData
+public interface IHCSImageFormattedData extends IFormattedData
 {
 
     /**
@@ -40,12 +40,32 @@ public interface IHCSFormattedData extends IFormattedData
     public INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation);
 
     /**
-     * Adds a new node at given coordinates and returns it.
+     * Adds a new node at given coordinates.
      * 
-     * @return the new <code>INode</code> just added. Never returns <code>null</code>.
-     * @param originalFileName name of the <code>original</code> directory file that is going to be added in the
+     * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code>) with its path
+     *         in the <code>standard</code> directory. Never returns <code>null</code>.
+     * @param originalFilePath name of the <code>original</code> directory file path that is going to be added in the
      *            <code>standard</code> directory.
      */
-    public INode addStandardNode(final String originalFileName, final int channel, final Location plateLocation,
+    public NodePath addStandardNode(final String originalFilePath, final int channel, final Location plateLocation,
             final Location wellLocation) throws DataStructureException;
+
+    //
+    // Helper classes
+    //
+
+    public final static class NodePath
+    {
+        public final INode node;
+
+        public final String path;
+
+        public NodePath(final INode node, final String path)
+        {
+            assert node != null : "Given node could not be null.";
+            assert path != null : "Given path could not be null.";
+            this.node = node;
+            this.path = path;
+        }
+    }
 }

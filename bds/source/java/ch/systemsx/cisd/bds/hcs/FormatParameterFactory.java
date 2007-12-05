@@ -30,6 +30,23 @@ import ch.systemsx.cisd.bds.storage.INode;
 public final class FormatParameterFactory implements IFormatParameterFactory
 {
 
+    private static IFormatParameterFactory instance;
+
+    private FormatParameterFactory()
+    {
+        // Can not be instantiated.
+    }
+
+    /** Returns the unique instance of this class. */
+    public final synchronized static IFormatParameterFactory getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new FormatParameterFactory();
+        }
+        return instance;
+    }
+
     //
     // IFormatParameterFactory
     //
@@ -57,5 +74,28 @@ public final class FormatParameterFactory implements IFormatParameterFactory
             }
         }
         return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(node);
+    }
+
+    public final FormatParameter createFormatParameter(final String name, final String value)
+    {
+        if (name.equals(PlateGeometry.PLATE_GEOMETRY))
+        {
+            final Geometry geometry = Geometry.createFromString(value);
+            if (geometry != null)
+            {
+                return new FormatParameter(name, new PlateGeometry(geometry));
+            }
+        } else if (name.equals(WellGeometry.WELL_GEOMETRY))
+        {
+            final Geometry geometry = Geometry.createFromString(value);
+            if (geometry != null)
+            {
+                return new FormatParameter(name, new WellGeometry(geometry));
+            }
+        } else if (name.equals(ChannelList.NUMBER_OF_CHANNELS))
+        {
+            return new FormatParameter(name, ChannelList.createChannelListFromString(value));
+        }
+        return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name, value);
     }
 }

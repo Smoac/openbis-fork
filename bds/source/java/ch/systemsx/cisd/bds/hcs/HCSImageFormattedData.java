@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.bds.AbstractFormattedData;
+import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormattedDataContext;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-public final class HCSImageFormattedData extends AbstractFormattedData implements IHCSFormattedData
+public final class HCSImageFormattedData extends AbstractFormattedData implements IHCSImageFormattedData
 {
 
     /** The <i>column</i> (or <i>x</i>) coordinate. */
@@ -45,14 +46,6 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     /** The <i>row</i> (or <i>y</i>) coordinate. */
     public static final String ROW = "row";
-
-    /**
-     * The mandatory format parameters that must be defined so that this implementation is able to work properly.
-     */
-    final static String[] MANDATORY_FORMAT_PARAMETERS =
-            new String[]
-                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, ChannelList.NUMBER_OF_CHANNELS,
-                        HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA, HCSImageFormat1_0.DEVICE_ID };
 
     public HCSImageFormattedData(final FormattedDataContext context)
     {
@@ -157,7 +150,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
     }
 
-    public final INode addStandardNode(final String originalFileName, int channel, final Location plateLocation,
+    public final NodePath addStandardNode(final String originalFilePath, int channel, final Location plateLocation,
             final Location wellLocation)
     {
         // This will check all parameters but originalFileName.
@@ -168,18 +161,18 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     "A node already exists at channel %d, plate location '%s' and well location '%s'.", channel,
                     plateLocation, wellLocation));
         }
-        assert originalFileName != null : "Given original file name can not be null.";
+        assert originalFilePath != null : "Given original file name can not be null.";
         final IDirectory standardDir = getStandardDataDirectory();
         final IDirectory channelDir = Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
         final IDirectory plateRowDir = Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
         final IDirectory plateColumnDir =
                 Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
         final String wellFileName = createWellFileName(wellLocation);
-        final INode originalNode = getOriginalDataDirectory().tryGetNode(originalFileName);
+        final INode originalNode = getOriginalDataDirectory().tryGetNode(originalFilePath);
         if (originalNode == null)
         {
             throw new DataStructureException(String.format("No original node with name '%s' could be found.",
-                    originalFileName));
+                    originalFilePath));
         }
         if (containsOriginalData())
         {
@@ -194,9 +187,12 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     String
                             .format(
                                     "Original file name '%s' could not be added at channel %d, plate location '%s' and well location '%s'.",
-                                    originalFileName, channel, plateLocation, wellLocation));
+                                    originalFilePath, channel, plateLocation, wellLocation));
         }
-        return node;
+        final char sep = Constants.PATH_SEPARATOR;
+        final String standardNodePath = channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir + sep
+                + wellFileName;
+        return new NodePath(node, standardNodePath);
     }
 
     //
@@ -214,7 +210,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         super.assertValidFormatAndFormatParameters();
         final IFormatParameters formatParameters = getFormatParameters();
         final Set<String> notPresent = new HashSet<String>();
-        for (final String formatParameterName : MANDATORY_FORMAT_PARAMETERS)
+        for (final String formatParameterName : format.getParameterNames())
         {
             if (formatParameters.containsParameter(formatParameterName) == false)
             {

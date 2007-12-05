@@ -44,6 +44,11 @@ public interface IFormatParameterFactory
                 }
                 return null;
             }
+
+            public final FormatParameter createFormatParameter(final String name, final String value)
+            {
+                return null;
+            }
         };
 
     /**
@@ -53,4 +58,15 @@ public interface IFormatParameterFactory
      *         <code>INode</code>.
      */
     public FormatParameter createFormatParameter(final INode node);
+
+    /**
+     * Creates a <code>FormatParameter</code> from given <var>value</var>.
+     * 
+     * @param name name of the format parameter. Usually it is one of the values returned by
+     *            {@link Format#getParameterNames()}.
+     * @param value generic value that should help to construct the <code>FormatParameter</code>.
+     * @return <code>null</code> if no appropriate <code>FormatParameter</code> could be created from given
+     *         <code>value</code>.
+     */
+    public FormatParameter createFormatParameter(final String name, final String value);
 }
