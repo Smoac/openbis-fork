@@ -169,7 +169,8 @@ public final class ClassUtils
             {
                 return createInstance(clazz);
             }
-            final Constructor<?> constructor = clazz.getConstructor(getClasses());
+            final Class<?>[] classes = getClasses(initargs);
+            final Constructor<?> constructor = clazz.getConstructor(classes);
             return createInstance(constructor, initargs);
         } catch (Exception ex)
         {
