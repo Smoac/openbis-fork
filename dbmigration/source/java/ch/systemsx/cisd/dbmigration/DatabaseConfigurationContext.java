@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.sql.SQLException;
 import java.text.MessageFormat;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.common.db.ISequencerHandler;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
@@ -59,9 +62,9 @@ public class DatabaseConfigurationContext
 
     private boolean createFromScratch;
 
-    private DataSource dataSource;
+    private BasicDataSource dataSource;
 
-    private DataSource adminDataSource;
+    private BasicDataSource adminDataSource;
 
     private String owner;
 
@@ -77,7 +80,7 @@ public class DatabaseConfigurationContext
     /**
      * Creates a <code>DataSource</code> for this context.
      */
-    private final DataSource createDataSource()
+    private final BasicDataSource createDataSource()
     {
         final BasicDataSource myDataSource = new BasicDataSource();
         final String dsDriver = getDriver();
@@ -100,6 +103,11 @@ public class DatabaseConfigurationContext
         myDataSource.setUrl(url);
         myDataSource.setUsername(owner);
         myDataSource.setPassword("");
+        myDataSource.setMinIdle(0);
+        myDataSource.setMaxIdle(0);
+        // TODO 2007-12-05, Franz-Josef Elmer: Remove this magic line of code if commons DHCP 1.3 is out and closing
+        // connections correctly
+        ToStringBuilder.reflectionToString(myDataSource); 
         return myDataSource;
     }
 
@@ -114,7 +122,7 @@ public class DatabaseConfigurationContext
         }
         return dataSource;
     }
-
+    
     /**
      * Returns data source for admin purposes.
      */
@@ -122,16 +130,42 @@ public class DatabaseConfigurationContext
     {
         if (adminDataSource == null)
         {
-            BasicDataSource myDataSource = new BasicDataSource();
-            myDataSource.setDriverClassName(getDriver());
-            myDataSource.setUrl(getAdminURL());
-            myDataSource.setUsername(getAdminUser());
-            myDataSource.setPassword(getAdminPassword());
-            adminDataSource = myDataSource;
+            adminDataSource = new BasicDataSource();
+            adminDataSource.setDriverClassName(getDriver());
+            adminDataSource.setUrl(getAdminURL());
+            adminDataSource.setUsername(getAdminUser());
+            adminDataSource.setPassword(getAdminPassword());
+            adminDataSource.setMinIdle(0);
+            adminDataSource.setMaxIdle(0);
         }
         return adminDataSource;
     }
 
+    /**
+     * Closes data sources. 
+     */
+    public void closeDataSources()
+    {
+        closeDataSource(dataSource);
+        dataSource = null;
+        closeDataSource(adminDataSource);
+        adminDataSource = null;
+    }
+    
+    private void closeDataSource(BasicDataSource ds)
+    {
+        if (ds != null)
+        {
+            try
+            {
+                ds.close();
+            } catch (SQLException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
+    
     /**
      * Returns the user name of the owner of the database.
      */
