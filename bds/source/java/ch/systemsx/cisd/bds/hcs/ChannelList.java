@@ -51,6 +51,30 @@ public final class ChannelList implements IStorable, Iterable<Channel>
         }
         this.channels = channels;
     }
+    
+    /**
+     * Creates a <code>ChannelList</code> instance from given <var>value</var>.
+     * <p>
+     * The current implementation expects an <code>int</code> as value.
+     * </p>
+     */
+    public final static ChannelList createChannelListFromString(final String value)
+    {
+        assert value != null : "Given value can not be null.";
+        try
+        {
+            final int size = Integer.parseInt(value);
+            final List<Channel> channels = new ArrayList<Channel>(size);
+            for (int i = 0; i < size; i++)
+            {
+                channels.add(new Channel(i, 0));
+            }
+            return new ChannelList(channels);
+        } catch (NumberFormatException ex)
+        {
+            return null;
+        }
+    }
 
     /**
      * Loads all <code>Channels</code> from the specified directory.
