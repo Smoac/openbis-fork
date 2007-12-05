@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.storage.INodeFilter;
+import ch.systemsx.cisd.bds.storage.NodeFilters;
 
 /**
  * Storage utility methods.
@@ -139,6 +142,42 @@ public class Utilities
         } catch (NumberFormatException ex)
         {
             throw new DataStructureException("Value of '" + name + "' version file is not a number: " + value);
+        }
+    }
+
+    /**
+     * Recursively lists nodes in given <var>directory</var>.
+     */
+    public final static List<String> listNodes(final IDirectory diretory, final INodeFilter nodeFilterOrNull)
+    {
+        assert diretory != null : "Given node can not be null.";
+        final INodeFilter nodeFilter;
+        if (nodeFilterOrNull == null)
+        {
+            nodeFilter = NodeFilters.TRUE_NODE_FILTER;
+        } else
+        {
+            nodeFilter = nodeFilterOrNull;
+        }
+        final List<String> nodes = new LinkedList<String>();
+        innerListNodes(nodes, diretory, nodeFilter, "");
+        return nodes;
+    }
+
+    private final static void innerListNodes(final List<String> nodes, final IDirectory directory,
+            final INodeFilter nodeFilter, final String prepend)
+    {
+        assert prepend != null : "Prepend is never null.";
+        for (final INode child : directory)
+        {
+            if (child instanceof IFile && nodeFilter.accept(child))
+            {
+                nodes.add(prepend + child.getName());
+            } else if (child instanceof IDirectory)
+            {
+                innerListNodes(nodes, (IDirectory) child, nodeFilter, prepend + child.getName()
+                        + Constants.PATH_SEPARATOR);
+            }
         }
     }
 }

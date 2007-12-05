@@ -17,10 +17,15 @@
 package ch.systemsx.cisd.bds;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
@@ -36,6 +41,14 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
  */
 public class UtilitiesTest extends AbstractFileSystemTestCase
 {
+    private final File createFile(final File dir, final String name) throws IOException
+    {
+        final File file = new File(dir, name);
+        FileUtils.touch(file);
+        assertTrue(file.exists());
+        return file;
+    }
+
     @Test
     public final void testGetNumber()
     {
@@ -65,4 +78,31 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         }
         assertEquals(35, Utilities.getNumber(directory, key));
     }
+
+    @Test
+    public final void testListNodes() throws IOException
+    {
+        try
+        {
+            Utilities.listNodes(null, null);
+            fail("Given directory can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here.
+        }
+        createFile(workingDirectory, "file1");
+        final File dir1 = new File(workingDirectory, "dir1");
+        dir1.mkdir();
+        final File dir2 = new File(workingDirectory, "dir2");
+        dir2.mkdir();
+        createFile(dir1, "file2");
+        createFile(dir2, "file3");
+        final List<String> nodes = Utilities.listNodes(NodeFactory.createDirectoryNode(workingDirectory), null);
+        assertEquals(3, nodes.size());
+        Collections.sort(nodes);
+        assertEquals("dir1/file2", nodes.get(0));
+        assertEquals("dir2/file3", nodes.get(1));
+        assertEquals("file1", nodes.get(2));
+    }
+
 }
