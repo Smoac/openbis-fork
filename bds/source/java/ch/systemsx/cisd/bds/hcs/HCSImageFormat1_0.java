@@ -31,7 +31,7 @@ import ch.systemsx.cisd.bds.Version;
 public final class HCSImageFormat1_0 extends Format
 {
 
-    private static final String FORMAT_CODE = "HCS_IMAGE";
+    public static final String FORMAT_CODE = "HCS_IMAGE";
 
     /** Key for setting the measurement device that was used to take the data of this data set. */
     public final static String DEVICE_ID = "device_id";

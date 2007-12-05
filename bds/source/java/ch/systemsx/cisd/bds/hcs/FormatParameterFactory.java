@@ -95,6 +95,9 @@ public final class FormatParameterFactory implements IFormatParameterFactory
         } else if (name.equals(ChannelList.NUMBER_OF_CHANNELS))
         {
             return new FormatParameter(name, ChannelList.createChannelListFromString(value));
+        } else if (name.equals(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA))
+        {
+            return new FormatParameter(name, Boolean.valueOf(value));
         }
         return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name, value);
     }

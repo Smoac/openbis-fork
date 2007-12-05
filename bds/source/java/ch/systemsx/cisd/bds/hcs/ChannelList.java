@@ -67,7 +67,7 @@ public final class ChannelList implements IStorable, Iterable<Channel>
             final List<Channel> channels = new ArrayList<Channel>(size);
             for (int i = 0; i < size; i++)
             {
-                channels.add(new Channel(i, 0));
+                channels.add(new Channel(i + 1, 0));
             }
             return new ChannelList(channels);
         } catch (NumberFormatException ex)

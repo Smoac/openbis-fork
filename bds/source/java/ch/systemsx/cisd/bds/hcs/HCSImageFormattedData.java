@@ -153,8 +153,16 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     public final NodePath addStandardNode(final String originalFilePath, int channel, final Location plateLocation,
             final Location wellLocation)
     {
-        // This will check all parameters but originalFileName.
-        INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
+        // This will check all parameters but originalFilePath.
+        INode node = null;
+        // TODO 2007-12-05, Christian Ribeaud: Improve this.
+        try
+        {
+            node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
+        } catch (DataStructureException ex)
+        {
+            // Nothing to do here.
+        }
         if (node != null)
         {
             throw new DataStructureException(String.format(
@@ -190,8 +198,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                                     originalFilePath, channel, plateLocation, wellLocation));
         }
         final char sep = Constants.PATH_SEPARATOR;
-        final String standardNodePath = channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir + sep
-                + wellFileName;
+        final String standardNodePath =
+                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir + sep + wellFileName;
         return new NodePath(node, standardNodePath);
     }
 

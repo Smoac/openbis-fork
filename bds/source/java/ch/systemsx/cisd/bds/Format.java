@@ -131,9 +131,11 @@ public class Format implements IStorable
     /**
      * Returns an unmodifiable list of mandatory parameters that are specific to this format.
      * <p>
-     * They can be found in <code>metadata/parameters</code> directory. Default implementation retuns an empty list.
+     * They can be found in <code>metadata/parameters</code> directory. Default implementation returns an empty list.
      * </p>
      */
+    // TODO 2007-12-05, Christian Ribeaud: Right place for this here? This gets lost as soon as Format gets instantiated
+    // in the runtime.
     public List<String> getParameterNames()
     {
         return Collections.emptyList();

@@ -47,7 +47,7 @@ public interface IFormatParameterFactory
 
             public final FormatParameter createFormatParameter(final String name, final String value)
             {
-                return null;
+                return new FormatParameter(name, value);
             }
         };
 

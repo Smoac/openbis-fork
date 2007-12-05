@@ -23,7 +23,7 @@ package ch.systemsx.cisd.bds;
  */
 public final class UnknownFormat1_0 extends Format
 {
-    private static final String FORMAT_CODE = "UNKNOWN";
+    public static final String FORMAT_CODE = "UNKNOWN";
     /**
      * The one and only one instance.
      */
