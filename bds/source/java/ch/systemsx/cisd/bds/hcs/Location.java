@@ -75,7 +75,9 @@ public final class Location
         }
         try
         {
-            final int y = split[0].toLowerCase().charAt(0) - 96;
+            final String letter = split[0];
+            assert letter.length() == 1 : "Only one letter is supported right now.";
+            final int y = letter.toLowerCase().charAt(0) - 'a' + 1;
             final int x = Integer.parseInt(split[1]);
             return new Location(x, y);
         } catch (NumberFormatException ex)
