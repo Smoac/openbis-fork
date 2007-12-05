@@ -165,7 +165,8 @@ public final class ClassUtils
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName() + "' does not implements/extends '"
                     + superClazz.getName() + "'.";
-            if (initargs == null)
+            // (Object[]) null ||Ê(Object) null
+            if (initargs == null || (initargs.length == 1 && initargs[0] == null))
             {
                 return createInstance(clazz);
             }
