@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.IFormatParameterFactory;
 import ch.systemsx.cisd.bds.Version;
@@ -40,6 +43,17 @@ public final class HCSImageFormat1_0 extends Format
     public final static String CONTAINS_ORIGINAL_DATA = "contains_original_data";
 
     /**
+     * The format parameters that must be defined so that this implementation is able to work properly.
+     * <p>
+     * These parameters are located in <code>metadata/parameters</code>.
+     * </p>
+     */
+    private final static String[] FORMAT_PARAMETERS =
+            new String[]
+                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, ChannelList.NUMBER_OF_CHANNELS,
+                        CONTAINS_ORIGINAL_DATA };
+
+    /**
      * The one and only one instance.
      */
     public static final Format HCS_IMAGE_1_0 = new HCSImageFormat1_0();
@@ -54,9 +68,15 @@ public final class HCSImageFormat1_0 extends Format
     //
 
     @Override
+    public final List<String> getParameterNames()
+    {
+        return Arrays.asList(FORMAT_PARAMETERS);
+    }
+
+    @Override
     public final IFormatParameterFactory getFormatParameterFactory()
     {
-        return new FormatParameterFactory();
+        return FormatParameterFactory.getInstance();
     }
 
 }

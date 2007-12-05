@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.util.Collections;
+import java.util.List;
+
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -123,6 +126,17 @@ public class Format implements IStorable
     public IFormatParameterFactory getFormatParameterFactory()
     {
         return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
+    }
+
+    /**
+     * Returns an unmodifiable list of mandatory parameters that are specific to this format.
+     * <p>
+     * They can be found in <code>metadata/parameters</code> directory. Default implementation retuns an empty list.
+     * </p>
+     */
+    public List<String> getParameterNames()
+    {
+        return Collections.emptyList();
     }
 
     //
