@@ -4,7 +4,7 @@
 # - the current directory after calling a function does not change
 
 # ----------------------------- configuration
-TIME_TO_COMPLETE=40 # time (in seconds) needed by the whole pipline to process everything
+TIME_TO_COMPLETE=40 # time (in seconds) needed by the whole pipeline to process everything
 SVN_PATHS="/opt/local/bin /usr/bin"
 LSOF_PATHS="/usr/sbin"
 
@@ -25,13 +25,13 @@ ERR_LOG=$WORK/all_err_log.txt
 # ---- global state
 TEST_FAILED=false # working variable, if true then some tests failed
 
-# -------------------------- instalation
+# -------------------------- installation
 
 function get_env_path {
     echo $PATH | tr ":" " "
 }
 
-# looks for a specified file in environment paths and paths giben as a parameter (space separated)
+# looks for a specified file in environment paths and paths given as a parameter (space separated)
 function locate_file {
     local file=$1
     shift
