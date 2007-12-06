@@ -76,6 +76,43 @@ public class Format implements IStorable
         return format;
     }
 
+    /**
+     * Creates a <code>Format</code> from given <var>value</var>.
+     * 
+     * @param value an example: <code>UNKNOWN [A] V1.2</code>.
+     * @return <code>null</code> if operation fails.
+     */
+    public static final Format createFormatFromString(final String value)
+    {
+        assert value != null : "Format string is not expected to be null.";
+        int index = value.lastIndexOf('V');
+        if (index > -1)
+        {
+            final Version version = Version.createVersionFromString(value.substring(index + 1));
+            if (version != null)
+            {
+                String firstPart = value.substring(0, index).trim();
+                String variant = null;
+                if (firstPart.endsWith("]"))
+                {
+                    index = firstPart.indexOf('[');
+                    if (index > -1)
+                    {
+                        variant = firstPart.substring(index + 1, firstPart.length() - 1);
+                        firstPart = firstPart.substring(0, index).trim();
+                    }
+                }
+                Format format = FormatStore.getFormat(firstPart, version, variant);
+                if (format == null)
+                {
+                    format = new Format(firstPart, version, variant);
+                }
+                return format;
+            }
+        }
+        return null;
+    }
+
     private final String code;
 
     private final Version version;

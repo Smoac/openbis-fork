@@ -41,6 +41,30 @@ public final class Version implements IStorable
         return new Version(Utilities.getNumber(versionFolder, MAJOR), Utilities.getNumber(versionFolder, MINOR));
     }
 
+    /**
+     * Creates a <code>Version</code> from given <var>value</var>.
+     * 
+     * @param value an example: <code>2.3</code>.
+     * @return <code>null</code> if operation fails.
+     */
+    public final static Version createVersionFromString(final String value)
+    {
+        assert value != null : "Given value can not be null.";
+        final int index = value.indexOf(".");
+        if (index > -1)
+        {
+            final String strMajor = value.substring(0, index);
+            final String strMinor = value.substring(index + 1);
+            try
+            {
+                return new Version(Integer.parseInt(strMajor), Integer.parseInt(strMinor));
+            } catch (NumberFormatException ex)
+            {
+            }
+        }
+        return null;
+    }
+
     private final int major;
 
     private final int minor;
