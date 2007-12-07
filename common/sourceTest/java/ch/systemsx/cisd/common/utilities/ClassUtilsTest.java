@@ -23,6 +23,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
@@ -93,38 +95,7 @@ public final class ClassUtilsTest
         Properties properties = new Properties();
         Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
         assertTrue(appendable instanceof MyClass);
-        assertSame(properties, ((MyClass) appendable).getProperties());
-    }
-
-    public static class MyClass implements Appendable
-    {
-        private final Properties properties;
-
-        public MyClass(Properties properties)
-        {
-            this.properties = properties;
-        }
-
-        public final Properties getProperties()
-        {
-            return properties;
-        }
-
-        public Appendable append(char c) throws IOException
-        {
-            return null;
-        }
-
-        public Appendable append(CharSequence csq, int start, int end) throws IOException
-        {
-            return null;
-        }
-
-        public Appendable append(CharSequence csq) throws IOException
-        {
-            return null;
-        }
-
+        assertSame(properties, ((MyClass) appendable).properties);
     }
 
     @Test
@@ -152,5 +123,55 @@ public final class ClassUtilsTest
             assertEquals("Interface 'java.lang.CharSequence' can not be instanciated as it is an interface.", e
                     .getMessage());
         }
+    }
+
+    @Test
+    public final void testCreateInstanceWithAnInterfaceAsConstructorArgument()
+    {
+        final List<String> list = new ArrayList<String>();
+        list.add("Hello");
+        final Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), list);
+        assertSame(list, ((MyClass) appendable).iterable);
+    }
+
+    //
+    // Helper Classes
+    //
+
+    public final static class MyClass implements Appendable
+    {
+        Properties properties;
+
+        Iterable<String> iterable;
+
+        public MyClass(final Properties properties)
+        {
+            this.properties = properties;
+        }
+
+        public MyClass(final Iterable<String> iterable)
+        {
+            this.iterable = iterable;
+        }
+
+        //
+        // Appendable
+        //
+
+        public Appendable append(char c) throws IOException
+        {
+            return null;
+        }
+
+        public Appendable append(CharSequence csq, int start, int end) throws IOException
+        {
+            return null;
+        }
+
+        public Appendable append(CharSequence csq) throws IOException
+        {
+            return null;
+        }
+
     }
 }

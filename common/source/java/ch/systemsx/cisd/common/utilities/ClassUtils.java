@@ -21,13 +21,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * Operations on classes using reflection.
@@ -149,11 +149,12 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param className Fully-qualified class name.
-     * @param initargs Optional constructor argument. If not <code>null</code> an constructor with one single
-     *            <code>Properties</code> argument is expected. Otherwise the default constructor will used.
+     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then the empty
+     *            constructor will be used. Note that <code>(Object) null</code> is not interpreted as
+     *            <code>null</code> arguments but rather as <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
-    public static <T> T create(final Class<T> superClazz, final String className, final Object... initargs)
+    public static <T> T create(final Class<T> superClazz, final String className, final Object... argumentsOrNull)
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
@@ -165,18 +166,31 @@ public final class ClassUtils
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName() + "' does not implements/extends '"
                     + superClazz.getName() + "'.";
-            // (Object[]) null ||Ê(Object) null
-            if (initargs == null || (initargs.length == 1 && initargs[0] == null))
+            if (argumentsOrNull == null)
             {
                 return createInstance(clazz);
             }
-            final Class<?>[] classes = getClasses(initargs);
-            final Constructor<?> constructor = clazz.getConstructor(classes);
-            return createInstance(constructor, initargs);
-        } catch (Exception ex)
+            final Class<?>[] classes = getClasses(argumentsOrNull);
+            final Constructor<T> constructor = getConstructor(clazz, classes);
+            if (constructor == null)
+            {
+                throw new IllegalArgumentException(String.format("No constructor could be found for classes '%s'.",
+                        Arrays.asList(classes)));
+            }
+            return constructor.newInstance(argumentsOrNull);
+        } catch (ClassNotFoundException e)
         {
-            throw new ConfigurationFailureException("Cannot instantiate class '" + className + "'.", ex);
+        } catch (InstantiationException ex)
+        {
+        } catch (IllegalAccessException ex)
+        {
+        } catch (InvocationTargetException ex)
+        {
+        } catch (NoSuchMethodException ex)
+        {
         }
+        throw new IllegalArgumentException(String.format("Cannot instantiate class '%s' with given arguments '%s'.",
+                className, Arrays.asList(argumentsOrNull)));
     }
 
     private final static Class<?>[] getClasses(final Object... initargs)
@@ -191,17 +205,39 @@ public final class ClassUtils
     }
 
     @SuppressWarnings("unchecked")
+    private final static <T> Constructor<T> getConstructor(final Class<?> clazz, final Class<?>[] classes)
+            throws NoSuchMethodException
+    {
+        final Constructor<T>[] constructors = clazz.getConstructors();
+        Constructor<T> returned = null;
+        for (final Constructor<T> constructor : constructors)
+        {
+            final Class<?>[] parameterTypes = constructor.getParameterTypes();
+            final int len = parameterTypes.length;
+            if (len != classes.length)
+            {
+                continue;
+            }
+            boolean match = true;
+            for (int i = 0; i < len; i++)
+            {
+                final Class<?> parameterType = parameterTypes[i];
+                final Class<?> c = classes[i];
+                match &= parameterType.equals(c) || parameterType.isAssignableFrom(c);
+            }
+            if (match)
+            {
+                returned = constructor;
+            }
+        }
+        return returned;
+    }
+
+    @SuppressWarnings("unchecked")
     private final static <T> T createInstance(final Class<?> clazz) throws InstantiationException,
             IllegalAccessException
     {
         return (T) clazz.newInstance();
-    }
-
-    @SuppressWarnings("unchecked")
-    private final static <T> T createInstance(final Constructor<?> constructor, final Object... initargs)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException
-    {
-        return (T) constructor.newInstance(initargs);
     }
 
 }
