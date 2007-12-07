@@ -41,7 +41,7 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(final Object[] objects, final int maxLength)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength)
     {
         return abbreviate(objects, maxLength, true);
     }
@@ -69,9 +69,9 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static String abbreviate(final Object[] objects, final int maxLength, final boolean showLeft)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft)
     {
-        return abbreviate(objects, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(objects, maxLength, showLeft, ToStringDefaultConverter.getInstance());
     }
 
     /**
@@ -83,9 +83,22 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength, final boolean showLeft)
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
+            final boolean showLeft)
     {
-        return abbreviate(collection, maxLength, showLeft, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(collection, maxLength, showLeft, ToStringDefaultConverter.getInstance());
+    }
+
+    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
+            final IToStringConverter<? super T> converter)
+    {
+        return abbreviate(objects, maxLength, showLeft, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+    }
+
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
+            final boolean showLeft, final IToStringConverter<? super T> converter)
+    {
+        return abbreviate(collection, maxLength, showLeft, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
 
     /**
@@ -102,10 +115,10 @@ public final class CollectionUtils
      *            relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
-    public final static String abbreviate(final Object[] objects, final int maxLength, final boolean showLeft,
-            final CollectionStyle style)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
+            final IToStringConverter<? super T> converter, final CollectionStyle style)
     {
-        return abbreviate(Arrays.asList(objects), maxLength, showLeft, style);
+        return abbreviate(Arrays.asList(objects), maxLength, showLeft, converter, style);
     }
 
     /**
@@ -117,19 +130,21 @@ public final class CollectionUtils
      *            relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
-    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength, final boolean showLeft,
-            final CollectionStyle style)
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
+            final boolean showLeft, final IToStringConverter<? super T> converter, final CollectionStyle style)
     {
-        assert collection != null;
-        StringBuilder builder = new StringBuilder(style.getCollectionStart());
-        Iterator<?> iterator = collection.iterator();
+        assert collection != null : "Given collection can not be null.";
+        assert converter != null : "Given converter can not be null.";
+        assert style != null : "Given style can not be null.";
+        final StringBuilder builder = new StringBuilder(style.getCollectionStart());
+        final Iterator<T> iterator = collection.iterator();
         for (int i = 0; iterator.hasNext() && (i < maxLength || maxLength < 0); i++)
         {
             if (i > 0)
             {
                 builder.append(style.getCollectionSeparator());
             }
-            builder.append(String.valueOf(iterator.next()));
+            builder.append(converter.toString(iterator.next()));
         }
         int size = collection.size();
         if (maxLength > 0 && maxLength < size)
