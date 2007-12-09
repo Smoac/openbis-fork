@@ -377,8 +377,8 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         MeasurementEntity measurementEntity = new MeasurementEntity("cp001", "plate");
         dataStructure.setMeasurementEntity(measurementEntity);
         dataStructure.setProcessingType(ProcessingType.RAW_DATA);
-        dataStructure.addReference(new Reference("a/b/c", "a6b8/x.t", ReferenceType.IDENTICAL));
-        dataStructure.addReference(new Reference("a78/jjh", "a b/x\tt", ReferenceType.TRANSFORMED));
+        addReference("path1", "origFile1", ReferenceType.IDENTICAL);
+        addReference("path2", "origFile2", ReferenceType.TRANSFORMED);
         dataStructure.addFormatParameter(new FormatParameter("plate_dimension", "16x24"));
         checkFormattedData(dataStructure.getFormattedData());
 
@@ -408,8 +408,17 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
         IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, ChecksumHandler.CHECKSUM_DIRECTORY);
-        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n", Utilities.getString(checksumDir,
+        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n" + 
+        		"d41d8cd98f00b204e9800998ecf8427e  origFile1\n" + 
+        		"d41d8cd98f00b204e9800998ecf8427e  origFile2\n", Utilities.getString(checksumDir,
                 DataStructureV1_0.DIR_ORIGINAL));
+    }
+
+    private final void addReference(final String path, final String originalPath, ReferenceType type)
+    {
+        dataStructure.getOriginalData().addKeyValuePair(originalPath, "");
+        dataStructure.getStandardData().addKeyValuePair(path, "");
+        dataStructure.addReference(new Reference(path, originalPath, type));
     }
 
     private void checkFormattedData(IFormattedData formattedData)
@@ -537,15 +546,22 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         new Version(1, 0).saveTo(root);
         IDirectory data = root.makeDirectory(DataStructureV1_0.DIR_DATA);
         IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
-        originalDataDir.addKeyValuePair("hello", "world");
+        originalDataDir.addKeyValuePair("file1", "This is my first file.");
         IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
         new MeasurementEntity("a", "b").saveTo(metaData);
+        createExampleChecksum(metaData);
         metaData.addKeyValuePair(MappingFileHandler.MAPPING_FILE, "");
         ProcessingType.COMPUTED_DATA.saveTo(metaData);
         storage.unmount();
+    }
+
+    private final static void createExampleChecksum(final IDirectory metaData)
+    {
+        final IDirectory checksumDir = metaData.makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY);
+        checksumDir.addKeyValuePair(DataStructureV1_0.DIR_ORIGINAL, "23b447be20a6ddfe875a8b59ceae83ff  file1");
     }
 }

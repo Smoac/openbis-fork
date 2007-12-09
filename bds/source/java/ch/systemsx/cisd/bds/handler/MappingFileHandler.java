@@ -49,9 +49,6 @@ public final class MappingFileHandler implements IDataStructureHandler
     /** The root of {@link Reference#getOriginalPath()}. Usually the path to <code>original</code> directory. */
     private final IDirectory originalPathRoot;
 
-    /** Whether we should allow call to {@link #assertValid()}. */
-    private final boolean doValidation;
-
     /**
      * The mapping relating <i>standard</i> with <i>original</i> data.
      * <p>
@@ -62,7 +59,7 @@ public final class MappingFileHandler implements IDataStructureHandler
     public static final String MAPPING_FILE = "standard_original_mapping";
 
     public MappingFileHandler(final IDirectory mappingDirectory, final IDirectory pathRoot,
-            final IDirectory originalPathRoot, final boolean doValidation)
+            final IDirectory originalPathRoot)
     {
         assert mappingDirectory != null : "Given mapping directory can not be null.";
         assert pathRoot != null : "Given path root can not be null.";
@@ -70,7 +67,6 @@ public final class MappingFileHandler implements IDataStructureHandler
         this.mappingDirectory = mappingDirectory;
         this.pathRoot = pathRoot;
         this.originalPathRoot = originalPathRoot;
-        this.doValidation = doValidation;
     }
 
     /**
@@ -136,10 +132,6 @@ public final class MappingFileHandler implements IDataStructureHandler
 
     public final void assertValid() throws DataStructureException
     {
-        if (doValidation == false)
-        {
-            return;
-        }
         final String errMsg = "Node '%s' not found in directory '%s'";
         for (final Reference reference : references)
         {

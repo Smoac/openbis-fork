@@ -62,7 +62,7 @@ public final class ChecksumHandlerTest extends AbstractFileSystemTestCase
         originalDirectory.mkdir();
         handler =
                 new ChecksumHandler(NodeFactory.createDirectoryNode(checksumDirectory), NodeFactory
-                        .createDirectoryNode(originalDirectory), true);
+                        .createDirectoryNode(originalDirectory));
     }
 
     private final void prepareWorkingDirectory() throws IOException

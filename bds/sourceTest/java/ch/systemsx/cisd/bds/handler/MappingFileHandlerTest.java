@@ -52,7 +52,7 @@ public final class MappingFileHandlerTest extends AbstractFileSystemTestCase
         final IDirectory mappingDirectory = NodeFactory.createDirectoryNode(workingDirectory);
         final IDirectory originalDirectory = mappingDirectory.makeDirectory("original");
         final IDirectory standardDirectory = mappingDirectory.makeDirectory("standard");
-        handler = new MappingFileHandler(mappingDirectory, standardDirectory, originalDirectory, true);
+        handler = new MappingFileHandler(mappingDirectory, standardDirectory, originalDirectory);
     }
 
     private final void writeMappingFile() throws IOException

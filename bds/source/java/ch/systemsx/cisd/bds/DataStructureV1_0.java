@@ -59,14 +59,12 @@ public class DataStructureV1_0 extends AbstractDataStructure
         super(storage);
     }
 
-    // TODO 2007-12-03, Christian Ribeaud: at some time, the validation should be switched on.
     private final void registerHandlers()
     {
-        mappingFileHandler =
-                new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData(), false);
+        mappingFileHandler = new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
         registerHandler(mappingFileHandler);
         registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY),
-                getOriginalData(), false));
+                getOriginalData()));
     }
 
     /**

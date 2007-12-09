@@ -55,16 +55,11 @@ public final class ChecksumHandler implements IDataStructureHandler
 
     private final IDirectory originalDataDirectory;
 
-    /** Whether we should allow call to {@link #assertValid()}. */
-    private final boolean doValidation;
-
-    public ChecksumHandler(final IDirectory checksumDirectory, final IDirectory originalDataDirectory,
-            final boolean doValidation)
+    public ChecksumHandler(final IDirectory checksumDirectory, final IDirectory originalDataDirectory)
     {
         this.checksumDirectory = checksumDirectory;
         this.originalDataDirectory = originalDataDirectory;
         this.checksumCalculator = new MD5ChecksumCalculator();
-        this.doValidation = doValidation;
     }
 
     private final List<Checksum> loadChecksumsForAllFilesIn(final IDirectory directory)
@@ -120,10 +115,6 @@ public final class ChecksumHandler implements IDataStructureHandler
 
     public final void assertValid() throws DataStructureException
     {
-        if (doValidation == false)
-        {
-            return;
-        }
         final String checksumFile = DataStructureV1_0.DIR_ORIGINAL;
         final List<String> expected = Utilities.getStringList(checksumDirectory, checksumFile);
         final List<Checksum> actual = loadChecksumsForAllFilesIn(originalDataDirectory);
