@@ -23,8 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 
-import ch.systemsx.cisd.common.logging.LogInitializer;
-
 /**
  * An <code>abstract</code> test case which accesses the file system.
  * <p>
@@ -49,7 +47,6 @@ public abstract class AbstractFileSystemTestCase
     protected AbstractFileSystemTestCase(final boolean cleanAfterMethod)
     {
         workingDirectory = createWorkingDirectory();
-        LogInitializer.init();
         this.cleanAfterMethod = cleanAfterMethod;
     }
 
