@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -38,27 +39,42 @@ public abstract class AbstractFileSystemTestCase
 
     protected final File workingDirectory;
 
+    private final boolean cleanAfterMethod;
+
     protected AbstractFileSystemTestCase()
     {
         this(true);
     }
 
-    protected AbstractFileSystemTestCase(final boolean deleteOnExit)
+    protected AbstractFileSystemTestCase(final boolean cleanAfterMethod)
     {
-        workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getSimpleName());
-        if (deleteOnExit)
-        {
-            workingDirectory.deleteOnExit();
-        }
+        workingDirectory = createWorkingDirectory();
         LogInitializer.init();
+        this.cleanAfterMethod = cleanAfterMethod;
+    }
+
+    private final File createWorkingDirectory()
+    {
+        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getSimpleName());
+        directory.mkdirs();
+        directory.deleteOnExit();
+        return directory;
     }
 
     @BeforeMethod
-    public void setup() throws IOException
+    public void setUp() throws IOException
     {
-        workingDirectory.mkdirs();
         FileUtils.cleanDirectory(workingDirectory);
         assert workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0;
     }
 
+    @AfterClass
+    public void afterClass() throws IOException
+    {
+        if (cleanAfterMethod == false)
+        {
+            return;
+        }
+        FileUtils.deleteDirectory(workingDirectory);
+    }
 }
