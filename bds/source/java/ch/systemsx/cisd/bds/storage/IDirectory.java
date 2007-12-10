@@ -44,6 +44,7 @@ public interface IDirectory extends INode, Iterable<INode>
      * Adds the specified real file to this directory. The content of <code>file</code> will be copied. If it is a
      * folder also its complete content including all subfolders will be copied.
      * 
+     * @param nameOrNull the name of the returned node. If <code>null</code>, then given <var>file</var> name is taken.
      * @param move whether given <var>file</var> should be copied or moved.
      * @return the new node. It will be a {@link ILink} if <code>file</code> is a symbolic link, a {@link IDirectory}
      *         if <code>file</code> is a folder, or {@link IFile} if <code>file</code> is a plain file.
@@ -51,7 +52,7 @@ public interface IDirectory extends INode, Iterable<INode>
     // TODO 2007-12-03 Tomasz Pylak review: this generic interface should not use java.io.File. Is the 'move' parameter
     // possible to implement in HDF5? Maybe those operations should be done before, depending on the implementation
     // which is used?
-    public INode addFile(final File file, final boolean move);
+    public INode addFile(final File file, final String nameOrNull, final boolean move);
 
     /**
      * Removes given <var>node</var> from this directory.
@@ -69,12 +70,4 @@ public interface IDirectory extends INode, Iterable<INode>
      * @return <code>null</code> if the operation did not succeed.
      */
     public ILink tryAddLink(final String name, final INode node);
-
-    /**
-     * Adds given <code>node</code> to this <code>IDirectory</code> and returns a new node with given
-     * <code>name</code> (rename operation).
-     * 
-     * @return <code>null</code> if the operation did not succeed.
-     */
-    public INode tryAddNode(final String name, final INode node);
 }

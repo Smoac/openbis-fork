@@ -53,7 +53,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
         File dest = new File(workingDirectory, "destination");
         dest.mkdir();
         Directory directory = new Directory(dest);
-        INode copiedDir = directory.addFile(dir, move);
+        INode copiedDir = directory.addFile(dir, null, move);
         assertEquals("dir", copiedDir.getName());
         assertTrue(copiedDir instanceof IDirectory);
         File copiedRealDir = new File(dest, "dir");

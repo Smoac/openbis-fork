@@ -61,6 +61,7 @@ public class Utilities
      * @throws DataStructureException if requested directory not found.
      */
     public final static IDirectory getSubDirectory(final IDirectory directory, final String name)
+            throws DataStructureException
     {
         INode node = directory.tryGetNode(name);
         if (node == null)

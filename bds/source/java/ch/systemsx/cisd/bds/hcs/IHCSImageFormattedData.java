@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.io.File;
+
 import ch.systemsx.cisd.bds.IFormattedData;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -40,14 +42,14 @@ public interface IHCSImageFormattedData extends IFormattedData
     public INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation);
 
     /**
-     * Adds a new node at given coordinates.
+     * Adds a new image file at given coordinates.
      * 
      * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code>) with its path
      *         in the <code>standard</code> directory. Never returns <code>null</code>.
-     * @param originalFilePath name of the <code>original</code> directory file path that is going to be added in the
-     *            <code>standard</code> directory.
+     * @param imageFile name of the image file that is going to be added in the <code>standard</code> directory.
+     * @throws DataStructureException if a node already exists at given coordinates.
      */
-    public NodePath addStandardNode(final String originalFilePath, final int channel, final Location plateLocation,
+    public NodePath addStandardNode(final File imageFile, final int channel, final Location plateLocation,
             final Location wellLocation) throws DataStructureException;
 
     //

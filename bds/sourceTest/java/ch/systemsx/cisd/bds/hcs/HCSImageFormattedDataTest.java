@@ -116,9 +116,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
     @Override
     @BeforeMethod
-    public final void setup() throws IOException
+    public final void setUp() throws IOException
     {
-        super.setup();
+        super.setUp();
         context = new Mockery();
         prepareAndCreateFormattedData();
         prepareStandardNode();
@@ -170,44 +170,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     public final void testAddStandardNodeWithOriginalData() throws IOException
     {
         final String originalFilePath = "original.txt";
-        FileUtils.writeStringToFile(new File(workingDirectory, originalFilePath), "This is my original file...");
-        final int channelIndex = 1;
-        final IDirectory originalNode = NodeFactory.createDirectoryNode(workingDirectory);
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
-
-                    exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
-                    will(returnValue(standardNode));
-
-                    one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
-                    will(returnValue(originalNode));
-
-                    one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
-                    will(returnValue(Boolean.FALSE));
-                }
-            });
-        final NodePath nodePath =
-                formattedData.addStandardNode(originalFilePath, channelIndex, PLATE_LOCATION, WELL_LOCATION);
-        final String standardFileName = "row2_column1.tiff";
-        assertNotNull(nodePath);
-        assertEquals(standardFileName, nodePath.node.getName());
-        // Look at the standard leaf directory if the node is there as well.
-        final INode standardFile = leafDirectory.tryGetNode(standardFileName);
-        assertNotNull(standardFile);
-        assertTrue(standardFile instanceof IFile);
-        assertEquals(standardFileName, standardFile.getName());
-        // Node should no longer be in original directory
-        assertNull(originalNode.tryGetNode(originalFilePath));
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testAddStandardNodeWithoutOriginalData() throws IOException
-    {
-        final String originalFilePath = "original.tiff";
-        FileUtils.writeStringToFile(new File(workingDirectory, originalFilePath), "This is my original file...");
+        final File originalFile = new File(workingDirectory, originalFilePath);
+        FileUtils.writeStringToFile(originalFile, "This is my original file...");
         final int channelIndex = 1;
         final IDirectory originalNode = NodeFactory.createDirectoryNode(workingDirectory);
         context.checking(new Expectations()
@@ -226,7 +190,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         final NodePath nodePath =
-                formattedData.addStandardNode(originalFilePath, channelIndex, PLATE_LOCATION, WELL_LOCATION);
+                formattedData.addStandardNode(originalFile, channelIndex, PLATE_LOCATION, WELL_LOCATION);
         final String standardFileName = "row2_column1.tiff";
         assertNotNull(nodePath);
         assertTrue(nodePath.node instanceof ILink);
@@ -236,8 +200,44 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         assertNotNull(standardFile);
         assertTrue(standardFile instanceof IFile);
         assertEquals(standardFileName, standardFile.getName());
-        // Node should still be in original directory
+        // Node should still be in the 'original' directory.
         assertNotNull(originalNode.tryGetNode(originalFilePath));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testAddStandardNodeWithoutOriginalData() throws IOException
+    {
+        final String originalFilePath = "original.tiff";
+        final File originalFile = new File(workingDirectory, originalFilePath);
+        FileUtils.writeStringToFile(originalFile, "This is my original file...");
+        final int channelIndex = 1;
+        final IDirectory originalNode = NodeFactory.createDirectoryNode(workingDirectory);
+        context.checking(new Expectations()
+            {
+                {
+                    addParameterCheckExpectations(this);
+
+                    exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
+                    will(returnValue(standardNode));
+
+                    one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
+                    will(returnValue(Boolean.FALSE));
+                }
+            });
+        final NodePath nodePath =
+                formattedData.addStandardNode(originalFile, channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        final String standardFileName = "row2_column1.tiff";
+        assertNotNull(nodePath);
+        assertTrue(nodePath.node instanceof IFile);
+        assertEquals(standardFileName, nodePath.node.getName());
+        // Look at the standard leaf directory if the node is there as well.
+        final INode standardFile = leafDirectory.tryGetNode(standardFileName);
+        assertNotNull(standardFile);
+        assertTrue(standardFile instanceof IFile);
+        assertEquals(standardFileName, standardFile.getName());
+        // Node should no longer be in the 'original' directory.
+        assertNull(originalNode.tryGetNode(originalFilePath));
         context.assertIsSatisfied();
 
     }
@@ -265,7 +265,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         final File file = new File(workingDirectory, "row2_column1.tiff");
         FileUtils.writeStringToFile(file, "This is my original file...");
-        leafDirectory.addFile(file, true);
+        leafDirectory.addFile(file, null, true);
         final int channelIndex = 1;
         context.checking(new Expectations()
             {

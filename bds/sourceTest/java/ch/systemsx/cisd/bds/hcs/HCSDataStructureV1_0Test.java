@@ -50,11 +50,6 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private DataStructureV1_0 dataStructure;
 
-    public HCSDataStructureV1_0Test()
-    {
-        super(false);
-    }
-
     private final static ChannelList createChannelList()
     {
         final List<Channel> list = new ArrayList<Channel>();
@@ -79,9 +74,9 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
 
     @Override
     @BeforeMethod
-    public final void setup() throws IOException
+    public final void setUp() throws IOException
     {
-        super.setup();
+        super.setUp();
         storage = new FileStorage(workingDirectory);
         dataStructure = new DataStructureV1_0(storage);
     }

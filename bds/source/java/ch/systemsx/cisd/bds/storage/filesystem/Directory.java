@@ -146,13 +146,21 @@ final class Directory extends AbstractNode implements IDirectory
         return new File(file);
     }
 
-    public final INode addFile(final java.io.File file, final boolean move)
+    public final INode addFile(final java.io.File file, final String name, final boolean move)
     {
         checkFile(file);
-        final java.io.File newFile = new java.io.File(nodeFile, file.getName());
+        final String fileName;
+        if (name == null)
+        {
+            fileName = file.getName();
+        } else
+        {
+            fileName = name;
+        }
+        final java.io.File newFile = new java.io.File(nodeFile, fileName);
         if (move)
         {
-            moveFileToDirectory(file, nodeFile, null);
+            moveFileToDirectory(file, nodeFile, name);
         } else
         {
             try
@@ -229,14 +237,6 @@ final class Directory extends AbstractNode implements IDirectory
             throw EnvironmentFailureException.fromTemplate(ex, "Couldn't copy directory '%s' to directory '%s'.",
                     nodeFile.getAbsolutePath(), directory.getAbsolutePath());
         }
-    }
-
-    public final INode tryAddNode(final String name, final INode node)
-    {
-        assert node != null : "Node can not be null";
-        assert name != null : "Name can not be null.";
-        final java.io.File file = getNodeFile(node);
-        return NodeFactory.createNode(moveFileToDirectory(file, nodeFile, name));
     }
 
     public final void removeNode(final INode node)

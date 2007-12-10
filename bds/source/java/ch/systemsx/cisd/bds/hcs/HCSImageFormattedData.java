@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -107,12 +108,12 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return ROW + wellLocation.y + "_" + COLUMN + wellLocation.x + ".tiff";
     }
 
-    private final IDirectory getStandardDataDirectory()
+    private final IDirectory getStandardDataDirectory() throws DataStructureException
     {
         return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
     }
 
-    private final IDirectory getOriginalDataDirectory()
+    private final IDirectory getOriginalDataDirectory() throws DataStructureException
     {
         return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_ORIGINAL);
     }
@@ -132,62 +133,64 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return Channel.CHANNEL + channel;
     }
 
-    //
-    // IHCSFormattedData
-    //
-
-    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
+    private void checkCoordinates(final int channel, final Location plateLocation, final Location wellLocation)
     {
         checkChannel(channel);
         assert plateLocation != null : "Plate location can not be null.";
         assert wellLocation != null : "Well location can not be null.";
         checkLocation(getPlateGeometry(), plateLocation);
         checkLocation(getWellGeometry(), wellLocation);
-        final IDirectory standardDir = getStandardDataDirectory();
-        final IDirectory channelDir = Utilities.getSubDirectory(standardDir, getChannelName(channel));
-        final IDirectory plateRowDir = Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
-        final IDirectory plateColumnDir = Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
-        return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
     }
 
-    public final NodePath addStandardNode(final String originalFilePath, int channel, final Location plateLocation,
-            final Location wellLocation)
+    //
+    // IHCSFormattedData
+    //
+
+    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
     {
-        // This will check all parameters but originalFilePath.
-        INode node = null;
-        // TODO 2007-12-05, Christian Ribeaud: Improve this.
+        checkCoordinates(channel, plateLocation, wellLocation);
         try
         {
-            node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
-        } catch (DataStructureException ex)
+            final IDirectory standardDir = getStandardDataDirectory();
+            final IDirectory channelDir = Utilities.getSubDirectory(standardDir, getChannelName(channel));
+            final IDirectory plateRowDir = Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+            final IDirectory plateColumnDir = Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
+            return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
+        } catch (final DataStructureException e)
         {
-            // Nothing to do here.
+            return null;
         }
+    }
+
+    public final NodePath addStandardNode(final File imageFile, int channel, final Location plateLocation,
+            final Location wellLocation) throws DataStructureException
+    {
+        INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
         if (node != null)
         {
             throw new DataStructureException(String.format(
                     "A node already exists at channel %d, plate location '%s' and well location '%s'.", channel,
                     plateLocation, wellLocation));
         }
-        assert originalFilePath != null : "Given original file name can not be null.";
+        assert imageFile != null : "Given original file name can not be null.";
         final IDirectory standardDir = getStandardDataDirectory();
         final IDirectory channelDir = Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
         final IDirectory plateRowDir = Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
         final IDirectory plateColumnDir =
                 Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
         final String wellFileName = createWellFileName(wellLocation);
-        final INode originalNode = getOriginalDataDirectory().tryGetNode(originalFilePath);
-        if (originalNode == null)
-        {
-            throw new DataStructureException(String.format("No original node with name '%s' could be found.",
-                    originalFilePath));
-        }
         if (containsOriginalData())
         {
+            final INode originalNode = getOriginalDataDirectory().addFile(imageFile, null, true);
+            if (originalNode == null)
+            {
+                throw new DataStructureException(String.format("No original node with name '%s' could be found.",
+                        imageFile));
+            }
             node = plateColumnDir.tryAddLink(wellFileName, originalNode);
         } else
         {
-            node = plateColumnDir.tryAddNode(wellFileName, originalNode);
+            node = plateColumnDir.addFile(imageFile, wellFileName, true);
         }
         if (node == null)
         {
@@ -195,11 +198,12 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     String
                             .format(
                                     "Original file name '%s' could not be added at channel %d, plate location '%s' and well location '%s'.",
-                                    originalFilePath, channel, plateLocation, wellLocation));
+                                    imageFile, channel, plateLocation, wellLocation));
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =
-                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName() + sep + wellFileName;
+                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName() + sep
+                        + wellFileName;
         return new NodePath(node, standardNodePath);
     }
 
