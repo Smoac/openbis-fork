@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 
 /**
- * Helper application which creates from a PostgreSQL dump file to be used to setup the database.
+ * Helper application which creates 'mass upload' files to be used to setup the database from a PostgreSQL dump.
  * <p> 
  * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option <b>--no-owner</b>.
  * <p>
