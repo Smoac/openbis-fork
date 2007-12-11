@@ -16,15 +16,25 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
+
 /**
- * A factory of {@link IParserObjectFactory} objects based on a {@link IAliasPropertyMapper}.
+ * A top level exception for the parser.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public interface IParserObjectFactoryFactory<T>
+public class ParserException extends HighLevelException
 {
-    /**
-     * Creates a new factory for the specified property mapper.
-     */
-    public IParserObjectFactory<T> createFactory(final IAliasPropertyMapper propertyMapper) throws ParserException;
+
+    private static final long serialVersionUID = 1L;
+
+    public ParserException(final String message, final Throwable cause)
+    {
+        super(message, cause);
+    }
+
+    public ParserException(final String message)
+    {
+        super(message);
+    }
 }

@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.parser;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +26,6 @@ import java.util.Set;
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
@@ -57,7 +54,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** The class of object bean we are going to create here. */
     private final Class<E> beanClass;
 
-    protected AbstractParserObjectFactory(Class<E> beanClass, IPropertyMapper propertyMapper)
+    protected AbstractParserObjectFactory(final Class<E> beanClass, final IPropertyMapper propertyMapper)
     {
         assert beanClass != null;
         assert propertyMapper != null;
@@ -81,7 +78,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * If given <var>converter</var>, then it will unregister it.
      * </p>
      */
-    protected final <T> void registerConverter(Class<T> clazz, Converter<T> converter)
+    protected final <T> void registerConverter(final Class<T> clazz, final Converter<T> converter)
     {
         if (converter == null)
         {
@@ -98,15 +95,9 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     /** For given property name returns corresponding <code>IPropertyModel</code>. */
-    private final IPropertyModel getPropertyModel(String name)
+    private final IPropertyModel getPropertyModel(final String name)
     {
         return propertyMapper.getProperty(name);
-    }
-
-    /** Returns an unmodifiable list of <code>PropertyDescriptor</code>s. */
-    private final Collection<PropertyDescriptor> getPropertyDescriptors()
-    {
-        return Collections.unmodifiableCollection(propertyDescriptors.values());
     }
 
     /**
@@ -116,46 +107,33 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * {@link #propertyDescriptors}.
      * </p>
      */
-    private final void checkPropertyMapper(Class<E> clazz, IPropertyMapper propMapper) throws UserFailureException
+    private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
+            throws ParserException
     {
-        assert propertyDescriptors != null;
+        assert propertyDescriptors != null : "Property descriptors can not be null.";
 
-        Set<String> propertyNames = new HashSet<String>(propMapper.getAllPropertyNames());
-        propertyNames.removeAll(propertyDescriptors.keySet());
+        final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
+        final Set<String> propertyNames = new HashSet<String>(allPropertyNames);
+        final Set<String> descriptorNames = propertyDescriptors.keySet();
+        propertyNames.removeAll(descriptorNames);
         if (propertyNames.size() > 0)
         {
-            throw UserFailureException.fromTemplate("The following header columns are not part of '%s': %s", clazz
-                    .getSimpleName(), format(propertyNames));
+            throw new UnmatchedPropertiesException(clazz, allPropertyNames, descriptorNames, propertyNames);
         }
-    }
-
-    private final String format(Set<String> set)
-    {
-        final StringBuilder builder = new StringBuilder();
-        for (String s : set)
-        {
-            builder.append("'");
-            builder.append(s);
-            builder.append("', ");
-        }
-        // Remove trailing ", "
-        builder.setLength(builder.length() - 2);
-        return builder.toString();
     }
 
     /** Whether given field name is mandatory. */
-    private final boolean isMandatory(String fieldName)
+    private final boolean isMandatory(final String fieldName)
     {
         return mandatoryFields.contains(fieldName);
     }
 
-    private String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
+    private final String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
     {
-        int column = propertyModel.getColumn();
+        final int column = propertyModel.getColumn();
         if (column >= lineTokens.length)
         {
-            throw UserFailureException.fromTemplate("Not enough tokens are available (index: %d, available: %d)",
-                    column, lineTokens.length);
+            throw new IndexOutOfBoundsException(column, lineTokens);
         }
         return lineTokens[column];
     }
@@ -164,13 +142,12 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     // IParserObjectFactory
     //
 
-    @SuppressWarnings("unchecked")
-    public E createObject(String[] lineTokens)
+    public E createObject(final String[] lineTokens) throws ParserException
     {
         try
         {
-            Object object = beanClass.newInstance();
-            for (PropertyDescriptor descriptor : getPropertyDescriptors())
+            final E object = beanClass.newInstance();
+            for (final PropertyDescriptor descriptor : propertyDescriptors.values())
             {
                 final Method writeMethod = descriptor.getWriteMethod();
                 final IPropertyModel propertyModel = getPropertyModel(descriptor.getName());
@@ -185,11 +162,11 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
                     final String fieldName = descriptor.getName();
                     if (isMandatory(fieldName))
                     {
-                        throw UserFailureException.fromTemplate("Field/Property name '%s' is mandatory.", fieldName);
+                        throw new MandatoryPropertyMissingException(beanClass, fieldName);
                     }
                 }
             }
-            return (E) object;
+            return object;
         } catch (IllegalAccessException ex)
         {
             throw new CheckedExceptionTunnel(ex);

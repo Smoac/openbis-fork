@@ -1,9 +1,3 @@
-#
-#
-#
-
-#show allResults
-
 {package} = ch.systemsx.cisd.common
 
 [annotation] = ${package}.annotation.*
@@ -34,8 +28,13 @@ check sets [test]
 [utilities] = ${package}.utilities.*
 check sets [utilities]
 
+[user-failure-exception] = ${package}.exceptions.UserFailureException
+check sets [user-failure-exception]
+
 layer layer0 = [annotation] [exceptions] [logging] [test]
 layer layer1 = [utilities] 
 layer layer2 = [config] [db] [parser]
 
-check layeringOf layer0 layer1 layer2 
+check layeringOf layer0 layer1 layer2
+
+check [parser] independentOf [user-failure-exception] 

@@ -38,7 +38,7 @@ public interface IReaderParser<E>
      * @param lineFilter you could define a filter for the lines found in given <code>reader</code>.
      * @return a <code>List</code> of elements.
      */
-    public List<E> parse(Reader reader, ILineFilter lineFilter);
+    public List<E> parse(final Reader reader, final ILineFilter lineFilter) throws ParsingException;
 
     /**
      * Parses given <code>Reader</code>. Encapsulates given <code>Reader</code> in a {@link BufferedReader} for
@@ -49,7 +49,7 @@ public interface IReaderParser<E>
      * 
      * @return a <code>List</code> of elements.
      */
-    public List<E> parse(Reader reader);
+    public List<E> parse(final Reader reader);
 
     /**
      * Sets the <code>IParserObjectFactory</code>.
@@ -57,5 +57,5 @@ public interface IReaderParser<E>
      * Typically, the given <code>factory</code> transforms a line into an element.
      * </p>
      */
-    public void setObjectFactory(IParserObjectFactory<E> factory);
+    public void setObjectFactory(final IParserObjectFactory<E> factory);
 }

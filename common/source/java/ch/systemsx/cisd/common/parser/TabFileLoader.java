@@ -51,23 +51,19 @@ public class TabFileLoader<T>
     /**
      * Loads from the specified tab file a list of objects of type <code>T</code>.
      * 
-     * @throws UserFailureException if the file does not exists, the header line with correct column bean attribute
-     *             names is missing, or a parsing error occurs.
-     * @throws EnvironmentFailureException if a IOException occured.
+     * @throws EnvironmentFailureException if a IOException occurred.
      */
-    public final List<T> load(final File file) throws UserFailureException
+    public List<T> load(final File file)
     {
-        // Just check whether the file exists. Lets <code>FileUtils</code> do the rest.
-        if (file.exists() == false)
-        {
-            throw new UserFailureException("Given file '" + file.getAbsolutePath() + "' does not exist.");
-        }
-        DefaultReaderParser<T> parser = new DefaultReaderParser<T>();
+        assert file != null : "Given file must not be null";
+        assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
+
+        final DefaultReaderParser<T> parser = new DefaultReaderParser<T>();
         final ParserUtilities.Line headerLine =
                 ParserUtilities.getFirstAcceptedLine(file, ExcludeEmptyAndCommentLineFilter.INSTANCE);
         if (headerLine == null)
         {
-            throw new UserFailureException("No header line found in file '" + file.getAbsolutePath() + "'.");
+            throw new IllegalArgumentException("No header line found in file '" + file.getAbsolutePath() + "'.");
         }
         final HeaderLineFilter lineFilter = new HeaderLineFilter(headerLine.number);
         final String[] tokens = StringUtils.split(headerLine.text, "\t");
@@ -82,15 +78,25 @@ public class TabFileLoader<T>
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
-        } catch (ParseException ex)
+        } catch (final ParsingException ex)
         {
-            throw UserFailureException.fromTemplate("A problem has occurred while parsing line %d of file '%s' [%s].",
-                    ex.getLineNumber(), file, ex.getCause().getMessage());
+            throwParsingException(ex, file);
+            throw new AssertionError("We should never reach this point.");
         } finally
         {
             IOUtils.closeQuietly(reader);
         }
+    }
 
+    /**
+     * Throws given <var>ex</var> or translates it into another kind of exception.
+     * <p>
+     * Default behavior just throws it.
+     * </p>
+     */
+    protected void throwParsingException(final ParsingException parsingException, final File file)
+    {
+        throw parsingException;
     }
 
     /**
@@ -109,7 +115,7 @@ public class TabFileLoader<T>
         {
             if (unique.add(token.toLowerCase()) == false)
             {
-                throw UserFailureException.fromTemplate("Duplicated column name '%s'.", token);
+                throw new IllegalArgumentException(String.format("Duplicated column name '%s'.", token));
             }
         }
     }

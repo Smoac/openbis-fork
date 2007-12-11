@@ -27,7 +27,7 @@ public interface IPropertyMapper
 {
 
     /** Returns an <code>IPropertyModel</code> for a given property name. */
-    public IPropertyModel getProperty(String name);
+    public IPropertyModel getProperty(final String name);
 
     /**
      * Returns a set of all property names.

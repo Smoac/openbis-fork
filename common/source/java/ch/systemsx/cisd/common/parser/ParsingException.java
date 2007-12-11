@@ -16,24 +16,37 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import java.util.Arrays;
+
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
  * Signals that an error has been reached unexpectedly while parsing.
  * 
  * @author Christian Ribeaud
  */
-public final class ParseException extends UserFailureException
+public final class ParsingException extends HighLevelException
 {
+
+    static final String MESSAGE_FORMAT = "Creating an object with following tokens '%s' failed.";
 
     private static final long serialVersionUID = 1L;
 
     private final int lineNumber;
 
-    public ParseException(String message, Throwable cause, int lineNumber)
+    private final String[] tokens;
+
+    ParsingException(final RuntimeException cause, final String[] tokens, final int lineNumber)
     {
-        super(message, cause);
+        super(createMessage(tokens), cause);
         this.lineNumber = lineNumber;
+        this.tokens = tokens;
+    }
+
+    private final static String createMessage(final String[] tokens)
+    {
+        assert tokens != null : "Tokens can not be null.";
+        return String.format(MESSAGE_FORMAT, Arrays.asList(tokens));
     }
 
     /**
@@ -42,5 +55,10 @@ public final class ParseException extends UserFailureException
     public final int getLineNumber()
     {
         return lineNumber;
+    }
+
+    public final String[] getTokens()
+    {
+        return tokens;
     }
 }

@@ -23,7 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.annotation.Mandatory;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for corresponding {@link AbstractParserObjectFactory} class.
@@ -67,9 +66,10 @@ public final class AbstractParserObjectFactoryTest
         {
             new BeanFactory(Bean.class, propertyMapper);
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
-        } catch (UserFailureException ex)
+        } catch (UnmatchedPropertiesException ex)
         {
-            assertEquals("The following header columns are not part of 'Bean': 'isnotin'", ex.getMessage());
+            assertEquals(String.format(UnmatchedPropertiesException.MESSAGE_FORMAT, "Bean", "'isnotin'"), ex
+                    .getMessage());
         }
     }
 
@@ -85,9 +85,9 @@ public final class AbstractParserObjectFactoryTest
                 { "1. experiment" };
             beanFactory.createObject(lineTokens);
             fail("Field/Property name 'name' is mandatory.");
-        } catch (UserFailureException ex)
+        } catch (MandatoryPropertyMissingException ex)
         {
-            assertEquals("Field/Property name 'name' is mandatory.", ex.getMessage());
+            assertEquals(String.format(MandatoryPropertyMissingException.MESSAGE_FORMAT, "name"), ex.getMessage());
         }
     }
 
@@ -108,12 +108,12 @@ public final class AbstractParserObjectFactoryTest
         BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         String[] defaultTokens = createDefaultLineTokens();
         String[] lineTokens = (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
-        String msg = String.format("Not enough tokens are available (index: 2, available: 2)", 5, lineTokens.length);
+        String msg = String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
         try
         {
             beanFactory.createObject(lineTokens);
             fail(msg);
-        } catch (UserFailureException ex)
+        } catch (IndexOutOfBoundsException ex)
         {
             assertEquals(msg, ex.getMessage());
         }

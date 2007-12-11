@@ -72,7 +72,7 @@ public final class ParserUtilities
      */
     public final static Line getFirstAcceptedLine(final File file, final ILineFilter lineFilter)
     {
-        assert file != null && file.exists();
+        assert file != null && file.exists() : "Given file must not be null and must exist.";
         final ILineFilter filter = lineFilter == null ? AlwaysAcceptLineFilter.INSTANCE : lineFilter;
 
         LineIterator lineIterator = null;

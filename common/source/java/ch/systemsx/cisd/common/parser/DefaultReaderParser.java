@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.parser;
 
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -44,12 +43,12 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
         this(new DefaultLineTokenizer());
     }
 
-    public DefaultReaderParser(ILineTokenizer lineTokenizer)
+    public DefaultReaderParser(final ILineTokenizer lineTokenizer)
     {
         this.lineTokenizer = lineTokenizer;
     }
 
-    protected E createObject(String[] tokens)
+    protected E createObject(final String[] tokens) throws ParserException
     {
         return factory.createObject(tokens);
     }
@@ -60,7 +59,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
      * Uses <code>ILineTokenizer</code> to do its job.
      * </p>
      */
-    protected String[] parseLine(int lineNumber, String line)
+    protected String[] parseLine(final int lineNumber, final String line)
     {
         return lineTokenizer.tokenize(line);
     }
@@ -69,32 +68,35 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     // Parser
     //
 
-    public final List<E> parse(Reader reader)
+    public final List<E> parse(final Reader reader)
     {
         return parse(reader, AlwaysAcceptLineFilter.INSTANCE);
     }
 
-    public final List<E> parse(Reader reader, ILineFilter lineFilter)
+    public final List<E> parse(final Reader reader, final ILineFilter lineFilter) throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
             lineTokenizer.init();
-            LineIterator lineIterator = IOUtils.lineIterator(reader);
+            final LineIterator lineIterator = IOUtils.lineIterator(reader);
             for (int lineNumber = 0; lineIterator.hasNext(); lineNumber++)
             {
-                String nextLine = lineIterator.nextLine();
+                final String nextLine = lineIterator.nextLine();
                 if (lineFilter.acceptLine(nextLine, lineNumber))
                 {
-                    String[] tokens = parseLine(lineNumber, nextLine);
-                    E object;
+                    final String[] tokens = parseLine(lineNumber, nextLine);
+                    E object = null;
                     try
                     {
                         object = createObject(tokens);
-                    } catch (RuntimeException ex)
+                    } catch (final ParserException parserException)
                     {
-                        throw new ParseException(String.format("Creating an object with following tokens '%s' failed.",
-                                Arrays.asList(tokens)), ex, lineNumber);
+                        throw new ParsingException(parserException, tokens, lineNumber);
+                    } catch (final RuntimeException runtimeException)
+                    {
+                        // This should not happen but...
+                        throw new ParsingException(runtimeException, tokens, lineNumber);
                     }
                     elements.add(object);
                 }
@@ -105,7 +107,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
 
     }
 
-    public final void setObjectFactory(IParserObjectFactory<E> factory)
+    public final void setObjectFactory(final IParserObjectFactory<E> factory)
     {
         this.factory = factory;
     }

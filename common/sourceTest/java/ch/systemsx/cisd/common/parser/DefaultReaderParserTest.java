@@ -83,7 +83,7 @@ public final class DefaultReaderParserTest
         try
         {
             parser.parse(reader, new HeaderLineFilter(2));
-        } catch (ParseException ex)
+        } catch (ParsingException ex)
         {
             assertEquals(
                     "Creating an object with following tokens '[Christian, Ribeaud, Kapfrain 2/2, Efringen-Kirchen]' failed.",
