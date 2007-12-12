@@ -35,7 +35,8 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code> using ellipses.
      * <p>
-     * By default it shows the number of items left and {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -49,7 +50,8 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code> using ellipses.
      * <p>
-     * By default it shows the number of items left and {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -60,11 +62,29 @@ public final class CollectionUtils
         return abbreviate(collection, maxLength, true);
     }
 
+    /**
+     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * <p>
+     * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
     public final static <T> String abbreviate(final T[] objects, final int maxLength, final CollectionStyle style)
     {
         return abbreviate(objects, maxLength, true, ToStringDefaultConverter.getInstance(), style);
     }
 
+    /**
+     * Abbreviates a given <code>Collection</code> using ellipses.
+     * <p>
+     * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final CollectionStyle style)
     {
@@ -74,7 +94,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code> using ellipses.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -88,7 +108,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code> using ellipses.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
@@ -100,12 +120,30 @@ public final class CollectionUtils
         return abbreviate(collection, maxLength, showLeft, ToStringDefaultConverter.getInstance());
     }
 
+    /**
+     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * <p>
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
     public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
             final IToStringConverter<? super T> converter)
     {
         return abbreviate(objects, maxLength, showLeft, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
 
+    /**
+     * Abbreviates a given <code>Collection</code> using ellipses.
+     * <p>
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
