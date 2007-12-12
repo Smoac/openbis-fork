@@ -8,7 +8,8 @@ package ch.systemsx.cisd.common.utilities;
 public enum CollectionStyle
 {
     /** Default <code>CollectionStyle</code>. */
-    DEFAULT_COLLECTION_STYLE("[", "]", ", "), NO_BOUNDARY_COLLECTION_STYLE("", "", ", ");
+    DEFAULT_COLLECTION_STYLE("[", "]", ", "), NO_BOUNDARY_COLLECTION_STYLE("", "", ", "), NICE_COLLECTION_STYLE("'",
+            "'", "', '");
 
     private final String collectionStart;
 
