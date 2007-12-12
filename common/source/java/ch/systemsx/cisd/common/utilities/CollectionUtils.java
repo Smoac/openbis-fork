@@ -167,6 +167,7 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
             final IToStringConverter<? super T> converter, final CollectionStyle style)
     {
+        assert objects != null : "Given objects can not be null.";
         return abbreviate(Arrays.asList(objects), maxLength, showLeft, converter, style);
     }
 

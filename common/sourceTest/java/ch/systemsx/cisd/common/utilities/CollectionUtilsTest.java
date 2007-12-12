@@ -33,8 +33,44 @@ public final class CollectionUtilsTest
 {
 
     @Test
+    public final void testAbbreviateWithEllipsesAndNoLeft()
+    {
+        final String[] s = new String[]
+            { "1", "2", "3", "4", "5" };
+        assertEquals("[1, 2, 3, ...]", CollectionUtils.abbreviate(s, 3, false));
+        assertEquals("[1, ...]", CollectionUtils.abbreviate(s, 1, false));
+        assertEquals("[]", CollectionUtils.abbreviate(s, 0, false));
+    }
+
+    @Test
+    public final void testAbbreviateWithLeft()
+    {
+        final String[] s = new String[]
+            { "1", "2", "3", "4", "5" };
+        assertEquals("[]", CollectionUtils.abbreviate(s, 0));
+        assertEquals("[1, ... (4 left)]", CollectionUtils.abbreviate(s, 1));
+        assertEquals("[1, 2, ... (3 left)]", CollectionUtils.abbreviate(s, 2));
+        assertEquals(CollectionUtils.abbreviate(s, 10, false), CollectionUtils.abbreviate(s, 10));
+    }
+
+    @Test
     public final void testAbbreviateWithArray()
     {
+        final String[] s = StringUtilities.getStrings(5);
+        final CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
+        String string =
+                collectionStyle.getCollectionStart() + StringUtils.join(s, collectionStyle.getCollectionSeparator())
+                        + collectionStyle.getCollectionEnd();
+        assertEquals(string, CollectionUtils.abbreviate(s, -1, false));
+        assertEquals(string, CollectionUtils.abbreviate(s, -10, false));
+        assertEquals(string, CollectionUtils.abbreviate(s, 5, false));
+        assertEquals(string, CollectionUtils.abbreviate(s, 10, false));
+    }
+
+    @Test
+    public final void testAbbreviateWithError()
+    {
+        final Object[] objects = new Object[0];
         try
         {
             CollectionUtils.abbreviate((Collection<?>) null, 0, false);
@@ -43,25 +79,29 @@ public final class CollectionUtilsTest
         {
             // Nothing to do here
         }
-        String[] s = StringUtilities.getStrings(5);
-        CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
-        String string =
-                collectionStyle.getCollectionStart() + StringUtils.join(s, collectionStyle.getCollectionSeparator())
-                        + collectionStyle.getCollectionEnd();
-        assertEquals(string, CollectionUtils.abbreviate(s, -1, false));
-        assertEquals(string, CollectionUtils.abbreviate(s, -10, false));
-        assertEquals(string, CollectionUtils.abbreviate(s, 5, false));
-        assertEquals(string, CollectionUtils.abbreviate(s, 10, false));
-        // With ellipses
-        s = new String[]
-            { "1", "2", "3", "4", "5" };
-        assertEquals("[1, 2, 3, ...]", CollectionUtils.abbreviate(s, 3, false));
-        assertEquals("[1, ...]", CollectionUtils.abbreviate(s, 1, false));
-        assertEquals("[]", CollectionUtils.abbreviate(s, 0, false));
-        // With show left
-        assertEquals("[]", CollectionUtils.abbreviate(s, 0));
-        assertEquals("[1, ... (4 left)]", CollectionUtils.abbreviate(s, 1));
-        assertEquals("[1, 2, ... (3 left)]", CollectionUtils.abbreviate(s, 2));
-        assertEquals(CollectionUtils.abbreviate(s, 10, false), CollectionUtils.abbreviate(s, 10));
+        try
+        {
+            CollectionUtils.abbreviate(objects, 0, false, ToStringDefaultConverter.getInstance(), null);
+            fail("Given CollectionStyle can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
+        try
+        {
+            CollectionUtils.abbreviate(objects, 0, null);
+            fail("Given CollectionStyle can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
+        try
+        {
+            CollectionUtils.abbreviate((Collection<?>) null, 0, false, null);
+            fail("IToStringConverter can not be null.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here
+        }
     }
 }
