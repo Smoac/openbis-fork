@@ -142,4 +142,26 @@ public final class StringUtilities
         return null;
     }
 
+    /**
+     * Returns the ordinal representation of given <var>number</var>.
+     * 
+     * @param number must be <code>&gt;= 0</code>.
+     * @return never <code>null</code>.
+     */
+    public final static String getOrdinal(final int number)
+    {
+        assert number > -1 : "Given number must be >= 0.";
+        final int modulo = number % 10;
+        switch (modulo)
+        {
+            case 1:
+                return number + "st";
+            case 2:
+                return number + "nd";
+            case 3:
+                return number + "rd";
+            default:
+                return number + "th";
+        }
+    }
 }

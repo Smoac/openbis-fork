@@ -34,7 +34,7 @@ public class StringUtilitiesTest
 {
 
     @Test
-    public void testCapitalize()
+    public final void testCapitalize()
     {
         assertEquals("Test", StringUtilities.capitalize("test"));
         assertEquals("Test", StringUtilities.capitalize("TEST"));
@@ -43,19 +43,39 @@ public class StringUtilitiesTest
     }
 
     @Test
-    public void testConcatenateEmptyList()
+    public final void testConcatenateEmptyList()
     {
         final List<String> list = Arrays.asList();
         assertEquals("", StringUtilities.concatenateWithNewLine(list));
     }
-    
+
     @Test
-    public void testConcatenate()
+    public final void testConcatenate()
     {
         final List<String> list = Arrays.asList("one", "two", "three");
         assertEquals("one two three", StringUtilities.concatenateWithSpace(list));
-        final String brokenDownInLines = String.format("one%1$stwo%1$sthree", System.getProperty("line.separator")); 
+        final String brokenDownInLines = String.format("one%1$stwo%1$sthree", System.getProperty("line.separator"));
         assertEquals(brokenDownInLines, StringUtilities.concatenateWithNewLine(list));
+    }
+
+    @Test
+    public final void testGetOrdinal()
+    {
+        try
+        {
+            StringUtilities.getOrdinal(-1);
+            fail("Ordinal of negative number not possible.");
+        } catch (AssertionError e)
+        {
+            // Nothing to do here.
+        }
+        assertEquals("0th", StringUtilities.getOrdinal(0));
+        assertEquals("1st", StringUtilities.getOrdinal(1));
+        assertEquals("2nd", StringUtilities.getOrdinal(2));
+        assertEquals("3rd", StringUtilities.getOrdinal(3));
+        assertEquals("101st", StringUtilities.getOrdinal(101));
+        assertEquals("53rd", StringUtilities.getOrdinal(53));
+        assertEquals("19th", StringUtilities.getOrdinal(19));
     }
 
 }
