@@ -60,21 +60,8 @@ public final class UnmatchedPropertiesException extends ParserException
         assert beanClass != null : "Bean class can not be null.";
         assert propertyNames != null : "Property names can not be null.";
         assert propertyNames.size() > 0 : "There is no reason to throw this exception.";
-        return String.format(MESSAGE_FORMAT, beanClass.getSimpleName(), format(propertyNames));
-    }
-
-    private final static String format(final Set<String> set)
-    {
-        final StringBuilder builder = new StringBuilder();
-        for (String s : set)
-        {
-            builder.append("'");
-            builder.append(s);
-            builder.append("', ");
-        }
-        // Remove trailing ", "
-        builder.setLength(builder.length() - 2);
-        return builder.toString();
+        return String.format(MESSAGE_FORMAT, beanClass.getSimpleName(), MandatoryPropertyMissingException
+                .toString((propertyNames)));
     }
 
     public final Class<?> getBeanClass()

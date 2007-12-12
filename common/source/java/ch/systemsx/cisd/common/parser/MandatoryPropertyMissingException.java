@@ -16,6 +16,12 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.Collections;
+import java.util.Set;
+
+import ch.systemsx.cisd.common.utilities.CollectionStyle;
+import ch.systemsx.cisd.common.utilities.CollectionUtils;
+
 /**
  * A <code>ParserException</code> extension which signalizes missing of a mandatory property.
  * 
@@ -24,26 +30,42 @@ package ch.systemsx.cisd.common.parser;
 public final class MandatoryPropertyMissingException extends ParserException
 {
 
-    static final String MESSAGE_FORMAT = "Field/Property name '%s' is mandatory.";
+    static final String MESSAGE_FORMAT = "Field/Property name(s) '%s' is(are) mandatory.";
 
     private static final long serialVersionUID = 1L;
 
+    /** The bean this is set during the parsing process. */
     private final Class<?> beanClass;
 
-    private final String fieldName;
+    /** The property names found in the parsed file. */
+    private final Set<String> allPropertyNames;
 
-    MandatoryPropertyMissingException(final Class<?> beanClass, final String fieldName)
+    /** The mandatory property names that could not be found in the parsed file. */
+    private final Set<String> missingMandatoryProperties;
+
+    /** The {@link #beanClass} fields that are mandatory. */
+    private final Set<String> mandatoryFields;
+
+    MandatoryPropertyMissingException(final Class<?> beanClass, final Set<String> allPropertyNames,
+            final Set<String> mandatoryFields, final Set<String> missingMandatoryProperties)
     {
-        super(createMessage(fieldName));
+        super(createMessage(missingMandatoryProperties));
         assert beanClass != null : "Bean class can not be null.";
         this.beanClass = beanClass;
-        this.fieldName = fieldName;
+        this.allPropertyNames = allPropertyNames;
+        this.mandatoryFields = mandatoryFields;
+        this.missingMandatoryProperties = missingMandatoryProperties;
     }
 
-    private final static String createMessage(final String fieldName)
+    private final static String createMessage(final Set<String> missingMandatoryProperties)
     {
-        assert fieldName != null : "Field name can not be null.";
-        return String.format(MESSAGE_FORMAT, fieldName);
+        assert missingMandatoryProperties != null : "Missing mandatory properties can not be null.";
+        return String.format(MESSAGE_FORMAT, toString(missingMandatoryProperties));
+    }
+
+    final static String toString(final Set<String> set)
+    {
+        return CollectionUtils.abbreviate(set, -1, CollectionStyle.NO_BOUNDARY_COLLECTION_STYLE);
     }
 
     public final Class<?> getBeanClass()
@@ -51,9 +73,18 @@ public final class MandatoryPropertyMissingException extends ParserException
         return beanClass;
     }
 
-    public final String getFieldName()
+    public final Set<String> getAllPropertyNames()
     {
-        return fieldName;
+        return allPropertyNames;
     }
 
+    public final Set<String> getMissingMandatoryProperties()
+    {
+        return missingMandatoryProperties;
+    }
+
+    public final Set<String> getMandatoryFields()
+    {
+        return Collections.unmodifiableSet(mandatoryFields);
+    }
 }

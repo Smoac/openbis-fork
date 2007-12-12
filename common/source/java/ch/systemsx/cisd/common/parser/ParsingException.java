@@ -61,4 +61,9 @@ public final class ParsingException extends HighLevelException
     {
         return tokens;
     }
+
+    public final RuntimeException getRuntimeException()
+    {
+        return (RuntimeException) getCause();
+    }
 }

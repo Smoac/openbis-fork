@@ -56,11 +56,10 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
 
     protected AbstractParserObjectFactory(final Class<E> beanClass, final IPropertyMapper propertyMapper)
     {
-        assert beanClass != null;
-        assert propertyMapper != null;
+        assert beanClass != null : "Given bean class can not be null.";
+        assert propertyMapper != null : "Given property mapper can not be null.";
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
         mandatoryFields = ClassUtils.getMandatoryFields(beanClass);
-        assert mandatoryFields != null;
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
         converterPool = createConverterPool();
@@ -89,7 +88,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
     }
 
-    private final <T> T convert(String value, Class<T> type)
+    private final <T> T convert(final String value, final Class<T> type)
     {
         return converterPool.convert(value, type);
     }
@@ -110,15 +109,27 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
             throws ParserException
     {
-        assert propertyDescriptors != null : "Property descriptors can not be null.";
-
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
         final Set<String> propertyNames = new HashSet<String>(allPropertyNames);
-        final Set<String> descriptorNames = propertyDescriptors.keySet();
-        propertyNames.removeAll(descriptorNames);
+        final Set<String> missingProperties = new HashSet<String>();
+        final Set<String> fieldNames = propertyDescriptors.keySet();
+        for (final String fieldName : fieldNames)
+        {
+            if (propertyNames.contains(fieldName))
+            {
+                propertyNames.remove(fieldName);
+            } else if (isMandatory(fieldName))
+            {
+                missingProperties.add(fieldName);
+            }
+        }
+        if (missingProperties.size() > 0)
+        {
+            throw new MandatoryPropertyMissingException(clazz, allPropertyNames, mandatoryFields, missingProperties);
+        }
         if (propertyNames.size() > 0)
         {
-            throw new UnmatchedPropertiesException(clazz, allPropertyNames, descriptorNames, propertyNames);
+            throw new UnmatchedPropertiesException(clazz, allPropertyNames, fieldNames, propertyNames);
         }
     }
 
@@ -151,19 +162,12 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             {
                 final Method writeMethod = descriptor.getWriteMethod();
                 final IPropertyModel propertyModel = getPropertyModel(descriptor.getName());
+                // They could have some optional descriptors that are not in the property model.
+                // Just ignore them.
                 if (propertyModel != null)
                 {
-                    writeMethod.invoke(object, convert(getPropertyValue(lineTokens, propertyModel), writeMethod
-                            .getParameterTypes()[0]));
-                } else
-                {
-                    // If the corresponding bean field is mandatory and <code>propertyModel</code> is null,
-                    // then we should throw an exception.
-                    final String fieldName = descriptor.getName();
-                    if (isMandatory(fieldName))
-                    {
-                        throw new MandatoryPropertyMissingException(beanClass, fieldName);
-                    }
+                    final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+                    writeMethod.invoke(object, convert(propertyValue, writeMethod.getParameterTypes()[0]));
                 }
             }
             return object;

@@ -60,6 +60,17 @@ public final class CollectionUtils
         return abbreviate(collection, maxLength, true);
     }
 
+    public final static <T> String abbreviate(final T[] objects, final int maxLength, final CollectionStyle style)
+    {
+        return abbreviate(objects, maxLength, true, ToStringDefaultConverter.getInstance(), style);
+    }
+
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
+            final CollectionStyle style)
+    {
+        return abbreviate(collection, maxLength, true, ToStringDefaultConverter.getInstance(), style);
+    }
+
     /**
      * Abbreviates a given array of <code>Object</code> using ellipses.
      * <p>
