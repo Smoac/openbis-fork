@@ -43,12 +43,15 @@ public final class ClassUtils
 
     /**
      * For given <code>Class</code> returns a set of field names that are annotated with {@link Mandatory}.
+     * <p>
+     * Never returns <code>null</code> but could return an empty set.
+     * </p>
      */
     public final static Set<String> getMandatoryFields(Class<?> clazz)
     {
-        Set<String> set = new HashSet<String>();
-        List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
-        for (Field field : fields)
+        final Set<String> set = new HashSet<String>();
+        final List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
+        for (final Field field : fields)
         {
             set.add(field.getName());
         }
