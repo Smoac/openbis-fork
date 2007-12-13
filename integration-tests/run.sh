@@ -14,9 +14,9 @@ TARGETS=targets
 WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
 
-LIMS_SERVER_NAME=lims-server
+LIMS_SERVER_NAME=openBIS-server
 LIMS_SERVER=$WORK/$LIMS_SERVER_NAME
-LIMS_CLIENT_NAME=lims-client
+LIMS_CLIENT_NAME=openBIS-client
 LIMS_CLIENT=$WORK/$LIMS_CLIENT_NAME
 
 DATA=$WORK/data
@@ -115,8 +115,8 @@ function wait_for_server {
 function install_lims_server {
     cp -R $TEMPLATE/$LIMS_SERVER_NAME $WORK
     
-    unzip -d $LIMS_SERVER $INSTALL/lims-server*.zip
-    $LIMS_SERVER/lims-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties $LIMS_SERVER/roles.conf
+    unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
+    $LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties $LIMS_SERVER/roles.conf
     wait_for_server
 }
 
@@ -137,7 +137,7 @@ function register_cell_plates {
 }
 
 function install_lims_client {
-    unpack lims-client
+    unpack openBIS-client
     cp -fR $TEMPLATE/$LIMS_CLIENT_NAME $WORK
 }
 
