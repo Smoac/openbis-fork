@@ -603,8 +603,8 @@ public final class FileUtilities
      * If the new suggested file already exists, then this method is called recursively.
      * </p>
      * 
-     * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not be found in its name. If
-     *            empty then "1" will be appended to its name.
+     * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not be found in its
+     *            name. If empty then "1" will be appended to its name.
      * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
      *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
@@ -660,7 +660,7 @@ public final class FileUtilities
     }
 
     /**
-     * For given <var>root</var> and <var>file</var> extracts the relative <code>File</code>.
+     * For given <var>root</var> and <var>file</var> extracts the relative path.
      * <p>
      * If given <var>file</var> does not contain given <var>root</var> path in its absolute path, then returns
      * <code>null</code> (as the relative file could not be determined).
@@ -668,17 +668,15 @@ public final class FileUtilities
      * 
      * @return a relative file with no starting separator.
      */
-    public final static String getRelativeFile(final String root, final String file)
+    public final static String getRelativeFile(final File root, final File file)
     {
-        assert file != null;
-        if (StringUtils.isEmpty(root))
+        assert root != null : "Given root can not be null.";
+        assert file != null : "Given file can not be null.";
+        final String rootPath = root.getAbsolutePath() + File.separator;
+        final String filePath = file.getAbsolutePath();
+        if (filePath.startsWith(rootPath))
         {
-            return file;
-        }
-        final String strRoot = root + File.separator;
-        if (file.startsWith(strRoot))
-        {
-            return file.substring(strRoot.length());
+            return filePath.substring(rootPath.length());
         } else
         {
             return null;

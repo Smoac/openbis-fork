@@ -326,21 +326,23 @@ public class FileUtilitiesTest
         try
         {
             FileUtilities.getRelativeFile(null, null);
-            fail("Given file can not be null.");
+            fail("Given root and file can not be null.");
         } catch (AssertionError e)
         {
             // Nothing to do here
         }
         File file = new File(workingDirectory, "hello");
         assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file.getAbsolutePath());
-        assertEquals(file.getAbsolutePath(), FileUtilities.getRelativeFile(null, file.getAbsolutePath()));
-        assertEquals(file.getAbsolutePath(), FileUtilities.getRelativeFile("", file.getAbsolutePath()));
+        // If the given string is the empty string, then the result is the empty abstract pathname.
+        final File rootFile = new File("");
+        System.out.println(rootFile.getAbsolutePath());
+        assertEquals("targets" + File.separator + workingDirectory.getName() + File.separator + "hello", FileUtilities
+                .getRelativeFile(rootFile, file));
         String root = "/temp";
-        assertEquals("/temp", root);
-        String relativeFile = FileUtilities.getRelativeFile(root, file.getAbsolutePath());
+        String relativeFile = FileUtilities.getRelativeFile(new File(root), file);
         assertNull(relativeFile);
         root = workingDirectory.getAbsolutePath();
-        relativeFile = FileUtilities.getRelativeFile(root, file.getAbsolutePath());
+        relativeFile = FileUtilities.getRelativeFile(new File(root), file);
         assertEquals("hello", relativeFile);
     }
 
@@ -398,19 +400,19 @@ public class FileUtilitiesTest
         f.deleteOnExit();
         Timer t = new Timer();
         t.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
             {
-                try
+                @Override
+                public void run()
                 {
-                    f.createNewFile();
-                } catch (IOException ex)
-                {
-                    throw new CheckedExceptionTunnel(ex);
+                    try
+                    {
+                        f.createNewFile();
+                    } catch (IOException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
                 }
-            }
-        }, 250L);
+            }, 250L);
         assertTrue(FileUtilities.isAvailable(f, 500L));
     }
 
