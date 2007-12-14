@@ -142,6 +142,25 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         checkLocation(getWellGeometry(), wellLocation);
     }
 
+    private final IDirectory getImageRootDirectoryNode(final File imageRootDirectory)
+    {
+        final IDirectory originalDataDirectory = getOriginalDataDirectory();
+        final String imageRootDirName = imageRootDirectory.getName();
+        // If not already present, move the 'imageRootDirectory' to 'original' data directory.
+        if (originalDataDirectory.tryGetNode(imageRootDirName) == null)
+        {
+            originalDataDirectory.addFile(imageRootDirectory, null, true);
+        }
+        final INode imageRootNode = originalDataDirectory.tryGetNode(imageRootDirName);
+        if (imageRootNode == null)
+        {
+            throw new DataStructureException(String.format(
+                    "No image root directory named '%s' could be found in the original directory.", imageRootDirName));
+        }
+        assert imageRootNode instanceof IDirectory : "Image root node must be a directory.";
+        return (IDirectory) imageRootNode;
+    }
+
     //
     // IHCSFormattedData
     //
@@ -162,9 +181,11 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
     }
 
-    public final NodePath addStandardNode(final File imageFile, int channel, final Location plateLocation,
-            final Location wellLocation) throws DataStructureException
+    public final NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath,
+            final int channel, final Location plateLocation, final Location wellLocation) throws DataStructureException
     {
+        assert imageRootDirectory != null : "Given image root directory can not be null.";
+        assert imageRelativePath != null : "Given image relative path can not be null.";
         INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
         if (node != null)
         {
@@ -172,7 +193,6 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     "A node already exists at channel %d, plate location '%s' and well location '%s'.", channel,
                     plateLocation, wellLocation));
         }
-        assert imageFile != null : "Given original file name can not be null.";
         final IDirectory standardDir = getStandardDataDirectory();
         final IDirectory channelDir = Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
         final IDirectory plateRowDir = Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
@@ -181,16 +201,18 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         final String wellFileName = createWellFileName(wellLocation);
         if (containsOriginalData())
         {
-            final INode originalNode = getOriginalDataDirectory().addFile(imageFile, null, true);
-            if (originalNode == null)
+            final IDirectory imageRootDirectoryNode = getImageRootDirectoryNode(imageRootDirectory);
+            final INode imageNode = imageRootDirectoryNode.tryGetNode(imageRelativePath);
+            if (imageNode == null)
             {
-                throw new DataStructureException(String.format("No original node with name '%s' could be found.",
-                        imageFile));
+                throw new DataStructureException(String.format(
+                        "No image node with path '%s' could be found in the original directory.", imageRelativePath));
             }
-            node = plateColumnDir.tryAddLink(wellFileName, originalNode);
+            node = plateColumnDir.tryAddLink(wellFileName, imageNode);
         } else
         {
-            node = plateColumnDir.addFile(imageFile, wellFileName, true);
+            // Copies the file. So we are able to undo the operation.
+            node = plateColumnDir.addFile(new File(imageRootDirectory, imageRelativePath), wellFileName, false);
         }
         if (node == null)
         {
@@ -198,7 +220,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     String
                             .format(
                                     "Original file name '%s' could not be added at channel %d, plate location '%s' and well location '%s'.",
-                                    imageFile, channel, plateLocation, wellLocation));
+                                    imageRelativePath, channel, plateLocation, wellLocation));
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =

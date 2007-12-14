@@ -44,13 +44,16 @@ public interface IHCSImageFormattedData extends IFormattedData
     /**
      * Adds a new image file at given coordinates.
      * 
+     * @param imageRootDirectory the root directory where the image is located. This usually is the incoming data set
+     *            directory.
+     * @param imageRelativePath relative path (to <var>imageRootDirectory</var>) name of the image file that is going
+     *            to be added in the <code>standard</code> directory.
      * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code>) with its path
      *         in the <code>standard</code> directory. Never returns <code>null</code>.
-     * @param imageFile name of the image file that is going to be added in the <code>standard</code> directory.
      * @throws DataStructureException if a node already exists at given coordinates.
      */
-    public NodePath addStandardNode(final File imageFile, final int channel, final Location plateLocation,
-            final Location wellLocation) throws DataStructureException;
+    public NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath, final int channel,
+            final Location plateLocation, final Location wellLocation) throws DataStructureException;
 
     //
     // Helper classes
