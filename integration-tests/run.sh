@@ -350,7 +350,7 @@ function launch_tests {
 function assert_correct_results {
     local res=$WORK/client-result.txt
     call_in_dir check-results.sh $LIMS_CLIENT/ > $res
-    assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE ANALYSIS.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
+    assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
     assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 
     assert_dir_empty $DATA/in-raw
@@ -358,7 +358,7 @@ function assert_correct_results {
     assert_dir_empty $DATA/in-analys
     assert_dir_empty $DATA/out-analys
     assert_dir_empty $DATA/analys-copy
-    imgAnalys="$DATA/store-analys/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE ANALYSIS/Barcode_3VCP1/1"
+    imgAnalys="$DATA/store-analys/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_3VCP1/1"
     assert_dir_exists "$imgAnalys"
     rawData="$DATA/store-raw/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
     assert_dir_exists "$rawData"

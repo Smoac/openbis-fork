@@ -1,4 +1,4 @@
-CL=./lims.sh
+CL=./bis.sh
 CMDS_FILE=commands.txt
 PASSWORD=unimportant
 
