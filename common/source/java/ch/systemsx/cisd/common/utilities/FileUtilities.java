@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -269,7 +270,7 @@ public final class FileUtilities
         String line;
         while ((line = reader.readLine()) != null)
         {
-            builder.append(line).append('\n');
+            builder.append(line).append(CharUtils.LF);
         }
         return builder.toString();
     }
