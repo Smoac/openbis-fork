@@ -22,7 +22,7 @@ import java.text.MessageFormat;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.common.db.ISequencerHandler;
@@ -34,14 +34,14 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-public class DatabaseConfigurationContext
+public class DatabaseConfigurationContext implements DisposableBean
 {
     private String driver;
 
     private LobHandler lobHandler;
 
     private ISequencerHandler sequencerHandler;
-    
+
     private String adminURL;
 
     private String adminUser;
@@ -77,6 +77,20 @@ public class DatabaseConfigurationContext
         owner = System.getProperty("user.name").toLowerCase();
     }
 
+    private final static void closeConnection(final BasicDataSource dataSource)
+    {
+        if (dataSource != null)
+        {
+            try
+            {
+                dataSource.close();
+            } catch (SQLException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
+
     /**
      * Creates a <code>DataSource</code> for this context.
      */
@@ -105,9 +119,6 @@ public class DatabaseConfigurationContext
         myDataSource.setPassword("");
         myDataSource.setMinIdle(0);
         myDataSource.setMaxIdle(0);
-        // TODO 2007-12-05, Franz-Josef Elmer: Remove this magic line of code if commons DHCP 1.3 is out and closing
-        // connections correctly
-        ToStringBuilder.reflectionToString(myDataSource); 
         return myDataSource;
     }
 
@@ -122,7 +133,7 @@ public class DatabaseConfigurationContext
         }
         return dataSource;
     }
-    
+
     /**
      * Returns data source for admin purposes.
      */
@@ -141,31 +152,6 @@ public class DatabaseConfigurationContext
         return adminDataSource;
     }
 
-    /**
-     * Closes data sources. 
-     */
-    public void closeDataSources()
-    {
-        closeDataSource(dataSource);
-        dataSource = null;
-        closeDataSource(adminDataSource);
-        adminDataSource = null;
-    }
-    
-    private void closeDataSource(BasicDataSource ds)
-    {
-        if (ds != null)
-        {
-            try
-            {
-                ds.close();
-            } catch (SQLException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-        }
-    }
-    
     /**
      * Returns the user name of the owner of the database.
      */
@@ -479,4 +465,19 @@ public class DatabaseConfigurationContext
         }
     }
 
+    /** Closes opened database connections. */
+    public final void closeConnections()
+    {
+        closeConnection(dataSource);
+        closeConnection(adminDataSource);
+    }
+
+    //
+    // DisposableBean
+    //
+
+    public final void destroy() throws Exception
+    {
+        closeConnections();
+    }
 }
