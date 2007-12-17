@@ -341,7 +341,6 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets the template to created the URL of the database to be created/migrated.
      * 
      * @param urlTemplate New value. Can be <code>null</code>.
-     * @see #getUrlTemplate()
      */
     public final void setUrlTemplate(String urlTemplate)
     {
