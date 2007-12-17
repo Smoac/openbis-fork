@@ -88,12 +88,12 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private static interface LastChangedChecker
+    private static interface ILastChangedChecker
     {
         public long lastChanged(StoreItem item, long stopWhenFindYounger);
     }
 
-    private final class HappyPathLastChangedChecker implements LastChangedChecker
+    private final class HappyPathLastChangedChecker implements ILastChangedChecker
     {
         public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
@@ -104,26 +104,34 @@ public class CopyActivityMonitorTest
     private final class MyTimingParameters implements ITimingParameters
     {
 
+        private final long inactivityPeriodMillis;
+
         private final int maximalNumberOfRetries;
 
         MyTimingParameters(int maximalNumberOfRetries)
         {
+            this(maximalNumberOfRetries, INACTIVITY_PERIOD_MILLIS);
+        }
+
+        MyTimingParameters(int maximalNumberOfRetries, long inactivityPeriodMillis)
+        {
+            this.inactivityPeriodMillis = inactivityPeriodMillis;
             this.maximalNumberOfRetries = maximalNumberOfRetries;
         }
 
         public long getCheckIntervalMillis()
         {
-            return INACTIVITY_PERIOD_MILLIS / 10;
+            return inactivityPeriodMillis / 10;
         }
 
         public long getQuietPeriodMillis()
         {
-            return INACTIVITY_PERIOD_MILLIS / 10;
+            return inactivityPeriodMillis / 10;
         }
 
         public long getInactivityPeriodMillis()
         {
-            return INACTIVITY_PERIOD_MILLIS;
+            return inactivityPeriodMillis;
         }
 
         public long getIntervalToWaitAfterFailure()
@@ -137,13 +145,13 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private FileStore asFileStore(File directory, final LastChangedChecker checker)
+    private FileStore asFileStore(File directory, final ILastChangedChecker checker)
     {
         IFileSysOperationsFactory factory = FileOperationsUtil.createTestFatory();
         return asFileStore(directory, checker, factory);
     }
 
-    private FileStore asFileStore(File directory, final LastChangedChecker checker, IFileSysOperationsFactory factory)
+    private FileStore asFileStore(File directory, final ILastChangedChecker checker, IFileSysOperationsFactory factory)
     {
         final FileStoreLocal localImpl = new FileStoreLocal(directory, "input-test", factory);
         return new FileStore(directory, null, false, "input-test", factory)
@@ -234,7 +242,7 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testHappyPath() throws Throwable
     {
-        final LastChangedChecker checker = new HappyPathLastChangedChecker();
+        final ILastChangedChecker checker = new HappyPathLastChangedChecker();
         final ITerminable dummyTerminable = new DummyTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -249,7 +257,7 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testCopyStalled() throws Throwable
     {
-        final LastChangedChecker checker = new PathLastChangedCheckerStalled();
+        final ILastChangedChecker checker = new PathLastChangedCheckerStalled();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -261,7 +269,7 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated();
     }
 
-    private final class SimulateShortInterruptionChangedChecker implements LastChangedChecker
+    private final class SimulateShortInterruptionChangedChecker implements ILastChangedChecker
     {
         private int numberOfTimesCalled = 0;
 
@@ -293,7 +301,7 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testCopySeemsStalledButActuallyIsFine() throws Throwable
     {
-        final LastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
+        final ILastChangedChecker checker = new SimulateShortInterruptionChangedChecker();
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -305,7 +313,7 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated() == false;
     }
 
-    private final class PathLastChangedCheckerStalled implements LastChangedChecker
+    private final class PathLastChangedCheckerStalled implements ILastChangedChecker
     {
         public long lastChanged(StoreItem item, long stopWhenFindYounger)
         {
@@ -315,11 +323,31 @@ public class CopyActivityMonitorTest
 
     @Test(groups =
         { "slow" })
-    public void testActivityMonitorStuck() throws Throwable
+    public void testActivityMonitorTimedOut() throws Throwable
     {
-        LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Activity monitor got terminated");
         final PathLastChangedCheckerDelayed checker = new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS);
+        final MockTerminable copyProcess = new MockTerminable();
+        final ITimingParameters parameters = new MyTimingParameters(0);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+        final StoreItem item = createDirectoryInside(workingDirectory);
+        final LogMonitoringAppender appender =
+            LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                    String.format("Could not determine \"last changed time\" of %s: time out.", item));
+        monitor.start(item);
+        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
+        monitor.stop();
+        LogMonitoringAppender.removeAppender(appender);
+        assertTrue(checker.lastCheckInterrupted());
+        assertTrue(copyProcess.isTerminated());
+        appender.verifyLogHasHappened();
+    }
+
+    @Test(groups =
+        { "slow" })
+    public void testActivityMonitorOnceTimedOutTheOK() throws Throwable
+    {
+        final PathLastChangedCheckerDelayed checker = new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
@@ -328,35 +356,8 @@ public class CopyActivityMonitorTest
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
-        LogMonitoringAppender.removeAppender(appender);
-        assertTrue(checker.interrupted());
-        assertTrue(copyProcess.isTerminated());
-        appender.verifyLogHasHappened();
-    }
-
-    @Test(groups =
-        { "slow" })
-    public void testActivityMonitorFirstStuckSecondWorking() throws Throwable
-    {
-        LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "got stuck, starting a new one");
-        final PathLastChangedCheckerDelayed checker =
-                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
-        final MockTerminable copyProcess = new MockTerminable();
-        final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
-        final File directory = new File(workingDirectory, "some-directory");
-        directory.mkdir();
-        directory.deleteOnExit();
-        final StoreItem item = createDirectoryInside(directory);
-        monitor.start(item);
-        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
-        monitor.stop();
-        LogMonitoringAppender.removeAppender(appender);
-        assertFalse(checker.interrupted());
+        assertFalse(checker.lastCheckInterrupted());
         assertFalse(copyProcess.isTerminated());
-        appender.verifyLogHappendNTimes(1);
     }
 
     private StoreItem createDirectoryInside(File parentDir)
@@ -368,19 +369,49 @@ public class CopyActivityMonitorTest
         return item;
     }
 
-    private final class PathLastChangedCheckerDelayed implements LastChangedChecker
+    @Test(groups = "slow")
+    public void testTriggerFullCheck() throws Throwable
+    {
+        final LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.MACHINE,
+                        "Performing full check for most recent path now.");
+        final PathLastChangedCheckerDelayed checker =
+                new PathLastChangedCheckerDelayed(0L, (long) (INACTIVITY_PERIOD_MILLIS / 10 * 1.5), 0L);
+        final MockTerminable copyProcess = new MockTerminable();
+        final ITimingParameters parameters = new MyTimingParameters(0, INACTIVITY_PERIOD_MILLIS);
+        final CopyActivityMonitor monitor =
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters,
+                        INACTIVITY_PERIOD_MILLIS / 10);
+        final File directory = new File(workingDirectory, "some-directory");
+        directory.mkdir();
+        directory.deleteOnExit();
+        final StoreItem item = createDirectoryInside(directory);
+        monitor.start(item);
+        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
+        monitor.stop();
+        LogMonitoringAppender.removeAppender(appender);
+        assertFalse(checker.lastCheckInterrupted());
+        assertEquals(1, checker.getInterruptionCount());
+        assertFalse(copyProcess.isTerminated());
+        appender.verifyLogHappendNTimes(1);
+    }
+
+    private final class PathLastChangedCheckerDelayed implements ILastChangedChecker
     {
         private final long[] delayMillis;
 
         private int callNumber;
 
-        private boolean interrupted;
+        private volatile boolean interrupted;
+
+        private int interruptionCount;
 
         public PathLastChangedCheckerDelayed(long... delayMillis)
         {
             assert delayMillis.length > 0;
 
             this.interrupted = false;
+            this.interruptionCount = 0;
             this.delayMillis = delayMillis;
         }
 
@@ -406,6 +437,7 @@ public class CopyActivityMonitorTest
             } catch (InterruptedException e)
             {
                 this.interrupted = true;
+                ++this.interruptionCount;
                 // That is what we expect if we are terminated.
                 throw new CheckedExceptionTunnel(new InterruptedException(e.getMessage()));
             }
@@ -413,9 +445,14 @@ public class CopyActivityMonitorTest
             return System.currentTimeMillis();
         }
 
-        boolean interrupted()
+        synchronized boolean lastCheckInterrupted()
         {
             return interrupted;
+        }
+
+        int getInterruptionCount()
+        {
+            return interruptionCount;
         }
 
     }
