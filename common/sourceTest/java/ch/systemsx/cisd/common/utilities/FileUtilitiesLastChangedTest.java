@@ -127,5 +127,25 @@ public class FileUtilitiesLastChangedTest
         assertEquals(1000L, FileUtilities.lastChanged(dirA, false, 1000L));
         assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 1000L));
     }
+    
+    @Test
+    public void testLastChangedRelative() throws IOException
+    {
+        final File dirA = new File(workingDirectory, "a-relative");
+        final long now = System.currentTimeMillis();
+        dirA.mkdir();
+        dirA.deleteOnExit();
+        final File fileB = new File(dirA, "b");
+        fileB.createNewFile();
+        fileB.deleteOnExit();
+        final long fakedModTime1 = now - 10000L;
+        final long fakedModTime2 = now - 30000L;
+        fileB.setLastModified(fakedModTime1);
+        dirA.setLastModified(fakedModTime2);
+        final long diff1 = Math.abs(fakedModTime2 - FileUtilities.lastChangedRelative(dirA, false, 31000L));
+        assertTrue("Difference to big: " + diff1 + " ms", diff1 < 1000L);
+        final long diff2 = Math.abs(fakedModTime1 - FileUtilities.lastChangedRelative(dirA, false, 11000L));
+        assertTrue("Difference to big: " + diff2 + " ms", diff2 < 1000L);
+    }
 
 }
