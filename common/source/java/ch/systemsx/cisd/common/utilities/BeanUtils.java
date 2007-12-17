@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -145,7 +145,7 @@ public final class BeanUtils
 
     @SuppressWarnings("unchecked")
     private static final Set<Class> immutableTypes =
-            new HashSet<Class>(Arrays.asList(boolean.class, Boolean.class, byte.class, Byte.class, short.class,
+            new LinkedHashSet<Class>(Arrays.asList(boolean.class, Boolean.class, byte.class, Byte.class, short.class,
                     Short.class, int.class, Integer.class, long.class, Long.class, float.class, Float.class,
                     double.class, Double.class, String.class, Date.class));
 
@@ -756,7 +756,7 @@ public final class BeanUtils
 
     private static Map<String, Method> scanForPublicMethods(Object bean, String prefix, int numberOfParameters)
     {
-        final Map<String, Method> methodMap = new HashMap<String, Method>();
+        final Map<String, Method> methodMap = new LinkedHashMap<String, Method>();
         scanForPublicMethods(bean, methodMap, prefix, numberOfParameters, (Set<Class<?>>) null);
         return methodMap;
     }
@@ -764,8 +764,8 @@ public final class BeanUtils
     private static void scanForPublicMethods(Object bean, Map<String, Method> methodMap, String prefix,
             int numberOfParameters, Class<?>... returnValueTypes)
     {
-        scanForPublicMethods(bean, methodMap, prefix, numberOfParameters, new HashSet<Class<?>>(Arrays
-                .asList(returnValueTypes)));
+        List<Class<?>> list = Arrays.asList(returnValueTypes);
+        scanForPublicMethods(bean, methodMap, prefix, numberOfParameters, new LinkedHashSet<Class<?>>(list));
     }
 
     private static void scanForPublicMethods(Object bean, Map<String, Method> methodMap, String prefix,
@@ -796,7 +796,7 @@ public final class BeanUtils
     {
         try
         {
-            Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>();
+            Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
             final List<PropertyDescriptor> descriptors =
                     new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
                             .getPropertyDescriptors()));
