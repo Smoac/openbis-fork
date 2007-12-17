@@ -178,11 +178,12 @@ public abstract class FileStore
      * Returns the last time when there was a write access to <var>item</var>.
      * 
      * @param item The {@link StoreItem} to check.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or
-     *            directory is found that is as young as or younger than the time specified in this parameter.
+     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file
+     *            or directory is found that is as young as or younger than
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was last changed.
      */
-    public abstract long lastChanged(StoreItem item, long stopWhenFindYounger);
+    public abstract long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
 
     /**
      * List files in the scanned store. Sort in order of "oldest first".

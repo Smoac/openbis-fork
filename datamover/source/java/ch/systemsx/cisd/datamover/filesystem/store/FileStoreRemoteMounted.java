@@ -77,9 +77,9 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
     {
-        return localImpl.lastChanged(item, stopWhenFindYounger);
+        return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
     @Override

@@ -62,7 +62,7 @@ public class FileStoreRemote extends FileStore
     }
 
     @Override
-    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
     {
         // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
         return 0;

@@ -90,13 +90,21 @@ public class CopyActivityMonitorTest
 
     private static interface ILastChangedChecker
     {
-        public long lastChanged(StoreItem item, long stopWhenFindYounger);
+        public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
     }
 
     private final class HappyPathLastChangedChecker implements ILastChangedChecker
     {
-        public long lastChanged(StoreItem item, long stopWhenFindYounger)
+        private final long stopWhenFindYoungerRelativeExpected;
+        
+        public HappyPathLastChangedChecker(long stopWhenFindYoungerRelativeExpected)
         {
+            this.stopWhenFindYoungerRelativeExpected = stopWhenFindYoungerRelativeExpected;
+        }
+        
+        public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
+        {
+            assertEquals(stopWhenFindYoungerRelativeExpected, stopWhenFindYoungerRelative);
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS / 2;
         }
     }
@@ -169,9 +177,9 @@ public class CopyActivityMonitorTest
                 }
 
                 @Override
-                public long lastChanged(StoreItem item, long stopWhenFindYounger)
+                public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
                 {
-                    return checker.lastChanged(item, stopWhenFindYounger);
+                    return checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
                 }
 
                 @Override
@@ -242,9 +250,10 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testHappyPath() throws Throwable
     {
-        final ILastChangedChecker checker = new HappyPathLastChangedChecker();
         final ITerminable dummyTerminable = new DummyTerminable();
-        final ITimingParameters parameters = new MyTimingParameters(0);
+        final long inactivityPeriodMillis = 5000L;
+        final ITimingParameters parameters = new MyTimingParameters(0, inactivityPeriodMillis);
+        final ILastChangedChecker checker = new HappyPathLastChangedChecker(inactivityPeriodMillis - 1000L);
         final CopyActivityMonitor monitor =
                 new CopyActivityMonitor(asFileStore(workingDirectory, checker), dummyTerminable, parameters);
         StoreItem item = createDirectoryInside(workingDirectory);
@@ -273,7 +282,7 @@ public class CopyActivityMonitorTest
     {
         private int numberOfTimesCalled = 0;
 
-        public long lastChanged(StoreItem item, long stopWhenFindYounger)
+        public long lastChangedRelative(StoreItem item, long stopWhenFindYounger)
         {
             ++numberOfTimesCalled;
             if (numberOfTimesCalled == 2)
@@ -292,10 +301,10 @@ public class CopyActivityMonitorTest
     /**
      * This test case catches a case that I first hadn't thought of: since we use <code>rsync</code> in a mode where
      * at the end of copying a file they set the "last modified" time back to the one of the source file, there is a
-     * short time interval after finishing copying one file anst starting copying the next file where the copy monitor
+     * short time interval after finishing copying one file and starting copying the next file where the copy monitor
      * could be tempted to trigger false alarm: the just finished file will have already the "last modified" time of the
      * source file (which is when the data produce finished writing the source file). In fact everything is fine but
-     * still the copy process will be cancelled.
+     * still the copy process will be canceled.
      */
     @Test(groups =
         { "slow" })
@@ -315,7 +324,7 @@ public class CopyActivityMonitorTest
 
     private final class PathLastChangedCheckerStalled implements ILastChangedChecker
     {
-        public long lastChanged(StoreItem item, long stopWhenFindYounger)
+        public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
         }
@@ -369,33 +378,6 @@ public class CopyActivityMonitorTest
         return item;
     }
 
-    @Test(groups = "slow")
-    public void testTriggerFullCheck() throws Throwable
-    {
-        final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.MACHINE,
-                        "Performing full check for most recent path now.");
-        final PathLastChangedCheckerDelayed checker =
-                new PathLastChangedCheckerDelayed(0L, (long) (INACTIVITY_PERIOD_MILLIS / 10 * 1.5), 0L);
-        final MockTerminable copyProcess = new MockTerminable();
-        final ITimingParameters parameters = new MyTimingParameters(0, INACTIVITY_PERIOD_MILLIS);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters,
-                        INACTIVITY_PERIOD_MILLIS / 10);
-        final File directory = new File(workingDirectory, "some-directory");
-        directory.mkdir();
-        directory.deleteOnExit();
-        final StoreItem item = createDirectoryInside(directory);
-        monitor.start(item);
-        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
-        monitor.stop();
-        LogMonitoringAppender.removeAppender(appender);
-        assertFalse(checker.lastCheckInterrupted());
-        assertEquals(1, checker.getInterruptionCount());
-        assertFalse(copyProcess.isTerminated());
-        appender.verifyLogHappendNTimes(1);
-    }
-
     private final class PathLastChangedCheckerDelayed implements ILastChangedChecker
     {
         private final long[] delayMillis;
@@ -429,7 +411,7 @@ public class CopyActivityMonitorTest
             }
         }
 
-        public long lastChanged(StoreItem item, long stopWhenFindYounger)
+        public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
             try
             {

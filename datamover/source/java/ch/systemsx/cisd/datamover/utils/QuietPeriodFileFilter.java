@@ -44,9 +44,9 @@ public class QuietPeriodFileFilter
      */
     public QuietPeriodFileFilter(FileStore store, ITimingParameters timingParameters)
     {
-    	assert store != null;
-    	assert timingParameters != null;
-    
+        assert store != null;
+        assert timingParameters != null;
+
         this.store = store;
         this.quietPeriodMillis = timingParameters.getQuietPeriodMillis();
         assert quietPeriodMillis > 0;
@@ -54,9 +54,8 @@ public class QuietPeriodFileFilter
 
     public boolean accept(StoreItem item)
     {
-        final long now = System.currentTimeMillis();
-        final long stopWhenFindYounger = now - (quietPeriodMillis - SAFETY_MARGIN_MILLIS); 
-        return (System.currentTimeMillis() - store.lastChanged(item, stopWhenFindYounger)) > quietPeriodMillis;
+        final long stopWhenFindYoungerRelative = quietPeriodMillis - SAFETY_MARGIN_MILLIS;
+        return (System.currentTimeMillis() - store.lastChangedRelative(item, stopWhenFindYoungerRelative)) > quietPeriodMillis;
     }
 
 }

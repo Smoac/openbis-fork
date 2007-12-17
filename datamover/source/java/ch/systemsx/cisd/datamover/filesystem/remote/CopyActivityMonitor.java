@@ -51,8 +51,6 @@ public class CopyActivityMonitor
 
     private final long checkIntervallMillis;
 
-    private final long quickCheckActivityMillis;
-
     private final long inactivityPeriodMillis;
 
     private final String threadNamePrefix;
@@ -72,7 +70,7 @@ public class CopyActivityMonitor
     private ActivityMonitoringTimerTask activityMonitoringTimerTask;
 
     /**
-     * Creates a monitor. Uses 20% of <code>timingParameters.getCheckIntervalMillis()</code> for the quick check.
+     * Creates a monitor.
      * 
      * @param destinationStore The file store to monitor for write access.
      * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
@@ -80,21 +78,6 @@ public class CopyActivityMonitor
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
     public CopyActivityMonitor(FileStore destinationStore, ITerminable copyProcess, ITimingParameters timingParameters)
-    {
-        this(destinationStore, copyProcess, timingParameters, (long) (timingParameters.getCheckIntervalMillis() * 0.2));
-    }
-
-    /**
-     * Creates a monitor.
-     * 
-     * @param destinationStore The file store to monitor for write access.
-     * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
-     *            process gets stuck.
-     * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
-     * @param quickCheckActivityMillis The time to give the monitor for quickly check recently changed files.
-     */
-    public CopyActivityMonitor(FileStore destinationStore, ITerminable copyProcess, ITimingParameters timingParameters,
-            long quickCheckActivityMillis)
     {
         assert destinationStore != null;
         assert copyProcess != null;
@@ -104,7 +87,6 @@ public class CopyActivityMonitor
         this.terminable = copyProcess;
         this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
         this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
-        this.quickCheckActivityMillis = quickCheckActivityMillis;
 
         assert this.checkIntervallMillis > 0;
 
@@ -121,8 +103,8 @@ public class CopyActivityMonitor
     /**
      * Starts the activity monitoring.
      * 
-     * @param itemToBeCopied The item that will be copied to the destination file store and whose write progress
-     *            should be monitored.
+     * @param itemToBeCopied The item that will be copied to the destination file store and whose write progress should
+     *            be monitored.
      */
     public void start(StoreItem itemToBeCopied)
     {
@@ -156,7 +138,7 @@ public class CopyActivityMonitor
                 ConcurrencyUtilities.newNamedPool("Last Changed Explorer", 1, Integer.MAX_VALUE);
 
         private final StoreItem itemToBeCopied;
-        
+
         private long monitoredItemLastChanged;
 
         private ActivityMonitoringTimerTask(StoreItem itemToBeCopied)
@@ -239,38 +221,25 @@ public class CopyActivityMonitor
 
         private long lastChanged(FileStore store, StoreItem item, long lastLastChanged)
         {
-            // Give the system quickCheckActivityMillis to find recently changed files, otherwise perform full check
-            final long stopWhenYoungerThan =
-                    System.currentTimeMillis() - (inactivityPeriodMillis - 2 * quickCheckActivityMillis);
             final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
-            final Future<Long> quickCheckLastChangedFuture =
-                    lastChangedExecutor.submit(createCheckerCallable(store, item, stopWhenYoungerThan));
-            final Long quickLastChanged =
-                    ConcurrencyUtilities.tryGetResult(quickCheckLastChangedFuture, quickCheckActivityMillis,
-                            simpleMachineLog, "Quick check for recent paths");
-            if (quickLastChanged == null)
+            final Future<Long> lastChangedFuture =
+                    lastChangedExecutor.submit(createCheckerCallable(store, item,
+                            minusSafetyMargin(inactivityPeriodMillis)));
+            final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
+            final Long lastChanged =
+                    ConcurrencyUtilities.tryGetResult(lastChangedFuture, timeoutMillis, simpleMachineLog,
+                            "Check for recent paths");
+            if (lastChanged == null)
             {
-                if (machineLog.isDebugEnabled())
-                {
-                    machineLog.debug("Performing full check for most recent path now.");
-                }
-                final Future<Long> lastChangedFuture =
-                        lastChangedExecutor.submit(createCheckerCallable(store, item, 0L));
-                final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
-                final Long lastChanged =
-                        ConcurrencyUtilities.tryGetResult(lastChangedFuture, timeoutMillis, simpleMachineLog,
-                                "Check for recent paths");
-                if (lastChanged == null)
-                {
-                    operationLog.error(String
-                            .format("Could not determine \"last changed time\" of %s: time out.", item));
-                    return lastLastChanged;
-                }
-                return lastChanged;
-            } else
-            {
-                return quickLastChanged;
+                operationLog.error(String.format("Could not determine \"last changed time\" of %s: time out.", item));
+                return lastLastChanged;
             }
+            return lastChanged;
+        }
+
+        private long minusSafetyMargin(long period)
+        {
+            return Math.max(0L, period - 1000L);
         }
 
         private Callable<Long> createCheckerCallable(final FileStore store, final StoreItem item,
@@ -286,7 +255,7 @@ public class CopyActivityMonitor
                         }
                         try
                         {
-                            final long lastChanged = store.lastChanged(item, stopWhenYoungerThan);
+                            final long lastChanged = store.lastChangedRelative(item, stopWhenYoungerThan);
                             if (machineLog.isTraceEnabled())
                             {
                                 machineLog.trace(String.format(
