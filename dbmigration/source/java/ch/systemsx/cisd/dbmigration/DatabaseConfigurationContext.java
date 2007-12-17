@@ -84,7 +84,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             try
             {
                 dataSource.close();
-            } catch (SQLException ex)
+            } catch (final SQLException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
@@ -98,15 +98,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         final BasicDataSource myDataSource = new BasicDataSource();
         final String dsDriver = getDriver();
-        if (dsDriver == null)
-        {
-            throw new ConfigurationFailureException("No db driver defined.");
-        }
         final String dsUrlTemplate = getUrlTemplate();
-        if (dsUrlTemplate == null)
-        {
-            throw new ConfigurationFailureException("No db url template defined.");
-        }
         final String dsDatabaseName = getDatabaseName();
         if (dsDatabaseName == null)
         {
@@ -123,6 +115,65 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * Returns the template to created the URL of the database to be created/migrated. It should contain
+     * <code>{0}</code> as a placeholder for the name of the database.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    private final String getUrlTemplate()
+    {
+        if (urlTemplate == null)
+        {
+            throw new ConfigurationFailureException("No db url template defined.");
+        }
+        return urlTemplate;
+    }
+
+    /**
+     * Returns the fully-qualified class name of the JDBC driver.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    private final String getDriver()
+    {
+        if (driver == null)
+        {
+            throw new ConfigurationFailureException("No db driver defined.");
+        }
+        return driver;
+    }
+
+    /**
+     * Returns user name of the administrator.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    private final String getAdminUser()
+    {
+        return adminUser;
+    }
+
+    /**
+     * Returns password of the administrator.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    private final String getAdminPassword()
+    {
+        return adminPassword;
+    }
+
+    /**
+     * Returns database kind.
+     * 
+     * @return <code>null</code> when undefined.
+     */
+    private final String getDatabaseKind()
+    {
+        return databaseKind;
+    }
+
+    /**
      * Returns the {@link DataSource} of this data configuration.
      */
     public final DataSource getDataSource()
@@ -132,6 +183,15 @@ public class DatabaseConfigurationContext implements DisposableBean
             dataSource = createDataSource();
         }
         return dataSource;
+    }
+
+    /**
+     * Returns the basic name of the database. The kind of database will be added to this to create the full database
+     * name.
+     */
+    public String getBasicDatabaseName()
+    {
+        return basicDatabaseName;
     }
 
     /**
@@ -169,16 +229,6 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns user name of the administrator.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final String getAdminUser()
-    {
-        return adminUser;
-    }
-
-    /**
      * Sets user name of the administrator.
      * 
      * @param adminUser New value. Can be <code>null</code>.
@@ -186,15 +236,6 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setAdminUser(String adminUser)
     {
         this.adminUser = adminUser;
-    }
-
-    /**
-     * Returns the basic name of the database. The kind of database will be added to this to create the full database
-     * name.
-     */
-    public String getBasicDatabaseName()
-    {
-        return basicDatabaseName;
     }
 
     /**
@@ -214,16 +255,6 @@ public class DatabaseConfigurationContext implements DisposableBean
             databaseName = getBasicDatabaseName() + "_" + getDatabaseKind();
         }
         return databaseName;
-    }
-
-    /**
-     * Returns password of the administrator.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final String getAdminPassword()
-    {
-        return adminPassword;
     }
 
     /**
@@ -254,16 +285,6 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setAdminURL(String adminURL)
     {
         this.adminURL = adminURL;
-    }
-
-    /**
-     * Returns the fully-qualified class name of the JDBC driver.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final String getDriver()
-    {
-        return driver;
     }
 
     /**
@@ -317,17 +338,6 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns the template to created the URL of the database to be created/migrated. It should contain
-     * <code>{0}</code> as a placeholder for the name of the database.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final String getUrlTemplate()
-    {
-        return urlTemplate;
-    }
-
-    /**
      * Sets the template to created the URL of the database to be created/migrated.
      * 
      * @param urlTemplate New value. Can be <code>null</code>.
@@ -356,15 +366,6 @@ public class DatabaseConfigurationContext implements DisposableBean
         this.createFromScratch = createFromScratch;
     }
 
-    /**
-     * Returns database kind.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final String getDatabaseKind()
-    {
-        return databaseKind;
-    }
 
     /**
      * Sets database kind. This will be append to the name of the database. It allows to have different database
@@ -469,7 +470,9 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void closeConnections()
     {
         closeConnection(dataSource);
+        dataSource = null;
         closeConnection(adminDataSource);
+        adminDataSource = null;
     }
 
     //
