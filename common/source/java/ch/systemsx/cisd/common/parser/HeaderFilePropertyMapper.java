@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,13 +35,13 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
     public HeaderFilePropertyMapper(final String[] headerTokens) throws IllegalArgumentException
     {
         assert headerTokens != null;
-        aliases = new HashMap<String, String>();
+        aliases = new LinkedHashMap<String, String>();
         this.properties = tokensToMap(headerTokens);
     }
 
     private final static Map<String, IPropertyModel> tokensToMap(final String[] tokens) throws IllegalArgumentException
     {
-        final Map<String, IPropertyModel> map = new HashMap<String, IPropertyModel>(tokens.length);
+        final Map<String, IPropertyModel> map = new LinkedHashMap<String, IPropertyModel>(tokens.length);
         for (int i = 0; i < tokens.length; i++)
         {
             final String token = tokens[i];
@@ -133,7 +133,7 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
      */
     public final Set<String> getAllPropertyNames()
     {
-        final Set<String> set = new HashSet<String>();
+        final Set<String> set = new LinkedHashSet<String>();
         for (String property : properties.keySet())
         {
             if (aliases.containsValue(property))

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.parser;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,8 +110,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             throws ParserException
     {
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
-        final Set<String> propertyNames = new HashSet<String>(allPropertyNames);
-        final Set<String> missingProperties = new HashSet<String>();
+        final Set<String> propertyNames = new LinkedHashSet<String>(allPropertyNames);
+        final Set<String> missingProperties = new LinkedHashSet<String>();
         final Set<String> fieldNames = propertyDescriptors.keySet();
         for (final String fieldName : fieldNames)
         {
