@@ -1,2 +1,2 @@
-code	description	studyObjectCode	experimentTypeCode	controlLayoutCode	projectCode	cellPlates
-EXP1	A simple experiment	SV40	SIRNAHCS	CL-3V	NEMO	> cellPlates.txt
+code	description	studyObjectCode	studyObjectTypeCode	experimentTypeCode	controlLayoutCode	projectCode	cellPlates
+EXP1	A simple experiment	SV40	VIRUS	SIRNAHCS	CL-3V	NEMO	> cellPlates.txt
