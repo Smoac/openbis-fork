@@ -498,11 +498,15 @@ public class DBMigrationEngineTest
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
         migrationEngine.migrateTo(toVersion);
+        String logContent = logRecorder.getLogContent();
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Trying to migrate database 'my 1. database' from version 099 to 101." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' successfully migrated from version 099 to 101.", logRecorder
-                .getLogContent());
+                + "Successfully migrated from version 099 to 100 in 0 msec" + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Successfully migrated from version 100 to 101 in 0 msec" + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "Database 'my 2. database' successfully migrated from version 099 to 101.", logContent);
 
         context.assertIsSatisfied();
     }
