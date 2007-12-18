@@ -227,7 +227,13 @@ public class DBMigrationEngine
                 operationLog.error(message);
                 throw new EnvironmentFailureException(message);
             }
+            long time = System.currentTimeMillis();
             executeScript(migrationScript, toVersion);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Successfully migrated from version " + version + " to " + nextVersion + " in "
+                        + (System.currentTimeMillis() - time) + " msec");
+            }
             version = nextVersion;
         } while (version.equals(toVersion) == false);
     }
