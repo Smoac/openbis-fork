@@ -316,6 +316,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
             handler.handle(item);
         } finally
         {
+            // If the item still exists, we assume that it has not been handled. So it should be added to the faulty
+            // paths.
             if (sourceDirectory.exists(item))
             {
                 addToFaultyPaths(item);
