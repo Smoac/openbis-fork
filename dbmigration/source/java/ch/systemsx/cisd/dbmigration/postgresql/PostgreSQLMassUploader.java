@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -77,7 +79,20 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         return copyManager;
     }
 
-    public void performMassUpload(File massUploadFile)
+    public void performMassUpload(File[] massUploadFiles)
+    {
+        Set<String> tables = new LinkedHashSet<String>();
+        for (File file : massUploadFiles)
+        {
+            performMassUpload(file, tables);
+        }
+        for (String name : tables)
+        {
+            fixSequence(name);
+        }
+    }
+
+    private void performMassUpload(File massUploadFile, Set<String> tables)
     {
         try
         {
@@ -103,7 +118,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
                 } else
                 {
                     getCopyManager().copyInQuery("COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
-                    fixSequence(tableName);
+                    tables.add(tableName);
                 }
             } finally
             {

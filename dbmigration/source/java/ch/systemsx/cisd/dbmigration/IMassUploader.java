@@ -34,9 +34,9 @@ public interface IMassUploader
     /**
      * Upload the data from file <var>massUploadFile</var> to the database.
      * 
-     * @param massUploadFile File to upload to the database, following the naming convention
+     * @param massUploadFiles Files to upload to the database, following the naming convention
      *            <code>orderSpecifier=tableName.csv</code> or <code>orderSpecifier=tableName.tsv</code>.
      */
-    public void performMassUpload(File massUploadFile);
+    public void performMassUpload(File[] massUploadFiles);
 
 }

@@ -53,6 +53,7 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         databaseDAO =
                 new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
         final DataSource dataSource = context.getDataSource();
+        System.out.println("ds:"+dataSource);
         sqlScriptExecutor = new SqlScriptExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try

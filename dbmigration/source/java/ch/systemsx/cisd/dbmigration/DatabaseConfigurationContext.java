@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.sql.SQLException;
 import java.text.MessageFormat;
 
 import javax.sql.DataSource;
@@ -36,6 +35,21 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DatabaseConfigurationContext implements DisposableBean
 {
+    private static final class BascDataSourceFactory implements IDataSourceFactory
+    {
+        public DataSource createDataSource(String driver, String url, String owner, String password)
+        {
+            final BasicDataSource dataSource = new BasicDataSource();
+            dataSource.setDriverClassName(driver);
+            dataSource.setUrl(url);
+            dataSource.setUsername(owner);
+            dataSource.setPassword(password);
+            dataSource.setMinIdle(0);
+            dataSource.setMaxIdle(0);
+            return dataSource;
+        }
+    }
+
     private String driver;
 
     private LobHandler lobHandler;
@@ -61,10 +75,12 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String databaseType;
 
     private boolean createFromScratch;
+    
+    private IDataSourceFactory dataSourceFactory = new BascDataSourceFactory();
 
-    private BasicDataSource dataSource;
+    private DataSource dataSource;
 
-    private BasicDataSource adminDataSource;
+    private DataSource adminDataSource;
 
     private String owner;
 
@@ -76,27 +92,38 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         owner = System.getProperty("user.name").toLowerCase();
     }
+    
+    public final void setDataSourceFactory(IDataSourceFactory dataSourceFactory)
+    {
+        this.dataSourceFactory = dataSourceFactory;
+    }
 
-    private final static void closeConnection(final BasicDataSource dataSource)
+    private final static void closeConnection(final DataSource dataSource)
     {
         if (dataSource != null)
         {
             try
             {
-                dataSource.close();
-            } catch (final SQLException ex)
+                if (dataSource instanceof BasicDataSource)
+                {
+                    (((BasicDataSource) dataSource)).close();
+                }
+                if (dataSource instanceof DisposableBean)
+                {
+                    ((DisposableBean) dataSource).destroy();
+                }
+            } catch (final Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
     }
-
+    
     /**
      * Creates a <code>DataSource</code> for this context.
      */
-    private final BasicDataSource createDataSource()
+    private final DataSource createDataSource()
     {
-        final BasicDataSource myDataSource = new BasicDataSource();
         final String dsDriver = getDriver();
         final String dsUrlTemplate = getUrlTemplate();
         final String dsDatabaseName = getDatabaseName();
@@ -104,14 +131,8 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             throw new ConfigurationFailureException("No db name defined.");
         }
-        myDataSource.setDriverClassName(dsDriver);
         final String url = MessageFormat.format(dsUrlTemplate, dsDatabaseName);
-        myDataSource.setUrl(url);
-        myDataSource.setUsername(owner);
-        myDataSource.setPassword("");
-        myDataSource.setMinIdle(0);
-        myDataSource.setMaxIdle(0);
-        return myDataSource;
+        return dataSourceFactory.createDataSource(dsDriver, url, owner, "");
     }
 
     /**
@@ -201,13 +222,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         if (adminDataSource == null)
         {
-            adminDataSource = new BasicDataSource();
-            adminDataSource.setDriverClassName(getDriver());
-            adminDataSource.setUrl(getAdminURL());
-            adminDataSource.setUsername(getAdminUser());
-            adminDataSource.setPassword(getAdminPassword());
-            adminDataSource.setMinIdle(0);
-            adminDataSource.setMaxIdle(0);
+            adminDataSource =
+                    dataSourceFactory.createDataSource(getDriver(), getAdminURL(), getAdminUser(), getAdminPassword());
         }
         return adminDataSource;
     }

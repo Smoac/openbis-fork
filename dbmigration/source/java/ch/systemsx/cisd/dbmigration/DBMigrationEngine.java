@@ -206,10 +206,7 @@ public class DBMigrationEngine
             executeScript(initialDataScript, version, logEnabled);
         }
         File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
-        for (File f : massUploadFiles)
-        {
-            massUploader.performMassUpload(f);
-        }
+        massUploader.performMassUpload(massUploadFiles);
     }
 
     private void migrate(String fromVersion, String toVersion)
