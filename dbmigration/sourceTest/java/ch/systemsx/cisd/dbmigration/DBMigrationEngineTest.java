@@ -501,7 +501,7 @@ public class DBMigrationEngineTest
 
         migrationEngine.migrateTo(toVersion);
         String logContent = logRecorder.getLogContent();
-        logContent.replaceAll("\\d* msec", "0 msec");
+        logContent.replaceAll("\\d+ msec", "0 msec");
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Trying to migrate database 'my 1. database' from version 099 to 101." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
