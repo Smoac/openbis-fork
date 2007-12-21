@@ -45,18 +45,25 @@ public final class Location
         this.y = y;
     }
 
-    /** For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>. */
-    public static final Location createLocationFromPosition(final int position, final Geometry geometry)
+    /**
+     * For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>.
+     * 
+     * @return <code>null</code> if position is out of range.
+     */
+    public static final Location tryCreateLocationFromPosition(final int position, final Geometry geometry)
     {
         assert geometry != null : "Given geometry can not be null.";
         final int columns = geometry.getColumns();
         final int max = columns * geometry.getRows();
-        assert position > 0 && position < max : String.format("Given position %d is out of range (%s).", position,
-                geometry);
-        final int modulo = position % columns;
-        final int x = modulo == 0 ? columns : modulo;
-        final int y = (int) Math.ceil(position / (float) columns);
-        return new Location(x, y);
+        // Given position is within the range.
+        if (position > 0 && position < max)
+        {
+            final int modulo = position % columns;
+            final int x = modulo == 0 ? columns : modulo;
+            final int y = (int) Math.ceil(position / (float) columns);
+            return new Location(x, y);
+        }
+        return null;
     }
 
     /**
@@ -65,7 +72,7 @@ public final class Location
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */
-    public static final Location createLocationFromMatrixCoordinate(final String coordinate)
+    public static final Location tryCreateLocationFromMatrixCoordinate(final String coordinate)
     {
         assert coordinate != null : "Coordinate can not be null.";
         final String[] split = StringUtilities.splitMatrixCoordinate(coordinate);
