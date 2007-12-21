@@ -64,14 +64,13 @@ public final class BufferedAppender extends WriterAppender
         logRecorder = new ByteArrayOutputStream();
         setWriter(createWriter(logRecorder));
         setLayout(createLayout(pattern));
-        configureRootLogger(logLevel);
+        configureRootLogger();
+        setThreshold(logLevel);
     }
 
-    private final void configureRootLogger(final Level logLevel)
+    private final void configureRootLogger()
     {
-        final Logger root = Logger.getRootLogger();
-        root.addAppender(this);
-        root.setLevel(logLevel);
+        Logger.getRootLogger().addAppender(this);
     }
 
     protected Layout createLayout(final String pattern)
