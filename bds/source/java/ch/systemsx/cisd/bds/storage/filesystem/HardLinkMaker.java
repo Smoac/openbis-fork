@@ -56,7 +56,7 @@ public final class HardLinkMaker implements ILinkMaker
 
     private final List<String> createLnCmdLine(final File srcFile, final File destFile)
     {
-        List<String> tokens = new ArrayList<String>();
+        final List<String> tokens = new ArrayList<String>();
         tokens.add(linkExecPath);
         tokens.add(srcFile.getAbsolutePath());
         // The destination file does not yet exist. Is going to be created and is the link.
@@ -87,7 +87,7 @@ public final class HardLinkMaker implements ILinkMaker
     // ILinkMaker
     //
 
-    public final File tryCreateLink(final java.io.File file, final java.io.File destDir, final String nameOrNull)
+    public final File tryCreateLink(final File file, final File destDir, final String nameOrNull)
             throws EnvironmentFailureException
     {
         assert file != null && file.isFile() : "Given file can not be null and must be a file.";
@@ -111,7 +111,7 @@ public final class HardLinkMaker implements ILinkMaker
         final boolean ok = ProcessExecutionHelper.runAndLog(cmd, rootLogger, rootLogger);
         if (ok == false)
         {
-            String message = loggerRecorder.getLogContent();
+            final String message = loggerRecorder.getLogContent();
             if (message.length() == 0)
             {
                 return null;
