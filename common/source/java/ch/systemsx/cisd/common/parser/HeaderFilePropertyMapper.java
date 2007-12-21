@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * A <code>IPropertyMapper</code> implementation for mapping informations being in the header of a file.
@@ -41,14 +46,17 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 
     private final static Map<String, IPropertyModel> tokensToMap(final String[] tokens) throws IllegalArgumentException
     {
-        final Map<String, IPropertyModel> map = new LinkedHashMap<String, IPropertyModel>(tokens.length);
-        for (int i = 0; i < tokens.length; i++)
+        final int len = tokens.length;
+        final Map<String, IPropertyModel> map = new LinkedHashMap<String, IPropertyModel>(len);
+        for (int i = 0; i < len; i++)
         {
             final String token = tokens[i];
-            if (token != null)
+            if (StringUtils.isBlank(token))
             {
-                map.put(token.toLowerCase(), new MappedProperty(i, token));
+                throw new IllegalArgumentException(String.format("%s token of %s is blank.", StringUtilities
+                        .getOrdinal(i), Arrays.asList(tokens)));
             }
+            map.put(token.toLowerCase(), new MappedProperty(i, token));
         }
         return map;
     }
@@ -57,17 +65,18 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
             throws IllegalArgumentException
     {
         // No more than one alias for a given property
-        if (aliases.containsValue(propertyName))
+        final String propertyLowerCase = propertyName.toLowerCase();
+        if (aliases.containsValue(propertyLowerCase))
         {
-            throw new IllegalArgumentException("Following alias '" + getPropertyAlias(propertyName)
+            throw new IllegalArgumentException("Following alias '" + getPropertyAlias(propertyLowerCase)
                     + "' already exists for property '" + propertyName + "'.");
         }
-        final String alias = aliasName.toLowerCase();
+        final String aliasLowerCase = aliasName.toLowerCase();
         // No alias for two different properties.
-        if (aliases.containsKey(alias))
+        if (aliases.containsKey(aliasLowerCase))
         {
             throw new IllegalArgumentException("Alias name '" + aliasName + "' already specified for property '"
-                    + aliases.get(alias) + "'.");
+                    + aliases.get(aliasLowerCase) + "'.");
         }
     }
 
@@ -76,11 +85,11 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
      * 
      * @return <code>null</code> if no alias could be found.
      */
-    private final String getPropertyAlias(final String property)
+    private final String getPropertyAlias(final String propertyName)
     {
         for (Map.Entry<String, String> entry : aliases.entrySet())
         {
-            if (entry.getValue().equals(property))
+            if (entry.getValue().equals(propertyName))
             {
                 return entry.getKey();
             }
@@ -94,10 +103,11 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
 
     public final void setAlias(final String aliasName, final String propertyName) throws IllegalArgumentException
     {
-        assert aliasName != null;
-        assert propertyName != null;
+        assert aliasName != null : "Given alias name can not be null.";
+        assert propertyName != null : "Given property name can not be null.";
+        final String lowerCase = propertyName.toLowerCase();
         checkOneToOneRelation(aliasName, propertyName);
-        aliases.put(aliasName.toLowerCase(), propertyName.toLowerCase());
+        aliases.put(aliasName.toLowerCase(), lowerCase);
     }
 
     /**
@@ -146,4 +156,11 @@ public final class HeaderFilePropertyMapper implements IAliasPropertyMapper
         }
         return set;
     }
+
+    public final String tryGetPropertyName(final String alias)
+    {
+        assert alias != null : "Given property name can not be null.";
+        return aliases.get(alias.toLowerCase());
+    }
+
 }

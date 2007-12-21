@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.annotation.Mandatory;
 public final class AbstractParserObjectFactoryTest
 {
 
-    private final static IPropertyMapper createPropertyMapper()
+    private final static IAliasPropertyMapper createPropertyMapper()
     {
         return new HeaderFilePropertyMapper(new String[]
             { "Name", "Description", "Number" });
@@ -60,7 +60,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testPropertyMapperWithNoExperimentProperties()
     {
-        IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
+        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
             { "Name", "Description", "IsNotIn" });
         try
         {
@@ -68,8 +68,7 @@ public final class AbstractParserObjectFactoryTest
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (UnmatchedPropertiesException ex)
         {
-            assertEquals(String.format(UnmatchedPropertiesException.MESSAGE_FORMAT, "Bean", "isnotin"), ex
-                    .getMessage());
+            assertEquals(String.format(UnmatchedPropertiesException.MESSAGE_FORMAT, "Bean", "isnotin"), ex.getMessage());
         }
     }
 
@@ -94,7 +93,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testTooManyDataColumns()
     {
-        IPropertyMapper propertyMapper = createPropertyMapper();
+        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
         BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         String[] lineTokens = (String[]) ArrayUtils.add(createDefaultLineTokens(), "notUsed");
         Bean bean = beanFactory.createObject(lineTokens);
@@ -104,7 +103,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testNotEnoughDataColumns()
     {
-        IPropertyMapper propertyMapper = createPropertyMapper();
+        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
         BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         String[] defaultTokens = createDefaultLineTokens();
         String[] lineTokens = (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
@@ -122,7 +121,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testRegisterConverterWithNull()
     {
-        IPropertyMapper propertyMapper = createPropertyMapper();
+        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
         BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         try
         {
@@ -142,7 +141,7 @@ public final class AbstractParserObjectFactoryTest
     private final static class BeanFactory extends AbstractParserObjectFactory<Bean>
     {
 
-        BeanFactory(Class<Bean> clazz, IPropertyMapper propertyMapper)
+        BeanFactory(final Class<Bean> clazz, final IAliasPropertyMapper propertyMapper)
         {
             super(clazz, propertyMapper);
         }

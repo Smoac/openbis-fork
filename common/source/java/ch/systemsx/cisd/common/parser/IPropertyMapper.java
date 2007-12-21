@@ -26,8 +26,14 @@ import java.util.Set;
 public interface IPropertyMapper
 {
 
-    /** Returns an <code>IPropertyModel</code> for a given property name. */
-    public IPropertyModel getProperty(final String name);
+    /**
+     * Returns an <code>IPropertyModel</code> for a given property name.
+     * <p>
+     * This get operation is case-insensitive, meaning that <code>NAME</code> will return the same model than
+     * <code>Name</code>.
+     * </p>
+     */
+    public IPropertyModel getProperty(final String propertyName);
 
     /**
      * Returns a set of all property names.
@@ -36,4 +42,5 @@ public interface IPropertyMapper
      * </p>
      */
     public Set<String> getAllPropertyNames();
+
 }

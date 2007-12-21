@@ -54,7 +54,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** The class of object bean we are going to create here. */
     private final Class<E> beanClass;
 
-    protected AbstractParserObjectFactory(final Class<E> beanClass, final IPropertyMapper propertyMapper)
+    protected AbstractParserObjectFactory(final Class<E> beanClass, final IAliasPropertyMapper propertyMapper)
     {
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
@@ -106,7 +106,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * {@link #propertyDescriptors}.
      * </p>
      */
-    private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
+    private final void checkPropertyMapper(final Class<E> clazz, final IAliasPropertyMapper propMapper)
             throws ParserException
     {
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
@@ -125,12 +125,31 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
         if (missingProperties.size() > 0)
         {
-            throw new MandatoryPropertyMissingException(clazz, allPropertyNames, mandatoryFields, missingProperties);
+            throw new MandatoryPropertyMissingException(getPropertyNames(mandatoryFields, propMapper),
+                    getPropertyNames(missingProperties, propMapper));
         }
         if (propertyNames.size() > 0)
         {
             throw new UnmatchedPropertiesException(clazz, allPropertyNames, fieldNames, propertyNames);
         }
+    }
+
+    private final static Set<String> getPropertyNames(final Set<String> beanNames,
+            final IAliasPropertyMapper propertyMapper)
+    {
+        final Set<String> propertyNames = new LinkedHashSet<String>(beanNames.size());
+        for (final String beanName : beanNames)
+        {
+            final String propertyName = propertyMapper.tryGetPropertyName(beanName);
+            if (propertyName == null)
+            {
+                propertyNames.add(beanName);
+            } else
+            {
+                propertyNames.add(propertyName);
+            }
+        }
+        return propertyNames;
     }
 
     /** Whether given field name is mandatory. */

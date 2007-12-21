@@ -18,6 +18,9 @@ package ch.systemsx.cisd.common.parser;
 
 /**
  * This returns the mapping informations needed in {@link IParserObjectFactory} via the {@link IPropertyMapper}.
+ * <p>
+ * This model is specified by the parsed file.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -26,7 +29,7 @@ public interface IPropertyModel
     /** Returns the column number where the information regarding this property could be found. */
     public int getColumn();
 
-    /** Returns the property name. */
+    /** Returns the property name as it has been found in the parsed file. */
     public String getName();
 
     /**

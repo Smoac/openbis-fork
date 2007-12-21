@@ -34,25 +34,15 @@ public final class MandatoryPropertyMissingException extends ParserException
 
     private static final long serialVersionUID = 1L;
 
-    /** The bean this is set during the parsing process. */
-    private final Class<?> beanClass;
-
-    /** The property names found in the parsed file. */
-    private final Set<String> allPropertyNames;
-
     /** The mandatory property names that could not be found in the parsed file. */
     private final Set<String> missingMandatoryProperties;
 
-    /** The {@link #beanClass} fields that are mandatory. */
+    /** The fields that are mandatory. */
     private final Set<String> mandatoryFields;
 
-    MandatoryPropertyMissingException(final Class<?> beanClass, final Set<String> allPropertyNames,
-            final Set<String> mandatoryFields, final Set<String> missingMandatoryProperties)
+    MandatoryPropertyMissingException(final Set<String> mandatoryFields, final Set<String> missingMandatoryProperties)
     {
         super(createMessage(missingMandatoryProperties));
-        assert beanClass != null : "Bean class can not be null.";
-        this.beanClass = beanClass;
-        this.allPropertyNames = allPropertyNames;
         this.mandatoryFields = mandatoryFields;
         this.missingMandatoryProperties = missingMandatoryProperties;
     }
@@ -66,16 +56,6 @@ public final class MandatoryPropertyMissingException extends ParserException
     final static String toString(final Set<String> set)
     {
         return CollectionUtils.abbreviate(set, -1, CollectionStyle.NO_BOUNDARY_COLLECTION_STYLE);
-    }
-
-    public final Class<?> getBeanClass()
-    {
-        return beanClass;
-    }
-
-    public final Set<String> getAllPropertyNames()
-    {
-        return allPropertyNames;
     }
 
     public final Set<String> getMissingMandatoryProperties()
