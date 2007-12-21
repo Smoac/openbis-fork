@@ -38,12 +38,27 @@ public final class HeaderFilePropertyMapperTest
     }
 
     @Test
+    public final void testConstructorWithNullInHeaders()
+    {
+        final String[] headers =
+            { "firstName", "lastName", "address", null };
+        try
+        {
+            new HeaderFilePropertyMapper(headers);
+            fail("No blank value is allowed.");
+        } catch (IllegalArgumentException ex)
+        {
+            // Nothing to do here.
+        }
+    }
+
+    @Test
     public final void testGetProperty()
     {
         IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[0]);
         assertNull(propertyMapper.getProperty("shouldBeNull"));
-        String[] headers =
-            { "firstName", "lastName", "address", null };
+        final String[] headers =
+            { "firstName", "lastName", "address" };
         propertyMapper = new HeaderFilePropertyMapper(headers);
         assertTrue(propertyMapper.getProperty("firstName").getColumn() == 0);
         assertTrue(propertyMapper.getProperty("address").getColumn() == 2);
