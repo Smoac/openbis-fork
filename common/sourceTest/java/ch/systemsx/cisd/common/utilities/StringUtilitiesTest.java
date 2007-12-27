@@ -73,6 +73,9 @@ public class StringUtilitiesTest
         assertEquals("1st", StringUtilities.getOrdinal(1));
         assertEquals("2nd", StringUtilities.getOrdinal(2));
         assertEquals("3rd", StringUtilities.getOrdinal(3));
+        assertEquals("11th", StringUtilities.getOrdinal(11));
+        assertEquals("112th", StringUtilities.getOrdinal(112));
+        assertEquals("3313th", StringUtilities.getOrdinal(3313));
         assertEquals("101st", StringUtilities.getOrdinal(101));
         assertEquals("53rd", StringUtilities.getOrdinal(53));
         assertEquals("19th", StringUtilities.getOrdinal(19));

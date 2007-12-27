@@ -151,17 +151,20 @@ public final class StringUtilities
     public final static String getOrdinal(final int number)
     {
         assert number > -1 : "Given number must be >= 0.";
-        final int modulo = number % 10;
-        switch (modulo)
+        int modulo = number % 100;
+        if (modulo < 11 || modulo > 13)
         {
-            case 1:
-                return number + "st";
-            case 2:
-                return number + "nd";
-            case 3:
-                return number + "rd";
-            default:
-                return number + "th";
+            modulo = number % 10;
+            switch (modulo)
+            {
+                case 1:
+                    return number + "st";
+                case 2:
+                    return number + "nd";
+                case 3:
+                    return number + "rd";
+            }
         }
+        return number + "th";
     }
 }
