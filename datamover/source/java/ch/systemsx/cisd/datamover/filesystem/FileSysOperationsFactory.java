@@ -25,11 +25,11 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.filesystem.impl.RecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncCopier;
@@ -88,9 +88,13 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         final IPathCopier normalCopier = getCopier(false);
         return new IPathImmutableCopier()
             {
-                public File tryCopy(File file, File destinationDirectory)
+                //
+                // IPathImmutableCopier
+                //
+
+                public final File tryCopy(final File file, final File destinationDirectory, final String nameOrNull)
                 {
-                    Status status = normalCopier.copy(file, destinationDirectory);
+                    final Status status = normalCopier.copy(file, destinationDirectory);
                     if (StatusFlag.OK.equals(status.getFlag()))
                     {
                         return new File(destinationDirectory, file.getName());

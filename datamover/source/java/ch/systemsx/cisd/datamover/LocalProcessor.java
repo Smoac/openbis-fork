@@ -29,10 +29,10 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
@@ -176,7 +176,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                     return;
                 }
             }
-            extraTmpCopy = copier.tryCopy(path, tempDir);
+            extraTmpCopy = copier.tryCopy(path, tempDir, null);
             if (extraTmpCopy == null)
             {
                 notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
