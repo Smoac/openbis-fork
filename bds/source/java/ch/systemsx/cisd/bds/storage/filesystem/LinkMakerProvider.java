@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 
 /**
- * A provider of {@link ILinkMaker} implementations.
+ * A provider of {@link IPathImmutableCopier} implementations.
  * 
  * @author Christian Ribeaud
  */
 public final class LinkMakerProvider
 {
+
+    private static final String NO_HARD_LINK_EXECUTABLE = "No hard link executable has been found.";
+
+    private static final String WINDOWS_NOT_SUPPORTED = "Windows is not supported.";
 
     private LinkMakerProvider()
     {
@@ -32,20 +39,22 @@ public final class LinkMakerProvider
     }
 
     /**
-     * Returns a default <code>ILinkMaker</code> implementation.
-     * <p>
-     * Never returns <code>null</code> but could return the default implementation.
-     * </p>
-     * 
-     * @see ILinkMaker#DEFAULT
+     * Returns a default <code>IPathImmutableCopier</code> implementation.
      */
-    public final static ILinkMaker getDefaultLinkMaker()
+    public final static IPathImmutableCopier getDefaultLinkMaker()
     {
-        if (OSUtilities.isWindows())
+        if (OSUtilities.isWindows() == false)
         {
-            return ILinkMaker.DEFAULT;
+            final IPathImmutableCopier copier = RecursiveHardLinkMaker.tryCreate();
+            if (copier != null)
+            {
+                return copier;
+            } else
+            {
+                throw new EnvironmentFailureException(NO_HARD_LINK_EXECUTABLE);
+            }
         }
-        return HardLinkMaker.getInstance();
+        throw new EnvironmentFailureException(WINDOWS_NOT_SUPPORTED);
     }
 
 }
