@@ -26,14 +26,14 @@ import java.util.Map;
  */
 public class StandardSequenceNameMapper implements ISequenceNameMapper
 {
-    private final Map<String, String> nonstandardMaping;
+    private final Map<String, String> nonstandardMapping;
 
     /**
      * Creates an instance for the specified map of sequence name which are not map by the above mentioned rule.
      */
-    public StandardSequenceNameMapper(final Map<String, String> nonstandardMaping)
+    public StandardSequenceNameMapper(final Map<String, String> nonstandardMapping)
     {
-        this.nonstandardMaping = nonstandardMaping;
+        this.nonstandardMapping = nonstandardMapping;
     }
 
     //
@@ -43,7 +43,7 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     public final String map(String tableName)
     {
         String tableNameInLowerCase = tableName.toLowerCase();
-        String sequenceName = nonstandardMaping.get(tableNameInLowerCase);
+        String sequenceName = nonstandardMapping.get(tableNameInLowerCase);
         if (sequenceName == null)
         {
             sequenceName = tableNameInLowerCase.substring(0, tableNameInLowerCase.length() - 1) + "_id_seq";
