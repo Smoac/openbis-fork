@@ -16,15 +16,21 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 
 /**
  * Implementation of {@link ISqlScriptExecutor}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
@@ -33,10 +39,81 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
     {
         setDataSource(dataSource);
     }
-    
+
     public void execute(String sqlScript)
     {
-        getJdbcTemplate().execute(sqlScript);
+        try
+        {
+            getJdbcTemplate().execute(sqlScript);
+        } catch (BadSqlGrammarException ex)
+        {
+            final StringBuilder sql = new StringBuilder();
+            // Execute by adding one statement after another until the problem shows
+            String lastSqlStatement = "";
+            for (String sqlStatement : splitStatements(sqlScript))
+            {
+                sql.append(sqlStatement);
+                sql.append('\n');
+                try
+                {
+                    getJdbcTemplate().execute(sql.toString());
+                } catch (BadSqlGrammarException ex2)
+                {
+                    throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement + "<--<",
+                            getCause(ex2));
+                }
+                lastSqlStatement = sqlStatement;
+            }
+        }
+    }
+
+    private String getTask(BadSqlGrammarException ex)
+    {
+        final String msg = ex.getMessage();
+        final int endIdx = msg.indexOf("; bad SQL grammar [");
+        if (endIdx > 0)
+        {
+            return msg.substring(0, endIdx);
+        } else
+        {
+            return msg;
+        }
+    }
+
+    private SQLException getCause(BadSqlGrammarException ex)
+    {
+        final Throwable cause = ex.getCause();
+        if (cause instanceof SQLException)
+        {
+            return (SQLException) cause;
+        } else
+        {
+            throw new Error("Cause of BadSqlGrammarException needs to be a SQLException.", cause);
+        }
+    }
+
+    private List<String> splitStatements(String sqlScript)
+    {
+        final String[] lines = StringUtils.split(sqlScript, '\n');
+        final List<String> statements = new ArrayList<String>(lines.length);
+        StringBuilder statement = new StringBuilder();
+        for (int i = 0; i < lines.length; ++i)
+        {
+            String line = lines[i];
+            final int commentStart = line.indexOf("--");
+            if (commentStart >= 0)
+            {
+                line = line.substring(0, commentStart);
+            }
+            statement.append(line.trim());
+            statement.append(' ');
+            if (statement.length() > 1 && statement.charAt(statement.length() - 2) == ';')
+            {
+                statements.add(statement.toString());
+                statement.setLength(0);
+            }
+        }
+        return statements;
     }
 
 }
