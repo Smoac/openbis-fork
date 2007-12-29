@@ -33,15 +33,14 @@ public final class LinkMakerProvider
 
     private static final String WINDOWS_NOT_SUPPORTED = "Windows is not supported.";
 
+    private static IPathImmutableCopier hardLinkMaker;
+
     private LinkMakerProvider()
     {
         // This class can not be instantiated.
     }
 
-    /**
-     * Returns a default <code>IPathImmutableCopier</code> implementation.
-     */
-    public final static IPathImmutableCopier getDefaultLinkMaker()
+    private final static IPathImmutableCopier tryCreateHardLinkMaker()
     {
         if (OSUtilities.isWindows() == false)
         {
@@ -57,4 +56,16 @@ public final class LinkMakerProvider
         throw new EnvironmentFailureException(WINDOWS_NOT_SUPPORTED);
     }
 
+    /**
+     * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i> using the underlying
+     * <i>operating system</i>.
+     */
+    public final static IPathImmutableCopier getLinkMaker()
+    {
+        if (hardLinkMaker == null)
+        {
+            hardLinkMaker = tryCreateHardLinkMaker();
+        }
+        return hardLinkMaker;
+    }
 }
