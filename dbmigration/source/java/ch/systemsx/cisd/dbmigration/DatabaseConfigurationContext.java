@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DatabaseConfigurationContext implements DisposableBean
 {
-    private static final class BascDataSourceFactory implements IDataSourceFactory
+    private static final class BasicDataSourceFactory implements IDataSourceFactory
     {
         public DataSource createDataSource(String driver, String url, String owner, String password)
         {
@@ -75,8 +75,10 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String databaseType;
 
     private boolean createFromScratch;
-    
-    private IDataSourceFactory dataSourceFactory = new BascDataSourceFactory();
+
+    private boolean scriptSingleStepMode;
+
+    private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
 
     private DataSource dataSource;
 
@@ -92,7 +94,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         owner = System.getProperty("user.name").toLowerCase();
     }
-    
+
     public final void setDataSourceFactory(IDataSourceFactory dataSourceFactory)
     {
         this.dataSourceFactory = dataSourceFactory;
@@ -118,7 +120,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             }
         }
     }
-    
+
     /**
      * Creates a <code>DataSource</code> for this context.
      */
@@ -381,6 +383,22 @@ public class DatabaseConfigurationContext implements DisposableBean
         this.createFromScratch = createFromScratch;
     }
 
+    /**
+     * Returns <code>true</code> if scripts in the db migration engine should be executed statement by statement. This
+     * mode gives better error messages on where the faulty SQL is but on the other hand it is a lot slower.
+     */
+    public final boolean isScriptSingleStepMode()
+    {
+        return scriptSingleStepMode;
+    }
+
+    /**
+     * Sets the db migration engine to single step mode for scripts.
+     */
+    public final void setScriptSingleStepMode(boolean singleStepMode)
+    {
+        this.scriptSingleStepMode = singleStepMode;
+    }
 
     /**
      * Sets database kind. This will be append to the name of the database. It allows to have different database
@@ -498,4 +516,5 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         closeConnections();
     }
+
 }

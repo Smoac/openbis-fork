@@ -35,28 +35,25 @@ import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
  */
 public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
 {
-    public SqlScriptExecutor(DataSource dataSource)
+    /** Gives better error messages, but is a lot slower. */
+    private final boolean singleStepMode;
+    
+    public SqlScriptExecutor(DataSource dataSource, boolean singleStepMode)
     {
         setDataSource(dataSource);
+        this.singleStepMode = singleStepMode;
     }
 
     public void execute(String sqlScript)
     {
-        try
+        if (singleStepMode)
         {
-            getJdbcTemplate().execute(sqlScript);
-        } catch (BadSqlGrammarException ex)
-        {
-            final StringBuilder sql = new StringBuilder();
-            // Execute by adding one statement after another until the problem shows
             String lastSqlStatement = "";
             for (String sqlStatement : splitStatements(sqlScript))
             {
-                sql.append(sqlStatement);
-                sql.append('\n');
                 try
                 {
-                    getJdbcTemplate().execute(sql.toString());
+                    getJdbcTemplate().execute(sqlStatement);
                 } catch (BadSqlGrammarException ex2)
                 {
                     throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement + "<--<",
@@ -64,6 +61,9 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                 }
                 lastSqlStatement = sqlStatement;
             }
+        } else
+        {
+            getJdbcTemplate().execute(sqlScript);
         }
     }
 

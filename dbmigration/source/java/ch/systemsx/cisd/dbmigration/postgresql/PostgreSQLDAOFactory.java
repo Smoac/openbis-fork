@@ -53,7 +53,7 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         databaseDAO =
                 new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
         final DataSource dataSource = context.getDataSource();
-        sqlScriptExecutor = new SqlScriptExecutor(dataSource);
+        sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
