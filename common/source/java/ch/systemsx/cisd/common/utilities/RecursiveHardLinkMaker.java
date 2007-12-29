@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Tomasz Pylak
  */
-public class RecursiveHardLinkMaker implements IPathImmutableCopier
+public final class RecursiveHardLinkMaker implements IPathImmutableCopier
 {
     private static final String HARD_LINK_EXEC = "ln";
 
@@ -42,7 +42,7 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
 
     private final String linkExecPath;
 
-    private RecursiveHardLinkMaker(String linkExecPath)
+    private RecursiveHardLinkMaker(final String linkExecPath)
     {
         this.linkExecPath = linkExecPath;
     }
@@ -66,24 +66,22 @@ public class RecursiveHardLinkMaker implements IPathImmutableCopier
      * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by duplicating directory
      * structure and creating hard link for each file.
      * <p>
-     * <i>Note that <var>path</var> cannot be placed directly inside <var>destinationDirectory</var>.</i>
+     * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>
-     * 
-     * @return pointer to the copied resource or null if copy process failed
      */
     public final File tryCopy(final File path, final File destinationDirectory, final String nameOrNull)
     {
         assert path != null : "Given path can not be null.";
         assert destinationDirectory != null && destinationDirectory.isDirectory() : "Given destination directory can not be null and must be a directory.";
+        final String destName = nameOrNull == null ? path.getName() : nameOrNull;
+        final File destFile = new File(destinationDirectory, destName);
+        assert destFile.exists() == false : String.format(
+                "File '%s' already exists in given destination directory '%s'", destName, destinationDirectory);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path.getPath(),
                     destinationDirectory.getPath()));
         }
-        final String destName = nameOrNull == null ? path.getName() : nameOrNull;
-        final File destFile = new File(destinationDirectory, destName);
-        assert destFile.exists() == false : String.format(
-                "File '%s' already exists in given destination directory '%s'", destName, destinationDirectory);
         return tryMakeCopy(path, destinationDirectory, nameOrNull);
     }
 

@@ -32,6 +32,9 @@ public interface IPathImmutableCopier
      * <i>Can use hard links if available.</i>
      * </p>
      * 
+     * @param path the source path. Can be a file or a directory. Can not be <code>null</code>.
+     * @param destinationDirectory the directory where given <var>path</var> should be copied. Can not be
+     *            <code>null</code> and must be an existing directory.
      * @param nameOrNull the link name in the destination directory.
      * @return the new path created, or <code>null</code> if the operation fails.
      */
