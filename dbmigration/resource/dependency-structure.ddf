@@ -2,7 +2,7 @@
 
 {package} = ch.systemsx.cisd.dbmigration
 
-[generic] = ${package}.* excluding ${package}.*.*
+[generic] = ${package}.* excluding ${package}.*.* ${package}.DatabaseEngine
 check sets [generic]
 
 [postgresql] = ${package}.postgresql.*
