@@ -57,7 +57,7 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
-            massUploader = new PostgreSQLMassUploader(dataSource, context.getSequencerHandler());
+            massUploader = new PostgreSQLMassUploader(dataSource, context.getSequenceNameMapper());
         } catch (SQLException ex)
         {
             throw new CheckedExceptionTunnel(ex);

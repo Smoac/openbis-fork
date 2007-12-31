@@ -52,9 +52,10 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * relative to the package of this class where the scripts with method {@link #getScript(String)} are loaded.
      */
     public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder,
-            String massUploadDataFolder, String databaseType)
+            String massUploadDataFolder, String databaseEngineCode)
     {
-        String internalFolder = SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseType;
+        final String internalFolder =
+                SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseEngineCode;
         return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, massUploadDataFolder, internalFolder);
     }
 
@@ -99,7 +100,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
     {
         return loadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
     }
-    
+
     /**
      * Returns the migration script for the specified versions. The name of the script is expected to be
      * 

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.dbmigration;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,20 +28,18 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which logs database migration steps in the database.
@@ -119,22 +116,16 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     
     public boolean canConnectToDatabase()
     {
-        Connection connection = null;
         try
         {
-            DataSource dataSource = getDataSource();
-            connection = DataSourceUtils.getConnection(dataSource);
-           return true;
-        } catch (DataAccessException ex)
+            getLastEntry();
+            return true;
+        } catch (BadSqlGrammarException ex)
         {
-            if (DBUtilities.isDBNotExistException(ex))
-            {
-                return false;
-            }
-            throw new EnvironmentFailureException("Couldn't connect database server.", ex);
-        } finally
+            return false;
+        } catch (CannotGetJdbcConnectionException ex)
         {
-            JdbcUtils.closeConnection(connection);
+            return false;
         }
     }
 

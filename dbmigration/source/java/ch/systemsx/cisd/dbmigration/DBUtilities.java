@@ -50,6 +50,12 @@ public class DBUtilities
         return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
     
+    public static boolean isDuplicateDatabaseException(DataAccessException ex)
+    {
+        // 42P04 DUPLICATE DATABASE
+        return SQLStateUtils.isDuplicateDatabase(SQLStateUtils.getSqlState(ex));
+    }
+    
     private DBUtilities() {}
     
 }

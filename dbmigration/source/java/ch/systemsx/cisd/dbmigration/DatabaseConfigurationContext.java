@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.text.MessageFormat;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -50,19 +49,11 @@ public class DatabaseConfigurationContext implements DisposableBean
         }
     }
 
-    private String driver;
-
-    private LobHandler lobHandler;
-
-    private ISequencerHandler sequencerHandler;
-
-    private String adminURL;
+    private ISequenceNameMapper sequenceNameMapper;
 
     private String adminUser;
 
     private String adminPassword;
-
-    private String urlTemplate;
 
     private String scriptFolder;
 
@@ -72,7 +63,7 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String databaseKind;
 
-    private String databaseType;
+    private DatabaseEngine databaseEngine;
 
     private boolean createFromScratch;
 
@@ -86,13 +77,18 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String owner;
 
+    private String password;
+
     private String basicDatabaseName;
 
     private String databaseName;
 
+    private String urlHostPart;
+
     public DatabaseConfigurationContext()
     {
-        owner = System.getProperty("user.name").toLowerCase();
+        setOwner(null);
+        setPassword("");
     }
 
     public final void setDataSourceFactory(IDataSourceFactory dataSourceFactory)
@@ -121,59 +117,68 @@ public class DatabaseConfigurationContext implements DisposableBean
         }
     }
 
+    private void checkDatabaseEngine()
+    {
+        if (databaseEngine == null)
+        {
+            throw new ConfigurationFailureException("No db engine defined.");
+        }
+    }
+
     /**
      * Creates a <code>DataSource</code> for this context.
      */
     private final DataSource createDataSource()
     {
         final String dsDriver = getDriver();
-        final String dsUrlTemplate = getUrlTemplate();
         final String dsDatabaseName = getDatabaseName();
         if (dsDatabaseName == null)
         {
             throw new ConfigurationFailureException("No db name defined.");
         }
-        final String url = MessageFormat.format(dsUrlTemplate, dsDatabaseName);
-        return dataSourceFactory.createDataSource(dsDriver, url, owner, "");
+        final String url = getUrl(dsDatabaseName);
+        return dataSourceFactory.createDataSource(dsDriver, url, owner, password);
     }
 
     /**
-     * Returns the template to created the URL of the database to be created/migrated. It should contain
-     * <code>{0}</code> as a placeholder for the name of the database.
+     * Returns the template to created the URL of the database to be created/migrated.
      * 
-     * @return <code>null</code> when undefined.
+     * @param dsDatabaseName The name of the database to get the URL for.
+     * @throws ConfigurationFailureException If undefined.
      */
-    private final String getUrlTemplate()
+    private final String getUrl(String dsDatabaseName) throws ConfigurationFailureException
     {
-        if (urlTemplate == null)
-        {
-            throw new ConfigurationFailureException("No db url template defined.");
-        }
-        return urlTemplate;
+        checkDatabaseEngine();
+        return databaseEngine.getURL(urlHostPart, dsDatabaseName);
     }
 
     /**
      * Returns the fully-qualified class name of the JDBC driver.
      * 
-     * @return <code>null</code> when undefined.
+     * @throws ConfigurationFailureException If undefined.
      */
-    private final String getDriver()
+    private final String getDriver() throws ConfigurationFailureException
     {
-        if (driver == null)
-        {
-            throw new ConfigurationFailureException("No db driver defined.");
-        }
-        return driver;
+        checkDatabaseEngine();
+        return databaseEngine.getDriverClass().getCanonicalName();
     }
 
     /**
      * Returns user name of the administrator.
      * 
-     * @return <code>null</code> when undefined.
+     * @return The default admin user of the database engine when undefined.
+     * @throws ConfigurationFailureException If neither the admin user nor the database engine are defined.
      */
-    private final String getAdminUser()
+    private final String getAdminUser() throws ConfigurationFailureException
     {
-        return adminUser;
+        if (adminUser == null)
+        {
+            checkDatabaseEngine();
+            return databaseEngine.getDefaultAdminUser();
+        } else
+        {
+            return adminUser;
+        }
     }
 
     /**
@@ -219,8 +224,11 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     /**
      * Returns data source for admin purposes.
+     * 
+     * @throws ConfigurationFailureException If not all relevant information has been defined that is needed for the
+     *             admin data source.
      */
-    public final DataSource getAdminDataSource()
+    public final DataSource getAdminDataSource() throws ConfigurationFailureException
     {
         if (adminDataSource == null)
         {
@@ -239,21 +247,58 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the user name of the onwer of the database.
+     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code> or empty, the OS
+     * user running the VM will be set instead.
      */
     public final void setOwner(String owner)
     {
-        this.owner = owner;
+        if (owner == null || owner.length() == 0)
+        {
+            this.owner = System.getProperty("user.name").toLowerCase();
+        } else
+        {
+            this.owner = owner;
+        }
+    }
+
+    /**
+     * @return The password part of the database credentials for the db owner.
+     */
+    public final String getPassword()
+    {
+        return password;
+    }
+
+    /**
+     * Sets the password part of the database credentials for the db owner. A <code>null</code> password will be
+     * replaced by an empty string.
+     */
+    public final void setPassword(String password)
+    {
+        if (password == null)
+        {
+            this.password = "";
+        } else
+        {
+            this.password = password;
+        }
     }
 
     /**
      * Sets user name of the administrator.
      * 
-     * @param adminUser New value. Can be <code>null</code>.
+     * @param adminUser New value. Can be <code>null</code>. For convenience when using with Spring property
+     *            placeholders, an empty string will be replaced by <code>null</code>.
      */
     public final void setAdminUser(String adminUser)
     {
-        this.adminUser = adminUser;
+        if (adminUser != null && adminUser.length() == 0)
+        {
+            this.adminUser = null;
+        } else
+        {
+            this.adminUser = adminUser;
+        }
     }
 
     /**
@@ -286,83 +331,75 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * @return The host part of the URL or <code>null</code>, if it is not set.
+     */
+    public final String getUrlHostPart()
+    {
+        return urlHostPart;
+    }
+
+    /**
+     * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For convenince when using
+     * with Spring property placeholders, an empty string will be replaced by <code>null</code>.
+     */
+    public final void setUrlHostPart(String urlHostPart)
+    {
+        if (urlHostPart != null && urlHostPart.length() == 0)
+        {
+            this.urlHostPart = null;
+        } else
+        {
+            this.urlHostPart = urlHostPart;
+        }
+    }
+
+    /**
      * Returns the URL of the database server which allows to create a new database.
      * 
      * @return <code>null</code> when undefined.
      */
-    public final String getAdminURL()
+    private final String getAdminURL() throws ConfigurationFailureException
     {
-        return adminURL;
+        checkDatabaseEngine();
+        return databaseEngine.getAdminURL(urlHostPart, getDatabaseName());
     }
 
     /**
-     * Sets the URL of the database server which allows to create a new database.
+     * Returns <code>lobHandler</code>.
      * 
-     * @param adminURL New value. Can be <code>null</code>.
+     * @throws ConfigurationFailureException If the database engine is not defined.
      */
-    public final void setAdminURL(String adminURL)
+    public final LobHandler getLobHandler() throws ConfigurationFailureException
     {
-        this.adminURL = adminURL;
-    }
-
-    /**
-     * Sets the fully-qualified class name of the JDBC driver.
-     * 
-     * @param driver New value. Can be <code>null</code>.
-     */
-    public final void setDriver(String driver)
-    {
-        this.driver = driver;
-    }
-
-    /**
-     * Returns lobHandler.
-     * 
-     * @return <code>null</code> when undefined.
-     */
-    public final LobHandler getLobHandler()
-    {
-        return lobHandler;
-    }
-
-    /**
-     * Sets lobHandler.
-     * 
-     * @param lobHandler New value. Can be <code>null</code>.
-     */
-    public final void setLobHandler(LobHandler lobHandler)
-    {
-        this.lobHandler = lobHandler;
+        checkDatabaseEngine();
+        return databaseEngine.getLobHandler();
     }
 
     /**
      * Returns <code>sequencerHandler</code>.
      * 
-     * @return <code>null</code> when undefined.
+     * @throws ConfigurationFailureException If the database engine is not defined.
      */
-    public final ISequencerHandler getSequencerHandler()
+    public final ISequencerHandler getSequencerHandler() throws ConfigurationFailureException
     {
-        return sequencerHandler;
+        checkDatabaseEngine();
+        return databaseEngine.getSequenceHandler();
     }
 
     /**
-     * Sets <code>sequencerHandler</code>.
-     * 
-     * @param sequencerHandler New value. Can be <code>null</code>.
+     * Returns the mapper from table names to sequencer names.
      */
-    public final void setSequencerHandler(ISequencerHandler sequencerHandler)
+    public final ISequenceNameMapper getSequenceNameMapper()
     {
-        this.sequencerHandler = sequencerHandler;
+        return sequenceNameMapper;
     }
 
     /**
-     * Sets the template to created the URL of the database to be created/migrated.
-     * 
-     * @param urlTemplate New value. Can be <code>null</code>.
+     * Sets the mapper from table names to sequencer names.
      */
-    public final void setUrlTemplate(String urlTemplate)
+    public final void setSequenceNameMapper(ISequenceNameMapper sequenceNameMapper)
     {
-        this.urlTemplate = urlTemplate;
+        this.sequenceNameMapper = sequenceNameMapper;
     }
 
     /**
@@ -412,23 +449,36 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns databaseType.
+     * Returns the code of the database engine.
      * 
-     * @return <code>null</code> when undefined.
+     * @throws ConfigurationFailureException If undefined.
      */
-    public final String getDatabaseType()
+    public final String getDatabaseEngineCode() throws ConfigurationFailureException
     {
-        return databaseType;
+        if (databaseEngine == null)
+        {
+            throw new ConfigurationFailureException("No database engine defined.");
+        }
+        return databaseEngine.getCode();
     }
 
     /**
-     * Sets databaseType.
+     * Sets the code of the database engine.
      * 
-     * @param databaseType New value. Can be <code>null</code>.
+     * @param databaseEngineCode New value.
+     * @throws ConfigurationFailureException If there is no such database engine.
      */
-    public final void setDatabaseType(String databaseType)
+    public final void setDatabaseEngineCode(String databaseEngineCode) throws ConfigurationFailureException
     {
-        this.databaseType = databaseType;
+        this.databaseEngine = DatabaseEngine.getEngineForCode(databaseEngineCode);
+    }
+
+    /**
+     * @return A new {@link IDAOFactory} that fits this database configuration.
+     */
+    public final IDAOFactory createDAOFactory()
+    {
+        return databaseEngine.createDAOFactory(this);
     }
 
     /**
@@ -453,7 +503,7 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     /**
      * Returns the folder which contains all Data SQL scripts. As a default value {@link #getScriptFolder()} will be
-     * returned if not definied by a non-<code>null</code> value in {@link #setFolderOfDataScripts(String)}.
+     * returned if not defined by a non-<code>null</code> value in {@link #setFolderOfDataScripts(String)}.
      * 
      * @return <code>null</code> when {@link #getScriptFolder()} returns <code>null</code>.
      */

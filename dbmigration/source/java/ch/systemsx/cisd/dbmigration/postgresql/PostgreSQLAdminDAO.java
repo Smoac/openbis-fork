@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -87,11 +87,20 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     public void createDatabase()
     {
-        JdbcTemplate jdbcTemplate = getJdbcTemplate();
         operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
-        jdbcTemplate.execute("create database " + database + " with owner = " + owner
-                + " encoding = 'utf8' tablespace = pg_default;" 
-                + "alter database " + database + " set default_with_oids = off;");
+        try
+        {
+            getJdbcTemplate().execute("create database " + database + " with owner = " + owner
+                    + " encoding = 'utf8' tablespace = pg_default;" 
+                    + "alter database " + database + " set default_with_oids = off;");
+        } catch (BadSqlGrammarException ex)
+        {
+            if (DBUtilities.isDuplicateDatabaseException(ex) == false)
+            {
+                throw ex;
+            }
+            operationLog.warn("Cannot create database '" + database + "' since it already exists.");
+        }
     }
 
     public void dropDatabase()
