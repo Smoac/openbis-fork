@@ -24,7 +24,7 @@ package ch.systemsx.cisd.common.db;
 public interface ISequenceNameMapper
 {
     /**
-     * Maps the specified table name to the name of the corresponding sequence.
+     * Returns the sequencer name for given table.
      */
-    public String map(String tableName);
+    public String getSequencerForTable(String tableName);
 }

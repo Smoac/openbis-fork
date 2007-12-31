@@ -30,9 +30,4 @@ public interface ISequencerHandler
      * </p>
      */
     public String getNextValueScript(String sequencer);
-
-    /**
-     * Returns the sequencer name for given table.
-     */
-    public String getSequencerForTable(String tableName);
 }

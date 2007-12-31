@@ -40,7 +40,7 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     // ISequenceNameMapper
     //
 
-    public final String map(String tableName)
+    public final String getSequencerForTable(String tableName)
     {
         String tableNameInLowerCase = tableName.toLowerCase();
         String sequenceName = nonstandardMapping.get(tableNameInLowerCase);

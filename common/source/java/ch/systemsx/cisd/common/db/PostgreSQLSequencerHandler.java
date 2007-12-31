@@ -24,13 +24,6 @@ package ch.systemsx.cisd.common.db;
 public class PostgreSQLSequencerHandler implements ISequencerHandler
 {
 
-    private final ISequenceNameMapper sequenceNameMapper;
-
-    public PostgreSQLSequencerHandler(ISequenceNameMapper sequenceNameMapper)
-    {
-        this.sequenceNameMapper = sequenceNameMapper;
-    }
-
     //
     // ISequencerProvider
     //
@@ -39,12 +32,6 @@ public class PostgreSQLSequencerHandler implements ISequencerHandler
     {
         assert sequencer != null : "Given sequencer can not be null.";
         return "select nextval('" + sequencer + "')";
-    }
-
-    public final String getSequencerForTable(final String tableName)
-    {
-        assert tableName != null : "Given table name can not be null.";
-        return sequenceNameMapper.map(tableName);
     }
 
 }

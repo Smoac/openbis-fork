@@ -24,23 +24,14 @@ package ch.systemsx.cisd.common.db;
 public class OracleSequencerHandler implements ISequencerHandler
 {
 
-    private final ISequenceNameMapper sequenceNameMapper;
-    
-    public OracleSequencerHandler(ISequenceNameMapper sequenceNameMapper) {
-        this.sequenceNameMapper = sequenceNameMapper;
-    }
-    
     //
     // ISequencerProvider
     //
 
     public String getNextValueScript(String sequencer)
     {
+        assert sequencer != null : "Given sequencer can not be null.";
         return "select " + sequencer + ".nextval from dual";
     }
 
-    public final String getSequencerForTable(String tableName)
-    {
-        return sequenceNameMapper.map(tableName);
-    }
 }

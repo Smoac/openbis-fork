@@ -41,6 +41,9 @@ public final class SQLStateUtils
 
     /** SQL State. */
     public static final String DUPLICATE_OBJECT = "42710";
+    
+    /** SQL State. */
+    public static final String DUPLICATE_DATABASE = "42P04";
 
     private SQLStateUtils()
     {
@@ -73,6 +76,12 @@ public final class SQLStateUtils
     public final static boolean isDuplicateObject(String sqlState)
     {
         return DUPLICATE_OBJECT.equalsIgnoreCase(sqlState);
+    }
+
+    /** Whether given SQL state stands for <i>DUPLICATE DATABASE</i>. */
+    public final static boolean isDuplicateDatabase(String sqlState)
+    {
+        return DUPLICATE_DATABASE.equalsIgnoreCase(sqlState);
     }
 
     /** Whether given SQL state stands for <i>INVALID CATALOG NAME</i>. */
