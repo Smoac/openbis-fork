@@ -273,10 +273,6 @@ public class DataStructureV1_0 extends AbstractDataStructure
     public final void assertValid()
     {
         super.assertValid();
-        if (getOriginalData().iterator().hasNext() == false)
-        {
-            throw new DataStructureException("Empty original data directory.");
-        }
         IDirectory metaDataDirectory = getMetaDataDirectory();
         if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format == null)
         {

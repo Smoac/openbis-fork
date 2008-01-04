@@ -61,9 +61,9 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
     @Override
     @BeforeMethod
-    public final void setup() throws IOException
+    public final void setUp() throws IOException
     {
-        super.setup();
+        super.setUp();
         storage = new FileStorage(workingDirectory);
         dataStructure = new DataStructureV1_0(storage);
     }
@@ -238,20 +238,6 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         } catch (UnsupportedOperationException e)
         {
             // ignored
-        }
-    }
-
-    @Test
-    public void testCloseForEmptyData()
-    {
-        dataStructure.create();
-        try
-        {
-            dataStructure.close();
-            fail("DataStructureException expected.");
-        } catch (DataStructureException e)
-        {
-            assertEquals("Empty original data directory.", e.getMessage());
         }
     }
 
