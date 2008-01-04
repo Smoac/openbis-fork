@@ -109,6 +109,15 @@ function build_components {
     fi
 }
 
+function build_remote {
+    local RSC=$1
+    local PROJECT_NAME=$2
+    
+    cd $RSC
+    ./build.sh $PROJECT_NAME
+    cd ..
+}
+
 function build_zips_from_svn {
     build_etl=$1
     build_dmv=$2
@@ -117,9 +126,7 @@ function build_zips_from_svn {
     RSC=build_resources
     rm -fr $RSC
     run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
-    cd $RSC
-    build_components ./build.sh $build_etl $build_dmv $build_lims
-    cd ..
+    build_components "build_remote $RSC" $build_etl $build_dmv $build_lims
     mv $RSC/*.zip $INSTALL
     rm -fr $RSC 
 }
@@ -308,15 +315,21 @@ function assert_dir_exists {
 }
 
 function fatal_error {
-    local MSG=$1
+    local MSG=$@
     report_error $MSG
     exit_if_assertion_failed
 }
 
+# remember to pass the parameter in quote marks
 function assert_file_exists_or_die {
     local F="$1"
-    if [ ! -f $F ]; then
-	fatal_error "File $F does not exist!"
+    local files_num=`ls -1 $F 2> /dev/null | wc -l`
+    if [ $files_num -gt 1 ]; then
+	fatal_error "One file expected for pattern $F, but more found: " $F
+    else 
+	if [ ! -f $F ]; then
+	    fatal_error "No file matching pattern $F exists"
+	fi
     fi
 }
 
@@ -481,9 +494,9 @@ function integration_tests {
 }
 
 function clean_after_tests {
-	echo "Cleaning $INSTALL..."
+    echo "Cleaning $INSTALL..."
     rm -fr $INSTALL
-	echo "Cleaning $WORK..."
+    echo "Cleaning $WORK..."
     rm -fr $WORK
 }
 
