@@ -65,7 +65,6 @@ public class SqlScriptExecutorTest
         dataVersionFolder.mkdirs();
         write(new File(dataVersionFolder, "data-" + VERSION + ".sql"), "code: data");
         TEMP_INTERNAL_SCRIPT_FOLDER.mkdir();
-        write(CREATE_LOG_SQL_FILE, "hello world!");
         File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
         massUploaadVersionFolder.mkdirs();
         write(new File(massUploaadVersionFolder, "1=test.tsv"), "1\tbla");
@@ -165,8 +164,9 @@ public class SqlScriptExecutorTest
     }
     
     @Test
-    public void testGetCreateLogScript()
+    public void testGetCreateLogScript() throws IOException
     {
+        write(CREATE_LOG_SQL_FILE, "hello world!");
         Script script = sqlScriptProvider.tryGetLogCreationScript();
         assertNotNull(script);
         assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/" + SqlScriptProvider.CREATE_LOG_SQL, script.getName());
