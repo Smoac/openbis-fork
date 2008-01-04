@@ -16,17 +16,26 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.db.SQLStateUtils;
 
 /**
  * Utility database methods.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DBUtilities
 {
+
+    private DBUtilities()
+    {
+    }
+
     /**
      * Checks whether given <code>DataAccessException</code> is caused by a "database does not exist" exception.
      * <p>
@@ -45,17 +54,47 @@ public class DBUtilities
      * This is database specific.
      * </p>
      */
-    public static boolean isDuplicateObjectException(DataAccessException ex) {
+    public static boolean isDuplicateObjectException(DataAccessException ex)
+    {
         // 42710 DUPLICATE OBJECT
         return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
-    
+
     public static boolean isDuplicateDatabaseException(DataAccessException ex)
     {
         // 42P04 DUPLICATE DATABASE
         return SQLStateUtils.isDuplicateDatabase(SQLStateUtils.getSqlState(ex));
     }
-    
-    private DBUtilities() {}
-    
+
+    /**
+     * Splits SQL statements in <var>sqlScript</var> by ';'.
+     * 
+     * @return A list of SQL statements, one per list entry.
+     */
+    public static List<String> splitSqlStatements(String sqlScript)
+    {
+        final String[] lines = StringUtils.split(sqlScript, '\n');
+        final List<String> statements = new ArrayList<String>(lines.length);
+        StringBuilder statement = new StringBuilder();
+        for (int i = 0; i < lines.length; ++i)
+        {
+            String line = lines[i];
+            final int commentStart = line.indexOf("--");
+            if (commentStart >= 0)
+            {
+                line = line.substring(0, commentStart);
+            }
+            statement.append(line.trim());
+            statement.append(' ');
+            if (statement.length() > 1 && statement.charAt(statement.length() - 2) == ';')
+            {
+                final String statementStr =
+                        statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)",
+                                ") $1").replaceAll("\\s+;", ";");
+                statements.add(statementStr);
+                statement.setLength(0);
+            }
+        }
+        return statements;
+    }
 }

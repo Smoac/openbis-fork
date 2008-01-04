@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
@@ -49,7 +46,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         if (singleStepMode && honorSingleStepMode)
         {
             String lastSqlStatement = "";
-            for (String sqlStatement : splitStatements(sqlScript))
+            for (String sqlStatement : DBUtilities.splitSqlStatements(sqlScript))
             {
                 try
                 {
@@ -90,30 +87,6 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         {
             throw new Error("Cause of BadSqlGrammarException needs to be a SQLException.", cause);
         }
-    }
-
-    private List<String> splitStatements(String sqlScript)
-    {
-        final String[] lines = StringUtils.split(sqlScript, '\n');
-        final List<String> statements = new ArrayList<String>(lines.length);
-        StringBuilder statement = new StringBuilder();
-        for (int i = 0; i < lines.length; ++i)
-        {
-            String line = lines[i];
-            final int commentStart = line.indexOf("--");
-            if (commentStart >= 0)
-            {
-                line = line.substring(0, commentStart);
-            }
-            statement.append(line.trim());
-            statement.append(' ');
-            if (statement.length() > 1 && statement.charAt(statement.length() - 2) == ';')
-            {
-                statements.add(statement.toString());
-                statement.setLength(0);
-            }
-        }
-        return statements;
     }
 
 }
