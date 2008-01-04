@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -46,15 +45,13 @@ public final class ExtendedPropertiesTest
     @Test
     public final void testConstructor()
     {
-        ExtendedProperties newProps = new ExtendedProperties(extendedProperties);
+        ExtendedProperties newProps = ExtendedProperties.createWith(extendedProperties);
         assertEquals(5, extendedProperties.size());
-        // We created an EMPTY list with defaults.
-        assertEquals(0, newProps.size());
-        assertEquals("{}", newProps.toString());
-        // Returns the default value...
-        assertEquals("eins", extendedProperties.getProperty("one"));
-        // ...but the property itself is unknown.
-        assertNull(newProps.get("one"));
+        assertEquals(extendedProperties.size(), newProps.size());
+        String key = "one";
+        String expectedValue = "eins";
+        assertEquals(expectedValue, extendedProperties.getProperty(key));
+        assertEquals(extendedProperties.getProperty(key), newProps.getProperty(key));
     }
 
     @Test
@@ -68,20 +65,32 @@ public final class ExtendedPropertiesTest
     @Test
     public final void testGetSubsetString()
     {
+        int size = extendedProperties.size();
+        extendedProperties.removeSubset("t");
+        assert extendedProperties.size() == size - 2;
+
+        size = extendedProperties.size();
+        extendedProperties.removeSubset("t");
+        assert extendedProperties.size() == size; // nothing removed
+    }
+
+    @Test
+    public final void testRemoveSubsetString()
+    {
         ExtendedProperties props = extendedProperties.getSubset("t", false);
         assert props.size() == 2;
         assert props.getProperty("two").equals("zwei");
         assert props.getProperty("three").equals("drei");
-        
+
         props = extendedProperties.getSubset("un", false);
         assert props.size() == 1;
         assert props.getProperty("un").equals("eins");
-        
+
         props = extendedProperties.getSubset("t", true);
         assert props.size() == 2;
         assert props.getProperty("wo").equals("zwei");
         assert props.getProperty("hree").equals("drei");
-        
+
         props = extendedProperties.getSubset("un", true);
         assert props.size() == 1;
         assert props.getProperty("").equals("eins");
@@ -94,7 +103,7 @@ public final class ExtendedPropertiesTest
         ExtendedProperties props = new ExtendedProperties();
         props.setProperty("a", "${b}");
         props.setProperty("b", "${a}");
-        assertEquals("${b}", props.getProperty("b"));    
+        assertEquals("${b}", props.getProperty("b"));
         // Three nodes cyclic dependencies
         props = new ExtendedProperties();
         props.setProperty("a", "A${b}");

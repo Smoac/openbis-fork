@@ -55,6 +55,13 @@ public final class ExtendedProperties extends Properties
     /** The minimum length a string should have to be considered. */
     private static final int MIN_LENGTH = PREFIX.length() + SUFFIX.length() + 1;
 
+    public static ExtendedProperties createWith(Properties properties)
+    {
+        ExtendedProperties result = new ExtendedProperties();
+        result.putAll(properties);
+        return result;
+    }
+
     /**
      * @see Properties#Properties()
      */
@@ -64,25 +71,20 @@ public final class ExtendedProperties extends Properties
     }
 
     /**
-     * Creates an empty property list with the specified defaults.
-     * 
-     * @see Properties#Properties(Properties)
-     */
-    public ExtendedProperties(Properties defaults)
-    {
-        super(defaults);
-    }
-
-    /**
      * Returns a subset of given <code>Properties</code> based on given property key prefix.
      * 
      * @param prefix string, each property key should start with.
      * @param dropPrefix If <code>true</code> the prefix will be removed from the key.
      */
+    public static ExtendedProperties getSubset(Properties properties, String prefix, boolean dropPrefix)
+    {
+        return ExtendedProperties.createWith(properties).getSubset(prefix, dropPrefix);
+    }
+
     public final ExtendedProperties getSubset(final String prefix, boolean dropPrefix)
     {
         assert prefix != null : "Missing prefix";
-        
+
         ExtendedProperties result = new ExtendedProperties();
         int prefixLength = prefix.length();
         for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
@@ -94,6 +96,21 @@ public final class ExtendedProperties extends Properties
             }
         }
         return result;
+    }
+
+    /**
+     * Removes all properies with names starting with given prefix
+     */
+    public void removeSubset(final String prefix)
+    {
+        for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
+        {
+            String key = enumeration.nextElement().toString();
+            if (key.startsWith(prefix))
+            {
+                remove(key);
+            }
+        }
     }
 
     private final String expandValue(final String key, final String value)
