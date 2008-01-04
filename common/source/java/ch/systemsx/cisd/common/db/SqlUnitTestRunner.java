@@ -218,7 +218,7 @@ public class SqlUnitTestRunner
         writer.println("     execute script " + scriptFile.getName());
         try
         {
-            executor.execute(FileUtilities.loadToString(scriptFile));
+            executor.execute(FileUtilities.loadToString(scriptFile), true);
             return new TestResult(scriptFile);
         } catch (Throwable t)
         {

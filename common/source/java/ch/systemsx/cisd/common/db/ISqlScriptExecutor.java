@@ -18,13 +18,17 @@ package ch.systemsx.cisd.common.db;
 
 /**
  * Executor of SQL scripts.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ISqlScriptExecutor
 {
     /**
      * Executes the specified SQL script.
+     * 
+     * @param sqlScript The script to execute.
+     * @param honorSingleStepMode If <code>false</code>, the single step mode will be ignored for this script, even if configured in the
+     *            properties.
      */
-    public void execute(String sqlScript);
+    public void execute(String sqlScript, boolean honorSingleStepMode);
 }
