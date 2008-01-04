@@ -37,6 +37,9 @@ public class SqlScriptProvider implements ISqlScriptProvider
 {
     private static final String SQL_FILE_TYPE = ".sql";
 
+    //@Private
+    static final String CREATE_LOG_SQL = "createLog.sql";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
     private final String schemaScriptFolder;
@@ -49,7 +52,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Creates an instance for the specified folders and database type. The database type specifies the resource folder
-     * relative to the package of this class where the scripts with method {@link #getScript(String)} are loaded.
+     * relative to the package of this class where the scripts with method {@link #tryGetLogCreationScript()} are loaded.
      */
     public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder,
             String massUploadDataFolder, String databaseEngineCode)
@@ -84,9 +87,21 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/finish-&lt;version&gt;.sql
      * </pre>
      */
-    public Script getFinishScript(String version)
+    public Script tryGetFinishScript(String version)
     {
-        return loadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE);
+    }
+
+    /**
+     * Returns the script containing all functions for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetFunctionScript(String version)
+    {
+        return tryLoadScript(dataScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE);
     }
 
     /**
@@ -96,9 +111,9 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
      * </pre>
      */
-    public Script getDataScript(String version)
+    public Script tryGetDataScript(String version)
     {
-        return loadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
     }
 
     /**
@@ -108,10 +123,10 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
      * </pre>
      */
-    public Script getMigrationScript(String fromVersion, String toVersion)
+    public Script tryGetMigrationScript(String fromVersion, String toVersion)
     {
         String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
-        return loadScript(schemaScriptFolder + "/migration", scriptName);
+        return tryLoadScript(schemaScriptFolder + "/migration", scriptName);
     }
 
     /**
@@ -121,20 +136,20 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql
      * </pre>
      */
-    public Script getSchemaScript(String version)
+    public Script tryGetSchemaScript(String version)
     {
-        return loadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE);
     }
 
     /**
      * Returns the specified script relative to the internal script folder.
      */
-    public Script getScript(String scriptName)
+    public Script tryGetLogCreationScript()
     {
-        return loadScript(internalScriptFolder, scriptName);
+        return tryLoadScript(internalScriptFolder, CREATE_LOG_SQL);
     }
 
-    private Script loadScript(String folder, String scriptName)
+    private Script tryLoadScript(String folder, String scriptName)
     {
         String fullScriptName = folder + "/" + scriptName;
         String resource = "/" + fullScriptName;

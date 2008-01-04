@@ -31,7 +31,15 @@ public interface ISqlScriptProvider
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
-    public Script getSchemaScript(String version);
+    public Script tryGetSchemaScript(String version);
+    
+    /**
+     * Returns the script to create the database functions.
+     * 
+     * @param version Version of the database.
+     * @return <code>null</code> if there isn't such a script.
+     */
+    public Script tryGetFunctionScript(String version);
     
     /**
      * Returns the script to create initial data.
@@ -39,7 +47,7 @@ public interface ISqlScriptProvider
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
-    public Script getDataScript(String version);
+    public Script tryGetDataScript(String version);
     
     /**
      * Returns the script to be executed to finish up database creation.
@@ -47,7 +55,7 @@ public interface ISqlScriptProvider
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
-    public Script getFinishScript(String version);
+    public Script tryGetFinishScript(String version);
     
     /**
      * Returns the migration script for migrating a database.
@@ -56,15 +64,14 @@ public interface ISqlScriptProvider
      * @param toVersion The version of the database after migration.
      * @return <code>null</code> if there isn't such a migration script. 
      */
-    public Script getMigrationScript(String fromVersion, String toVersion);
+    public Script tryGetMigrationScript(String fromVersion, String toVersion);
     
     /**
-     * Returns the specified script.
+     * Returns the script for creating the database log versions table.
      * 
-     * @param scriptName The name of the script file. File extension has to be included.
      * @return <code>null</code> if there isn't such a script. 
      */
-    public Script getScript(String scriptName);
+    public Script tryGetLogCreationScript();
     
     /**
      * Returns the files containing data for mass upload.

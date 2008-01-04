@@ -34,9 +34,6 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  */
 public class DBMigrationEngine
 {
-    //@Private
-    static final String CREATE_LOG_SQL = "createLog.sql";
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     private final boolean shouldCreateFromScratch;
@@ -139,7 +136,7 @@ public class DBMigrationEngine
     private void setupDatabase(String version)
     {
         adminDAO.createOwner();
-        Script finishScript = scriptProvider.getFinishScript(version);
+        Script finishScript = scriptProvider.tryGetFinishScript(version);
         if (finishScript == null)
         {
             createEmptyDatabase(version);
@@ -158,18 +155,18 @@ public class DBMigrationEngine
     private void createDatabaseFromDump(String version, Script finishScript)
     {
         adminDAO.createDatabase();
-        executeSchemaScript(version, false);
+        executeSchemaScript(version, false, false);
         fillWithInitialData(version, false);
-        executeScript(finishScript, version, false);
+        executeScript(finishScript, version, true, false);
     }
 
     private void createEmptyDatabase(String version)
     {
         adminDAO.createDatabase();
-        Script createScript = scriptProvider.getScript(CREATE_LOG_SQL);
+        Script createScript = scriptProvider.tryGetLogCreationScript();
         if (createScript == null)
         {
-            String message = "Missing script " + CREATE_LOG_SQL;
+            String message = "Missing log creation script";
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
@@ -183,27 +180,35 @@ public class DBMigrationEngine
             throw e;
         }
         
-        executeSchemaScript(version, true);
+        executeSchemaScript(version, true, true);
     }
 
-    private void executeSchemaScript(String version, boolean logEnabled)
+    private void executeSchemaScript(String version, boolean honorSingleStepMode, boolean logEnabled)
     {
-        Script script = scriptProvider.getSchemaScript(version);
-        if (script == null)
+        final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
+        if (schemaScript == null)
         {
-            String message = "No schema script found for version " + version;
+            final String message = "No schema script found for version " + version;
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
-        executeScript(script, version, logEnabled);
+        executeScript(schemaScript, version, honorSingleStepMode, logEnabled);
+        final Script functionScript = scriptProvider.tryGetFunctionScript(version);
+        if (functionScript == null)
+        {
+            operationLog.debug("No function script found for version " + version);
+        } else
+        {
+            executeScript(functionScript, version, false, logEnabled);
+        }
     }
 
     private void fillWithInitialData(String version, boolean logEnabled)
     {
-        Script initialDataScript = scriptProvider.getDataScript(version);
+        Script initialDataScript = scriptProvider.tryGetDataScript(version);
         if (initialDataScript != null)
         {
-            executeScript(initialDataScript, version, logEnabled);
+            executeScript(initialDataScript, version, true, logEnabled);
         }
         File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
         massUploader.performMassUpload(massUploadFiles);
@@ -215,7 +220,7 @@ public class DBMigrationEngine
         do
         {
             String nextVersion = increment(version);
-            Script migrationScript = scriptProvider.getMigrationScript(version, nextVersion);
+            Script migrationScript = scriptProvider.tryGetMigrationScript(version, nextVersion);
             if (migrationScript == null)
             {
                 final String databaseName = adminDAO.getDatabaseName();
@@ -225,7 +230,7 @@ public class DBMigrationEngine
                 throw new EnvironmentFailureException(message);
             }
             long time = System.currentTimeMillis();
-            executeScript(migrationScript, toVersion);
+            executeScript(migrationScript, toVersion, true);
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Successfully migrated from version " + version + " to " + nextVersion + " in "
@@ -255,12 +260,12 @@ public class DBMigrationEngine
         return new String(characters);
     }
 
-    private void executeScript(Script script, String version)
+    private void executeScript(Script script, String version, boolean honorSingleScriptMode)
     {
-        executeScript(script, version, true);
+        executeScript(script, version, honorSingleScriptMode, true);
     }
     
-    private void executeScript(Script script, String version, boolean logEnabled)
+    private void executeScript(Script script, String version, boolean honorSingleScriptMode, boolean logEnabled)
     {
         final String name = script.getName();
         final String code = script.getCode();
@@ -270,7 +275,7 @@ public class DBMigrationEngine
         }
         try
         {
-            scriptExecutor.execute(code);
+            scriptExecutor.execute(code, honorSingleScriptMode);
             if (logEnabled)
             {
                 logDAO.logSuccess(version, name);

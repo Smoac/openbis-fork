@@ -44,6 +44,7 @@ public class SqlScriptExecutorTest
     private static final File TEMP_DATA_SCRIPT_FOLDER = new File(TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
     private static final File TEMP_MASS_DATA_UPLOAD_FOLDER = new File(TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME);
     private static final File TEMP_INTERNAL_SCRIPT_FOLDER = new File(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
+    private static final File CREATE_LOG_SQL_FILE = new File(TEMP_INTERNAL_SCRIPT_FOLDER, SqlScriptProvider.CREATE_LOG_SQL);
     private static final String MIGRATION = "migration";
     private static final String VERSION = "042";
     private static final String VERSION2 = "049";
@@ -63,7 +64,7 @@ public class SqlScriptExecutorTest
         dataVersionFolder.mkdirs();
         write(new File(dataVersionFolder, "data-" + VERSION + ".sql"), "code: data");
         TEMP_INTERNAL_SCRIPT_FOLDER.mkdir();
-        write(new File(TEMP_INTERNAL_SCRIPT_FOLDER, "hello.script"), "hello world!");
+        write(CREATE_LOG_SQL_FILE, "hello world!");
         File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
         massUploaadVersionFolder.mkdirs();
         write(new File(massUploaadVersionFolder, "1=test.tsv"), "1\tbla");
@@ -114,7 +115,7 @@ public class SqlScriptExecutorTest
     @Test
     public void testGetSchemaScript()
     {
-        Script script = sqlScriptProvider.getSchemaScript(VERSION);
+        Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
         assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/schema-" + VERSION + ".sql", script.getName());
         assertEquals("code: schema", script.getCode().trim());
     }
@@ -122,13 +123,13 @@ public class SqlScriptExecutorTest
     @Test
     public void testGetNonExistingSchemaScript()
     {
-        assertEquals(null, sqlScriptProvider.getSchemaScript("000"));
+        assertEquals(null, sqlScriptProvider.tryGetSchemaScript("000"));
     }
     
     @Test
     public void testGetDataScript()
     {
-        Script script = sqlScriptProvider.getDataScript(VERSION);
+        Script script = sqlScriptProvider.tryGetDataScript(VERSION);
         assertEquals(TEMPORARY_DATA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/data-" + VERSION + ".sql", script.getName());
         assertEquals("code: data", script.getCode().trim());
     }
@@ -144,13 +145,13 @@ public class SqlScriptExecutorTest
     @Test
     public void testGetNonExistingDataScript()
     {
-        assertEquals(null, sqlScriptProvider.getDataScript("000"));
+        assertEquals(null, sqlScriptProvider.tryGetDataScript("000"));
     }
     
     @Test
     public void testGetMigrationScript()
     {
-        Script script = sqlScriptProvider.getMigrationScript(VERSION, VERSION2);
+        Script script = sqlScriptProvider.tryGetMigrationScript(VERSION, VERSION2);
         assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + MIGRATION + "/migration-" + VERSION + "-" + VERSION2
                      + ".sql", script.getName());
         assertEquals("code: migration", script.getCode().trim());
@@ -159,21 +160,22 @@ public class SqlScriptExecutorTest
     @Test
     public void testGetNonExistingMigrationScript()
     {
-        assertEquals(null, sqlScriptProvider.getMigrationScript("000", "001"));
+        assertEquals(null, sqlScriptProvider.tryGetMigrationScript("000", "001"));
     }
     
     @Test
-    public void testGetScript()
+    public void testGetCreateLogScript()
     {
-        Script script = sqlScriptProvider.getScript("hello.script");
-        assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/hello.script", script.getName());
+        Script script = sqlScriptProvider.tryGetLogCreationScript();
+        assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/" + SqlScriptProvider.CREATE_LOG_SQL, script.getName());
         assertEquals("hello world!", script.getCode().trim());
     }
 
     @Test
-    public void testGetNonExistingScript()
+    public void testGetNonExistingCreateLogScript()
     {
-        assertEquals(null, sqlScriptProvider.getScript("blabla.sql"));
+        CREATE_LOG_SQL_FILE.delete();
+        assertEquals(null, sqlScriptProvider.tryGetLogCreationScript());
     }
     
 }

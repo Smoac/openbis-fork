@@ -48,18 +48,18 @@ public class DBMigrationEngineTest
 {
     private class MyExpectations extends Expectations
     {
-        protected void expectSuccessfulExecution(Script script, final String version)
+        protected void expectSuccessfulExecution(Script script, final String version, boolean honorSingleStepMode)
         {
             will(returnValue(script));
             one(logDAO).logStart(version, script.getName(), script.getCode());
-            one(scriptExecutor).execute(script.getCode());
+            one(scriptExecutor).execute(script.getCode(), honorSingleStepMode);
             one(logDAO).logSuccess(version, script.getName());
         }
 
         protected void expectCreateLogDAOTable()
         {
-            one(scriptProvider).getScript(DBMigrationEngine.CREATE_LOG_SQL);
-            Script script = new Script(DBMigrationEngine.CREATE_LOG_SQL, "create log");
+            one(scriptProvider).tryGetLogCreationScript();
+            Script script = new Script(SqlScriptProvider.CREATE_LOG_SQL, "create log");
             will(returnValue(script));
             one(logDAO).createTable(with(same(script)));
         }
@@ -137,18 +137,20 @@ public class DBMigrationEngineTest
                     one(adminDAO).createDatabase();
 
                     expectCreateLogDAOTable();
-                    one(scriptProvider).getSchemaScript(version);
-                    expectSuccessfulExecution(new Script("schema", "schema code"), version);
+                    one(scriptProvider).tryGetSchemaScript(version);
+                    expectSuccessfulExecution(new Script("schema", "schema code"), version, true);
+                    one(scriptProvider).tryGetFunctionScript(version);
+                    expectSuccessfulExecution(new Script("function", "db function code"), version, false);
                     one(scriptProvider).getMassUploadFiles(version);
                     final File massUploadFile = new File("1=materials.csv");
                     will(returnValue(new File[]
                         { massUploadFile }));
-                    one(scriptProvider).getDataScript(version);
-                    expectSuccessfulExecution(new Script("data", "data code"), version);
+                    one(scriptProvider).tryGetDataScript(version);
+                    expectSuccessfulExecution(new Script("data", "data code"), version, true);
                     one(massUploader).performMassUpload(new File[] {massUploadFile});
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
@@ -226,15 +228,17 @@ public class DBMigrationEngineTest
                     one(adminDAO).createOwner();
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
-                    one(scriptProvider).getSchemaScript(version);
-                    expectSuccessfulExecution(new Script("schema", "schema code"), version);
-                    one(scriptProvider).getDataScript(version);
-                    expectSuccessfulExecution(new Script("data", "data code"), version);
+                    one(scriptProvider).tryGetSchemaScript(version);
+                    expectSuccessfulExecution(new Script("schema", "schema code"), version, true);
+                    one(scriptProvider).tryGetFunctionScript(version);
+                    expectSuccessfulExecution(new Script("function", "db function code"), version, false);
+                    one(scriptProvider).tryGetDataScript(version);
+                    expectSuccessfulExecution(new Script("data", "data code"), version, true);
                     one(scriptProvider).getMassUploadFiles(version);
                     will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -271,14 +275,16 @@ public class DBMigrationEngineTest
                     one(adminDAO).createOwner();
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
-                    one(scriptProvider).getSchemaScript(version);
-                    expectSuccessfulExecution(new Script("schema", "schema code"), version);
-                    one(scriptProvider).getDataScript(version);
+                    one(scriptProvider).tryGetSchemaScript(version);
+                    expectSuccessfulExecution(new Script("schema", "schema code"), version, true);
+                    one(scriptProvider).tryGetFunctionScript(version);
+                    expectSuccessfulExecution(new Script("function", "db function code"), version, false);
+                    one(scriptProvider).tryGetDataScript(version);
                     one(scriptProvider).getMassUploadFiles(version);
                     will(returnValue(new File[0]));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -314,8 +320,8 @@ public class DBMigrationEngineTest
                     one(adminDAO).createOwner();
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
-                    one(scriptProvider).getSchemaScript(version);
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetSchemaScript(version);
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -358,12 +364,12 @@ public class DBMigrationEngineTest
                     will(returnValue("my 1. database"));
                     one(adminDAO).createOwner();
                     one(adminDAO).createDatabase();
-                    one(scriptProvider).getScript(DBMigrationEngine.CREATE_LOG_SQL);
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetLogCreationScript();
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-        String message = "Missing script createLog.sql";
+        String message = "Missing log creation script";
         try
         {
             migrationEngine.migrateTo(version);
@@ -405,7 +411,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).createDatabase();
                     expectCreateLogDAOTable();
                     will(throwException(exception));
-                    one(scriptProvider).getFinishScript(version);
+                    one(scriptProvider).tryGetFinishScript(version);
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
@@ -489,10 +495,10 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
-                    one(scriptProvider).getMigrationScript(fromVersion, "100");
-                    expectSuccessfulExecution(new Script("m-099-100", "code 099 100"), toVersion);
-                    one(scriptProvider).getMigrationScript("100", toVersion);
-                    expectSuccessfulExecution(new Script("m-100-101", "code 100 101"), toVersion);
+                    one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
+                    expectSuccessfulExecution(new Script("m-099-100", "code 099 100"), toVersion, true);
+                    one(scriptProvider).tryGetMigrationScript("100", toVersion);
+                    expectSuccessfulExecution(new Script("m-100-101", "code 100 101"), toVersion, true);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -540,7 +546,7 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
-                    one(scriptProvider).getMigrationScript(fromVersion, "100");
+                    one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -765,11 +771,11 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my database"));
-                    one(scriptProvider).getMigrationScript(fromVersion, toVersion);
+                    one(scriptProvider).tryGetMigrationScript(fromVersion, toVersion);
                     Script script = new Script("m-1-2", "code");
                     will(returnValue(script));
                     one(logDAO).logStart(toVersion, script.getName(), script.getCode());
-                    one(scriptExecutor).execute(script.getCode());
+                    one(scriptExecutor).execute(script.getCode(), true);
                     will(throwException(exception));
                     one(logDAO)
                             .logFailure(with(equal(toVersion)), with(equal(script.getName())), with(same(exception)));

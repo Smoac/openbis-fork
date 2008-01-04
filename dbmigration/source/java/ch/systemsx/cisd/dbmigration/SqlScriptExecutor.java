@@ -44,9 +44,9 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         this.singleStepMode = singleStepMode;
     }
 
-    public void execute(String sqlScript)
+    public void execute(String sqlScript, boolean honorSingleStepMode)
     {
-        if (singleStepMode)
+        if (singleStepMode && honorSingleStepMode)
         {
             String lastSqlStatement = "";
             for (String sqlStatement : splitStatements(sqlScript))
