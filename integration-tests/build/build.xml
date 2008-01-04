@@ -4,14 +4,13 @@
 
 	<target name="nightly-build" depends="integration-tests" />
 
-	<!--
-	// Runs integration tests (WITHOUT rebuilding everything). It assumes that it will find the
-	// libraries in 'install' directory. It starts by cleaning the 'playground' directory.
-	-->
-	<target name="run" description="Runs integration tests (WITHOUT rebuilding everything).">
+	<!-- Parameter: arg1, arg2, arg3, arg4 - arguments passed to integration test script -->
+	<target name="internal-launch" description="Runs integration tests with given arguments">
 		<delete dir="${work.dir}" failonerror="true" />
 		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./run.sh" />
+			<arg value="${arg1}" />
+			<arg value="${arg2}" />
 		</exec>
 		<fail>
 			<condition>
@@ -22,30 +21,47 @@
 		</fail>
 	</target>
 
+
 	<!--
-	// Runs integration tests (with 'force-rebuild' argument activated).
+		Runs integration tests again (WITHOUT rebuilding everything). 
+		It assumes that it will find all the distributions already installed by the previous integration tests.
 	-->
-	<target name="integration-tests" description="Runs integration tests (with 'force-rebuild' argument activated).">
-		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
-			<arg value="./run.sh" />
-			<arg value="--force-rebuild" />
-		</exec>
-		<fail>
-			<condition>
-				<not>
-					<equals arg1="${result-code}" arg2="0" />
-				</not>
-			</condition>
-		</fail>
+	<target name="run" description="Launches integration tests again (WITHOUT rebuilding everything).">
+		<antcall target="internal-launch">
+			<param name="arg1" value="" />
+			<param name="arg2" value="" />
+		</antcall>
+	</target>
+
+	<target name="run-local-rebuild" description="Runs integration tests, rebuilds everything from local source.">
+		<antcall target="internal-launch">
+			<param name="arg1" value="--all" />
+			<param name="arg2" value="--local-source" />
+		</antcall>
+	</target>
+
+	<target name="relaunch-local-etl-rebuild"
+	        description="Runs integration tests again, rebuilds etl server from local sources.">
+		<antcall target="internal-launch">
+			<param name="arg1" value="--etl" />
+			<param name="arg2" value="--local-source" />
+		</antcall>
+	</target>
+
+	<target name="integration-tests" description="Runs integration tests, rebuild everything from svn sources.">
+		<antcall target="internal-launch">
+			<param name="arg1" value="--all" />
+			<param name="arg2" value="" />
+		</antcall>
 	</target>
 
 	<!--
 	// Cleans 'install' and 'playground' directories.
 	-->
 	<target name="clean" description="Cleans 'install' and 'playground' directories.">
-		<exec executable="sh" dir="${basedir}">
-			<arg value="./run.sh" />
-			<arg value="clean" />
-		</exec>
+		<antcall target="internal-launch">
+			<param name="arg1" value="--clean" />
+			<param name="arg2" value="" />
+		</antcall>
 	</target>
 </project>

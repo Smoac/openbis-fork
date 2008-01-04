@@ -13,6 +13,7 @@ TEMPLATE=templates
 TARGETS=targets
 WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
+LOCAL_PROJECTS=..
 
 LIMS_SERVER_NAME=openBIS-server
 LIMS_SERVER=$WORK/$LIMS_SERVER_NAME
@@ -25,7 +26,7 @@ ERR_LOG=$WORK/all_err_log.txt
 # ---- global state
 TEST_FAILED=false # working variable, if true then some tests failed
 
-# -------------------------- installation
+# --------------------------- build distributions from sources
 
 function get_env_path {
     echo $PATH | tr ":" " "
@@ -50,19 +51,80 @@ function run_svn {
 }
 
 function build_zips {
+    build_etl=$1
+    build_dmv=$2
+    build_lims=$3
+    use_local_source=$4
+
+    if [ $build_etl == "true" -o $build_dmv == "true" -o $build_lims == "true" ]; then
+        mkdir -p $INSTALL
+	if [ "$use_local_source" = "true" ]; then
+    	    build_zips_from_local $build_etl $build_dmv $build_lims
+        else
+	    build_zips_from_svn $build_etl $build_dmv $build_lims
+	fi
+    else
+	echo "No components to build were specified (--help explains how to do this)."
+	echo "Build process skipped."
+    fi
+    assert_file_exists_or_die "$INSTALL/openBIS-server*.zip"
+    assert_file_exists_or_die "$INSTALL/openBIS-client*.zip"
+    assert_file_exists_or_die "$INSTALL/etlserver*.zip"
+    assert_file_exists_or_die "$INSTALL/datamover*.zip"
+
+}
+
+function build_zips_from_local {
+    build_etl=$1
+    build_dmv=$2
+    build_lims=$3
+
+    build_components build_local $build_etl $build_dmv $build_lims
+}
+
+function build_local {
+    local PROJECT_NAME=$1
+    $LOCAL_PROJECTS/$PROJECT_NAME/build/antrun.sh
+    mv $LOCAL_PROJECTS/$PROJECT_NAME/targets/dist/*.zip $INSTALL
+}
+
+function build_components {
+    build_cmd=$1
+    build_etl=$2
+    build_dmv=$3
+    build_lims=$4
+
+    if [ $build_etl == "true" ]; then
+	rm -f $INSTALL/etlserver*.zip
+        $build_cmd etlserver
+    fi
+    if [ $build_dmv == "true" ]; then
+	rm -f $INSTALL/datamover*.zip
+	$build_cmd datamover
+    fi
+    if [ $build_lims == "true" ]; then
+	rm -f $INSTALL/openBIS-server*.zip
+	rm -f $INSTALL/openBIS-client*.zip
+        $build_cmd lims_webclient
+    fi
+}
+
+function build_zips_from_svn {
+    build_etl=$1
+    build_dmv=$2
+    build_lims=$3
+
     RSC=build_resources
     rm -fr $RSC
     run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
     cd $RSC
-    ./build.sh lims_webclient
-    ./build.sh datamover
-    ./build.sh etlserver
+    build_components ./build.sh $build_etl $build_dmv $build_lims
     cd ..
-    rm -fr $INSTALL
-    mkdir -p $INSTALL
     mv $RSC/*.zip $INSTALL
     rm -fr $RSC 
 }
+
+# -------------------------- installation
 
 function clean_svn {
     local DIR=$1
@@ -74,13 +136,14 @@ function clean_svn {
 function prepare {
     src=$1
     dest=$2
+    rm -fr $WORK/$dest
     cp -R $WORK/$src $WORK/$dest
     cp -fR $TEMPLATE/$dest $WORK
     clean_svn $WORK/$dest
 }
 
 function unpack { # from ZIPS to BUILD
-    file_pattern=$1
+    local file_pattern=$1
     unzip -d $WORK $INSTALL/$file_pattern*
 }
 
@@ -113,6 +176,7 @@ function wait_for_server {
 }
 
 function install_lims_server {
+    rm -fr $LIMS_SERVER
     cp -R $TEMPLATE/$LIMS_SERVER_NAME $WORK
     
     unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
@@ -133,10 +197,12 @@ function shutdown_lims_server {
 }
 
 function register_cell_plates {
+    assert_dir_exists_or_die $LIMS_CLIENT
     call_in_dir load-lims-data.sh $LIMS_CLIENT
 }
 
 function install_lims_client {
+    rm -fr $WORK/$LIMS_CLIENT_NAME
     unpack openBIS-client
     cp -fR $TEMPLATE/$LIMS_CLIENT_NAME $WORK
 }
@@ -157,24 +223,36 @@ function install_datamovers {
     cp -fR $TEMPLATE/dummy-img-analyser $WORK
 }
 
-function install {
-    rm -fr $WORK
-    mkdir -p $WORK
-    
-    install_etls
-    install_datamovers
-    install_lims_server
-    install_lims_client
-    register_cell_plates
-}
-
 function restart_lims {
+    assert_dir_exists_or_die $LIMS_SERVER
     shutdown_lims_server
     sleep 1
     startup_lims_server
     sleep 4
+}
+
+function install {
+    install_etl=$1
+    install_dmv=$2
+    install_lims=$3
+
+    mkdir -p $WORK
+    
+    if [ $install_etl == "true" ]; then
+        install_etls
+    fi
+    if [ $install_dmv == "true" ]; then
+        install_datamovers
+    fi
+    if [ $install_lims == "true" ]; then
+        install_lims_server
+	install_lims_client
+    else
+        restart_lims
+    fi
     register_cell_plates
 }
+
 
 # ----------------------------- general
 
@@ -229,6 +307,26 @@ function assert_dir_exists {
     fi
 }
 
+function fatal_error {
+    local MSG=$1
+    report_error $MSG
+    exit_if_assertion_failed
+}
+
+function assert_file_exists_or_die {
+    local F="$1"
+    if [ ! -f $F ]; then
+	fatal_error "File $F does not exist!"
+    fi
+}
+
+function assert_dir_exists_or_die {
+    local DIR=$1
+    if [ ! -d $DIR ]; then
+	fatal_error "Directory $DIR does not exist!"
+    fi
+}
+
 function assert_dir_empty {
     dir=$1
     is_empty_dir $dir
@@ -267,7 +365,7 @@ function create_test_data_dir {
     local DIR=$2
     mkdir $DIR/$NAME
     local i=0  
-    while [  $i -lt 18 ]; do
+    while [  $i -lt 5 ]; do
 	create_test_data_file $DIR/$NAME/$NAME-data$i.txt
 	let i=i+1 
     done
@@ -291,11 +389,14 @@ function chmod_exec {
     done 
 }
 
+
 function switch_sth {
     switch_on=$1 # on/off
     dir=$WORK/$2
     cmd_start=$3
     cmd_stop=$4
+
+    assert_dir_exists_or_die $dir
     chmod_exec $dir/$cmd_start
     chmod_exec $dir/$cmd_stop
 
@@ -365,20 +466,14 @@ function assert_correct_results {
 }
 
 function integration_tests {
-    force_rebuild=$1
-    force_reinstall=$2
-
+    install_etl=$1
+    install_dmv=$2
+    install_lims=$3
+    use_local_source=$4
+    
     init_log
-    if [ ! -d $INSTALL -o "$force_rebuild" == "true" ]; then
-        build_zips
-        install
-    else
-        if [ ! -d $WORK -o "$force_reinstall" == "true" ]; then
-	    install
-	else
-	    restart_lims
-	fi
-    fi
+    build_zips $install_etl $install_dmv $install_lims $use_local_source
+    install $install_etl $install_dmv $install_lims
     launch_tests
     assert_correct_results
     shutdown_lims_server
@@ -392,14 +487,61 @@ function clean_after_tests {
     rm -fr $WORK
 }
 
+function print_help {
+    echo "Usage: $0 [ (--etl | --lims | --dmv)* | --all [ --local-source ]]"
+    echo "	--etl, --lims, --dmv	build chosen components only"
+    echo "	--all 			build all components"
+    echo "	--local-source		use local source code during building process instead of downloading it from svn"  
+    echo "	--clean			clean and exit"
+    echo "	--help			displays this help"
+    echo "If no option is given, integration tests will be restarted without building anything."
+    echo "Examples:"
+    echo "- Rebuild everything, fetch sources from svn:"
+    echo "	$0 --all"
+    echo "- Use lims server and client installation from previous tests, rebuild etl server and datamover using local source:"
+    echo "	$0 --etl --dmv --local-source"
+    echo "- Rebuild etl server only fetching sources from svn:"
+    echo "	$0 --etl"
+}
+
 # -- MAIN ------------ 
-if [ "$1" = "clean" ]; then
+if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
-    force_rebuild=false
-    force_reinstall=false
-    if [ "$1" = "--force-rebuild" ]; then
-			force_rebuild=true
-		fi
-    integration_tests $force_rebuild $force_reinstall
+    install_etl=false
+    install_dmv=false
+    install_lims=false
+    use_local_source=false
+    while [ ! "$1" = "" ]; do
+	case "$1" in
+	    '-e'|'--etl')
+	        install_etl=true
+		;;
+	    '-d'|'--dmv')
+		install_dmv=true
+		;;
+	    '-l'|'--lims')
+		install_lims=true
+		;;
+	    '-a'|'--all')
+	        install_etl=true
+		install_dmv=true
+		install_lims=true
+		;;
+	    '--local-source')
+		use_local_source=true
+		;;			
+	    '--help')
+		print_help
+		exit 0
+		;;
+	    *)
+		echo "Illegal option $1."
+		print_help
+		exit 1
+		;;
+         esac
+	 shift
+    done
+    integration_tests $install_etl $install_dmv $install_lims $use_local_source
 fi
