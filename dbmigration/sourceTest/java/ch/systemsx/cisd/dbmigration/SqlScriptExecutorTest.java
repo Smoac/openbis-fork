@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
@@ -167,6 +168,7 @@ public class SqlScriptExecutorTest
     public void testGetCreateLogScript()
     {
         Script script = sqlScriptProvider.tryGetLogCreationScript();
+        assertNotNull(script);
         assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/" + SqlScriptProvider.CREATE_LOG_SQL, script.getName());
         assertEquals("hello world!", script.getCode().trim());
     }
