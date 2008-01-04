@@ -217,8 +217,7 @@ function install_lims_client {
 # unpack everything, override default configuration with test configuation	
 function install_etls {
     unpack etlserver
-    prepare etlserver etlserver-raw
-    prepare etlserver etlserver-analys
+    prepare etlserver etlserver-all
     remove_unpacked etlserver
 }
 
@@ -378,7 +377,7 @@ function create_test_data_dir {
     local DIR=$2
     mkdir $DIR/$NAME
     local i=0  
-    while [  $i -lt 5 ]; do
+    while [  $i -lt 15 ]; do
 	create_test_data_file $DIR/$NAME/$NAME-data$i.txt
 	let i=i+1 
     done
@@ -438,8 +437,7 @@ function switch_dmv {
 
 function switch_processing_pipeline {
     new_state=$1
-    switch_etl $new_state etlserver-analys
-    switch_etl $new_state etlserver-raw 
+    switch_etl $new_state etlserver-all
     switch_dmv $new_state datamover-analys
     switch_sth $new_state dummy-img-analyser start.sh stop.sh
     switch_dmv $new_state datamover-raw
@@ -472,9 +470,11 @@ function assert_correct_results {
     assert_dir_empty $DATA/in-analys
     assert_dir_empty $DATA/out-analys
     assert_dir_empty $DATA/analys-copy
-    imgAnalys="$DATA/store-analys/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_3VCP1/1"
+    
+    local store_dir=$DATA/main-store
+    local imgAnalys="$store_dir/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_3VCP1/1"
     assert_dir_exists "$imgAnalys"
-    rawData="$DATA/store-raw/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
+    local rawData="$store_dir/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
     assert_dir_exists "$rawData"
 }
 
