@@ -55,6 +55,13 @@
 		</antcall>
 	</target>
 
+	<target name="integration-tests-local" description="Runs integration tests, rebuild everything from wc.">
+		<antcall target="internal-launch">
+			<param name="arg1" value="--all" />
+			<param name="arg2" value="--local-source" />
+		</antcall>
+	</target>
+
 	<!--
 	// Cleans 'install' and 'playground' directories.
 	-->
