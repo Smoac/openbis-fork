@@ -31,27 +31,45 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Script;
 
-
 /**
  * Tests for {@link SqlScriptExecutor}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class SqlScriptExecutorTest
+public class SqlScriptProviderTest
 {
-    private static final String TEMPORARY_DATA_SCRIPT_FOLDER_NAME = "temporaryDataScriptFolder";
-    private static final String TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME = "temporarySchemaScriptFolder";
-    private static final String TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME = "temporaryMassDataUploadFolder";
-    private static final String TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME = "temporaryInternalScriptFolder";
+    private static final String BASE_FOLDER =
+            "targets" + File.separator + "unit-test-wd" + File.separator + "SqlScriptProviderTest";
+
+    private static final String TEMPORARY_DATA_SCRIPT_FOLDER_NAME =
+            BASE_FOLDER + File.separator + "temporaryDataScriptFolder";
+
+    private static final String TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME =
+            BASE_FOLDER + File.separator + "temporarySchemaScriptFolder";
+
+    private static final String TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME =
+            BASE_FOLDER + File.separator + "temporaryMassDataUploadFolder";
+
+    private static final String TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME =
+            BASE_FOLDER + File.separator + "temporaryInternalScriptFolder";
+
     private static final File TEMP_SCHEMA_SCRIPT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
+
     private static final File TEMP_DATA_SCRIPT_FOLDER = new File(TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
+
     private static final File TEMP_MASS_DATA_UPLOAD_FOLDER = new File(TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME);
+
     private static final File TEMP_INTERNAL_SCRIPT_FOLDER = new File(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
-    private static final File CREATE_LOG_SQL_FILE = new File(TEMP_INTERNAL_SCRIPT_FOLDER, SqlScriptProvider.CREATE_LOG_SQL);
+
+    private static final File CREATE_LOG_SQL_FILE =
+            new File(TEMP_INTERNAL_SCRIPT_FOLDER, SqlScriptProvider.CREATE_LOG_SQL);
+
     private static final String MIGRATION = "migration";
+
     private static final String VERSION = "042";
+
     private static final String VERSION2 = "049";
-    
+
     private SqlScriptProvider sqlScriptProvider;
 
     @BeforeClass
@@ -60,6 +78,8 @@ public class SqlScriptExecutorTest
         File schemaVersionFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, VERSION);
         schemaVersionFolder.mkdirs();
         write(new File(schemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
+        write(new File(schemaVersionFolder, "function-" + VERSION + ".sql"), "code: function");
+        write(new File(schemaVersionFolder, "finish-" + VERSION + ".sql"), "code: finish");
         File migrationFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, MIGRATION);
         migrationFolder.mkdir();
         write(new File(migrationFolder, "migration-" + VERSION + "-" + VERSION2 + ".sql"), "code: migration");
@@ -70,10 +90,9 @@ public class SqlScriptExecutorTest
         File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
         massUploaadVersionFolder.mkdirs();
         write(new File(massUploaadVersionFolder, "1=test.tsv"), "1\tbla");
-        sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, 
-                                                  TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
-                                                  TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME,
-                                                  TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
+        sqlScriptProvider =
+                new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
+                        TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME, TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
     }
 
     private void write(File file, String content) throws IOException
@@ -91,7 +110,7 @@ public class SqlScriptExecutorTest
             }
         }
     }
-    
+
     @AfterClass
     public void deleteTestFiles()
     {
@@ -113,12 +132,14 @@ public class SqlScriptExecutorTest
         }
         file.delete();
     }
-    
+
     @Test
     public void testGetSchemaScript()
     {
-        Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/schema-" + VERSION + ".sql", script.getName());
+        final Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
+        assertNotNull(script);
+        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/schema-" + VERSION + ".sql", script
+                .getName());
         assertEquals("code: schema", script.getCode().trim());
     }
 
@@ -127,7 +148,39 @@ public class SqlScriptExecutorTest
     {
         assertEquals(null, sqlScriptProvider.tryGetSchemaScript("000"));
     }
-    
+
+    @Test
+    public void testGetFunctionScript()
+    {
+        final Script script = sqlScriptProvider.tryGetFunctionScript(VERSION);
+        assertNotNull(script);
+        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/function-" + VERSION + ".sql", script
+                .getName());
+        assertEquals("code: function", script.getCode().trim());
+    }
+
+    @Test
+    public void testGetNonExistingFunctionScript()
+    {
+        assertEquals(null, sqlScriptProvider.tryGetFunctionScript("000"));
+    }
+
+    @Test
+    public void testGetFinishScript()
+    {
+        final Script script = sqlScriptProvider.tryGetFinishScript(VERSION);
+        assertNotNull(script);
+        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/finish-" + VERSION + ".sql", script
+                .getName());
+        assertEquals("code: finish", script.getCode().trim());
+    }
+
+    @Test
+    public void testGetNonExistingFinishScript()
+    {
+        assertEquals(null, sqlScriptProvider.tryGetFinishScript("000"));
+    }
+
     @Test
     public void testGetDataScript()
     {
@@ -136,35 +189,36 @@ public class SqlScriptExecutorTest
         assertEquals("code: data", script.getCode().trim());
     }
 
-    @Test void testGetMassUploadFiles()
+    @Test
+    void testGetMassUploadFiles()
     {
         final File[] massUploadFiles = sqlScriptProvider.getMassUploadFiles(VERSION);
         assertEquals(1, massUploadFiles.length);
         assertEquals("1=test.tsv", massUploadFiles[0].getName());
         assertTrue(massUploadFiles[0].exists());
     }
-    
+
     @Test
     public void testGetNonExistingDataScript()
     {
         assertEquals(null, sqlScriptProvider.tryGetDataScript("000"));
     }
-    
+
     @Test
     public void testGetMigrationScript()
     {
         Script script = sqlScriptProvider.tryGetMigrationScript(VERSION, VERSION2);
         assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + MIGRATION + "/migration-" + VERSION + "-" + VERSION2
-                     + ".sql", script.getName());
+                + ".sql", script.getName());
         assertEquals("code: migration", script.getCode().trim());
     }
-    
+
     @Test
     public void testGetNonExistingMigrationScript()
     {
         assertEquals(null, sqlScriptProvider.tryGetMigrationScript("000", "001"));
     }
-    
+
     @Test
     public void testGetCreateLogScript() throws IOException
     {
@@ -181,5 +235,5 @@ public class SqlScriptExecutorTest
         CREATE_LOG_SQL_FILE.delete();
         assertEquals(null, sqlScriptProvider.tryGetLogCreationScript());
     }
-    
+
 }

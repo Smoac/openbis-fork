@@ -98,7 +98,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetFinishScript(String version)
     {
-        return tryLoadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE, version);
+        return tryLoadScript(schemaScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
@@ -110,7 +110,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetFunctionScript(String version)
     {
-        return tryLoadScript(dataScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE, version);
+        return tryLoadScript(schemaScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
