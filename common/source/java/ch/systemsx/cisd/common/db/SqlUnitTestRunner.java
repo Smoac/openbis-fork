@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
@@ -218,7 +219,7 @@ public class SqlUnitTestRunner
         writer.println("     execute script " + scriptFile.getName());
         try
         {
-            executor.execute(FileUtilities.loadToString(scriptFile), true);
+            executor.execute(new Script(scriptFile.getName(), FileUtilities.loadToString(scriptFile)), true, null);
             return new TestResult(scriptFile);
         } catch (Throwable t)
         {
