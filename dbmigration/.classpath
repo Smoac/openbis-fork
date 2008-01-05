@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/postgresql/postgresql.jar" sourcepath="/libraries/postgresql/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

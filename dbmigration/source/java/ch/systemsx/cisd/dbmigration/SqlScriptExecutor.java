@@ -65,7 +65,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                 {
                     try
                     {
-                        getJdbcTemplate().execute(sqlStatement);
+                        execute(sqlStatement);
                     } catch (BadSqlGrammarException ex2)
                     {
                         throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
@@ -75,7 +75,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                 }
             } else
             {
-                getJdbcTemplate().execute(sqlScriptCode);
+                execute(sqlScriptCode);
             }
             if (loggerOrNull != null)
             {
@@ -98,6 +98,12 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         }
     }
 
+    // @Private
+    void execute(String script)
+    {
+        getJdbcTemplate().execute(script);
+    }
+    
     private String getTask(BadSqlGrammarException ex)
     {
         final String msg = ex.getMessage();
