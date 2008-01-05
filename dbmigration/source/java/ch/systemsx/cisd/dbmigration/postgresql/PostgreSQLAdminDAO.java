@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration.postgresql;
 
+import java.io.File;
+
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
@@ -23,10 +25,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
+import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DBUtilities;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
+import ch.systemsx.cisd.dbmigration.IMassUploader;
+import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for PostgreSQL.
@@ -37,6 +44,10 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
 
+    private final ISqlScriptExecutor scriptExecutor;
+
+    private final IMassUploader massUploader;
+
     private final String owner;
 
     private final String database;
@@ -45,11 +56,16 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
      * Creates an instance.
      * 
      * @param dataSource Data source able to create/drop the specified database.
+     * @param scriptExecutor An executor for SQL scripts.
+     * @param massUploader A class that can perform mass (batch) uploads into database tables.  
      * @param owner Owner to be created if it doesn't exist.
      * @param database Name of the database.
      */
-    public PostgreSQLAdminDAO(DataSource dataSource, String owner, String database)
+    public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
+            String owner, String database)
     {
+        this.scriptExecutor = scriptExecutor;
+        this.massUploader = massUploader;
         this.owner = owner;
         this.database = database;
         setDataSource(dataSource);
@@ -90,9 +106,10 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
         operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
         try
         {
-            getJdbcTemplate().execute("create database " + database + " with owner = " + owner
-                    + " encoding = 'utf8' tablespace = pg_default;" 
-                    + "alter database " + database + " set default_with_oids = off;");
+            getJdbcTemplate().execute(
+                    "create database " + database + " with owner = " + owner
+                            + " encoding = 'utf8' tablespace = pg_default;" + "alter database " + database
+                            + " set default_with_oids = off;");
         } catch (BadSqlGrammarException ex)
         {
             if (DBUtilities.isDuplicateDatabaseException(ex) == false)
@@ -115,6 +132,29 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
                 throw ex;
             }
         }
+    }
+
+    public void restoreDatabaseFromDump(ISqlScriptProvider scriptProvider, String version)
+    {
+        createDatabase();
+        final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
+        if (schemaScript == null)
+        {
+            final String message = "No schema script found for version " + version;
+            operationLog.error(message);
+            throw new ConfigurationFailureException(message);
+        }
+        scriptExecutor.execute(schemaScript, false, null);
+        final File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
+        massUploader.performMassUpload(massUploadFiles);
+        final Script finishScript = scriptProvider.tryGetFinishScript(version); 
+        if (schemaScript == null)
+        {
+            final String message = "No finish script found for version " + version;
+            operationLog.error(message);
+            throw new ConfigurationFailureException(message);
+        }
+        scriptExecutor.execute(finishScript, false, null);
     }
 
 }

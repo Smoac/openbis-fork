@@ -34,6 +34,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -51,9 +52,9 @@ public class DBMigrationEngineTest
         protected void expectSuccessfulExecution(Script script, final String version, boolean honorSingleStepMode)
         {
             will(returnValue(script));
-            one(logDAO).logStart(version, script.getName(), script.getCode());
-            one(scriptExecutor).execute(script.getCode(), honorSingleStepMode);
-            one(logDAO).logSuccess(version, script.getName());
+            one(logDAO).logStart(script);
+            one(scriptExecutor).execute(script, honorSingleStepMode, null);
+            one(logDAO).logSuccess(script);
         }
 
         protected void expectCreateLogDAOTable()
@@ -147,7 +148,8 @@ public class DBMigrationEngineTest
                         { massUploadFile }));
                     one(scriptProvider).tryGetDataScript(version);
                     expectSuccessfulExecution(new Script("data", "data code"), version, true);
-                    one(massUploader).performMassUpload(new File[] {massUploadFile});
+                    one(massUploader).performMassUpload(new File[]
+                        { massUploadFile });
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                     one(scriptProvider).tryGetFinishScript(version);
@@ -772,13 +774,12 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my database"));
                     one(scriptProvider).tryGetMigrationScript(fromVersion, toVersion);
-                    Script script = new Script("m-1-2", "code");
+                    Script script = new Script("m-1-2", "code", toVersion);
                     will(returnValue(script));
-                    one(logDAO).logStart(toVersion, script.getName(), script.getCode());
-                    one(scriptExecutor).execute(script.getCode(), true);
+                    one(logDAO).logStart(script);
+                    one(scriptExecutor).execute(script, true, null);
                     will(throwException(exception));
-                    one(logDAO)
-                            .logFailure(with(equal(toVersion)), with(equal(script.getName())), with(same(exception)));
+                    one(logDAO).logFailure(with(equal(script)), with(same(exception)));
                 }
             });
         final DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);

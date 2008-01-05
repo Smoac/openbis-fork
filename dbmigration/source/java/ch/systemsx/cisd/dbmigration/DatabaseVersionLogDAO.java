@@ -39,17 +39,18 @@ import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatemen
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Class which logs database migration steps in the database.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVersionLogDAO
 {
     private static final String ENCODING = "utf8";
-    
+
     private static final String RUN_EXCEPTION = "run_exception";
 
     private static final String MODULE_CODE = "module_code";
@@ -63,10 +64,11 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     private static final String DB_VERSION = "db_version";
 
     private static final String DB_VERSION_LOG = "database_version_logs";
-    
-    private static final String SELECT_LAST_ENTRY = "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP 
-                                    + " in (select max(" + RUN_STATUS_TIMESTAMP + ") from " + DB_VERSION_LOG + ")";
-    
+
+    private static final String SELECT_LAST_ENTRY =
+            "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP + " in (select max("
+                    + RUN_STATUS_TIMESTAMP + ") from " + DB_VERSION_LOG + ")";
+
     private static final class LogEntryRowMapper implements ParameterizedRowMapper<LogEntry>
     {
         private final LobHandler lobHandler;
@@ -75,7 +77,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
         {
             this.lobHandler = lobHandler;
         }
-        
+
         public LogEntry mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             final LogEntry logEntry = new LogEntry();
@@ -113,7 +115,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
         setDataSource(dataSource);
         this.lobHandler = lobHandler;
     }
-    
+
     public boolean canConnectToDatabase()
     {
         try
@@ -134,16 +136,21 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
         JdbcTemplate template = getJdbcTemplate();
         template.execute(script.getCode());
     }
-    
+
     public LogEntry getLastEntry()
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         List<LogEntry> entries = template.query(SELECT_LAST_ENTRY, new LogEntryRowMapper(lobHandler));
-        
+
         return entries.size() == 0 ? null : entries.get(entries.size() - 1);
     }
 
-    public void logStart(final String version, final String moduleName, final String moduleCode)
+    /**
+     * Inserts a new entry into the version log with {@link LogEntry.RunStatus#START}. 
+     * 
+     * @param moduleScript The script of the module to be logged.
+     */
+    public void logStart(final Script moduleScript)
     {
         JdbcTemplate template = getJdbcTemplate();
         PreparedStatementCallback callback = new AbstractLobCreatingPreparedStatementCallback(this.lobHandler)
@@ -151,27 +158,37 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
                 @Override
                 protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException
                 {
-                    ps.setString(1, version);
-                    ps.setString(2, moduleName);
+                    ps.setString(1, moduleScript.getVersion());
+                    ps.setString(2, moduleScript.getName());
                     ps.setString(3, LogEntry.RunStatus.START.toString());
                     ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                    lobCreator.setBlobAsBytes(ps, 5, getAsByteArray(moduleCode));
+                    lobCreator.setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getCode()));
                 }
             };
-        template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME + "," + RUN_STATUS + "," 
-                + RUN_STATUS_TIMESTAMP + "," + MODULE_CODE + ") values (?,?,?,?,?)", 
-                callback);
+        template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME + "," + RUN_STATUS
+                + "," + RUN_STATUS_TIMESTAMP + "," + MODULE_CODE + ") values (?,?,?,?,?)", callback);
     }
-    
-    public void logSuccess(String version, String moduleName)
+
+    /**
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#SUCCESS}. 
+     * 
+     * @param moduleScript The script of the successfully applied module.
+     */
+    public void logSuccess(final Script moduleScript)
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        template.update("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ? , " + RUN_STATUS_TIMESTAMP + " = ? " 
-                + "where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", 
-                LogEntry.RunStatus.SUCCESS.toString(), new Date(System.currentTimeMillis()), version, moduleName);
+        template.update("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ? , " + RUN_STATUS_TIMESTAMP + " = ? "
+                + "where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", LogEntry.RunStatus.SUCCESS.toString(),
+                new Date(System.currentTimeMillis()), moduleScript.getVersion(), moduleScript.getName());
     }
-    
-    public void logFailure(final String version, final String moduleName, Throwable runException)
+
+    /**
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#FAILED}. 
+     * 
+     * @param moduleScript Script of the failed module.
+     * @param runException Exception causing the failure. 
+     */
+    public void logFailure(final Script moduleScript, Throwable runException)
     {
         final StringWriter stringWriter = new StringWriter();
         runException.printStackTrace(new PrintWriter(stringWriter));
@@ -184,13 +201,12 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
                     ps.setString(1, LogEntry.RunStatus.FAILED.toString());
                     ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                     lobCreator.setBlobAsBytes(ps, 3, getAsByteArray(stringWriter.toString()));
-                    ps.setString(4, version);
-                    ps.setString(5, moduleName);
+                    ps.setString(4, moduleScript.getVersion());
+                    ps.setString(5, moduleScript.getName());
                 }
             };
-        template.execute("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ?, " + RUN_STATUS_TIMESTAMP + " = ?, " 
-                + RUN_EXCEPTION + " = ? where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", callback); 
+        template.execute("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ?, " + RUN_STATUS_TIMESTAMP + " = ?, "
+                + RUN_EXCEPTION + " = ? where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", callback);
     }
-    
-    
+
 }

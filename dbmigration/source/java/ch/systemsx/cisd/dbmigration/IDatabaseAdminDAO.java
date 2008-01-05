@@ -40,6 +40,11 @@ public interface IDatabaseAdminDAO
     public void createDatabase();
     
     /**
+     * Restores the database from previously created dump.
+     */
+    public void restoreDatabaseFromDump(ISqlScriptProvider scriptProvider, String version);
+    
+    /**
      * Drops the database.
      */
     public void dropDatabase();

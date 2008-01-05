@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -44,10 +42,8 @@ public class DBMigrationEngine
 
     private final IDatabaseVersionLogDAO logDAO;
     
-    private final IMassUploader massUploader;
-
     private final ISqlScriptExecutor scriptExecutor;
-
+    
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
      *
@@ -57,7 +53,6 @@ public class DBMigrationEngine
     {
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
-        massUploader = daoFactory.getMassUploader();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
@@ -136,14 +131,13 @@ public class DBMigrationEngine
     private void setupDatabase(String version)
     {
         adminDAO.createOwner();
-        Script finishScript = scriptProvider.tryGetFinishScript(version);
-        if (finishScript == null)
+        if (scriptProvider.isDumpRestore(version))
         {
-            createEmptyDatabase(version);
-            fillWithInitialData(version, true);
+            adminDAO.restoreDatabaseFromDump(scriptProvider, version);
         } else
         {
-            createDatabaseFromDump(version, finishScript);
+            createEmptyDatabase(version);
+            fillWithInitialData(version);
         }
         if (operationLog.isInfoEnabled())
         {
@@ -152,14 +146,6 @@ public class DBMigrationEngine
         }
     }
     
-    private void createDatabaseFromDump(String version, Script finishScript)
-    {
-        adminDAO.createDatabase();
-        executeSchemaScript(version, false, false);
-        fillWithInitialData(version, false);
-        executeScript(finishScript, version, true, false);
-    }
-
     private void createEmptyDatabase(String version)
     {
         adminDAO.createDatabase();
@@ -180,10 +166,10 @@ public class DBMigrationEngine
             throw e;
         }
         
-        executeSchemaScript(version, true, true);
+        executeSchemaScript(version);
     }
 
-    private void executeSchemaScript(String version, boolean honorSingleStepMode, boolean logEnabled)
+    private void executeSchemaScript(String version)
     {
         final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
         if (schemaScript == null)
@@ -192,26 +178,24 @@ public class DBMigrationEngine
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
-        executeScript(schemaScript, version, honorSingleStepMode, logEnabled);
+        scriptExecutor.execute(schemaScript, true, logDAO);
         final Script functionScript = scriptProvider.tryGetFunctionScript(version);
         if (functionScript == null)
         {
             operationLog.debug("No function script found for version " + version);
         } else
         {
-            executeScript(functionScript, version, false, logEnabled);
+            scriptExecutor.execute(functionScript, false, logDAO);
         }
     }
 
-    private void fillWithInitialData(String version, boolean logEnabled)
+    private void fillWithInitialData(String version)
     {
         Script initialDataScript = scriptProvider.tryGetDataScript(version);
         if (initialDataScript != null)
         {
-            executeScript(initialDataScript, version, true, logEnabled);
+            scriptExecutor.execute(initialDataScript, true, logDAO);
         }
-        File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
-        massUploader.performMassUpload(massUploadFiles);
     }
 
     private void migrate(String fromVersion, String toVersion)
@@ -230,7 +214,7 @@ public class DBMigrationEngine
                 throw new EnvironmentFailureException(message);
             }
             long time = System.currentTimeMillis();
-            executeScript(migrationScript, toVersion, true);
+            scriptExecutor.execute(migrationScript, true, logDAO);
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Successfully migrated from version " + version + " to " + nextVersion + " in "
@@ -259,48 +243,6 @@ public class DBMigrationEngine
         }
         return new String(characters);
     }
-
-    private void executeScript(Script script, String version, boolean honorSingleScriptMode)
-    {
-        executeScript(script, version, honorSingleScriptMode, true);
-    }
-    
-    private void executeScript(Script script, String version, boolean honorSingleScriptMode, boolean logEnabled)
-    {
-        final String name = script.getName();
-        final String code = script.getCode();
-        if (logEnabled)
-        {
-            logDAO.logStart(version, name, code);
-        }
-        try
-        {
-            scriptExecutor.execute(code, honorSingleScriptMode);
-            if (logEnabled)
-            {
-                logDAO.logSuccess(version, name);
-            }
-        } catch (Throwable t)
-        {
-            operationLog.error("Executing script '" + name + "' failed.", t);
-            if (logEnabled)
-            {
-                logDAO.logFailure(version, name, t);
-            }
-            if (t instanceof RuntimeException)
-            {
-                RuntimeException re = (RuntimeException) t;
-                throw re;
-            }
-            if (t instanceof Error)
-            {
-                Error error = (Error) t;
-                throw error;
-            }
-            throw new CheckedExceptionTunnel((Exception) t);
-        }
-    }
-
 
     /** Checks whether database already exists. */
     private final boolean databaseExists()

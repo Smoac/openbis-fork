@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -81,6 +82,14 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
+     * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code> otherwise.
+     */
+    public boolean isDumpRestore(String version)
+    {
+        return tryGetFinishScript(version) != null;
+    }
+
+    /**
      * Returns the data script for the specified version. The name of the script is expected to be
      * 
      * <pre>
@@ -89,7 +98,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetFinishScript(String version)
     {
-        return tryLoadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(dataScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
@@ -101,7 +110,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetFunctionScript(String version)
     {
-        return tryLoadScript(dataScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(dataScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
@@ -113,7 +122,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetDataScript(String version)
     {
-        return tryLoadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
@@ -126,7 +135,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
     public Script tryGetMigrationScript(String fromVersion, String toVersion)
     {
         String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
-        return tryLoadScript(schemaScriptFolder + "/migration", scriptName);
+        return tryLoadScript(schemaScriptFolder + "/migration", scriptName, toVersion);
     }
 
     /**
@@ -138,7 +147,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetSchemaScript(String version)
     {
-        return tryLoadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE);
+        return tryLoadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
@@ -146,10 +155,10 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetLogCreationScript()
     {
-        return tryLoadScript(internalScriptFolder, CREATE_LOG_SQL);
+        return tryLoadScript(internalScriptFolder, CREATE_LOG_SQL, "-");
     }
 
-    private Script tryLoadScript(String folder, String scriptName)
+    private Script tryLoadScript(String folder, String scriptName, String scriptVersion)
     {
         String fullScriptName = folder + "/" + scriptName;
         String resource = "/" + fullScriptName;
@@ -171,7 +180,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
             }
             script = FileUtilities.loadToString(file);
         }
-        return new Script(fullScriptName, script);
+        return new Script(fullScriptName, script, scriptVersion);
     }
 
     /**

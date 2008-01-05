@@ -18,13 +18,21 @@ package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.Script;
+
 /**
  * Provider of SQL scripts for creation and migration of database.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ISqlScriptProvider
 {
+    /**
+     * Returns <code>true</code> if this script provider is suitable for a dump restore of the given <var>version</var>
+     * of the database, and <code>false</code>, if it is suitable for a regular setup.
+     */
+    public boolean isDumpRestore(String version);
+
     /**
      * Returns the script to create database schemas.
      * 
@@ -32,7 +40,7 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a script.
      */
     public Script tryGetSchemaScript(String version);
-    
+
     /**
      * Returns the script to create the database functions.
      * 
@@ -40,7 +48,7 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a script.
      */
     public Script tryGetFunctionScript(String version);
-    
+
     /**
      * Returns the script to create initial data.
      * 
@@ -48,7 +56,7 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a script.
      */
     public Script tryGetDataScript(String version);
-    
+
     /**
      * Returns the script to be executed to finish up database creation.
      * 
@@ -56,25 +64,26 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a script.
      */
     public Script tryGetFinishScript(String version);
-    
+
     /**
      * Returns the migration script for migrating a database.
      * 
      * @param fromVersion The version of the current database.
      * @param toVersion The version of the database after migration.
-     * @return <code>null</code> if there isn't such a migration script. 
+     * @return <code>null</code> if there isn't such a migration script.
      */
     public Script tryGetMigrationScript(String fromVersion, String toVersion);
-    
+
     /**
      * Returns the script for creating the database log versions table.
      * 
-     * @return <code>null</code> if there isn't such a script. 
+     * @return <code>null</code> if there isn't such a script.
      */
     public Script tryGetLogCreationScript();
-    
+
     /**
      * Returns the files containing data for mass upload.
+     * 
      * @param version Version of the database.
      * @return The files to mass upload, or an empty array, if there are no such files.
      */

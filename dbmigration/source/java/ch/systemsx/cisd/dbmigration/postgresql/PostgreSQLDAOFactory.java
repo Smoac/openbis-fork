@@ -50,8 +50,6 @@ public class PostgreSQLDAOFactory implements IDAOFactory
      */
     public PostgreSQLDAOFactory(DatabaseConfigurationContext context)
     {
-        databaseDAO =
-                new PostgreSQLAdminDAO(context.getAdminDataSource(), context.getOwner(), context.getDatabaseName());
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
@@ -62,6 +60,9 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         {
             throw new CheckedExceptionTunnel(ex);
         }
+        databaseDAO =
+                new PostgreSQLAdminDAO(context.getAdminDataSource(), sqlScriptExecutor, massUploader, context
+                        .getOwner(), context.getDatabaseName());
     }
 
     public IDatabaseAdminDAO getDatabaseDAO()

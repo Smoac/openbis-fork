@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
+
 
 /**
  * Interface for a Data Access Object for the database version log.
  *
  * @author Franz-Josef Elmer
  */
-public interface IDatabaseVersionLogDAO
+public interface IDatabaseVersionLogDAO extends ISqlScriptExecutionLogger
 {
     /**
      * Returns <code>true</code> if the database instance with database version log can be connected.
@@ -41,30 +44,4 @@ public interface IDatabaseVersionLogDAO
      */
     public LogEntry getLastEntry();
     
-    /**
-     * Inserts a new entry into the version log with {@link LogEntry.RunStatus#START}. 
-     * 
-     * @param version Version of the database after creation/migration.
-     * @param moduleName Name of the module/script to be applied. 
-     * @param moduleCode Script code. 
-     */
-    public void logStart(String version, String moduleName, String moduleCode);
-    
-    /**
-     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#SUCCESS}. 
-     * 
-     * @param version Version of the database after creation/migration.
-     * @param moduleName Name of the successfully applied module/script. 
-     */
-    public void logSuccess(String version, String moduleName);
-    
-    /**
-     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#FAILED}. 
-     * 
-     * @param version Version of the database after creation/migration.
-     * @param moduleName Name of the failed module/script.
-     * @param runException Exception causing the failure. 
-     */
-    public void logFailure(String version, String moduleName, Throwable runException);
-
 }

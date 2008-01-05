@@ -20,10 +20,16 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Implementation of {@link ISqlScriptExecutor}.
@@ -32,35 +38,63 @@ import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
  */
 public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptExecutor.class);
+
     /** Gives better error messages, but is a lot slower. */
     private final boolean singleStepMode;
-    
+
     public SqlScriptExecutor(DataSource dataSource, boolean singleStepMode)
     {
         setDataSource(dataSource);
         this.singleStepMode = singleStepMode;
     }
 
-    public void execute(String sqlScript, boolean honorSingleStepMode)
+    public void execute(Script sqlScript, boolean honorSingleStepMode, ISqlScriptExecutionLogger loggerOrNull)
     {
-        if (singleStepMode && honorSingleStepMode)
+        if (loggerOrNull != null)
         {
-            String lastSqlStatement = "";
-            for (String sqlStatement : DBUtilities.splitSqlStatements(sqlScript))
+            loggerOrNull.logStart(sqlScript);
+        }
+        try
+        {
+            final String sqlScriptCode = sqlScript.getCode();
+            if (singleStepMode && honorSingleStepMode)
             {
-                try
+                String lastSqlStatement = "";
+                for (String sqlStatement : DBUtilities.splitSqlStatements(sqlScriptCode))
                 {
-                    getJdbcTemplate().execute(sqlStatement);
-                } catch (BadSqlGrammarException ex2)
-                {
-                    throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement + "<--<",
-                            getCause(ex2));
+                    try
+                    {
+                        getJdbcTemplate().execute(sqlStatement);
+                    } catch (BadSqlGrammarException ex2)
+                    {
+                        throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
+                                + "<--<", getCause(ex2));
+                    }
+                    lastSqlStatement = sqlStatement;
                 }
-                lastSqlStatement = sqlStatement;
+            } else
+            {
+                getJdbcTemplate().execute(sqlScriptCode);
             }
-        } else
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.logSuccess(sqlScript);
+            }
+        } catch (Throwable t)
         {
-            getJdbcTemplate().execute(sqlScript);
+            operationLog.error("Executing script '" + sqlScript.getName() + "', version " + sqlScript.getVersion()
+                    + " failed.", t);
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.logFailure(sqlScript, t);
+            }
+            if (t instanceof Error)
+            {
+                Error error = (Error) t;
+                throw error;
+            }
+            throw CheckedExceptionTunnel.wrapIfNecessary((Exception) t);
         }
     }
 
