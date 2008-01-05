@@ -84,17 +84,29 @@ public class DBUtilities
             {
                 line = line.substring(0, commentStart);
             }
-            statement.append(line.trim());
+            int startIdx = 0;
+            for (int endIdx = line.indexOf(';') + 1; endIdx > 0; startIdx = endIdx, endIdx =
+                    line.indexOf(';', startIdx) + 1)
+            {
+                statement.append(line.substring(startIdx, endIdx).trim());
+                addToStatements(statements, statement);
+            }
+            statement.append(line.substring(startIdx).trim());
             statement.append(' ');
             if (statement.length() > 1 && statement.charAt(statement.length() - 2) == ';')
             {
-                final String statementStr =
-                        statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)",
-                                ") $1").replaceAll("\\s+;", ";");
-                statements.add(statementStr);
-                statement.setLength(0);
+                addToStatements(statements, statement);
             }
         }
         return statements;
+    }
+
+    private static void addToStatements(final List<String> statements, StringBuilder statement)
+    {
+        final String statementStr =
+                statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)", ") $1").replaceAll("\\s+;",
+                        ";");
+        statements.add(statementStr);
+        statement.setLength(0);
     }
 }
