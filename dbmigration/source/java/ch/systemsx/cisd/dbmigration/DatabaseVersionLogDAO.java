@@ -49,6 +49,8 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
  */
 public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IDatabaseVersionLogDAO
 {
+    public static final String DB_VERSION_LOG = "database_version_logs";
+
     private static final String ENCODING = "utf8";
 
     private static final String RUN_EXCEPTION = "run_exception";
@@ -62,8 +64,6 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     private static final String MODULE_NAME = "module_name";
 
     private static final String DB_VERSION = "db_version";
-
-    private static final String DB_VERSION_LOG = "database_version_logs";
 
     private static final String SELECT_LAST_ENTRY =
             "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP + " in (select max("
