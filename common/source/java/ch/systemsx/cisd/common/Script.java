@@ -35,7 +35,7 @@ public class Script
      */
     public Script(String name, String code)
     {
-        this(name, code, "UNKNOWN");
+        this(name, code, "-");
     }
     
     /**
