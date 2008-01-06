@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.db.PostgreSQLSequencerHandler;
+import ch.systemsx.cisd.dbmigration.h2.H2DAOFactory;
 import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
 
 /**
@@ -39,11 +40,11 @@ public enum DatabaseEngine
 {
     POSTGRESQL("postgresql", org.postgresql.Driver.class, PostgreSQLDAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}", "jdbc:postgresql:{0}{1}", "//localhost/",
-            "postgres");
+            "postgres"),
 
-//    H2("h2", org.h2.Driver.class, H2DAOFactory.class, new DefaultLobHandler(),
-//            new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
-//            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "mem:", "");
+    H2("h2", org.h2.Driver.class, H2DAOFactory.class, new DefaultLobHandler(),
+            new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
+            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "mem:", "");
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
 
