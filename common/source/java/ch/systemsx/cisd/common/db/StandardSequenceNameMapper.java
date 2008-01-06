@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.db;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Standard sequence name mapper which replaces the last character of the table name by <code>_id_seq</code>. This
@@ -26,13 +27,17 @@ import java.util.Map;
  */
 public class StandardSequenceNameMapper implements ISequenceNameMapper
 {
+    private final Set<String> tablesWithoutSequencers;
+    
     private final Map<String, String> nonstandardMapping;
 
     /**
      * Creates an instance for the specified map of sequence name which are not map by the above mentioned rule.
      */
-    public StandardSequenceNameMapper(final Map<String, String> nonstandardMapping)
+    public StandardSequenceNameMapper(final Map<String, String> nonstandardMapping,
+            final Set<String> tablesWithoutSequencers)
     {
+        this.tablesWithoutSequencers = tablesWithoutSequencers;
         this.nonstandardMapping = nonstandardMapping;
     }
 
@@ -42,7 +47,11 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
 
     public final String getSequencerForTable(String tableName)
     {
-        String tableNameInLowerCase = tableName.toLowerCase();
+        final String tableNameInLowerCase = tableName.toLowerCase();
+        if (tablesWithoutSequencers.contains(tableNameInLowerCase))
+        {
+            return null;
+        }
         String sequenceName = nonstandardMapping.get(tableNameInLowerCase);
         if (sequenceName == null)
         {
