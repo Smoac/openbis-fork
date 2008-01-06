@@ -132,19 +132,18 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
     private void fixSequence(String tableName)
     {
         final String sequenceName = sequenceNameMapper.getSequencerForTable(tableName);
+        if (sequenceName == null)
+        {
+            return;
+        }
         try
         {
             getSimpleJdbcTemplate().queryForLong(
                     String.format("select setval('%s', max(id)) from %s", sequenceName, tableName));
         } catch (DataAccessException ex)
         {
-            // TODO 2007-07-03, Bernd Rinn: implement more robust way to find the sequence for a table. For now we need
-            // to ignore it.
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
-                        + "'.");
-            }
+            operationLog.error("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
+                    + "'.", ex);
         }
     }
 
