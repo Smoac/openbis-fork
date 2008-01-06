@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.dbmigration.postgresql;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
 
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.Script;
@@ -30,10 +31,11 @@ import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.dbmigration.DBUtilities;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
-import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
+import ch.systemsx.cisd.dbmigration.MassUploadFileType;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for PostgreSQL.
@@ -42,6 +44,17 @@ import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
  */
 public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
 {
+    private static final String SQL_FILE_TYPE = ".sql";
+
+    private static final String CREATE_DATABASE_SQL_TEMPLATE =
+            "create database %1$s with owner = %2$s encoding = 'utf8' tablespace = pg_default; "
+                    + "alter database %1$s set default_with_oids = off;";
+
+    private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
+            "create table database_version_logs (db_version varchar(4) not null, "
+                    + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
+                    + "module_code bytea, run_exception bytea);";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
 
     private final ISqlScriptExecutor scriptExecutor;
@@ -57,7 +70,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
      * 
      * @param dataSource Data source able to create/drop the specified database.
      * @param scriptExecutor An executor for SQL scripts.
-     * @param massUploader A class that can perform mass (batch) uploads into database tables.  
+     * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
      * @param database Name of the database.
      */
@@ -103,20 +116,39 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     public void createDatabase()
     {
+        createEmptyDatabase();
+        createDatabaseVersionLogsTable();
+    }
+
+    private void createDatabaseVersionLogsTable()
+    {
+        try
+        {
+            scriptExecutor.execute(new Script("create database_version_logs table",
+                    CREATE_TABLE_DATABASE_VERSION_LOGS_SQL), true, null);
+        } catch (RuntimeException ex)
+        {
+            operationLog.error("Failed to create database_version_logs table.", ex);
+            throw ex;
+        }
+    }
+
+    private void createEmptyDatabase()
+    {
         operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
         try
         {
-            getJdbcTemplate().execute(
-                    "create database " + database + " with owner = " + owner
-                            + " encoding = 'utf8' tablespace = pg_default;" + "alter database " + database
-                            + " set default_with_oids = off;");
-        } catch (BadSqlGrammarException ex)
+            getJdbcTemplate().execute(String.format(CREATE_DATABASE_SQL_TEMPLATE, database, owner));
+        } catch (RuntimeException ex)
         {
-            if (DBUtilities.isDuplicateDatabaseException(ex) == false)
+            if (ex instanceof DataAccessException && DBUtilities.isDuplicateDatabaseException((DataAccessException) ex))
             {
+                operationLog.warn("Cannot create database '" + database + "' since it already exists.");
+            } else
+            {
+                operationLog.error("Failed to create database '" + database + "'.", ex);
                 throw ex;
             }
-            operationLog.warn("Cannot create database '" + database + "' since it already exists.");
         }
     }
 
@@ -134,27 +166,64 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
         }
     }
 
-    public void restoreDatabaseFromDump(ISqlScriptProvider scriptProvider, String version)
+    public void restoreDatabaseFromDump(File dumpFolder, String version)
     {
-        createDatabase();
-        final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
-        if (schemaScript == null)
-        {
-            final String message = "No schema script found for version " + version;
-            operationLog.error(message);
-            throw new ConfigurationFailureException(message);
-        }
+        createEmptyDatabase();
+
+        final Script schemaScript = tryLoadScript(dumpFolder, "schema", version);
         scriptExecutor.execute(schemaScript, false, null);
-        final File[] massUploadFiles = scriptProvider.getMassUploadFiles(version);
+        final File[] massUploadFiles = getMassUploadFiles(dumpFolder);
         massUploader.performMassUpload(massUploadFiles);
-        final Script finishScript = scriptProvider.tryGetFinishScript(version); 
-        if (schemaScript == null)
+        final Script finishScript = tryLoadScript(dumpFolder, "finish", version);
+        scriptExecutor.execute(finishScript, false, null);
+    }
+
+    private Script tryLoadScript(final File dumpFolder, String prefix, String version)
+            throws ConfigurationFailureException
+    {
+        final File scriptFile = new File(dumpFolder, prefix + "-" + version + SQL_FILE_TYPE);
+        final Script script = new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
+        if (script == null)
         {
-            final String message = "No finish script found for version " + version;
+            final String message = "No " + prefix + " script found for version " + version;
             operationLog.error(message);
             throw new ConfigurationFailureException(message);
         }
-        scriptExecutor.execute(finishScript, false, null);
+        return script;
+    }
+
+    /**
+     * Returns the files determined for mass uploading.
+     */
+    private File[] getMassUploadFiles(File dumpFolder)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Searching for mass upload files in directory '" + dumpFolder.getAbsolutePath() + "'.");
+        }
+        String[] csvFiles = dumpFolder.list(new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    return MassUploadFileType.CSV.isOfType(name) || MassUploadFileType.TSV.isOfType(name);
+                }
+            });
+        if (csvFiles == null)
+        {
+            operationLog.warn("Path '" + dumpFolder.getAbsolutePath() + "' is not a directory.");
+            return new File[0];
+        }
+        Arrays.sort(csvFiles);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Found " + csvFiles.length + " files for mass uploading.");
+        }
+        final File[] csvPaths = new File[csvFiles.length];
+        for (int i = 0; i < csvFiles.length; ++i)
+        {
+            csvPaths[i] = new File(dumpFolder, csvFiles[i]);
+        }
+        return csvPaths;
     }
 
 }

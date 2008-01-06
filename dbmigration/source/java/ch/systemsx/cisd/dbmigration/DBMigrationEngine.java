@@ -20,10 +20,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Class for creating and migrating a database.
@@ -61,8 +61,8 @@ public class DBMigrationEngine
     /**
      * Create or migrate database to the specified version.
      * 
-     * @throws EnvironmentFailureException if creation/migration failed because of some missing scripts or an
-     *          inconsistent database.
+     * @throws ConfigurationFailureException If creation/migration fails due to a missing script
+     * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent database.
      */
     public void migrateTo(String version)
     {
@@ -133,7 +133,7 @@ public class DBMigrationEngine
         adminDAO.createOwner();
         if (scriptProvider.isDumpRestore(version))
         {
-            adminDAO.restoreDatabaseFromDump(scriptProvider, version);
+            adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);
         } else
         {
             createEmptyDatabase(version);
@@ -148,24 +148,7 @@ public class DBMigrationEngine
     
     private void createEmptyDatabase(String version)
     {
-        adminDAO.createDatabase();
-        Script createScript = scriptProvider.tryGetLogCreationScript();
-        if (createScript == null)
-        {
-            String message = "Missing log creation script";
-            operationLog.error(message);
-            throw new EnvironmentFailureException(message);
-        }
-        try
-        {
-            logDAO.createTable(createScript);
-        } catch (RuntimeException e)
-        {
-            operationLog.error("Script '" + createScript.getName() + "' failed:" + OSUtilities.LINE_SEPARATOR 
-                               + createScript.getCode(), e);
-            throw e;
-        }
-        
+        adminDAO.createDatabase();        
         executeSchemaScript(version);
     }
 
@@ -176,7 +159,7 @@ public class DBMigrationEngine
         {
             final String message = "No schema script found for version " + version;
             operationLog.error(message);
-            throw new EnvironmentFailureException(message);
+            throw new ConfigurationFailureException(message);
         }
         scriptExecutor.execute(schemaScript, true, logDAO);
         final Script functionScript = scriptProvider.tryGetFunctionScript(version);

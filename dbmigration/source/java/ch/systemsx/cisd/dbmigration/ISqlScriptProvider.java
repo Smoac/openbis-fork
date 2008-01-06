@@ -34,6 +34,11 @@ public interface ISqlScriptProvider
     public boolean isDumpRestore(String version);
 
     /**
+     * Returns the folder where all dump files for <var>version</var> reside.
+     */
+    public File getDumpFolder(String version);
+    
+    /**
      * Returns the script to create database schemas.
      * 
      * @param version Version of the database.
@@ -58,14 +63,6 @@ public interface ISqlScriptProvider
     public Script tryGetDataScript(String version);
 
     /**
-     * Returns the script to be executed to finish up database creation.
-     * 
-     * @param version Version of the database.
-     * @return <code>null</code> if there isn't such a script.
-     */
-    public Script tryGetFinishScript(String version);
-
-    /**
      * Returns the migration script for migrating a database.
      * 
      * @param fromVersion The version of the current database.
@@ -74,18 +71,4 @@ public interface ISqlScriptProvider
      */
     public Script tryGetMigrationScript(String fromVersion, String toVersion);
 
-    /**
-     * Returns the script for creating the database log versions table.
-     * 
-     * @return <code>null</code> if there isn't such a script.
-     */
-    public Script tryGetLogCreationScript();
-
-    /**
-     * Returns the files containing data for mass upload.
-     * 
-     * @param version Version of the database.
-     * @return The files to mass upload, or an empty array, if there are no such files.
-     */
-    public File[] getMassUploadFiles(String version);
 }

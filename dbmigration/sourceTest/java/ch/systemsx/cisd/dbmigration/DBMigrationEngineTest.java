@@ -20,8 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.fail;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -35,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -52,14 +52,6 @@ public class DBMigrationEngineTest
         {
             will(returnValue(script));
             one(scriptExecutor).execute(script, honorSingleStepMode, logDAO);
-        }
-
-        protected void expectCreateLogDAOTable()
-        {
-            one(scriptProvider).tryGetLogCreationScript();
-            Script script = new Script(SqlScriptProvider.CREATE_LOG_SQL, "create log");
-            will(returnValue(script));
-            one(logDAO).createTable(with(same(script)));
         }
     }
 
@@ -131,7 +123,6 @@ public class DBMigrationEngineTest
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
 
-                    expectCreateLogDAOTable();
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code", version), true);
                     one(scriptProvider).tryGetFunctionScript(version);
@@ -175,7 +166,10 @@ public class DBMigrationEngineTest
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(true));
 
-                    one(adminDAO).restoreDatabaseFromDump(scriptProvider, version);
+                    one(scriptProvider).getDumpFolder(version);
+                    final File dumpFolder = new File("The Dump Folder");
+                    will(returnValue(dumpFolder));
+                    one(adminDAO).restoreDatabaseFromDump(dumpFolder, version);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -251,7 +245,6 @@ public class DBMigrationEngineTest
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
-                    expectCreateLogDAOTable();
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code"), true);
                     one(scriptProvider).tryGetFunctionScript(version);
@@ -295,7 +288,6 @@ public class DBMigrationEngineTest
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
 
-                    expectCreateLogDAOTable();
                     one(scriptProvider).tryGetSchemaScript(version);
                     expectSuccessfulExecution(new Script("schema", "schema code", version), true);
                     one(scriptProvider).tryGetFunctionScript(version);
@@ -338,7 +330,6 @@ public class DBMigrationEngineTest
                     one(scriptProvider).isDumpRestore(version);
                     will(returnValue(false));
                     one(adminDAO).createDatabase();
-                    expectCreateLogDAOTable();
                     one(scriptProvider).tryGetSchemaScript(version);
                     will(returnValue(null));
                 }
@@ -349,7 +340,7 @@ public class DBMigrationEngineTest
         {
             migrationEngine.migrateTo(version);
             fail("EnvironmentFailureException expected because of missing schema script");
-        } catch (EnvironmentFailureException e)
+        } catch (ConfigurationFailureException e)
         {
             assertEquals(message, e.getMessage());
         }
@@ -357,94 +348,6 @@ public class DBMigrationEngineTest
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
                 .getLogContent());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateFromScratchWithMissingCreateLogScript()
-    {
-        final String version = "042";
-        context.checking(new MyExpectations()
-            {
-                {
-                    one(daoFactory).getDatabaseDAO();
-                    will(returnValue(adminDAO));
-                    one(daoFactory).getDatabaseVersionLogDAO();
-                    will(returnValue(logDAO));
-                    one(daoFactory).getSqlScriptExecutor();
-                    will(returnValue(scriptExecutor));
-
-                    one(logDAO).canConnectToDatabase();
-                    will(returnValue(false));
-                    one(adminDAO).getDatabaseName();
-                    will(returnValue("my 1. database"));
-                    one(adminDAO).createOwner();
-                    one(scriptProvider).isDumpRestore(version);
-                    will(returnValue(false));
-                    one(adminDAO).createDatabase();
-                    one(scriptProvider).tryGetLogCreationScript();
-                }
-            });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-        String message = "Missing log creation script";
-        try
-        {
-            migrationEngine.migrateTo(version);
-            fail("EnvironmentFailureException expected because of missing log creation script");
-        } catch (EnvironmentFailureException e)
-        {
-            assertEquals(message, e.getMessage());
-        }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
-                .getLogContent());
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCreateFromScratchWithCreateLogScriptWhichFails()
-    {
-        final String version = "042";
-        final RuntimeException exception = new RuntimeException();
-        context.checking(new MyExpectations()
-            {
-                {
-                    one(daoFactory).getDatabaseDAO();
-                    will(returnValue(adminDAO));
-                    one(daoFactory).getDatabaseVersionLogDAO();
-                    will(returnValue(logDAO));
-                    one(daoFactory).getSqlScriptExecutor();
-                    will(returnValue(scriptExecutor));
-
-                    one(logDAO).canConnectToDatabase();
-                    will(returnValue(false));
-                    one(scriptProvider).isDumpRestore(version);
-                    will(returnValue(false));
-                    one(adminDAO).getDatabaseName();
-                    will(returnValue("my database"));
-                    one(adminDAO).createOwner();
-                    one(adminDAO).createDatabase();
-                    expectCreateLogDAOTable();
-                    will(throwException(exception));
-                }
-            });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
-        try
-        {
-            migrationEngine.migrateTo(version);
-            fail("RuntimeException expected because of failing log creation script");
-        } catch (RuntimeException e)
-        {
-            assertSame(exception, e);
-        }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Script 'createLog.sql' failed:"
-                + OSUtilities.LINE_SEPARATOR + "create log" + OSUtilities.LINE_SEPARATOR + getStackTrace(exception),
-                logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -793,13 +696,6 @@ public class DBMigrationEngineTest
                 + "Trying to migrate database 'my database' from version 001 to 002.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
-    }
-
-    private String getStackTrace(final Throwable throwable)
-    {
-        StringWriter stringWriter = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(stringWriter));
-        return stringWriter.toString().trim();
     }
 
 }

@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Script;
@@ -36,106 +33,44 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  */
 public class SqlScriptProvider implements ISqlScriptProvider
 {
-    private static final String SQL_FILE_TYPE = ".sql";
+    private static final String DUMP_FILENAME = ".DUMP";
 
-    //@Private
-    static final String CREATE_LOG_SQL = "createLog.sql";
+    private static final String SQL_FILE_TYPE = ".sql";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
-    private final String schemaScriptFolder;
-
-    private final String dataScriptFolder;
-
-    private final String massUploadDataFolder;
-
-    private final String internalScriptFolder;
-
-    /**
-     * Creates an instance for the specified folders and database type. The database type specifies the resource folder
-     * relative to the package of this class where the scripts with method {@link #tryGetLogCreationScript()} are loaded.
-     */
-    public static ISqlScriptProvider create(String schemaScriptFolder, String dataScriptFolder,
-            String massUploadDataFolder, String databaseEngineCode)
-    {
-        final String internalFolder =
-                SqlScriptProvider.class.getPackage().getName().replace('.', '/') + "/" + databaseEngineCode;
-        return new SqlScriptProvider(schemaScriptFolder, dataScriptFolder, massUploadDataFolder, internalFolder);
-    }
-
+    private final String genericScriptFolder;
+    
+    private final String specificScriptFolder;
+    
     /**
      * Creates an instance for the specified script folders. They are either resource folders or folders relative to the
      * working directory.
      * 
-     * @param schemaScriptFolder Folder of schema and migration scripts.
-     * @param dataScriptFolder Folder of data scripts.
-     * @param massUploadDataFolder Folder of CSV files for uploading.
-     * @param internalScriptFolder Folder for internal scripts.
+     * @param schemaScriptRootFolder Root folder of schema, migration and data scripts.
+     * @param databaseEngineCode The code of the database engine. Used to find the db engine specific schema script
+     *            folder.
      */
-    SqlScriptProvider(String schemaScriptFolder, String dataScriptFolder, String massUploadDataFolder,
-            String internalScriptFolder)
+    public SqlScriptProvider(String schemaScriptRootFolder, String databaseEngineCode)
     {
-        this.schemaScriptFolder = schemaScriptFolder;
-        this.dataScriptFolder = dataScriptFolder;
-        this.massUploadDataFolder = massUploadDataFolder;
-        this.internalScriptFolder = internalScriptFolder;
+        this.genericScriptFolder = schemaScriptRootFolder + "/generic";
+        this.specificScriptFolder = schemaScriptRootFolder + "/" + databaseEngineCode;
     }
-
+    
     /**
      * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code> otherwise.
      */
     public boolean isDumpRestore(String version)
     {
-        return tryGetFinishScript(version) != null;
+        return new File(getDumpFolder(version), DUMP_FILENAME).exists();
     }
 
     /**
-     * Returns the data script for the specified version. The name of the script is expected to be
-     * 
-     * <pre>
-     * &lt;data script folder&gt;/&lt;version&gt;/finish-&lt;version&gt;.sql
-     * </pre>
+     * Returns the folder where all dump files for <var>version</var> reside.
      */
-    public Script tryGetFinishScript(String version)
+    public File getDumpFolder(String version)
     {
-        return tryLoadScript(schemaScriptFolder + "/" + version, "finish-" + version + SQL_FILE_TYPE, version);
-    }
-
-    /**
-     * Returns the script containing all functions for the specified version. The name of the script is expected to be
-     * 
-     * <pre>
-     * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
-     * </pre>
-     */
-    public Script tryGetFunctionScript(String version)
-    {
-        return tryLoadScript(schemaScriptFolder + "/" + version, "function-" + version + SQL_FILE_TYPE, version);
-    }
-
-    /**
-     * Returns the data script for the specified version. The name of the script is expected to be
-     * 
-     * <pre>
-     * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
-     * </pre>
-     */
-    public Script tryGetDataScript(String version)
-    {
-        return tryLoadScript(dataScriptFolder + "/" + version, "data-" + version + SQL_FILE_TYPE, version);
-    }
-
-    /**
-     * Returns the migration script for the specified versions. The name of the script is expected to be
-     * 
-     * <pre>
-     * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
-     * </pre>
-     */
-    public Script tryGetMigrationScript(String fromVersion, String toVersion)
-    {
-        String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
-        return tryLoadScript(schemaScriptFolder + "/migration", scriptName, toVersion);
+        return new File(specificScriptFolder, version);
     }
 
     /**
@@ -147,25 +82,69 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public Script tryGetSchemaScript(String version)
     {
-        return tryLoadScript(schemaScriptFolder + "/" + version, "schema-" + version + SQL_FILE_TYPE, version);
+        return tryLoadScript("schema-" + version + SQL_FILE_TYPE, version);
     }
 
     /**
-     * Returns the specified script relative to the internal script folder.
+     * Returns the script containing all functions for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
+     * </pre>
      */
-    public Script tryGetLogCreationScript()
+    public Script tryGetFunctionScript(String version)
     {
-        return tryLoadScript(internalScriptFolder, CREATE_LOG_SQL, "-");
+        return tryLoadScript("function-" + version + SQL_FILE_TYPE, version);
     }
 
-    private Script tryLoadScript(String folder, String scriptName, String scriptVersion)
+    /**
+     * Returns the data script for the specified version. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
+     * </pre>
+     */
+    public Script tryGetDataScript(String version)
     {
-        String fullScriptName = folder + "/" + scriptName;
-        String resource = "/" + fullScriptName;
+        return tryLoadScript("data-" + version + SQL_FILE_TYPE, version);
+    }
+
+    /**
+     * Returns the migration script for the specified versions. The name of the script is expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
+     * </pre>
+     */
+    public Script tryGetMigrationScript(String fromVersion, String toVersion)
+    {
+        final String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
+        return tryLoadScript(scriptName, toVersion, "migration");
+    }
+
+    private Script tryLoadScript(String scriptName, String scriptVersion)
+    {
+        return tryLoadScript(scriptName, scriptVersion, scriptVersion);
+    }
+    
+    private Script tryLoadScript(String scriptName, String scriptVersion, String prefix)
+    {
+        Script script = tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
+        if (script == null)
+        {
+            script = tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion); 
+        }
+        return script;
+    }
+
+    private Script tryPrimLoadScript(String scriptFolder, String scriptName, String scriptVersion)
+    {
+        final String scriptPath = scriptFolder + "/" + scriptName;
+        final String resource = "/" + scriptPath;
         String script = FileUtilities.loadToString(getClass(), resource);
         if (script == null)
         {
-            File file = new File(folder, scriptName);
+            File file = new File(scriptFolder, scriptName);
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Resource '" + resource + "' could not be found. Trying '" + file.getPath() + "'.");
@@ -180,42 +159,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
             }
             script = FileUtilities.loadToString(file);
         }
-        return new Script(fullScriptName, script, scriptVersion);
-    }
-
-    /**
-     * Returns the files determined for mass uploading.
-     */
-    public File[] getMassUploadFiles(String version)
-    {
-        final File dataFolder = new File(massUploadDataFolder + "/" + version);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Searching for mass upload files in directory '" + dataFolder.getAbsolutePath() + "'.");
-        }
-        String[] csvFiles = dataFolder.list(new FilenameFilter()
-            {
-                public boolean accept(File dir, String name)
-                {
-                    return MassUploadFileType.CSV.isOfType(name) || MassUploadFileType.TSV.isOfType(name);
-                }
-            });
-        if (csvFiles == null)
-        {
-            operationLog.warn("Path '" + dataFolder.getAbsolutePath() + "' is not a directory.");
-            return new File[0];
-        }
-        Arrays.sort(csvFiles);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Found " + csvFiles.length + " files for mass uploading.");
-        }
-        final File[] csvPaths = new File[csvFiles.length];
-        for (int i = 0; i < csvFiles.length; ++i)
-        {
-            csvPaths[i] = new File(dataFolder, csvFiles[i]);
-        }
-        return csvPaths;
+        return new Script(scriptPath, script, scriptVersion);
     }
 
 }

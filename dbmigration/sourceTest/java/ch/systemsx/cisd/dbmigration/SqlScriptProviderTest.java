@@ -17,19 +17,21 @@
 package ch.systemsx.cisd.dbmigration;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Tests for {@link SqlScriptExecutor}.
@@ -41,28 +43,17 @@ public class SqlScriptProviderTest
     private static final String BASE_FOLDER =
             "targets" + File.separator + "unit-test-wd" + File.separator + "SqlScriptProviderTest";
 
-    private static final String TEMPORARY_DATA_SCRIPT_FOLDER_NAME =
-            BASE_FOLDER + File.separator + "temporaryDataScriptFolder";
-
     private static final String TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME =
             BASE_FOLDER + File.separator + "temporarySchemaScriptFolder";
 
-    private static final String TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME =
-            BASE_FOLDER + File.separator + "temporaryMassDataUploadFolder";
+    private static final String DB_ENGINE_CODE = "dbengine";
 
-    private static final String TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME =
-            BASE_FOLDER + File.separator + "temporaryInternalScriptFolder";
+    private static final File TEMP_SCHEMA_SCRIPT_ROOT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
 
-    private static final File TEMP_SCHEMA_SCRIPT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
+    private static final File TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER = new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, "generic");
 
-    private static final File TEMP_DATA_SCRIPT_FOLDER = new File(TEMPORARY_DATA_SCRIPT_FOLDER_NAME);
-
-    private static final File TEMP_MASS_DATA_UPLOAD_FOLDER = new File(TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME);
-
-    private static final File TEMP_INTERNAL_SCRIPT_FOLDER = new File(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
-
-    private static final File CREATE_LOG_SQL_FILE =
-            new File(TEMP_INTERNAL_SCRIPT_FOLDER, SqlScriptProvider.CREATE_LOG_SQL);
+    private static final File TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER =
+            new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, DB_ENGINE_CODE);
 
     private static final String MIGRATION = "migration";
 
@@ -72,52 +63,60 @@ public class SqlScriptProviderTest
 
     private SqlScriptProvider sqlScriptProvider;
 
+    private File dumpFile;
+
     @BeforeClass
-    public void setUpTestFiles() throws IOException
+    public void setUpTestFiles()
     {
-        File schemaVersionFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, VERSION);
-        schemaVersionFolder.mkdirs();
-        write(new File(schemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
-        write(new File(schemaVersionFolder, "function-" + VERSION + ".sql"), "code: function");
-        write(new File(schemaVersionFolder, "finish-" + VERSION + ".sql"), "code: finish");
-        File migrationFolder = new File(TEMP_SCHEMA_SCRIPT_FOLDER, MIGRATION);
+        final File genericSchemaVersionFolder = createGenericSchemaFolder();
+        final File specificSchemaVersionFolder = createSpecificSchemaFolder();
+        genericSchemaVersionFolder.mkdirs();
+        specificSchemaVersionFolder.mkdirs();
+        write(new File(specificSchemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
+        write(new File(specificSchemaVersionFolder, "function-" + VERSION + ".sql"), "code: function");
+        final File migrationFolder = new File(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER, MIGRATION);
         migrationFolder.mkdir();
         write(new File(migrationFolder, "migration-" + VERSION + "-" + VERSION2 + ".sql"), "code: migration");
-        File dataVersionFolder = new File(TEMP_DATA_SCRIPT_FOLDER, VERSION);
-        dataVersionFolder.mkdirs();
-        write(new File(dataVersionFolder, "data-" + VERSION + ".sql"), "code: data");
-        TEMP_INTERNAL_SCRIPT_FOLDER.mkdir();
-        File massUploaadVersionFolder = new File(TEMP_MASS_DATA_UPLOAD_FOLDER, VERSION);
-        massUploaadVersionFolder.mkdirs();
-        write(new File(massUploaadVersionFolder, "1=test.tsv"), "1\tbla");
-        sqlScriptProvider =
-                new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, TEMPORARY_DATA_SCRIPT_FOLDER_NAME,
-                        TEMPORARY_MASS_DATA_UPLOAD_FOLDER_NAME, TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME);
+        write(new File(specificSchemaVersionFolder, "data-" + VERSION + ".sql"), "code: data");
+        sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, DB_ENGINE_CODE);
+        dumpFile = new File(sqlScriptProvider.getDumpFolder(VERSION), ".DUMP");
     }
 
-    private void write(File file, String content) throws IOException
+    private File createSpecificSchemaFolder()
     {
-        FileWriter fileWriter = null;
+        final File specificSchemaVersionFolder = new File(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER, VERSION);
+        return specificSchemaVersionFolder;
+    }
+
+    private File createGenericSchemaFolder()
+    {
+        final File specificSchemaVersionFolder = new File(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER, VERSION);
+        return specificSchemaVersionFolder;
+    }
+
+    private void write(File file, String content)
+    {
         try
         {
-            fileWriter = new FileWriter(file);
-            new PrintWriter(fileWriter).print(content);
-        } finally
-        {
-            if (fileWriter != null)
+            FileWriter fileWriter = null;
+            try
             {
-                fileWriter.close();
+                fileWriter = new FileWriter(file);
+                new PrintWriter(fileWriter).print(content);
+            } finally
+            {
+                IOUtils.closeQuietly(fileWriter);
             }
+        } catch (IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
         }
     }
 
     @AfterClass
     public void deleteTestFiles()
     {
-        delete(TEMP_SCHEMA_SCRIPT_FOLDER);
-        delete(TEMP_DATA_SCRIPT_FOLDER);
-        delete(TEMP_INTERNAL_SCRIPT_FOLDER);
-        delete(TEMP_MASS_DATA_UPLOAD_FOLDER);
+        delete(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER);
     }
 
     private void delete(File file)
@@ -138,11 +137,28 @@ public class SqlScriptProviderTest
     {
         final Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
         assertNotNull(script);
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/schema-" + VERSION + ".sql", script
-                .getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-" + VERSION + ".sql",
+                script.getName());
         assertEquals("code: schema", script.getCode().trim());
     }
 
+    // Note: we make it dependent on testGetSchemaScript(), because we delete the specific schema script 
+    // in this test case and thus testGetSchemaScript() would fail if run after this test case.
+    @Test(dependsOnMethods="testGetSchemaScript")
+    public void testGetGenericSchemaScript()
+    {
+        final File specificSchemaScript = new File(createSpecificSchemaFolder(), "schema-" + VERSION + ".sql");
+        specificSchemaScript.delete();
+        final File genericSchemaScript = new File(createGenericSchemaFolder(), "schema-" + VERSION + ".sql");
+        final String genericSchemaScriptContent = "code: generic schema";
+        write(genericSchemaScript, genericSchemaScriptContent);
+        final Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
+        assertNotNull(script);
+        assertEquals(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-" + VERSION + ".sql",
+                script.getName());
+        assertEquals(genericSchemaScriptContent, script.getCode().trim());
+    }
+    
     @Test
     public void testGetNonExistingSchemaScript()
     {
@@ -154,8 +170,8 @@ public class SqlScriptProviderTest
     {
         final Script script = sqlScriptProvider.tryGetFunctionScript(VERSION);
         assertNotNull(script);
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/function-" + VERSION + ".sql", script
-                .getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/function-" + VERSION + ".sql",
+                script.getName());
         assertEquals("code: function", script.getCode().trim());
     }
 
@@ -166,36 +182,11 @@ public class SqlScriptProviderTest
     }
 
     @Test
-    public void testGetFinishScript()
-    {
-        final Script script = sqlScriptProvider.tryGetFinishScript(VERSION);
-        assertNotNull(script);
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/finish-" + VERSION + ".sql", script
-                .getName());
-        assertEquals("code: finish", script.getCode().trim());
-    }
-
-    @Test
-    public void testGetNonExistingFinishScript()
-    {
-        assertEquals(null, sqlScriptProvider.tryGetFinishScript("000"));
-    }
-
-    @Test
     public void testGetDataScript()
     {
         Script script = sqlScriptProvider.tryGetDataScript(VERSION);
-        assertEquals(TEMPORARY_DATA_SCRIPT_FOLDER_NAME + "/" + VERSION + "/data-" + VERSION + ".sql", script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER + "/" + VERSION + "/data-" + VERSION + ".sql", script.getName());
         assertEquals("code: data", script.getCode().trim());
-    }
-
-    @Test
-    void testGetMassUploadFiles()
-    {
-        final File[] massUploadFiles = sqlScriptProvider.getMassUploadFiles(VERSION);
-        assertEquals(1, massUploadFiles.length);
-        assertEquals("1=test.tsv", massUploadFiles[0].getName());
-        assertTrue(massUploadFiles[0].exists());
     }
 
     @Test
@@ -208,8 +199,8 @@ public class SqlScriptProviderTest
     public void testGetMigrationScript()
     {
         Script script = sqlScriptProvider.tryGetMigrationScript(VERSION, VERSION2);
-        assertEquals(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME + "/" + MIGRATION + "/migration-" + VERSION + "-" + VERSION2
-                + ".sql", script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + MIGRATION + "/migration-" + VERSION + "-"
+                + VERSION2 + ".sql", script.getName());
         assertEquals("code: migration", script.getCode().trim());
     }
 
@@ -220,20 +211,17 @@ public class SqlScriptProviderTest
     }
 
     @Test
-    public void testGetCreateLogScript() throws IOException
+    public void testIsDumpSucceeds()
     {
-        write(CREATE_LOG_SQL_FILE, "hello world!");
-        Script script = sqlScriptProvider.tryGetLogCreationScript();
-        assertNotNull(script);
-        assertEquals(TEMPORARY_INTERNAL_SCRIPT_FOLDER_NAME + "/" + SqlScriptProvider.CREATE_LOG_SQL, script.getName());
-        assertEquals("hello world!", script.getCode().trim());
+        write(dumpFile, "");
+        assertTrue(sqlScriptProvider.isDumpRestore(VERSION));
     }
 
     @Test
-    public void testGetNonExistingCreateLogScript()
+    public void testIsDumpFails()
     {
-        CREATE_LOG_SQL_FILE.delete();
-        assertEquals(null, sqlScriptProvider.tryGetLogCreationScript());
+        dumpFile.delete();
+        assertFalse(sqlScriptProvider.isDumpRestore(VERSION));
     }
 
 }

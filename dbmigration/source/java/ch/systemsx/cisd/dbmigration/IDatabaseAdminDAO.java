@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.File;
+
 /**
  * Interface for administration of a database.
  *
@@ -35,14 +37,14 @@ public interface IDatabaseAdminDAO
     public void createOwner();
     
     /**
-     * Creates the database. 
+     * Creates the database and the 'database_version_logs' table.
      */
     public void createDatabase();
     
     /**
      * Restores the database from previously created dump.
      */
-    public void restoreDatabaseFromDump(ISqlScriptProvider scriptProvider, String version);
+    public void restoreDatabaseFromDump(File dumpFolder, String version);
     
     /**
      * Drops the database.

@@ -57,10 +57,6 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String scriptFolder;
 
-    private String folderOfDataScripts;
-
-    private String folderOfMassUploadFiles;
-
     private String databaseKind;
 
     private DatabaseEngine databaseEngine;
@@ -499,54 +495,6 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setScriptFolder(String scriptFolder)
     {
         this.scriptFolder = scriptFolder;
-    }
-
-    /**
-     * Returns the folder which contains all Data SQL scripts. As a default value {@link #getScriptFolder()} will be
-     * returned if not defined by a non-<code>null</code> value in {@link #setFolderOfDataScripts(String)}.
-     * 
-     * @return <code>null</code> when {@link #getScriptFolder()} returns <code>null</code>.
-     */
-    public final String getFolderOfDataScripts()
-    {
-        return folderOfDataScripts == null ? getScriptFolder() : folderOfDataScripts;
-    }
-
-    /**
-     * Sets the folder which contains all Data SQL scripts.
-     * 
-     * @param folderOfDataScripts New value. Can be <code>null</code>.
-     */
-    public final void setFolderOfDataScripts(String folderOfDataScripts)
-    {
-        this.folderOfDataScripts = folderOfDataScripts;
-    }
-
-    /**
-     * Returns the folder which contains the files for mass upload to the database. As a default value
-     * {@link #getFolderOfDataScripts()} will be returned if not definied by a non-<code>null</code> value in
-     * {@link #setFolderOfMassUploadFiles(String)}.
-     */
-    public String getFolderOfMassUploadFiles()
-    {
-        return folderOfMassUploadFiles == null ? getFolderOfDataScripts() : folderOfMassUploadFiles;
-    }
-
-    /**
-     * Sets the folder which contains the files for mass uploads.
-     * 
-     * @param folderOfMassUploadFiles New value. Can be <code>null</code>. An empty value will be interpreted as
-     *            <code>null</code>.
-     */
-    public void setFolderOfMassUploadFiles(String folderOfMassUploadFiles)
-    {
-        if ("".equals(folderOfMassUploadFiles))
-        {
-            this.folderOfMassUploadFiles = null;
-        } else
-        {
-            this.folderOfMassUploadFiles = folderOfMassUploadFiles;
-        }
     }
 
     /** Closes opened database connections. */
