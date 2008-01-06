@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.dbmigration.DBUtilities;
+import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
 import ch.systemsx.cisd.dbmigration.MassUploadFileType;
@@ -51,9 +52,9 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
                     + "alter database %1$s set default_with_oids = off;";
 
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
-            "create table database_version_logs (db_version varchar(4) not null, "
-                    + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
-                    + "module_code bytea, run_exception bytea);";
+        "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
+                + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
+                + "module_code bytea, run_exception bytea);";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
 
@@ -63,7 +64,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     private final String owner;
 
-    private final String database;
+    private final String databaseName;
 
     /**
      * Creates an instance.
@@ -72,21 +73,21 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
      * @param scriptExecutor An executor for SQL scripts.
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
-     * @param database Name of the database.
+     * @param databaseName Name of the database.
      */
     public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
-            String owner, String database)
+            String owner, String databaseName)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
         this.owner = owner;
-        this.database = database;
+        this.databaseName = databaseName;
         setDataSource(dataSource);
     }
 
     public String getDatabaseName()
     {
-        return database;
+        return databaseName;
     }
 
     public void createOwner()
@@ -135,18 +136,18 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     private void createEmptyDatabase()
     {
-        operationLog.info("Try to create empty database '" + database + "' with owner '" + owner + "'.");
+        operationLog.info("Try to create empty database '" + databaseName + "' with owner '" + owner + "'.");
         try
         {
-            getJdbcTemplate().execute(String.format(CREATE_DATABASE_SQL_TEMPLATE, database, owner));
+            getJdbcTemplate().execute(String.format(CREATE_DATABASE_SQL_TEMPLATE, databaseName, owner));
         } catch (RuntimeException ex)
         {
             if (ex instanceof DataAccessException && DBUtilities.isDuplicateDatabaseException((DataAccessException) ex))
             {
-                operationLog.warn("Cannot create database '" + database + "' since it already exists.");
+                operationLog.warn("Cannot create database '" + databaseName + "' since it already exists.");
             } else
             {
-                operationLog.error("Failed to create database '" + database + "'.", ex);
+                operationLog.error("Failed to create database '" + databaseName + "'.", ex);
                 throw ex;
             }
         }
@@ -156,7 +157,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
     {
         try
         {
-            getJdbcTemplate().execute("drop database " + database);
+            getJdbcTemplate().execute("drop database " + databaseName);
         } catch (DataAccessException ex)
         {
             if (DBUtilities.isDBNotExistException(ex) == false)
