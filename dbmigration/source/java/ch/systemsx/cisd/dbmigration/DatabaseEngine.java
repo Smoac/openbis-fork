@@ -38,11 +38,11 @@ import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
  */
 public enum DatabaseEngine
 {
-    POSTGRESQL("postgresql", org.postgresql.Driver.class, PostgreSQLDAOFactory.class, new DefaultLobHandler(),
+    POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}", "jdbc:postgresql:{0}{1}", "//localhost/",
             "postgres"),
 
-    H2("h2", org.h2.Driver.class, H2DAOFactory.class, new DefaultLobHandler(),
+    H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
             "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "mem:", "");
 
@@ -50,7 +50,7 @@ public enum DatabaseEngine
 
     private final String code;
 
-    private final Class<java.sql.Driver> driverClass;
+    private final String driverClass;
 
     private final Class<ch.systemsx.cisd.dbmigration.IDAOFactory> daoFactoryClass;
 
@@ -69,7 +69,7 @@ public enum DatabaseEngine
     private final String defaultAdminUser;
 
     @SuppressWarnings("unchecked")
-    DatabaseEngine(String code, Class<?> driver, Class<?> daoFactoryClass, LobHandler lobHandler,
+    DatabaseEngine(String code, String driver, Class<?> daoFactoryClass, LobHandler lobHandler,
             ISequencerHandler sequenceHandler, String adminUrlTemplate, String urlTemplate, String defaultURLHostPart,
             String defaultAdminUser)
     {
@@ -88,7 +88,7 @@ public enum DatabaseEngine
         this.urlTemplate = urlTemplate;
         this.defaultURLHostPart = defaultURLHostPart;
         this.defaultAdminUser = defaultAdminUser;
-        this.driverClass = (Class<java.sql.Driver>) driver;
+        this.driverClass = driver;
         this.lobHandler = lobHandler;
         this.sequenceHandler = sequenceHandler;
         this.daoFactoryClass = (Class<ch.systemsx.cisd.dbmigration.IDAOFactory>) daoFactoryClass;
@@ -126,7 +126,7 @@ public enum DatabaseEngine
     /**
      * @return the class of the driver.
      */
-    public final Class<java.sql.Driver> getDriverClass()
+    public final String getDriverClass()
     {
         return driverClass;
     }

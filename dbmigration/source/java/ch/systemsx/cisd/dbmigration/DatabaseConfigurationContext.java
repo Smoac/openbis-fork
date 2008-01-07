@@ -156,7 +156,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private final String getDriver() throws ConfigurationFailureException
     {
         checkDatabaseEngine();
-        return databaseEngine.getDriverClass().getCanonicalName();
+        return databaseEngine.getDriverClass();
     }
 
     /**
