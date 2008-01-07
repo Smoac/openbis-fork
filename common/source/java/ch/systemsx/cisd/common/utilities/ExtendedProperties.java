@@ -119,15 +119,15 @@ public final class ExtendedProperties extends Properties
         {
             return value;
         }
-        StringBuilder result = new StringBuilder(value.length());
+        final StringBuilder result = new StringBuilder(value.length());
         result.append(value);
         int startName = result.indexOf(PREFIX);
-        int prefixLen = PREFIX.length();
+        final int prefixLen = PREFIX.length();
         int endName = result.indexOf(SUFFIX, startName + prefixLen);
-        int suffixLen = SUFFIX.length();
+        final int suffixLen = SUFFIX.length();
         while (startName >= 0 && endName > startName)
         {
-            String paramName = result.substring(startName + prefixLen, endName);
+            final String paramName = result.substring(startName + prefixLen, endName);
             // recurse into this variable, prevent cyclic references by removing the current key
             // before asking for the property and the setting it again afterwards.
             remove(key);
@@ -154,7 +154,7 @@ public final class ExtendedProperties extends Properties
      * parameters) property value.
      * </p>
      */
-    public final String getUnalteredProperty(String key)
+    public final String getUnalteredProperty(final String key)
     {
         return (String) get(key);
     }
@@ -186,9 +186,9 @@ public final class ExtendedProperties extends Properties
      * @see java.util.Properties#getProperty(java.lang.String)
      */
     @Override
-    public final String getProperty(String key)
+    public final String getProperty(final String key)
     {
-        String result = super.getProperty(key);
+        final String result = super.getProperty(key);
         return result == null ? null : expandValue(key, result);
     }
 
@@ -196,9 +196,9 @@ public final class ExtendedProperties extends Properties
      * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
      */
     @Override
-    public final String getProperty(String key, String defaultValue)
+    public final String getProperty(final String key, final String defaultValue)
     {
-        String result = getProperty(key);
+        final String result = getProperty(key);
         return result == null ? expandValue(key, defaultValue) : result;
     }
 
