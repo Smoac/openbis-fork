@@ -92,12 +92,12 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     {
         if (channel < 1)
         {
-            throw new IndexOutOfBoundsException(String.format("Channel index starts at 1.", channel));
+            throw new IndexOutOfBoundsException(String.format("Channel index must start at 1 (given value is %d).", channel));
         }
         final int channelCount = getChannelCount();
         if (channel > channelCount)
         {
-            throw new IndexOutOfBoundsException(String.format("%d > %d", channel, channelCount));
+            throw new IndexOutOfBoundsException(String.format("Channel index %d exceeds the number of channels %d", channel, channelCount));
         }
     }
 
