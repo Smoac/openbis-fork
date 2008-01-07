@@ -183,13 +183,13 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
             throws ConfigurationFailureException
     {
         final File scriptFile = new File(dumpFolder, prefix + "-" + version + SQL_FILE_TYPE);
-        final Script script = new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
-        if (script == null)
+        if (scriptFile.canRead() == false)
         {
             final String message = "No " + prefix + " script found for version " + version;
             operationLog.error(message);
             throw new ConfigurationFailureException(message);
         }
+        final Script script = new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
         return script;
     }
 
