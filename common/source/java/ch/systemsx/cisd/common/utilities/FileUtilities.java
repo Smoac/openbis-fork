@@ -20,15 +20,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -197,20 +198,22 @@ public final class FileUtilities
      * Loads a resource to a string.
      * <p>
      * A non-existent resource will result in a return value of <code>null</code>.
+     * </p>
      * 
-     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked (must not be <code>null</code>).
-     * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
+     * @param clazz Class for which <code>getResource()</code> will be invoked (must not be <code>null</code>).
+     * @param resource Absolute path of the resource (will be the argument of <code>getResource()</code>).
      * @return The content of the resource, or <code>null</code> if the specified resource does not exist.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}
      */
-    public static String loadToString(Class<?> clazz, String resource) throws CheckedExceptionTunnel
+    public static String loadToString(final Class<?> clazz, final String resource) throws CheckedExceptionTunnel
     {
-        assert clazz != null;
-        assert resource != null && resource.length() > 0;
+        assert clazz != null : "Given class can not be null.";
+        assert resource != null && resource.length() > 0 : "Given resource can not be null.";
 
-        final BufferedReader reader = getBufferedReader(clazz, resource);
+        BufferedReader reader = null;
         try
         {
+            reader = getBufferedReader(clazz, resource);
             return readString(reader);
         } catch (IOException ex)
         {
@@ -226,19 +229,21 @@ public final class FileUtilities
      * <p>
      * A non-existent resource will result in a return value of <code>null</code>.
      * 
-     * @param clazz Class for which <code>getResourceAsStream()</code> will be invoked.
-     * @param resource Absolute path of the resource (will be the argument of <code>getResourceAsStream()</code>).
+     * @param clazz Class for which <code>getResource()</code> will be invoked.
+     * @param resource Absolute path of the resource (will be the argument of <code>getResource()</code>).
      * @return The content of the resource line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public static List<String> loadToStringList(Class<?> clazz, String resource) throws CheckedExceptionTunnel
+    public static List<String> loadToStringList(final Class<?> clazz, final String resource)
+            throws CheckedExceptionTunnel
     {
-        assert clazz != null;
-        assert resource != null && resource.length() > 0;
+        assert clazz != null : "Given class can not be null.";
+        assert resource != null && resource.length() > 0 : "Given resource can not be null.";
 
-        final BufferedReader reader = getBufferedReader(clazz, resource);
+        BufferedReader reader = null;
         try
         {
+            reader = getBufferedReader(clazz, resource);
             return readStringList(reader);
         } catch (IOException ex)
         {
@@ -249,14 +254,15 @@ public final class FileUtilities
         }
     }
 
-    private static BufferedReader getBufferedReader(Class<?> clazz, String resource)
+    private final static BufferedReader getBufferedReader(final Class<?> clazz, final String resource)
+            throws FileNotFoundException
     {
-        final InputStream stream = clazz.getResourceAsStream(resource);
-        if (stream == null)
+        final URL url = clazz.getResource(resource);
+        if (url == null)
         {
             return null;
         }
-        return new BufferedReader(new InputStreamReader(stream));
+        return new BufferedReader(new FileReader(new File(url.getFile())));
     }
 
     private static String readString(BufferedReader reader) throws IOException
