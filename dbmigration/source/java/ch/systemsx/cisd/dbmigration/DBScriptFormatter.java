@@ -52,6 +52,14 @@ public class DBScriptFormatter
     {
         CREATE_DOMAIN("Creating domains", "CREATE DOMAIN "), 
         CREATE_TABLE("Creating tables", "CREATE TABLE "),
+        CREATE_SEQUENCE("Creating sequences", "CREATE SEQUENCE ",
+                new ILineProcessor()
+                    {
+                        public String process(String line)
+                        {
+                            return StringUtils.replace(line, " NO MAXVALUE NO MINVALUE NO CYCLE", "");
+                        }
+                    }), 
         PRIMARY_KEY_CONSTRAINTS("Creating primary key constraints", new ILineMatcher()
         {
             public boolean match(String line)
@@ -73,14 +81,13 @@ public class DBScriptFormatter
                 return Pattern.matches("ALTER TABLE .+ FOREIGN KEY.+", line);
             }
         }, null), 
-        CREATE_SEQUENCE("Creating sequences", "CREATE SEQUENCE ",
-                new ILineProcessor()
-                    {
-                        public String process(String line)
-                        {
-                            return StringUtils.replace(line, " NO MAXVALUE NO MINVALUE NO CYCLE", "");
-                        }
-                    }), 
+        CHECK_CONSTRAINTS("Creating check constraints", new ILineMatcher()
+        {
+            public boolean match(String line)
+            {
+                return Pattern.matches("ALTER TABLE .+ CHECK.+", line);
+            }
+        }, null), 
         CREATE_INDEX("Creating indices", "CREATE INDEX "), 
         MISC("Miscellaneous", new ILineMatcher()
             {
