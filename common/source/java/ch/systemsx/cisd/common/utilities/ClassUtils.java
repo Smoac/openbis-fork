@@ -46,14 +46,22 @@ public final class ClassUtils
      * <p>
      * Never returns <code>null</code> but could return an empty set.
      * </p>
+     * @param clazz The class to return the mandatory fields for.
+     * @param convertToLowerCase If <code>true</code>, all field names are converted to lower case in the set returned.
      */
-    public final static Set<String> getMandatoryFields(Class<?> clazz)
+    public final static Set<String> getMandatoryFields(Class<?> clazz, boolean convertToLowerCase)
     {
         final Set<String> set = new HashSet<String>();
         final List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
         for (final Field field : fields)
         {
-            set.add(field.getName());
+            if (convertToLowerCase)
+            {
+                set.add(field.getName().toLowerCase());
+            } else
+            {
+                set.add(field.getName());
+            }
         }
         return set;
     }

@@ -46,7 +46,7 @@ public final class AbstractParserObjectFactoryTest
 
     private final void checkBean(Bean bean)
     {
-        assertEquals("Bean Name", bean.name);
+        assertEquals("Bean Name", bean.nAme);
         assertEquals("Bean Description", bean.description);
         assertEquals(1, bean.number);
     }
@@ -151,20 +151,20 @@ public final class AbstractParserObjectFactoryTest
     public final static class Bean
     {
         @Mandatory
-        private String name;
+        private String nAme;
 
         private String description;
 
         private int number;
 
-        public final String getName()
+        public final String getNAme()
         {
-            return name;
+            return nAme;
         }
 
-        public final void setName(String name)
+        public final void setNAme(String name)
         {
-            this.name = name;
+            this.nAme = name;
         }
 
         public final int getNumber()

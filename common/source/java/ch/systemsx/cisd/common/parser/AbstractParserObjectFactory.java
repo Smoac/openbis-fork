@@ -59,7 +59,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
-        mandatoryFields = ClassUtils.getMandatoryFields(beanClass);
+        mandatoryFields = ClassUtils.getMandatoryFields(beanClass, true);
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
         converterPool = createConverterPool();
