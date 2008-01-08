@@ -72,7 +72,7 @@ public class FileWatcherSynchronizer extends TimerTask
         return instance;
     }
 
-    private final synchronized void fireStateChanged(FileWatcher fileWatcher)
+    private final synchronized void fireStateChanged(final FileWatcher fileWatcher)
     {
         final ChangeEvent event = new ChangeEvent(fileWatcher.getFileToWatch());
         for (ChangeListener listener : fileWatcherListeners.get(fileWatcher))
@@ -122,18 +122,18 @@ public class FileWatcherSynchronizer extends TimerTask
 
     public final synchronized void removeChangeListener(final File file, final ChangeListener changeListener)
     {
-        FileWatcher fileWatcher = fileWatchers.get(file);
+        final FileWatcher fileWatcher = fileWatchers.get(file);
         if (fileWatcher == null)
         {
             return;
         }
-        List<ChangeListener> listeners = fileWatcherListeners.get(fileWatcher);
+        final List<ChangeListener> listeners = fileWatcherListeners.get(fileWatcher);
         if (listeners == null)
         {
             return;
         }
         listeners.remove(changeListener);
-        int size = listeners.size();
+        final int size = listeners.size();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -153,12 +153,12 @@ public class FileWatcherSynchronizer extends TimerTask
      */
     public final synchronized ChangeListener[] getChangeListeners(final File file)
     {
-        FileWatcher fileWatcher = fileWatchers.get(file);
+        final FileWatcher fileWatcher = fileWatchers.get(file);
         if (fileWatcher == null)
         {
             return null;
         }
-        List<ChangeListener> listeners = fileWatcherListeners.get(fileWatcher);
+        final List<ChangeListener> listeners = fileWatcherListeners.get(fileWatcher);
         if (listeners == null)
         {
             return null;
@@ -180,7 +180,7 @@ public class FileWatcherSynchronizer extends TimerTask
     @Override
     public final synchronized void run()
     {
-        for (FileWatcher fileWatcher : fileWatcherListeners.keySet())
+        for (final FileWatcher fileWatcher : fileWatcherListeners.keySet())
         {
             fileWatcher.run();
         }
