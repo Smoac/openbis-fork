@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
  * 
  * @author Bernd Rinn
  */
-public class CompresionWorkerTest
+public class CompressionWorkerTest
 {
 
     private Mockery context;
