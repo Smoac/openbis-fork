@@ -44,7 +44,7 @@ public enum DatabaseEngine
 
     H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
-            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "mem:", "");
+            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "");
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
 
