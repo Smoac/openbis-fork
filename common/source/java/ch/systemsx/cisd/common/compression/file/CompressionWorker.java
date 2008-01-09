@@ -74,7 +74,7 @@ class CompressionWorker implements Runnable
     {
         do
         {
-            if (Thread.currentThread().isInterrupted())
+            if (Thread.interrupted())
             {
                 if (operationLog.isInfoEnabled())
                 {
