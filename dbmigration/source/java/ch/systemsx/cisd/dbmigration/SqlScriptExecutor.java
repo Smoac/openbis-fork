@@ -21,7 +21,9 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import ch.systemsx.cisd.common.Script;
@@ -70,6 +72,10 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                     {
                         throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
                                 + "<--<", getCause(ex2));
+                    } catch (UncategorizedSQLException ex2)
+                    {
+                        throw new UncategorizedSQLException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
+                                + "<--<", getCause(ex2));
                     }
                     lastSqlStatement = sqlStatement;
                 }
@@ -106,8 +112,20 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
     
     private String getTask(BadSqlGrammarException ex)
     {
+        final String marker = "; bad SQL grammar [";
+        return getTask(ex, marker);
+    }
+
+    private String getTask(UncategorizedSQLException ex)
+    {
+        final String marker = "; uncategorized SQLException for SQL [";
+        return getTask(ex, marker);
+    }
+
+    private String getTask(RuntimeException ex, final String marker)
+    {
         final String msg = ex.getMessage();
-        final int endIdx = msg.indexOf("; bad SQL grammar [");
+        final int endIdx = msg.indexOf(marker);
         if (endIdx > 0)
         {
             return msg.substring(0, endIdx);
@@ -117,7 +135,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         }
     }
 
-    private SQLException getCause(BadSqlGrammarException ex)
+    private SQLException getCause(DataAccessException ex)
     {
         final Throwable cause = ex.getCause();
         if (cause instanceof SQLException)
@@ -125,7 +143,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
             return (SQLException) cause;
         } else
         {
-            throw new Error("Cause of BadSqlGrammarException needs to be a SQLException.", cause);
+            throw new Error("Cause of DataAccessException needs to be a SQLException.", cause);
         }
     }
 
