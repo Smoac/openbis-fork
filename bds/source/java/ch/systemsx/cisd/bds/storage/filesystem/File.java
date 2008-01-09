@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2007-12-03 Tomasz Pylak review: Name of this class should be changed, it's very confusing
+// TODO 2007-12-03, Tomasz Pylak review: Name of this class should be changed, it's very confusing
 final class File extends AbstractNode implements IFile
 {
     File(final java.io.File file)
