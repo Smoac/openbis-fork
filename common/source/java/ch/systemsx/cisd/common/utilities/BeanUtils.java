@@ -364,7 +364,7 @@ public final class BeanUtils
 
     private static boolean isArray(Object o)
     {
-        return o.getClass().isArray();
+        return o != null && o.getClass().isArray();
     }
 
     private static boolean isArray(final Class<?> clazz)
