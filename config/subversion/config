@@ -126,6 +126,7 @@ enable-auto-props = yes
 *.pm = svn:eol-style=native
 *.flex = svn:eol-style=native
 Makefile* = svn:eol-style=native
+*.properties = svn:mime-type=text/plain;svn:eol-style=native
 
 # HTML / XML stuff
 
