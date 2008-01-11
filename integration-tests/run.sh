@@ -140,13 +140,18 @@ function clean_svn {
     done
 }
 
+function copy_templates {
+    local template_dir=$1
+    cp -fR $TEMPLATE/$dest $WORK
+    clean_svn $WORK/$dest
+}
+
 function prepare {
     src=$1
     dest=$2
     rm -fr $WORK/$dest
     cp -R $WORK/$src $WORK/$dest
-    cp -fR $TEMPLATE/$dest $WORK
-    clean_svn $WORK/$dest
+    copy_templates $dest
 }
 
 function unpack { # from ZIPS to BUILD
@@ -183,12 +188,19 @@ function wait_for_server {
 }
 
 function install_lims_server {
-    rm -fr $LIMS_SERVER
-    cp -R $TEMPLATE/$LIMS_SERVER_NAME $WORK
+    local install_lims=$1
+
+    if [ $install_lims == "true" ]; then
+        rm -fr $LIMS_SERVER
+	copy_templates $LIMS_SERVER_NAME
     
-    unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
-    $LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties $LIMS_SERVER/roles.conf
-    wait_for_server
+        unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
+	$LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties $LIMS_SERVER/roles.conf
+	wait_for_server
+    else
+        copy_templates $LIMS_SERVER_NAME
+        restart_lims
+    fi
 }
 
 
@@ -209,24 +221,39 @@ function register_cell_plates {
 }
 
 function install_lims_client {
-    rm -fr $WORK/$LIMS_CLIENT_NAME
-    unpack openBIS-client
+    local install_lims=$1
+
+    if [ $install_lims == "true" ]; then
+        rm -fr $WORK/$LIMS_CLIENT_NAME
+	unpack openBIS-client
+    fi
     cp -fR $TEMPLATE/$LIMS_CLIENT_NAME $WORK
 }
 
 # unpack everything, override default configuration with test configuation	
 function install_etls {
-    unpack etlserver
-    prepare etlserver etlserver-all
-    remove_unpacked etlserver
+    local install_etl=$1
+    if [ $install_etl == "true" ]; then
+        unpack etlserver
+	prepare etlserver etlserver-all
+	remove_unpacked etlserver
+    else
+	copy_templates etlserver-all    
+    fi
 }
 
 function install_datamovers {
-    unpack datamover
-    prepare datamover datamover-raw
-    prepare datamover datamover-analys
-    remove_unpacked datamover
-    cp -fR $TEMPLATE/dummy-img-analyser $WORK
+    local install_dmv=$1
+    if [ $install_dmv == "true" ]; then
+        unpack datamover
+	prepare datamover datamover-raw
+        prepare datamover datamover-analys
+	remove_unpacked datamover
+	cp -fR $TEMPLATE/dummy-img-analyser $WORK
+    else 
+	copy_templates datamover-raw
+	copy_templates datamover-analys
+    fi
 }
 
 function restart_lims {
@@ -238,24 +265,17 @@ function restart_lims {
 }
 
 function install {
-    install_etl=$1
-    install_dmv=$2
-    install_lims=$3
+    local install_etl=$1
+    local install_dmv=$2
+    local install_lims=$3
 
     mkdir -p $WORK
     
-    if [ $install_etl == "true" ]; then
-        install_etls
-    fi
-    if [ $install_dmv == "true" ]; then
-        install_datamovers
-    fi
-    if [ $install_lims == "true" ]; then
-        install_lims_server
-	install_lims_client
-    else
-        restart_lims
-    fi
+    install_etls $install_etl
+    install_datamovers $install_dmv
+    install_lims_client $install_lims
+    install_lims_server	$install_lims
+
     register_cell_plates
 }
 
