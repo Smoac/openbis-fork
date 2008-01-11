@@ -37,12 +37,12 @@ public class TableMap<K, E> implements Iterable<E>
      * @param rows Collection of rows of type <code>E</code>.
      * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
      */
-    public TableMap(Iterable<E> rows, IKeyExtractor<K, E> extractor)
+    public TableMap(final Iterable<E> rows, final IKeyExtractor<K, E> extractor)
     {
         assert rows != null : "Unspecified collection of rows.";
         assert extractor != null : "Unspecified key extractor.";
         this.extractor = extractor;
-        for (E row : rows)
+        for (final E row : rows)
         {
             add(row);
         }
@@ -52,7 +52,7 @@ public class TableMap<K, E> implements Iterable<E>
      * Adds the specified row to this table. An already existing row with the same key as <code>row</code> will be
      * replaced by <code>row</code>.
      */
-    public void add(E row)
+    public final void add(final E row)
     {
         map.put(extractor.getKey(row), row);
     }
@@ -60,7 +60,7 @@ public class TableMap<K, E> implements Iterable<E>
     /**
      * Gets the row for the specified key or <code>null</code> if not found.
      */
-    public E tryToGet(K key)
+    public final E tryToGet(final K key)
     {
         return map.get(key);
     }
@@ -68,7 +68,7 @@ public class TableMap<K, E> implements Iterable<E>
     /**
      * Creates an iterator of the rows in the order they have been added. Removing is not supported.
      */
-    public Iterator<E> iterator()
+    public final Iterator<E> iterator()
     {
         return new Iterator<E>()
             {
