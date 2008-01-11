@@ -52,7 +52,7 @@ public abstract class AbstractFileSystemTestCase
 
     private final File createWorkingDirectory()
     {
-        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getSimpleName());
+        final File directory = new File(UNIT_TEST_ROOT_DIRECTORY, getClass().getName());
         directory.mkdirs();
         directory.deleteOnExit();
         return directory;
