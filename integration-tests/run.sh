@@ -142,8 +142,8 @@ function clean_svn {
 
 function copy_templates {
     local template_dir=$1
-    cp -fR $TEMPLATE/$dest $WORK
-    clean_svn $WORK/$dest
+    cp -fR $TEMPLATE/$template_dir $WORK
+    clean_svn $WORK/$template_dir
 }
 
 function prepare {
