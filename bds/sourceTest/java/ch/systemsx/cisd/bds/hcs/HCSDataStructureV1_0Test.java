@@ -109,8 +109,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
         setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...
-        final IDataStructure ds =
-                new DataStructureLoader(workingDirectory.getParentFile()).load(getClass().getSimpleName());
+        final IDataStructure ds = new DataStructureLoader(workingDirectory.getParentFile()).load(getClass().getName());
         assertNotNull(ds);
     }
 }
