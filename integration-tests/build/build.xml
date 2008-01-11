@@ -33,13 +33,6 @@
 		</antcall>
 	</target>
 
-	<target name="run-local-rebuild" description="Runs integration tests, rebuilds everything from local source.">
-		<antcall target="internal-launch">
-			<param name="arg1" value="--all" />
-			<param name="arg2" value="--local-source" />
-		</antcall>
-	</target>
-
 	<target name="relaunch-local-etl-rebuild"
 	        description="Runs integration tests again, rebuilds etl server from local sources.">
 		<antcall target="internal-launch">
@@ -55,7 +48,7 @@
 		</antcall>
 	</target>
 
-	<target name="integration-tests-local" description="Runs integration tests, rebuild everything from wc.">
+	<target name="integration-tests-local" description="Runs integration tests, rebuild everything from local workspace.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--all" />
 			<param name="arg2" value="--local-source" />
