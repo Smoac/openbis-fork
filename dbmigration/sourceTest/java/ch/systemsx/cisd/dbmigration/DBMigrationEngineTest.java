@@ -375,14 +375,18 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my database"));
+                    one(adminDAO).getDatabaseURL();
+                    will(returnValue("my database URL"));
                 }
             });
         DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, false);
 
         migrationEngine.migrateTo(version);
         assertEquals("DEBUG OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "No migration needed for database 'my database'. It has the right version (042).", logRecorder
-                .getLogContent());
+                + "No migration needed for database 'my database'. It has the right version (042)."
+                + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Using database 'my database URL'",
+                logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -411,6 +415,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
+                    one(adminDAO).getDatabaseURL();
+                    will(returnValue("my database URL"));
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     expectSuccessfulExecution(new Script("m-099-100", "code 099 100", toVersion), true);
                     one(scriptProvider).tryGetMigrationScript("100", toVersion);
@@ -431,7 +437,10 @@ public class DBMigrationEngineTest
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Successfully migrated from version 100 to 101 in 0 msec" + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
-                + "Database 'my 2. database' successfully migrated from version 099 to 101.", logContent);
+                + "Database 'my 2. database' successfully migrated from version 099 to 101."
+                + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Using database 'my database URL'",
+                logContent);
 
         context.assertIsSatisfied();
     }
