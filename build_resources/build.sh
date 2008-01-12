@@ -34,7 +34,7 @@ mkdir $build_dir
 ant -lib $dir/lib/ecj.jar -f $dir/ant/build.xml \
 		-DrepositoryRoot=$repository \
     -Dname=$name \
-    -drevision=$revision \
+    -Drevision=$revision \
     -Dversion=$version \
     -Ddir=$build_dir \
     -Dresult.dir=$cdir \
