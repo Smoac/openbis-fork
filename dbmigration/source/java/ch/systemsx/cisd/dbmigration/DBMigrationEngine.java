@@ -41,12 +41,12 @@ public class DBMigrationEngine
     private final IDatabaseAdminDAO adminDAO;
 
     private final IDatabaseVersionLogDAO logDAO;
-    
+
     private final ISqlScriptExecutor scriptExecutor;
-    
+
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
-     *
+     * 
      * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
      */
     public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider, boolean shouldCreateFromScratch)
@@ -57,7 +57,7 @@ public class DBMigrationEngine
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
-    
+
     /**
      * Create or migrate database to the specified version.
      * 
@@ -75,38 +75,51 @@ public class DBMigrationEngine
             setupDatabase(version);
             return;
         }
-        LogEntry entry = getAndCheckLastLogEntry();
-        String databaseVersion = entry.getVersion();
+        final LogEntry entry = getAndCheckLastLogEntry();
+        final String databaseVersion = entry.getVersion();
         if (version.equals(databaseVersion))
         {
             if (operationLog.isDebugEnabled())
             {
-                String databaseName = adminDAO.getDatabaseName();
-                operationLog.debug("No migration needed for database '" + databaseName + "'. It has the right version (" 
-                                  + version + ").");
+                final String databaseName = adminDAO.getDatabaseName();
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.debug("No migration needed for database '" + databaseName + "'. It has the right version (" 
+                                      + version + ").");
+                }
             }
         } else if (version.compareTo(databaseVersion) > 0)
         {
             if (operationLog.isInfoEnabled())
             {
-                String databaseName = adminDAO.getDatabaseName();
-                operationLog.info("Trying to migrate database '" + databaseName + "' from version " + databaseVersion 
-                                   + " to " + version + ".");
+                final String databaseName = adminDAO.getDatabaseName();
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Trying to migrate database '" + databaseName + "' from version " + databaseVersion 
+                            + " to " + version + ".");
+                }
             }
             migrate(databaseVersion, version);
             if (operationLog.isInfoEnabled())
             {
-                String databaseName = adminDAO.getDatabaseName();
-                operationLog.info("Database '" + databaseName + "' successfully migrated from version " 
-                                  + databaseVersion + " to " + version + ".");
+                final String databaseName = adminDAO.getDatabaseName();
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Database '" + databaseName + "' successfully migrated from version " 
+                                      + databaseVersion + " to " + version + ".");
+                }
             }
         } else
         {
-            String databaseName = adminDAO.getDatabaseName();
-            String message = "Cannot revert database '" + databaseName + "' from version " 
+            final String databaseName = adminDAO.getDatabaseName();
+            final String message = "Cannot revert database '" + databaseName + "' from version " 
                              + databaseVersion + " to earlier version " + version + ".";
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Using database '%s'", adminDAO.getDatabaseURL()));
         }
     }
 
@@ -145,10 +158,10 @@ public class DBMigrationEngine
             operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
         }
     }
-    
+
     private void createEmptyDatabase(String version)
     {
-        adminDAO.createDatabase();        
+        adminDAO.createDatabase();
         executeSchemaScript(version);
     }
 
@@ -191,8 +204,9 @@ public class DBMigrationEngine
             if (migrationScript == null)
             {
                 final String databaseName = adminDAO.getDatabaseName();
-                final String message = "Cannot migrate database '" + databaseName + "' from version " + version + " to " 
-                                 + nextVersion + " because of missing migration script.";
+                final String message =
+                        "Cannot migrate database '" + databaseName + "' from version " + version + " to " + nextVersion
+                                + " because of missing migration script.";
                 operationLog.error(message);
                 throw new EnvironmentFailureException(message);
             }
@@ -206,7 +220,7 @@ public class DBMigrationEngine
             version = nextVersion;
         } while (version.equals(toVersion) == false);
     }
-    
+
     // @Private
     static String increment(String version)
     {
@@ -237,5 +251,5 @@ public class DBMigrationEngine
         }
         return result;
     }
-    
+
 }

@@ -26,9 +26,14 @@ import java.io.File;
 public interface IDatabaseAdminDAO
 {
     /**
-     * Returns the name of the database to be created/dropped.
+     * Returns the name of the database to be created / dropped.
      */
     public String getDatabaseName();
+    
+    /**
+     * Returns the complete URL of the database to be created / dropped.
+     */
+    public String getDatabaseURL();
     
     /**
      * Creates the owner/user of the database. Implementation should handle the case of already existing owner/user 

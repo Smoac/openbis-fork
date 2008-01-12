@@ -127,12 +127,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private final DataSource createDataSource()
     {
         final String dsDriver = getDriver();
-        final String dsDatabaseName = getDatabaseName();
-        if (dsDatabaseName == null)
-        {
-            throw new ConfigurationFailureException("No db name defined.");
-        }
-        final String url = getUrl(dsDatabaseName);
+        final String url = getDatabaseURL();
         return dataSourceFactory.createDataSource(dsDriver, url, owner, password);
     }
 
@@ -195,6 +190,18 @@ public class DatabaseConfigurationContext implements DisposableBean
     private final String getDatabaseKind()
     {
         return databaseKind;
+    }
+
+    /** Returns the complete database URL. */
+    public final String getDatabaseURL()
+    {
+        final String dsDatabaseName = getDatabaseName();
+        if (dsDatabaseName == null)
+        {
+            throw new ConfigurationFailureException("No db name defined.");
+        }
+        final String url = getUrl(dsDatabaseName);
+        return url;
     }
 
     /**

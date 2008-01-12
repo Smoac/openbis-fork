@@ -66,6 +66,8 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     private final String databaseName;
 
+    private final String databaseURL;
+
     /**
      * Creates an instance.
      * 
@@ -74,20 +76,27 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param owner Owner to be created if it doesn't exist.
      * @param databaseName Name of the database.
+     * @param databaseURL URL of the database.
      */
     public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
-            String owner, String databaseName)
+            String owner, String databaseName, String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
         this.owner = owner;
         this.databaseName = databaseName;
+        this.databaseURL = databaseURL;
         setDataSource(dataSource);
     }
 
     public String getDatabaseName()
     {
         return databaseName;
+    }
+
+    public String getDatabaseURL()
+    {
+        return databaseURL;
     }
 
     public void createOwner()

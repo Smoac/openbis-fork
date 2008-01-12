@@ -49,16 +49,18 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     private static final String DROP_ALL_OBJECTS_SQL = "drop all objects;";
 
     private static final String SQL_FILE_TYPE = ".sql";
-    
+
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
-        "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
-                + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
-                + "module_code bytea, run_exception bytea);";
+            "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
+                    + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
+                    + "module_code bytea, run_exception bytea);";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, H2AdminDAO.class);
 
     private final String databaseName;
     
+    private final String databaseURL;
+
     private final ISqlScriptExecutor scriptExecutor;
 
     private final IMassUploader massUploader;
@@ -70,18 +72,26 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
      * @param scriptExecutor An executor of SQL scripts within the new database.
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
      * @param databaseName Name of the database.
+     * @param databaseURL URL of the database.
      */
-    public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader, String databaseName)
+    public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
+            String databaseName, String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
         this.databaseName = databaseName;
+        this.databaseURL = databaseURL;
         setDataSource(dataSource);
     }
 
     public String getDatabaseName()
     {
         return databaseName;
+    }
+
+    public String getDatabaseURL()
+    {
+        return databaseURL;
     }
 
     public void createOwner()

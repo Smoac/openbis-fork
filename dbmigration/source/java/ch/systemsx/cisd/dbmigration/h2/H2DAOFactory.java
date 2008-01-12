@@ -61,7 +61,8 @@ public class H2DAOFactory implements IDAOFactory
             throw new CheckedExceptionTunnel(ex);
         }
         databaseDAO =
-            new H2AdminDAO(context.getAdminDataSource(), sqlScriptExecutor, massUploader, context.getDatabaseName());
+                new H2AdminDAO(context.getAdminDataSource(), sqlScriptExecutor, massUploader,
+                        context.getDatabaseName(), context.getDatabaseURL());
     }
 
     public IDatabaseAdminDAO getDatabaseDAO()
