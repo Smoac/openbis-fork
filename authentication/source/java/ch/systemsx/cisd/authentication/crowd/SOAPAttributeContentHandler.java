@@ -45,10 +45,10 @@ final class SOAPAttributeContentHandler extends DefaultHandler
     {
         soapAttributeName, soapAttributeValues;
     }
-    
+
     /** Whether we entered the <code>SOAPAttribute</code>. */
     private boolean inSoapAttribute;
-    
+
     /** The current <code>SOAPAttribute</code> child. */
     private Child currentChild;
 
@@ -117,13 +117,17 @@ final class SOAPAttributeContentHandler extends DefaultHandler
                     name = CrowdSoapElements.SOAPAttribute.valueOf(string);
                 } catch (IllegalArgumentException ex)
                 {
-                    throw new SAXException("Given '" + string + "' is not an allowed text value for the SOAPAttribute name child.");
+                    soapAttribute = null; // we skip unknown attributes
+                    return;
                 }
                 soapAttributes.put(name, NULL);
                 soapAttribute = name;
             } else if (currentChild == Child.soapAttributeValues)
             {
-                soapAttributes.put(soapAttribute, string);
+                if (soapAttribute != null)
+                {
+                    soapAttributes.put(soapAttribute, string);
+                }
             }
         }
     }
