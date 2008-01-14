@@ -58,6 +58,8 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
      * <p>
      * Uses <code>ILineTokenizer</code> to do its job.
      * </p>
+     * 
+     * @param lineNumber line number.
      */
     protected String[] parseLine(final int lineNumber, final String line)
     {

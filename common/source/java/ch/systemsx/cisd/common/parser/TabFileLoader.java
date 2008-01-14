@@ -93,6 +93,8 @@ public class TabFileLoader<T>
      * <p>
      * Default behavior just throws it.
      * </p>
+     * 
+     * @param file the parsed file.
      */
     protected void throwParsingException(final ParsingException parsingException, final File file)
     {
