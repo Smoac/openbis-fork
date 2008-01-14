@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
+
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+
 /**
  * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts with '/'
  * (absolute path) or not (relative path).
@@ -33,7 +37,35 @@ public class PathPrefixPrepender
     public PathPrefixPrepender(String prefixForAbsolutePathsOrNull, String prefixForRelativePathsOrNull)
     {
         this.prefixForAbsolutePaths = prefixForAbsolutePathsOrNull == null ? "" : prefixForAbsolutePathsOrNull;
-        this.prefixForRelativePaths = prefixForRelativePathsOrNull == null ? "" : prefixForRelativePathsOrNull;
+        assertValid(this.prefixForAbsolutePaths, "absolute");
+        this.prefixForRelativePaths = preparePrefix(prefixForRelativePathsOrNull);
+        assertValid(this.prefixForRelativePaths, "relative");
+    }
+    
+    private String preparePrefix(String pathPrefix)
+    {
+        if (pathPrefix == null || pathPrefix.length() == 0)
+        {
+            return "";
+        }
+        if (pathPrefix.endsWith("/"))
+        {
+            return pathPrefix;
+        }
+        return pathPrefix + "/";
+    }
+    
+    private void assertValid(String prefix, String type)
+    {
+        if (prefix.length() != 0)
+        {
+            File file = new File(prefix);
+            if (file.exists() == false)
+            {
+                throw new ConfigurationFailureException("Invalid prefix for " + type + " paths: "
+                        + file.getAbsolutePath());
+            }
+        }
     }
 
     /**
