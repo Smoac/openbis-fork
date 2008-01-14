@@ -4,7 +4,7 @@
 # - the current directory after calling a function does not change
 
 # ----------------------------- configuration
-TIME_TO_COMPLETE=40 # time (in seconds) needed by the whole pipeline to process everything
+TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
 SVN_PATHS="/opt/local/bin /usr/bin"
 LSOF_PATHS="/usr/sbin"
 
