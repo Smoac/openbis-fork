@@ -394,7 +394,7 @@ public final class BeanUtils
             }
             if (beanIsCollection)
             {
-                return createCollection(beanClass, size, setterAnnotations);
+                return createCollection(size, setterAnnotations);
             }
         }
         return beanClass.newInstance();
@@ -428,7 +428,7 @@ public final class BeanUtils
 
     @SuppressWarnings("unchecked")
     // No way to avoid the warning since the compiler doesn't accept something like ArrayList<String>.class
-    private static <T> T createCollection(Class<T> beanClass, int size, AnnotationMap setterAnnotations)
+    private final static <T> T createCollection(final int size, final AnnotationMap setterAnnotations)
             throws InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, InvocationTargetException
     {
