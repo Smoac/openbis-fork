@@ -218,7 +218,7 @@ public class MainTest
                 filteredName);
     }
 
-    private static ArrayList<String> getCleansingParameters(ExternalDirs dirs, String cleansingStruct)
+    private static ArrayList<String> getCleansingParameters(String cleansingStruct)
     {
         return createList("--cleansing-regex", cleansingStruct);
     }
@@ -263,7 +263,7 @@ public class MainTest
         ArrayList<String> list = getDefaultParameters(dirs);
         list.addAll(getExtraCopyParameters(dirs));
         list.addAll(getManualInterventionParameters(dirs, manualIntervName));
-        list.addAll(getCleansingParameters(dirs, cleansingStruct));
+        list.addAll(getCleansingParameters(cleansingStruct));
         return createParameters(list);
     }
 
