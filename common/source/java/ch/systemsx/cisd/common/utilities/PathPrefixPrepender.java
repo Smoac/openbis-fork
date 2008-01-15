@@ -18,33 +18,37 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts with '/'
- * (absolute path) or not (relative path).
- *
+ * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts with '/' (absolute
+ * path) or not (relative path).
+ * 
  * @author Franz-Josef Elmer
  */
-public class PathPrefixPrepender
+// TODO 2008-01-15, Christian Ribeaud: missing Unit test for this class.
+public final class PathPrefixPrepender
 {
     private final String prefixForAbsolutePaths;
+
     private final String prefixForRelativePaths;
 
     /**
      * Creates an instances for the specified prefixes. <code>null</code> arguments are handled as empty strings.
      */
-    public PathPrefixPrepender(String prefixForAbsolutePathsOrNull, String prefixForRelativePathsOrNull)
+    public PathPrefixPrepender(final String prefixForAbsolutePathsOrNull, final String prefixForRelativePathsOrNull)
     {
-        this.prefixForAbsolutePaths = prefixForAbsolutePathsOrNull == null ? "" : prefixForAbsolutePathsOrNull;
+        this.prefixForAbsolutePaths = StringUtils.defaultString(prefixForAbsolutePathsOrNull);
         assertValid(this.prefixForAbsolutePaths, "absolute");
         this.prefixForRelativePaths = preparePrefix(prefixForRelativePathsOrNull);
         assertValid(this.prefixForRelativePaths, "relative");
     }
-    
-    private String preparePrefix(String pathPrefix)
+
+    private final static String preparePrefix(final String pathPrefix)
     {
-        if (pathPrefix == null || pathPrefix.length() == 0)
+        if (StringUtils.isEmpty(pathPrefix))
         {
             return "";
         }
@@ -54,16 +58,16 @@ public class PathPrefixPrepender
         }
         return pathPrefix + "/";
     }
-    
-    private void assertValid(String prefix, String type)
+
+    private void assertValid(final String prefix, final String type)
     {
         if (prefix.length() != 0)
         {
-            File file = new File(prefix);
+            final File file = new File(prefix);
             if (file.exists() == false)
             {
-                throw new ConfigurationFailureException("Invalid prefix for " + type + " paths: "
-                        + file.getAbsolutePath());
+                throw ConfigurationFailureException.fromTemplate(
+                        "Invalid prefix for %s paths: given file '%s' does not exist.", type, file.getAbsolutePath());
             }
         }
     }
@@ -71,7 +75,7 @@ public class PathPrefixPrepender
     /**
      * Returns the specified path with the appropriated prefix.
      */
-    public String addPrefixTo(String path)
+    public String addPrefixTo(final String path)
     {
         assert path != null : "Undefined path.";
         return (path.startsWith("/") ? prefixForAbsolutePaths : prefixForRelativePaths) + path;
