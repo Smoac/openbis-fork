@@ -32,6 +32,8 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 public class DataStructureV1_0 extends AbstractDataStructure
 {
     public static final String DIR_METADATA = "metadata";
+    
+    public static final String DIR_ANNOTATIONS = "annotations";
 
     public static final String DIR_PARAMETERS = "parameters";
 
@@ -50,6 +52,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
     private MappingFileHandler mappingFileHandler;
 
     private Format format;
+
+    private IAnnotations annotations;
 
     /**
      * Creates a new instance relying on the specified storage.
@@ -85,19 +89,25 @@ public class DataStructureV1_0 extends AbstractDataStructure
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
     }
 
-    public final IDirectory getDataDirectory()
+    private IDirectory getDataDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
     }
 
-    public final IDirectory getMetaDataDirectory()
+    private IDirectory getMetaDataDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
     }
 
-    public final IDirectory getParametersDirectory()
+    private IDirectory getAnnotationsDirectory()
+    {
+        assertOpenOrCreated();
+        return Utilities.getOrCreateSubDirectory(root, DIR_ANNOTATIONS);
+    }
+    
+    private IDirectory getParametersDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
@@ -140,6 +150,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         assert formatParameter != null : "Unspecified format parameter.";
         formatParameters.addParameter(formatParameter);
+    }
+    
+    public void setAnnotations(IAnnotations annotations)
+    {
+        this.annotations = annotations;
     }
 
     /**
@@ -298,6 +313,10 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Unspecified processing type.");
         }
+        if (annotations != null)
+        {
+            annotations.assertValid(getFormattedData());
+        }
     }
 
     @Override
@@ -318,6 +337,10 @@ public class DataStructureV1_0 extends AbstractDataStructure
         if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
+        }
+        if (annotations != null)
+        {
+            annotations.saveTo(getAnnotationsDirectory());
         }
     }
 

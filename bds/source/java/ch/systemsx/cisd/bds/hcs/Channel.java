@@ -47,6 +47,11 @@ public final class Channel implements IStorable
         this.wavelength = wavelength;
     }
 
+    public final int getCounter()
+    {
+        return counter;
+    }
+
     public final int getWavelength()
     {
         return wavelength;
