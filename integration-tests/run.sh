@@ -11,6 +11,7 @@ LSOF_PATHS="/usr/sbin"
 # all paths are relative to the template directory
 TEMPLATE=templates
 TARGETS=targets
+TEST_DATA=testData
 WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
 LOCAL_PROJECTS=..
@@ -386,30 +387,22 @@ function assert_pattern_present {
 
 # ----------------------- Test data
 
-function create_test_data_file {
-    local FILE_PATH=$1
-    local file_size=2000000
-    openssl rand -base64 $file_size -out $FILE_PATH
-}
-
-function create_test_data_dir {
-    local NAME=$1
-    local DIR=$2
-    mkdir $DIR/$NAME
-    local i=0  
-    while [  $i -lt 15 ]; do
-	create_test_data_file $DIR/$NAME/$NAME-data$i.txt
-	let i=i+1 
-    done
-}
-
 function generate_test_data {
     echo Generate incoming data
     local DIR=$DATA/in-raw
-    create_test_data_dir "3VCP1" $DIR
-    create_test_data_dir "3VCP3" $DIR
-    create_test_data_dir "3VCP4" $DIR
+    copy_test_data 3VCP1 $DIR
+    copy_test_data 3VCP3 $DIR
+    copy_test_data 3VCP4 $DIR
 }
+
+
+function copy_test_data {
+    local NAME=$1
+    local DIR=$2
+    cp -a $TEST_DATA/$NAME $DIR
+    clean_svn $DIR/$NAME
+}
+
 
 # ----------------------- Launching 
 
