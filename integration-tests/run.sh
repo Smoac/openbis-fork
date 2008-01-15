@@ -393,6 +393,7 @@ function generate_test_data {
     copy_test_data 3VCP1 $DIR
     copy_test_data 3VCP3 $DIR
     copy_test_data 3VCP4 $DIR
+    copy_test_data UnknownPlate $DIR
 }
 
 
@@ -458,11 +459,6 @@ function switch_processing_pipeline {
 
 
 function launch_tests {
-    # prepare empty incoming data
-    rm -fr $DATA
-    cp -R $TEMPLATE/data $WORK
-    clean_svn $DATA
-
     switch_processing_pipeline "on"
     sleep 4
 
@@ -475,8 +471,11 @@ function launch_tests {
 function assert_correct_results {
     local res=$WORK/client-result.txt
     call_in_dir check-results.sh $LIMS_CLIENT/ > $res
+    assert_pattern_present $res 1 "Processing instruction for procedure type 'DATA_ACQUISITION'"
+    assert_pattern_present $res 1 "Path: processing-dir"
+    assert_pattern_present $res 1 "Description: Processing parameters from file .*processing-parameters.txt"
+    assert_pattern_present $res 1 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
     assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
-    assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 
     assert_dir_empty $DATA/in-raw
     assert_dir_empty $DATA/out-raw
@@ -499,6 +498,12 @@ function integration_tests {
     
     init_log
     build_zips $install_etl $install_dmv $install_lims $use_local_source
+    
+    # prepare empty incoming data
+    rm -fr $DATA
+    cp -R $TEMPLATE/data $WORK
+    clean_svn $DATA
+
     install $install_etl $install_dmv $install_lims
     launch_tests
     assert_correct_results
