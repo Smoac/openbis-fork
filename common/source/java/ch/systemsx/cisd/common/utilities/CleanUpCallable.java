@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A class that implements the logic of cleaning up a resource even in case of an exception but re-throws an exception
  * of the clean up procedure only when the main procedure didn't throw one. <code>CleanUpRunner</code>s can be
@@ -29,20 +26,7 @@ import java.util.List;
 public final class CleanUpCallable
 {
 
-    private final List<Runnable> cleanUpList;
-
-    private final ICleanUpRegistry theRegistry = new ICleanUpRegistry()
-        {
-            public void registerCleanUp(Runnable cleanUp)
-            {
-                cleanUpList.add(cleanUp);
-            }
-        };
-
-    public CleanUpCallable()
-    {
-        this.cleanUpList = new ArrayList<Runnable>();
-    }
+    private final CleanUpRegistry registry = new CleanUpRegistry();
 
     /**
      * Runs a {@link ICallableWithCleanUp} and ensures that all registered clean-ups are performed afterwards.
@@ -52,41 +36,12 @@ public final class CleanUpCallable
         boolean exceptionThrown = true;
         try
         {
-            T result = runnable.call(theRegistry);
+            T result = runnable.call(registry);
             exceptionThrown = false;
             return result;
         } finally
         {
-            runCleanUps(exceptionThrown);
-        }
-    }
-
-    /**
-     * Runs all clean-ups in {@link #cleanUpList}.
-     * 
-     * @param exceptionThrown If <code>true</code>, all exceptions that happen during clean-up will be supressed.
-     */
-    private void runCleanUps(boolean exceptionThrown)
-    {
-        RuntimeException exceptionDuringCleanUp = null;
-        for (int i = cleanUpList.size() - 1; i >= 0; --i)
-        {
-            final Runnable runnable = cleanUpList.get(i);
-            try
-            {
-                runnable.run();
-            } catch (RuntimeException ex)
-            {
-                if (exceptionThrown == false && exceptionDuringCleanUp == null)
-                {
-                    exceptionDuringCleanUp = ex;
-                }
-            }
-        }
-        cleanUpList.clear();
-        if (exceptionDuringCleanUp != null)
-        {
-            throw exceptionDuringCleanUp;
+            registry.cleanUp(exceptionThrown);
         }
     }
 
