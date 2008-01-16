@@ -336,6 +336,17 @@ function assert_file_exists {
     fi
 }
 
+function assert_same_inode {
+    local file1=$1
+    local file2=$2
+    
+    if [ $file1 -ef $file2 ]; then
+        echo [OK] $file1 and $file2 have the same inode number.
+    else
+        report_error "$file1 and $file2 do not have the same inode number."
+    fi
+}
+
 function assert_dir_exists {
     local DIR=$1
     if [ ! -d "$DIR" ]; then
@@ -395,7 +406,7 @@ function assert_same_content {
 }
 
 function assert_equals {
-    loacl message=$1
+    local message=$1
     local expected_text=$2
     local actual_text=$3
     if [ "$expected_text" != "$actual_text" ]; then
@@ -536,9 +547,14 @@ function assert_empty_in_out_folders {
 function assert_correct_content_of_processing_dir {
     echo ==== assert correct content of processing-dir ====
     
-    assert_same_content $TEST_DATA/3VCP1 $DATA/processing-dir/microX_200801011213_3VCP1
+    local data_set=$DATA/processing-dir/microX_200801011213_3VCP1
+    assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
+    local bds_container=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1/microX_200801011213_3VCP1
+    local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
+    assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
+    assert_same_inode $data_set/TIFF/blabla_3VCP1_M03_2_w530.tif $data_set2/TIFF/blabla_3VCP1_M03_2_w530.tif
 }
 
 function assert_correct_content_of_plate_3VCP1_in_store {
@@ -553,7 +569,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     
     echo == check data structure version
     assert_equals_as_in_file 1 $raw_data_set/version/major
-    assert_equals_as_in_file 1 $raw_data_set/version/minor
+    assert_equals_as_in_file 0 $raw_data_set/version/minor
     
     
     echo == check annotations
@@ -570,10 +586,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo == check standard data
     local standard_dir=$raw_data_set/data/standard
     assert_dir_exists $standard_dir
-    assert_same_content $original_data_set/TIFF/blabla_3VCP1_K13_8_w460.tif \
-                        $standard_dir/channel1/row11/column13/row3_column2.tiff
-    assert_same_content $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
-                        $standard_dir/channel2/row13/column3/row1_column2.tiff
+    assert_same_inode $original_data_set/TIFF/blabla_3VCP1_K13_8_w460.tif \
+                      $standard_dir/channel1/row11/column13/row3_column2.tiff
+    assert_same_inode $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
+                      $standard_dir/channel2/row13/column3/row1_column2.tiff
                         
     echo == check metadata
     local metadata_dir=$raw_data_set/metadata
