@@ -7,6 +7,8 @@
 TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
 SVN_PATHS="/opt/local/bin /usr/bin"
 LSOF_PATHS="/usr/sbin"
+TRUE=1
+FALSE=0
 
 # all paths are relative to the template directory
 TEMPLATE=templates
@@ -312,7 +314,7 @@ function init_log {
 function report_error {
     local msg=$@
 
-    echo [ERROR] $msg | tee -a $ERR_LOG    
+    echo [ERROR] $msg | tee -a $ERR_LOG >&2
     TEST_FAILED="true"
 }
 
@@ -405,7 +407,7 @@ function assert_equals_as_in_file {
     local file_with_actual_text=$2
     
     assert_file_exists $file_with_actual_text
-    assert_equals $expected_text `cat $file_with_actual_text`
+    assert_equals "$expected_text" "`cat $file_with_actual_text`"
 }
 
 function assert_pattern_present {
@@ -459,6 +461,7 @@ function switch_sth {
     dir=$WORK/$2
     cmd_start=$3
     cmd_stop=$4
+    report_error=$5
 
     assert_dir_exists_or_die $dir
     chmod_exec $dir/$cmd_start
@@ -471,7 +474,9 @@ function switch_sth {
     else
 	echo "Stopping $dir, displaying errors from the log"
 	if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
-	    report_error $dir reported errors.
+	    if [ $report_error .eq $TRUE ]; then
+	        report_error $dir reported errors.
+	    fi
 	    cat $dir/log/* | grep ERROR	    
 	fi
 	call_in_dir "$cmd_stop" $dir
@@ -480,18 +485,18 @@ function switch_sth {
 
 
 function switch_etl {
-    switch_sth $1 $2 etlserver.sh shutdown.sh
+    switch_sth $1 $2 etlserver.sh shutdown.sh $FALSE
 }
 
 function switch_dmv {
-    switch_sth $1 $2 "datamover.sh start" "datamover.sh stop"
+    switch_sth $1 $2 "datamover.sh start" "datamover.sh stop" $TRUE
 }
 
 function switch_processing_pipeline {
     new_state=$1
     switch_etl $new_state etlserver-all
     switch_dmv $new_state datamover-analys
-    switch_sth $new_state dummy-img-analyser start.sh stop.sh
+    switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
     switch_dmv $new_state datamover-raw
 }
 
@@ -545,6 +550,11 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
     assert_dir_exists $raw_data_set
     
+    echo == check data structure format
+    assert_equals_as_in_file 1 $raw_data_set/format/major
+    assert_equals_as_in_file 1 $raw_data_set/format/minor
+    
+    
     echo == check annotations
     local annotations_dir="$raw_data_set/annotations"
     assert_dir_exists "$annotations_dir"
@@ -582,7 +592,20 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
     assert_equals_as_in_file 3VCP1 $metadata_dir/measurement_entity/entity_code
-    assert_equals_as_in_file "screening plate" $metadata_dir/measurement_entity/entity_type_description
+    assert_equals_as_in_file 'screening plate' $metadata_dir/measurement_entity/entity_type_description
+    assert_equals_as_in_file RAW_DATA $metadata_dir/processing_type
+    assert_file_exists $metadata_dir/standard_original_mapping
+    
+    
+    echo == check format parameters
+    local parameters_dir=$metadata_dir/parameters
+    assert_dir_exists $parameters_dir
+    assert_equals_as_in_file true $parameters_dir/contains_original_data
+    assert_equals_as_in_file 2 $parameters_dir/number_of_channels
+    assert_equals_as_in_file 24 $parameters_dir/plate_geometry/columns
+    assert_equals_as_in_file 16 $parameters_dir/plate_geometry/rows
+    assert_equals_as_in_file 3 $parameters_dir/well_geometry/columns
+    assert_equals_as_in_file 3 $parameters_dir/well_geometry/rows
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
@@ -599,7 +622,7 @@ function assert_correct_content_of_invalid_plate_in_store {
 function assert_correct_content_of_image_analysis_data {
     local cell_plate=$1
     
-    echo == check image analysis data for cell plate $cell_plate
+    echo ====  check image analysis data for cell plate $cell_plate ====
     local img_analysis=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/1
     assert_dir_exists $img_analysis
     assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
