@@ -395,10 +395,11 @@ function assert_same_content {
 }
 
 function assert_equals {
-    local expected_text=$1
-    local actual_text=$2
+    loacl message=$1
+    local expected_text=$2
+    local actual_text=$3
     if [ "$expected_text" != "$actual_text" ]; then
-        report_error "expected: <$expected_text> but was: <$actual_text>"
+        report_error "$message: expected: <$expected_text> but was: <$actual_text>"
     fi
 }
 
@@ -407,7 +408,7 @@ function assert_equals_as_in_file {
     local file_with_actual_text=$2
     
     assert_file_exists $file_with_actual_text
-    assert_equals "$expected_text" "`cat $file_with_actual_text`"
+    assert_equals "Content of file $file_with_actual_text" "$expected_text" "`cat $file_with_actual_text`"
 }
 
 function assert_pattern_present {
