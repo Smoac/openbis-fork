@@ -570,8 +570,17 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file 3V $metadata_dir/experiment_identifier/group_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
-    assert_file_exist $metadata/experiment_registration_date
-    assert_equals_as_in_file "franz-josef.elmer@systemsx.ch" $metadata/experiment_registrator/email
+    assert_file_exists $metadata_dir/experiment_registration_date
+    assert_file_exists $metadata_dir/experiment_registrator/email
+    assert_file_exists $metadata_dir/experiment_registrator/first_name
+    assert_file_exists $metadata_dir/experiment_registrator/last_name
+    assert_equals_as_in_file HCS_IMAGE $metadata_dir/format/format_code
+    assert_equals_as_in_file 1 $metadata_dir/format/version/major
+    assert_equals_as_in_file 0 $metadata_dir/format/version/minor
+    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/log.txt"
+    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
+    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
+    assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
