@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -28,7 +29,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2008-01-15, Christian Ribeaud: missing Unit test for this class.
 public final class PathPrefixPrepender
 {
     private final String prefixForAbsolutePaths;
@@ -39,6 +39,7 @@ public final class PathPrefixPrepender
      * Creates an instances for the specified prefixes. <code>null</code> arguments are handled as empty strings.
      */
     public PathPrefixPrepender(final String prefixForAbsolutePathsOrNull, final String prefixForRelativePathsOrNull)
+            throws ConfigurationFailureException
     {
         this.prefixForAbsolutePaths = StringUtils.defaultString(prefixForAbsolutePathsOrNull);
         assertValid(this.prefixForAbsolutePaths, "absolute");
@@ -59,7 +60,7 @@ public final class PathPrefixPrepender
         return pathPrefix + "/";
     }
 
-    private void assertValid(final String prefix, final String type)
+    private void assertValid(final String prefix, final String type) throws ConfigurationFailureException
     {
         if (prefix.length() != 0)
         {
@@ -78,6 +79,6 @@ public final class PathPrefixPrepender
     public String addPrefixTo(final String path)
     {
         assert path != null : "Undefined path.";
-        return (path.startsWith("/") ? prefixForAbsolutePaths : prefixForRelativePaths) + path;
+        return (FilenameUtils.getPrefixLength(path) > 0 ? prefixForAbsolutePaths : prefixForRelativePaths) + path;
     }
 }

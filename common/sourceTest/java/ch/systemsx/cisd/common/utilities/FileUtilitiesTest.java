@@ -36,36 +36,18 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for the {@link FileUtilities}.
  * 
  * @author Bernd Rinn
  */
-public class FileUtilitiesTest
+public final class FileUtilitiesTest extends AbstractFileSystemTestCase
 {
-    private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
-
-    @BeforeSuite
-    public void init()
-    {
-        LogInitializer.init();
-        workingDirectory.mkdirs();
-        assert workingDirectory.isDirectory();
-    }
-
-    @BeforeMethod
-    public void beforeMethod() throws IOException
-    {
-        FileUtils.cleanDirectory(workingDirectory);
-    }
 
     @Test
     public void testFailedConstructionNonExistent()
@@ -335,9 +317,8 @@ public class FileUtilitiesTest
         assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file.getAbsolutePath());
         // If the given string is the empty string, then the result is the empty abstract pathname.
         final File rootFile = new File("");
-        System.out.println(rootFile.getAbsolutePath());
-        assertEquals("targets" + File.separator + workingDirectory.getName() + File.separator + "hello", FileUtilities
-                .getRelativeFile(rootFile, file));
+        assertEquals(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY + File.separator
+                + workingDirectory.getName() + File.separator + "hello", FileUtilities.getRelativeFile(rootFile, file));
         String root = "/temp";
         String relativeFile = FileUtilities.getRelativeFile(new File(root), file);
         assertNull(relativeFile);

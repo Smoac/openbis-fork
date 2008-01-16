@@ -33,7 +33,12 @@ import org.testng.annotations.BeforeMethod;
  */
 public abstract class AbstractFileSystemTestCase
 {
-    private static final File UNIT_TEST_ROOT_DIRECTORY = new File("targets" + File.separator + "unit-test-wd");
+    protected static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
+
+    protected static final String TARGETS_DIRECTORY = "targets";
+
+    private static final File UNIT_TEST_ROOT_DIRECTORY =
+            new File(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY);
 
     protected final File workingDirectory;
 

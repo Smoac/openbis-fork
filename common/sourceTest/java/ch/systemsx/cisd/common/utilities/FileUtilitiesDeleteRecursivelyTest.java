@@ -16,29 +16,23 @@ package ch.systemsx.cisd.common.utilities;
  * limitations under the License.
  */
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Test cases for the <code>deleteRecursively</code> methods of {@link FileUtilities}.
  * 
  * @author Bernd Rinn
  */
-public class FileUtilitiesDeleteRecursivelyTest
+public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystemTestCase
 {
-
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
-
-    private static final File workingDirectory = new File(unitTestRootDirectory, "CleansingPathHandlerDecoratorTest");
 
     private File dir1;
 
@@ -57,22 +51,6 @@ public class FileUtilitiesDeleteRecursivelyTest
     private File dir2;
 
     private File file4;
-
-    @BeforeClass
-    public void init()
-    {
-        LogInitializer.init();
-        unitTestRootDirectory.mkdirs();
-        assert unitTestRootDirectory.isDirectory();
-    }
-
-    @BeforeMethod
-    public void setUp()
-    {
-        FileUtilities.deleteRecursively(workingDirectory);
-        workingDirectory.mkdirs();
-        workingDirectory.deleteOnExit();
-    }
 
     @Test
     public void deleteRecursivelyFile()
@@ -165,14 +143,18 @@ public class FileUtilitiesDeleteRecursivelyTest
         createStructure();
         FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
             {
-                public boolean accept(File pathname)
+                //
+                // FileFilter
+                //
+
+                public final boolean accept(final File pathname)
                 {
-                    return true;
+                    return pathname.getAbsolutePath().equals(workingDirectory.getAbsolutePath()) == false;
                 }
             }, null);
         checkDirectories(false);
         checkFiles(false);
-        assert workingDirectory.exists() == false;
+        assertEquals(true, workingDirectory.exists());
     }
 
     @Test
