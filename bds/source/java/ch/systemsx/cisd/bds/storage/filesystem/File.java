@@ -96,9 +96,4 @@ final class File extends AbstractNode implements IFile
         }
     }
 
-    @Override
-    public final boolean isValid()
-    {
-        return super.isValid() && FileUtilities.checkPathFullyAccessible(nodeFile, "") == null;
-    }
 }
