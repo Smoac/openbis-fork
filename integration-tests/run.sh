@@ -567,6 +567,11 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo == check metadata
     local metadata_dir=$raw_data_set/metadata
     assert_dir_exists $metadata_dir
+    assert_equals_as_in_file 3V $metadata_dir/experiment_identifier/group_code
+    assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
+    assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
+    assert_file_exist $metadata/experiment_registration_date
+    assert_equals_as_in_file "franz-josef.elmer@systemsx.ch" $metadata/experiment_registrator/email
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
