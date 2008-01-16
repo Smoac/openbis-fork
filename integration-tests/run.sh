@@ -329,6 +329,8 @@ function assert_file_exists {
     local file=$1
     if [ ! -f "$file" ]; then
 	report_error File $file does not exist!  
+    else
+	echo [OK] File $file exists
     fi
 }
 
@@ -385,6 +387,8 @@ function assert_same_content {
     if [ $is_different == 1 ]; then
         report_error "Different content in $expected_file (marked by '<') and $actual_file (marked by '>')"
         eval $cmd
+    else
+        echo "[OK] Same content in $expected_file and $actual_file"
     fi
 }
 
@@ -559,6 +563,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
                         $standard_dir/channel1/row11/column13/row3_column2.tiff
     assert_same_content $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
                         $standard_dir/channel2/row13/column3/row1_column2.tiff
+                        
+    echo == check metadata
+    local metadata_dir=$raw_data_set/metadata
+    assert_dir_exists $metadata_dir
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
@@ -567,7 +575,9 @@ function assert_correct_content_of_invalid_plate_in_store {
     
     local error_dir=$DATA/main-store/3V/error/ObservableType_IMAGE
     assert_dir_exists $error_dir
-    assert_same_content $TEST_DATA/$cell_plate $error_dir/microX_200801011213_$cell_plate
+    local data_set=$error_dir/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $data_set
+    assert_file_exists $data_set.exception
 }
     
 function assert_correct_content_of_image_analysis_data {
