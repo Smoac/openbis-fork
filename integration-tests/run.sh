@@ -581,6 +581,8 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
+    assert_equals_as_in_file 3VCP1 $metadata_dir/measurement_entity/entity_code
+    assert_equals_as_in_file "screening plate" $metadata_dir/measurement_entity/entity_type_description
 }
 
 function assert_correct_content_of_invalid_plate_in_store {
