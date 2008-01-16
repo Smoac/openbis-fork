@@ -476,8 +476,8 @@ function switch_sth {
 	if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
 	    if [ $report_error .eq $TRUE ]; then
 	        report_error $dir reported errors.
+	        cat $dir/log/* | grep ERROR >&2    
 	    fi
-	    cat $dir/log/* | grep ERROR	    
 	fi
 	call_in_dir "$cmd_stop" $dir
     fi
@@ -550,9 +550,9 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
     assert_dir_exists $raw_data_set
     
-    echo == check data structure format
-    assert_equals_as_in_file 1 $raw_data_set/format/major
-    assert_equals_as_in_file 1 $raw_data_set/format/minor
+    echo == check data structure version
+    assert_equals_as_in_file 1 $raw_data_set/version/major
+    assert_equals_as_in_file 1 $raw_data_set/version/minor
     
     
     echo == check annotations
