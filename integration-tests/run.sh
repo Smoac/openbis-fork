@@ -325,12 +325,19 @@ function exit_if_assertion_failed {
     fi
 }
 
+function assert_file_exists {
+    local file=$1
+    if [ ! -f "$file" ]; then
+	report_error File $file does not exist!  
+    fi
+}
+
 function assert_dir_exists {
     local DIR=$1
     if [ ! -d "$DIR" ]; then
-	report_error $DIR does not exist!  
+	report_error Directory $DIR does not exist!  
     else
-	echo [OK] $DIR exists
+	echo [OK] Directory $DIR exists
     fi
 }
 
@@ -369,6 +376,33 @@ function assert_dir_empty {
     fi
 }
 
+function assert_same_content {
+    local expected_file=$1
+    local actual_file=$2
+    cmd="diff --exclude=\.svn -r $expected_file $actual_file"
+    supress=`eval $cmd`
+    is_different=$?
+    if [ $is_different == 1 ]; then
+        report_error "Different content in $expected_file (marked by '<') and $actual_file (marked by '>')"
+        eval $cmd
+    fi
+}
+
+function assert_equals {
+    local expected_text=$1
+    local actual_text=$2
+    if [ "$expected_text" != "$actual_text" ]; then
+        report_error "expected: <$expected_text> but was: <$actual_text>"
+    fi
+}
+
+function assert_equals_as_in_file {
+    local expected_text=$1
+    local file_with_actual_text=$2
+    
+    assert_file_exists $file_with_actual_text
+    assert_equals $expected_text `cat $file_with_actual_text`
+}
 
 function assert_pattern_present {
   local file=$1
@@ -468,7 +502,8 @@ function launch_tests {
     switch_processing_pipeline "off"
 }
 
-function assert_correct_results {
+function assert_correct_experiment_info {
+    echo ==== assert correct experiment info ====
     local res=$WORK/client-result.txt
     call_in_dir check-results.sh $LIMS_CLIENT/ > $res
     assert_pattern_present $res 1 "Processing instruction for procedure type 'DATA_ACQUISITION'"
@@ -477,19 +512,96 @@ function assert_correct_results {
     assert_pattern_present $res 1 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
     assert_pattern_present $res 3 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 
+}
+
+function assert_empty_in_out_folders {
+    echo ==== assert empty in/out folders ====
     assert_dir_empty $DATA/in-raw
     assert_dir_empty $DATA/out-raw
     assert_dir_empty $DATA/in-analys
     assert_dir_empty $DATA/out-analys
     assert_dir_empty $DATA/analys-copy
-    
-    local store_dir=$DATA/main-store
-    local imgAnalys="$store_dir/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_3VCP1/1"
-    assert_dir_exists "$imgAnalys"
-    local rawData="$store_dir/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1"
-    assert_dir_exists "$rawData"
 }
 
+function assert_correct_content_of_processing_dir {
+    echo ==== assert correct content of processing-dir ====
+    
+    assert_same_content $TEST_DATA/3VCP1 $DATA/processing-dir/microX_200801011213_3VCP1
+    assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
+                        $DATA/processing-dir/processing-parameters-from-openbis
+}
+
+function assert_correct_content_of_plate_3VCP1_in_store {
+    local cell_plate=3VCP1
+    echo ==== assert correct content of plate 3VCP1 in store ====
+    
+    local main_dir=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1
+    local raw_data_dir=$main_dir/ObservableType_IMAGE/Barcode_3VCP1/1
+    assert_dir_exists $raw_data_dir
+    local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
+    assert_dir_exists $raw_data_set
+    
+    echo == check annotations
+    local annotations_dir="$raw_data_set/annotations"
+    assert_dir_exists "$annotations_dir"
+    assert_equals_as_in_file 460 $annotations_dir/channel1/wavelength
+    assert_equals_as_in_file 530 $annotations_dir/channel2/wavelength
+    
+    echo == check original data
+    local original_data_set=$raw_data_set/data/original/microX_200801011213_3VCP1
+    assert_dir_exists $original_data_set
+    assert_same_content $TEST_DATA/3VCP1 $original_data_set
+    
+    echo == check standard data
+    local standard_dir=$raw_data_set/data/standard
+    assert_dir_exists $standard_dir
+    assert_same_content $original_data_set/TIFF/blabla_3VCP1_K13_8_w460.tif \
+                        $standard_dir/channel1/row11/column13/row3_column2.tiff
+    assert_same_content $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
+                        $standard_dir/channel2/row13/column3/row1_column2.tiff
+}
+
+function assert_correct_content_of_invalid_plate_in_store {
+    local cell_plate=$1
+    echo ==== assert correct content of invalid plate 3VCP1 in store ====
+    
+    local error_dir=$DATA/main-store/3V/error/ObservableType_IMAGE
+    assert_dir_exists $error_dir
+    assert_same_content $TEST_DATA/$cell_plate $error_dir/microX_200801011213_$cell_plate
+}
+    
+function assert_correct_content_of_image_analysis_data {
+    local cell_plate=$1
+    
+    echo == check image analysis data for cell plate $cell_plate
+    local img_analysis=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/1
+    assert_dir_exists $img_analysis
+    assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
+}
+
+function assert_correct_content_of_unidentified_plate_in_store {
+    local cell_plate=$1
+    echo ==== assert correct content of unidentified plate $cell_plate in store ====
+    
+    local unidentified_dir=$DATA/main-store/3V/unidentified
+    assert_dir_exists $unidentified_dir
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_IMAGE/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
+}
+
+function assert_correct_content {
+    assert_correct_experiment_info
+    assert_empty_in_out_folders
+    assert_correct_content_of_processing_dir
+    assert_correct_content_of_plate_3VCP1_in_store
+    assert_correct_content_of_invalid_plate_in_store 3VCP3
+    assert_correct_content_of_invalid_plate_in_store 3VCP4
+    assert_correct_content_of_image_analysis_data 3VCP1
+    assert_correct_content_of_image_analysis_data 3VCP3
+    assert_correct_content_of_image_analysis_data 3VCP4
+    assert_correct_content_of_unidentified_plate_in_store UnknownPlate
+}
+    
 function integration_tests {
     install_etl=$1
     install_dmv=$2
@@ -506,7 +618,9 @@ function integration_tests {
 
     install $install_etl $install_dmv $install_lims
     launch_tests
-    assert_correct_results
+    
+    assert_correct_content
+    
     shutdown_lims_server
     exit_if_assertion_failed
 }
@@ -523,6 +637,7 @@ function print_help {
     echo "	--etl, --lims, --dmv	build chosen components only"
     echo "	--all 			build all components"
     echo "	--local-source		use local source code during building process instead of downloading it from svn"  
+    echo "	--assert-content	only checks content"
     echo "	--clean			clean and exit"
     echo "	--help			displays this help"
     echo "If no option is given, integration tests will be restarted without building anything."
@@ -566,6 +681,10 @@ else
 		print_help
 		exit 0
 		;;
+            '--assert-content')
+                assert_correct_content
+                exit 0
+                ;;
 	    *)
 		echo "Illegal option $1."
 		print_help
