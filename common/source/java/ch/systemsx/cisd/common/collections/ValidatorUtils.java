@@ -39,9 +39,25 @@ public final class ValidatorUtils
             // Validator
             //
 
-            public final boolean isValid(Object object)
+            public final boolean isValid(final Object object)
             {
                 return object != null;
+            }
+        };
+
+    /**
+     * A <code>Validator</code> implementation which always returns <code>true</code>.
+     */
+    private final static Validator<Object> ALWAYS_TRUE = new Validator<Object>()
+        {
+
+            //
+            // Validator
+            //
+
+            public final boolean isValid(final Object object)
+            {
+                return true;
             }
         };
 
@@ -70,7 +86,7 @@ public final class ValidatorUtils
                 // Validator
                 //
 
-                public final boolean isValid(String text)
+                public final boolean isValid(final String text)
                 {
                     return regEx.matcher(text).matches();
                 }
@@ -83,6 +99,14 @@ public final class ValidatorUtils
     public static final <T> Validator<T> getNotNullValidator()
     {
         return (Validator<T>) NOT_NULL_VALIDATOR;
+    }
+
+    /** Returns a typed validator which always returns <code>true</code>. */
+    @SuppressWarnings(
+        { "cast", "unchecked" })
+    public static final <T> Validator<T> getAlwaysTrueValidator()
+    {
+        return (Validator<T>) ALWAYS_TRUE;
     }
 
     /**
