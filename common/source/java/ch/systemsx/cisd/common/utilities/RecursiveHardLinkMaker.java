@@ -75,8 +75,12 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         assert destinationDirectory != null && destinationDirectory.isDirectory() : "Given destination directory can not be null and must be a directory.";
         final String destName = nameOrNull == null ? path.getName() : nameOrNull;
         final File destFile = new File(destinationDirectory, destName);
-        assert destFile.exists() == false : String.format(
-                "File '%s' already exists in given destination directory '%s'", destName, destinationDirectory);
+        if (destFile.exists())
+        {
+            operationLog.error(String.format("File '%s' already exists in given destination directory '%s'", destName,
+                    destinationDirectory));
+            return null;
+        }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path.getPath(),
