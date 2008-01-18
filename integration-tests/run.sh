@@ -452,7 +452,7 @@ function generate_test_data {
 function copy_test_data {
     local NAME=$1
     local DIR=$2
-    cp -a $TEST_DATA/$NAME $DIR
+    cp -RPp $TEST_DATA/$NAME $DIR
     clean_svn $DIR/$NAME
 }
 
@@ -486,7 +486,7 @@ function switch_sth {
     else
 	echo "Stopping $dir, displaying errors from the log"
 	if [ "`cat $dir/log/* | grep ERROR | tee -a $ERR_LOG`" != "" ]; then
-	    if [ $report_error .eq $TRUE ]; then
+	    if [ $report_error -eq $TRUE ]; then
 	        report_error $dir reported errors.
 	        cat $dir/log/* | grep ERROR >&2    
 	    fi
