@@ -29,5 +29,5 @@ public interface ISequencerHandler
      * This is DB specific.
      * </p>
      */
-    public String getNextValueScript(String sequencer);
+    public String getNextValueScript(final String sequencer);
 }
