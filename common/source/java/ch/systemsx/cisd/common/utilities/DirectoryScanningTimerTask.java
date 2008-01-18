@@ -221,7 +221,14 @@ public final class DirectoryScanningTimerTask extends TimerTask
                 {
                     continue;
                 }
-                handle(path);
+                try
+                {
+                    handle(path);
+                } catch (Exception ex) // do not stop when processing of one file has failed, continue with other files
+                {
+                    printNotification(ex);
+                }
+
             }
             if (operationLog.isTraceEnabled())
             {
@@ -229,8 +236,13 @@ public final class DirectoryScanningTimerTask extends TimerTask
             }
         } catch (Exception ex)
         {
-            notificationLog.error("An exception has occurred. (thread still running)", ex);
+            printNotification(ex);
         }
+    }
+
+    private void printNotification(Exception ex)
+    {
+        notificationLog.error("An exception has occurred. (thread still running)", ex);
     }
 
     private boolean isFaultyPathsFile(StoreItem item)
