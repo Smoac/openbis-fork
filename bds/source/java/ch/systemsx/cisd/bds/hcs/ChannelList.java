@@ -32,7 +32,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-// TODO, 2008-01-16, Franz-Josef Elmer: This class should be removed or used differently because channels are
+// TODO 2008-01-16, Franz-Josef Elmer: This class should be removed or used differently because channels are
 // annotations and no longer format parameters
 public final class ChannelList implements IStorable, Iterable<Channel>
 {
@@ -53,7 +53,7 @@ public final class ChannelList implements IStorable, Iterable<Channel>
         }
         this.channels = channels;
     }
-    
+
     /**
      * Creates a <code>ChannelList</code> instance from given <var>value</var>.
      * <p>
