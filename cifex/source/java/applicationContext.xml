@@ -16,7 +16,7 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
-    
+
     <!-- 
         // Authentication
     -->
@@ -24,6 +24,9 @@
     <bean id="dummy-authentication-service" class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
 
 
-    <bean id="cifex-service" class="ch.systemsx.cisd.cifex.server.CIFEXServiceImpl" />
-    
+    <bean id="cifex-service" class="ch.systemsx.cisd.cifex.server.CIFEXServiceImpl">
+        <constructor-arg ref="request-context-provider" />
+    </bean>
+
+    <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
 </beans>

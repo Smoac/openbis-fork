@@ -27,6 +27,12 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
+    private final IRequestContextProvider requestContextProvider;
+
+    public CIFEXServiceImpl(final IRequestContextProvider requestContextProvider)
+    {
+        this.requestContextProvider = requestContextProvider;
+    }
 
     //
     // ICifexService
