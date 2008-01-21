@@ -57,13 +57,13 @@ final class Directory extends AbstractNode implements IDirectory
     /**
      * Founds a node with given <var>name</var> in given <var>directory</var>.
      * 
-     * @param name has the format of a path and may contain <code>/</code> as system-independent default
-     *            name-separator character.
+     * @param name has the format of a path and may contain <code>/</code> or <code>\</code> as 
+     *          name-separator character.
      */
     private final static INode tryGetNodeRecursively(final IDirectory directory, final String name)
             throws DataStructureException
     {
-        final String path = cleanName(name);
+        final String path = cleanName(name.replace('\\', Constants.PATH_SEPARATOR));
         final int index = path.indexOf(Constants.PATH_SEPARATOR);
         if (index > -1)
         {
