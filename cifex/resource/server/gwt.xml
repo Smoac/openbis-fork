@@ -1,0 +1,12 @@
+    <!-- 
+        // GWT stuff
+    -->
+    <servlet>
+        <servlet-name>shell</servlet-name>
+        <servlet-class>com.google.gwt.dev.shell.GWTShellServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>shell</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
