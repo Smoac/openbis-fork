@@ -18,7 +18,6 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
-import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 
 /**
@@ -31,8 +30,6 @@ public final class LinkMakerProvider
 
     private static final String NO_HARD_LINK_EXECUTABLE = "No hard link executable has been found.";
 
-    private static final String WINDOWS_NOT_SUPPORTED = "Windows is not supported.";
-
     private static IPathImmutableCopier hardLinkMaker;
 
     private LinkMakerProvider()
@@ -42,18 +39,14 @@ public final class LinkMakerProvider
 
     private final static IPathImmutableCopier tryCreateHardLinkMaker()
     {
-        if (OSUtilities.isWindows() == false)
+        final IPathImmutableCopier copier = RecursiveHardLinkMaker.tryCreate();
+        if (copier != null)
         {
-            final IPathImmutableCopier copier = RecursiveHardLinkMaker.tryCreate();
-            if (copier != null)
-            {
-                return copier;
-            } else
-            {
-                throw new EnvironmentFailureException(NO_HARD_LINK_EXECUTABLE);
-            }
+            return copier;
+        } else
+        {
+            throw new EnvironmentFailureException(NO_HARD_LINK_EXECUTABLE);
         }
-        throw new EnvironmentFailureException(WINDOWS_NOT_SUPPORTED);
     }
 
     /**
