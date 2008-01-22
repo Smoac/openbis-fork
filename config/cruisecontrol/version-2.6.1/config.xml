@@ -134,6 +134,17 @@
     </modificationset>
   </project>
   
+  <project name="cifex">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/authentication"/>
+      <buildstatus logdir="logs/dbmigration"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
   <project name="datamover">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
