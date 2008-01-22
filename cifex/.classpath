@@ -13,6 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
 	<classpathentry kind="lib" path="/libraries/commons-pool/commons-pool.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-webmvc.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-mock.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
