@@ -16,19 +16,12 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-
 /**
- * Manager for authentication stuff.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IAuthenticationManager
+public interface IUserManager
 {
-    /**
-     * Tries to authenticate the specified user with the specified encrypted password.
-     * 
-     * @return <code>null</code> if authentication failed.
-     */
-    public UserDTO tryToAuthenticate(String userID, String encryptedPassword);
+
 }

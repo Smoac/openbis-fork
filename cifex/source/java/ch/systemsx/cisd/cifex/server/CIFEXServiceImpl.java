@@ -24,6 +24,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The real <code>ICifexService</code> implementation.
@@ -59,12 +60,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final User login(final String user, final String password) throws UserFailureException
     {
-        UserDTO userDTO = domainModel.getAuthenticationManager().tryToAuthenticate(user, password);
-        if (userDTO == null)
-        {
-            return null;
-        }
-        return BeanUtils.createBean(User.class, userDTO);
+        
+        String encryptedPassword = StringUtilities.encrypt(password);
+        return null;
     }
 
     public final void logout()

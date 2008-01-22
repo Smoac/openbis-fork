@@ -16,28 +16,19 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class AuthenticationManager extends AbstractManager implements IAuthenticationManager
+public class UserManager extends AbstractManager implements IUserManager
 {
 
-    public AuthenticationManager(IDAOFactory daoFactory)
+    public UserManager(IDAOFactory daoFactory)
     {
         super(daoFactory);
-    }
-
-    @Transactional
-    public UserDTO tryToAuthenticate(String userID, String encryptedPassword)
-    {
-        return null;
     }
 
 }

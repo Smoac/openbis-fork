@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public final class DomainModel
 {
-    private final IAuthenticationManager authenticationManager;
+    private final IUserManager userManager;
 
     /**
      * Constructor only used for unit tests.
@@ -65,7 +65,7 @@ public final class DomainModel
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
         
-        authenticationManager = createLoggingProxy(processor, new AuthenticationManager(daoFactory));
+        userManager = createLoggingProxy(processor, new UserManager(daoFactory));
     }
 
     private <T> T createLoggingProxy(BeanPostProcessor processor, final T manager)
@@ -85,11 +85,11 @@ public final class DomainModel
     }
 
     /**
-     * Returns the one and only one instance of {@link IAuthenticationManager}.
+     * Returns the one and only one instance of {@link IUserManager}.
      */
-    public final IAuthenticationManager getAuthenticationManager()
+    public final IUserManager getUserManager()
     {
-        return authenticationManager;
+        return userManager;
     }
 
 }
