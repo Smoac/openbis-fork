@@ -57,6 +57,13 @@ public class StringUtilitiesTest
         final String brokenDownInLines = String.format("one%1$stwo%1$sthree", System.getProperty("line.separator"));
         assertEquals(brokenDownInLines, StringUtilities.concatenateWithNewLine(list));
     }
+    
+    @Test
+    public void testEncrypt()
+    {
+        assertEquals("d41d8cd98f00b204e9800998ecf8427e", StringUtilities.encrypt(""));
+        assertEquals("900150983cd24fb0d6963f7d28e17f72", StringUtilities.encrypt("abc"));
+    }
 
     @Test
     public final void testGetOrdinal()

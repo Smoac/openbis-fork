@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * Some useful utlities methods for {@link String}s.
@@ -67,6 +70,36 @@ public final class StringUtilities
     private StringUtilities()
     {
         // This class can not be instantiated.
+    }
+    
+    /**
+     * Encrypts the specified string by calculating its MD5 hash value.
+     * 
+     * @return 32-character hexadecimal representation of the calculated value.
+     */
+    public static String encrypt(String string)
+    {
+        assert string != null : "Unspecified string.";
+        
+        try
+        {
+            MessageDigest algorithm = MessageDigest.getInstance("MD5");
+            algorithm.reset();
+            algorithm.update(string.getBytes("utf8"));
+            byte messageDigest[] = algorithm.digest();
+            
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < messageDigest.length; i++)
+            {
+                byte b = messageDigest[i];
+                builder.append(Integer.toHexString(0xF & (b >> 4)));
+                builder.append(Integer.toHexString(0xF & b));
+            }
+            return builder.toString();
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     /**
