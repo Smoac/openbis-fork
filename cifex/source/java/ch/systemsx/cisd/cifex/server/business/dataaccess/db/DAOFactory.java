@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
@@ -31,6 +32,7 @@ public class DAOFactory implements IDAOFactory
 
     public DAOFactory(final DatabaseConfigurationContext context)
     {
+        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
         
     }
 }
