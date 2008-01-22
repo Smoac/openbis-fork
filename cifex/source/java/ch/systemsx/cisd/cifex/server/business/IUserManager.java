@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+
 /**
  * 
  *
@@ -23,5 +25,5 @@ package ch.systemsx.cisd.cifex.server.business;
  */
 public interface IUserManager
 {
-
+    public UserDTO tryToFindUser(String userID);
 }

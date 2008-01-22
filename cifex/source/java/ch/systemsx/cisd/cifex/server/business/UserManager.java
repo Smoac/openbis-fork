@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * 
@@ -29,6 +30,12 @@ public class UserManager extends AbstractManager implements IUserManager
     public UserManager(IDAOFactory daoFactory)
     {
         super(daoFactory);
+    }
+
+    public UserDTO tryToFindUser(String userID)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

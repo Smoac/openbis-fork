@@ -62,7 +62,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         
         String encryptedPassword = StringUtilities.encrypt(password);
-        return null;
+        UserDTO userDTO = domainModel.getUserManager().tryToFindUser(user);
+        if (userDTO == null || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
+        {
+            return null;
+        }
+        return BeanUtils.createBean(User.class, userDTO);
     }
 
     public final void logout()
