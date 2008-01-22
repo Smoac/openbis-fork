@@ -1,6 +1,9 @@
 <project name="cifex" default="dist" basedir="..">
-        <import file="../../build_resources/ant/build-common.xml" />
-        <project-classpath name="ecp" classes="${classes}" />
+    <import file="../../build_resources/ant/build-common.xml" />
+    <project-classpath name="ecp" classes="${classes}" />
+	
+		<property name="gwt.tomcat.web-inf" value="../cifex/tomcat/webapps/ROOT/WEB-INF" />
+		<property name="webclient.server.resource" value="../cifex/resource/server/" />
 
     <target name="dist">
         <delete dir="${dist}" />
@@ -8,4 +11,20 @@
     </target>
         
     <target name="ci" depends="build-common.ci, check-dependencies, dist" />
+	
+	
+		<!--
+		// Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.
+		-->
+		<target name="prepare-gwt"
+		        description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding."
+		        unless="gwt.clean">
+			<copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
+				<fileset dir="${webclient.server.resource}" includes="*.xml" />
+			</copy>
+
+			<delete failonerror="true" dir="../cifex/.gwt-cache" />
+			<delete failonerror="true" dir="../lims/targets/www" />
+		</target>
+	
 </project>
