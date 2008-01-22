@@ -18,7 +18,7 @@
 
 	<property name="jar.file.name" value="cifex.jar" />
 	<property name="jar.file" value="${dist}/${jar.file.name}" />
-	
+
 	<property name="webapp.file.name" value="cifex.war" />
 	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
 
@@ -68,7 +68,7 @@
 	<!--
 	// Creates 'cifex.jar'.
 	-->
-	<target name="server-jar" depends="compile, build-info">
+	<target name="jar" depends="compile, build-info">
 		<delete file="${jar.file}" />
 		<copy todir="${classes}">
 			<fileset dir="source">
@@ -102,7 +102,7 @@
 	<!--
 	// Creates 'cifex.war'.
 	-->
-	<target name="server-war" depends="server-jar">
+	<target name="war" depends="compile-javascript, jar">
 		<mkdir dir="${webapp.dist.web-inf}" />
 		<copy todir="${webapp.dist.web-inf}">
 			<fileset dir="${cifex.server.resource}">
@@ -114,17 +114,39 @@
 		<war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
 			<fileset dir="${webapp.dist}" />
 			<classes dir="${sources}">
-				<!-- 'applicationContext.xml' and imported files. -->
+				<!-- Add 'applicationContext.xml' and related files. -->
 				<include name="**/*.xml" />
 			</classes>
 			<classes dir="${original.dist}/etc">
+				<!--
+				// 'log.xml' and 'service.properties'. Note that the last one is just a template and
+				// should be completed or replaced by 'install.sh' script.
+				-->
 				<include name="*" />
 			</classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />
 			</lib>
+			<lib dir="${lib}/commons-codec">
+				<include name="commons-codec.jar" />
+			</lib>
 			<lib dir="${lib}/commons-dbcp">
 				<include name="commons-dbcp.jar" />
+			</lib>
+			<lib dir="${lib}/commons-fileupload">
+				<include name="*.jar" />
+			</lib>
+			<lib dir="${lib}/commons-io">
+				<include name="commons-io.jar" />
+			</lib>
+			<lib dir="${lib}/commons-lang">
+				<include name="commons-lang.jar" />
+			</lib>
+			<lib dir="${lib}/commons-logging">
+				<include name="*.jar" />
+			</lib>
+			<lib dir="${lib}/commons-httpclient">
+				<include name="commons-httpclient.jar" />
 			</lib>
 			<lib dir="${lib}/commons-pool">
 				<include name="commons-pool.jar" />
