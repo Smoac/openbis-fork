@@ -78,7 +78,7 @@
     </publishers>
   </project>
 
-  <project name="integration-tests">
+  <project name="integration-tests" requiremodification="false">
     <modificationset quietperiod="${quiet-period}">
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
