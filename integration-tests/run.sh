@@ -627,13 +627,14 @@ function assert_correct_content_of_plate_3VCP1_in_store {
 
 function assert_correct_content_of_invalid_plate_in_store {
     local cell_plate=$1
-    echo ==== assert correct content of invalid plate 3VCP1 in store ====
+    echo ==== assert correct content of invalid plate $cell_plate in store ====
     
     local error_dir=$DATA/main-store/3V/error/ObservableType_IMAGE
     assert_dir_exists $error_dir
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
+    assert_dir_empty $DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
