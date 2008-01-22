@@ -19,6 +19,11 @@ package ch.systemsx.cisd.cifex.server;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.server.business.DomainModel;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
+import ch.systemsx.cisd.common.logging.LoggingContextHandler;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**
  * The real <code>ICifexService</code> implementation.
@@ -27,11 +32,19 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
-    private final IRequestContextProvider requestContextProvider;
+    private final DomainModel domainModel;
+    private final LoggingContextHandler loggingContextHandler;
 
-    public CIFEXServiceImpl(final IRequestContextProvider requestContextProvider)
+    public CIFEXServiceImpl(final DomainModel domainModel, final IRequestContextProvider requestContextProvider)
     {
-        this.requestContextProvider = requestContextProvider;
+        this.domainModel = domainModel;
+        loggingContextHandler = new LoggingContextHandler(new IRemoteHostProvider()
+            {
+                public String getRemoteHost()
+                {
+                    return requestContextProvider.getHttpServletRequest().getRemoteHost();
+                }
+            });
     }
 
     //
@@ -46,8 +59,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final User login(final String user, final String password) throws UserFailureException
     {
-        // TODO Auto-generated method stub
-        return null;
+        UserDTO userDTO = domainModel.getAuthenticationManager().tryToAuthenticate(user, password);
+        if (userDTO == null)
+        {
+            return null;
+        }
+        return BeanUtils.createBean(User.class, userDTO);
     }
 
     public final void logout()

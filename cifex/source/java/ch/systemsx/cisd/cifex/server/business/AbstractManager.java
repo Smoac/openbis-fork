@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
+package ch.systemsx.cisd.cifex.server.business;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+
 
 /**
- * <code>IDAOFactory</code> implementation for data bases.
+ * Abstract super class of all Managers.
  *
  * @author Franz-Josef Elmer
  */
-public class DAOFactory implements IDAOFactory
+abstract class AbstractManager
 {
-    /** Current version of the database. */
-    public static final String DATABASE_VERSION = "001";
+    protected final IDAOFactory daoFactory;
 
-    public DAOFactory(final DatabaseConfigurationContext context)
+    AbstractManager(final IDAOFactory daoFactory)
     {
-        
+        assert daoFactory != null : "Undefined DAO Factory.";
+        this.daoFactory = daoFactory;
     }
+
 }

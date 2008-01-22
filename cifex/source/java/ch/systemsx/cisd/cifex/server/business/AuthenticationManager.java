@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
+package ch.systemsx.cisd.cifex.server.business;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * <code>IDAOFactory</code> implementation for data bases.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class DAOFactory implements IDAOFactory
+public class AuthenticationManager extends AbstractManager implements IAuthenticationManager
 {
-    /** Current version of the database. */
-    public static final String DATABASE_VERSION = "001";
 
-    public DAOFactory(final DatabaseConfigurationContext context)
+    public AuthenticationManager(IDAOFactory daoFactory)
     {
-        
+        super(daoFactory);
     }
+
+    @Transactional
+    public UserDTO tryToAuthenticate(String userID, String encryptedPassword)
+    {
+        return null;
+    }
+
 }

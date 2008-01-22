@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
@@ -28,6 +33,27 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public final class DomainModel
 {
+    private final IAuthenticationManager authenticationManager;
+
+    /**
+     * Constructor only used for unit tests.
+     */
+    public DomainModel(IDAOFactory daoFactory, IMailClient mailClient)
+    {
+        this(daoFactory, mailClient, new BeanPostProcessor()
+            {
+                public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException
+                {
+                    return bean;
+                }
+
+                public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException
+                {
+                    return bean;
+                }
+            });
+    }
+    
     /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean post processor is
      * needed to create proxies for the various manager objects which handle transactions. Corresponding manager methods
@@ -38,6 +64,32 @@ public final class DomainModel
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
+        
+        authenticationManager = createLoggingProxy(processor, new AuthenticationManager(daoFactory));
+    }
+
+    private <T> T createLoggingProxy(BeanPostProcessor processor, final T manager)
+    {
+        Object proxy = processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
+        Class<? extends DomainModel> clazz = getClass();
+        InvocationHandler invocationHandler =
+                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), clazz);
+        final Class<?>[] interfaces = manager.getClass().getInterfaces();
+        return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T cast(Object proxy)
+    {
+        return (T) proxy;
+    }
+
+    /**
+     * Returns the one and only one instance of {@link IAuthenticationManager}.
+     */
+    public final IAuthenticationManager getAuthenticationManager()
+    {
+        return authenticationManager;
     }
 
 }

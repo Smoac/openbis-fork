@@ -7,8 +7,6 @@
 						http://www.springframework.org/schema/tx
 						http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <import resource="dbConfigurationContext.xml"/>
-    
     <!--
         // Replaces ${...} with corresponding values found in 'location' property. A value
         // can be overridden by setting a corresponding system property.
@@ -27,8 +25,57 @@
 
 
     <bean id="cifex-service" class="ch.systemsx.cisd.cifex.server.CIFEXServiceImpl">
+        <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
+    </bean>
+    
+    <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.common.mail.MailClient">
+                <constructor-arg value="${mail.from}" />
+                <constructor-arg value="${mail.smtp.host}" />
+                <constructor-arg value="${mail.smtp.user}" />
+                <constructor-arg value="${mail.smtp.password}" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="bean-post-processor" />
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
+    
+    <!-- 
+        // Database
+    -->
+
+    <import resource="dbConfigurationContext.xml"/>
+
+    <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
+    
+    <bean id="transaction-manager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <constructor-arg ref="data-source" />
+    </bean>
+
+    <bean id="dao-factory" class="ch.systemsx.cisd.cifex.server.business.dataaccess.db.DAOFactory">
+        <constructor-arg ref="db-configuration-context" />
+    </bean>
+
+    <!-- 
+        // Transaction
+    -->
+
+    <bean id="bean-post-processor" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+        <property name="transactionInterceptor" ref="transactionInterceptor" />
+    </bean>
+
+    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager" ref="transaction-manager" />
+        <property name="transactionAttributeSource">
+            <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+        </property>
+    </bean>
+
+
 </beans>

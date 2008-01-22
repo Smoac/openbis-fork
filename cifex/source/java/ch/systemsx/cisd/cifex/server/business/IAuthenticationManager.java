@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
+package ch.systemsx.cisd.cifex.server.business;
 
-import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * <code>IDAOFactory</code> implementation for data bases.
+ * Manager for authentication stuff.
  *
  * @author Franz-Josef Elmer
  */
-public class DAOFactory implements IDAOFactory
+public interface IAuthenticationManager
 {
-    /** Current version of the database. */
-    public static final String DATABASE_VERSION = "001";
-
-    public DAOFactory(final DatabaseConfigurationContext context)
-    {
-        
-    }
+    /**
+     * Tries to authenticate the specified user with the specified encrypted password.
+     * 
+     * @return <code>null</code> if authentication failed.
+     */
+    public UserDTO tryToAuthenticate(String userID, String encryptedPassword);
 }
