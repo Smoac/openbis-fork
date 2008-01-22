@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.NullAuthenticationService;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.DomainModel;
+import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
@@ -34,11 +38,16 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
 public final class CIFEXServiceImpl implements ICIFEXService
 {
     private final DomainModel domainModel;
+
     private final LoggingContextHandler loggingContextHandler;
 
-    public CIFEXServiceImpl(final DomainModel domainModel, final IRequestContextProvider requestContextProvider)
+    private final IAuthenticationService externalAuthenticationService;
+
+    public CIFEXServiceImpl(final DomainModel domainModel, final IRequestContextProvider requestContextProvider,
+            final IAuthenticationService externalAuthenticationService)
     {
         this.domainModel = domainModel;
+        this.externalAuthenticationService = externalAuthenticationService;
         loggingContextHandler = new LoggingContextHandler(new IRemoteHostProvider()
             {
                 public String getRemoteHost()
@@ -46,6 +55,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     return requestContextProvider.getHttpServletRequest().getRemoteHost();
                 }
             });
+    }
+
+    private boolean hasExternalAuthenticationService()
+    {
+        return externalAuthenticationService != null
+                && externalAuthenticationService instanceof NullAuthenticationService == false;
     }
 
     //
@@ -60,14 +75,38 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final User login(final String user, final String password) throws UserFailureException
     {
-        
-        String encryptedPassword = StringUtilities.encrypt(password);
-        UserDTO userDTO = domainModel.getUserManager().tryToFindUser(user);
-        if (userDTO == null || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
+        IUserManager userManager = domainModel.getUserManager();
+        if (hasExternalAuthenticationService())
         {
-            return null;
+            String applicationToken = externalAuthenticationService.authenticateApplication();
+            boolean authenticated = externalAuthenticationService.authenticateUser(applicationToken, user, password);
+            if (authenticated == false)
+            {
+                return null;
+            }
+            Principal principal = externalAuthenticationService.getPrincipal(applicationToken, user);
+            UserDTO userDTO = userManager.tryToFindUser(user);
+            if (userDTO == null)
+            {
+                userDTO = new UserDTO();
+                userDTO.setUserID(user);
+                userDTO.setEmail(principal.getEmail());
+                userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+                userDTO.setAdmin(false);
+                userDTO.setPermanent(true);
+                userManager.createUser(userDTO);
+            }
+            return BeanUtils.createBean(User.class, userDTO);
+        } else
+        {
+            String encryptedPassword = StringUtilities.encrypt(password);
+            UserDTO userDTO = userManager.tryToFindUser(user);
+            if (userDTO == null || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
+            {
+                return null;
+            }
+            return BeanUtils.createBean(User.class, userDTO);
         }
-        return BeanUtils.createBean(User.class, userDTO);
     }
 
     public final void logout()

@@ -26,4 +26,6 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 public interface IUserManager
 {
     public UserDTO tryToFindUser(String userID);
+
+    public void createUser(UserDTO user);
 }

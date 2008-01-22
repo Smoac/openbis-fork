@@ -22,11 +22,24 @@
     -->
 
     <bean id="dummy-authentication-service" class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
+    
+    <bean id="no-authentication-service" class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
 
+    <bean id="crowd-authentication-service" class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
+        <constructor-arg value="source-systemsx.ethz.ch" />
+        <constructor-arg value="8443" />
+        <constructor-arg value="${crowd.application.name}" />
+        <constructor-arg value="${crowd.application.password}" />
+    </bean>
+
+    <!-- 
+        // Server
+    -->
 
     <bean id="cifex-service" class="ch.systemsx.cisd.cifex.server.CIFEXServiceImpl">
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
+        <constructor-arg ref="${external-authentication-service}" />
     </bean>
     
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">

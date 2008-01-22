@@ -38,4 +38,9 @@ public class UserManager extends AbstractManager implements IUserManager
         return null;
     }
 
+    public void createUser(UserDTO user)
+    {
+        // TODO Auto-generated method stub
+    }
+
 }
