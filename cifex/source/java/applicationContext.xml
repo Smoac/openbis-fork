@@ -7,6 +7,8 @@
 						http://www.springframework.org/schema/tx
 						http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <import resource="dbConfigurationContext.xml"/>
+    
     <!--
         // Replaces ${...} with corresponding values found in 'location' property. A value
         // can be overridden by setting a corresponding system property.

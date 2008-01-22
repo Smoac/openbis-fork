@@ -1,0 +1,11 @@
+<project name="cifex" default="dist" basedir="..">
+        <import file="../../build_resources/ant/build-common.xml" />
+        <project-classpath name="ecp" classes="${classes}" />
+
+    <target name="dist">
+        <delete dir="${dist}" />
+        <mkdir dir="${dist}" />
+    </target>
+        
+    <target name="ci" depends="build-common.ci, check-dependencies, dist" />
+</project>

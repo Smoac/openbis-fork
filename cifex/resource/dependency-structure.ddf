@@ -1,0 +1,38 @@
+#show allResults
+
+{package} = ch.systemsx.cisd.cifex
+{client} = ${package}.client
+{server} = ${package}.server
+{business} = ${server}.business
+
+######################################################################
+# Check dependencies between server and client package
+
+[server.business] = ${business}.*
+[server-business] = ${server}.* excluding [server.business]
+check sets [server.business] [server-business]
+
+[client.application] = ${client}.application.*
+[client.dto] = ${client}.dto.*
+[client-application] = ${client}.* excluding [client.application]
+check sets [client.application] [client.dto] [client-application]
+
+layer layer2 = [server-business] [client.application]
+layer layer1 = [server.business] [client-application]
+
+check layeringOf layer1 layer2
+
+######################################################################
+# Check dependencies in business layer
+
+[dataaccess.db] = ${business}.dataaccess.db.*
+[dataaccess-db] = ${business}.dataaccess.* excluding [dataaccess.db]
+[dto] = ${business}.dto.*
+[plainBusiness] = ${business}.* excluding ${business}.*.*
+check sets [dataaccess.db] [dataaccess-db] [dto] [plainBusiness]
+
+layer business-layer3 = [plainBusiness] [dataaccess.db]
+layer business-layer2 = [dataaccess-db]
+layer business-layer1 = [dto]
+
+check layeringOf business-layer1 business-layer2 business-layer3
