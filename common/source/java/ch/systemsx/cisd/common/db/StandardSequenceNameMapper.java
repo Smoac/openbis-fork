@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.db;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +31,16 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     private final Set<String> tablesWithoutSequencers;
     
     private final Map<String, String> nonstandardMapping;
+    
+    /**
+     * Creates an instance with no standard mapping and no tables without sequencers.
+     *
+     *
+     */
+    public StandardSequenceNameMapper()
+    {
+        this(Collections.<String, String>emptyMap(), Collections.<String>emptySet());
+    }
 
     /**
      * Creates an instance for the specified map of sequence name which are not map by the above mentioned rule.
