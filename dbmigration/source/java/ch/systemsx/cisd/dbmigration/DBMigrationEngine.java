@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Script;
@@ -33,6 +34,27 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class DBMigrationEngine
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
+
+    /**
+     * Creates or migrates a database specified in the context for/to the specified version.
+     * 
+     * @return the SQL script provider.
+     */
+    public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(DatabaseConfigurationContext context,
+            String databaseVersion)
+    {
+        assert context != null : "Unspecified database configuration context.";
+        assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
+        
+        final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory = context.createDAOFactory();
+        final String scriptFolder = context.getScriptFolder();
+        String databaseEngineCode = context.getDatabaseEngineCode();
+        final ISqlScriptProvider sqlScriptProvider = new SqlScriptProvider(scriptFolder, databaseEngineCode);
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context.isCreateFromScratch());
+        migrationEngine.migrateTo(databaseVersion);
+        return sqlScriptProvider;
+    }
 
     private final boolean shouldCreateFromScratch;
 
