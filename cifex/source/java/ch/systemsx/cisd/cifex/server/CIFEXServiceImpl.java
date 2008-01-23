@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
@@ -26,6 +28,8 @@ import ch.systemsx.cisd.cifex.server.business.DomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
@@ -37,6 +41,8 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
+    private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
+    
     private final DomainModel domainModel;
 
     private final LoggingContextHandler loggingContextHandler;
@@ -55,6 +61,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     return requestContextProvider.getHttpServletRequest().getRemoteHost();
                 }
             });
+        if (hasExternalAuthenticationService())
+        {
+            this.externalAuthenticationService.check();
+        }
     }
 
     private boolean hasExternalAuthenticationService()
@@ -79,6 +89,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
         if (hasExternalAuthenticationService())
         {
             String applicationToken = externalAuthenticationService.authenticateApplication();
+            if (applicationToken == null)
+            {
+                authenticationLog.error("User '" + user + "' couldn't be authenticated because authentication of "
+                        + "the application at the external authentication service failed.");
+                throw new UserFailureException("Authentication of the server at "
+                        + "the external authentication service failed.");
+            }
             boolean authenticated = externalAuthenticationService.authenticateUser(applicationToken, user, password);
             if (authenticated == false)
             {
@@ -89,7 +106,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
-                userDTO.setUserID(user);
+                userDTO.setUserName(user);
                 userDTO.setEmail(principal.getEmail());
                 userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
                 userDTO.setAdmin(false);

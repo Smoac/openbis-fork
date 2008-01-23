@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business.dto;
 
+import java.util.Date;
+
 /**
  * 
  *
@@ -23,7 +25,7 @@ package ch.systemsx.cisd.cifex.server.business.dto;
  */
 public class UserDTO extends ID
 {
-    private String userID;
+    private String userName;
     
     private String email;
     
@@ -32,6 +34,10 @@ public class UserDTO extends ID
     private boolean admin;
     
     private boolean permanent;
+    
+    private Date registrationDate;
+    
+    private Date expirationDate;
 
     public final boolean isAdmin()
     {
@@ -73,16 +79,34 @@ public class UserDTO extends ID
         this.permanent = permanent;
     }
 
-    public final String getUserID()
+    public final String getUserName()
     {
-        return userID;
+        return userName;
     }
 
-    public final void setUserID(String userID)
+    public final void setUserName(String userID)
     {
-        this.userID = userID;
+        this.userName = userID;
     }
-    
-    
+
+    public final Date getExpirationDate()
+    {
+        return expirationDate;
+    }
+
+    public final void setExpirationDate(Date expirationDate)
+    {
+        this.expirationDate = expirationDate;
+    }
+
+    public final Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    public final void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
     
 }

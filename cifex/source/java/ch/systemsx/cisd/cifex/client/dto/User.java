@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -25,5 +27,64 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public final class User implements IsSerializable
 {
+    private String userName;
+    
+    private String email;
+    
+    private boolean admin;
+    
+    private boolean permanent;
+    
+    private Date expirationDate;
+
+    public final boolean isAdmin()
+    {
+        return admin;
+    }
+
+    public final void setAdmin(boolean admin)
+    {
+        this.admin = admin;
+    }
+
+    public final String getEmail()
+    {
+        return email;
+    }
+
+    public final void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public final boolean isPermanent()
+    {
+        return permanent;
+    }
+
+    public final void setPermanent(boolean permanent)
+    {
+        this.permanent = permanent;
+    }
+
+    public final String getUserName()
+    {
+        return userName;
+    }
+
+    public final void setUserName(String userID)
+    {
+        this.userName = userID;
+    }
+
+    public final Date getExpirationDate()
+    {
+        return expirationDate;
+    }
+
+    public final void setExpirationDate(Date expirationDate)
+    {
+        this.expirationDate = expirationDate;
+    }
 
 }

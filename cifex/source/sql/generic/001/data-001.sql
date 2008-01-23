@@ -5,7 +5,7 @@
 insert into users
 (id
 ,email
-,user_id
+,user_name
 ,encrypted_password
 ,is_admin
 ,is_permanent)

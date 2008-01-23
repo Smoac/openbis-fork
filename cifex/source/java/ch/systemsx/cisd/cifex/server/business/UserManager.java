@@ -32,7 +32,7 @@ public class UserManager extends AbstractManager implements IUserManager
         super(daoFactory);
     }
 
-    public UserDTO tryToFindUser(String userID)
+    public UserDTO tryToFindUser(String email)
     {
         // TODO Auto-generated method stub
         return null;
