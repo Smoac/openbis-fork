@@ -35,9 +35,21 @@ public class UserDTO extends ID
     
     private boolean permanent;
     
+    private boolean externallyAuthenticated;
+    
     private Date registrationDate;
     
     private Date expirationDate;
+
+    public final boolean isExternallyAuthenticated()
+    {
+        return externallyAuthenticated;
+    }
+
+    public final void setExternallyAuthenticated(boolean externallyAuthenticated)
+    {
+        this.externallyAuthenticated = externallyAuthenticated;
+    }
 
     public final boolean isAdmin()
     {
