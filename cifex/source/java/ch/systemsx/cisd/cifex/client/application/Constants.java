@@ -29,5 +29,5 @@ public final class Constants
     }
 
     /** Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side). */
-    public static final String CIFEX_SERVLET_NAME = "/cifex";
+    public static final String CIFEX_SERVLET_NAME = "/cifex/cifex";
 }

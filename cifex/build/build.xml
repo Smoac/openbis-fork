@@ -22,6 +22,9 @@
 	<property name="webapp.file.name" value="cifex.war" />
 	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
 
+	<!-- 
+	// Makes a distribution file.
+	-->
 	<target name="dist">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}" />
@@ -111,10 +114,16 @@
 			</classes>
 			<classes dir="${original.dist}/etc">
 				<!--
-				// 'log.xml' and 'service.properties'. Note that the last one is just a template and
+				// 'service.properties'. Note that it is just a template and
 				// should be completed or replaced by 'install.sh' script.
 				-->
-				<include name="*" />
+				<include name="service.properties" />
+			</classes>
+			<classes dir="${original.dist}">
+				<!--
+				// 'log.xml'.
+				-->
+				<include name="etc/log.xml" />
 			</classes>
 			<!--
 			// Add the database specific files.
@@ -156,11 +165,20 @@
 			<lib dir="${lib}/h2">
 				<include name="h2.jar" />
 			</lib>
+			<lib dir="${lib}/postgresql">
+				<include name="postgresql.jar" />
+			</lib>			
 			<lib dir="${lib}/spring">
 				<include name="spring.jar" />
 			</lib>
 			<lib dir="${gwt.lib}">
 				<include name="gwt-servlet.jar" />
+			</lib>
+			<lib dir="${lib}/activation">
+				<include name="activation.jar" />
+			</lib>
+			<lib dir="${lib}/mail">
+				<include name="mail.jar" />
 			</lib>
 		</war>
 		<!-- Does some cleaning. -->
