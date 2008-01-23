@@ -30,6 +30,7 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -43,26 +44,25 @@ public class LoginWidget extends Form
 
     private static final int FIELD_WIDTH = 175;
 
-    private final ICIFEXServiceAsync cifexService;
-
-    private final IMessageResources messageResources;
-
+    private final ViewContext context;
+    
     private TextField usernameField;
 
     private TextField passwordField;
 
     private Button button;
 
-    public LoginWidget(final ICIFEXServiceAsync cifexService, final IMessageResources messageResources)
+
+    public LoginWidget(final ViewContext context)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
-        this.cifexService = cifexService;
-        this.messageResources = messageResources;
+        this.context = context;
         createLoginForm();
     }
 
     private final void createLoginForm()
     {
+        IMessageResources messageResources = context.getMessageResources();
         fieldset(messageResources.getLoginLegend());
         usernameField = createUsernameField();
         add(usernameField);
@@ -113,7 +113,7 @@ public class LoginWidget extends Form
     private final TextField createPasswordField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(messageResources.getLoginPasswordLabel());
+        fieldConfig.setFieldLabel(context.getMessageResources().getLoginPasswordLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(false);
@@ -124,7 +124,7 @@ public class LoginWidget extends Form
     private final TextField createUsernameField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(messageResources.getLoginUsernameLabel());
+        fieldConfig.setFieldLabel(context.getMessageResources().getLoginUsernameLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
@@ -157,7 +157,8 @@ public class LoginWidget extends Form
             button.disable();
             final String username = usernameField.getText();
             final String password = passwordField.getText();
-            cifexService.tryToLogin(username, password, new LoginAsyncCallBack(messageResources));
+            ICIFEXServiceAsync cifexService = context.getCifexService();
+            cifexService.tryToLogin(username, password, new LoginAsyncCallBack());
         }
     }
 
@@ -169,6 +170,8 @@ public class LoginWidget extends Form
      */
     protected void loginSuccessful(final User user)
     {
+        context.getModel().setUser(user);
+        context.getPageController().createMainPage();
     }
 
     //
@@ -178,9 +181,9 @@ public class LoginWidget extends Form
     private final class LoginAsyncCallBack extends AbstractAsyncCallback
     {
 
-        LoginAsyncCallBack(final IMessageResources messageResources)
+        LoginAsyncCallBack()
         {
-            super(null, messageResources);
+            super(context);
         }
 
         //
@@ -200,8 +203,9 @@ public class LoginWidget extends Form
                 loginSuccessful((User) result);
             } else
             {
-                MessageBox
-                        .alert(messageResources.getMessageBoxWarningTitle(), messageResources.getLoginFailedMessage());
+                IMessageResources messageResources = context.getMessageResources();
+                String title = messageResources.getMessageBoxWarningTitle();
+                MessageBox.alert(title, messageResources.getLoginFailedMessage());
                 getButton().enable();
             }
         }

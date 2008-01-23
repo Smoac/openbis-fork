@@ -19,9 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
-import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * The login page.
@@ -32,43 +30,15 @@ final class LoginPage extends VerticalPanel
 {
     private static final int CELL_SPACING = 20;
 
-    private final IPageController pageController;
-
-    private final IMessageResources messageResources;
-
-    private final ICIFEXServiceAsync cifexService;
-
-    LoginPage(final IPageController pageController, final ICIFEXServiceAsync cifexService,
-            final IMessageResources messageResources)
+    LoginPage(final ViewContext context)
     {
         setSpacing(CELL_SPACING);
         setWidth("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        this.pageController = pageController;
-        this.messageResources = messageResources;
-        this.cifexService = cifexService;
-        final LoginWidget loginWidget = createLoginWidget();
+        final LoginWidget loginWidget = new LoginWidget(context);
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
         add(loginPanel);
-    }
-
-    private final LoginWidget createLoginWidget()
-    {
-        final LoginWidget loginWidget = new LoginWidget(cifexService, messageResources)
-            {
-
-                //
-                // LoginWidget
-                //
-
-                protected final void loginSuccessful(final User user)
-                {
-                    super.loginSuccessful(user);
-                    pageController.createMainPage();
-                }
-            };
-        return loginWidget;
     }
 }

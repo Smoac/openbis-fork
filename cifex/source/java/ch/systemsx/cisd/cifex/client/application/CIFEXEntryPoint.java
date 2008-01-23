@@ -3,7 +3,6 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.form.Field;
 
@@ -15,40 +14,14 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
  * 
  * @author Christian Ribeaud
  */
-public final class CIFEXEntryPoint implements EntryPoint, IPageController
+public final class CIFEXEntryPoint implements EntryPoint
 {
-    private ICIFEXServiceAsync cifexService;
-
-    private IMessageResources messageResources;
-
     private final static ICIFEXServiceAsync createLIMSService()
     {
         final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(Constants.CIFEX_SERVLET_NAME);
         return service;
-    }
-
-    /**
-     * This method clears <code>RootPanel</code>.
-     * <p>
-     * Note that this method should be called in a very early stage, before adding and/or building any new GUI stuff.
-     * </p>
-     */
-    private final void clearRootPanel()
-    {
-        final RootPanel rootPanel = RootPanel.get();
-        rootPanel.clear();
-    }
-
-    final ICIFEXServiceAsync getCifexService()
-    {
-        return cifexService;
-    }
-
-    final IMessageResources getMessageResources()
-    {
-        return messageResources;
     }
 
     //
@@ -59,8 +32,11 @@ public final class CIFEXEntryPoint implements EntryPoint, IPageController
     {
         Field.setMsgTarget("side");
         QuickTips.init();
-        cifexService = createLIMSService();
-        messageResources = (IMessageResources) GWT.create(IMessageResources.class);
+        ICIFEXServiceAsync cifexService = createLIMSService();
+        IMessageResources messageResources = (IMessageResources) GWT.create(IMessageResources.class);
+        final PageController pageController = new PageController();
+        ViewContext viewContext = new ViewContext(pageController, cifexService, new Model(), messageResources);
+        pageController.setViewContext(viewContext);
         cifexService.isAuthenticated(new AsyncCallbackAdapter()
             {
 
@@ -72,30 +48,13 @@ public final class CIFEXEntryPoint implements EntryPoint, IPageController
                 {
                     if (((Boolean) result).booleanValue())
                     {
-                        createMainPage();
+                        pageController.createMainPage();
                     } else
                     {
-                        createLoginPage();
+                        pageController.createLoginPage();
                     }
                 }
             });
-    }
-
-    //
-    // IPageController
-    //
-
-    public final void createLoginPage()
-    {
-        clearRootPanel();
-        final LoginPage loginPage = new LoginPage(this, getCifexService(), getMessageResources());
-        RootPanel.get().add(loginPage);
-    }
-
-    public final void createMainPage()
-    {
-        clearRootPanel();
-        // TODO 2008-01-21, Christian Ribeaud: Make something more useful here.
     }
 
 }

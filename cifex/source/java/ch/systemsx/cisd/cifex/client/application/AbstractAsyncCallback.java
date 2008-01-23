@@ -36,16 +36,11 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public abstract class AbstractAsyncCallback implements AsyncCallback
 {
+    private final ViewContext context;
 
-    private final IMessageResources messageResources;
-
-    private final IPageController pageController;
-
-    public AbstractAsyncCallback(final IPageController pageController, final IMessageResources messageResources)
+    public AbstractAsyncCallback(final ViewContext context)
     {
-        assert messageResources != null : "Given message resources can not be null.";
-        this.pageController = pageController;
-        this.messageResources = messageResources;
+        this.context = context;
     }
 
     //
@@ -54,6 +49,7 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
 
     public void onFailure(final Throwable caught)
     {
+        IMessageResources messageResources = context.getMessageResources();
         final String msg;
         if (caught instanceof InvocationException)
         {
@@ -70,9 +66,9 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
             }
         }
         MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg);
-        if (caught instanceof InvalidSessionException && pageController != null)
+        if (caught instanceof InvalidSessionException)
         {
-            pageController.createLoginPage();
+            context.getPageController().createLoginPage();
         }
     }
 }
