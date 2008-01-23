@@ -30,7 +30,7 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      */
-    public void login(final String user, final String password, final AsyncCallback callback);
+    public void tryToLogin(final String user, final String password, final AsyncCallback callback);
 
     /**
      * Logout the current user.

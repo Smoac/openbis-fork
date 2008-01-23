@@ -117,12 +117,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final boolean isAuthenticated()
     {
-        // TODO Auto-generated method stub
-        return false;
+        UserDTO currentUser = getCurrentUser();
+        return currentUser != null;
     }
 
-    public final User login(final String user, final String password) throws UserFailureException
+    public final User tryToLogin(final String user, final String password) throws UserFailureException
     {
+        authenticationLog.info("Try to login user '" + user + "'.");
         IUserManager userManager = domainModel.getUserManager();
         if (hasExternalAuthenticationService())
         {
@@ -167,6 +168,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private User finishLogin(UserDTO userDTO)
     {
+        authenticationLog.info("Sucsessfully login of user " + userDTO);
         createSession(userDTO);
         return BeanUtils.createBean(User.class, userDTO);
     }

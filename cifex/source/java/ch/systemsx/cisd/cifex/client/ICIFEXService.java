@@ -33,7 +33,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User login(final String user, final String password) throws UserFailureException;
+    public User tryToLogin(final String user, final String password) throws UserFailureException;
 
     /**
      * Logout the current user.

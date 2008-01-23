@@ -63,9 +63,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.isAuthenticated();
     }
 
-    public final User login(final String user, final String password) throws UserFailureException
+    public final User tryToLogin(final String user, final String password) throws UserFailureException
     {
-        return cifexServiceDelegate.login(user, password);
+        return cifexServiceDelegate.tryToLogin(user, password);
     }
 
     public final void logout()
