@@ -141,12 +141,19 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 return null;
             }
             Principal principal = externalAuthenticationService.getPrincipal(applicationToken, user);
-            UserDTO userDTO = userManager.tryToFindUser(user);
+            if (principal == null)
+            {
+                authenticationLog.error("Unknown principal for successfully authenticated user '" + user + "'.");
+                throw new UserFailureException("Authentication was successful but user information "
+                        + "couldn't be retrieved");
+            }
+            String email = principal.getEmail();
+            UserDTO userDTO = userManager.tryToFindUser(email);
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
                 userDTO.setUserName(user);
-                userDTO.setEmail(principal.getEmail());
+                userDTO.setEmail(email);
                 userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
