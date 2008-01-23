@@ -17,46 +17,53 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.gwtext.client.widgets.layout.BorderLayout;
 
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
- * Controller for creating pages. 
- *
+ * Controller for creating pages.
+ * 
  * @author Franz-Josef Elmer
  */
 class PageController implements IPageController
 {
     private ViewContext viewContext;
-    
+
     final void setViewContext(ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
 
     /**
-     * This method clears <code>RootPanel</code> adds the specified page.
+     * This method clears <code>RootPanel</code>.
+     * <p>
+     * Note that this method should be called in a very early stage, before building any new GUI stuff.
+     * </p>
      */
-    private final void setPage(Widget page)
+    private final void clearRootPanel()
     {
         final RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
-        rootPanel.add(page);
     }
-    
+
     public final void createLoginPage()
     {
-        setPage(new LoginPage(viewContext));
+        clearRootPanel();
+        final LoginPage loginPage = new LoginPage(viewContext);
+        RootPanel.get().add(loginPage);
     }
 
     public final void createMainPage()
     {
-        User user = viewContext.getModel().getUser();
+        clearRootPanel();
+        final User user = viewContext.getModel().getUser();
+        BorderLayout mainPage = null;
         if (user.isAdmin())
         {
-            setPage(new AdminMainPage(viewContext));
+            mainPage = new AdminMainPage(viewContext);
         }
+        RootPanel.get().add(mainPage);
     }
-    
+
 }
