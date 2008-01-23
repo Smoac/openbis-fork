@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * Controller for creating pages. 
@@ -51,8 +52,11 @@ class PageController implements IPageController
 
     public final void createMainPage()
     {
-        // TODO 2008-01-21, Christian Ribeaud: Make something more useful here.
-        setPage(new Label("Welcome " + viewContext.getModel().getUser().getEmail()));
+        User user = viewContext.getModel().getUser();
+        if (user.isAdmin())
+        {
+            setPage(new AdminMainPage(viewContext));
+        }
     }
     
 }

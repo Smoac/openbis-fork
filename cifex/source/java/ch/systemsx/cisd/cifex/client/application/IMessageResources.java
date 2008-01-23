@@ -78,6 +78,20 @@ public interface IMessageResources extends Messages
     public String getLoginUsernameLabel();
 
     /**
+     * Returns the logout label for the logout link.
+     * 
+     * @gwt.key logout.link.label
+     */
+    public String getLogoutLinkLabel();
+
+    /**
+     * Returns the logout tooltip for the logout link.
+     * 
+     * @gwt.key logout.link.tooltip
+     */
+    public String getLogoutLinkTooltip();
+
+    /**
      * Returns the title for error message box.
      * 
      * @gwt.key messagebox.error.title

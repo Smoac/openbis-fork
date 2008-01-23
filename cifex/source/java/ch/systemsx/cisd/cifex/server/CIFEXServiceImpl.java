@@ -182,7 +182,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final void logout()
     {
-        // TODO Auto-generated method stub
-
+        final HttpSession httpSession = getSession(false);
+        if (httpSession != null)
+        {
+            UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
+            httpSession.removeAttribute(SESSION_NAME);
+            httpSession.invalidate();
+            authenticationLog.info("Logout of user " + user);
+        }
     }
 }
