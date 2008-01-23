@@ -66,16 +66,10 @@
 	</target>
 
 	<!--
-	// Creates 'cifex.jar'.
+	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
 	<target name="jar" depends="compile, build-info">
 		<delete file="${jar.file}" />
-		<copy todir="${classes}">
-			<fileset dir="source">
-				<include name="**/*.sql" />
-				<include name="**/*.csv" />
-			</fileset>
-		</copy>
 		<!--
 		// 'applicationContext.xml' and imported files.
 		// They are only copied to the ant classes directory. Does not mean that
@@ -89,8 +83,6 @@
 		<recursive-jar destfile="${jar.file}">
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
-				<include name="**/*.sql" />
-				<include name="**/*.csv" />
 				<!-- Exclude 'service.properties' file. -->
 				<exclude name="service.properties" />
 				<include name="**/*.properties" />
@@ -123,6 +115,13 @@
 				// should be completed or replaced by 'install.sh' script.
 				-->
 				<include name="*" />
+			</classes>
+			<!--
+			// Add the database specific files.
+			-->
+			<classes dir="../cifex/source">
+				<include name="**/*.sql" />
+				<include name="**/*.csv" />
 			</classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />
