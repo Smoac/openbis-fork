@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -41,18 +43,26 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
+    /** The attribute name under which the session could be found. */
+    private static final String SESSION_NAME = "cifex-session";
+    
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
     
     private final DomainModel domainModel;
 
+    private final IRequestContextProvider requestContextProvider;
+    
     private final LoggingContextHandler loggingContextHandler;
 
     private final IAuthenticationService externalAuthenticationService;
+
+    private int sessionExpirationPeriod;
 
     public CIFEXServiceImpl(final DomainModel domainModel, final IRequestContextProvider requestContextProvider,
             final IAuthenticationService externalAuthenticationService)
     {
         this.domainModel = domainModel;
+        this.requestContextProvider = requestContextProvider;
         this.externalAuthenticationService = externalAuthenticationService;
         loggingContextHandler = new LoggingContextHandler(new IRemoteHostProvider()
             {
@@ -66,11 +76,39 @@ public final class CIFEXServiceImpl implements ICIFEXService
             this.externalAuthenticationService.check();
         }
     }
+    
+    public void setSessionExpirationPeriodInMinutes(int sessionExpirationPeriodInMinutes)
+    {
+        sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
+    }
 
     private boolean hasExternalAuthenticationService()
     {
         return externalAuthenticationService != null
                 && externalAuthenticationService instanceof NullAuthenticationService == false;
+    }
+    
+    private String createSession(UserDTO user)
+    {
+        final HttpSession httpSession = getSession(true);
+        httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
+        httpSession.setAttribute(SESSION_NAME, user);
+        return httpSession.getId();
+    }
+
+    private HttpSession getSession(boolean create)
+    {
+        return requestContextProvider.getHttpServletRequest().getSession(create);
+    }
+    
+    private UserDTO getCurrentUser()
+    {
+        HttpSession session = getSession(false);
+        if (session == null)
+        {
+            return null;
+        }
+        return (UserDTO) session.getAttribute(SESSION_NAME);
     }
 
     //
@@ -113,7 +151,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 userDTO.setPermanent(true);
                 userManager.createUser(userDTO);
             }
-            return BeanUtils.createBean(User.class, userDTO);
+            return finishLogin(userDTO);
         } else
         {
             String encryptedPassword = StringUtilities.encrypt(password);
@@ -122,8 +160,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
             {
                 return null;
             }
-            return BeanUtils.createBean(User.class, userDTO);
+            return finishLogin(userDTO);
         }
+    }
+
+    private User finishLogin(UserDTO userDTO)
+    {
+        createSession(userDTO);
+        return BeanUtils.createBean(User.class, userDTO);
     }
 
     public final void logout()

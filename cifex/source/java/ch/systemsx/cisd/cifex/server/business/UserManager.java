@@ -34,8 +34,14 @@ public class UserManager extends AbstractManager implements IUserManager
 
     public UserDTO tryToFindUser(String email)
     {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO 2008-01-23, Franz-Josef Elmer: replace by code using data access layer
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("admin@localhost");
+        userDTO.setUserName("admin");
+        userDTO.setEncryptedPassword("21232f297a57a5a743894a0e4a801fc3");
+        userDTO.setAdmin(true);
+        userDTO.setPermanent(true);
+        return userDTO;
     }
 
     public void createUser(UserDTO user)

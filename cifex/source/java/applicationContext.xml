@@ -40,6 +40,7 @@
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="${external-authentication-service}" />
+        <property name="sessionExpirationPeriodInMinutes" value="1"/>
     </bean>
     
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
