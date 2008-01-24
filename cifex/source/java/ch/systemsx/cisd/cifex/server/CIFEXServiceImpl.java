@@ -46,11 +46,11 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
-
     /** The attribute name under which the session could be found. */
-    private static final String SESSION_NAME = "cifex-session";
+    static final String SESSION_NAME = "cifex-session";
 
+    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
+    
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
 
     private final DomainModel domainModel;
