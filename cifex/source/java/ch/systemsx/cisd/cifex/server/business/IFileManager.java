@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.InputStream;
+
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * A manager that proxies and handles access to {@link FileDTO}.
@@ -32,4 +35,11 @@ public interface IFileManager
      * @return <code>null</code> if no file could be found with given id (it maybe expired?).
      */
     public FileDTO tryGetFile(final long fileId);
+    
+    /**
+     * Saves the data of the specified input stream which comes from a file with the specified name.
+     * 
+     * @param user The owner of the file.
+     */
+    public void saveFile(UserDTO user, String fileName, InputStream inputStream);
 }

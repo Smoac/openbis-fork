@@ -50,7 +50,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
 public final class CIFEXServiceImpl implements ICIFEXService
 {
     /** The attribute name under which the session could be found. */
-    static final String SESSION_NAME = "cifex-session";
+    static final String SESSION_NAME = "cifex-user";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
 
@@ -137,7 +137,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private User finishLogin(UserDTO userDTO)
     {
-        authenticationLog.info("Sucsessfully login of user " + userDTO);
+        authenticationLog.info("Successful login of user " + userDTO);
         String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
                 + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));

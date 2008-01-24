@@ -54,6 +54,7 @@
             </bean>
         </constructor-arg>
         <constructor-arg ref="bean-post-processor" />
+        <property name="fileStorePath" value="${file-store}"/>
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />

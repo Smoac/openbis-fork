@@ -17,3 +17,19 @@ values
 ,'T'
 ,'T'
 );
+
+insert into users
+(id
+,email
+,user_name
+,encrypted_password
+,is_admin
+,is_permanent)
+values
+(nextval('USER_ID_SEQ')
+,'permanent@localhost'
+,'dummy user'
+,'21232f297a57a5a743894a0e4a801fc3'
+,'F'
+,'T'
+);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
@@ -23,6 +24,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -33,9 +35,15 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public final class DomainModel implements IDomainModel
 {
-    private final IUserManager userManager;
+    private IUserManager userManager;
 
-    private final IFileManager fileManager;
+    private IFileManager fileManager;
+
+    private final IDAOFactory daoFactory;
+
+    private final BeanPostProcessor processor;
+
+    private File fileStore;
 
     /**
      * Constructor only used for unit tests.
@@ -64,14 +72,36 @@ public final class DomainModel implements IDomainModel
      */
     public DomainModel(IDAOFactory daoFactory, IMailClient mailClient, BeanPostProcessor processor)
     {
+        this.daoFactory = daoFactory;
+        this.processor = processor;
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
 
-        userManager = createLoggingProxy(processor, new UserManager(daoFactory));
-        fileManager = createLoggingProxy(processor, new FileManager(daoFactory));
+    }
+    
+    public final void setFileStorePath(String fileStorePath)
+    {
+        fileStore = new File(fileStorePath);
+        if (fileStore.exists())
+        {
+            if (fileStore.isDirectory() == false)
+            {
+                throw new EnvironmentFailureException("File store '" + fileStore.getAbsolutePath()
+                        + "' already exists but is not a directory.");
+            }
+        } else
+        {
+            boolean successful = fileStore.mkdirs();
+            if (successful == false)
+            {
+                throw new EnvironmentFailureException("Couldn't create file store '" + fileStore.getAbsolutePath()
+                        + "' for some unknown reason.");
+            }
+            
+        }
     }
 
-    private <T> T createLoggingProxy(BeanPostProcessor processor, final T manager)
+    private <T> T createLoggingProxy(final T manager)
     {
         Object proxy = processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
         Class<? extends DomainModel> clazz = getClass();
@@ -92,6 +122,10 @@ public final class DomainModel implements IDomainModel
      */
     public final IUserManager getUserManager()
     {
+        if (userManager == null)
+        {
+            userManager = createLoggingProxy(new UserManager(daoFactory));
+        }
         return userManager;
     }
 
@@ -100,6 +134,10 @@ public final class DomainModel implements IDomainModel
      */
     public final IFileManager getFileManager()
     {
+        if (fileManager == null)
+        {
+            fileManager = createLoggingProxy(new FileManager(daoFactory, fileStore));
+        }
         return fileManager;
     }
 

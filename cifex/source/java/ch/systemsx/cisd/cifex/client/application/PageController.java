@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
-import com.gwtext.client.widgets.layout.BorderLayout;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -59,10 +59,13 @@ class PageController implements IPageController
     {
         clearRootPanel();
         final User user = viewContext.getModel().getUser();
-        BorderLayout mainPage = null;
+        Widget mainPage = null;
         if (user.isAdmin())
         {
             mainPage = new AdminMainPage(viewContext);
+        } else
+        {
+            mainPage = new MainPage(viewContext);
         }
         RootPanel.get().add(mainPage);
     }

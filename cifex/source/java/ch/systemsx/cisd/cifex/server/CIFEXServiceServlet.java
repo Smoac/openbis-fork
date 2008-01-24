@@ -45,6 +45,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     static final String CIFEX_SERVICE_BEAN_NAME = "cifex-service";
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceServlet.class);
+    
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceServlet.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -92,6 +94,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         try
         {
             initService(config.getServletContext());
+            operationLog.info("Cifex servlet successfully initialized.");
         } catch (final Exception ex)
         {
             notificationLog.fatal("Failure during CIFEX service servlet initialization.", ex);
