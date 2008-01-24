@@ -16,16 +16,19 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.util.List;
+
+import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IUserManager
 {
     public UserDTO tryToFindUser(String email);
 
-    public void createUser(UserDTO user);
+    public void createUser(UserDTO user) throws UserFailureException;
+
+    public List<UserDTO> listUsers();
 }

@@ -16,37 +16,54 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+
+import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UserManager extends AbstractManager implements IUserManager
 {
 
+    private IUserDAO userDAO;
+
     public UserManager(IDAOFactory daoFactory)
     {
         super(daoFactory);
+        userDAO = daoFactory.getUserDAO();
     }
 
     public UserDTO tryToFindUser(String email)
     {
-        // TODO 2008-01-23, Franz-Josef Elmer: replace by code using data access layer
-        UserDTO userDTO = new UserDTO();
-        userDTO.setEmail("admin@localhost");
-        userDTO.setUserName("admin");
-        userDTO.setEncryptedPassword("21232f297a57a5a743894a0e4a801fc3");
-        userDTO.setAdmin(true);
-        userDTO.setPermanent(true);
-        return userDTO;
+        assert email != null : "Email Adress is null!";
+
+        return userDAO.tryFindUserByEmail(email);
+
     }
 
-    public void createUser(UserDTO user)
+    public void createUser(UserDTO user) throws UserFailureException
     {
-        // TODO Auto-generated method stub
+        assert user != null;
+        assert user.getID() == null : "User ID is set, this will be done from the UserDAO";
+
+        try
+        {
+            userDAO.createUser(user);
+        } catch (DataIntegrityViolationException e)
+        {
+            throw new UserFailureException("Already existing email Adress specified.");
+        }
+    }
+
+    public List<UserDTO> listUsers()
+    {
+        return userDAO.listUsers();
     }
 
 }
