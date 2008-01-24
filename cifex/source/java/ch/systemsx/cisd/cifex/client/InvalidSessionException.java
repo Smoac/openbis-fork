@@ -31,7 +31,7 @@ public final class InvalidSessionException extends UserFailureException
         super();
     }
 
-    public InvalidSessionException(String message)
+    public InvalidSessionException(final String message)
     {
         super(message);
     }

@@ -16,20 +16,20 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+
 /**
- * @author Franz-Josef Elmer
+ * A manager that proxies and handles access to {@link FileDTO}.
+ * 
+ * @author Christian Ribeaud
  */
-public interface IDomainModel
+public interface IFileManager
 {
 
     /**
-     * Returns the one and only one instance of {@link IUserManager}.
+     * Tries to find a file with given <var>fileId</var>.
+     * 
+     * @return <code>null</code> if no file could be found with given id (it maybe expired?).
      */
-    public IUserManager getUserManager();
-
-    /**
-     * Returns the one and only one instance of {@link IFileManager}.
-     */
-    public IFileManager getFileManager();
-
+    public FileDTO tryGetFile(final long fileId);
 }

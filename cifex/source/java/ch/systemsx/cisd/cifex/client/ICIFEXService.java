@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -44,4 +45,11 @@ public interface ICIFEXService extends RemoteService
      * Whether this user is already authenticated or not.
      */
     public boolean isAuthenticated();
+
+    /**
+     * Tries to get file with given <var>fileId</var>.
+     * 
+     * @return <code>null</code> if no file could be found for given <code>fileId</code>.
+     */
+    public File tryGetFile(final long fileId) throws UserFailureException;
 }

@@ -28,12 +28,14 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
  * Provider of all manager objects.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public final class DomainModel implements IDomainModel
 {
     private final IUserManager userManager;
+
+    private final IFileManager fileManager;
 
     /**
      * Constructor only used for unit tests.
@@ -53,19 +55,20 @@ public final class DomainModel implements IDomainModel
                 }
             });
     }
-    
+
     /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean post processor is
      * needed to create proxies for the various manager objects which handle transactions. Corresponding manager methods
-     * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed 
-     * that a the bean post processor is correctly configured with the right TransactionInterceptor.
+     * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
+     *                processor is correctly configured with the right TransactionInterceptor.
      */
     public DomainModel(IDAOFactory daoFactory, IMailClient mailClient, BeanPostProcessor processor)
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
-        
+
         userManager = createLoggingProxy(processor, new UserManager(daoFactory));
+        fileManager = createLoggingProxy(processor, new FileManager(daoFactory));
     }
 
     private <T> T createLoggingProxy(BeanPostProcessor processor, final T manager)
@@ -90,6 +93,14 @@ public final class DomainModel implements IDomainModel
     public final IUserManager getUserManager()
     {
         return userManager;
+    }
+
+    /**
+     * Returns the one and only one instance of {@link IFileManager}.
+     */
+    public final IFileManager getFileManager()
+    {
+        return fileManager;
     }
 
 }

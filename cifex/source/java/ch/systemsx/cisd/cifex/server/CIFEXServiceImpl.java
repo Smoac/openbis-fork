@@ -27,10 +27,13 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -50,7 +53,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     static final String SESSION_NAME = "cifex-session";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
-    
+
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
 
     private final IDomainModel domainModel;
@@ -116,6 +119,31 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return (UserDTO) session.getAttribute(SESSION_NAME);
     }
 
+    /**
+     * Asserts that the user is authenticated.
+     * <p>
+     * If not, then throws an <code>InvalidSessionException</code>.
+     * </p>
+     */
+    private final UserDTO assertAuthenticated() throws InvalidSessionException
+    {
+        final UserDTO currentUser = getCurrentUser();
+        if (currentUser == null)
+        {
+            throw new InvalidSessionException("You are not logged in. Please log in.");
+        }
+        return currentUser;
+    }
+
+    private User finishLogin(UserDTO userDTO)
+    {
+        authenticationLog.info("Sucsessfully login of user " + userDTO);
+        String sessionToken = createSession(userDTO);
+        loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
+                + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
+        return BeanUtils.createBean(User.class, userDTO);
+    }
+
     //
     // ICifexService
     //
@@ -178,15 +206,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    private User finishLogin(UserDTO userDTO)
-    {
-        authenticationLog.info("Sucsessfully login of user " + userDTO);
-        String sessionToken = createSession(userDTO);
-        loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
-                + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
-        return BeanUtils.createBean(User.class, userDTO);
-    }
-
     public final void logout()
     {
         final HttpSession httpSession = getSession(false);
@@ -199,4 +218,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
             authenticationLog.info("Logout of user " + user);
         }
     }
+
+    public final File tryGetFile(final long fileId) throws UserFailureException
+    {
+        final UserDTO currentUser = assertAuthenticated();
+        final FileDTO file = domainModel.getFileManager().tryGetFile(fileId);
+        // TODO 2008-01-24, Christian Ribeaud: check file share and current user.
+        return BeanUtils.createBean(File.class, file);
+    }
+
 }

@@ -16,20 +16,29 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+
 /**
- * @author Franz-Josef Elmer
+ * The only <code>IFileManager</code> implementation.
+ * 
+ * @author Christian Ribeaud
  */
-public interface IDomainModel
+final class FileManager extends AbstractManager implements IFileManager
 {
 
-    /**
-     * Returns the one and only one instance of {@link IUserManager}.
-     */
-    public IUserManager getUserManager();
+    FileManager(final IDAOFactory daoFactory)
+    {
+        super(daoFactory);
+    }
 
-    /**
-     * Returns the one and only one instance of {@link IFileManager}.
-     */
-    public IFileManager getFileManager();
+    //
+    // IFileManager
+    //
 
+    public final FileDTO tryGetFile(final long fileId)
+    {
+        // TODO 2008-01-24, Christian Ribeaud: replace by code using data access layer
+        return null;
+    }
 }

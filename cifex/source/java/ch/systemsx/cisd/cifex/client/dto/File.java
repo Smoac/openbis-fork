@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.business.dto;
+package ch.systemsx.cisd.cifex.client.dto;
 
 import java.util.Date;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * @author Izabela Adamczyk
+ * A client <i>DTO</i> which describes a file.
+ * 
+ * @author Christian Ribeaud
  */
-public class FileDTO extends ID
+public final class File implements IsSerializable
 {
     private String name;
 
     private String path;
 
-    private UserDTO registerer;
+    private User registerer;
 
     private Date registrationDate;
 
     private Date expirationDate;
 
-    public String getName()
+    public final String getName()
     {
         return name;
     }
@@ -53,12 +57,12 @@ public class FileDTO extends ID
         this.path = path;
     }
 
-    public final UserDTO getRegisterer()
+    public final User getRegisterer()
     {
         return registerer;
     }
 
-    public final void setRegisterer(final UserDTO registerer)
+    public final void setRegisterer(final User registerer)
     {
         this.registerer = registerer;
     }
@@ -82,4 +86,5 @@ public class FileDTO extends ID
     {
         this.expirationDate = expirationDate;
     }
+
 }

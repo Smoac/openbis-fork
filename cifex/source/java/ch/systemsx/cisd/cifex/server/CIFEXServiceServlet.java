@@ -26,6 +26,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -41,6 +42,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class CIFEXServiceServlet extends GWTSpringController implements ICIFEXService
 {
+    static final String CIFEX_SERVICE_BEAN_NAME = "cifex-service";
+
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceServlet.class);
 
     private static final long serialVersionUID = 1L;
@@ -51,7 +54,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     private final void initService(final ServletContext servletContext)
     {
         final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        cifexServiceDelegate = (ICIFEXService) context.getBean("cifex-service");
+        cifexServiceDelegate = (ICIFEXService) context.getBean(CIFEX_SERVICE_BEAN_NAME);
     }
 
     //
@@ -71,6 +74,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     public final void logout()
     {
         cifexServiceDelegate.logout();
+    }
+
+    public File tryGetFile(long fileId) throws UserFailureException
+    {
+        return cifexServiceDelegate.tryGetFile(fileId);
     }
 
     //

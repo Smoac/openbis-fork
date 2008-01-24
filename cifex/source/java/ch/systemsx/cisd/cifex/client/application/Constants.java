@@ -30,4 +30,7 @@ public final class Constants
 
     /** Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side). */
     public static final String CIFEX_SERVLET_NAME = "/cifex/cifex";
+
+    /** The HTTP URL parameter used to specify the file id. */
+    public static final String FILE_ID_PARAMETER = "fileId";
 }
