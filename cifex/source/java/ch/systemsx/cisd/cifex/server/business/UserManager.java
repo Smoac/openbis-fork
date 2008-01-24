@@ -18,9 +18,6 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
-import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;

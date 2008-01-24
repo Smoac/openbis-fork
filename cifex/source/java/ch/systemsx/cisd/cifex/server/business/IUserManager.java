@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
