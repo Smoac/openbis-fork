@@ -1,203 +1,260 @@
 <project name="cifex" default="dist" basedir="..">
-	<import file="../../build_resources/ant/build-common.xml" />
-	<project-classpath name="ecp" classes="${classes}" />
+    <import file="../../build_resources/ant/build-common.xml" />
+    <project-classpath name="ecp" classes="${classes}" />
 
-	<property name="original.dist" value="../cifex/dist" />
-	<property name="lib" value="../libraries" />
+    <property name="original.dist" value="../${ant.project.name}/dist" />
+    <property name="original.dist.server" value="${original.dist}/server" />
 
-	<property name="gwt.lib" value="${lib}/gwt" />
-	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
-	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
-	<property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
-	<property name="gwt.tomcat.web-inf" value="../cifex/tomcat/webapps/ROOT/WEB-INF" />
+    <property name="lib" value="../libraries" />
 
-	<property name="cifex.server.resource" value="../cifex/resource/server/" />
+    <property name="gwt.lib" value="${lib}/gwt" />
+    <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
+    <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
+    <property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
+    <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
-	<property name="webapp.dist" value="${dist}/webapp" />
-	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
+    <property name="cifex.server.resource" value="../${ant.project.name}/resource/server/" />
 
-	<property name="jar.file.name" value="cifex.jar" />
-	<property name="jar.file" value="${dist}/${jar.file.name}" />
+    <property name="webapp.dist" value="${dist}/webapp" />
+    <property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
 
-	<property name="webapp.file.name" value="cifex.war" />
-	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
+    <property name="jar.file.name" value="${ant.project.name}.jar" />
+    <property name="jar.file" value="${dist}/${jar.file.name}" />
 
-	<!-- 
+    <property name="webapp.file.name" value="${ant.project.name}.war" />
+    <property name="webapp.file" value="${dist}/${webapp.file.name}" />
+
+    <!-- 
+	// Cleans distribution directory.
+	-->
+    <target name="clean" description="Cleans distribution directory.">
+        <delete dir="${dist}" failonerror="true" />
+        <mkdir dir="${dist}" />
+    </target>
+
+    <!-- 
 	// Makes a distribution file.
 	-->
-	<target name="dist">
-		<delete dir="${dist}" />
-		<mkdir dir="${dist}" />
-	</target>
+    <target name="dist" description="Makes a distribution file." depends="clean, war">
 
-	<target name="ci" depends="build-common.ci, check-dependencies, dist" />
+        <property name="dist.file.name" value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
+        <property name="jetty.path" value="${lib}/jetty" />
+        <property name="zipped.dir" value="${dist}/${ant.project.name}" />
+        <property name="install.file.name" value="install.sh" />
 
-	<!--
+        <mkdir dir="${zipped.dir}" />
+        <move file="${webapp.file}" todir="${zipped.dir}" />
+
+        <copy file="${jetty.path}/jetty.zip" todir="${zipped.dir}" />
+        <copy file="${jetty.path}/version.txt" tofile="${zipped.dir}/jetty-version.txt">
+            <filterchain>
+                <striplinebreaks />
+            </filterchain>
+        </copy>
+        <copy file="../authentication/resource/source-systemsx.ethz.ch.keystore" todir="${zipped.dir}" />
+        <!--
+		// Although there is already one 'service.properties' in the war, we need one here that can be configured
+		// by the administrator. The idea is to replace the one in the war with it in the 'install.sh' script.
+		-->
+        <copy file="${original.dist}/etc/service.properties" todir="${zipped.dir}" />
+        <!-- Copy all files but 'install.sh'. -->
+        <copy todir="${zipped.dir}">
+            <fileset dir="${original.dist.server}">
+                <exclude name="${install.file.name}" />
+            </fileset>
+        </copy>
+
+        <zip basedir="${dist}" destfile="${dist}/${dist.file.name}">
+            <zipfileset file="${original.dist.server}/${install.file.name}"
+                        filemode="755"
+                        prefix="${ant.project.name}" />
+        </zip>
+
+        <!-- Does some cleaning. -->
+        <delete failonerror="true" includeemptydirs="true">
+            <fileset dir="${dist}">
+                <exclude name="${dist.file.name}" />
+            </fileset>
+        </delete>
+    </target>
+
+    <!--
+	// Task for continuous integration server.
+	-->
+    <target name="ci"
+            depends="build-common.ci, check-dependencies, dist"
+            description="Task for continuous integration server." />
+
+    <!--
 	// Compiles the javascript using GWT compiler.
 	-->
-	<target name="compile-javascript">
-		<property name="cifex.gwt.path" value="ch.systemsx.cisd.cifex.Cifex" />
-		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gwt.ext.lib}:${sources}"
-		      classname="com.google.gwt.dev.GWTCompiler"
-		      fork="true">
-			<jvmarg value="-Xmx512M" />
-			<arg value="-out" />
-			<arg value="${webapp.dist}" />
-			<arg value="${cifex.gwt.path}" />
-		</java>
-		<move todir="${webapp.dist}">
-			<fileset dir="${webapp.dist}/${cifex.gwt.path}" />
-		</move>
-	</target>
+    <target name="compile-javascript" description="Compiles the javascript using GWT compiler.">
+        <property name="cifex.gwt.path" value="ch.systemsx.cisd.cifex.Cifex" />
 
-	<!--
+        <delete dir="${webapp.dist}" />
+        <java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gwt.ext.lib}:${sources}"
+              classname="com.google.gwt.dev.GWTCompiler"
+              fork="true">
+            <jvmarg value="-Xmx512M" />
+            <arg value="-out" />
+            <arg value="${webapp.dist}" />
+            <arg value="${cifex.gwt.path}" />
+        </java>
+        <move todir="${webapp.dist}">
+            <fileset dir="${webapp.dist}/${cifex.gwt.path}" />
+        </move>
+    </target>
+
+    <!--
 	// Add 'IMessageResources.properties' and 'service.properties' (will be excluded later on)
 	// files to 'build-common.compile' target.
 	-->
-	<target name="compile" depends="build-common.compile">
-		<copy todir="${classes}">
-			<fileset dir="${sources}">
-				<include name="**/*.properties" />
-			</fileset>
-		</copy>
-	</target>
+    <target name="compile"
+            depends="build-common.compile"
+            description="Overrides the parent 'compile' target by including properties files.">
+        <copy todir="${classes}">
+            <fileset dir="${sources}">
+                <include name="**/*.properties" />
+            </fileset>
+        </copy>
+    </target>
 
-	<target name="build-info">
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-	</target>
+    <!--
+	// Creates build information.
+	-->
+    <target name="build-info" description="Creates build information.">
+        <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+    </target>
 
-	<!--
+    <!--
 	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
-	<target name="jar" depends="compile, build-info">
-		<delete file="${jar.file}" />
-		<!--
+    <target name="jar" depends="compile, build-info" description="Creates project jar file.">
+        <delete file="${jar.file}" />
+        <!--
 		// 'applicationContext.xml' and imported files.
 		// They are only copied to the ant classes directory. Does not mean that
 		// they will be part of the jar.
 		-->
-		<copy todir="${classes}">
-			<fileset dir="${sources}">
-				<include name="**/*.xml" />
-			</fileset>
-		</copy>
-		<recursive-jar destfile="${jar.file}">
-			<fileset dir="${classes}">
-				<include name="**/*.class" />
-				<!-- Exclude 'service.properties' file. -->
-				<exclude name="service.properties" />
-				<include name="**/*.properties" />
-				<include name="${build.info.filename}" />
-			</fileset>
-		</recursive-jar>
-	</target>
+        <copy todir="${classes}">
+            <fileset dir="${sources}">
+                <include name="**/*.xml" />
+            </fileset>
+        </copy>
+        <recursive-jar destfile="${jar.file}">
+            <fileset dir="${classes}">
+                <include name="**/*.class" />
+                <!-- Exclude 'service.properties' file. -->
+                <exclude name="service.properties" />
+                <include name="**/*.properties" />
+                <include name="${build.info.filename}" />
+            </fileset>
+        </recursive-jar>
+    </target>
 
-	<!--
+    <!--
 	// Creates 'cifex.war'.
 	-->
-	<target name="war" depends="compile-javascript, jar">
-		<mkdir dir="${webapp.dist.web-inf}" />
-		<copy todir="${webapp.dist.web-inf}">
-			<fileset dir="${cifex.server.resource}">
-				<include name="spring-servlet.xml" />
-			</fileset>
-		</copy>
-		<!-- Create an empty 'gwt.xml' file. -->
-		<echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
-		<war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
-			<fileset dir="${webapp.dist}" />
-			<classes dir="${sources}">
-				<!-- Add 'applicationContext.xml' and related files. -->
-				<include name="**/*.xml" />
-			</classes>
-			<classes dir="${original.dist}/etc">
-				<!--
+    <target name="war" depends="compile-javascript, jar" description="Creates project war file.">
+        <mkdir dir="${webapp.dist.web-inf}" />
+        <copy todir="${webapp.dist.web-inf}">
+            <fileset dir="${cifex.server.resource}">
+                <include name="spring-servlet.xml" />
+            </fileset>
+        </copy>
+        <!-- Create an empty 'gwt.xml' file. -->
+        <echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
+        <war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
+            <fileset dir="${webapp.dist}" />
+            <classes dir="${sources}">
+                <!-- Add 'applicationContext.xml' and related files. -->
+                <include name="**/*.xml" />
+            </classes>
+            <classes dir="${original.dist}/etc">
+                <!--
 				// 'service.properties'. Note that it is just a template and
 				// should be completed or replaced by 'install.sh' script.
 				-->
-				<include name="service.properties" />
-			</classes>
-			<classes dir="${original.dist}">
-				<!--
+                <include name="service.properties" />
+            </classes>
+            <classes dir="${original.dist}">
+                <!--
 				// 'log.xml'.
 				-->
-				<include name="etc/log.xml" />
-			</classes>
-			<!--
+                <include name="etc/log.xml" />
+            </classes>
+            <!--
 			// Add the database specific files.
 			-->
-			<classes dir="../cifex/source">
-				<include name="**/*.sql" />
-				<include name="**/*.csv" />
-			</classes>
-			<lib dir="${dist}">
-				<include name="${jar.file.name}" />
-			</lib>
-			<lib dir="${lib}/commons-codec">
-				<include name="commons-codec.jar" />
-			</lib>
-			<lib dir="${lib}/commons-dbcp">
-				<include name="commons-dbcp.jar" />
-			</lib>
-			<lib dir="${lib}/commons-fileupload">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/commons-io">
-				<include name="commons-io.jar" />
-			</lib>
-			<lib dir="${lib}/commons-lang">
-				<include name="commons-lang.jar" />
-			</lib>
-			<lib dir="${lib}/commons-logging">
-				<include name="*.jar" />
-			</lib>
-			<lib dir="${lib}/commons-httpclient">
-				<include name="commons-httpclient.jar" />
-			</lib>
-			<lib dir="${lib}/commons-pool">
-				<include name="commons-pool.jar" />
-			</lib>
-			<lib dir="${lib}/log4j">
-				<include name="log4j.jar" />
-			</lib>
-			<lib dir="${lib}/h2">
-				<include name="h2.jar" />
-			</lib>
-			<lib dir="${lib}/postgresql">
-				<include name="postgresql.jar" />
-			</lib>			
-			<lib dir="${lib}/spring">
-				<include name="spring.jar" />
-			</lib>
-			<lib dir="${gwt.lib}">
-				<include name="gwt-servlet.jar" />
-			</lib>
-			<lib dir="${lib}/activation">
-				<include name="activation.jar" />
-			</lib>
-			<lib dir="${lib}/mail">
-				<include name="mail.jar" />
-			</lib>
-		</war>
-		<!-- Does some cleaning. -->
-		<delete file="${jar.file}" />
-		<delete dir="${webapp.dist}" />
-	</target>
+            <classes dir="../${ant.project.name}/source">
+                <include name="**/*.sql" />
+                <include name="**/*.csv" />
+            </classes>
+            <lib dir="${dist}">
+                <include name="${jar.file.name}" />
+            </lib>
+            <lib dir="${lib}/commons-codec">
+                <include name="commons-codec.jar" />
+            </lib>
+            <lib dir="${lib}/commons-dbcp">
+                <include name="commons-dbcp.jar" />
+            </lib>
+            <lib dir="${lib}/commons-fileupload">
+                <include name="*.jar" />
+            </lib>
+            <lib dir="${lib}/commons-io">
+                <include name="commons-io.jar" />
+            </lib>
+            <lib dir="${lib}/commons-lang">
+                <include name="commons-lang.jar" />
+            </lib>
+            <lib dir="${lib}/commons-logging">
+                <include name="*.jar" />
+            </lib>
+            <lib dir="${lib}/commons-httpclient">
+                <include name="commons-httpclient.jar" />
+            </lib>
+            <lib dir="${lib}/commons-pool">
+                <include name="commons-pool.jar" />
+            </lib>
+            <lib dir="${lib}/log4j">
+                <include name="log4j.jar" />
+            </lib>
+            <lib dir="${lib}/h2">
+                <include name="h2.jar" />
+            </lib>
+            <lib dir="${lib}/postgresql">
+                <include name="postgresql.jar" />
+            </lib>
+            <lib dir="${lib}/spring">
+                <include name="spring.jar" />
+            </lib>
+            <lib dir="${gwt.lib}">
+                <include name="gwt-servlet.jar" />
+            </lib>
+            <lib dir="${lib}/activation">
+                <include name="activation.jar" />
+            </lib>
+            <lib dir="${lib}/mail">
+                <include name="mail.jar" />
+            </lib>
+        </war>
+        <!-- Does some cleaning. -->
+        <delete file="${jar.file}" failonerror="true" />
+        <delete dir="${webapp.dist}" failonerror="true" />
+    </target>
 
-	<!--
+    <!--
 	  // Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.
 	  -->
-	<target name="prepare-gwt"
-	        description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding."
-	        unless="gwt.clean">
-		<copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
-			<fileset dir="${cifex.server.resource}" includes="*.xml" />
-		</copy>
-
-		<delete failonerror="true" dir="../cifex/.gwt-cache" />
-		<delete failonerror="true" dir="../lims/targets/www" />
-	</target>
+    <target name="prepare-gwt"
+            description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
+        <copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
+            <fileset dir="${cifex.server.resource}" includes="*.xml" />
+        </copy>
+        <delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
+        <delete failonerror="true" dir="../${ant.project.name}/targets/www" />
+    </target>
 
 </project>
