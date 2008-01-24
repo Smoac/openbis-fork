@@ -18,7 +18,9 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
@@ -39,5 +41,11 @@ abstract class AbstractDAO extends SimpleJdbcDaoSupport
         this.sequencerHandler = sequencerHandler;
         setDataSource(dataSource);
 
+    }
+    
+    protected final long getNextValueOf(final String sequencer) throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        return template.queryForLong(sequencerHandler.getNextValueScript(sequencer));
     }
 }

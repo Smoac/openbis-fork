@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
+import javax.sql.DataSource;
+
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
+import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
@@ -29,10 +33,21 @@ public class DAOFactory implements IDAOFactory
 {
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "001";
+    
+    private final IUserDAO userDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context)
     {
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
         
+        final DataSource dataSource = context.getDataSource();
+        final ISequencerHandler sequencerHandler = context.getSequencerHandler();
+        
+        userDAO = new UserDAO(dataSource, sequencerHandler);
+        
+    }
+    
+    public final IUserDAO getUserDAO(){
+        return userDAO;
     }
 }
