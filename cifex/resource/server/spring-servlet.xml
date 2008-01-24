@@ -11,9 +11,12 @@
         <property name="mappings">
             <props>
                 <prop key="cifex">cifex-service-servlet</prop>
+                <prop key="upload">file-upload-servlet</prop>
             </props>
         </property>
     </bean>
 
     <bean id="cifex-service-servlet" class="ch.systemsx.cisd.cifex.server.CIFEXServiceServlet" />
+    
+    <bean id="file-upload-servlet" class="ch.systemsx.cisd.cifex.server.FileUploadServlet" />
 </beans>
