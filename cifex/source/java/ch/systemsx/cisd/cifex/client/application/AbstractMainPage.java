@@ -16,10 +16,19 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.ButtonConfig;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.ToolbarTextItem;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.BorderLayout;
 import com.gwtext.client.widgets.layout.ContentPanel;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
+
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * 
@@ -56,10 +65,63 @@ abstract class AbstractMainPage extends BorderLayout
         add(LayoutRegionConfig.CENTER, createMainPanel());
     }
     
-    protected ContentPanel createMainPanel()
+    private ContentPanel createToolbarPanel()
     {
-        return new ContentPanel(Ext.generateId());
+        User user = context.getModel().getUser();
+        ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
+        Toolbar toolbar = new Toolbar(Ext.generateId());
+        toolbar.addItem(createUserDescription(user));
+        toolbar.addButton(createLogoutButton());
+        contentPanel.add(toolbar);
+        return contentPanel;
     }
     
-    protected abstract ContentPanel createToolbarPanel();
+    private ToolbarTextItem createUserDescription(User user)
+    {
+        
+        StringBuffer buffer = new StringBuffer();
+        String userName = user.getUserName();
+        if (userName != null)
+        {
+            buffer.append(userName);
+        } else
+        {
+            buffer.append(user.getEmail());
+        }
+        buffer.append(" (Status: ");
+        if (user.isAdmin())
+        {
+            buffer.append("administrator");
+        } else if (user.isPermanent())
+        {
+            buffer.append("permanent");
+        } else
+        {
+            buffer.append("temporary account: expiration date: ").append(user.getExpirationDate());
+        }
+        buffer.append(")");
+        return new ToolbarTextItem(buffer.toString());
+    }
+    
+    private final ToolbarButton createLogoutButton()
+    {
+        final IMessageResources messageResources = context.getMessageResources();
+        final ToolbarButton logoutButton = new ToolbarButton(messageResources.getLogoutLinkLabel(), new ButtonConfig()
+            {
+                {
+                    setTooltip(messageResources.getLogoutLinkTooltip());
+                }
+            });
+        logoutButton.addButtonListener(new ButtonListenerAdapter()
+            {
+                public final void onClick(Button button, EventObject e)
+                {
+                    context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
+                    context.getPageController().createLoginPage();
+                }
+            });
+        return logoutButton;
+    }
+    
+    protected abstract ContentPanel createMainPanel();
 }

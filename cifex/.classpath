@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-pool/commons-pool.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-mock.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

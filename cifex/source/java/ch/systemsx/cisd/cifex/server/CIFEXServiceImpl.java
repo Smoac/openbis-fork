@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -43,15 +46,17 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
+    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
+
     /** The attribute name under which the session could be found. */
     private static final String SESSION_NAME = "cifex-session";
-    
+
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
-    
+
     private final DomainModel domainModel;
 
     private final IRequestContextProvider requestContextProvider;
-    
+
     private final LoggingContextHandler loggingContextHandler;
 
     private final IAuthenticationService externalAuthenticationService;
@@ -76,7 +81,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             this.externalAuthenticationService.check();
         }
     }
-    
+
     public void setSessionExpirationPeriodInMinutes(int sessionExpirationPeriodInMinutes)
     {
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
@@ -87,7 +92,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return externalAuthenticationService != null
                 && externalAuthenticationService instanceof NullAuthenticationService == false;
     }
-    
+
     private String createSession(UserDTO user)
     {
         final HttpSession httpSession = getSession(true);
@@ -100,7 +105,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
-    
+
     private UserDTO getCurrentUser()
     {
         HttpSession session = getSession(false);
@@ -176,7 +181,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private User finishLogin(UserDTO userDTO)
     {
         authenticationLog.info("Sucsessfully login of user " + userDTO);
-        createSession(userDTO);
+        String sessionToken = createSession(userDTO);
+        loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
+                + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
         return BeanUtils.createBean(User.class, userDTO);
     }
 
@@ -186,6 +193,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         if (httpSession != null)
         {
             UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
+            loggingContextHandler.destroyContext(httpSession.getId());
             httpSession.removeAttribute(SESSION_NAME);
             httpSession.invalidate();
             authenticationLog.info("Logout of user " + user);

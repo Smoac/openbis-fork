@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.gwtext.client.core.Ext;
 import com.gwtext.client.widgets.layout.ContentPanel;
-
-import ch.systemsx.cisd.cifex.client.application.ui.AdminToolbarPanel;
 
 /**
  * 
@@ -32,9 +31,9 @@ class AdminMainPage extends AbstractMainPage
         super(context);
     }
 
-    protected ContentPanel createToolbarPanel()
+    protected ContentPanel createMainPanel()
     {
-        return new AdminToolbarPanel(context);
+        return new ContentPanel(Ext.generateId());
     }
 
 }
