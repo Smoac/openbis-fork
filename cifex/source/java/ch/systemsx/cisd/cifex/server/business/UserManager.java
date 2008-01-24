@@ -47,18 +47,12 @@ public class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    public void createUser(UserDTO user) throws UserFailureException
+    public void createUser(UserDTO user)
     {
         assert user != null;
         assert user.getID() == null : "User ID is set, this will be done from the UserDAO";
 
-        try
-        {
-            userDAO.createUser(user);
-        } catch (DataIntegrityViolationException e)
-        {
-            throw new UserFailureException("Already existing email Adress specified.");
-        }
+        userDAO.createUser(user);
     }
 
     public List<UserDTO> listUsers()

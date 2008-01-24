@@ -28,7 +28,7 @@ public interface IUserManager
 {
     public UserDTO tryToFindUser(String email);
 
-    public void createUser(UserDTO user) throws UserFailureException;
+    public void createUser(UserDTO user);
 
     public List<UserDTO> listUsers();
 }
