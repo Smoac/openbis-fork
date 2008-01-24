@@ -35,18 +35,22 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CIFEXServiceImplTest
 {
     private Mockery context;
+
     private IDAOFactory daoFactory;
+
     private IMailClient mailClient;
+
     private IRequestContextProvider requestContextProvider;
+
     private IAuthenticationService authenticationService;
+
     private HttpSession httpSession;
+
     private HttpServletRequest httpServletRequest;
 
     @BeforeMethod
@@ -68,31 +72,28 @@ public class CIFEXServiceImplTest
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testIsAuthenticated()
     {
         prepareForGettingUserFromHTTPSession(new UserDTO());
-        
+
         ICIFEXService service = createService(null);
         assertEquals(true, service.isAuthenticated());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testIsNotAuthenticated()
     {
         prepareForGettingUserFromHTTPSession(null);
-        
+
         ICIFEXService service = createService(null);
         assertEquals(false, service.isAuthenticated());
-        
+
         context.assertIsSatisfied();
     }
-    
-    @Test
-    
 
     private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO)
     {
@@ -101,10 +102,10 @@ public class CIFEXServiceImplTest
                 {
                     one(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
-                    
+
                     one(httpServletRequest).getSession(false);
                     will(returnValue(httpSession));
-                    
+
                     one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_NAME);
                     will(returnValue(userDTO));
                 }
