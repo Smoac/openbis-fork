@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -31,16 +32,12 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
-
 /**
- * 
- *
  * @author Basil Neff
  */
 public final class UserDAO extends AbstractDAO implements IUserDAO
 {
 
-    
     private static final class UserRowMapper implements ParameterizedRowMapper<UserDTO>
     {
 
@@ -49,12 +46,12 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO user = fillUserFromResultSet(rs);
             return user;
         }
-        
+
         /**
-         * Requires <code>id</code>, <code>email</code>, <code>user_name</code>, <code>encrypted_password</code>,
-         * <code>is_externally_authenticated</code>, <code>is_admin</code>, <code>is_permanent</code>,
-         * <code>registration_timestamp</code>, <code>expiration_timestamp</code> 
-         * to be present in the {@link ResultSet} <var>rs</var>.
+         * Requires <code>id</code>, <code>email</code>, <code>user_name</code>,
+         * <code>encrypted_password</code>, <code>is_externally_authenticated</code>, <code>is_admin</code>,
+         * <code>is_permanent</code>, <code>registration_timestamp</code>, <code>expiration_timestamp</code> to
+         * be present in the {@link ResultSet} <var>rs</var>.
          */
         final private UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {
@@ -69,14 +66,11 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
             user.setRegistrationDate(rs.getTimestamp("registration_timestamp"));
             user.setExpirationDate(rs.getTimestamp("expiration_timestamp"));
             return user;
-        }   
-        
+        }
+
     }
-    
 
     /**
-     *
-     *
      * @param dataSource
      * @param sequencerHandler
      */
@@ -84,8 +78,9 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
     {
         super(dataSource, sequencerHandler);
     }
-    
-    private long createID(){
+
+    private long createID()
+    {
         return getNextValueOf("USER_ID_SEQ");
     }
 
@@ -99,38 +94,47 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
     public void createUser(UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
-        
+
         Long id = createID();
-        
+
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        template.update("insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin," +
-        		"is_permanent, registration_timestamp, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", 
-        		id, user.getEmail(), user.getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
-        		user.isAdmin(),	user.isPermanent(), user.getRegistrationDate(), user.getExpirationDate());
-        
+        template.update(
+                "insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin,"
+                        + "is_permanent, registration_timestamp, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", id,
+                user.getEmail(), user.getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
+                user.isAdmin(), user.isPermanent(), user.getRegistrationDate(), user.getExpirationDate());
+
         user.setID(id);
     }
-
 
     public UserDTO tryFindUserByEmail(String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
-        
+
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final UserDTO user = template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
-        return user;
+        try
+        {
+            final UserDTO user =
+                    template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
+            return user;
+        } catch (EmptyResultDataAccessException e)
+        {
+            return null;
+        }
     }
-    
-    
-    public boolean removeUser(Long userID){
+
+    public boolean removeUser(Long userID)
+    {
         assert userID != null : "Given userID can not be null!";
-        
+
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final int affectedRows = template.update("delete from users where  id = ?", userID);
-        
-        if(affectedRows>0){
+
+        if (affectedRows > 0)
+        {
             return true;
-        }else{
+        } else
+        {
             return false;
         }
     }
