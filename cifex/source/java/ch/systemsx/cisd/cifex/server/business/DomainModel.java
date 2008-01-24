@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  *
  * @author Franz-Josef Elmer
  */
-public final class DomainModel
+public final class DomainModel implements IDomainModel
 {
     private final IUserManager userManager;
 

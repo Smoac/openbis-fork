@@ -29,7 +29,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
-import ch.systemsx.cisd.cifex.server.business.DomainModel;
+import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
@@ -53,7 +53,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
 
-    private final DomainModel domainModel;
+    private final IDomainModel domainModel;
 
     private final IRequestContextProvider requestContextProvider;
 
@@ -63,7 +63,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private int sessionExpirationPeriod;
 
-    public CIFEXServiceImpl(final DomainModel domainModel, final IRequestContextProvider requestContextProvider,
+    public CIFEXServiceImpl(final IDomainModel domainModel, final IRequestContextProvider requestContextProvider,
             final IAuthenticationService externalAuthenticationService)
     {
         this.domainModel = domainModel;
@@ -150,7 +150,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             {
                 authenticationLog.error("Unknown principal for successfully authenticated user '" + user + "'.");
                 throw new UserFailureException("Authentication was successful but user information "
-                        + "couldn't be retrieved");
+                        + "couldn't be retrieved.");
             }
             String email = principal.getEmail();
             UserDTO userDTO = userManager.tryToFindUser(email);
