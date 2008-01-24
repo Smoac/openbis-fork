@@ -39,6 +39,7 @@ class PageController implements IPageController
      * This method clears <code>RootPanel</code>.
      * <p>
      * Note that this method should be called in a very early stage, before building any new GUI stuff.
+     * Otherwise <code>RootPanel.get().clear()</code> may destroy some of the created GUI elements.
      * </p>
      */
     private final void clearRootPanel()
