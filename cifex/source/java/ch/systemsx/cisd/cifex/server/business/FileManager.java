@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,11 +24,9 @@ import java.io.InputStream;
 import org.h2.util.IOUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -45,7 +42,7 @@ final class FileManager extends AbstractManager implements IFileManager
         super(daoFactory);
         assert fileStore.exists() : "File store does not exist.";
         assert fileStore.isDirectory() : "File store is not a directory";
-        
+
         this.fileStore = fileStore;
     }
 
@@ -53,15 +50,23 @@ final class FileManager extends AbstractManager implements IFileManager
     // IFileManager
     //
 
-    public final FileDTO tryGetFile(final long fileId)
+    public final FileOutput getFile(final UserDTO userDTO, final long fileId)
     {
-        // TODO 2008-01-24, Christian Ribeaud: replace by code using data access layer
+        assert userDTO != null : "Given user can not be null.";
+
+        // final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        // TODO 2008-01-24, Christian Ribeaud: check file share and current user.
+        // final java.io.File realFile = new java.io.File(file.getPath());
+        // if (realFile.exists() == false)
+        // {
+        // throw new UserFailureException(String.format("File '%s' no longer available."));
+        // }
         return null;
     }
 
-    public void saveFile(UserDTO user, String fileName, InputStream inputStream)
+    public final void saveFile(final UserDTO user, final String fileName, final InputStream inputStream)
     {
-        File folder = new File(fileStore, user.getEmail());
+        final File folder = new File(fileStore, user.getEmail());
         if (folder.exists())
         {
             if (folder.isDirectory() == false)
@@ -71,15 +76,15 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } else
         {
-            boolean successful = folder.mkdirs();
+            final boolean successful = folder.mkdirs();
             if (successful == false)
             {
                 throw new EnvironmentFailureException("Folder '" + folder.getAbsolutePath()
                         + "' can not be created for some unknown reason.");
             }
         }
-        File file = new File(folder, "dummy");
-        FileOutputStream fileOutputStream  = null;
+        final File file = new File(folder, "dummy");
+        FileOutputStream fileOutputStream = null;
         try
         {
             fileOutputStream = new FileOutputStream(file);

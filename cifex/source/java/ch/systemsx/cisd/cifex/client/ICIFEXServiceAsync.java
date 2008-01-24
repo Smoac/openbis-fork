@@ -19,8 +19,6 @@ package ch.systemsx.cisd.cifex.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.File;
-
 /**
  * The asynchronous <i>GWT</i> <i>LIMS</i> service.
  * 
@@ -43,9 +41,4 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Whether this user is already authenticated.
      */
     public void isAuthenticated(final AsyncCallback callback);
-    
-    /**
-     * Tries to get file with given <var>fileId</var>. A {@link File} instance is delivered by the callback.
-     */
-    public void tryGetFile(final long fileId, final AsyncCallback callback);
 }

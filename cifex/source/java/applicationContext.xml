@@ -22,7 +22,7 @@
     -->
 
     <bean id="dummy-authentication-service" class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
-    
+
     <bean id="no-authentication-service" class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
 
     <bean id="crowd-authentication-service" class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
@@ -40,9 +40,9 @@
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="${external-authentication-service}" />
-        <property name="sessionExpirationPeriodInMinutes" value="1"/>
+        <property name="sessionExpirationPeriodInMinutes" value="1" />
     </bean>
-    
+
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
         <constructor-arg ref="dao-factory" />
         <constructor-arg>
@@ -58,15 +58,15 @@
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
-    
+
     <!-- 
         // Database
     -->
 
-    <import resource="dbConfigurationContext.xml"/>
+    <import resource="dbConfigurationContext.xml" />
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
-    
+
     <bean id="transaction-manager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <constructor-arg ref="data-source" />
     </bean>

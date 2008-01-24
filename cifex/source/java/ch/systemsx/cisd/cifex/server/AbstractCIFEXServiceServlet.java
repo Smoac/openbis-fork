@@ -19,12 +19,16 @@ package ch.systemsx.cisd.cifex.server;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
+import ch.systemsx.cisd.cifex.server.business.IDomainModel;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -40,31 +44,34 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 abstract class AbstractCIFEXServiceServlet extends HttpServlet
 {
-    protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractCIFEXServiceServlet.class);
+    protected final Logger operationLog;
 
-    protected static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, AbstractCIFEXServiceServlet.class);
+    protected final Logger notificationLog;
 
-    protected ICIFEXService cifexService;
+    private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
 
-    /**
-     * Constructor used to testing purposes.
-     */
-    AbstractCIFEXServiceServlet(final ICIFEXService cifexService)
-    {
-        this.cifexService = cifexService;
-    }
+    protected IDomainModel domainModel;
 
     public AbstractCIFEXServiceServlet()
     {
-
+        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+        notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
     }
 
-    private final void initCifexService()
+    private final void initDomainModel()
     {
         final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-        cifexService = (ICIFEXService) context.getBean(CIFEXServiceServlet.CIFEX_SERVICE_BEAN_NAME);
+        domainModel = (IDomainModel) context.getBean(DOMAIN_MODEL_BEAN_NAME);
+    }
+
+    protected final UserDTO getUserDTO(final HttpServletRequest request) throws InvalidSessionException
+    {
+        final HttpSession session = request.getSession(false);
+        if (session == null)
+        {
+            throw new InvalidSessionException("You are not logged in. Please log in.");
+        }
+        return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
     }
 
     //
@@ -78,8 +85,12 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         LogInitializer.init();
         try
         {
-            initCifexService();
-        } catch (Exception ex)
+            initDomainModel();
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("'%s' successfully initialized.", getClass().getName()));
+            }
+        } catch (final Exception ex)
         {
             notificationLog
                     .fatal("Failure during '" + servletConfig.getServletName() + "' servlet initialization.", ex);

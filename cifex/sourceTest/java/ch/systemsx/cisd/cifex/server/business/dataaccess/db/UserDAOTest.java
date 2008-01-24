@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +25,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-
 
 /**
  * Test cases for corresponding {@link UserDAO} class.
@@ -48,19 +44,22 @@ public final class UserDAOTest extends AbstractDAOTest
     final static UserDTO createUser(boolean permanent, boolean admin, String email)
     {
         UserDTO user = new UserDTO();
-        if(email == null){
+        if (email == null)
+        {
             user.setEmail("basil.neff@systemsx.ch");
-        }else{
+        } else
+        {
             user.setEmail(email);
         }
-        
+
         user.setUserName(getTestUserName());
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
         user.setPermanent(permanent);
         user.setRegistrationDate(new Date(new Long("402218403000").longValue()));
-        if(permanent){
+        if (permanent)
+        {
             user.setExpirationDate(new Date(new Long("1222249782000").longValue()));
         }
         return user;
@@ -83,41 +82,40 @@ public final class UserDAOTest extends AbstractDAOTest
         {
             // Nothing to do here.
         }
-        
-        //TODO 2008-01-22, Basil Neff: Test with fields, which are too long.
-        
-        
+
+        // TODO 2008-01-22, Basil Neff: Test with fields, which are too long.
+
         assertEquals("ID is not null on the newly created user.", null, testAdminUser.getID());
         userDAO.createUser(testAdminUser);
-        assertEquals(listUsers.size()+1, userDAO.listUsers().size());
-        
-        userDAO.createUser(testTemporaryUser);
-        assertEquals(listUsers.size()+2, userDAO.listUsers().size());
+        assertEquals(listUsers.size() + 1, userDAO.listUsers().size());
 
-        
+        userDAO.createUser(testTemporaryUser);
+        assertEquals(listUsers.size() + 2, userDAO.listUsers().size());
+
         // Get a user given its email.
-        try{
+        try
+        {
             assert userDAO.tryFindUserByEmail(null) != null;
             fail("Email Adress is null");
-        } catch (AssertionError e){
+        } catch (AssertionError e)
+        {
             assertEquals("No email specified!", e.getMessage());
         }
-        
+
         UserDTO testAdminUserFromDB = userDAO.tryFindUserByEmail(testAdminUser.getEmail());
         assert testAdminUserFromDB != null;
         assert testAdminUserFromDB.getID() != null;
         assert testAdminUserFromDB.getID() > 0;
-        
+
         assertEquals(testAdminUser, testAdminUserFromDB);
 
-        
         // Delete user
         assertTrue(userDAO.removeUser(testAdminUser.getID()));
-        assertEquals(listUsers.size()+1, userDAO.listUsers().size());
-        
+        assertEquals(listUsers.size() + 1, userDAO.listUsers().size());
+
         assertTrue(userDAO.removeUser(testTemporaryUser.getID()));
         assertEquals(listUsers.size(), userDAO.listUsers().size());
-        
+
         setComplete();
     }
 

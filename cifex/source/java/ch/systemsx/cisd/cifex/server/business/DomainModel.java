@@ -78,18 +78,15 @@ public final class DomainModel implements IDomainModel
         assert mailClient != null : "Undefined mail client";
 
     }
-    
-    public final void setFileStorePath(String fileStorePath)
+
+    public final void setFileStorePath(final String fileStorePath)
     {
         fileStore = new File(fileStorePath);
-        if (fileStore.exists())
+        if (fileStore.isDirectory() == false)
         {
-            if (fileStore.isDirectory() == false)
-            {
-                throw new EnvironmentFailureException("File store '" + fileStore.getAbsolutePath()
-                        + "' already exists but is not a directory.");
-            }
-        } else
+            throw new EnvironmentFailureException("File store '" + fileStore.getAbsolutePath()
+                    + "' already exists but is not a directory.");
+        } else if (fileStore.exists() == false)
         {
             boolean successful = fileStore.mkdirs();
             if (successful == false)
@@ -97,7 +94,6 @@ public final class DomainModel implements IDomainModel
                 throw new EnvironmentFailureException("Couldn't create file store '" + fileStore.getAbsolutePath()
                         + "' for some unknown reason.");
             }
-            
         }
     }
 

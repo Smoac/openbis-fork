@@ -31,5 +31,19 @@
         <url-pattern>/cifex/*</url-pattern>
     </servlet-mapping>
 
+    <!--
+        // Servlets
+    -->
+    
+    <servlet>
+        <servlet-name>file-download</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.server.FileDownloadServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>file-upload</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.server.FileUploadServlet</servlet-class>
+    </servlet>
+
     &gwt;
 </web-app>

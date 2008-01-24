@@ -31,15 +31,37 @@ public interface IFileManager
 
     /**
      * Tries to find a file with given <var>fileId</var>.
-     * 
-     * @return <code>null</code> if no file could be found with given id (it maybe expired?).
      */
-    public FileDTO tryGetFile(final long fileId);
-    
+    public FileOutput getFile(final UserDTO userDTO, final long fileId);
+
     /**
      * Saves the data of the specified input stream which comes from a file with the specified name.
      * 
-     * @param user The owner of the file.
+     * @param user the owner of the file.
      */
-    public void saveFile(UserDTO user, String fileName, InputStream inputStream);
+    public void saveFile(final UserDTO user, final String fileName, final InputStream inputStream);
+
+    //
+    // Helper classes
+    //
+
+    public final static class FileOutput
+    {
+        /** Name of file. */
+        public final String name;
+
+        /** Length of the file. */
+        public final long length;
+
+        /** To access the file content. */
+        public final InputStream inputStream;
+
+        FileOutput(final String name, final long length, final InputStream inputStream)
+        {
+            this.name = name;
+            this.length = length;
+            this.inputStream = inputStream;
+        }
+    }
+
 }

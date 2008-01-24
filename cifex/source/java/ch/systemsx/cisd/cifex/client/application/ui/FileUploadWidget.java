@@ -21,7 +21,6 @@ import com.gwtext.client.core.Ext;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Form;
-import com.gwtext.client.widgets.form.FormActionConfig;
 import com.gwtext.client.widgets.form.FormConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
@@ -29,8 +28,6 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileUploadWidget extends Form
@@ -50,14 +47,14 @@ public class FileUploadWidget extends Form
     }
 
     private final ViewContext context;
-    
+
     public FileUploadWidget(final ViewContext context)
     {
         super(Ext.generateId("FileUpload-"), createFormConfig());
         this.context = context;
         createForm();
     }
-    
+
     private void createForm()
     {
         final TextFieldConfig fileFieldConfig = new TextFieldConfig();
@@ -69,18 +66,18 @@ public class FileUploadWidget extends Form
         fileFieldConfig.setValidateOnBlur(false);
 
         add(new TextField(fileFieldConfig));
-        
+
         Button button = addButton("upload");
         button.addButtonListener(new ButtonListenerAdapter()
-        {
-            public final void onClick(final Button but, final EventObject e)
             {
-                submit();
-            }
+                public final void onClick(final Button but, final EventObject e)
+                {
+                    submit();
+                }
 
-        });
+            });
         end();
         render();
     }
-    
+
 }

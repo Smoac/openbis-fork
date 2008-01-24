@@ -26,7 +26,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
-import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -42,10 +41,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class CIFEXServiceServlet extends GWTSpringController implements ICIFEXService
 {
-    static final String CIFEX_SERVICE_BEAN_NAME = "cifex-service";
+    private static final String CIFEX_SERVICE_BEAN_NAME = "cifex-service";
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceServlet.class);
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceServlet.class);
 
     private static final long serialVersionUID = 1L;
@@ -78,11 +77,6 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.logout();
     }
 
-    public File tryGetFile(long fileId) throws UserFailureException
-    {
-        return cifexServiceDelegate.tryGetFile(fileId);
-    }
-
     //
     // RemoteServiceServlet
     //
@@ -94,7 +88,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         try
         {
             initService(config.getServletContext());
-            operationLog.info("Cifex servlet successfully initialized.");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("'%s' successfully initialized.", getClass().getName()));
+            }
         } catch (final Exception ex)
         {
             notificationLog.fatal("Failure during CIFEX service servlet initialization.", ex);

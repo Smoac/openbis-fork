@@ -17,24 +17,26 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
-import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.application.Constants;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.server.business.IFileManager.FileOutput;
 
 /**
  * The <code>AbstractCIFEXServiceServlet</code> extension to download a data set.
  * 
  * @author Christian Ribeaud
  */
-public final class DataSetDownloadServlet extends AbstractCIFEXServiceServlet
+public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
 {
 
     private static final long serialVersionUID = 1L;
@@ -50,28 +52,30 @@ public final class DataSetDownloadServlet extends AbstractCIFEXServiceServlet
         final String fileIdParameter = request.getParameter(Constants.FILE_ID_PARAMETER);
         if (StringUtils.isNotBlank(fileIdParameter))
         {
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
             try
             {
                 final long fileId = Long.parseLong(fileIdParameter);
-                final File file = cifexService.tryGetFile(fileId);
-
-                // final byte[] value = experimentFileProperty.getValue();
-                // response.setContentLength(value.length);
-                // response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
-                // final ServletOutputStream outputStream = response.getOutputStream();
-                // outputStream.write(value);
-                // outputStream.flush();
-                // outputStream.close();
+                final FileOutput fileOutput = domainModel.getFileManager().getFile(getUserDTO(request), fileId);
+                if (fileOutput.length <= Integer.MAX_VALUE)
+                {
+                    response.setContentLength((int) fileOutput.length);
+                }
+                response.setHeader("Content-Disposition", "inline; filename=" + fileOutput.name);
+                inputStream = fileOutput.inputStream;
+                outputStream = response.getOutputStream();
+                IOUtils.copy(inputStream, outputStream);
             } catch (final NumberFormatException ex)
             {
                 throw new ServletException(String.format("Given file id '%s' is not a number.", fileIdParameter));
             } catch (final InvalidSessionException ex)
             {
                 response.sendRedirect("/cifex");
-            } catch (final UserFailureException ex)
+            } finally
             {
-                operationLog.error(String.format("Download data set with id '%s' failed.", fileIdParameter), ex);
-                throw new ServletException(ex);
+                IOUtils.closeQuietly(inputStream);
+                IOUtils.closeQuietly(outputStream);
             }
         }
     }
