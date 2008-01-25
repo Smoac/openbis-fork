@@ -16,26 +16,51 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 
 /**
+ * The main page for non-administrators (permanent and temporary users).
  * 
- *
  * @author Franz-Josef Elmer
  */
-class MainPage extends AbstractMainPage
+final class MainPage extends AbstractMainPage
 {
-    MainPage(ViewContext context)
+    MainPage(final ViewContext context)
     {
         super(context);
     }
 
-    protected ContentPanel createMainPanel()
+    private final static Widget createPartTitle(final String text)
     {
-        ContentPanel contentPanel = new ContentPanel("Main-Page");
-        contentPanel.add(new FileUploadWidget(context));
+        final HTML html = new HTML(text);
+        html.setStyleName("cifex-heading");
+        return html;
+    }
+
+    private final HTML createExplanationPanel()
+    {
+        return new HTML(context.getMessageResources().getUploadFilesHelp());
+    }
+
+    //
+    // AbstractMainPage
+    //
+
+    protected final ContentPanel createMainPanel()
+    {
+        final ContentPanel contentPanel = new ContentPanel("Main-Page");
+        final VerticalPanel verticalPanel = new VerticalPanel();
+        contentPanel.setWidth("100%");
+        verticalPanel.setSpacing(5);
+        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
+        verticalPanel.add(createExplanationPanel());
+        verticalPanel.add(new FileUploadWidget(context));
+        contentPanel.add(verticalPanel);
         return contentPanel;
     }
 

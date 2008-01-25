@@ -2,3 +2,10 @@ body,div,td {
     font-family: verdana, tahoma, helvetica;
     font-size: 11px;
 }
+
+.cifex-heading {
+    font-weight: bold;
+    color: white;
+    background-color: #1e4e8f;
+    padding: 3px;
+}

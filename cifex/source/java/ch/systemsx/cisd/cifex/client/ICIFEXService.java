@@ -41,7 +41,9 @@ public interface ICIFEXService extends RemoteService
     public void logout();
 
     /**
-     * Whether this user is already authenticated or not.
+     * Returns the currently logged user if this user is already authenticated.
+     * 
+     * @return the currently logged user, <code>null</code> otherwise.
      */
-    public boolean isAuthenticated();
+    public User tryGetCurrentUser();
 }

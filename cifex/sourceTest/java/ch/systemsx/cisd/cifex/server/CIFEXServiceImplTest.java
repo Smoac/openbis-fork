@@ -87,7 +87,7 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(new UserDTO(), false);
 
         ICIFEXService service = createService(null);
-        assertEquals(true, service.isAuthenticated());
+        assertEquals(true, service.tryGetCurrentUser());
 
         context.assertIsSatisfied();
     }
@@ -98,7 +98,7 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(null, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(false, service.isAuthenticated());
+        assertEquals(false, service.tryGetCurrentUser());
 
         context.assertIsSatisfied();
     }

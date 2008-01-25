@@ -38,7 +38,7 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void logout(final AsyncCallback callback);
 
     /**
-     * Whether this user is already authenticated.
+     * Returns the currently logged user if this user is already authenticated.
      */
-    public void isAuthenticated(final AsyncCallback callback);
+    public void tryGetCurrentUser(final AsyncCallback callback);
 }

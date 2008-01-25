@@ -105,4 +105,53 @@ public interface IMessageResources extends Messages
      */
     public String getMessageBoxWarningTitle();
 
+    /**
+     * Returns the title of the file upload field set.
+     * 
+     * @gwt.key fileupload.legend
+     */
+    public String getFileUploadLegend();
+
+    /**
+     * Returns the file upload field label.
+     * 
+     * @gwt.key fileupload.field.label
+     */
+    public String getFileUploadFieldLabel(final int index);
+
+    /**
+     * Returns the file upload submit button label.
+     * 
+     * @gwt.key fileupload.button.label
+     */
+    public String getFileUploadButtonLabel();
+
+    /**
+     * Returns the title of the recipient field set.
+     * 
+     * @gwt.key recipient.legend
+     */
+    public String getRecipientLegend();
+
+    /**
+     * Returns the recipient text area field label.
+     * 
+     * @gwt.key recipient.field.label
+     */
+    public String getRecipientFieldLabel();
+
+    /**
+     * Returns the recipient text area field label.
+     * 
+     * @gwt.key uploadfiles.part.title
+     */
+    public String getUploadFilesPartTitle();
+
+    /**
+     * Returns the recipient text area field label.
+     * 
+     * @gwt.key uploadfiles.help
+     */
+    public String getUploadFilesHelp();
+
 }

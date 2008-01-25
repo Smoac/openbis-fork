@@ -8,6 +8,7 @@ import com.gwtext.client.widgets.form.Field;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * Entry point of <i>GWT</i> based <i>LIMS</i> client.
@@ -16,12 +17,22 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
  */
 public final class CIFEXEntryPoint implements EntryPoint
 {
+
     private final static ICIFEXServiceAsync createLIMSService()
     {
         final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(Constants.CIFEX_SERVLET_NAME);
         return service;
+    }
+
+    private final ViewContext createViewContext(final ICIFEXServiceAsync cifexService)
+    {
+        final IMessageResources messageResources = (IMessageResources) GWT.create(IMessageResources.class);
+        final PageController pageController = new PageController();
+        final ViewContext viewContext = new ViewContext(pageController, cifexService, new Model(), messageResources);
+        pageController.setViewContext(viewContext);
+        return viewContext;
     }
 
     //
@@ -32,12 +43,8 @@ public final class CIFEXEntryPoint implements EntryPoint
     {
         Field.setMsgTarget("side");
         QuickTips.init();
-        ICIFEXServiceAsync cifexService = createLIMSService();
-        IMessageResources messageResources = (IMessageResources) GWT.create(IMessageResources.class);
-        final PageController pageController = new PageController();
-        ViewContext viewContext = new ViewContext(pageController, cifexService, new Model(), messageResources);
-        pageController.setViewContext(viewContext);
-        cifexService.isAuthenticated(new AsyncCallbackAdapter()
+        final ICIFEXServiceAsync cifexService = createLIMSService();
+        cifexService.tryGetCurrentUser(new AsyncCallbackAdapter()
             {
 
                 //
@@ -46,8 +53,11 @@ public final class CIFEXEntryPoint implements EntryPoint
 
                 public final void onSuccess(final Object result)
                 {
-                    if (((Boolean) result).booleanValue())
+                    final ViewContext viewContext = createViewContext(cifexService);
+                    final IPageController pageController = viewContext.getPageController();
+                    if (result != null)
                     {
+                        viewContext.getModel().setUser((User) result);
                         pageController.createMainPage();
                     } else
                     {

@@ -18,58 +18,120 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.data.FieldDef;
+import com.gwtext.client.data.RecordDef;
+import com.gwtext.client.data.StringFieldDef;
+import com.gwtext.client.data.XmlReader;
+import com.gwtext.client.data.XmlReaderConfig;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.form.ColumnConfig;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
+import com.gwtext.client.widgets.form.TextArea;
+import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 
 /**
+ * <code>Form</code> extension to upload files and to send emails to specified recipients.
+ * 
  * @author Franz-Josef Elmer
  */
 public class FileUploadWidget extends Form
 {
-    private final static FormConfig createFormConfig()
-    {
-        final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(300);
-        formConfig.setLabelAlign("left");
-        formConfig.setButtonAlign("right");
-        formConfig.setLabelWidth(75);
-        formConfig.setFileUpload(true);
-        formConfig.setUrl("/cifex/upload");
-        formConfig.setMethod("POST");
-        formConfig.setWaitMsgTarget("Upload File...");
-        return formConfig;
-    }
+    private static final int FIELD_WIDTH = 230;
+
+    private static final int COLUMN_WIDTH = 342;
+
+    private static final int LABEL_WIDTH = 60;
+
+    private static final int FILE_FIELD_NUMBER = 3;
+
+    private static final String FILE_UPLOAD_PREFIX = "FileUpload-";
 
     private final ViewContext context;
 
+    private Button button;
+
     public FileUploadWidget(final ViewContext context)
     {
-        super(Ext.generateId("FileUpload-"), createFormConfig());
+        super(Ext.generateId(FILE_UPLOAD_PREFIX), createFormConfig());
         this.context = context;
         createForm();
+        // addFormListenerListener(new FormListenerAdapter()
+        // {
+        //
+        // //
+        // // FormListenerAdapter
+        // //
+        //
+        // public void onActionComplete(Form form)
+        // {
+        // Window.alert("finished");
+        // }
+        //
+        // public void onActionFailed(Form form)
+        // {
+        // Window.alert("failed");
+        // }
+        // });
     }
 
-    private void createForm()
+    private final static XmlReader createErrorReader()
     {
-        final TextFieldConfig fileFieldConfig = new TextFieldConfig();
-        fileFieldConfig.setFieldLabel("File");
-        fileFieldConfig.setName("upload-file");
-        fileFieldConfig.setInputType("file");
-        fileFieldConfig.setWidth(300);
-        fileFieldConfig.setAllowBlank(false);
-        fileFieldConfig.setValidateOnBlur(false);
+        final XmlReader errorReader = new XmlReader(new XmlReaderConfig()
+            {
+                {
+                    setRecord("field");
+                    setSuccess("@success");
+                }
+            }, new RecordDef(new FieldDef[]
+            { new StringFieldDef("id"), new StringFieldDef("msg") }));
+        return errorReader;
+    }
 
-        add(new TextField(fileFieldConfig));
+    private final static FormConfig createFormConfig()
+    {
+        final FormConfig formConfig = new FormConfig();
+        formConfig.setWidth(700);
+        formConfig.setLabelAlign("left");
+        formConfig.setButtonAlign("right");
+        formConfig.setLabelWidth(LABEL_WIDTH);
+        formConfig.setFileUpload(true);
+        formConfig.setUrl("/cifex/file-upload");
+        formConfig.setMethod("POST");
+        formConfig.setWaitMsgTarget("Upload File...");
+        formConfig.setErrorReader(createErrorReader());
+        formConfig.setReader(createErrorReader());
+        return formConfig;
+    }
 
-        Button button = addButton("upload");
+    private final void createForm()
+    {
+        column(createLeftColumnConfig());
+        fieldset(context.getMessageResources().getFileUploadLegend());
+        for (int i = 0; i < FILE_FIELD_NUMBER; i++)
+        {
+            add(new TextField(createFileFieldConfig(i)));
+        }
+        end();
+        end();
+
+        column(createRightColumnConfig());
+        fieldset(context.getMessageResources().getRecipientLegend());
+        add(new TextArea(createTextAreaConfig()));
+
+        button = addButton(context.getMessageResources().getFileUploadButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
+
+                //
+                // ButtonListenerAdapter
+                //
+
                 public final void onClick(final Button but, final EventObject e)
                 {
                     submit();
@@ -78,6 +140,47 @@ public class FileUploadWidget extends Form
             });
         end();
         render();
+    }
+
+    private final static ColumnConfig createLeftColumnConfig()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setWidth(COLUMN_WIDTH);
+        columnConfig.setLabelWidth(LABEL_WIDTH);
+        return columnConfig;
+    }
+
+    private final static ColumnConfig createRightColumnConfig()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setWidth(COLUMN_WIDTH);
+        columnConfig.setLabelWidth(LABEL_WIDTH);
+        columnConfig.setStyle("margin-left:10px;");
+        return columnConfig;
+    }
+
+    private final TextAreaConfig createTextAreaConfig()
+    {
+        final TextAreaConfig textAreaConfig = new TextAreaConfig();
+        textAreaConfig.setAllowBlank(false);
+        textAreaConfig.setFieldLabel(context.getMessageResources().getRecipientFieldLabel());
+        textAreaConfig.setName("email-addresses");
+        textAreaConfig.setGrow(true);
+        textAreaConfig.setPreventScrollbars(true);
+        textAreaConfig.setWidth(FIELD_WIDTH);
+        return textAreaConfig;
+    }
+
+    private final TextFieldConfig createFileFieldConfig(final int index)
+    {
+        final TextFieldConfig fileFieldConfig = new TextFieldConfig();
+        fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
+        fileFieldConfig.setName("upload-file" + index);
+        fileFieldConfig.setInputType("file");
+        fileFieldConfig.setWidth(FIELD_WIDTH);
+        fileFieldConfig.setAllowBlank(index > 0);
+        fileFieldConfig.setValidateOnBlur(false);
+        return fileFieldConfig;
     }
 
 }

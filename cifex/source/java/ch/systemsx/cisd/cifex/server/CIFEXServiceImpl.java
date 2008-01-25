@@ -129,10 +129,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
     // ICifexService
     //
 
-    public final boolean isAuthenticated()
+    public final User tryGetCurrentUser()
     {
-        UserDTO currentUser = getCurrentUser();
-        return currentUser != null;
+        final UserDTO currentUser = getCurrentUser();
+        if (currentUser != null)
+        {
+            return BeanUtils.createBean(User.class, currentUser);
+        }
+        return null;
     }
 
     public final User tryToLogin(final String user, final String password) throws UserFailureException
