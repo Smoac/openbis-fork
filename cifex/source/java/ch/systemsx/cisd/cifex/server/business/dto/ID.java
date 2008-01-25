@@ -20,12 +20,22 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
  * Abstract super class of all Data Transfer Objects (DTOs) with a unique ID.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 abstract class ID extends AbstractHashable
 {
     private Long id;
+
+    protected static Long getAndCheckID(final ID objectWithID, final Long id)
+    {
+        if (objectWithID == null)
+        {
+            return id;
+        }
+        assert id == null || id.equals(objectWithID.getID());
+        return objectWithID.getID();
+    }
 
     /**
      * Returns ID.
@@ -46,6 +56,5 @@ abstract class ID extends AbstractHashable
     {
         this.id = id;
     }
-
 
 }

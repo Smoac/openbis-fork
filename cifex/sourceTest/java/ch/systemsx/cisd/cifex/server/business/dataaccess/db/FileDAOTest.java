@@ -42,7 +42,7 @@ public final class FileDAOTest extends AbstractDAOTest
     {
         List<UserDTO> fileViewers = new ArrayList<UserDTO>();
         fileViewers.add(registerer);
-        FileDTO file = new FileDTO();
+        FileDTO file = new FileDTO(registerer.getID());
         file.setExpirationDate(expirationDate);
         file.setName(name);
         file.setPath(path);

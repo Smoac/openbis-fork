@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
@@ -45,13 +46,12 @@ public class LoginWidget extends Form
     private static final int FIELD_WIDTH = 175;
 
     private final ViewContext context;
-    
+
     private TextField usernameField;
 
     private TextField passwordField;
 
     private Button button;
-
 
     public LoginWidget(final ViewContext context)
     {
@@ -104,8 +104,8 @@ public class LoginWidget extends Form
     {
         final FormConfig formConfig = new FormConfig();
         formConfig.setWidth(300);
-        formConfig.setLabelAlign("left");
-        formConfig.setButtonAlign("right");
+        formConfig.setLabelAlign(Position.LEFT);
+        formConfig.setButtonAlign(Position.RIGHT);
         formConfig.setLabelWidth(75);
         return formConfig;
     }

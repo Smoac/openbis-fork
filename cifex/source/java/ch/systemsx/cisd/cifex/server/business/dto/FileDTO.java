@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Izabela Adamczyk
  */
-public class FileDTO extends ID
+public final class FileDTO extends ID
 {
     private String name;
 
@@ -39,7 +39,14 @@ public class FileDTO extends ID
     private Date expirationDate;
 
     /** Ids of users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
-    List<UserDTO> sharingUsers;
+    private List<UserDTO> sharingUsers;
+
+    private final Long registererId;
+
+    public FileDTO(final Long registererId)
+    {
+        this.registererId = registererId;
+    }
 
     public String getName()
     {
@@ -68,6 +75,7 @@ public class FileDTO extends ID
 
     public final void setRegisterer(final UserDTO registerer)
     {
+        getAndCheckID(registerer, registererId);
         this.registerer = registerer;
     }
 

@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.gwtext.client.core.Connection;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
-import com.gwtext.client.data.FieldDef;
-import com.gwtext.client.data.RecordDef;
-import com.gwtext.client.data.StringFieldDef;
-import com.gwtext.client.data.XmlReader;
-import com.gwtext.client.data.XmlReaderConfig;
+import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.ColumnConfig;
 import com.gwtext.client.widgets.form.Form;
@@ -32,8 +30,11 @@ import com.gwtext.client.widgets.form.TextArea;
 import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
+import com.gwtext.client.widgets.form.event.FormListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -61,51 +62,42 @@ public class FileUploadWidget extends Form
         super(Ext.generateId(FILE_UPLOAD_PREFIX), createFormConfig());
         this.context = context;
         createForm();
-        // addFormListenerListener(new FormListenerAdapter()
-        // {
-        //
-        // //
-        // // FormListenerAdapter
-        // //
-        //
-        // public void onActionComplete(Form form)
-        // {
-        // Window.alert("finished");
-        // }
-        //
-        // public void onActionFailed(Form form)
-        // {
-        // Window.alert("failed");
-        // }
-        // });
-    }
-
-    private final static XmlReader createErrorReader()
-    {
-        final XmlReader errorReader = new XmlReader(new XmlReaderConfig()
+        addFormListenerListener(new FormListenerAdapter()
             {
+
+                //
+                // FormListenerAdapter
+                //
+
+                public final void onActionComplete(final Form form, final int httpStatus, final String responseText)
                 {
-                    setRecord("field");
-                    setSuccess("@success");
+                    final String response = responseText.substring("<pre>".length(), responseText.indexOf("</pre>"));
+                    if (StringUtils.isBlank(response) == false)
+                    {
+                        final IMessageResources messageResources = context.getMessageResources();
+                        final String title = messageResources.getMessageBoxWarningTitle();
+                        MessageBox.alert(title, response);
+                    }
                 }
-            }, new RecordDef(new FieldDef[]
-            { new StringFieldDef("id"), new StringFieldDef("msg") }));
-        return errorReader;
+
+                public final void onActionFailed(final Form form, final int httpStatus, final String responseText)
+                {
+                    button.enable();
+                }
+
+            });
     }
 
     private final static FormConfig createFormConfig()
     {
         final FormConfig formConfig = new FormConfig();
         formConfig.setWidth(700);
-        formConfig.setLabelAlign("left");
-        formConfig.setButtonAlign("right");
+        formConfig.setLabelAlign(Position.LEFT);
+        formConfig.setButtonAlign(Position.RIGHT);
         formConfig.setLabelWidth(LABEL_WIDTH);
         formConfig.setFileUpload(true);
         formConfig.setUrl("/cifex/file-upload");
-        formConfig.setMethod("POST");
-        formConfig.setWaitMsgTarget("Upload File...");
-        formConfig.setErrorReader(createErrorReader());
-        formConfig.setReader(createErrorReader());
+        formConfig.setMethod(Connection.POST);
         return formConfig;
     }
 
@@ -134,7 +126,7 @@ public class FileUploadWidget extends Form
 
                 public final void onClick(final Button but, final EventObject e)
                 {
-                    submit();
+                    submitForm();
                 }
 
             });
@@ -175,12 +167,21 @@ public class FileUploadWidget extends Form
     {
         final TextFieldConfig fileFieldConfig = new TextFieldConfig();
         fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
-        fileFieldConfig.setName("upload-file" + index);
+        fileFieldConfig.setName("upload-file");
         fileFieldConfig.setInputType("file");
         fileFieldConfig.setWidth(FIELD_WIDTH);
         fileFieldConfig.setAllowBlank(index > 0);
         fileFieldConfig.setValidateOnBlur(false);
         return fileFieldConfig;
+    }
+
+    protected void submitForm()
+    {
+        submit();
+        if (isValid())
+        {
+            button.disable();
+        }
     }
 
 }

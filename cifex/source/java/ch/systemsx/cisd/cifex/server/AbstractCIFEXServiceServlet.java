@@ -16,12 +16,17 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -72,6 +77,30 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
             throw new InvalidSessionException("You are not logged in. Please log in.");
         }
         return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
+    }
+
+    /**
+     * Sends an error message to the client.
+     */
+    protected final void sendErrorMessage(final HttpServletResponse response, final Exception exception)
+            throws IOException
+    {
+        assert exception != null : "Given exception can not be null.";
+        response.setContentType("text/plain");
+        final String message;
+        final String exceptionMsg = exception.getMessage();
+        final PrintWriter writer = response.getWriter();
+        if (StringUtils.isNotBlank(exceptionMsg))
+        {
+            message = exceptionMsg;
+        } else
+        {
+            message =
+                    String.format("A problem ['%s'] has occurred on the server side.", exception.getClass()
+                            .getSimpleName());
+        }
+        writer.write(message);
+        writer.flush();
     }
 
     //

@@ -45,6 +45,12 @@ public final class DomainModel implements IDomainModel
 
     private File fileStore;
 
+    /** How long the file is going to stay in the system? */
+    private int fileRetention;
+
+    /** How long the user is going to stay in the system? */
+    private int userRetention;
+
     /**
      * Constructor only used for unit tests.
      */
@@ -79,6 +85,7 @@ public final class DomainModel implements IDomainModel
 
     }
 
+    /** Sets the file store root path where the files are going to be saved. */
     public final void setFileStorePath(final String fileStorePath)
     {
         fileStore = new File(fileStorePath);
@@ -95,6 +102,28 @@ public final class DomainModel implements IDomainModel
                         + "' for some unknown reason.");
             }
         }
+    }
+
+    /**
+     * Sets the file retention time in minutes.
+     * <p>
+     * This is typically by <i>Spring</i> via injection.
+     * </p>
+     */
+    public final void setFileRetention(final int fileRentention)
+    {
+        this.fileRetention = fileRentention;
+    }
+
+    /**
+     * Sets the user retention time in minutes.
+     * <p>
+     * This is typically by <i>Spring</i> via injection.
+     * </p>
+     */
+    public final void setUserRetention(final int userRentention)
+    {
+        this.userRetention = userRentention;
     }
 
     private <T> T createLoggingProxy(final T manager)
@@ -120,7 +149,7 @@ public final class DomainModel implements IDomainModel
     {
         if (userManager == null)
         {
-            userManager = createLoggingProxy(new UserManager(daoFactory));
+            userManager = createLoggingProxy(new UserManager(daoFactory, userRetention));
         }
         return userManager;
     }
@@ -132,7 +161,7 @@ public final class DomainModel implements IDomainModel
     {
         if (fileManager == null)
         {
-            fileManager = createLoggingProxy(new FileManager(daoFactory, fileStore));
+            fileManager = createLoggingProxy(new FileManager(daoFactory, fileStore, fileRetention));
         }
         return fileManager;
     }

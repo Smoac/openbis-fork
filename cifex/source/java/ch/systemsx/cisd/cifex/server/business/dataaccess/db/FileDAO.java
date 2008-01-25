@@ -60,12 +60,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public final void createFile(FileDTO file) throws DataAccessException
     {// FIXME 2008-01-24, Izabela: This method should be transactional (check if other are)
         assert file != null : "Given file cannot be null.";
+
         final long id = createID();
         final long registererId = file.getRegisterer().getID();
         getSimpleJdbcTemplate().update(
-                "insert into files (ID, NAME, PATH, USER_ID_REGISTERER, REGISTRATION_TIMESTAMP, EXPIRATION_TIMESTAMP) "
+                "insert into files (ID, NAME, PATH, USER_ID_REGISTERER, EXPIRATION_TIMESTAMP) "
                         + "values (?,?,?,?,?,?)", id, file.getName(), file.getPath(), registererId,
-                file.getRegistrationDate(), file.getExpirationDate());
+                file.getExpirationDate());
         List<UserDTO> sharingUsers = file.getSharingUsers();
         if (sharingUsers != null)
         {
@@ -134,7 +135,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
         private static final FileDTO fillSimpleFileFromResultSet(final ResultSet rs) throws SQLException
         {
-            final FileDTO file = new FileDTO();
+            final long registererId = rs.getLong("f_USER_ID_REGISTERER");
+            final FileDTO file = new FileDTO(registererId);
             final Date expDate = new Date(rs.getTimestamp("f_EXPIRATION_TIMESTAMP").getTime());
             file.setExpirationDate(expDate);
             file.setID(rs.getLong("f_ID"));
@@ -142,7 +144,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             file.setPath(rs.getString("f_PATH"));
 
             final UserDTO registerer = new UserDTO();
-            registerer.setID(rs.getLong("f_USER_ID_REGISTERER"));
+            registerer.setID(registererId);
             file.setRegisterer(registerer);
 
             final Date regDate = new Date(rs.getTimestamp("f_REGISTRATION_TIMESTAMP").getTime());

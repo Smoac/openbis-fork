@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -30,13 +32,21 @@ public class UserManager extends AbstractManager implements IUserManager
 
     private IUserDAO userDAO;
 
-    public UserManager(IDAOFactory daoFactory)
+    private final int userRetention;
+
+    public UserManager(final IDAOFactory daoFactory, final int userRetention)
     {
         super(daoFactory);
         userDAO = daoFactory.getUserDAO();
+        this.userRetention = userRetention;
     }
 
-    public UserDTO tryToFindUser(String email)
+    //
+    // IUserManager
+    //
+
+    @Transactional
+    public final UserDTO tryToFindUser(final String email)
     {
         assert email != null : "Email Adress is null!";
 
@@ -44,15 +54,17 @@ public class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    public void createUser(UserDTO user)
+    @Transactional
+    public final void createUser(final UserDTO user)
     {
-        assert user != null;
-        assert user.getID() == null : "User ID is set, this will be done from the UserDAO";
+        assert user != null : "Given user can not be null.";
+        assert user.getID() == null : "User ID is set, this will be done from the UserDAO.";
 
         userDAO.createUser(user);
     }
 
-    public List<UserDTO> listUsers()
+    @Transactional
+    public final List<UserDTO> listUsers()
     {
         return userDAO.listUsers();
     }

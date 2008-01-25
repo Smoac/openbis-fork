@@ -20,13 +20,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
-import org.h2.util.IOUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -37,33 +43,37 @@ final class FileManager extends AbstractManager implements IFileManager
 {
     private final File fileStore;
 
-    FileManager(final IDAOFactory daoFactory, final File fileStore)
+    private final int fileRetentionInMinutes;
+
+    FileManager(final IDAOFactory daoFactory, final File fileStore, final int fileRetentionInMinutes)
     {
         super(daoFactory);
         assert fileStore.exists() : "File store does not exist.";
         assert fileStore.isDirectory() : "File store is not a directory";
 
         this.fileStore = fileStore;
+        this.fileRetentionInMinutes = fileRetentionInMinutes;
     }
 
     //
     // IFileManager
     //
 
+    @Transactional
     public final FileOutput getFile(final UserDTO userDTO, final long fileId)
     {
         assert userDTO != null : "Given user can not be null.";
 
-        // final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-        // TODO 2008-01-24, Christian Ribeaud: check file share and current user.
-        // final java.io.File realFile = new java.io.File(file.getPath());
-        // if (realFile.exists() == false)
-        // {
-        // throw new UserFailureException(String.format("File '%s' no longer available."));
-        // }
+        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        final java.io.File realFile = new java.io.File(fileStore, file.getPath());
+        if (realFile.exists() == false)
+        {
+            throw new UserFailureException(String.format("File '%s' no longer available."));
+        }
         return null;
     }
 
+    @Transactional
     public final void saveFile(final UserDTO user, final String fileName, final InputStream inputStream)
     {
         final File folder = new File(fileStore, user.getEmail());
@@ -83,19 +93,24 @@ final class FileManager extends AbstractManager implements IFileManager
                         + "' can not be created for some unknown reason.");
             }
         }
-        final File file = new File(folder, "dummy");
+        final File file = new File(folder, fileName);
         FileOutputStream fileOutputStream = null;
         try
         {
             fileOutputStream = new FileOutputStream(file);
             IOUtils.copy(inputStream, fileOutputStream);
+            final FileDTO fileDTO = new FileDTO(user.getID());
+            fileDTO.setName(fileName);
+            fileDTO.setPath(FileUtilities.getRelativeFile(fileStore, file));
+            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetentionInMinutes));
+            daoFactory.getFileDAO().createFile(fileDTO);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
-            IOUtils.closeSilently(inputStream);
-            IOUtils.closeSilently(fileOutputStream);
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(fileOutputStream);
         }
     }
 }

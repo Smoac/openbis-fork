@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/gwt/gwt-user.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt-ext/gwtext.jar"/>
 	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/h2-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.zip"/>
@@ -25,5 +24,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/gwt-ext/gwtext-0.9.3.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
