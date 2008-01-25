@@ -54,82 +54,120 @@ public final class FileDAOTest extends AbstractDAOTest
 
     final FileDTO createSampleFile()
     {
-        String name = "file01.txt";
+        String name = "file.txt";
         UserDTO registerer = getSampleUserFromDB();
-        String path = "/files/" + registerer.getUserName() + "/";
+        String path = "/files/" + registerer.getUserName() + "/" + name;
         Date registrationDate = new Date(new Long("1222249782000").longValue());
         Date expirationDate = new Date(new Long("1222249782000").longValue());
         return createFile(name, path, registerer, registrationDate, expirationDate);
     }
 
     @Transactional
-    public final void testFileDAO()
+    @Test
+    public final void testCreateFileFailNonExistingOwner()
+    {
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        FileDTO file1 = createSampleFile();
+        file1.getRegisterer().setID(-1L);
+        boolean exceptionThrown = false;
+        try
+        {
+            fileDAO.createFile(file1);
+        } catch (Exception e)
+        {
+            exceptionThrown = true;
+        } finally
+        {
+            assertTrue(exceptionThrown);
+        }
+    }
+
+    @Transactional
+    @Test
+    public final void testCreateFileFailNonExistingSharingUser()
+    {
+
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        FileDTO file1 = createSampleFile();
+        file1.getSharingUsers().get(0).setID(-1L);
+        boolean exceptionThrown = false;
+        try
+        {
+            fileDAO.createFile(file1);
+        } catch (Exception e)
+        {
+            exceptionThrown = true;
+        } finally
+        {
+            assertTrue(exceptionThrown);
+        }
+    }
+
+    @Transactional
+    @Test
+    public final void testCreateFile()
     {
         IFileDAO fileDAO = daoFactory.getFileDAO();
         // no file in database
         List<FileDTO> files = fileDAO.listFiles();
         assertEquals(0, files.size());
         // create new sample file
-        FileDTO file1 = createSampleFile();
-        assertNull(file1.getID());
+        FileDTO sampleFile = createSampleFile();
+        assertNull(sampleFile.getID());
         // save file in database
-        fileDAO.createFile(file1);
-        assertNotNull(file1.getID());
+        fileDAO.createFile(sampleFile);
+        assertNotNull(sampleFile.getID());
         // check if number of files in database increased
         files = fileDAO.listFiles();
         assertEquals(1, files.size());
-        assertEquals(file1.getID(), files.get(0).getID());
-        assertEquals(file1.getName(), files.get(0).getName());
-        assertEquals(file1.getPath(), files.get(0).getPath());
-        assertEquals(file1.getRegisterer().getID(), files.get(0).getRegisterer().getID());
-        assertEquals(file1.getRegistrationDate(), files.get(0).getRegistrationDate());
-        assertEquals(file1.getExpirationDate(), files.get(0).getExpirationDate());
-        // delete file
-        fileDAO.deleteFile(file1.getID());
-        files = fileDAO.listFiles();
-        assertEquals(0, files.size());
-        // try get file with id
-        FileDTO file3 = createSampleFile();
-        file3.setName("file02.txt");
-        fileDAO.createFile(file3);
-        FileDTO file4 = fileDAO.tryGetFile(file3.getID());
-        assertEquals(file3.getSharingUsers().size(), file4.getSharingUsers().size());
-
-        setComplete();
-    }
-
-    @Transactional
-    @Test
-    public final void testCreateFile()
-    { // with-without
-
-    }
-
-    @Transactional
-    @Test
-    public final void testCreateFileFail()
-    {
-
+        assertEquals(sampleFile.getID(), files.get(0).getID());
+        assertEquals(sampleFile.getName(), files.get(0).getName());
+        assertEquals(sampleFile.getPath(), files.get(0).getPath());
+        assertEquals(sampleFile.getRegisterer().getID(), files.get(0).getRegisterer().getID());
+        assertEquals(sampleFile.getRegistrationDate(), files.get(0).getRegistrationDate());
+        assertEquals(sampleFile.getExpirationDate(), files.get(0).getExpirationDate());
     }
 
     @Transactional
     @Test
     public final void testDeleteFile()
     {
-
+        FileDTO sampleFile = createSampleFile();
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        fileDAO.createFile(sampleFile);
+        assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
+        fileDAO.deleteFile(sampleFile.getID());
+        assertNull(fileDAO.tryGetFile(sampleFile.getID()));
     }
 
     @Transactional
     @Test
     public final void testTryGetFile()
     {
+        // Get existing file
+        FileDTO sampleFile = createSampleFile();
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        fileDAO.createFile(sampleFile);
+        assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
 
+        // Try get non existing file
+        fileDAO.deleteFile(sampleFile.getID());
+        assertNull(fileDAO.tryGetFile(sampleFile.getID()));
     }
 
     @Transactional
     @Test
     public final void testListFiles()
     {
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        int numberOfFiles = 5;
+        for (int i = 1; i <= numberOfFiles; i++)
+        {
+            FileDTO sampleFile = createSampleFile();
+            sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
+            fileDAO.createFile(sampleFile);
+            assertEquals(i, fileDAO.listFiles().size());
+        }
 
     }
 

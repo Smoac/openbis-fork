@@ -24,6 +24,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -100,13 +101,19 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         assert id != null : "Given file id can not be null!";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final FileDTO file = template.queryForObject(FILES_JOIN_USERS, new FileWithRegistererRowMapper(), id);
-        List<UserDTO> sharingUsers = listSharingUsers(id);
-        if (sharingUsers.size() > 0)
+        try
         {
-            file.setSharingUsers(sharingUsers);
+            final FileDTO file = template.queryForObject(FILES_JOIN_USERS, new FileWithRegistererRowMapper(), id);
+            List<UserDTO> sharingUsers = listSharingUsers(id);
+            if (sharingUsers.size() > 0)
+            {
+                file.setSharingUsers(sharingUsers);
+            }
+            return file;
+        } catch (EmptyResultDataAccessException e)
+        {
+            return null;
         }
-        return file;
     }
 
     private List<UserDTO> listSharingUsers(Long fileId) throws DataAccessException
