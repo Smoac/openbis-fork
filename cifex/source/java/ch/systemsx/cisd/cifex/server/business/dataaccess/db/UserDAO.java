@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -111,8 +112,15 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
         assert StringUtils.isNotBlank(email) : "No email specified!";
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final UserDTO user = template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
-        return user;
+        try
+        {
+            final UserDTO user =
+                    template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
+            return user;
+        } catch (EmptyResultDataAccessException e)
+        {
+            return null;
+        }
     }
 
     public boolean removeUser(Long userID)
