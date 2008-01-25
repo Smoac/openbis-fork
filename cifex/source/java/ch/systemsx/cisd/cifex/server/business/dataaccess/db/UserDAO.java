@@ -70,10 +70,6 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
 
     }
 
-    /**
-     * @param dataSource
-     * @param sequencerHandler
-     */
     UserDAO(DataSource dataSource, ISequencerHandler sequencerHandler)
     {
         super(dataSource, sequencerHandler);
@@ -100,9 +96,9 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template.update(
                 "insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin,"
-                        + "is_permanent, registration_timestamp, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", id,
-                user.getEmail(), user.getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
-                user.isAdmin(), user.isPermanent(), user.getRegistrationDate(), user.getExpirationDate());
+                        + "is_permanent, expiration_timestamp) values (?,?,?,?,?,?,?,?)", id, user.getEmail(), user
+                        .getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(), user.isAdmin(),
+                user.isPermanent(), user.getExpirationDate());
 
         user.setID(id);
     }

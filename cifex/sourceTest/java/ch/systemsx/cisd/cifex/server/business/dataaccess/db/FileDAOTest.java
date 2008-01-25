@@ -38,7 +38,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 public final class FileDAOTest extends AbstractDAOTest
 {
 
-    final FileDTO createFile(String name, String path, UserDTO registerer, Date registrationDate, Date expirationDate)
+    final FileDTO createFile(String name, String path, UserDTO registerer, Date expirationDate)
     {
         List<UserDTO> fileViewers = new ArrayList<UserDTO>();
         fileViewers.add(registerer);
@@ -47,7 +47,6 @@ public final class FileDAOTest extends AbstractDAOTest
         file.setName(name);
         file.setPath(path);
         file.setRegisterer(registerer);
-        file.setRegistrationDate(registrationDate);
         file.setSharingUsers(fileViewers);
         return file;
     }
@@ -57,9 +56,8 @@ public final class FileDAOTest extends AbstractDAOTest
         String name = "file.txt";
         UserDTO registerer = getSampleUserFromDB();
         String path = "/files/" + registerer.getUserName() + "/" + name;
-        Date registrationDate = new Date(new Long("1222249782000").longValue());
         Date expirationDate = new Date(new Long("1222249782000").longValue());
-        return createFile(name, path, registerer, registrationDate, expirationDate);
+        return createFile(name, path, registerer, expirationDate);
     }
 
     @Transactional
@@ -123,8 +121,8 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(sampleFile.getID(), files.get(0).getID());
         assertEquals(sampleFile.getName(), files.get(0).getName());
         assertEquals(sampleFile.getPath(), files.get(0).getPath());
-        assertEquals(sampleFile.getRegisterer().getID(), files.get(0).getRegisterer().getID());
-        assertEquals(sampleFile.getRegistrationDate(), files.get(0).getRegistrationDate());
+        assertEquals(sampleFile.getRegistererId(), files.get(0).getRegistererId());
+        assertNotNull(files.get(0).getRegistrationDate());
         assertEquals(sampleFile.getExpirationDate(), files.get(0).getExpirationDate());
     }
 

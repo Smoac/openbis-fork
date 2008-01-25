@@ -109,4 +109,9 @@ public final class FileDTO extends ID
         this.sharingUsers = sharingUsers;
     }
 
+    public final Long getRegistererId()
+    {
+        return registererId;
+    }
+
 }

@@ -38,20 +38,20 @@ public interface IFileDAO
      * 
      * @param file <code>File</code> object to be inserted into the database. Can not be <code>null</code>.
      */
-    public void createFile(FileDTO file) throws DataAccessException;
+    public void createFile(final FileDTO file) throws DataAccessException;
 
     /**
      * Removes <code>File</code> with given id from database.
      * 
      * @param id Id of file which should be removed from database.
      */
-    public void deleteFile(Long id) throws DataAccessException;
+    public void deleteFile(final long id) throws DataAccessException;
 
     /**
      * Returns a list of all files existing in database.
      */
     public List<FileDTO> listFiles() throws DataAccessException;
 
-    /** Returns detailed information about file, including registerer data and list of users the file is shared with */
-    public FileDTO tryGetFile(Long id) throws DataAccessException;
+    /** Returns detailed information about file, including registerer data and list of users the file is shared with. */
+    public FileDTO tryGetFile(final long id) throws DataAccessException;
 }

@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +45,19 @@ public final class UserDAOTest extends AbstractDAOTest
         return "bneff";
     }
 
+    private void checkUser(final UserDTO expectedUser, final UserDTO actualUser)
+    {
+        assertEquals(expectedUser.isAdmin(), actualUser.isAdmin());
+        assertEquals(expectedUser.isExternallyAuthenticated(), actualUser.isExternallyAuthenticated());
+        assertEquals(expectedUser.isPermanent(), actualUser.isPermanent());
+        assertEquals(expectedUser.getEmail(), actualUser.getEmail());
+        assertEquals(expectedUser.getEncryptedPassword(), actualUser.getEncryptedPassword());
+        assertEquals(expectedUser.getExpirationDate(), actualUser.getExpirationDate());
+        assertEquals(expectedUser.getUserName(), actualUser.getUserName());
+        assertNotNull(actualUser.getID());
+        assertNotNull(actualUser.getRegistrationDate());
+    }
+
     final static UserDTO createUser(boolean permanent, boolean admin, String email)
     {
         UserDTO user = new UserDTO();
@@ -58,13 +68,11 @@ public final class UserDAOTest extends AbstractDAOTest
         {
             user.setEmail(email);
         }
-
         user.setUserName(getTestUserName());
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
         user.setPermanent(permanent);
-        user.setRegistrationDate(new Date(new Long("402218403000").longValue()));
         if (permanent == false)
         {
             user.setExpirationDate(new Date(new Long("1222249782000").longValue()));
@@ -125,7 +133,7 @@ public final class UserDAOTest extends AbstractDAOTest
         assert testAdminUserFromDB.getID() != null;
         assert testAdminUserFromDB.getID() > 0;
 
-        assertEquals(testAdminUser, testAdminUserFromDB);
+        checkUser(testAdminUser, testAdminUserFromDB);
 
         // Existing Temporary User
         UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByEmail(testTemporaryUser.getEmail());
@@ -133,7 +141,7 @@ public final class UserDAOTest extends AbstractDAOTest
         assert testTemporaryUserFromDB.getID() != null;
         assert testTemporaryUserFromDB.getID() > 0;
 
-        assertEquals(testTemporaryUser, testTemporaryUserFromDB);
+        checkUser(testTemporaryUser, testTemporaryUserFromDB);
     }
 
     @Test(dependsOnMethods =
