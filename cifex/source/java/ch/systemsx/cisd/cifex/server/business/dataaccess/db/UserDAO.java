@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -38,7 +37,7 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
 public final class UserDAO extends AbstractDAO implements IUserDAO
 {
 
-    private static final class UserRowMapper implements ParameterizedRowMapper<UserDTO>
+    public static final class UserRowMapper implements ParameterizedRowMapper<UserDTO>
     {
 
         public final UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
@@ -53,7 +52,7 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
          * <code>is_permanent</code>, <code>registration_timestamp</code>, <code>expiration_timestamp</code> to
          * be present in the {@link ResultSet} <var>rs</var>.
          */
-        final private UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
+        final public static UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {
             final UserDTO user = new UserDTO();
             user.setID(rs.getLong("id"));
@@ -112,15 +111,8 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
         assert StringUtils.isNotBlank(email) : "No email specified!";
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        try
-        {
-            final UserDTO user =
-                    template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
-            return user;
-        } catch (EmptyResultDataAccessException e)
-        {
-            return null;
-        }
+        final UserDTO user = template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
+        return user;
     }
 
     public boolean removeUser(Long userID)

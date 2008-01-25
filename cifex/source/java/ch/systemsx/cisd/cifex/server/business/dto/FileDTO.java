@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business.dto;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Izabela Adamczyk
@@ -27,11 +28,18 @@ public class FileDTO extends ID
 
     private String path;
 
+    /**
+     * Represents registerer of the file. Id of registerer will be always filled while loading from database, but other
+     * fields will be filled only by some loading methods (e.g getFile(Long id)).
+     */
     private UserDTO registerer;
 
     private Date registrationDate;
 
     private Date expirationDate;
+
+    /** Ids of users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
+    List<UserDTO> sharingUsers;
 
     public String getName()
     {
@@ -82,4 +90,15 @@ public class FileDTO extends ID
     {
         this.expirationDate = expirationDate;
     }
+
+    public List<UserDTO> getSharingUsers()
+    {
+        return sharingUsers;
+    }
+
+    public void setSharingUsers(List<UserDTO> sharingUsers)
+    {
+        this.sharingUsers = sharingUsers;
+    }
+
 }

@@ -16,15 +16,17 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess;
 
-
 /**
  * A <i>Data Access Object</i> factory.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDAOFactory
 {
     /** Returns the <code>IUserDAO</code> implementation. */
     public IUserDAO getUserDAO();
+
+    /** Returns the <code>IFileDAO</code> implementation. */
+    public IFileDAO getFileDAO();
 
 }
