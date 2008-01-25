@@ -79,14 +79,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         assert file != null : "Given file cannot be null.";
 
         final long id = createID();
-        final long registererId = file.getRegisterer().getID();
         getSimpleJdbcTemplate().update(
                 "insert into files (ID, NAME, PATH, USER_ID_REGISTERER, EXPIRATION_TIMESTAMP) values (?,?,?,?,?)", id,
-                file.getName(), file.getPath(), registererId, file.getExpirationDate());
+                file.getName(), file.getPath(), file.getRegistererId(), file.getExpirationDate());
         List<UserDTO> sharingUsers = file.getSharingUsers();
         if (sharingUsers != null)
         {
-            for (UserDTO sharingUser : sharingUsers)
+            for (final UserDTO sharingUser : sharingUsers)
             {
                 getSimpleJdbcTemplate().update("insert into file_shares (file_id, user_id) " + "values (?,?)", id,
                         sharingUser.getID());

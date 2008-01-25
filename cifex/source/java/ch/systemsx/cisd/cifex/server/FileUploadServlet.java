@@ -18,14 +18,17 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
@@ -55,22 +58,33 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         try
         {
             final UserDTO user = getUserDTO(request);
-            final ServletFileUpload upload = new ServletFileUpload();
-            final FileItemIterator iter = upload.getItemIterator(request);
-            while (iter.hasNext())
+            final FileItemFactory factory = new DiskFileItemFactory();
+            final ServletFileUpload upload = new ServletFileUpload(factory);
+            final List<FileItem> items = upload.parseRequest(request);
+            for (final FileItem item : items)
             {
-                FileItemStream item = iter.next();
-                InputStream stream = item.openStream();
+                final InputStream stream = item.getInputStream();
+                final String fileName = item.getName();
                 if (item.isFormField() == false)
                 {
-                    domainModel.getFileManager().saveFile(user, item.getName(), stream);
+                    if (StringUtils.isNotBlank(fileName))
+                    {
+                        domainModel.getFileManager().saveFile(user, fileName, stream);
+                    }
                 } else
                 {
+                    registerTemporaryUsers(item.getString());
                 }
             }
         } catch (final Exception ex)
         {
             sendErrorMessage(response, ex);
         }
+    }
+
+    private void registerTemporaryUsers(final String temporaryUserList)
+    {
+        System.out.println(temporaryUserList + "**********************");
+        // domainModel.getUserManager().tryToFindUser(email);
     }
 }
