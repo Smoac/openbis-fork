@@ -74,7 +74,8 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final void saveFile(final UserDTO user, final String fileName, final InputStream inputStream)
+    public final void saveFile(final UserDTO user, final String fileName, final String contentType,
+            final InputStream inputStream)
     {
         final File folder = new File(fileStore, user.getEmail());
         if (folder.exists())
@@ -94,6 +95,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         }
         final File file = new File(folder, fileName);
+        // TODO 2008-01-26, Christian Ribeaud: monitor available space to avoid surprises (FileSystemUtils may help?)
         FileOutputStream fileOutputStream = null;
         try
         {
@@ -101,6 +103,7 @@ final class FileManager extends AbstractManager implements IFileManager
             IOUtils.copy(inputStream, fileOutputStream);
             final FileDTO fileDTO = new FileDTO(user.getID());
             fileDTO.setName(fileName);
+            fileDTO.setContentType(contentType);
             fileDTO.setPath(FileUtilities.getRelativeFile(fileStore, file));
             fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetentionInMinutes));
             daoFactory.getFileDAO().createFile(fileDTO);

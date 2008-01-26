@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * An <code>ID</code> extension which describes a file in the database.
+ * 
  * @author Izabela Adamczyk
  */
 public final class FileDTO extends ID
@@ -42,6 +44,8 @@ public final class FileDTO extends ID
     private List<UserDTO> sharingUsers;
 
     private final Long registererId;
+
+    private String contentType;
 
     public FileDTO(final Long registererId)
     {
@@ -104,7 +108,7 @@ public final class FileDTO extends ID
         return sharingUsers;
     }
 
-    public void setSharingUsers(List<UserDTO> sharingUsers)
+    public void setSharingUsers(final List<UserDTO> sharingUsers)
     {
         this.sharingUsers = sharingUsers;
     }
@@ -112,6 +116,16 @@ public final class FileDTO extends ID
     public final Long getRegistererId()
     {
         return registererId;
+    }
+
+    public final void setContentType(final String contentType)
+    {
+        this.contentType = contentType;
+    }
+
+    public final String getContentType()
+    {
+        return contentType;
     }
 
 }

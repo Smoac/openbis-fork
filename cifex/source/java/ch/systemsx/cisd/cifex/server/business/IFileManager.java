@@ -38,8 +38,10 @@ public interface IFileManager
      * Saves the data of the specified input stream which comes from a file with the specified name.
      * 
      * @param user the owner of the file.
+     * @param contentType returns the content type passed by the browser or <code>null</code> if not defined.
      */
-    public void saveFile(final UserDTO user, final String fileName, final InputStream inputStream);
+    public void saveFile(final UserDTO user, final String fileName, final String contentType,
+            final InputStream inputStream);
 
     //
     // Helper classes

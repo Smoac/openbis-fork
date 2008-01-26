@@ -42,7 +42,7 @@ public final class User implements IsSerializable
         return admin;
     }
 
-    public final void setAdmin(boolean admin)
+    public final void setAdmin(final boolean admin)
     {
         this.admin = admin;
     }
@@ -52,7 +52,7 @@ public final class User implements IsSerializable
         return email;
     }
 
-    public final void setEmail(String email)
+    public final void setEmail(final String email)
     {
         this.email = email;
     }
@@ -62,7 +62,7 @@ public final class User implements IsSerializable
         return permanent;
     }
 
-    public final void setPermanent(boolean permanent)
+    public final void setPermanent(final boolean permanent)
     {
         this.permanent = permanent;
     }
@@ -72,7 +72,7 @@ public final class User implements IsSerializable
         return userName;
     }
 
-    public final void setUserName(String userID)
+    public final void setUserName(final String userID)
     {
         this.userName = userID;
     }
@@ -82,7 +82,7 @@ public final class User implements IsSerializable
         return expirationDate;
     }
 
-    public final void setExpirationDate(Date expirationDate)
+    public final void setExpirationDate(final Date expirationDate)
     {
         this.expirationDate = expirationDate;
     }

@@ -40,17 +40,20 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
+ * Test cases for corresponding {@link CIFEXServiceImpl} class.
+ * 
  * @author Franz-Josef Elmer
  */
 public class CIFEXServiceImplTest
 {
     private static final String APPLICATION_TOKEN_EXAMPLE = "application-token";
+
     private static final String SESSION_TOKEN_EXAMPLE = "session-token42";
-    
+
     private Mockery context;
-    
+
     private IDomainModel domainModel;
-    
+
     private IUserManager userManager;
 
     private IRequestContextProvider requestContextProvider;
@@ -84,11 +87,14 @@ public class CIFEXServiceImplTest
     @Test
     public void testIsAuthenticated()
     {
-        prepareForGettingUserFromHTTPSession(new UserDTO(), false);
+        final UserDTO userDTO = new UserDTO();
+        final String email = "Email";
+        userDTO.setEmail(email);
+        prepareForGettingUserFromHTTPSession(userDTO, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(true, service.tryGetCurrentUser());
-
+        assertEquals(userDTO.getEmail(), service.tryGetCurrentUser().getEmail());
+        assertEquals(userDTO.getEmail(), email);
         context.assertIsSatisfied();
     }
 
@@ -98,11 +104,11 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(null, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(false, service.tryGetCurrentUser());
+        assertEquals(null, service.tryGetCurrentUser());
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginWithoutExternalServiceFailedBecauseOfInvalidUser() throws UserFailureException
     {
@@ -112,11 +118,11 @@ public class CIFEXServiceImplTest
         userDTO.setEmail("user@users.org");
         userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
         prepareForFindUser("blabla", null);
-        
+
         CIFEXServiceImpl service = createService(null);
         User user = service.tryToLogin("blabla", password);
         assertEquals(null, user);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -129,14 +135,14 @@ public class CIFEXServiceImplTest
         userDTO.setEmail("user@users.org");
         userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
         prepareForFindUser(userDTO.getEmail(), userDTO);
-        
+
         CIFEXServiceImpl service = createService(new NullAuthenticationService());
         User user = service.tryToLogin(userDTO.getEmail(), "blabla");
         assertEquals(null, user);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginWithoutExternalService() throws UserFailureException
     {
@@ -147,31 +153,31 @@ public class CIFEXServiceImplTest
         userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
         prepareForFindUser(userDTO.getEmail(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
-        
+
         CIFEXServiceImpl service = createService(new NullAuthenticationService());
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getEmail(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed()
     {
         context.checking(new Expectations()
-        {
             {
-                one(domainModel).getUserManager();
-                will(returnValue(userManager));
-                
-                one(authenticationService).check();
-                one(authenticationService).authenticateApplication();
-                will(returnValue(null));
-            }
-        });
-        
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(authenticationService).check();
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(null));
+                }
+            });
+
         ICIFEXService service = createService(authenticationService);
         try
         {
@@ -181,17 +187,17 @@ public class CIFEXServiceImplTest
         {
             assertEquals("Authentication of the server at the external authentication service failed.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoginWithExternalServiceFailedBecausePrincipalNotFound()
     {
         final String userName = "u";
         final String password = "p";
         prepareForExternalAuthentication(userName, password, null);
-        
+
         ICIFEXService service = createService(authenticationService);
         try
         {
@@ -201,10 +207,10 @@ public class CIFEXServiceImplTest
         {
             assertEquals("Authentication was successful but user information couldn't be retrieved.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFailedLoginAtExternalService() throws UserFailureException
     {
@@ -230,7 +236,7 @@ public class CIFEXServiceImplTest
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSecondLoginWithExternalService() throws UserFailureException
     {
@@ -243,13 +249,13 @@ public class CIFEXServiceImplTest
         prepareForExternalAuthentication(userDTO.getUserName(), password, principal);
         prepareForFindUser(principal.getEmail(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
-        
+
         CIFEXServiceImpl service = createService(authenticationService);
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getUserName(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -275,37 +281,38 @@ public class CIFEXServiceImplTest
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
-        
+
         CIFEXServiceImpl service = createService(authenticationService);
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getUserName(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
-        
+
         context.assertIsSatisfied();
     }
-    
-    private void prepareForExternalAuthentication(final String userName, final String password, final Principal principal)
+
+    private void prepareForExternalAuthentication(final String userName, final String password,
+            final Principal principal)
     {
         context.checking(new Expectations()
             {
                 {
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
-                    
+
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
-                    
+
                     one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
                     will(returnValue(true));
-                    
+
                     one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE, userName);
                     will(returnValue(principal));
                 }
             });
     }
-    
+
     private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag)
     {
         context.checking(new Expectations()

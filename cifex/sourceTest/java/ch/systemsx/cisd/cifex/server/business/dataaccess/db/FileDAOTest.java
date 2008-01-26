@@ -80,6 +80,8 @@ public final class FileDAOTest extends AbstractDAOTest
         }
     }
 
+    // TODO 2008-01-26, Christian Ribeaud: add tests to check 'ON DELETE CASCADE/SET NULL'.
+
     @Transactional
     @Test
     public final void testCreateFileFailNonExistingSharingUser()

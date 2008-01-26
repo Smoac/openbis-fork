@@ -19,26 +19,26 @@ package ch.systemsx.cisd.cifex.server.business.dto;
 import java.util.Date;
 
 /**
+ * An <code>ID</code> extension which describes an user in the database.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class UserDTO extends ID
 {
     private String userName;
-    
+
     private String email;
-    
+
     private String encryptedPassword;
-    
+
     private boolean admin;
-    
+
     private boolean permanent;
-    
+
     private boolean externallyAuthenticated;
-    
+
     private Date registrationDate;
-    
+
     private Date expirationDate;
 
     public final boolean isExternallyAuthenticated()
@@ -46,7 +46,7 @@ public class UserDTO extends ID
         return externallyAuthenticated;
     }
 
-    public final void setExternallyAuthenticated(boolean externallyAuthenticated)
+    public final void setExternallyAuthenticated(final boolean externallyAuthenticated)
     {
         this.externallyAuthenticated = externallyAuthenticated;
     }
@@ -56,7 +56,7 @@ public class UserDTO extends ID
         return admin;
     }
 
-    public final void setAdmin(boolean admin)
+    public final void setAdmin(final boolean admin)
     {
         this.admin = admin;
     }
@@ -66,7 +66,7 @@ public class UserDTO extends ID
         return email;
     }
 
-    public final void setEmail(String email)
+    public final void setEmail(final String email)
     {
         this.email = email;
     }
@@ -76,7 +76,7 @@ public class UserDTO extends ID
         return encryptedPassword;
     }
 
-    public final void setEncryptedPassword(String encryptedPassword)
+    public final void setEncryptedPassword(final String encryptedPassword)
     {
         this.encryptedPassword = encryptedPassword;
     }
@@ -86,7 +86,7 @@ public class UserDTO extends ID
         return permanent;
     }
 
-    public final void setPermanent(boolean permanent)
+    public final void setPermanent(final boolean permanent)
     {
         this.permanent = permanent;
     }
@@ -96,7 +96,7 @@ public class UserDTO extends ID
         return userName;
     }
 
-    public final void setUserName(String userID)
+    public final void setUserName(final String userID)
     {
         this.userName = userID;
     }
@@ -106,7 +106,7 @@ public class UserDTO extends ID
         return expirationDate;
     }
 
-    public final void setExpirationDate(Date expirationDate)
+    public final void setExpirationDate(final Date expirationDate)
     {
         this.expirationDate = expirationDate;
     }
@@ -116,9 +116,9 @@ public class UserDTO extends ID
         return registrationDate;
     }
 
-    public final void setRegistrationDate(Date registrationDate)
+    public final void setRegistrationDate(final Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
-    
+
 }

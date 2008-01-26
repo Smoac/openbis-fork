@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -49,11 +50,15 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 abstract class AbstractCIFEXServiceServlet extends HttpServlet
 {
+    private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
+
+    private static final String PROPERTY_CONFIGURER_BEAN_NAME = "propertyConfigurer";
+
     protected final Logger operationLog;
 
     protected final Logger notificationLog;
 
-    private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
+    protected Map<String, String> serviceProperties;
 
     protected IDomainModel domainModel;
 
@@ -63,10 +68,13 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
     }
 
-    private final void initDomainModel()
+    private final void initServiceServlet()
     {
         final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
         domainModel = (IDomainModel) context.getBean(DOMAIN_MODEL_BEAN_NAME);
+        final ExposablePropertyPaceholderConfigurer configurer =
+                (ExposablePropertyPaceholderConfigurer) context.getBean(PROPERTY_CONFIGURER_BEAN_NAME);
+        serviceProperties = configurer.getResolvedProps();
     }
 
     protected final UserDTO getUserDTO(final HttpServletRequest request) throws InvalidSessionException
@@ -96,8 +104,8 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         } else
         {
             message =
-                    String.format("A problem ['%s'] has occurred on the server side.", exception.getClass()
-                            .getSimpleName());
+                    String.format("The request could not be processed because an unknown problem [%s] occurred.",
+                            exception.getClass().getSimpleName());
         }
         writer.write(message);
         writer.flush();
@@ -114,7 +122,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         LogInitializer.init();
         try
         {
-            initDomainModel();
+            initServiceServlet();
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format("'%s' successfully initialized.", getClass().getName()));

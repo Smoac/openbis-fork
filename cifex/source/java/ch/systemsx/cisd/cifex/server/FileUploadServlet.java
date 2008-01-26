@@ -18,16 +18,15 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -58,26 +57,29 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         try
         {
             final UserDTO user = getUserDTO(request);
-            final FileItemFactory factory = new DiskFileItemFactory();
-            final ServletFileUpload upload = new ServletFileUpload(factory);
-            final List<FileItem> items = upload.parseRequest(request);
-            for (final FileItem item : items)
+            final ServletFileUpload upload = new ServletFileUpload();
+            // TODO 2008-01-26, Christian Ribeaud: Set a max size for the whole request.
+            // upload.setSizeMax(sizeMax);
+            final FileItemIterator iter = upload.getItemIterator(request);
+            while (iter.hasNext())
             {
-                final InputStream stream = item.getInputStream();
+                final FileItemStream item = iter.next();
+                final InputStream stream = item.openStream();
                 final String fileName = item.getName();
                 if (item.isFormField() == false)
                 {
                     if (StringUtils.isNotBlank(fileName))
                     {
-                        domainModel.getFileManager().saveFile(user, fileName, stream);
+                        domainModel.getFileManager().saveFile(user, fileName, item.getContentType(), stream);
                     }
                 } else
                 {
-                    registerTemporaryUsers(item.getString());
+                    registerTemporaryUsers(Streams.asString(stream));
                 }
             }
         } catch (final Exception ex)
         {
+            operationLog.error("Could not process multipart content.", ex);
             sendErrorMessage(response, ex);
         }
     }

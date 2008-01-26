@@ -34,6 +34,7 @@ import com.gwtext.client.widgets.form.event.FormListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
@@ -71,7 +72,7 @@ public class FileUploadWidget extends Form
 
                 public final void onActionComplete(final Form form, final int httpStatus, final String responseText)
                 {
-                    final String response = responseText.substring("<pre>".length(), responseText.indexOf("</pre>"));
+                    final String response = DOMUtils.getElementValue("pre", responseText);
                     if (StringUtils.isBlank(response) == false)
                     {
                         final IMessageResources messageResources = context.getMessageResources();
