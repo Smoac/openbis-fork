@@ -40,7 +40,7 @@
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="${external-authentication-service}" />
-        <property name="sessionExpirationPeriodInMinutes" value="1" />
+        <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" />
     </bean>
 
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
@@ -55,6 +55,8 @@
         </constructor-arg>
         <constructor-arg ref="bean-post-processor" />
         <property name="fileStorePath" value="${file-store}"/>
+        <property name="fileRetention" value="${file-retention}"/>
+        <property name="userRetention" value="${user-retention}"/>
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -85,7 +86,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testIsAuthenticated()
+    public void testIsAuthenticated() throws InvalidSessionException
     {
         final UserDTO userDTO = new UserDTO();
         final String email = "Email";
@@ -93,18 +94,18 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(userDTO.getEmail(), service.tryGetCurrentUser().getEmail());
+        assertEquals(userDTO.getEmail(), service.getCurrentUser().getEmail());
         assertEquals(userDTO.getEmail(), email);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testIsNotAuthenticated()
+    public void testIsNotAuthenticated() throws InvalidSessionException
     {
         prepareForGettingUserFromHTTPSession(null, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(null, service.tryGetCurrentUser());
+        assertEquals(null, service.getCurrentUser());
 
         context.assertIsSatisfied();
     }

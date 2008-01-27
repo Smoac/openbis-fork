@@ -65,5 +65,4 @@ public interface IFileManager
             this.inputStream = inputStream;
         }
     }
-
 }

@@ -34,7 +34,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
 /**
- * Performs database manipulation on <code>files</code> table
+ * Performs database manipulation on <code>files</code> table.
  * 
  * @author Izabela Adamczyk
  */
@@ -47,12 +47,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private static final String SELECT =
             "select f.ID as f_id, f.NAME as f_name, f.PATH as f_path, f.USER_ID as f_user_id, "
                     + "f.REGISTRATION_TIMESTAMP as f_registration_timestamp, "
-                    + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, f.CONTENT_TYPE as f_content_type";
+                    + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, f.CONTENT_TYPE as f_content_type,"
+                    + "f.SIZE as f_size";
 
     private static final String FILES_JOIN_USERS =
             SELECT + ", u.* " + " from files as f " + " join users as u on f.user_id = u.id where f.id = ?";
 
-    FileDAO(DataSource dataSource, ISequencerHandler sequencerHandler)
+    FileDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
     {
         super(dataSource, sequencerHandler);
     }
@@ -74,23 +75,25 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     // IFileDAO
     //
 
+    public final void addSharingUsers(final long fileId, final List<UserDTO> sharingUsers) throws DataAccessException
+    {
+        for (final UserDTO sharingUser : sharingUsers)
+        {
+            getSimpleJdbcTemplate().update("insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
+                    getNextValueOf("FILE_SHARE_ID_SEQ"), fileId, sharingUser.getID());
+        }
+    }
+
     public final void createFile(final FileDTO file) throws DataAccessException
-    {// FIXME 2008-01-24, Izabela: This method should be transactional (check if other are)
+    {
         assert file != null : "Given file cannot be null.";
 
         final long id = createID();
-        getSimpleJdbcTemplate().update(
-                "insert into files (ID, NAME, PATH, USER_ID, EXPIRATION_TIMESTAMP) values (?,?,?,?,?)", id,
-                file.getName(), file.getPath(), file.getRegistererId(), file.getExpirationDate());
-        List<UserDTO> sharingUsers = file.getSharingUsers();
-        if (sharingUsers != null)
-        {
-            for (final UserDTO sharingUser : sharingUsers)
-            {
-                getSimpleJdbcTemplate().update("insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
-                        getNextValueOf("FILE_SHARE_ID_SEQ"), id, sharingUser.getID());
-            }
-        }
+        getSimpleJdbcTemplate()
+                .update(
+                        "insert into files (ID, NAME, PATH, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?)",
+                        id, file.getName(), file.getPath(), file.getRegistererId(), file.getContentType(),
+                        file.getSize(), file.getExpirationDate());
         file.setID(id);
     }
 
@@ -147,6 +150,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             file.setName(rs.getString("f_NAME"));
             file.setPath(rs.getString("f_PATH"));
             file.setContentType(rs.getString("f_CONTENT_TYPE"));
+            final long size = rs.getLong("f_SIZE");
+            if (rs.wasNull() == false)
+            {
+                file.setSize(size);
+            }
             final Date regDate = new Date(rs.getTimestamp("f_REGISTRATION_TIMESTAMP").getTime());
             file.setRegistrationDate(regDate);
             return file;

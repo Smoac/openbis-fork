@@ -33,4 +33,12 @@ public final class Constants
 
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";
+
+    /** Name of the <code>HttpServlet</code> extension to upload a file. */
+    public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";
+
+    private final static String getPrepend()
+    {
+        return "/cifex/";
+    }
 }

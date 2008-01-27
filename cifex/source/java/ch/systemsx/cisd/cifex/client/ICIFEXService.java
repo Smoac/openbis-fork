@@ -43,7 +43,8 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns the currently logged user if this user is already authenticated.
      * 
-     * @return the currently logged user, <code>null</code> otherwise.
+     * @return the currently logged user.
+     * @throws InvalidSessionException if user not logged in.
      */
-    public User tryGetCurrentUser();
+    public User getCurrentUser() throws InvalidSessionException;
 }

@@ -32,9 +32,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -75,6 +75,17 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         final ExposablePropertyPaceholderConfigurer configurer =
                 (ExposablePropertyPaceholderConfigurer) context.getBean(PROPERTY_CONFIGURER_BEAN_NAME);
         serviceProperties = configurer.getResolvedProps();
+        postInitialization();
+    }
+
+    /**
+     * Gets called after initialization finished here.
+     * <p>
+     * Default implementation does nothing.
+     * </p>
+     */
+    protected void postInitialization()
+    {
     }
 
     protected final UserDTO getUserDTO(final HttpServletRequest request) throws InvalidSessionException
@@ -90,6 +101,9 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     /**
      * Sends an error message to the client.
      */
+    // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp. JSON response which
+    // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
+    // formConfig.setReader(reader)).
     protected final void sendErrorMessage(final HttpServletResponse response, final Exception exception)
             throws IOException
     {

@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +77,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public final void saveFile(final UserDTO user, final String fileName, final String contentType,
-            final InputStream inputStream)
+            final InputStream input)
     {
         final File folder = new File(fileStore, user.getEmail());
         if (folder.exists())
@@ -95,17 +97,19 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         }
         final File file = new File(folder, fileName);
-        // TODO 2008-01-26, Christian Ribeaud: monitor available space to avoid surprises (FileSystemUtils may help?)
-        FileOutputStream fileOutputStream = null;
+        OutputStream outputStream = null;
+        CountingInputStream inputStream = null;
         try
         {
-            fileOutputStream = new FileOutputStream(file);
-            IOUtils.copy(inputStream, fileOutputStream);
+            outputStream = new FileOutputStream(file);
+            inputStream = new CountingInputStream(input);
+            IOUtils.copy(inputStream, outputStream);
             final FileDTO fileDTO = new FileDTO(user.getID());
             fileDTO.setName(fileName);
             fileDTO.setContentType(contentType);
             fileDTO.setPath(FileUtilities.getRelativeFile(fileStore, file));
             fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetentionInMinutes));
+            fileDTO.setSize(inputStream.getByteCount());
             daoFactory.getFileDAO().createFile(fileDTO);
         } catch (IOException ex)
         {
@@ -113,7 +117,7 @@ final class FileManager extends AbstractManager implements IFileManager
         } finally
         {
             IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(fileOutputStream);
+            IOUtils.closeQuietly(outputStream);
         }
     }
 }

@@ -27,9 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.IFileManager.FileOutput;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
  * The <code>AbstractCIFEXServiceServlet</code> extension to download a data set.
@@ -71,7 +71,8 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 throw new ServletException(String.format("Given file id '%s' is not a number.", fileIdParameter));
             } catch (final InvalidSessionException ex)
             {
-                response.sendRedirect("/cifex");
+                // TODO 2008-01-27, Christian Ribeaud: should write out javascript which looks for the window.opener and
+                // redirect it to login page.
             } finally
             {
                 IOUtils.closeQuietly(inputStream);

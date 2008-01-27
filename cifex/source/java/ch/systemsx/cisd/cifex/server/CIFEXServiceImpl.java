@@ -27,6 +27,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -61,6 +62,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private final IAuthenticationService externalAuthenticationService;
 
+    /** Session timeout in seconds. */
     private int sessionExpirationPeriod;
 
     public CIFEXServiceImpl(final IDomainModel domainModel, final IRequestContextProvider requestContextProvider,
@@ -82,7 +84,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public void setSessionExpirationPeriodInMinutes(int sessionExpirationPeriodInMinutes)
+    public void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
     {
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
@@ -93,33 +95,24 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 && externalAuthenticationService instanceof NullAuthenticationService == false;
     }
 
-    private String createSession(UserDTO user)
+    private String createSession(final UserDTO user)
     {
         final HttpSession httpSession = getSession(true);
+        // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
         return httpSession.getId();
     }
 
-    private HttpSession getSession(boolean create)
+    private HttpSession getSession(final boolean create)
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private UserDTO getCurrentUser()
-    {
-        HttpSession session = getSession(false);
-        if (session == null)
-        {
-            return null;
-        }
-        return (UserDTO) session.getAttribute(SESSION_NAME);
-    }
-
-    private User finishLogin(UserDTO userDTO)
+    private User finishLogin(final UserDTO userDTO)
     {
         authenticationLog.info("Successful login of user " + userDTO);
-        String sessionToken = createSession(userDTO);
+        final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
                 + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
         return BeanUtils.createBean(User.class, userDTO);
@@ -129,23 +122,23 @@ public final class CIFEXServiceImpl implements ICIFEXService
     // ICifexService
     //
 
-    public final User tryGetCurrentUser()
+    public final User getCurrentUser() throws InvalidSessionException
     {
-        final UserDTO currentUser = getCurrentUser();
-        if (currentUser != null)
+        final HttpSession session = getSession(false);
+        if (session == null)
         {
-            return BeanUtils.createBean(User.class, currentUser);
+            throw new InvalidSessionException("You are not logged in. Please log in.");
         }
-        return null;
+        return BeanUtils.createBean(User.class, session.getAttribute(SESSION_NAME));
     }
 
     public final User tryToLogin(final String user, final String password) throws UserFailureException
     {
         authenticationLog.info("Try to login user '" + user + "'.");
-        IUserManager userManager = domainModel.getUserManager();
+        final IUserManager userManager = domainModel.getUserManager();
         if (hasExternalAuthenticationService())
         {
-            String applicationToken = externalAuthenticationService.authenticateApplication();
+            final String applicationToken = externalAuthenticationService.authenticateApplication();
             if (applicationToken == null)
             {
                 authenticationLog.error("User '" + user + "' couldn't be authenticated because authentication of "
@@ -153,19 +146,20 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 throw new UserFailureException("Authentication of the server at "
                         + "the external authentication service failed.");
             }
-            boolean authenticated = externalAuthenticationService.authenticateUser(applicationToken, user, password);
+            final boolean authenticated =
+                    externalAuthenticationService.authenticateUser(applicationToken, user, password);
             if (authenticated == false)
             {
                 return null;
             }
-            Principal principal = externalAuthenticationService.getPrincipal(applicationToken, user);
+            final Principal principal = externalAuthenticationService.getPrincipal(applicationToken, user);
             if (principal == null)
             {
                 authenticationLog.error("Unknown principal for successfully authenticated user '" + user + "'.");
                 throw new UserFailureException("Authentication was successful but user information "
                         + "couldn't be retrieved.");
             }
-            String email = principal.getEmail();
+            final String email = principal.getEmail();
             UserDTO userDTO = userManager.tryToFindUser(email);
             if (userDTO == null)
             {
@@ -181,8 +175,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
             return finishLogin(userDTO);
         } else
         {
-            String encryptedPassword = StringUtilities.encrypt(password);
-            UserDTO userDTO = userManager.tryToFindUser(user);
+            final String encryptedPassword = StringUtilities.encrypt(password);
+            final UserDTO userDTO = userManager.tryToFindUser(user);
             if (userDTO == null || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
             {
                 return null;
@@ -196,7 +190,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final HttpSession httpSession = getSession(false);
         if (httpSession != null)
         {
-            UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
+            final UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
             loggingContextHandler.destroyContext(httpSession.getId());
             httpSession.removeAttribute(SESSION_NAME);
             httpSession.invalidate();

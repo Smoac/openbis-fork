@@ -33,9 +33,11 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
 /**
+ * Performs database manipulation on <code>users</code> table.
+ * 
  * @author Basil Neff
  */
-public final class UserDAO extends AbstractDAO implements IUserDAO
+final class UserDAO extends AbstractDAO implements IUserDAO
 {
 
     public static final class UserRowMapper implements ParameterizedRowMapper<UserDTO>
@@ -70,7 +72,7 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
 
     }
 
-    UserDAO(DataSource dataSource, ISequencerHandler sequencerHandler)
+    UserDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
     {
         super(dataSource, sequencerHandler);
     }
@@ -87,11 +89,11 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
-    public void createUser(UserDTO user) throws DataAccessException
+    public void createUser(final UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
 
-        Long id = createID();
+        final Long id = createID();
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template.update(
@@ -103,7 +105,7 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
         user.setID(id);
     }
 
-    public UserDTO tryFindUserByEmail(String email) throws DataAccessException
+    public UserDTO tryFindUserByEmail(final String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
 
@@ -113,18 +115,18 @@ public final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO user =
                     template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
             return user;
-        } catch (EmptyResultDataAccessException e)
+        } catch (final EmptyResultDataAccessException e)
         {
             return null;
         }
     }
 
-    public boolean removeUser(Long userID)
+    public boolean removeUser(final Long userID)
     {
         assert userID != null : "Given userID can not be null!";
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final int affectedRows = template.update("delete from users where  id = ?", userID);
+        final int affectedRows = template.update("delete from users where id = ?", userID);
 
         if (affectedRows > 0)
         {

@@ -32,6 +32,7 @@ import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.event.FormListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -97,7 +98,7 @@ public class FileUploadWidget extends Form
         formConfig.setButtonAlign(Position.RIGHT);
         formConfig.setLabelWidth(LABEL_WIDTH);
         formConfig.setFileUpload(true);
-        formConfig.setUrl("/cifex/file-upload");
+        formConfig.setUrl(Constants.FILE_UPLOAD_SERVLET_NAME);
         formConfig.setMethod(Connection.POST);
         return formConfig;
     }
@@ -161,6 +162,10 @@ public class FileUploadWidget extends Form
         textAreaConfig.setGrow(true);
         textAreaConfig.setPreventScrollbars(true);
         textAreaConfig.setWidth(FIELD_WIDTH);
+        // TODO 2008-01-27, Christian Ribeaud: use regex validation here or our own validation schema.
+        // textAreaConfig.setRegex(regex);
+        // textAreaConfig.setRegexText(regexText);
+        // textAreaConfig.setValidator(validator);
         return textAreaConfig;
     }
 
@@ -168,11 +173,12 @@ public class FileUploadWidget extends Form
     {
         final TextFieldConfig fileFieldConfig = new TextFieldConfig();
         fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
-        fileFieldConfig.setName("upload-file");
+        fileFieldConfig.setName("upload-file-" + index);
         fileFieldConfig.setInputType("file");
         fileFieldConfig.setWidth(FIELD_WIDTH);
         fileFieldConfig.setAllowBlank(index > 0);
         fileFieldConfig.setValidateOnBlur(false);
+        fileFieldConfig.setReadOnly(true);
         return fileFieldConfig;
     }
 

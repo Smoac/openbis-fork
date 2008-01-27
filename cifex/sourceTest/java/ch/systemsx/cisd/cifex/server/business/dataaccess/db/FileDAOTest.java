@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -37,12 +38,20 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
     { "db", "file" })
 public final class FileDAOTest extends AbstractDAOTest
 {
-
-    final FileDTO createFile(String name, String path, UserDTO registerer, Date expirationDate)
+    private final UserDTO getSampleUserFromDB()
     {
-        List<UserDTO> fileViewers = new ArrayList<UserDTO>();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> listUsers = userDAO.listUsers();
+        assertTrue(listUsers.size() > 0);
+        return listUsers.get(0);
+    }
+
+    private final FileDTO createFile(final String name, final String path, final UserDTO registerer,
+            final Date expirationDate)
+    {
+        final List<UserDTO> fileViewers = new ArrayList<UserDTO>();
         fileViewers.add(registerer);
-        FileDTO file = new FileDTO(registerer.getID());
+        final FileDTO file = new FileDTO(registerer.getID());
         file.setExpirationDate(expirationDate);
         file.setName(name);
         file.setPath(path);
@@ -51,27 +60,32 @@ public final class FileDAOTest extends AbstractDAOTest
         return file;
     }
 
-    final FileDTO createSampleFile()
+    private final FileDTO createSampleFile(final UserDTO registerer)
     {
-        String name = "file.txt";
-        UserDTO registerer = getSampleUserFromDB();
-        String path = "/files/" + registerer.getUserName() + "/" + name;
-        Date expirationDate = new Date(new Long("1222249782000").longValue());
+        final String name = "file.txt";
+        final String path = "/files/" + registerer.getUserName() + "/" + name;
+        final Date expirationDate = new Date(new Long("1222249782000").longValue());
         return createFile(name, path, registerer, expirationDate);
+    }
+
+    private final FileDTO createSampleFile()
+    {
+        return createSampleFile(getSampleUserFromDB());
     }
 
     @Transactional
     @Test
     public final void testCreateFileFailNonExistingOwner()
     {
-        IFileDAO fileDAO = daoFactory.getFileDAO();
-        FileDTO file1 = createSampleFile();
-        file1.getRegisterer().setID(-1L);
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final UserDTO userDTO = new UserDTO();
+        userDTO.setID(new Long(-1));
+        final FileDTO file1 = createSampleFile(userDTO);
         boolean exceptionThrown = false;
         try
         {
             fileDAO.createFile(file1);
-        } catch (Exception e)
+        } catch (final Exception e)
         {
             exceptionThrown = true;
         } finally
@@ -80,39 +94,34 @@ public final class FileDAOTest extends AbstractDAOTest
         }
     }
 
-    // TODO 2008-01-26, Christian Ribeaud: add tests to check 'ON DELETE CASCADE/SET NULL'.
-
     @Transactional
     @Test
-    public final void testCreateFileFailNonExistingSharingUser()
+    public final void testAddSharingUsers()
     {
-
-        IFileDAO fileDAO = daoFactory.getFileDAO();
-        FileDTO file1 = createSampleFile();
-        file1.getSharingUsers().get(0).setID(-1L);
-        boolean exceptionThrown = false;
-        try
-        {
-            fileDAO.createFile(file1);
-        } catch (Exception e)
-        {
-            exceptionThrown = true;
-        } finally
-        {
-            assertTrue(exceptionThrown);
-        }
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO file1 = createSampleFile();
+        fileDAO.createFile(file1);
+        final Long fileId = file1.getID();
+        assertNotNull(fileId);
+        final List<UserDTO> sharingUsers = Arrays.asList(new UserDTO[]
+            { getSampleUserFromDB() });
+        fileDAO.addSharingUsers(fileId, sharingUsers);
+        final FileDTO file = fileDAO.tryGetFile(fileId);
+        assertNotNull(file);
+        final List<UserDTO> users = file.getSharingUsers();
+        assertEquals(1, users.size());
     }
 
     @Transactional
     @Test
     public final void testCreateFile()
     {
-        IFileDAO fileDAO = daoFactory.getFileDAO();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
         // no file in database
         List<FileDTO> files = fileDAO.listFiles();
         assertEquals(0, files.size());
         // create new sample file
-        FileDTO sampleFile = createSampleFile();
+        final FileDTO sampleFile = createSampleFile();
         assertNull(sampleFile.getID());
         // save file in database
         fileDAO.createFile(sampleFile);
@@ -120,20 +129,21 @@ public final class FileDAOTest extends AbstractDAOTest
         // check if number of files in database increased
         files = fileDAO.listFiles();
         assertEquals(1, files.size());
-        assertEquals(sampleFile.getID(), files.get(0).getID());
-        assertEquals(sampleFile.getName(), files.get(0).getName());
-        assertEquals(sampleFile.getPath(), files.get(0).getPath());
-        assertEquals(sampleFile.getRegistererId(), files.get(0).getRegistererId());
-        assertNotNull(files.get(0).getRegistrationDate());
-        assertEquals(sampleFile.getExpirationDate(), files.get(0).getExpirationDate());
+        final FileDTO file = files.get(0);
+        assertEquals(sampleFile.getID(), file.getID());
+        assertEquals(sampleFile.getName(), file.getName());
+        assertEquals(sampleFile.getPath(), file.getPath());
+        assertEquals(sampleFile.getRegistererId(), file.getRegistererId());
+        assertNotNull(file.getRegistrationDate());
+        assertEquals(sampleFile.getExpirationDate(), file.getExpirationDate());
     }
 
     @Transactional
     @Test
     public final void testDeleteFile()
     {
-        FileDTO sampleFile = createSampleFile();
-        IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO sampleFile = createSampleFile();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
         fileDAO.createFile(sampleFile);
         assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
         fileDAO.deleteFile(sampleFile.getID());
@@ -145,8 +155,8 @@ public final class FileDAOTest extends AbstractDAOTest
     public final void testTryGetFile()
     {
         // Get existing file
-        FileDTO sampleFile = createSampleFile();
-        IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO sampleFile = createSampleFile();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
         fileDAO.createFile(sampleFile);
         assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
 
@@ -159,24 +169,15 @@ public final class FileDAOTest extends AbstractDAOTest
     @Test
     public final void testListFiles()
     {
-        IFileDAO fileDAO = daoFactory.getFileDAO();
-        int numberOfFiles = 5;
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final int numberOfFiles = 5;
         for (int i = 1; i <= numberOfFiles; i++)
         {
-            FileDTO sampleFile = createSampleFile();
+            final FileDTO sampleFile = createSampleFile();
             sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
             fileDAO.createFile(sampleFile);
             assertEquals(i, fileDAO.listFiles().size());
         }
 
     }
-
-    private UserDTO getSampleUserFromDB()
-    {
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> listUsers = userDAO.listUsers();
-        assertTrue(listUsers.size() > 0);
-        return listUsers.get(0);
-    }
-
 }

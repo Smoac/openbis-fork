@@ -27,6 +27,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -38,11 +39,52 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  */
 public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 {
+    private static final String MAX_UPLOAD_SIZE = "max-upload-size";
+
     private static final long serialVersionUID = 1L;
+
+    private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
+
+    /**
+     * The maximum allow upload size (in megabytes).
+     */
+    private long maxUploadSizeInMegabytes;
+
+    private final long getMaxUploadSizeInMegabytes()
+    {
+        final String value = serviceProperties.get(MAX_UPLOAD_SIZE);
+        long longValue = -1;
+        if (StringUtils.isNotBlank(value))
+        {
+            try
+            {
+                longValue = Long.parseLong(value);
+            } catch (final NumberFormatException e)
+            {
+            }
+        }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Maximum upload size set to %d megabytes (-1 means no limit).", longValue));
+        }
+        return longValue;
+    }
+
+    private final void registerTemporaryUsers(final String temporaryUserList)
+    {
+        System.out.println(temporaryUserList + "**********************");
+        // domainModel.getUserManager().tryToFindUser(email);
+    }
 
     //
     // AbstractCIFEXServiceServlet
     //
+
+    @Override
+    protected final void postInitialization()
+    {
+        maxUploadSizeInMegabytes = getMaxUploadSizeInMegabytes();
+    }
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -58,23 +100,27 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         {
             final UserDTO user = getUserDTO(request);
             final ServletFileUpload upload = new ServletFileUpload();
-            // TODO 2008-01-26, Christian Ribeaud: Set a max size for the whole request.
-            // upload.setSizeMax(sizeMax);
+            // Sets the maximum allowed size of a complete request in bytes.
+            upload.setSizeMax(maxUploadSizeInMegabytes * FileUtils.ONE_MB);
             final FileItemIterator iter = upload.getItemIterator(request);
             while (iter.hasNext())
             {
                 final FileItemStream item = iter.next();
                 final InputStream stream = item.openStream();
-                final String fileName = item.getName();
                 if (item.isFormField() == false)
                 {
+                    final String fileName = item.getName();
+                    // Blank file name are empty file fields.
                     if (StringUtils.isNotBlank(fileName))
                     {
                         domainModel.getFileManager().saveFile(user, fileName, item.getContentType(), stream);
                     }
                 } else
                 {
-                    registerTemporaryUsers(Streams.asString(stream));
+                    if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
+                    {
+                        registerTemporaryUsers(Streams.asString(stream));
+                    }
                 }
             }
         } catch (final Exception ex)
@@ -82,11 +128,5 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error("Could not process multipart content.", ex);
             sendErrorMessage(response, ex);
         }
-    }
-
-    private void registerTemporaryUsers(final String temporaryUserList)
-    {
-        System.out.println(temporaryUserList + "**********************");
-        // domainModel.getUserManager().tryToFindUser(email);
     }
 }

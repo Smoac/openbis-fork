@@ -20,11 +20,14 @@ import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -35,6 +38,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 public final class DomainModel implements IDomainModel
 {
+
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.NOTIFY, DomainModel.class);
+
     private IUserManager userManager;
 
     private IFileManager fileManager;
@@ -43,27 +49,30 @@ public final class DomainModel implements IDomainModel
 
     private final BeanPostProcessor processor;
 
+    /** The root location where uploaded files are going to be stored. */
     private File fileStore;
 
-    /** How long the file is going to stay in the system? */
+    /** How long (in minutes) the file is going to stay in the system? */
     private int fileRetention;
 
-    /** How long the user is going to stay in the system? */
+    /** How long (in minutes) the user is going to stay in the system? */
     private int userRetention;
 
     /**
      * Constructor only used for unit tests.
      */
-    public DomainModel(IDAOFactory daoFactory, IMailClient mailClient)
+    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient)
     {
         this(daoFactory, mailClient, new BeanPostProcessor()
             {
-                public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException
+                public Object postProcessBeforeInitialization(final Object bean, final String beanName)
+                        throws BeansException
                 {
                     return bean;
                 }
 
-                public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException
+                public Object postProcessAfterInitialization(final Object bean, final String beanName)
+                        throws BeansException
                 {
                     return bean;
                 }
@@ -76,7 +85,7 @@ public final class DomainModel implements IDomainModel
      * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
      *                processor is correctly configured with the right TransactionInterceptor.
      */
-    public DomainModel(IDAOFactory daoFactory, IMailClient mailClient, BeanPostProcessor processor)
+    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient, final BeanPostProcessor processor)
     {
         this.daoFactory = daoFactory;
         this.processor = processor;
@@ -95,11 +104,16 @@ public final class DomainModel implements IDomainModel
                     + "' already exists but is not a directory.");
         } else if (fileStore.exists() == false)
         {
-            boolean successful = fileStore.mkdirs();
+            final boolean successful = fileStore.mkdirs();
             if (successful == false)
             {
                 throw new EnvironmentFailureException("Couldn't create file store '" + fileStore.getAbsolutePath()
                         + "' for some unknown reason.");
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("File store '%s' has been set and is ready to accept files.", fileStore
+                        .getAbsolutePath()));
             }
         }
     }
@@ -107,12 +121,16 @@ public final class DomainModel implements IDomainModel
     /**
      * Sets the file retention time in minutes.
      * <p>
-     * This is typically by <i>Spring</i> via injection.
+     * This is typically set by <i>Spring</i> via injection.
      * </p>
      */
     public final void setFileRetention(final int fileRentention)
     {
         this.fileRetention = fileRentention;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("File retention set to %d minutes.", fileRentention));
+        }
     }
 
     /**
@@ -124,20 +142,25 @@ public final class DomainModel implements IDomainModel
     public final void setUserRetention(final int userRentention)
     {
         this.userRetention = userRentention;
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("User retention set to %d minutes.", userRentention));
+        }
     }
 
-    private <T> T createLoggingProxy(final T manager)
+    private final <T> T createLoggingProxy(final T manager)
     {
-        Object proxy = processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
-        Class<? extends DomainModel> clazz = getClass();
-        InvocationHandler invocationHandler =
+        final Object proxy =
+                processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
+        final Class<? extends DomainModel> clazz = getClass();
+        final InvocationHandler invocationHandler =
                 new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), clazz);
         final Class<?>[] interfaces = manager.getClass().getInterfaces();
         return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T cast(Object proxy)
+    private <T> T cast(final Object proxy)
     {
         return (T) proxy;
     }
@@ -165,5 +188,4 @@ public final class DomainModel implements IDomainModel
         }
         return fileManager;
     }
-
 }

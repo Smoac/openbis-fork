@@ -2,12 +2,14 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.form.Field;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -44,7 +46,8 @@ public final class CIFEXEntryPoint implements EntryPoint
         Field.setMsgTarget("side");
         QuickTips.init();
         final ICIFEXServiceAsync cifexService = createLIMSService();
-        cifexService.tryGetCurrentUser(new AsyncCallbackAdapter()
+        final ViewContext viewContext = createViewContext(cifexService);
+        cifexService.getCurrentUser(new AsyncCallback()
             {
 
                 //
@@ -53,7 +56,6 @@ public final class CIFEXEntryPoint implements EntryPoint
 
                 public final void onSuccess(final Object result)
                 {
-                    final ViewContext viewContext = createViewContext(cifexService);
                     final IPageController pageController = viewContext.getPageController();
                     if (result != null)
                     {
@@ -64,7 +66,14 @@ public final class CIFEXEntryPoint implements EntryPoint
                         pageController.createLoginPage();
                     }
                 }
+
+                public final void onFailure(final Throwable caught)
+                {
+                    if (caught instanceof InvalidSessionException)
+                    {
+                        viewContext.getPageController().createLoginPage();
+                    }
+                }
             });
     }
-
 }

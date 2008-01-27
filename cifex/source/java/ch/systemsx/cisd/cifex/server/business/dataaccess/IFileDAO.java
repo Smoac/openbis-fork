@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * <i>Data Access Object</i> for files.
@@ -43,9 +44,9 @@ public interface IFileDAO
     /**
      * Removes <code>File</code> with given id from database.
      * 
-     * @param id Id of file which should be removed from database.
+     * @param fileId Id of file which should be removed from database.
      */
-    public void deleteFile(final long id) throws DataAccessException;
+    public void deleteFile(final long fileId) throws DataAccessException;
 
     /**
      * Returns a list of all files existing in database.
@@ -53,5 +54,10 @@ public interface IFileDAO
     public List<FileDTO> listFiles() throws DataAccessException;
 
     /** Returns detailed information about file, including registerer data and list of users the file is shared with. */
-    public FileDTO tryGetFile(final long id) throws DataAccessException;
+    public FileDTO tryGetFile(final long fileId) throws DataAccessException;
+
+    /**
+     * Adds sharing mappings to given <var>fileId</var>.
+     */
+    public void addSharingUsers(final long fileId, final List<UserDTO> sharingUsers) throws DataAccessException;
 }

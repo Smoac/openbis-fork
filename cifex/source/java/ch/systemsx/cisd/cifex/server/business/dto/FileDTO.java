@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business.dto;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -26,26 +27,43 @@ import java.util.List;
  */
 public final class FileDTO extends ID
 {
+    /**
+     * Name of the file.
+     * <p>
+     * This is the last part of <code>path</code>.
+     * </p>
+     */
     private String name;
 
+    /** The relative location of this file. */
     private String path;
 
     /**
-     * Represents registerer of the file. Id of registerer will be always filled while loading from database, but other
-     * fields will be filled only by some loading methods (e.g getFile(Long id)).
+     * Represents registerer of the file.
      */
     private UserDTO registerer;
 
+    /** The date at which this file was registered. */
     private Date registrationDate;
 
+    /** The date at which this file will expire and be deleted. */
     private Date expirationDate;
 
-    /** Ids of users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
-    private List<UserDTO> sharingUsers;
+    /** Users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
+    private List<UserDTO> sharingUsers = Collections.emptyList();
 
     private final Long registererId;
 
+    /** The content type of the file, <code>image/png</code> for instance. */
     private String contentType;
+
+    /**
+     * Size of the file.
+     * <p>
+     * If <code>null</code> then the size has not been set.
+     * </p>
+     */
+    private Long size;
 
     public FileDTO(final Long registererId)
     {
@@ -126,6 +144,16 @@ public final class FileDTO extends ID
     public final String getContentType()
     {
         return contentType;
+    }
+
+    public final Long getSize()
+    {
+        return size;
+    }
+
+    public final void setSize(final Long size)
+    {
+        this.size = size;
     }
 
 }

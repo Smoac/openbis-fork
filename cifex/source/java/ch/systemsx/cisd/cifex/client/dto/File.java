@@ -31,6 +31,14 @@ public final class File implements IsSerializable
 
     private String path;
 
+    /**
+     * Size of the file.
+     * <p>
+     * If <code>null</code> then the size has not been set.
+     * </p>
+     */
+    private Long size;
+
     private User registerer;
 
     private Date registrationDate;
@@ -85,6 +93,16 @@ public final class File implements IsSerializable
     public final void setExpirationDate(final Date expirationDate)
     {
         this.expirationDate = expirationDate;
+    }
+
+    public final Long getSize()
+    {
+        return size;
+    }
+
+    public final void setSize(final Long size)
+    {
+        this.size = size;
     }
 
 }
