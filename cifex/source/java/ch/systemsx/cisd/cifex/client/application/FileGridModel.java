@@ -26,6 +26,7 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -44,9 +45,34 @@ final class FileGridModel extends AbstractDataGridModel
 
     private static final String EXPIRATION_DATE = "expirationDate";
 
+    private static final String REGISTERER = "registerer";
+
     FileGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
+    }
+
+    protected ColumnConfig createNameColumnConfig()
+    {
+        final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100);
+        nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
+        return nameConfig;
+    }
+
+    protected ColumnConfig createExpirationDateColumnConfig()
+    {
+        final ColumnConfig expirationDateConfig =
+                createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
+        expirationDateConfig.setRenderer(DateRenderer.DATE_RENDERER);
+        return expirationDateConfig;
+    }
+
+    private ColumnConfig createRegistererColumnConfig()
+    {
+        final ColumnConfig registererConfig =
+                createSortableColumnConfig(REGISTERER, messageResources.getFileRegistererLabel(), 120);
+        registererConfig.setRenderer(UserRenderer.USER_RENDERER);
+        return registererConfig;
     }
 
     //
@@ -56,15 +82,11 @@ final class FileGridModel extends AbstractDataGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
-        final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100);
-        nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
-        configs.add(nameConfig);
+        configs.add(createNameColumnConfig());
+        configs.add(createRegistererColumnConfig());
         configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
         configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
-        final ColumnConfig expirationDateConfig =
-                createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
-        expirationDateConfig.setRenderer(DateRenderer.DATE_RENDERER);
-        configs.add(expirationDateConfig);
+        configs.add(createExpirationDateColumnConfig());
         return configs;
     }
 
@@ -74,8 +96,10 @@ final class FileGridModel extends AbstractDataGridModel
         for (int i = 0; i < data.length; i++)
         {
             final File file = (File) data[i];
-            final Object[] objects = new Object[]
-                { file.getName(), file.getContentType(), file.getSize(), file.getExpirationDate() };
+            final Object[] objects =
+                    new Object[]
+                        { file.getName(), file.getRegisterer().getEmail(), file.getContentType(), file.getSize(),
+                                file.getExpirationDate() };
             list.add(objects);
         }
         return list;
@@ -85,6 +109,7 @@ final class FileGridModel extends AbstractDataGridModel
     {
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(NAME));
+        fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new StringFieldDef(SIZE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));

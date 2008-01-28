@@ -195,4 +195,11 @@ public interface IMessageResources extends Messages
      * @gwt.key file.expirationdate.label
      */
     public String getFileExpirationDateLabel();
+
+    /**
+     * Returns the label of the file registerer column.
+     * 
+     * @gwt.key file.registerer.label
+     */
+    public String getFileRegistererLabel();
 }

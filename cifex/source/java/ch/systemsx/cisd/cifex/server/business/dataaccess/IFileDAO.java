@@ -66,5 +66,5 @@ public interface IFileDAO
     /**
      * Returns a list of all files given <var>userId</var> has access to.
      */
-    public List<FileDTO> listFiles(final long userId) throws DataAccessException;
+    public List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException;
 }

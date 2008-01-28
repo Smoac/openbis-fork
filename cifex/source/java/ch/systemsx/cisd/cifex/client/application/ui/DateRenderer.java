@@ -26,7 +26,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 
 /**
- * A <code>Renderer</code> implementation suitable for registration date.
+ * A <code>Renderer</code> implementation suitable for date.
  * 
  * @author Christian Ribeaud
  */

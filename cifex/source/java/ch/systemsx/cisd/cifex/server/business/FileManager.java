@@ -117,7 +117,7 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final List<FileDTO> listFiles(final long userId) throws UserFailureException
     {
-        return daoFactory.getFileDAO().listFiles(userId);
+        return daoFactory.getFileDAO().listDownloadFiles(userId);
     }
 
     @Transactional

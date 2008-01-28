@@ -50,10 +50,10 @@ public interface ICIFEXService extends RemoteService
     public User getCurrentUser() throws InvalidSessionException;
 
     /**
-     * List all the files for given <var>userEmail</var>.
+     * List the files that the currently logged user has access on.
      * <p>
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public File[] listFiles(final String userEmail) throws UserFailureException;
+    public File[] listDownloadFiles() throws UserFailureException;
 }

@@ -77,7 +77,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         this.externalAuthenticationService = externalAuthenticationService;
         loggingContextHandler = new LoggingContextHandler(new IRemoteHostProvider()
             {
-                public String getRemoteHost()
+
+                //
+                // IRemoteHostProvider
+                //
+
+                public final String getRemoteHost()
                 {
                     return requestContextProvider.getHttpServletRequest().getRemoteHost();
                 }
@@ -88,18 +93,18 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
+    public final void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
     {
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
 
-    private boolean hasExternalAuthenticationService()
+    private final boolean hasExternalAuthenticationService()
     {
         return externalAuthenticationService != null
                 && externalAuthenticationService instanceof NullAuthenticationService == false;
     }
 
-    private String createSession(final UserDTO user)
+    private final String createSession(final UserDTO user)
     {
         final HttpSession httpSession = getSession(true);
         // A negative time (in seconds) indicates the session should never timeout.
@@ -108,7 +113,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return httpSession.getId();
     }
 
-    private HttpSession getSession(final boolean create)
+    private final HttpSession getSession(final boolean create)
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
@@ -122,18 +127,23 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, userDTO);
     }
 
-    //
-    // ICifexService
-    //
-
-    public final User getCurrentUser() throws InvalidSessionException
+    private final UserDTO privGetCurrentUser() throws InvalidSessionException
     {
         final HttpSession session = getSession(false);
         if (session == null)
         {
             throw new InvalidSessionException("You are not logged in. Please log in.");
         }
-        return BeanUtils.createBean(User.class, session.getAttribute(SESSION_NAME));
+        return (UserDTO) session.getAttribute(SESSION_NAME);
+    }
+
+    //
+    // ICifexService
+    //
+
+    public final User getCurrentUser() throws InvalidSessionException
+    {
+        return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
     public final User tryToLogin(final String user, final String password) throws UserFailureException
@@ -202,13 +212,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public final File[] listFiles(final String userEmail) throws UserFailureException
+    public final File[] listDownloadFiles() throws UserFailureException
     {
-        final UserDTO user = domainModel.getUserManager().tryToFindUser(userEmail);
-        if (user == null)
-        {
-            throw new UserFailureException(String.format("No user could be found for email address '%s'.", userEmail));
-        }
+        final UserDTO user = privGetCurrentUser();
         final List<FileDTO> files = domainModel.getFileManager().listFiles(user.getID());
         return BeanUtils.createBeanArray(File.class, files, new BeanUtils.Converter()
             {

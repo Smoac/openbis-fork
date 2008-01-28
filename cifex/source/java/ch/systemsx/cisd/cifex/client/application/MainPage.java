@@ -79,7 +79,7 @@ final class MainPage extends AbstractMainPage
             verticalPanel.add(new FileUploadWidget(context));
         }
         verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
-        context.getCifexService().listFiles(user.getEmail(), new FileAsyncCallback(context, verticalPanel, fileId));
+        context.getCifexService().listDownloadFiles(new FileAsyncCallback(context, verticalPanel, fileId));
         return contentPanel;
     }
 

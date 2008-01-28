@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -80,9 +79,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.logout();
     }
 
-    public File[] listFiles(final String userEmail) throws UserFailureException
+    public File[] listDownloadFiles() throws UserFailureException
     {
-        return cifexServiceDelegate.listFiles(userEmail);
+        return cifexServiceDelegate.listDownloadFiles();
     }
 
     //

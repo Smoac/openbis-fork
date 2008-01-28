@@ -43,8 +43,8 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void getCurrentUser(final AsyncCallback callback);
 
     /**
-     * List all the files for given <var>userEmail</var>.
+     * List the files that the currently logged user has access on.
      */
-    public void listFiles(final String userEmail, final AsyncCallback callback);
+    public void listDownloadFiles(final AsyncCallback callback);
 
 }
