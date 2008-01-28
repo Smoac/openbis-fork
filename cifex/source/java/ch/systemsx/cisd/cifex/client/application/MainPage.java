@@ -28,6 +28,7 @@ import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * The main page for non-administrators (permanent and temporary users).
@@ -70,15 +71,15 @@ final class MainPage extends AbstractMainPage
         {
             fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
         }
-        if (fileId == null)
+        final User user = context.getModel().getUser();
+        if (fileId == null && user.isPermanent())
         {
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
             verticalPanel.add(new FileUploadWidget(context));
         }
         verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
-        context.getCifexService().listFiles(context.getModel().getUser().getEmail(),
-                new FileAsyncCallback(context, verticalPanel, fileId));
+        context.getCifexService().listFiles(user.getEmail(), new FileAsyncCallback(context, verticalPanel, fileId));
         return contentPanel;
     }
 

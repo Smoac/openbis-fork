@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  * 
  * @author Franz-Josef Elmer
  */
-abstract class ID extends AbstractHashable
+public abstract class ID extends AbstractHashable
 {
     private Long id;
 
@@ -52,7 +52,7 @@ abstract class ID extends AbstractHashable
      * 
      * @param id New value. Can be <code>null</code>.
      */
-    public final void setID(Long id)
+    public final void setID(final Long id)
     {
         this.id = id;
     }
