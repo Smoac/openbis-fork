@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt-ext/gwtext.jar"/>
+	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
