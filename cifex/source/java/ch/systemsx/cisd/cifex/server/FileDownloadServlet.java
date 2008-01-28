@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.IFileManager.FileOutput;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * The <code>AbstractCIFEXServiceServlet</code> extension to download a data set.
@@ -57,6 +58,7 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
             try
             {
                 final long fileId = Long.parseLong(fileIdParameter);
+                // Do not check for null value.
                 final FileOutput fileOutput = domainModel.getFileManager().getFile(getUserDTO(request), fileId);
                 final Long size = fileOutput.basicFile.getSize();
                 if (size != null && size <= Integer.MAX_VALUE)
@@ -74,11 +76,14 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 IOUtils.copy(inputStream, outputStream);
             } catch (final NumberFormatException ex)
             {
-                throw new ServletException(String.format("Given file id '%s' is not a number.", fileIdParameter));
+                throw new ServletException(String.format("Given file id '%s' is not a number.", fileIdParameter), ex);
             } catch (final InvalidSessionException ex)
             {
-                // TODO 2008-01-27, Christian Ribeaud: should write out javascript which looks for the window.opener and
-                // redirect it to login page.
+                throw new ServletException(ex.getMessage(), ex);
+            } catch (final UserFailureException ex)
+            {
+                operationLog.error(String.format("Problem while accessing file id '%s'.", fileIdParameter), ex);
+                throw new ServletException(ex.getMessage(), ex);
             } finally
             {
                 IOUtils.closeQuietly(inputStream);

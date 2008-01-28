@@ -21,6 +21,7 @@ import java.io.InputStream;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A manager that proxies and handles access to {@link FileDTO}.
@@ -32,8 +33,12 @@ public interface IFileManager
 
     /**
      * Tries to find a file with given <var>fileId</var>.
+     * 
+     * @return never returns <code>null</code> but prefers to throw an exception.
+     * @throws UserFailureException if given <var>fileId</var> could not be found in the database or if current user
+     *             does not have access to the file.
      */
-    public FileOutput getFile(final UserDTO userDTO, final long fileId);
+    public FileOutput getFile(final UserDTO userDTO, final long fileId) throws UserFailureException;
 
     /**
      * Saves the data of the specified input stream which comes from a file with the specified name.
@@ -62,6 +67,7 @@ public interface IFileManager
             this.inputStream = inputStream;
         }
     }
+
     /** Deletes expired files from database and filesystem */
     public void deleteExpiredFiles();
 

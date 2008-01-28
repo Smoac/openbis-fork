@@ -77,8 +77,18 @@ final class FileManager extends AbstractManager implements IFileManager
         return false;
     }
 
-    /** Deletes file with given path from the filesystem */
-    private void deleteFromFileSystem(String path)
+    private final FileDTO getFile(final long fileId) throws UserFailureException
+    {
+        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        if (file == null)
+        {
+            throw UserFailureException.fromTemplate("No file could be found for id %d.", fileId);
+        }
+        return file;
+    }
+
+    /** Deletes file with given path from the file system. */
+    private final void deleteFromFileSystem(final String path)
     {
         final File file = new File(fileStore, path);
         if (file.exists())
@@ -107,16 +117,16 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         assert userDTO != null : "Given user can not be null.";
 
-        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        final FileDTO file = getFile(fileId);
         final java.io.File realFile = new java.io.File(fileStore, file.getPath());
         if (realFile.exists() == false)
         {
-            throw new UserFailureException(String.format("File '%s' no longer available."));
+            throw new UserFailureException(String.format("File '%s' no longer available.", realFile.getAbsolutePath()));
         }
         final List<UserDTO> sharingUsers = file.getSharingUsers();
         if (containsUser(userDTO, sharingUsers))
         {
-            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'", userDTO
+            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", userDTO
                     .getUserName(), file.getPath());
         }
         try
