@@ -28,18 +28,20 @@ public final class DOMUtils
         // Can not be instantiated.
     }
 
+    /**
+     * Looks in given <var>text</var> for given <var>tagName</var> and extracts its value (by removing the tag).
+     */
     public final static String getElementValue(final String tagName, final String text)
     {
         assert tagName != null : "Tag name can not be null.";
         assert text != null : "Given text can not be null.";
         final String startTag = "<" + tagName + ">";
         final String endTag = "</" + tagName + ">";
-        if (text.indexOf(startTag) < -1)
+        final int endIndex = text.indexOf(endTag);
+        if (text.indexOf(startTag) < 0 || endIndex < 0)
         {
             return text;
         }
-        final int endIndex = text.indexOf(endTag);
-        assert endIndex > -1 : "Text does not end correctly.";
         return text.substring(startTag.length(), endIndex);
     }
 }

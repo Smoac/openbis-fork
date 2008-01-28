@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.utils;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
@@ -33,5 +34,17 @@ public final class DOMUtilsTest
     {
         String text = "<pre>hello</pre>";
         assertEquals("hello", DOMUtils.getElementValue("pre", text));
+        text = "<pre>hello";
+        assertEquals(text, DOMUtils.getElementValue("pre", text));
+        text = "hello";
+        assertEquals(text, DOMUtils.getElementValue("pre", text));
+        try
+        {
+            DOMUtils.getElementValue(null, null);
+            fail("Parameters can not be null.");
+        } catch (final AssertionError e)
+        {
+            // Nothing to do here.
+        }
     }
 }

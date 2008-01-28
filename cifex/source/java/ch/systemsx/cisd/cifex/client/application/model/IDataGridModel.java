@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.model;
 
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.client.application.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 
 /**
  * An interface that encapsulates model functionality of {@link ModelBasedGrid}.

@@ -9,3 +9,10 @@ body,div,td {
     background-color: #1e4e8f;
     padding: 3px;
 }
+
+.cifex-a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    cursor: hand;
+}

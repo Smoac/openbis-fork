@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.model;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
 
 /**
  * Abstract data grid model with convenient methods.
@@ -39,7 +40,7 @@ abstract class AbstractDataGridModel implements IDataGridModel
     {
         final ColumnConfig columnConfig = createColumnConfig(code, title, width);
         columnConfig.setSortable(true);
-        //columnConfig.setRenderer(LinkRenderer.LINK_RENDERER);
+        columnConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return columnConfig;
     }
 

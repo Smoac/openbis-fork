@@ -33,7 +33,7 @@ public final class StringUtils
     /**
      * Whether given <var>value</var> is blank or not.
      */
-    public final static boolean isBlank(String value)
+    public final static boolean isBlank(final String value)
     {
         return value == null || value.trim().length() == 0;
     }

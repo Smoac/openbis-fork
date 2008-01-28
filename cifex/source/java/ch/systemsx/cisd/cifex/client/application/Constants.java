@@ -37,6 +37,15 @@ public final class Constants
     /** Name of the <code>HttpServlet</code> extension to upload a file. */
     public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";
 
+    /** Name of the <code>HttpServlet</code> extension to download a file. */
+    public static final String FILE_DOWNLOAD_SERVLET_NAME = getPrepend() + "file-download";
+
+    /** The table <code>null</code> value representation. */
+    public static final String TABLE_NULL_VALUE = "-";
+
+    /** The table <i>empty</i> value representation. */
+    public static final String TABLE_EMPTY_VALUE = "";
+
     private final static String getPrepend()
     {
         return "/cifex/";
