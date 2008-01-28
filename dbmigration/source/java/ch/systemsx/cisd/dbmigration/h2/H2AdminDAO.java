@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -49,6 +51,8 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     private static final String DROP_ALL_OBJECTS_SQL = "drop all objects;";
 
     private static final String SQL_FILE_TYPE = ".sql";
+    
+    private static final Pattern dbDirPartPattern = Pattern.compile(".*:file:(.*?)/.*");
 
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
             "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
@@ -58,6 +62,8 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, H2AdminDAO.class);
 
     private final String databaseName;
+    
+    private final String databaseDir;
     
     private final String databaseURL;
 
@@ -81,6 +87,14 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
         this.massUploader = massUploader;
         this.databaseName = databaseName;
         this.databaseURL = databaseURL;
+        final Matcher dbDirPartMatcherOrNull = dbDirPartPattern.matcher(databaseURL);
+        if (dbDirPartMatcherOrNull.matches())
+        {
+            this.databaseDir = dbDirPartMatcherOrNull.group(1);
+        } else
+        {
+            this.databaseDir = ".";
+        }
         setDataSource(dataSource);
     }
 
@@ -123,7 +137,7 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
         scriptExecutor.execute(new Script("drop database", DROP_ALL_OBJECTS_SQL), true, null);
         try
         {
-            DeleteDbFiles.execute("targets", databaseName, true);
+            DeleteDbFiles.execute(databaseDir, databaseName, true);
         } catch (SQLException ex)
         {
             throw new CheckedExceptionTunnel(ex);
