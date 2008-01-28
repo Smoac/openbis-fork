@@ -178,7 +178,6 @@ public class FileUploadWidget extends Form
         fileFieldConfig.setWidth(FIELD_WIDTH);
         fileFieldConfig.setAllowBlank(index > 0);
         fileFieldConfig.setValidateOnBlur(false);
-        fileFieldConfig.setReadOnly(true);
         return fileFieldConfig;
     }
 
