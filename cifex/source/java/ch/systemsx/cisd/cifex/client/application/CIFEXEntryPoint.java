@@ -49,6 +49,11 @@ public final class CIFEXEntryPoint implements EntryPoint
         QuickTips.init();
         final ICIFEXServiceAsync cifexService = createLIMSService();
         final ViewContext viewContext = createViewContext(cifexService);
+        final String paramString = GWTUtils.getParamString();
+        if (StringUtils.isBlank(paramString) == false)
+        {
+            viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
+        }
         cifexService.getCurrentUser(new AsyncCallback()
             {
 
@@ -59,11 +64,6 @@ public final class CIFEXEntryPoint implements EntryPoint
                 public final void onSuccess(final Object result)
                 {
                     final IPageController pageController = viewContext.getPageController();
-                    final String paramString = GWTUtils.getParamString();
-                    if (StringUtils.isBlank(paramString) == false)
-                    {
-                        viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
-                    }
                     if (result != null)
                     {
                         viewContext.getModel().setUser((User) result);
