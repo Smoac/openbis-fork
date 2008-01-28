@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
+import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
+import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
  * The main page for non-administrators (permanent and temporary users).
@@ -57,11 +63,91 @@ final class MainPage extends AbstractMainPage
         final VerticalPanel verticalPanel = new VerticalPanel();
         contentPanel.setWidth("100%");
         verticalPanel.setSpacing(5);
-        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
-        verticalPanel.add(createExplanationPanel());
-        verticalPanel.add(new FileUploadWidget(context));
         contentPanel.add(verticalPanel);
+        final HashMap urlParams = context.getModel().getUrlParams();
+        String fileId = null;
+        if (urlParams.isEmpty() == false)
+        {
+            fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
+        }
+        if (fileId == null)
+        {
+            verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
+            verticalPanel.add(createExplanationPanel());
+            verticalPanel.add(new FileUploadWidget(context));
+        }
+        verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
+        context.getCifexService().listFiles(context.getModel().getUser().getEmail(),
+                new FileAsyncCallback(context, verticalPanel, fileId));
         return contentPanel;
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class FileAsyncCallback extends AbstractAsyncCallback
+    {
+
+        private final VerticalPanel verticalPanel;
+
+        /**
+         * The file we are interested in.
+         * <p>
+         * Could be <code>null</code>.
+         * </p>
+         */
+        private final String fileId;
+
+        FileAsyncCallback(final ViewContext context, final VerticalPanel verticalPanel, final String fileId)
+        {
+            super(context);
+            this.verticalPanel = verticalPanel;
+            this.fileId = fileId;
+        }
+
+        private final File[] getFiles(final File[] files)
+        {
+            if (fileId == null)
+            {
+                return files;
+            }
+            for (int i = 0; i < files.length; i++)
+            {
+                final File file = files[i];
+                if (String.valueOf(file.getID()).equals(fileId))
+                {
+                    return new File[]
+                        { file };
+                }
+            }
+            return files;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Object result)
+        {
+            final File[] files = (File[]) result;
+            final Widget widget;
+            final IMessageResources messageResources = context.getMessageResources();
+            if (files.length > 0)
+            {
+                final IDataGridModel gridModel = new FileGridModel(messageResources);
+                final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
+                fileGrid.addGridCellListener(new FileGridCellListener(context));
+                widget = fileGrid;
+            } else
+            {
+                final HTML html = new HTML();
+                html.setText(messageResources.getDownloadFilesEmpty());
+                widget = html;
+            }
+            verticalPanel.add(widget);
+        }
+
     }
 
 }

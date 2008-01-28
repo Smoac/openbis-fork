@@ -27,23 +27,56 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public final class File implements IsSerializable
 {
-    private String name;
-
-    private String path;
 
     /**
-     * Size of the file.
+     * Unique identifier of the file.
+     */
+    private long id;
+
+    /** File name. */
+    private String name;
+
+    /**
+     * Human readable size of the file.
      * <p>
      * If <code>null</code> then the size has not been set.
      * </p>
      */
-    private Long size;
+    private String size;
 
+    /**
+     * Person who registered the file.
+     */
     private User registerer;
 
+    /**
+     * Date at which file has been registered.
+     */
     private Date registrationDate;
 
+    /**
+     * Expiration date of the file.
+     */
     private Date expirationDate;
+
+    /** The content type of the file. */
+    private String contentType;
+
+    /**
+     * Returns ID.
+     */
+    public final long getID()
+    {
+        return id;
+    }
+
+    /**
+     * Sets ID.
+     */
+    public final void setID(final long id)
+    {
+        this.id = id;
+    }
 
     public final String getName()
     {
@@ -53,16 +86,6 @@ public final class File implements IsSerializable
     public final void setName(final String name)
     {
         this.name = name;
-    }
-
-    public final String getPath()
-    {
-        return path;
-    }
-
-    public final void setPath(final String path)
-    {
-        this.path = path;
     }
 
     public final User getRegisterer()
@@ -95,14 +118,24 @@ public final class File implements IsSerializable
         this.expirationDate = expirationDate;
     }
 
-    public final Long getSize()
+    public final String getSize()
     {
         return size;
     }
 
-    public final void setSize(final Long size)
+    public final void setSize(final String size)
     {
         this.size = size;
+    }
+
+    public final String getContentType()
+    {
+        return contentType;
+    }
+
+    public final void setContentType(final String contentType)
+    {
+        this.contentType = contentType;
     }
 
 }

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 
 import java.util.HashMap;
 
+import com.google.gwt.http.client.URL;
+
 /**
  * Some utility methods around <i>GWT</i>.
  * 
@@ -35,7 +37,11 @@ public final class GWTUtils
         // Can not be instantiated.
     }
 
-    /** Returns the <i>search</i> of a <i>Javascript</i> window location. */
+    /**
+     * Returns the <i>search</i> of a <i>Javascript</i> window location.
+     * 
+     * @return something like <code>?key1=value1&key2=value2</code>.
+     */
     public final static native String getParamString() /*-{
        return $wnd.location.search;
     }-*/;
@@ -60,8 +66,7 @@ public final class GWTUtils
         {
             final String[] substrRay = ray[i].split(KEY_VALUE_SEPARATOR);
             assert substrRay.length == 2 : "Only two items should be found here.";
-            // map.put(substrRay[0], URL.decode(substrRay[1]));
-            map.put(substrRay[0], substrRay[1]);
+            map.put(substrRay[0], URL.decode(substrRay[1]));
         }
         return map;
     }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -47,4 +48,12 @@ public interface ICIFEXService extends RemoteService
      * @throws InvalidSessionException if user not logged in.
      */
     public User getCurrentUser() throws InvalidSessionException;
+
+    /**
+     * List all the files for given <var>userEmail</var>.
+     * <p>
+     * Never returns <code>null</code> but could return an empty array.
+     * </p>
+     */
+    public File[] listFiles(final String userEmail) throws UserFailureException;
 }

@@ -41,4 +41,10 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Returns the currently logged user if this user is already authenticated.
      */
     public void getCurrentUser(final AsyncCallback callback);
+
+    /**
+     * List all the files for given <var>userEmail</var>.
+     */
+    public void listFiles(final String userEmail, final AsyncCallback callback);
+
 }

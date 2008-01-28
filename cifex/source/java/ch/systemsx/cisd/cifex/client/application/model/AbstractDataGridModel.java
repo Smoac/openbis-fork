@@ -26,7 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
  * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractDataGridModel implements IDataGridModel
+public abstract class AbstractDataGridModel implements IDataGridModel
 {
     protected final IMessageResources messageResources;
 

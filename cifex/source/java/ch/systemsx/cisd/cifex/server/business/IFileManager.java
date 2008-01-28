@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.InputStream;
+import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -48,6 +49,9 @@ public interface IFileManager
      */
     public void saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream inputStream);
+
+    /** Lists files for given <var>userId</var>. */
+    public List<FileDTO> listFiles(final long userId) throws UserFailureException;
 
     //
     // Helper classes

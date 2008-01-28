@@ -16,19 +16,41 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.HashMap;
+
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
+ * Some <code>static</code> data that are available in the whole application context.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class Model
+public final class Model
 {
     private User user;
 
-    public final void setUser(User user)
+    /**
+     * The URL parameters.
+     * <p>
+     * Is never <code>null</code> but could be empty.
+     * </p>
+     */
+    private HashMap urlParams = new HashMap();
+
+    public final HashMap getUrlParams()
     {
+        return urlParams;
+    }
+
+    public final void setUrlParams(final HashMap urlParams)
+    {
+        assert urlParams != null : "URL params can not be null.";
+        this.urlParams = urlParams;
+    }
+
+    public final void setUser(final User user)
+    {
+        assert user != null : "Do not set an null user.";
         this.user = user;
     }
 
@@ -36,6 +58,4 @@ public class Model
     {
         return user;
     }
-    
-    
 }

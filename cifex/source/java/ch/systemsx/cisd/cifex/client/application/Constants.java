@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+
 /**
  * Some constants used through the whole web application.
  * 
@@ -27,6 +29,12 @@ public final class Constants
     {
         // Can not be instantiated.
     }
+
+    /** Default date/time format. */
+    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
+
+    /** Default <code>DateTimeFormat</code> used here. */
+    public static final DateTimeFormat defaultDateTimeFormat = DateTimeFormat.getFormat(DEFAULT_DATE_TIME_FORMAT);
 
     /** Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side). */
     public static final String CIFEX_SERVLET_NAME = "/cifex/cifex";

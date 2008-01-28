@@ -10,6 +10,8 @@ import com.gwtext.client.widgets.form.Field;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
+import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -57,6 +59,11 @@ public final class CIFEXEntryPoint implements EntryPoint
                 public final void onSuccess(final Object result)
                 {
                     final IPageController pageController = viewContext.getPageController();
+                    final String paramString = GWTUtils.getParamString();
+                    if (StringUtils.isBlank(paramString) == false)
+                    {
+                        viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
+                    }
                     if (result != null)
                     {
                         viewContext.getModel().setUser((User) result);

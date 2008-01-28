@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -27,6 +28,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -76,6 +78,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     public final void logout()
     {
         cifexServiceDelegate.logout();
+    }
+
+    public File[] listFiles(final String userEmail) throws UserFailureException
+    {
+        return cifexServiceDelegate.listFiles(userEmail);
     }
 
     //

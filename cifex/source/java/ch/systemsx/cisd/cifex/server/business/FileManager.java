@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -112,6 +113,12 @@ final class FileManager extends AbstractManager implements IFileManager
     //
     // IFileManager
     //
+
+    public final List<FileDTO> listFiles(long userId) throws UserFailureException
+    {
+        // TODO Auto-generated method stub
+        return Arrays.asList(new FileDTO[0]);
+    }
 
     @Transactional
     public final void deleteExpiredFiles()

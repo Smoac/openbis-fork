@@ -27,14 +27,38 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public final class User implements IsSerializable
 {
+    /**
+     * User name.
+     * <p>
+     * Could be <code>null</code> if not defined.
+     * </p>
+     */
     private String userName;
-    
+
+    /**
+     * Unique identifier in the database.
+     * <p>
+     * We are sure that this key is unique and not <code>null</code>.
+     * </p>
+     */
     private String email;
-    
+
+    /**
+     * Whether this user is an administrator or not.
+     * <p>
+     * Note that an administrator is a <i>permanent</i> user as well.
+     * </p>
+     */
     private boolean admin;
-    
+
+    /**
+     * Whether this user is <i>permanent</i> or not.
+     * <p>
+     * A non-permanent user has a non-<code>null</code> {@link #expirationDate} value.
+     * </p>
+     */
     private boolean permanent;
-    
+
     private Date expirationDate;
 
     public final boolean isAdmin()

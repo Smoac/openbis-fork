@@ -141,17 +141,58 @@ public interface IMessageResources extends Messages
     public String getRecipientFieldLabel();
 
     /**
-     * Returns the recipient text area field label.
+     * Returns the upload file part title.
      * 
      * @gwt.key uploadfiles.part.title
      */
     public String getUploadFilesPartTitle();
 
     /**
-     * Returns the recipient text area field label.
+     * Returns the help text for uploading files.
      * 
      * @gwt.key uploadfiles.help
      */
     public String getUploadFilesHelp();
 
+    /**
+     * Returns the download file part title.
+     * 
+     * @gwt.key downloadfiles.part.title
+     */
+    public String getDownloadFilesPartTitle();
+
+    /**
+     * Returns the message text for no file to download.
+     * 
+     * @gwt.key downloadfiles.empty
+     */
+    public String getDownloadFilesEmpty();
+
+    /**
+     * Returns the label of the file name column.
+     * 
+     * @gwt.key file.name.label
+     */
+    public String getFileNameLabel();
+
+    /**
+     * Returns the label of the file content type column.
+     * 
+     * @gwt.key file.contenttype.label
+     */
+    public String getFileContentTypeLabel();
+
+    /**
+     * Returns the label of the file size column.
+     * 
+     * @gwt.key file.size.label
+     */
+    public String getFileSizeLabel();
+
+    /**
+     * Returns the label of the file expiration date column.
+     * 
+     * @gwt.key file.expirationdate.label
+     */
+    public String getFileExpirationDateLabel();
 }

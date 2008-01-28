@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
@@ -29,9 +31,11 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -196,5 +200,23 @@ public final class CIFEXServiceImpl implements ICIFEXService
             httpSession.invalidate();
             authenticationLog.info("Logout of user " + user);
         }
+    }
+
+    public final File[] listFiles(final String userEmail) throws UserFailureException
+    {
+        final UserDTO user = domainModel.getUserManager().tryToFindUser(userEmail);
+        if (user == null)
+        {
+            throw new UserFailureException(String.format("No user could be found for email address '%s'.", userEmail));
+        }
+        final List<FileDTO> files = domainModel.getFileManager().listFiles(user.getID());
+        return BeanUtils.createBeanArray(File.class, files, new BeanUtils.Converter()
+            {
+                @SuppressWarnings("unused")
+                public final String convertToSize(final FileDTO fileDTO)
+                {
+                    return FileUtils.byteCountToDisplaySize(fileDTO.getSize());
+                }
+            });
     }
 }
