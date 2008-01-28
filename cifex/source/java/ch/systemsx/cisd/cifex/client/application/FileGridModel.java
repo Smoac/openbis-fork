@@ -21,8 +21,10 @@ import java.util.List;
 
 import com.gwtext.client.data.DateFieldDef;
 import com.gwtext.client.data.StringFieldDef;
+import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
+import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -56,7 +58,10 @@ final class FileGridModel extends AbstractDataGridModel
         configs.add(createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100));
         configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
         configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
-        configs.add(createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140));
+        final ColumnConfig expirationDate =
+                createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
+        expirationDate.setRenderer(DateRenderer.DATE_RENDERER);
+        configs.add(expirationDate);
         return configs;
     }
 
