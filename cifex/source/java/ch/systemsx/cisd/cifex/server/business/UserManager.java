@@ -77,4 +77,9 @@ public class UserManager extends AbstractManager implements IUserManager
         return userDAO.listUsers();
     }
 
+    public void deleteExpiredUsers()
+    {
+        userDAO.deleteExpiredUsers();
+    }
+
 }

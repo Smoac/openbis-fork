@@ -136,4 +136,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             return false;
         }
     }
+
+    public void deleteExpiredUsers()
+    {
+        getSimpleJdbcTemplate().update("delete from users where expiration_timestamp < now() ");
+
+    }
 }

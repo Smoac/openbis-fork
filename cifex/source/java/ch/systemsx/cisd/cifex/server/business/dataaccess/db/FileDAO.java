@@ -202,4 +202,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         }
     }
 
+    public List<FileDTO> getExpiredFiles()
+    {
+        final List<FileDTO> list =
+                getSimpleJdbcTemplate().query(SELECT + " from files as f where f.expiration_timestamp < now() ",
+                        FILE_ROW_MAPPER);
+        return list;
+
+    }
+
 }

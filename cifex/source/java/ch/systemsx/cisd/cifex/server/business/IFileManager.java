@@ -65,4 +65,7 @@ public interface IFileManager
             this.inputStream = inputStream;
         }
     }
+    /** Deletes expired files from database and filesystem */
+    public void deleteExpiredFiles();
+
 }

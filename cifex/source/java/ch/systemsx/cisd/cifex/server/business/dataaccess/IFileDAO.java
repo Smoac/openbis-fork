@@ -60,4 +60,7 @@ public interface IFileDAO
      * Adds sharing mappings to given <var>fileId</var>.
      */
     public void addSharingUsers(final long fileId, final List<UserDTO> sharingUsers) throws DataAccessException;
+
+    /** Returns a list of expired files */
+    public List<FileDTO> getExpiredFiles();
 }

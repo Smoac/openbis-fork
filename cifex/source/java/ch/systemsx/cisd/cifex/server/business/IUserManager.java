@@ -30,4 +30,7 @@ public interface IUserManager
     public void createUser(UserDTO user);
 
     public List<UserDTO> listUsers();
+
+    /** Removes expired users from user base */
+    public void deleteExpiredUsers();
 }

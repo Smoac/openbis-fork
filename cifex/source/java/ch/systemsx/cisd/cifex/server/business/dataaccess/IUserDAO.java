@@ -22,10 +22,9 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
-
 /**
  * <i>Data Access Object</i> for Users.
- *
+ * 
  * @author Basil Neff
  */
 public interface IUserDAO
@@ -38,24 +37,28 @@ public interface IUserDAO
      * @return <code>null</code>, if no user with that id exists.
      */
     public UserDTO tryFindUserByEmail(String email) throws DataAccessException;
-    
+
     /**
      * Inserts given <code>User</code> into the database.
      * <p>
-     * As side effect the <i>unique identifier</i> returned by the database is set to given <code>User</code>
-     * object using {@link UserDTO#setID(Long)}.
+     * As side effect the <i>unique identifier</i> returned by the database is set to given <code>User</code> object
+     * using {@link UserDTO#setID(Long)}.
      * </p>
+     * 
      * @param user <code>User</code> object to be inserted into the database. Can not be <code>null</code>.
      */
     public void createUser(UserDTO user) throws DataAccessException;
-    
+
     /**
      * @returns The list of all users currently present in the database.
      */
     public List<UserDTO> listUsers() throws DataAccessException;
-    
+
     /**
      * Deletes the given <code>User</code> from the Database.
      */
     public boolean removeUser(Long userID) throws DataAccessException;
+
+    /** Removes expired users from database */
+    public void deleteExpiredUsers();
 }

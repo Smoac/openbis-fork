@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
@@ -57,9 +58,25 @@ final class FileManager extends AbstractManager implements IFileManager
         this.fileRetentionInMinutes = fileRetentionInMinutes;
     }
 
-    //
-    // IFileManager
-    //
+    public void deleteExpiredFiles()
+    {
+        List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
+        for (FileDTO file : expiredFiles)
+        {
+            daoFactory.getFileDAO().deleteFile(file.getID());
+            deleteFromFileSystem(file.getPath());
+        }
+    }
+
+    /** Deletes file with given path from the filesystem */
+    private void deleteFromFileSystem(String path)
+    {
+        final File file = new File(fileStore, path);
+        if (file.exists())
+        {
+            file.delete();
+        }
+    }
 
     @Transactional
     public final FileOutput getFile(final UserDTO userDTO, final long fileId)

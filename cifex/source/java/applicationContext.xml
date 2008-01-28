@@ -94,5 +94,24 @@
         </property>
     </bean>
 
+    <!-- 
+       // Clean up daemon
+    -->   
+    <bean id="clean-up-daemon" class="ch.systemsx.cisd.cifex.server.CleanUpDaemon">
+        <constructor-arg ref="domain-model" />
+    </bean>
+          
+    <bean id="timerScheduler" class="org.springframework.scheduling.timer.TimerFactoryBean"> 
+        <property name="scheduledTimerTasks">
+            <list> 
+                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"> 
+                    <property name="delay" value="0"/>
+                    <property name="period" value="${cleaning-time-interval}"/>
+                    <property name="timerTask" ref="clean-up-daemon" />
+                </bean> 
+            </list> 
+        </property> 
+    </bean>
+  
 
 </beans>

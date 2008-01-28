@@ -180,4 +180,41 @@ public final class FileDAOTest extends AbstractDAOTest
         }
 
     }
+
+    @Transactional
+    @Test
+    public final void testGetExpiredFiles()
+    {
+        Date date = new Date();
+        Long past = 0L;
+        Long future = date.getTime() * 2;
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        List<FileDTO> expiredFiles = fileDAO.getExpiredFiles();
+        assertEquals(0, expiredFiles.size());
+        int numberOfExpiredFiles = 2;
+        for (int i = 1; i <= numberOfExpiredFiles; i++)
+        {
+            createFileWithExpirationTimeAndNumber(past, fileDAO, i);
+        }
+        createFileWithExpirationTimeAndNumber(future, fileDAO, numberOfExpiredFiles + 1);
+        assertEquals(numberOfExpiredFiles, fileDAO.getExpiredFiles().size());
+
+    }
+
+    /**
+     * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date created from
+     * <code>expirationTime</code>. If expirationTime is null then default time is used.
+     */
+    private void createFileWithExpirationTimeAndNumber(Long expirationTime, IFileDAO fileDAO, int i)
+    {
+        FileDTO sampleFile = createSampleFile();
+        sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
+        if (expirationTime != null)
+        {
+            sampleFile.setExpirationDate(new Date(expirationTime));
+        }
+        fileDAO.createFile(sampleFile);
+        assertEquals(i, fileDAO.listFiles().size());
+    }
+
 }
