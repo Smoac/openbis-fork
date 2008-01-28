@@ -37,11 +37,15 @@ import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
  */
 public final class ModelBasedGrid extends Grid
 {
+
+    private final Object[] objects;
+
     public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model,
             final String height)
     {
         super(Ext.generateId(), null, height, createStore(objects, model), createColumnModel(messageResources, model),
                 createGridConfig());
+        this.objects = objects;
         // To turn off the row selection
         getSelectionModel().lock();
         render();
@@ -73,5 +77,13 @@ public final class ModelBasedGrid extends Grid
         gridConfig.setTrackMouseOver(false);
         gridConfig.setEnableColumnMove(false);
         return gridConfig;
+    }
+
+    /**
+     * Returns the objects.
+     */
+    public final Object[] getObjects()
+    {
+        return objects;
     }
 }

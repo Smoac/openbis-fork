@@ -138,7 +138,7 @@ final class MainPage extends AbstractMainPage
             {
                 final IDataGridModel gridModel = new FileGridModel(messageResources);
                 final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
-                fileGrid.addGridCellListener(new FileGridCellListener(context));
+                fileGrid.addGridCellListener(new FileGridCellListener());
                 widget = fileGrid;
             } else
             {

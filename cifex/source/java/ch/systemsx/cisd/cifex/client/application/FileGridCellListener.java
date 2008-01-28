@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -29,11 +32,27 @@ import ch.systemsx.cisd.cifex.client.dto.File;
  */
 final class FileGridCellListener extends GridCellListenerAdapter
 {
-    private final ViewContext viewContext;
 
-    FileGridCellListener(final ViewContext context)
+    FileGridCellListener()
     {
-        this.viewContext = context;
+    }
+
+    private final static File getFileFromGrid(final Object[] objects, final String fileName)
+    {
+        for (int i = 0; i < objects.length; i++)
+        {
+            final File file = (File) objects[i];
+            if (file.getName().equals(fileName))
+            {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private final static String createDownloadUrl(final File file)
+    {
+        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "=" + file.getID();
     }
 
     //
@@ -42,6 +61,16 @@ final class FileGridCellListener extends GridCellListenerAdapter
 
     public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex, final EventObject e)
     {
+        final ModelBasedGrid modelBasedGrid = (ModelBasedGrid) grid;
+        final String dataIndex = modelBasedGrid.getColumnModel().getDataIndex(colIndex);
+        if (dataIndex.equals(FileGridModel.NAME))
+        {
+            final Record record = modelBasedGrid.getStore().getAt(rowIndex);
+            final String fileName = record.getAsString(FileGridModel.NAME);
+            final File file = getFileFromGrid(modelBasedGrid.getObjects(), fileName);
+            final String url = createDownloadUrl(file);
+            WindowUtils.openNewDependentWindow(url);
+        }
     }
 
 }

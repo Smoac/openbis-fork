@@ -25,6 +25,7 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 final class FileGridModel extends AbstractDataGridModel
 {
 
-    private static final String NAME = "name";
+    static final String NAME = "name";
 
     private static final String CONTENT_TYPE = "contentType";
 
@@ -55,13 +56,15 @@ final class FileGridModel extends AbstractDataGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
-        configs.add(createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100));
+        final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100);
+        nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
+        configs.add(nameConfig);
         configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
         configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
-        final ColumnConfig expirationDate =
+        final ColumnConfig expirationDateConfig =
                 createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
-        expirationDate.setRenderer(DateRenderer.DATE_RENDERER);
-        configs.add(expirationDate);
+        expirationDateConfig.setRenderer(DateRenderer.DATE_RENDERER);
+        configs.add(expirationDateConfig);
         return configs;
     }
 

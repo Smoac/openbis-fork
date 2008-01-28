@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public final class DomainModel implements IDomainModel
 {
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.NOTIFY, DomainModel.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DomainModel.class);
 
     private IUserManager userManager;
 
@@ -50,7 +50,7 @@ public final class DomainModel implements IDomainModel
     private final IDAOFactory daoFactory;
 
     private final BeanPostProcessor processor;
-    
+
     private final BusinessContext businessContext;
 
     private final BusinessObjectFactory boFactory;

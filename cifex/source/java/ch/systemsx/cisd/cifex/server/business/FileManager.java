@@ -62,7 +62,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
 final class FileManager extends AbstractManager implements IFileManager
 {
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
-    
+
     FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
@@ -143,7 +143,7 @@ final class FileManager extends AbstractManager implements IFileManager
             throw new UserFailureException(String.format("File '%s' no longer available.", realFile.getAbsolutePath()));
         }
         final List<UserDTO> sharingUsers = file.getSharingUsers();
-        if (containsUser(userDTO, sharingUsers))
+        if (containsUser(userDTO, sharingUsers) == false)
         {
             throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", userDTO
                     .getUserName(), file.getPath());
@@ -240,7 +240,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
             sendEmail(files, email, password);
         }
-        
+
     }
 
     private void sendEmail(Collection<FileDTO> files, String email, String password)

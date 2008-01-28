@@ -44,7 +44,7 @@ public class LinkRenderer implements Renderer
     {
         final Element anchor = DOM.createAnchor();
         DOM.setElementAttribute(anchor, "href", "javascript:return void;");
-        DOM.setElementAttribute(anchor, "class", "lims-a");
+        DOM.setElementAttribute(anchor, "class", "cifex-a");
         return anchor;
     }
 
