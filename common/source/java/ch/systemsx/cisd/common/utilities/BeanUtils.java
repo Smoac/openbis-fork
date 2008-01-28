@@ -208,7 +208,7 @@ public final class BeanUtils
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    private final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source, Converter converter)
+    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source, Converter converter)
     {
         assert clazz != null;
 
