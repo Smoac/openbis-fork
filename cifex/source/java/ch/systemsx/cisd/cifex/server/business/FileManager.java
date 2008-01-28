@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
@@ -51,6 +54,8 @@ final class FileManager extends AbstractManager implements IFileManager
     private final File fileStore;
 
     private final int fileRetentionInMinutes;
+
+    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
     FileManager(final IDAOFactory daoFactory, final File fileStore, final int fileRetentionInMinutes)
     {
@@ -94,6 +99,13 @@ final class FileManager extends AbstractManager implements IFileManager
         if (file.exists())
         {
             file.delete();
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Expired file [" + path + "] deleted.");
+            }
+        } else
+        {
+            logger.warn("Expired file [" + path + "] not deleted: doesn't exist.");
         }
     }
 

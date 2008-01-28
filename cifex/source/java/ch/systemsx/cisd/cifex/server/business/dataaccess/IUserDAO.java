@@ -59,6 +59,6 @@ public interface IUserDAO
      */
     public boolean removeUser(Long userID) throws DataAccessException;
 
-    /** Removes expired users from database */
-    public void deleteExpiredUsers();
+    /** Returns a list of expired users */
+    public List<UserDTO> listExpiredUsers();
 }

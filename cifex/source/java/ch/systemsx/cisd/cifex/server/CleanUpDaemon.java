@@ -18,7 +18,11 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * @author Izabela Adamczyk
@@ -27,11 +31,21 @@ public class CleanUpDaemon extends TimerTask
 {
     IDomainModel domainModel;
 
+    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
+
+    private final Stopwatch timer = new Stopwatch();
+
     @Override
     public void run()
     {
+        timer.start();
         deleteExpiredUsers();
         deleteExpiredFiles();
+        timer.stop();
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Cleaning time: " + timer.getTimeElapsed() + " ms");
+        }
 
     }
 
@@ -49,6 +63,29 @@ public class CleanUpDaemon extends TimerTask
     {
         domainModel.getUserManager().deleteExpiredUsers();
 
+    }
+
+    private class Stopwatch
+    {
+        private long start = 0;
+
+        private long stop = 0;
+
+        void start()
+        {
+            start = System.currentTimeMillis();
+        }
+
+        void stop()
+        {
+            stop = System.currentTimeMillis();
+        }
+
+        long getTimeElapsed()
+        {
+            return stop - start;
+
+        }
     }
 
 }
