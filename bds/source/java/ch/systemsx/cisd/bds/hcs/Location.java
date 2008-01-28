@@ -47,6 +47,7 @@ public final class Location
 
     /**
      * For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>.
+     * Position should be greater than 0.
      * 
      * @return <code>null</code> if position is out of range.
      */
@@ -56,7 +57,7 @@ public final class Location
         final int columns = geometry.getColumns();
         final int max = columns * geometry.getRows();
         // Given position is within the range.
-        if (position > 0 && position < max)
+        if (position > 0 && position <= max)
         {
             final int modulo = position % columns;
             final int x = modulo == 0 ? columns : modulo;
