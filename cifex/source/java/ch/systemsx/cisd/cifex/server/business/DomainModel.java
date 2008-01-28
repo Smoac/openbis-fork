@@ -24,12 +24,14 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * Provider of all manager objects.
@@ -48,15 +50,10 @@ public final class DomainModel implements IDomainModel
     private final IDAOFactory daoFactory;
 
     private final BeanPostProcessor processor;
+    
+    private final BusinessContext businessContext;
 
-    /** The root location where uploaded files are going to be stored. */
-    private File fileStore;
-
-    /** How long (in minutes) the file is going to stay in the system? */
-    private int fileRetention;
-
-    /** How long (in minutes) the user is going to stay in the system? */
-    private int userRetention;
+    private final BusinessObjectFactory boFactory;
 
     /**
      * Constructor only used for unit tests.
@@ -87,17 +84,22 @@ public final class DomainModel implements IDomainModel
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient, final BeanPostProcessor processor)
     {
-        this.daoFactory = daoFactory;
-        this.processor = processor;
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
 
+        this.daoFactory = daoFactory;
+        this.processor = processor;
+        businessContext = new BusinessContext();
+        businessContext.setMailClient(mailClient);
+        businessContext.setPasswordGenerator(new PasswordGenerator());
+        boFactory = new BusinessObjectFactory(daoFactory, businessContext);
     }
 
     /** Sets the file store root path where the files are going to be saved. */
     public final void setFileStorePath(final String fileStorePath)
     {
-        fileStore = new File(fileStorePath);
+        businessContext.setFileStore(new File(fileStorePath));
+        File fileStore = businessContext.getFileStore();
         if (fileStore.isDirectory() == false)
         {
             throw new EnvironmentFailureException("File store '" + fileStore.getAbsolutePath()
@@ -124,12 +126,12 @@ public final class DomainModel implements IDomainModel
      * This is typically set by <i>Spring</i> via injection.
      * </p>
      */
-    public final void setFileRetention(final int fileRentention)
+    public final void setFileRetention(final int fileRetention)
     {
-        this.fileRetention = fileRentention;
+        businessContext.setFileRetention(fileRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("File retention set to %d minutes.", fileRentention));
+            operationLog.info(String.format("File retention set to %d minutes.", fileRetention));
         }
     }
 
@@ -139,12 +141,12 @@ public final class DomainModel implements IDomainModel
      * This is typically by <i>Spring</i> via injection.
      * </p>
      */
-    public final void setUserRetention(final int userRentention)
+    public final void setUserRetention(final int userRetention)
     {
-        this.userRetention = userRentention;
+        businessContext.setUserRetention(userRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("User retention set to %d minutes.", userRentention));
+            operationLog.info(String.format("User retention set to %d minutes.", userRetention));
         }
     }
 
@@ -172,7 +174,7 @@ public final class DomainModel implements IDomainModel
     {
         if (userManager == null)
         {
-            userManager = createLoggingProxy(new UserManager(daoFactory, userRetention));
+            userManager = createLoggingProxy(new UserManager(daoFactory, boFactory, businessContext));
         }
         return userManager;
     }
@@ -184,7 +186,7 @@ public final class DomainModel implements IDomainModel
     {
         if (fileManager == null)
         {
-            fileManager = createLoggingProxy(new FileManager(daoFactory, fileStore, fileRetention));
+            fileManager = createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext));
         }
         return fileManager;
     }

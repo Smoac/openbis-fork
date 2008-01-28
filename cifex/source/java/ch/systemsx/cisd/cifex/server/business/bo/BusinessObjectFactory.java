@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server.business;
+package ch.systemsx.cisd.cifex.server.business.bo;
 
-import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
+import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 
-
 /**
- * Abstract super class of all Managers.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-abstract class AbstractManager
+public class BusinessObjectFactory implements IBusinessObjectFactory
 {
-    protected final IDAOFactory daoFactory;
-    protected final IBusinessObjectFactory boFactory;
-    protected final IBusinessContext businessContext;
+    private final IDAOFactory daoFactory;
+    private final IBusinessContext businessContext;
 
-    AbstractManager(final IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
+    /**
+     *
+     *
+     */
+    public BusinessObjectFactory(IDAOFactory daoFactory, IBusinessContext businessContext)
     {
-        this.boFactory = boFactory;
-        this.businessContext = businessContext;
-        assert daoFactory != null : "Undefined DAO Factory.";
         this.daoFactory = daoFactory;
+        this.businessContext = businessContext;
+    }
+    
+    public IUserBO createUserBO()
+    {
+        return new UserBO(daoFactory, businessContext);
     }
 
 }

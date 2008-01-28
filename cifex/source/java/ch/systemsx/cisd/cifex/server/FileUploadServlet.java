@@ -18,6 +18,10 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,11 +29,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
@@ -70,16 +77,6 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         return longValue;
     }
 
-    private final void registerTemporaryUsers(final String temporaryUserList)
-    {
-        System.out.println(temporaryUserList + "**********************");
-        // domainModel.getUserManager().tryToFindUser(email);
-    }
-
-    //
-    // AbstractCIFEXServiceServlet
-    //
-
     @Override
     protected final void postInitialization()
     {
@@ -98,35 +95,66 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
         try
         {
-            final UserDTO user = getUserDTO(request);
-            final ServletFileUpload upload = new ServletFileUpload();
-            // Sets the maximum allowed size of a complete request in bytes.
-            upload.setSizeMax(maxUploadSizeInMegabytes * FileUtils.ONE_MB);
-            final FileItemIterator iter = upload.getItemIterator(request);
-            while (iter.hasNext())
-            {
-                final FileItemStream item = iter.next();
-                final InputStream stream = item.openStream();
-                if (item.isFormField() == false)
-                {
-                    final String fileName = item.getName();
-                    // Blank file name are empty file fields.
-                    if (StringUtils.isNotBlank(fileName))
-                    {
-                        domainModel.getFileManager().saveFile(user, fileName, item.getContentType(), stream);
-                    }
-                } else
-                {
-                    if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
-                    {
-                        registerTemporaryUsers(Streams.asString(stream));
-                    }
-                }
-            }
+            List<FileDTO> files = new ArrayList<FileDTO>();
+            List<String> users = new ArrayList<String>();
+            extractEmailsAndFiles(request, files, users);
+            domainModel.getFileManager().shareFilesWith(users, files);
+            
+            operationLog.info("Uploading finished.");
+            response.setContentType("text/plain");
+            final PrintWriter writer = response.getWriter();
+            writer.write("Upload finished.");
+            writer.flush();
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
             sendErrorMessage(response, ex);
         }
+    }
+
+    private void extractEmailsAndFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
+            throws FileUploadException, IOException
+    {
+        final UserDTO user = getUserDTO(request);
+        final ServletFileUpload upload = new ServletFileUpload();
+        IFileManager fileManager = domainModel.getFileManager();
+        // Sets the maximum allowed size of a complete request in bytes.
+        upload.setSizeMax(maxUploadSizeInMegabytes * FileUtils.ONE_MB);
+        final FileItemIterator iter = upload.getItemIterator(request);
+        while (iter.hasNext())
+        {
+            final FileItemStream item = iter.next();
+            final InputStream stream = item.openStream();
+            if (item.isFormField() == false)
+            {
+                final String fileName = extractFileName(item);
+                // Blank file name are empty file fields.
+                if (StringUtils.isNotBlank(fileName))
+                {
+                    files.add(fileManager.saveFile(user, fileName, item.getContentType(), stream));
+                }
+            } else
+            {
+                if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
+                {
+                    StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream));
+                    while (stringTokenizer.hasMoreTokens())
+                    {
+                        users.add(stringTokenizer.nextToken());
+                    }
+                }
+            }
+        }
+    }
+    
+    private String extractFileName(FileItemStream item)
+    {
+        String fileName = item.getName().replace('\\', '/');
+        int indexOfLastPathSeparator = fileName.lastIndexOf('/');
+        if (indexOfLastPathSeparator >= 0)
+        {
+            fileName = fileName.substring(indexOfLastPathSeparator + 1);
+        }
+        return fileName;
     }
 }

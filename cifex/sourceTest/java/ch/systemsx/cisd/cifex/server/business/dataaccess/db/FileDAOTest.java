@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -103,9 +102,7 @@ public final class FileDAOTest extends AbstractDAOTest
         fileDAO.createFile(file1);
         final Long fileId = file1.getID();
         assertNotNull(fileId);
-        final List<UserDTO> sharingUsers = Arrays.asList(new UserDTO[]
-            { getSampleUserFromDB() });
-        fileDAO.addSharingUsers(fileId, sharingUsers);
+        fileDAO.createSharingLink(fileId, getSampleUserFromDB().getID());
         final FileDTO file = fileDAO.tryGetFile(fileId);
         assertNotNull(file);
         final List<UserDTO> users = file.getSharingUsers();

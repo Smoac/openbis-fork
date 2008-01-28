@@ -29,6 +29,7 @@ import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -52,13 +53,19 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     File fileStore;
 
+    private IBusinessObjectFactory boFactory;
+
     @BeforeMethod
     public final void setUp()
     {
         daoFactory = context.mock(IDAOFactory.class);
         fileDAO = context.mock(IFileDAO.class);
+        boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
-        fileManager = new FileManager(daoFactory, fileStore, 5);
+        BusinessContext businessContext = new BusinessContext();
+        businessContext.setFileRetention(5);
+        businessContext.setFileStore(fileStore);
+        fileManager = new FileManager(daoFactory, boFactory, businessContext);
     }
 
     @Test

@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -32,17 +33,26 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
+import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -51,20 +61,11 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
-    private final File fileStore;
-
-    private final int fileRetentionInMinutes;
-
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
-
-    FileManager(final IDAOFactory daoFactory, final File fileStore, final int fileRetentionInMinutes)
+    
+    FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
     {
-        super(daoFactory);
-        assert fileStore.exists() : "File store does not exist.";
-        assert fileStore.isDirectory() : "File store is not a directory";
-
-        this.fileStore = fileStore;
-        this.fileRetentionInMinutes = fileRetentionInMinutes;
+        super(daoFactory, boFactory, businessContext);
     }
 
     /**
@@ -95,7 +96,7 @@ final class FileManager extends AbstractManager implements IFileManager
     /** Deletes file with given path from the file system. */
     private final void deleteFromFileSystem(final String path)
     {
-        final File file = new File(fileStore, path);
+        final File file = new File(businessContext.getFileStore(), path);
         if (file.exists())
         {
             file.delete();
@@ -136,7 +137,7 @@ final class FileManager extends AbstractManager implements IFileManager
         assert userDTO != null : "Given user can not be null.";
 
         final FileDTO file = getFile(fileId);
-        final java.io.File realFile = new java.io.File(fileStore, file.getPath());
+        final java.io.File realFile = new java.io.File(businessContext.getFileStore(), file.getPath());
         if (realFile.exists() == false)
         {
             throw new UserFailureException(String.format("File '%s' no longer available.", realFile.getAbsolutePath()));
@@ -157,9 +158,10 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final void saveFile(final UserDTO user, final String fileName, final String contentType,
+    public final FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream input)
     {
+        File fileStore = businessContext.getFileStore();
         final File folder = new File(fileStore, user.getEmail());
         if (folder.exists())
         {
@@ -189,9 +191,10 @@ final class FileManager extends AbstractManager implements IFileManager
             fileDTO.setName(fileName);
             fileDTO.setContentType(contentType);
             fileDTO.setPath(FileUtilities.getRelativeFile(fileStore, file));
-            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), fileRetentionInMinutes));
+            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
             fileDTO.setSize(inputStream.getByteCount());
             daoFactory.getFileDAO().createFile(fileDTO);
+            return fileDTO;
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -200,5 +203,66 @@ final class FileManager extends AbstractManager implements IFileManager
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
         }
+    }
+
+    @Transactional
+    public void shareFilesWith(Collection<String> emailsOfUsers, Collection<FileDTO> files)
+    {
+        IUserDAO userDAO = daoFactory.getUserDAO();
+        TableMap<String, UserDTO> existingUsers =
+                new TableMap<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
+                    {
+                        public String getKey(UserDTO user)
+                        {
+                            return user.getEmail();
+                        }
+                    });
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+        for (String email : emailsOfUsers)
+        {
+            UserDTO user = existingUsers.tryToGet(email);
+            String password = null;
+            if (user == null)
+            {
+                user = new UserDTO();
+                user.setEmail(email);
+                password = passwordGenerator.generatePassword(10);
+                user.setEncryptedPassword(StringUtilities.encrypt(password));
+                IUserBO userBO = boFactory.createUserBO();
+                userBO.define(user);
+                userBO.save();
+                existingUsers.add(user);
+            }
+            for (FileDTO file : files)
+            {
+                fileDAO.createSharingLink(file.getID(), user.getID());
+            }
+            sendEmail(files, email, password);
+        }
+        
+    }
+
+    private void sendEmail(Collection<FileDTO> files, String email, String password)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("The followings are available for downloading:\n");
+        for (FileDTO fileDTO : files)
+        {
+            builder.append(fileDTO.getName()).append(" ");
+            builder.append("http://localhost:8888/cifex/cifex/").append(fileDTO.getID()).append('\n');
+        }
+        builder.append("\nClick on a link for starting downloading. You have to login with your e-mail address (i.e.");
+        builder.append(email).append(")");
+        if (password != null)
+        {
+            builder.append(" with the following password:\n\n").append(password);
+        } else
+        {
+            builder.append(" with your password.");
+        }
+        IMailClient mailClient = businessContext.getMailClient();
+        mailClient.sendMessage("Files for download available on the Cifex Server", builder.toString(), new String[]
+            { email });
     }
 }

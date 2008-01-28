@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
+import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -34,56 +34,40 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Franz-Josef Elmer
  */
-public class UserManager extends AbstractManager implements IUserManager
+class UserManager extends AbstractManager implements IUserManager
 {
-
-    private final IUserDAO userDAO;
-
-    private final int userRetentionInMinutes;
-
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
-
-    public UserManager(final IDAOFactory daoFactory, final int userRetentionInMinutes)
+    
+    public UserManager(IDAOFactory daoFactory, BusinessObjectFactory boFactory, BusinessContext businessContext)
     {
-        super(daoFactory);
-        userDAO = daoFactory.getUserDAO();
-        this.userRetentionInMinutes = userRetentionInMinutes;
+        super(daoFactory, boFactory, businessContext);
     }
-
-    //
-    // IUserManager
-    //
 
     @Transactional
     public final UserDTO tryToFindUser(final String email)
     {
         assert email != null : "Email Adress is null!";
 
-        return userDAO.tryFindUserByEmail(email);
+        return daoFactory.getUserDAO().tryFindUserByEmail(email);
     }
 
     @Transactional
     public final void createUser(final UserDTO user)
     {
-        assert user != null : "Given user can not be null.";
-        assert user.getID() == null : "User ID is set, this will be done from the UserDAO.";
-        assert user.getExpirationDate() == null : "Expiration date should not have been specified yet.";
-
-        if (user.isPermanent() == false)
-        {
-            user.setExpirationDate(DateUtils.addMinutes(new Date(), userRetentionInMinutes));
-        }
-        userDAO.createUser(user);
+        IUserBO userBO = boFactory.createUserBO();
+        userBO.define(user);
+        userBO.save();
     }
 
     @Transactional
     public final List<UserDTO> listUsers()
     {
-        return userDAO.listUsers();
+        return daoFactory.getUserDAO().listUsers();
     }
 
     public void deleteExpiredUsers()
     {
+        IUserDAO userDAO = daoFactory.getUserDAO();
         List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
         for (UserDTO user : expiredUsers)
         {

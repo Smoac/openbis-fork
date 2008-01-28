@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
@@ -44,11 +45,16 @@ public interface IFileManager
     /**
      * Saves the data of the specified input stream which comes from a file with the specified name.
      * 
-     * @param user the owner of the file.
-     * @param contentType returns the content type passed by the browser or <code>null</code> if not defined.
+     * @param user The owner of the file.
+     * @param fileName The name of the file. May contain the full path.
+     * @param contentType Content type passed by the browser or <code>null</code> if not defined.
+     * @param inputStream Input stream of file content.
+     * @return file DTO with id.
      */
-    public void saveFile(final UserDTO user, final String fileName, final String contentType,
+    public FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream inputStream);
+    
+    public void shareFilesWith(Collection<String> emailsOfUsers, Collection<FileDTO> files);
 
     /** Lists files for given <var>userId</var>. */
     public List<FileDTO> listFiles(final long userId) throws UserFailureException;

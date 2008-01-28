@@ -21,7 +21,6 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * <i>Data Access Object</i> for files.
@@ -55,11 +54,11 @@ public interface IFileDAO
 
     /** Returns detailed information about file, including registerer data and list of users the file is shared with. */
     public FileDTO tryGetFile(final long fileId) throws DataAccessException;
-
+    
     /**
-     * Adds sharing mappings to given <var>fileId</var>.
+     * Adds a link between the specified file and user.
      */
-    public void addSharingUsers(final long fileId, final List<UserDTO> sharingUsers) throws DataAccessException;
+    public void createSharingLink(long fileID, long userID) throws DataAccessException;
 
     /** Returns a list of expired files */
     public List<FileDTO> getExpiredFiles();

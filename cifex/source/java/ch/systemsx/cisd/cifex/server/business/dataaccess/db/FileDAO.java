@@ -75,13 +75,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     // IFileDAO
     //
 
-    public final void addSharingUsers(final long fileId, final List<UserDTO> sharingUsers) throws DataAccessException
+    public void createSharingLink(long fileID, long userID) throws DataAccessException
     {
-        for (final UserDTO sharingUser : sharingUsers)
-        {
-            getSimpleJdbcTemplate().update("insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
-                    getNextValueOf("FILE_SHARE_ID_SEQ"), fileId, sharingUser.getID());
-        }
+        getSimpleJdbcTemplate().update("insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
+                getNextValueOf("FILE_SHARE_ID_SEQ"), fileID, userID);
+        
     }
 
     public final void createFile(final FileDTO file) throws DataAccessException
