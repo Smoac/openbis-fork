@@ -27,13 +27,6 @@ import java.util.List;
  */
 public final class FileDTO extends ID
 {
-    /**
-     * Name of the file.
-     * <p>
-     * This is the last part of <code>path</code>.
-     * </p>
-     */
-    private String name;
 
     /** The relative location of this file. */
     private String path;
@@ -54,30 +47,21 @@ public final class FileDTO extends ID
 
     private final Long registererId;
 
-    /** The content type of the file, <code>image/png</code> for instance. */
-    private String contentType;
-
-    /**
-     * Size of the file.
-     * <p>
-     * If <code>null</code> then the size has not been set.
-     * </p>
-     */
-    private Long size;
+    private final BasicFileDTO basicFileDTO = new BasicFileDTO();
 
     public FileDTO(final Long registererId)
     {
         this.registererId = registererId;
     }
 
-    public String getName()
+    public final String getName()
     {
-        return name;
+        return basicFileDTO.getName();
     }
 
     public final void setName(final String name)
     {
-        this.name = name;
+        this.basicFileDTO.setName(name);
     }
 
     public final String getPath()
@@ -138,22 +122,22 @@ public final class FileDTO extends ID
 
     public final void setContentType(final String contentType)
     {
-        this.contentType = contentType;
+        this.basicFileDTO.setContentType(contentType);
     }
 
     public final String getContentType()
     {
-        return contentType;
+        return basicFileDTO.getContentType();
     }
 
     public final Long getSize()
     {
-        return size;
+        return basicFileDTO.getSize();
     }
 
     public final void setSize(final Long size)
     {
-        this.size = size;
+        this.basicFileDTO.setSize(size);
     }
 
 }

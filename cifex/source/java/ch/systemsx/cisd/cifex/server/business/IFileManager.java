@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.InputStream;
 
+import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
@@ -49,19 +50,15 @@ public interface IFileManager
 
     public final static class FileOutput
     {
-        /** Name of file. */
-        public final String name;
-
-        /** Length of the file. */
-        public final long length;
+        /** Basic information about a file. */
+        public final BasicFileDTO basicFile;
 
         /** To access the file content. */
         public final InputStream inputStream;
 
-        FileOutput(final String name, final long length, final InputStream inputStream)
+        FileOutput(final BasicFileDTO basicFile, final InputStream inputStream)
         {
-            this.name = name;
-            this.length = length;
+            this.basicFile = basicFile;
             this.inputStream = inputStream;
         }
     }

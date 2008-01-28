@@ -31,8 +31,20 @@ public class UserDTO extends ID
 
     private String encryptedPassword;
 
+    /**
+     * Whether this user is an administrator or not.
+     * <p>
+     * Note that an administrator is a <i>permanent</i> user as well.
+     * </p>
+     */
     private boolean admin;
 
+    /**
+     * Whether this user is <i>permanent</i> or not.
+     * <p>
+     * A non-permanent user has a non-<code>null</code> {@link #expirationDate} value.
+     * </p>
+     */
     private boolean permanent;
 
     private boolean externallyAuthenticated;

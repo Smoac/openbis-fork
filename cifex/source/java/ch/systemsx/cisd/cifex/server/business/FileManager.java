@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +32,13 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -58,14 +62,19 @@ final class FileManager extends AbstractManager implements IFileManager
         this.fileRetentionInMinutes = fileRetentionInMinutes;
     }
 
-    public void deleteExpiredFiles()
+    /**
+     * Whether given <var>userDTO</var> could be found in list of sharing users.
+     */
+    private final static boolean containsUser(final UserDTO userDTO, final List<UserDTO> sharingUsers)
     {
-        List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
-        for (FileDTO file : expiredFiles)
+        for (final UserDTO user : sharingUsers)
         {
-            daoFactory.getFileDAO().deleteFile(file.getID());
-            deleteFromFileSystem(file.getPath());
+            if (user.getID().equals(userDTO.getID()))
+            {
+                return true;
+            }
         }
+        return false;
     }
 
     /** Deletes file with given path from the filesystem */
@@ -75,6 +84,21 @@ final class FileManager extends AbstractManager implements IFileManager
         if (file.exists())
         {
             file.delete();
+        }
+    }
+
+    //
+    // IFileManager
+    //
+
+    @Transactional
+    public final void deleteExpiredFiles()
+    {
+        final List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
+        for (final FileDTO file : expiredFiles)
+        {
+            daoFactory.getFileDAO().deleteFile(file.getID());
+            deleteFromFileSystem(file.getPath());
         }
     }
 
@@ -89,7 +113,19 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             throw new UserFailureException(String.format("File '%s' no longer available."));
         }
-        return null;
+        final List<UserDTO> sharingUsers = file.getSharingUsers();
+        if (containsUser(userDTO, sharingUsers))
+        {
+            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'", userDTO
+                    .getUserName(), file.getPath());
+        }
+        try
+        {
+            return new FileOutput(BeanUtils.createBean(BasicFileDTO.class, file), new FileInputStream(realFile));
+        } catch (final FileNotFoundException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     @Transactional
