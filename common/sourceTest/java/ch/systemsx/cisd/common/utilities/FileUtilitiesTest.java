@@ -290,7 +290,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         FileUtils.touch(file);
         assert file.exists();
         newFile = FileUtilities.createNextNumberedFile(file, null);
-        assertEquals(new File(workingDirectory, "a1bc2"), newFile);
+        assertEquals(new File(workingDirectory, "a0bc2"), newFile);
         // More examples
         file = new File(workingDirectory, "12abc_[12]");
         newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
