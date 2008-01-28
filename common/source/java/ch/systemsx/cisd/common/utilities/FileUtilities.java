@@ -636,7 +636,7 @@ public final class FileUtilities
     }
 
     /** A <i>Java</i> pattern matching one or more digits. */
-    private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile("(\\d+)");
+    private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile(".*(\\d+)$");
 
     public final static File createNextNumberedFile(File path, Pattern regex)
     {
