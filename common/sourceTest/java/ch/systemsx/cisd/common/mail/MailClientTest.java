@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.mail;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
@@ -53,6 +54,7 @@ public class MailClientTest extends AbstractFileSystemTestCase
         // second mail
         mailClient.sendMessage("Greetings", "Hello world!");
         files = emailFolder.listFiles();
+        Arrays.sort(files);
         assertEquals(2, files.length);
         assertEquals("email", files[0].getName());
         assertEquals("email1", files[1].getName());
