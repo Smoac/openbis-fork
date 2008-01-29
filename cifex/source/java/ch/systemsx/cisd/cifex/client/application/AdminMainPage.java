@@ -26,7 +26,6 @@ import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -37,8 +36,6 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 class AdminMainPage extends AbstractMainPage
 {
 
-    private VerticalPanel createUserPanel;
-    
     private VerticalPanel listUserPanel;
     
     private VerticalPanel listFilesPanel;
@@ -51,9 +48,7 @@ class AdminMainPage extends AbstractMainPage
     protected ContentPanel createMainPanel()
     {
         ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-        createUserPanel = createVerticalPanelPart();
-        createUserPanel.add(createPartTitle("Create User"));
-        createUserPanel.add(createCreateUserWidget());
+        createUserPanel(true);
 
         listUserPanel = createVerticalPanelPart();
         createListUserGrid();
@@ -65,20 +60,6 @@ class AdminMainPage extends AbstractMainPage
         mainPanel.add(listUserPanel);
         mainPanel.add(listFilesPanel);
         return mainPanel;
-    }
-
-    final static VerticalPanel createVerticalPanelPart()
-    {
-        final VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setWidth("100%");
-        verticalPanel.setSpacing(5);
-        return verticalPanel;
-    }
-
-    private final Widget createCreateUserWidget()
-    {
-        return new CreateUserWidget(context);
-
     }
 
     private final void createListFileGrid()

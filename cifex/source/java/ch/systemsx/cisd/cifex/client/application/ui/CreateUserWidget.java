@@ -33,7 +33,6 @@ import com.gwtext.client.widgets.form.VType;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -65,18 +64,19 @@ public class CreateUserWidget extends Form
     private Radio temporaryRadioButton;
 
     private Button submitButton;
+    
+    private final boolean allowPermanentUsers;
 
-    public CreateUserWidget(final ViewContext context)
+    public CreateUserWidget(final ViewContext context, final boolean allowPermanentUsers)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
         this.context = context;
+        this.allowPermanentUsers = allowPermanentUsers;
         createCreateUserForm();
     }
 
     private final void createCreateUserForm()
     {
-        IMessageResources messageResources = context.getMessageResources();
-
         final ColumnConfig leftColumn = new ColumnConfig();
         leftColumn.setWidth(COLUMN_WIDTH);
         column(leftColumn);
@@ -107,14 +107,17 @@ public class CreateUserWidget extends Form
         lastColumn.setWidth(COLUMN_WIDTH - 150);
         column(lastColumn);
 
-        adminRadioButton = createAdminRadioButton();
-        add(adminRadioButton);
-
-        permanentRadioButton = createPermanentRadioButton();
-        add(permanentRadioButton);
-
-        temporaryRadioButton = createTemporaryRadioButton();
-        add(temporaryRadioButton);
+        if (allowPermanentUsers)
+        {
+            adminRadioButton = createAdminRadioButton();
+            add(adminRadioButton);
+    
+            permanentRadioButton = createPermanentRadioButton();
+            add(permanentRadioButton);
+    
+            temporaryRadioButton = createTemporaryRadioButton();
+            add(temporaryRadioButton);
+        }
         end();
         // add(createRadioButtonPanel());
 
@@ -163,9 +166,9 @@ public class CreateUserWidget extends Form
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Username");
+        fieldConfig.setFieldLabel("Full Name");
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName("Username");
+        fieldConfig.setName("Full Name");
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(2);
@@ -191,9 +194,9 @@ public class CreateUserWidget extends Form
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Validate Password");
+        fieldConfig.setFieldLabel("Repeat Password");
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName("Validate Password");
+        fieldConfig.setName("Repeat Password");
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
@@ -253,16 +256,22 @@ public class CreateUserWidget extends Form
             User user = new User();
             user.setEmail(emailField.getText());
             user.setUserName(usernameField.getText());
-            if (adminRadioButton.getValue())
+            if (allowPermanentUsers)
             {
-                user.setAdmin(true);
-                user.setPermanent(true);
-            } else if (permanentRadioButton.getValue())
-            {
-                user.setAdmin(false);
-                user.setPermanent(true);
-            } else
-            {
+                if (adminRadioButton.getValue())
+                {
+                    user.setAdmin(true);
+                    user.setPermanent(true);
+                } else if (permanentRadioButton.getValue())
+                {
+                    user.setAdmin(false);
+                    user.setPermanent(true);
+                } else
+                {
+                    user.setAdmin(false);
+                    user.setPermanent(false);
+                }
+            } else {
                 user.setAdmin(false);
                 user.setPermanent(false);
             }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
@@ -30,6 +31,7 @@ import com.gwtext.client.widgets.layout.BorderLayout;
 import com.gwtext.client.widgets.layout.ContentPanel;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
+import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -37,6 +39,9 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 abstract class AbstractMainPage extends BorderLayout
 {
+    
+    protected VerticalPanel createUserPanel;
+    
     private final static LayoutRegionConfig createCenterRegion()
     {
         LayoutRegionConfig center = new LayoutRegionConfig();
@@ -129,6 +134,27 @@ abstract class AbstractMainPage extends BorderLayout
                 }
             });
         return logoutButton;
+    }
+    
+    private final Widget createCreateUserWidget(final boolean allowPermanentUsers)
+    {
+        return new CreateUserWidget(context, allowPermanentUsers);
+
+    }
+
+    final static VerticalPanel createVerticalPanelPart()
+    {
+        final VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setWidth("100%");
+        verticalPanel.setSpacing(5);
+        return verticalPanel;
+    }
+
+    protected final void createUserPanel(final boolean allowPermanentUsers)
+    {
+        createUserPanel = createVerticalPanelPart();
+        createUserPanel.add(createPartTitle("Create User"));
+        createUserPanel.add(createCreateUserWidget(allowPermanentUsers));
     }
 
     protected abstract ContentPanel createMainPanel();

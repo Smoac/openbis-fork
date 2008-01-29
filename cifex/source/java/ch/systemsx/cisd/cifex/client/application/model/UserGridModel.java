@@ -23,7 +23,6 @@ import com.gwtext.client.data.StringFieldDef;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.UserLinkRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -32,7 +31,9 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class UserGridModel extends AbstractDataGridModel
 {
 
-    private final String USER_NAME = "User";
+    private final String EMAIL = "Email";
+    
+    private final String FULL_NAME = "Full Name";
 
     private final String STATUS = "Status";
 
@@ -51,7 +52,8 @@ public class UserGridModel extends AbstractDataGridModel
         final List configs = new ArrayList();
 
      // TODO 2008-1-28 Basil Neff: Get Field from MessageResource (2nd Parameter)
-        configs.add(createSortableColumnConfig(USER_NAME, USER_NAME, 120));
+        configs.add(createSortableColumnConfig(EMAIL, EMAIL, 180));
+        configs.add(createSortableColumnConfig(FULL_NAME, FULL_NAME, 120));
         configs.add(createSortableColumnConfig(STATUS, STATUS, 250));
         configs.add(createSortableColumnConfig(MODIFY_USER, MODIFY_USER, 120));
         return configs;
@@ -78,7 +80,7 @@ public class UserGridModel extends AbstractDataGridModel
                 stateField += "expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
             }
             final Object[] objects = new Object[]
-                { UserLinkRenderer.createUserAnchor(user), stateField, "delete" };
+                { user.getEmail(), user.getUserName(), stateField, "delete" };
             list.add(objects);
         }
         return list;
@@ -87,7 +89,8 @@ public class UserGridModel extends AbstractDataGridModel
     public List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(USER_NAME));
+        fieldDefs.add(new StringFieldDef(EMAIL));
+        fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
         fieldDefs.add(new StringFieldDef(MODIFY_USER));
         return fieldDefs;

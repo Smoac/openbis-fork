@@ -54,6 +54,7 @@ final class MainPage extends AbstractMainPage
     protected final ContentPanel createMainPanel()
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
+        createUserPanel(false);
         final VerticalPanel verticalPanel = new VerticalPanel();
         contentPanel.setWidth("100%");
         verticalPanel.setSpacing(5);
@@ -70,6 +71,7 @@ final class MainPage extends AbstractMainPage
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
             verticalPanel.add(new FileUploadWidget(context));
+            verticalPanel.add(createUserPanel);
         }
         verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
         context.getCifexService().listDownloadFiles(new FileAsyncCallback(context, verticalPanel, fileId));

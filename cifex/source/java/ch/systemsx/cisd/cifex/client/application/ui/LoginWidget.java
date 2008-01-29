@@ -47,7 +47,7 @@ public class LoginWidget extends Form
 
     private final ViewContext context;
 
-    private TextField usernameField;
+    private TextField emailField;
 
     private TextField passwordField;
 
@@ -64,8 +64,8 @@ public class LoginWidget extends Form
     {
         IMessageResources messageResources = context.getMessageResources();
         fieldset(messageResources.getLoginLegend());
-        usernameField = createUsernameField();
-        add(usernameField);
+        emailField = createEmailField();
+        add(emailField);
         passwordField = createPasswordField();
         add(passwordField);
         // Do NOT use addButton(Button) here. This does seem to work correctly (while clearing RootPanel, we get an
@@ -121,10 +121,10 @@ public class LoginWidget extends Form
         return new TextField(fieldConfig);
     }
 
-    private final TextField createUsernameField()
+    private final TextField createEmailField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(context.getMessageResources().getLoginUsernameLabel());
+        fieldConfig.setFieldLabel(context.getMessageResources().getLoginEmailLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
@@ -140,7 +140,7 @@ public class LoginWidget extends Form
     /** Returns the user name text field. */
     public final TextField getUsernameField()
     {
-        return usernameField;
+        return emailField;
     }
 
     /** Returns the button that will starts the login process. */
@@ -152,10 +152,10 @@ public class LoginWidget extends Form
     /** Submits given <var>loginForm</var>. */
     protected void submitForm()
     {
-        if (usernameField.validate() & passwordField.validate())
+        if (emailField.validate() & passwordField.validate())
         {
             button.disable();
-            final String username = usernameField.getText();
+            final String username = emailField.getText();
             final String password = passwordField.getText();
             ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.tryToLogin(username, password, new LoginAsyncCallBack());

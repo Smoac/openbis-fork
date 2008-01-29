@@ -71,11 +71,11 @@ public interface IMessageResources extends Messages
     public String getLoginPasswordLabel();
 
     /**
-     * Returns the username label for the login form.
+     * Returns the email label for the login form.
      * 
-     * @gwt.key login.username.label
+     * @gwt.key login.email.label
      */
-    public String getLoginUsernameLabel();
+    public String getLoginEmailLabel();
 
     /**
      * Returns the logout label for the logout link.
