@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -161,8 +162,42 @@ final class FileManager extends AbstractManager implements IFileManager
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream input)
     {
-        File fileStore = businessContext.getFileStore();
-        final File folder = new File(fileStore, user.getEmail());
+        assert user != null : "Unspecified user.";
+        assert user.getEmail() != null : "Unspecified email of user " + user;
+        assert StringUtils.isNotBlank(fileName) : "Unspecified file name.";
+        assert StringUtils.isNotBlank(contentType) : "Unspecified content type.";
+        assert input != null : "Unspecified input stream.";
+        
+        final File folder = createFolderFor(user);
+        final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
+        OutputStream outputStream = null;
+        CountingInputStream inputStream = null;
+        try
+        {
+            outputStream = new FileOutputStream(file);
+            inputStream = new CountingInputStream(input);
+            IOUtils.copy(inputStream, outputStream);
+            final FileDTO fileDTO = new FileDTO(user.getID());
+            fileDTO.setName(fileName);
+            fileDTO.setContentType(contentType);
+            fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
+            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+            fileDTO.setSize(inputStream.getByteCount());
+            daoFactory.getFileDAO().createFile(fileDTO);
+            return fileDTO;
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+        }
+    }
+
+    private File createFolderFor(final UserDTO user)
+    {
+        final File folder = new File(businessContext.getFileStore(), user.getEmail());
         if (folder.exists())
         {
             if (folder.isDirectory() == false)
@@ -179,32 +214,9 @@ final class FileManager extends AbstractManager implements IFileManager
                         + "' can not be created for some unknown reason.");
             }
         }
-        final File file = new File(folder, fileName);
-        OutputStream outputStream = null;
-        CountingInputStream inputStream = null;
-        try
-        {
-            outputStream = new FileOutputStream(file);
-            inputStream = new CountingInputStream(input);
-            IOUtils.copy(inputStream, outputStream);
-            final FileDTO fileDTO = new FileDTO(user.getID());
-            fileDTO.setName(fileName);
-            fileDTO.setContentType(contentType);
-            fileDTO.setPath(FileUtilities.getRelativeFile(fileStore, file));
-            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
-            fileDTO.setSize(inputStream.getByteCount());
-            daoFactory.getFileDAO().createFile(fileDTO);
-            return fileDTO;
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
-        }
+        return folder;
     }
-
+    
     @Transactional
     public void shareFilesWith(Collection<String> emailsOfUsers, Collection<FileDTO> files)
     {
@@ -246,7 +258,7 @@ final class FileManager extends AbstractManager implements IFileManager
     private void sendEmail(Collection<FileDTO> files, String email, String password)
     {
         StringBuilder builder = new StringBuilder();
-        builder.append("The followings are available for downloading:\n");
+        builder.append("The followings files are available for downloading:\n");
         for (FileDTO fileDTO : files)
         {
             builder.append(fileDTO.getName()).append(" ");
