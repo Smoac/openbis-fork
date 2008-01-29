@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.common.mail;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -31,20 +34,26 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
  * <p>
  * Just instantiate this class and use {@link #sendMessage(String, String, String[])} to send the email via SMTP.
  * </p>
+ * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but it is
+ * stored in a file in the directory specified by the relative path following this prefix.
  * 
  * @author Christian Ribeaud
  */
 public final class MailClient extends Authenticator implements IMailClient
 {
+
+    private static final String FILE_PREFIX = "file://";
 
     /** This system property is not supported by the <i>JavaMail API</i> */
     public final static String MAIL_SMTP_PASSWORD = "mail.smtp.password";
@@ -160,12 +169,70 @@ public final class MailClient extends Authenticator implements IMailClient
             msg.addRecipients(Message.RecipientType.TO, internetAddresses);
             msg.setSubject(subject);
             msg.setText(content);
-            Transport.send(msg);
+            send(msg);
         } catch (MessagingException ex)
         {
             throw new EnvironmentFailureException("Sending e-mail with subject '" + subject + "' to recipients "
                     + Arrays.asList(recipients) + " failed. Reason: " + ex, ex);
         }
+    }
+
+    private void send(MimeMessage msg) throws MessagingException
+    {
+        if (smtpHost.startsWith(FILE_PREFIX))
+        {
+            File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
+            if (emailFolder.exists())
+            {
+                if (emailFolder.isDirectory() == false)
+                {
+                    throw new EnvironmentFailureException("There exists already a file but not a folder with path '"
+                            + emailFolder.getAbsolutePath() + "'.");
+                }
+            } else
+            {
+                if (emailFolder.mkdirs() == false)
+                {
+                    throw new EnvironmentFailureException("Couldn't create email folder '"
+                            + emailFolder.getAbsolutePath() + "'.");
+                }
+            }
+            File file = FileUtilities.createNextNumberedFile(new File(emailFolder, "email"), null);
+            StringBuilder builder = new StringBuilder();
+            builder.append("Subj: ").append(msg.getSubject()).append('\n');
+            builder.append("From: ").append(renderAddresses(msg.getFrom())).append('\n');
+            builder.append("To:   ").append(renderAddresses(msg.getAllRecipients())).append('\n');
+            builder.append("Content:\n");
+            try
+            {
+                Object content = msg.getContent();
+                builder.append(content);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            FileUtilities.writeToFile(file, builder.toString());
+        } else
+        {
+            Transport.send(msg);
+        }
+    }
+    
+    private String renderAddresses(Address[] addresses)
+    {
+        StringBuilder builder = new StringBuilder();
+        if (addresses != null)
+        {
+            for (int i = 0; i < addresses.length; i++)
+            {
+                builder.append(addresses[i]);
+                if (i < addresses.length - 1)
+                {
+                    builder.append(", ");
+                }
+            }
+        }
+        return builder.toString();
     }
 
     //
