@@ -16,16 +16,29 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.List;
+
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
+import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
+import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
+import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.User;
+
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class AdminMainPage extends AbstractMainPage
 {
+
+    private VerticalPanel verticalPanel;
+
     AdminMainPage(ViewContext context)
     {
         super(context);
@@ -33,7 +46,93 @@ class AdminMainPage extends AbstractMainPage
 
     protected ContentPanel createMainPanel()
     {
-        return new ContentPanel(Ext.generateId());
+        ContentPanel mainPanel = new ContentPanel(Ext.generateId());
+        verticalPanel = createVerticalPanelPart();
+        verticalPanel.add(createPartTitle("Create User"));
+        verticalPanel.add(createCreateUserWidget());
+
+        createListUserGrid();
+        createListFileGrid();
+
+        mainPanel.add(verticalPanel);
+        return mainPanel;
+    }
+
+    private final static Widget createPartTitle(final String text)
+    {
+        final HTML html = new HTML(text);
+        html.setStyleName("cifex-heading");
+        return html;
+    }
+
+    final static VerticalPanel createVerticalPanelPart()
+    {
+        final VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setWidth("100%");
+        verticalPanel.setSpacing(5);
+        return verticalPanel;
+    }
+
+    private final Widget createCreateUserWidget()
+    {
+        return new CreateUserWidget(context);
+
+    }
+
+    private final void createListFileGrid()
+    {
+        context.getCifexService().listDownloadFiles(new FileAdminAsyncCallback());
+    }
+
+    private final void createListUserGrid()
+    {
+        context.getCifexService().listUsers(new UserAdminAsyncCallback());
+    }
+
+    private final class UserAdminAsyncCallback extends AbstractAsyncCallback
+    {
+
+        UserAdminAsyncCallback()
+        {
+            super(context);
+        }
+
+        public void onSuccess(Object result)
+        {
+            List users = (List) result;
+            verticalPanel.add(createPartTitle("List Users"));
+            verticalPanel.add(createUserTable((User[]) users.toArray(new User[users.size()])));
+        }
+
+        private Widget createUserTable(User[] users)
+        {
+            final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
+            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, null);
+            return userGrid;
+        }
+    }
+
+    private final class FileAdminAsyncCallback extends AbstractAsyncCallback
+    {
+
+        FileAdminAsyncCallback()
+        {
+            super(context);
+        }
+
+        public void onSuccess(Object result)
+        {
+            File[] files = (File[]) result;
+            verticalPanel.add(createPartTitle("List Files"));
+            verticalPanel.add(createFileTable(files));
+        }
+
+        private Widget createFileTable(File[] files)
+        {
+            final IDataGridModel gridModel = new FileGridModel(context.getMessageResources());
+            final Grid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
+            return fileGrid;
+        }
     }
 
 }

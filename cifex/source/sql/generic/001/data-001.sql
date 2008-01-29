@@ -33,6 +33,7 @@ values
 ,'F'
 ,'T'
 );
+
 insert into users
 (id
 ,email
@@ -48,5 +49,5 @@ values
 ,'0cc175b9c0f1b6a831c399e269772661'
 ,'F'
 ,'F'
-, CURRENT_TIMESTAMP
+, CURRENT_TIMESTAMP + CAST( 20 || ' days' AS interval )
 );

@@ -31,8 +31,6 @@ import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractMainPage extends BorderLayout
@@ -64,7 +62,7 @@ abstract class AbstractMainPage extends BorderLayout
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
         add(LayoutRegionConfig.CENTER, createMainPanel());
     }
-    
+
     private ContentPanel createToolbarPanel()
     {
         User user = context.getModel().getUser();
@@ -75,10 +73,10 @@ abstract class AbstractMainPage extends BorderLayout
         contentPanel.add(toolbar);
         return contentPanel;
     }
-    
+
     private ToolbarTextItem createUserDescription(User user)
     {
-        
+
         StringBuffer buffer = new StringBuffer();
         String userName = user.getUserName();
         if (userName != null)
@@ -97,12 +95,13 @@ abstract class AbstractMainPage extends BorderLayout
             buffer.append("permanent");
         } else
         {
-            buffer.append("temporary account: expiration date: ").append(user.getExpirationDate());
+            buffer.append("temporary account: expiration date: ").append(
+                    Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
         }
         buffer.append(")");
         return new ToolbarTextItem(buffer.toString());
     }
-    
+
     private final ToolbarButton createLogoutButton()
     {
         final IMessageResources messageResources = context.getMessageResources();
@@ -122,6 +121,6 @@ abstract class AbstractMainPage extends BorderLayout
             });
         return logoutButton;
     }
-    
+
     protected abstract ContentPanel createMainPanel();
 }

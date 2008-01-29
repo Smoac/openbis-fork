@@ -198,6 +198,27 @@ public final class CIFEXServiceImpl implements ICIFEXService
             return finishLogin(userDTO);
         }
     }
+    
+        public final List listUsers()
+    {
+        final List<UserDTO> users = domainModel.getUserManager().listUsers();
+        List<User> userList = BeanUtils.createBeanList(User.class, users);
+        return userList;
+    }
+
+    public void tryToCreateUser(String email, String username, String password, boolean permanent, boolean admin)
+    {
+        final IUserManager userManager = domainModel.getUserManager();
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserName(username);
+        userDTO.setEmail(email);
+        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setPermanent(permanent);
+        userDTO.setAdmin(admin);
+        userManager.createUser(userDTO);
+    }
+    
 
     public final void logout()
     {

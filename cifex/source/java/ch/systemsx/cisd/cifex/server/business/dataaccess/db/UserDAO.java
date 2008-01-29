@@ -18,8 +18,6 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -32,6 +30,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.db.DBUtils;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
 /**
@@ -67,19 +66,9 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
             user.setPermanent(rs.getBoolean("is_permanent"));
-            user.setRegistrationDate(tryConvertToDate(rs, "registration_timestamp"));
-            user.setExpirationDate(tryConvertToDate(rs, "expiration_timestamp"));
+            user.setRegistrationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("registration_timestamp")));
+            user.setExpirationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("expiration_timestamp")));
             return user;
-        }
-
-        private static Date tryConvertToDate(final ResultSet rs, final String fieldName) throws SQLException
-        {
-            final Timestamp timestamp = rs.getTimestamp(fieldName);
-            if (timestamp != null)
-            {
-                return new Date(timestamp.getTime());
-            }
-            return null;
         }
 
     }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.List;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -79,6 +81,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.logout();
     }
 
+
     public File[] listDownloadFiles() throws UserFailureException
     {
         return cifexServiceDelegate.listDownloadFiles();
@@ -104,5 +107,16 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             notificationLog.fatal("Failure during CIFEX service servlet initialization.", ex);
             throw new ServletException(ex);
         }
+    }
+
+    public List listUsers()
+    {
+        return cifexServiceDelegate.listUsers();
+    }
+
+    public void tryToCreateUser(String email, String username, String password, boolean permanent, boolean admin)
+    {
+        cifexServiceDelegate.tryToCreateUser(email, username, password, permanent, admin);
+
     }
 }

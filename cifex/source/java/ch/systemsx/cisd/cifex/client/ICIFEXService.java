@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -48,6 +50,19 @@ public interface ICIFEXService extends RemoteService
      * @throws InvalidSessionException if user not logged in.
      */
     public User getCurrentUser() throws InvalidSessionException;
+
+    /**
+     * Returns a list of <code>User</code>s.
+     * 
+     * @gwt.typeArgs <ch.systemsx.cisd.cifex.client.dto.User>
+     */
+    public List listUsers();
+
+    /**
+     * Create a new Cifex <code>User</code> with the given parameters.
+     */
+    public void tryToCreateUser(final String email, final String username, final String password,
+            final boolean permanent, final boolean admin);
 
     /**
      * List the files that the currently logged user has access on.

@@ -43,6 +43,17 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void getCurrentUser(final AsyncCallback callback);
 
     /**
+     * Returns a list of <code>User</code>s.
+     */
+    public void listUsers(final AsyncCallback callback);
+
+    /**
+     * Creates a new <code>User</code> with the given parameter.
+     */
+    public void tryToCreateUser(final String email, final String username, final String password,
+            final boolean permanent, final boolean admin, final AsyncCallback callback);
+
+   /**
      * List the files that the currently logged user has access on.
      */
     public void listDownloadFiles(final AsyncCallback callback);
