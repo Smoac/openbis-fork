@@ -34,20 +34,3 @@ values
 ,'T'
 );
 
-insert into users
-(id
-,email
-,user_name
-,encrypted_password
-,is_admin
-,is_permanent
-,EXPIRATION_TIMESTAMP)
-values
-(nextval('USER_ID_SEQ')
-,'t'
-,'dummy user'
-,'0cc175b9c0f1b6a831c399e269772661'
-,'F'
-,'F'
-, CURRENT_TIMESTAMP + CAST( 20 || ' days' AS interval )
-);
