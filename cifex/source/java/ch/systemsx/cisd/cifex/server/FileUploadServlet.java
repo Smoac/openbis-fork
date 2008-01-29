@@ -87,6 +87,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
+        operationLog.info("Uploading ...");
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
