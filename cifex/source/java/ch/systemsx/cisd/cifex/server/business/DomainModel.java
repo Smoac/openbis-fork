@@ -190,4 +190,12 @@ public final class DomainModel implements IDomainModel
         }
         return fileManager;
     }
+
+    /**
+     * Returns the one and only instance of {@link IMailClient}.
+     */
+    public final IMailClient getMailClient()
+    {
+        return businessContext.getMailClient();
+    }
 }

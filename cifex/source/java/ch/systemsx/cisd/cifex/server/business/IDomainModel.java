@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import ch.systemsx.cisd.common.mail.IMailClient;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -31,5 +33,10 @@ public interface IDomainModel
      * Returns the one and only one instance of {@link IFileManager}.
      */
     public IFileManager getFileManager();
+
+    /**
+     * Returns the one and only instance of {@link IMailClient}.
+     */
+    public IMailClient getMailClient();
 
 }
