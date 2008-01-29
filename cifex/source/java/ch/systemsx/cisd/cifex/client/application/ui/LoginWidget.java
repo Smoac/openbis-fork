@@ -131,18 +131,6 @@ public class LoginWidget extends Form
         return new TextField(fieldConfig);
     }
 
-    /** Returns the password text field. */
-    public final TextField getPasswordField()
-    {
-        return passwordField;
-    }
-
-    /** Returns the user name text field. */
-    public final TextField getUsernameField()
-    {
-        return emailField;
-    }
-
     /** Returns the button that will starts the login process. */
     public final Button getButton()
     {
