@@ -218,7 +218,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
     
     @Transactional
-    public void shareFilesWith(Collection<String> emailsOfUsers, Collection<FileDTO> files)
+    public void shareFilesWith(String url, Collection<String> emailsOfUsers, Collection<FileDTO> files)
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
         TableMap<String, UserDTO> existingUsers =
@@ -250,19 +250,19 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 fileDAO.createSharingLink(file.getID(), user.getID());
             }
-            sendEmail(files, email, password);
+            sendEmail(url, files, email, password);
         }
 
     }
 
-    private void sendEmail(Collection<FileDTO> files, String email, String password)
+    private void sendEmail(String url, Collection<FileDTO> files, String email, String password)
     {
         StringBuilder builder = new StringBuilder();
         builder.append("The followings files are available for downloading:\n");
         for (FileDTO fileDTO : files)
         {
             builder.append(fileDTO.getName()).append(" ");
-            builder.append("http://localhost:8888/cifex/cifex/").append(fileDTO.getID()).append('\n');
+            builder.append(url).append("/index.html?fileId=").append(fileDTO.getID()).append('\n');
         }
         builder.append("\nClick on a link for starting downloading. You have to login with your e-mail address (i.e.");
         builder.append(email).append(")");

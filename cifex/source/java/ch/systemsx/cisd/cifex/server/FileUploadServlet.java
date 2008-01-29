@@ -97,8 +97,10 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         {
             List<FileDTO> files = new ArrayList<FileDTO>();
             List<String> users = new ArrayList<String>();
-            extractEmailsAndFiles(request, files, users);
-            domainModel.getFileManager().shareFilesWith(users, files);
+            extractEmailsAndUploadFiles(request, files, users);
+            StringBuffer requestURL = request.getRequestURL();
+            requestURL.delete(requestURL.length() - request.getPathInfo().length(), requestURL.length());
+            domainModel.getFileManager().shareFilesWith(requestURL.toString(), users, files);
             
             operationLog.info("Uploading finished.");
             response.setContentType("text/plain");
@@ -112,7 +114,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
-    private void extractEmailsAndFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
+    private void extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
             throws FileUploadException, IOException
     {
         final UserDTO user = getUserDTO(request);

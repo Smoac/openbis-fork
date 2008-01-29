@@ -54,7 +54,13 @@ public interface IFileManager
     public FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream inputStream);
     
-    public void shareFilesWith(Collection<String> emailsOfUsers, Collection<FileDTO> files);
+    /**
+     * Creates sharing links between the users specified by their e-mail addresses and the specified files.
+     * For users not known a temporary account is created. Each user will be informed by an e-mail.
+     * 
+     * @param url URL for creating the links in the e-mails.
+     */
+    public void shareFilesWith(String url, Collection<String> emailsOfUsers, Collection<FileDTO> files);
 
     /** Lists files for given <var>userId</var>. */
     public List<FileDTO> listFiles(final long userId) throws UserFailureException;
