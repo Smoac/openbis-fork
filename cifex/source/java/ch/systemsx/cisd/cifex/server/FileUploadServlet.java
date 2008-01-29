@@ -100,7 +100,11 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             List<String> users = new ArrayList<String>();
             extractEmailsAndUploadFiles(request, files, users);
             StringBuffer requestURL = request.getRequestURL();
-            requestURL.delete(requestURL.length() - request.getPathInfo().length(), requestURL.length());
+            String pathInfo = request.getPathInfo();
+            if (pathInfo != null)
+            {
+                requestURL.delete(requestURL.length() - pathInfo.length(), requestURL.length());
+            }
             domainModel.getFileManager().shareFilesWith(requestURL.toString(), users, files);
             
             operationLog.info("Uploading finished.");
