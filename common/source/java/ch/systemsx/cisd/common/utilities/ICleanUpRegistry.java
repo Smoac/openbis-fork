@@ -25,7 +25,7 @@ public interface ICleanUpRegistry
 {
 
     /**
-     * Reguster a clean-up to run when the main {@link Runnable} has been executed.
+     * Register a clean-up to run when the main {@link Runnable} has been executed.
      */
     public void registerCleanUp(Runnable cleanUp);
     
