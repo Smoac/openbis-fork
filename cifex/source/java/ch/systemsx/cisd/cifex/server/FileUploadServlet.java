@@ -126,6 +126,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         while (iter.hasNext())
         {
             final FileItemStream item = iter.next();
+            operationLog.info("Handle field '" + item.getFieldName() + "' with file: " + item.getName());
             final InputStream stream = item.openStream();
             if (item.isFormField() == false)
             {

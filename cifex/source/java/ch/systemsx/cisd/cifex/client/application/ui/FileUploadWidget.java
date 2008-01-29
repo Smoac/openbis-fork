@@ -80,6 +80,7 @@ public class FileUploadWidget extends Form
                         final String title = messageResources.getMessageBoxWarningTitle();
                         MessageBox.alert(title, response);
                     }
+                    button.enable();
                 }
 
                 public final void onActionFailed(final Form form, final int httpStatus, final String responseText)
