@@ -59,10 +59,10 @@ public class StringUtilitiesTest
     }
     
     @Test
-    public void testEncrypt()
+    public void testComputeMD5Hash()
     {
-        assertEquals("d41d8cd98f00b204e9800998ecf8427e", StringUtilities.encrypt(""));
-        assertEquals("900150983cd24fb0d6963f7d28e17f72", StringUtilities.encrypt("abc"));
+        assertEquals("d41d8cd98f00b204e9800998ecf8427e", StringUtilities.computeMD5Hash(""));
+        assertEquals("900150983cd24fb0d6963f7d28e17f72", StringUtilities.computeMD5Hash("abc"));
     }
 
     @Test

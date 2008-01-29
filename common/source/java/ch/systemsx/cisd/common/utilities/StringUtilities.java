@@ -73,11 +73,11 @@ public final class StringUtilities
     }
     
     /**
-     * Encrypts the specified string by calculating its MD5 hash value.
+     * Computes the MD5 hash value of <var>string</var>.
      * 
      * @return 32-character hexadecimal representation of the calculated value.
      */
-    public static String encrypt(String string)
+    public static String computeMD5Hash(String string)
     {
         assert string != null : "Unspecified string.";
         
