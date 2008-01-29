@@ -100,7 +100,7 @@ public final class DomainModel implements IDomainModel
     {
         businessContext.setFileStore(new File(fileStorePath));
         File fileStore = businessContext.getFileStore();
-        if (fileStore.isDirectory() == false)
+        if (fileStore.exists() && fileStore.isDirectory() == false)
         {
             throw new EnvironmentFailureException("File store '" + fileStore.getAbsolutePath()
                     + "' already exists but is not a directory.");
