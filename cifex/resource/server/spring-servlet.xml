@@ -11,8 +11,7 @@
         <property name="mappings">
             <props>
                 <prop key="cifex">cifex-service-servlet</prop>
-                <prop key="file-download">url-servlet-forwarding-controller</prop>
-                <prop key="file-upload">url-servlet-forwarding-controller</prop>
+                <prop key="*load">url-servlet-forwarding-controller</prop>
             </props>
         </property>
     </bean>
