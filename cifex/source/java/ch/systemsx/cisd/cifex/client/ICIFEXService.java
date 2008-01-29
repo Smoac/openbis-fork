@@ -32,11 +32,13 @@ public interface ICIFEXService extends RemoteService
 {
 
     /**
-     * Authenticates given <code>user</code> with given <code>password</code>.
+     * Authenticates given <code>user</code> with given <code>password</code>. 
+     * <p>
+     * If <code>requestAdmin==true</code>, then request an admin login.
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User tryToLogin(final String user, final String password) throws UserFailureException;
+    public User tryToLogin(final String user, final String password, final boolean requestAdmin) throws UserFailureException;
 
     /**
      * Logout the current user.

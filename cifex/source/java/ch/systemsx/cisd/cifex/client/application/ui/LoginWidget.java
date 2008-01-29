@@ -23,6 +23,8 @@ import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.event.KeyListener;
+import com.gwtext.client.widgets.form.Checkbox;
+import com.gwtext.client.widgets.form.CheckboxConfig;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
 import com.gwtext.client.widgets.form.TextField;
@@ -50,6 +52,8 @@ public class LoginWidget extends Form
     private TextField emailField;
 
     private TextField passwordField;
+    
+    private Checkbox adminCheckbox;
 
     private Button button;
 
@@ -68,6 +72,8 @@ public class LoginWidget extends Form
         add(emailField);
         passwordField = createPasswordField();
         add(passwordField);
+        adminCheckbox = createAdminCheckbox();
+        add(adminCheckbox);
         // Do NOT use addButton(Button) here. This does seem to work correctly (while clearing RootPanel, we get an
         // exception)
         button = addButton(messageResources.getLoginButtonLabel());
@@ -130,6 +136,13 @@ public class LoginWidget extends Form
         fieldConfig.setValidateOnBlur(false);
         return new TextField(fieldConfig);
     }
+    
+    private final Checkbox createAdminCheckbox()
+    {
+        final CheckboxConfig checkboxConfig = new CheckboxConfig();
+        checkboxConfig.setFieldLabel(context.getMessageResources().getLoginAdminLabel());
+        return new Checkbox(checkboxConfig);
+    }
 
     /** Returns the button that will starts the login process. */
     public final Button getButton()
@@ -145,8 +158,9 @@ public class LoginWidget extends Form
             button.disable();
             final String username = emailField.getText();
             final String password = passwordField.getText();
+            final boolean requestAdmin = adminCheckbox.getValue();
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToLogin(username, password, new LoginAsyncCallBack());
+            cifexService.tryToLogin(username, password, requestAdmin, new LoginAsyncCallBack());
         }
     }
 

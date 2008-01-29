@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
@@ -119,11 +120,20 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private User finishLogin(final UserDTO userDTO)
+    private User finishLogin(final UserDTO userDTO, final boolean requestAdmin) throws UserFailureException
     {
+        // Do not transfer the hash value to the client (security).
+        userDTO.setEncryptedPassword(null);
+        if (requestAdmin == false)
+        {
+            userDTO.setAdmin(false);
+        } else if (userDTO.isAdmin() == false)
+        {
+            throw new UserFailureException("User does not have admin permissions on this server.");
+        }
         authenticationLog.info("Successful login of user " + userDTO);
         final String sessionToken = createSession(userDTO);
-        loggingContextHandler.addContext(sessionToken, "user:" + userDTO.getEmail() + ", session start:"
+        loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail() + ", session start:"
                 + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
         return BeanUtils.createBean(User.class, userDTO);
     }
@@ -147,56 +157,58 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryToLogin(final String user, final String password) throws UserFailureException
+    public final User tryToLogin(final String userOrEmail, final String password, final boolean requestAdmin)
+            throws UserFailureException
     {
-        authenticationLog.info("Try to login user '" + user + "'.");
+        authenticationLog.info("Try to login user '" + userOrEmail + "'.");
         final IUserManager userManager = domainModel.getUserManager();
-        if (hasExternalAuthenticationService())
+        if (hasExternalAuthenticationService() && requestAdmin == false)
         {
             final String applicationToken = externalAuthenticationService.authenticateApplication();
             if (applicationToken == null)
             {
-                authenticationLog.error("User '" + user + "' couldn't be authenticated because authentication of "
+                authenticationLog.error("User '" + userOrEmail
+                        + "' couldn't be authenticated because authentication of "
                         + "the application at the external authentication service failed.");
-                throw new UserFailureException("Authentication of the server at "
+                throw new UserFailureException("Authentication of the server application at "
                         + "the external authentication service failed.");
             }
             final boolean authenticated =
-                    externalAuthenticationService.authenticateUser(applicationToken, user, password);
+                    externalAuthenticationService.authenticateUser(applicationToken, userOrEmail, password);
             if (authenticated == false)
             {
                 return null;
             }
-            final Principal principal = externalAuthenticationService.getPrincipal(applicationToken, user);
+            final Principal principal = externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
             if (principal == null)
             {
-                authenticationLog.error("Unknown principal for successfully authenticated user '" + user + "'.");
-                throw new UserFailureException("Authentication was successful but user information "
-                        + "couldn't be retrieved.");
+                authenticationLog.error("Principal is null for successfully authenticated user '" + userOrEmail + "'.");
+                throw new UserFailureException("Unable to retrieve user information.");
             }
             final String email = principal.getEmail();
             UserDTO userDTO = userManager.tryToFindUser(email);
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
-                userDTO.setUserName(user);
+                userDTO.setUserName(userOrEmail);
                 userDTO.setEmail(email);
-                userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+                userDTO.setEncryptedPassword(null);
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
                 userManager.createUser(userDTO);
             }
-            return finishLogin(userDTO);
+            return finishLogin(userDTO, false);
         } else
         {
-            final String encryptedPassword = StringUtilities.encrypt(password);
-            final UserDTO userDTO = userManager.tryToFindUser(user);
-            if (userDTO == null || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
+            final String encryptedPassword = StringUtilities.computeMD5Hash(password);
+            final UserDTO userDTO = userManager.tryToFindUser(userOrEmail);
+            if (userDTO == null || StringUtils.isBlank(userDTO.getEncryptedPassword())
+                    || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
             {
                 return null;
             }
-            return finishLogin(userDTO);
+            return finishLogin(userDTO, requestAdmin);
         }
     }
 
@@ -212,12 +224,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IUserManager userManager = domainModel.getUserManager();
 
         UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         userManager.createUser(userDTO);
 
         sendPasswordToNewUser(user, password);
     }
-
 
     public final void logout()
     {
@@ -246,7 +257,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
             });
     }
 
-    
     private void sendPasswordToNewUser(User user, String password)
     {
         StringBuilder builder = new StringBuilder();
@@ -259,20 +269,22 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             role = "permanent";
         }
-        
-        builder.append("There is a " + role +
-                " user created for you on the Cifex Server. You can reach the service with the following login information: ");
+
+        builder
+                .append("There is a "
+                        + role
+                        + " user created for you on the Cifex Server. You can reach the service with the following login information: ");
         builder.append("\nURL:\t").append(url).append("/index.html");
         builder.append("\nLogin:\t").append(user.getEmail());
         builder.append("\nPassword:\t").append(password);
-        
+
         if (user.isPermanent() == false)
         {
             builder
-            .append("\n\nThe user is only temporary, the login expires in a few days. You can see the expiration date when you login.");
+                    .append("\n\nThe user is only temporary, the login expires in a few days. You can see the expiration date when you login.");
         }
         IMailClient mailClient = domainModel.getMailClient();
         mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
-                                                                                                                    { user.getEmail() });
+            { user.getEmail() });
     }
 }

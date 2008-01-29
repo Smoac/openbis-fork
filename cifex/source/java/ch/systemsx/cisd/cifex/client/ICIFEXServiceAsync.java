@@ -31,8 +31,11 @@ public interface ICIFEXServiceAsync extends RemoteService
 {
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
+     * <p>
+     * If <code>requestAdmin==true</code>, then request an admin login.
      */
-    public void tryToLogin(final String user, final String password, final AsyncCallback callback);
+    public void tryToLogin(final String user, final String password, final boolean requestAdmin,
+            final AsyncCallback callback);
 
     /**
      * Logout the current user.

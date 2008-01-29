@@ -71,16 +71,16 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
-    public final User tryToLogin(final String user, final String password) throws UserFailureException
+    public final User tryToLogin(final String user, final String password, final boolean requestAdmin)
+            throws UserFailureException
     {
-        return cifexServiceDelegate.tryToLogin(user, password);
+        return cifexServiceDelegate.tryToLogin(user, password, requestAdmin);
     }
 
     public final void logout()
     {
         cifexServiceDelegate.logout();
     }
-
 
     public File[] listDownloadFiles() throws UserFailureException
     {

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public final class CIFEXEntryPoint implements EntryPoint
 {
 
-    private final static ICIFEXServiceAsync createLIMSService()
+    private final static ICIFEXServiceAsync createCIFEXService()
     {
         final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
@@ -47,7 +47,7 @@ public final class CIFEXEntryPoint implements EntryPoint
     {
         Field.setMsgTarget("side");
         QuickTips.init();
-        final ICIFEXServiceAsync cifexService = createLIMSService();
+        final ICIFEXServiceAsync cifexService = createCIFEXService();
         final ViewContext viewContext = createViewContext(cifexService);
         final String paramString = GWTUtils.getParamString();
         if (StringUtils.isBlank(paramString) == false)

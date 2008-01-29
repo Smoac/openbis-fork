@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cifex.server;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
@@ -117,11 +120,11 @@ public class CIFEXServiceImplTest
         String password = "pswd";
         userDTO.setUserName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         prepareForFindUser("blabla", null);
 
         CIFEXServiceImpl service = createService(null);
-        User user = service.tryToLogin("blabla", password);
+        User user = service.tryToLogin("blabla", password, false);
         assertEquals(null, user);
 
         context.assertIsSatisfied();
@@ -134,11 +137,11 @@ public class CIFEXServiceImplTest
         String password = "pswd";
         userDTO.setUserName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         prepareForFindUser(userDTO.getEmail(), userDTO);
 
         CIFEXServiceImpl service = createService(new NullAuthenticationService());
-        User user = service.tryToLogin(userDTO.getEmail(), "blabla");
+        User user = service.tryToLogin(userDTO.getEmail(), "blabla", false);
         assertEquals(null, user);
 
         context.assertIsSatisfied();
@@ -151,16 +154,84 @@ public class CIFEXServiceImplTest
         String password = "pswd";
         userDTO.setUserName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         prepareForFindUser(userDTO.getEmail(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         CIFEXServiceImpl service = createService(new NullAuthenticationService());
         service.setSessionExpirationPeriodInMinutes(1);
-        User user = service.tryToLogin(userDTO.getEmail(), password);
+        User user = service.tryToLogin(userDTO.getEmail(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
+        assertFalse(userDTO.isAdmin());
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAdminAsNormalUserLoginWithoutExternalService() throws UserFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        String password = "pswd";
+        userDTO.setUserName("user");
+        userDTO.setEmail("user@users.org");
+        userDTO.setAdmin(true);
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        prepareForFindUser(userDTO.getEmail(), userDTO);
+        prepareForGettingUserFromHTTPSession(userDTO, true, true);
+
+        CIFEXServiceImpl service = createService(new NullAuthenticationService());
+        service.setSessionExpirationPeriodInMinutes(1);
+        User user = service.tryToLogin(userDTO.getEmail(), password, false);
+        assertEquals(userDTO.getEmail(), user.getEmail());
+        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertFalse(userDTO.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAdminLoginWithoutExternalService() throws UserFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        String password = "pswd";
+        userDTO.setUserName("user");
+        userDTO.setEmail("user@users.org");
+        userDTO.setAdmin(true);
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        prepareForFindUser(userDTO.getEmail(), userDTO);
+        prepareForGettingUserFromHTTPSession(userDTO, true);
+
+        CIFEXServiceImpl service = createService(new NullAuthenticationService());
+        service.setSessionExpirationPeriodInMinutes(1);
+        User user = service.tryToLogin(userDTO.getEmail(), password, true);
+        assertEquals(userDTO.getEmail(), user.getEmail());
+        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertTrue(userDTO.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testFailedAdminLoginWithoutExternalService() throws UserFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        String password = "pswd";
+        userDTO.setUserName("user");
+        userDTO.setEmail("user@users.org");
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        prepareForFindUser(userDTO.getEmail(), userDTO);
+
+        CIFEXServiceImpl service = createService(new NullAuthenticationService());
+        service.setSessionExpirationPeriodInMinutes(1);
+        try
+        {
+            service.tryToLogin(userDTO.getEmail(), password, true);
+            fail("Expected user failure exception due to admin request.");
+        } catch (UserFailureException ex)
+        {
+            assertTrue(ex.getMessage().indexOf("admin permissions") >= 0);
+        }
         context.assertIsSatisfied();
     }
 
@@ -182,11 +253,11 @@ public class CIFEXServiceImplTest
         ICIFEXService service = createService(authenticationService);
         try
         {
-            service.tryToLogin("u", "p");
+            service.tryToLogin("u", "p", false);
             fail("UserFailureException expected.");
         } catch (UserFailureException ex)
         {
-            assertEquals("Authentication of the server at the external authentication service failed.", ex.getMessage());
+            assertEquals("Authentication of the server application at the external authentication service failed.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -202,11 +273,11 @@ public class CIFEXServiceImplTest
         ICIFEXService service = createService(authenticationService);
         try
         {
-            service.tryToLogin(userName, password);
+            service.tryToLogin(userName, password, false);
             fail("UserFailureException expected.");
         } catch (UserFailureException ex)
         {
-            assertEquals("Authentication was successful but user information couldn't be retrieved.", ex.getMessage());
+            assertEquals("Unable to retrieve user information.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -233,7 +304,7 @@ public class CIFEXServiceImplTest
             });
 
         ICIFEXService service = createService(authenticationService);
-        assertEquals(null, service.tryToLogin(userName, password));
+        assertEquals(null, service.tryToLogin(userName, password, false));
 
         context.assertIsSatisfied();
     }
@@ -245,7 +316,7 @@ public class CIFEXServiceImplTest
         String password = "pswd";
         userDTO.setUserName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         Principal principal = new Principal("ae", "Albert", "Einstein", "my-email");
         prepareForExternalAuthentication(userDTO.getUserName(), password, principal);
         prepareForFindUser(principal.getEmail(), userDTO);
@@ -253,9 +324,10 @@ public class CIFEXServiceImplTest
 
         CIFEXServiceImpl service = createService(authenticationService);
         service.setSessionExpirationPeriodInMinutes(1);
-        User user = service.tryToLogin(userDTO.getUserName(), password);
+        User user = service.tryToLogin(userDTO.getUserName(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
+        assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
     }
@@ -272,22 +344,26 @@ public class CIFEXServiceImplTest
         final UserDTO userDTO = new UserDTO();
         userDTO.setUserName(userName);
         userDTO.setEmail(email);
-        userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         userDTO.setPermanent(true);
         userDTO.setExternallyAuthenticated(true);
         context.checking(new Expectations()
             {
                 {
-                    one(userManager).createUser(userDTO);
+                    // We do not store the password of externally authenticated users.
+                    final UserDTO createdUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
+                    createdUserDTO.setEncryptedPassword(null);
+                    one(userManager).createUser(createdUserDTO);
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         CIFEXServiceImpl service = createService(authenticationService);
         service.setSessionExpirationPeriodInMinutes(1);
-        User user = service.tryToLogin(userDTO.getUserName(), password);
+        User user = service.tryToLogin(userDTO.getUserName(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserName(), user.getUserName());
+        assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
     }
@@ -316,6 +392,11 @@ public class CIFEXServiceImplTest
 
     private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag)
     {
+        prepareForGettingUserFromHTTPSession(userDTO, createFlag, false);
+    }
+    
+    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag, final boolean resetAdmin)
+    {
         context.checking(new Expectations()
             {
                 {
@@ -328,7 +409,13 @@ public class CIFEXServiceImplTest
                     if (createFlag)
                     {
                         one(httpSession).setMaxInactiveInterval(60);
-                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME, userDTO);
+                        final UserDTO transferredUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
+                        transferredUserDTO.setEncryptedPassword(null);
+                        if (resetAdmin)
+                        {
+                            transferredUserDTO.setAdmin(false);
+                        }
+                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME, transferredUserDTO);
                         one(httpSession).getId();
                         will(returnValue(SESSION_TOKEN_EXAMPLE));
                     } else

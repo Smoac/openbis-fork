@@ -78,6 +78,13 @@ public interface IMessageResources extends Messages
     public String getLoginEmailLabel();
 
     /**
+     * Returns the label for the login form that decides whether it is an admin login.
+     * 
+     * @gwt.key login.admin.label
+     */
+    public String getLoginAdminLabel();
+    
+    /**
      * Returns the logout label for the logout link.
      * 
      * @gwt.key logout.link.label
