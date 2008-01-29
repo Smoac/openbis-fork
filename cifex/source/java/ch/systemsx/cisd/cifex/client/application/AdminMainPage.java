@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.List;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.Ext;
@@ -28,6 +27,7 @@ import com.gwtext.client.widgets.layout.ContentPanel;
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
+import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -58,13 +58,6 @@ class AdminMainPage extends AbstractMainPage
         return mainPanel;
     }
 
-    private final static Widget createPartTitle(final String text)
-    {
-        final HTML html = new HTML(text);
-        html.setStyleName("cifex-heading");
-        return html;
-    }
-
     final static VerticalPanel createVerticalPanelPart()
     {
         final VerticalPanel verticalPanel = new VerticalPanel();
@@ -86,13 +79,13 @@ class AdminMainPage extends AbstractMainPage
 
     private final void createListUserGrid()
     {
-        context.getCifexService().listUsers(new UserAdminAsyncCallback());
+        context.getCifexService().listUsers(new UserAsyncCallback());
     }
 
-    private final class UserAdminAsyncCallback extends AbstractAsyncCallback
+    private final class UserAsyncCallback extends AbstractAsyncCallback
     {
 
-        UserAdminAsyncCallback()
+        UserAsyncCallback()
         {
             super(context);
         }
@@ -112,6 +105,7 @@ class AdminMainPage extends AbstractMainPage
         }
     }
 
+    // TODO, 2008-01-29, Franz-Josef Elmer, same functionality as in MainPage.FileAsyncCallback
     private final class FileAdminAsyncCallback extends AbstractAsyncCallback
     {
 

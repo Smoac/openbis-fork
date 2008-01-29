@@ -42,13 +42,6 @@ final class MainPage extends AbstractMainPage
         super(context);
     }
 
-    private final static Widget createPartTitle(final String text)
-    {
-        final HTML html = new HTML(text);
-        html.setStyleName("cifex-heading");
-        return html;
-    }
-
     private final HTML createExplanationPanel()
     {
         return new HTML(context.getMessageResources().getUploadFilesHelp());

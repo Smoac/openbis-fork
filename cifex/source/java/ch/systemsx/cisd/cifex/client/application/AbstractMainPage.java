@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.widgets.Button;
@@ -51,6 +53,13 @@ abstract class AbstractMainPage extends BorderLayout
         north.setTitlebar(false);
         north.setAutoScroll(false);
         return north;
+    }
+
+    protected static final Widget createPartTitle(final String text)
+    {
+        final HTML html = new HTML(text);
+        html.setStyleName("cifex-heading");
+        return html;
     }
 
     protected final ViewContext context;

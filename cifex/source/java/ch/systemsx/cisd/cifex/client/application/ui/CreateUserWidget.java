@@ -212,7 +212,7 @@ public class CreateUserWidget extends Form
         return new Checkbox(checkboxConfig);
     }
 
-    protected void submitForm()
+    private void submitForm()
     {
         submitButton.disable();
         // Validate Password if they are equal
@@ -229,6 +229,8 @@ public class CreateUserWidget extends Form
             String email = emailField.getText();
             String username = usernameField.getText();
             String password = passwordField.getText();
+            // TODO 2008-01-29, Franz-Josef Elmer: radio buttons for admin, permanent, and temporary instead of 
+            // two check boxes
             boolean admin = adminCheckbox.getValue();
             boolean permanent = permanentCheckbox.getValue();
 
