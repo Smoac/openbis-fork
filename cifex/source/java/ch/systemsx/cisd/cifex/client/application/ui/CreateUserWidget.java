@@ -16,17 +16,20 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.core.Position;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Checkbox;
 import com.gwtext.client.widgets.form.CheckboxConfig;
+import com.gwtext.client.widgets.form.Column;
 import com.gwtext.client.widgets.form.ColumnConfig;
+import com.gwtext.client.widgets.form.Field;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
+import com.gwtext.client.widgets.form.Radio;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.VType;
@@ -35,6 +38,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * @author Basil Neff
@@ -57,9 +61,11 @@ public class CreateUserWidget extends Form
 
     private TextField validatePasswordField;
 
-    private Checkbox adminCheckbox;
+    private Radio adminRadioButton;
 
-    private Checkbox permanentCheckbox;
+    private Radio permanentRadioButton;
+
+    private Radio temporaryRadioButton;
 
     private Button submitButton;
 
@@ -84,8 +90,8 @@ public class CreateUserWidget extends Form
         passwordField = createPasswordField();
         add(passwordField);
 
-        adminCheckbox = createAdminCheckbox();
-        add(adminCheckbox);
+        // adminRadioButton = createAdminCheckbox();
+        // add(adminRadioButton);
 
         end();
 
@@ -98,11 +104,22 @@ public class CreateUserWidget extends Form
 
         validatePasswordField = createValidatePasswordField();
         add(validatePasswordField);
-
-        permanentCheckbox = createPermanentCheckbox();
-        add(permanentCheckbox);
-
         end();
+
+        final ColumnConfig lastColumn = new ColumnConfig();
+        lastColumn.setWidth(COLUMN_WIDTH - 150);
+        column(lastColumn);
+
+        adminRadioButton = createAdminRadioButton();
+        add(adminRadioButton);
+
+        permanentRadioButton = createPermanentRadioButton();
+        add(permanentRadioButton);
+
+        temporaryRadioButton = createTemporaryRadioButton();
+        add(temporaryRadioButton);
+        end();
+        // add(createRadioButtonPanel());
 
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
         submitButton = addButton("Create");
@@ -125,7 +142,7 @@ public class CreateUserWidget extends Form
     private static FormConfig createFormConfig()
     {
         final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(600);
+        formConfig.setWidth(750);
         formConfig.setLabelAlign(Position.LEFT);
         formConfig.setButtonAlign(Position.RIGHT);
         return formConfig;
@@ -188,28 +205,37 @@ public class CreateUserWidget extends Form
         return new TextField(fieldConfig);
     }
 
-    private final Checkbox createAdminCheckbox()
+    private final Radio createAdminRadioButton()
     {
+
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        checkboxConfig.setFieldLabel("Administrator");
-        checkboxConfig.setWidth(FIELD_WIDTH);
-        checkboxConfig.setName("Administrator");
-        checkboxConfig.setChecked(false);
+        checkboxConfig.setFieldLabel("Admin");
+        checkboxConfig.setName("role");
+        checkboxConfig.setChecked(true);
         checkboxConfig.setTabIndex(5);
-        return new Checkbox(checkboxConfig);
+        return new Radio(checkboxConfig);
     }
 
-    private final Checkbox createPermanentCheckbox()
+    private final Radio createPermanentRadioButton()
     {
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        checkboxConfig.setFieldLabel("Is Permanent");
-        checkboxConfig.setWidth(FIELD_WIDTH);
-        checkboxConfig.setName("Is Permanent");
+        checkboxConfig.setFieldLabel("Permanent");
+        checkboxConfig.setName("role");
         checkboxConfig.setChecked(true);
         checkboxConfig.setTabIndex(6);
-        return new Checkbox(checkboxConfig);
+        return new Radio(checkboxConfig);
+    }
+
+    private final Radio createTemporaryRadioButton()
+    {
+        final CheckboxConfig checkboxConfig = new CheckboxConfig();
+        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
+        checkboxConfig.setFieldLabel("Temporary");
+        checkboxConfig.setName("role");
+        checkboxConfig.setTabIndex(7);
+        return new Radio(checkboxConfig);
     }
 
     private void submitForm()
@@ -226,16 +252,28 @@ public class CreateUserWidget extends Form
 
         if (usernameField.validate() && passwordField.validate() && emailField.validate())
         {
-            String email = emailField.getText();
-            String username = usernameField.getText();
+
+            User user = new User();
+            user.setEmail(emailField.getText());
+            user.setUserName(usernameField.getText());
+            if (adminRadioButton.getValue())
+            {
+                user.setAdmin(true);
+                user.setPermanent(true);
+            } else if (permanentRadioButton.getValue())
+            {
+                user.setAdmin(false);
+                user.setPermanent(true);
+            } else
+            {
+                user.setAdmin(false);
+                user.setPermanent(false);
+            }
+
             String password = passwordField.getText();
-            // TODO 2008-01-29, Franz-Josef Elmer: radio buttons for admin, permanent, and temporary instead of 
-            // two check boxes
-            boolean admin = adminCheckbox.getValue();
-            boolean permanent = permanentCheckbox.getValue();
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToCreateUser(email, username, password, permanent, admin, new CreateUserAsyncCallBack());
+            cifexService.tryToCreateUser(user, password, new CreateUserAsyncCallBack());
         }
     }
 

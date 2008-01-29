@@ -37,7 +37,11 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 class AdminMainPage extends AbstractMainPage
 {
 
-    private VerticalPanel verticalPanel;
+    private VerticalPanel createUserPanel;
+    
+    private VerticalPanel listUserPanel;
+    
+    private VerticalPanel listFilesPanel;
 
     AdminMainPage(ViewContext context)
     {
@@ -47,14 +51,19 @@ class AdminMainPage extends AbstractMainPage
     protected ContentPanel createMainPanel()
     {
         ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-        verticalPanel = createVerticalPanelPart();
-        verticalPanel.add(createPartTitle("Create User"));
-        verticalPanel.add(createCreateUserWidget());
+        createUserPanel = createVerticalPanelPart();
+        createUserPanel.add(createPartTitle("Create User"));
+        createUserPanel.add(createCreateUserWidget());
 
+        listUserPanel = createVerticalPanelPart();
         createListUserGrid();
+        
+        listFilesPanel = createVerticalPanelPart();
         createListFileGrid();
 
-        mainPanel.add(verticalPanel);
+        mainPanel.add(createUserPanel);
+        mainPanel.add(listUserPanel);
+        mainPanel.add(listFilesPanel);
         return mainPanel;
     }
 
@@ -93,8 +102,9 @@ class AdminMainPage extends AbstractMainPage
         public void onSuccess(Object result)
         {
             List users = (List) result;
-            verticalPanel.add(createPartTitle("List Users"));
-            verticalPanel.add(createUserTable((User[]) users.toArray(new User[users.size()])));
+            // TODO 2008-01-29, Basil Neff Get title from Message Resource
+            listUserPanel.add(createPartTitle("List Users"));
+            listUserPanel.add(createUserTable((User[]) users.toArray(new User[users.size()])));
         }
 
         private Widget createUserTable(User[] users)
@@ -117,8 +127,8 @@ class AdminMainPage extends AbstractMainPage
         public void onSuccess(Object result)
         {
             File[] files = (File[]) result;
-            verticalPanel.add(createPartTitle("List Files"));
-            verticalPanel.add(createFileTable(files));
+            listFilesPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
+            listFilesPanel.add(createFileTable(files));
         }
 
         private Widget createFileTable(File[] files)

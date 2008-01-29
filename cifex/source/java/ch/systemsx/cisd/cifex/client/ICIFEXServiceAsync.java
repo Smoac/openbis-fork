@@ -19,6 +19,8 @@ package ch.systemsx.cisd.cifex.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.client.dto.User;
+
 /**
  * The asynchronous <i>GWT</i> <i>LIMS</i> service.
  * 
@@ -50,10 +52,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Creates a new <code>User</code> with the given parameter.
      */
-    public void tryToCreateUser(final String email, final String username, final String password,
-            final boolean permanent, final boolean admin, final AsyncCallback callback);
+    public void tryToCreateUser(final User user, final String password, final AsyncCallback callback);
 
-   /**
+    /**
      * List the files that the currently logged user has access on.
      */
     public void listDownloadFiles(final AsyncCallback callback);

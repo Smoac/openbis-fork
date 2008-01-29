@@ -61,9 +61,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Create a new Cifex <code>User</code> with the given parameters.
      */
-    // TODO 2008-01-29, Franz-Josef Elmer: better signature: tryToCreateUser(User user, String password)
-    public void tryToCreateUser(final String email, final String username, final String password,
-            final boolean permanent, final boolean admin);
+    public void tryToCreateUser(final User user, final String password);
 
     /**
      * List the files that the currently logged user has access on.

@@ -206,16 +206,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return userList;
     }
 
-    public void tryToCreateUser(String email, String username, String password, boolean permanent, boolean admin)
+    public void tryToCreateUser(User user, String password)
     {
         final IUserManager userManager = domainModel.getUserManager();
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserName(username);
-        userDTO.setEmail(email);
+        UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         userDTO.setEncryptedPassword(StringUtilities.encrypt(password));
-        userDTO.setPermanent(permanent);
-        userDTO.setAdmin(admin);
         userManager.createUser(userDTO);
     }
     
