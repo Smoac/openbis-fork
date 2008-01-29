@@ -53,6 +53,7 @@ public final class UrlServletForwardingController extends AbstractController
     protected final ModelAndView handleRequestInternal(final HttpServletRequest request,
             final HttpServletResponse response) throws Exception
     {
+        operationLog.info("forward " + request.getRequestURL());
         String servletName = getServletName(request);
         if (servletName.charAt(0) == '/')
         {
