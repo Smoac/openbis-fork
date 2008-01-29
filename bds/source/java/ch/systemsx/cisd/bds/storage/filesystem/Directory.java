@@ -22,7 +22,6 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.bds.Constants;
-import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -54,48 +53,6 @@ final class Directory extends AbstractNode implements IDirectory
         return ((AbstractNode) node).nodeFile;
     }
 
-    /**
-     * Founds a node with given <var>name</var> in given <var>directory</var>.
-     * 
-     * @param name has the format of a path and may contain <code>/</code> or <code>\</code> as 
-     *          name-separator character.
-     */
-    private final static INode tryGetNodeRecursively(final IDirectory directory, final String name)
-            throws DataStructureException
-    {
-        final String path = cleanName(name.replace('\\', Constants.PATH_SEPARATOR));
-        final int index = path.indexOf(Constants.PATH_SEPARATOR);
-        if (index > -1)
-        {
-            final INode node = tryGetNode(directory, path.substring(0, index));
-            if (node != null)
-            {
-                if (node instanceof IDirectory == false)
-                {
-                    throw new DataStructureException(String.format("Found node '%s' is expected to be a directory.",
-                            node));
-                }
-                return ((IDirectory) node).tryGetNode(path.substring(index + 1));
-            }
-        } else
-        {
-            return tryGetNode(directory, path);
-        }
-        return null;
-    }
-
-    private final static INode tryGetNode(final IDirectory directory, final String name)
-    {
-        for (final INode node : directory)
-        {
-            if (node.getName().equals(name))
-            {
-                return node;
-            }
-        }
-        return null;
-    }
-
     private final static String cleanName(final String name)
     {
         final int index = name.indexOf(Constants.PATH_SEPARATOR);
@@ -113,7 +70,16 @@ final class Directory extends AbstractNode implements IDirectory
     public final INode tryGetNode(final String name)
     {
         assert name != null : "Given name can not be null.";
-        return tryGetNodeRecursively(this, name);
+        final String path = cleanName(name.replace('\\', Constants.PATH_SEPARATOR));
+
+        java.io.File childrenNodeFile = new java.io.File(this.nodeFile, path);
+        if (childrenNodeFile.exists())
+        {
+            return NodeFactory.createNode(childrenNodeFile);
+        } else
+        {
+            return null;
+        }
     }
 
     public final IDirectory makeDirectory(final String name)
