@@ -38,12 +38,14 @@ public final class GWTUtils
     }
 
     /**
-     * Returns the <i>search</i> of a <i>Javascript</i> window location.
+     * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting <code>?</code> if
+     * any).
      * 
-     * @return something like <code>?key1=value1&key2=value2</code>.
+     * @return something like <code>key1=value1&key2=value2</code>.
      */
     public final static native String getParamString() /*-{
-       return $wnd.location.search;
+       var search = $wnd.location.search;
+       return search.indexOf("?") == 0 ? search.substring(1) : search;
     }-*/;
 
     /**
@@ -52,15 +54,7 @@ public final class GWTUtils
     public final static HashMap parseParamString(final String string)
     {
         assert string != null : "Given text can not be null.";
-        final String text;
-        if (string.startsWith("?"))
-        {
-            text = string.substring(1, string.length());
-        } else
-        {
-            text = string;
-        }
-        final String[] ray = text.split(PARAMETER_SEPARATOR);
+        final String[] ray = string.split(PARAMETER_SEPARATOR);
         final HashMap map = new HashMap();
         for (int i = 0; i < ray.length; i++)
         {
