@@ -43,6 +43,12 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
         this.context = context;
     }
 
+    /** Gives access to internal <code>ViewContext</code>. */
+    protected final ViewContext getViewContext()
+    {
+        return context;
+    }
+
     //
     // AsyncCallback
     //
