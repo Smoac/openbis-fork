@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.gwtext.client.data.DateFieldDef;
-import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
@@ -34,20 +29,20 @@ import ch.systemsx.cisd.cifex.client.dto.File;
  * 
  * @author Christian Ribeaud
  */
-final class FileGridModel extends AbstractDataGridModel
+abstract class AbstractFileGridModel extends AbstractDataGridModel
 {
 
     static final String NAME = "name";
 
-    private static final String CONTENT_TYPE = "contentType";
+    protected static final String CONTENT_TYPE = "contentType";
 
-    private static final String SIZE = "size";
+    protected static final String SIZE = "size";
 
-    private static final String EXPIRATION_DATE = "expirationDate";
+    protected static final String EXPIRATION_DATE = "expirationDate";
 
-    private static final String REGISTERER = "registerer";
+    protected static final String REGISTERER = "registerer";
 
-    FileGridModel(final IMessageResources messageResources)
+    AbstractFileGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
     }
@@ -67,53 +62,12 @@ final class FileGridModel extends AbstractDataGridModel
         return expirationDateConfig;
     }
 
-    private ColumnConfig createRegistererColumnConfig()
+    protected ColumnConfig createRegistererColumnConfig()
     {
         final ColumnConfig registererConfig =
                 createSortableColumnConfig(REGISTERER, messageResources.getFileRegistererLabel(), 120);
         registererConfig.setRenderer(UserRenderer.USER_RENDERER);
         return registererConfig;
-    }
-
-    //
-    // AbstractDataGridModel
-    //
-
-    public final List getColumnConfigs()
-    {
-        final List configs = new ArrayList();
-        configs.add(createNameColumnConfig());
-        configs.add(createRegistererColumnConfig());
-        configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
-        configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
-        configs.add(createExpirationDateColumnConfig());
-        return configs;
-    }
-
-    public final List getData(final Object[] data)
-    {
-        final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
-        {
-            final File file = (File) data[i];
-            final Object[] objects =
-                    new Object[]
-                        { file.getName(), file.getRegisterer().getEmail(), file.getContentType(), file.getSize(),
-                                file.getExpirationDate() };
-            list.add(objects);
-        }
-        return list;
-    }
-
-    public final List getFieldDefs()
-    {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(NAME));
-        fieldDefs.add(new StringFieldDef(REGISTERER));
-        fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new StringFieldDef(SIZE));
-        fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
-        return fieldDefs;
     }
 
 }

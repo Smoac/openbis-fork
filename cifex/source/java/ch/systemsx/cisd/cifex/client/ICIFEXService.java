@@ -73,4 +73,12 @@ public interface ICIFEXService extends RemoteService
      * </p>
      */
     public File[] listDownloadFiles() throws UserFailureException;
+
+    /**
+     * List the files uploaded by the currently logged user.
+     * <p>
+     * Never returns <code>null</code> but could return an empty array.
+     * </p>
+     */
+    public File[] listUploadedFiles() throws UserFailureException;
 }

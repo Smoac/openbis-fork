@@ -176,6 +176,20 @@ public interface IMessageResources extends Messages
     public String getUploadFilesHelpPermanentUser();
 
     /**
+     * Returns the uploaded files part title.
+     * 
+     * @gwt.key uploadedfiles.part.title
+     */
+    public String getUploadedFilesPartTitle();
+
+    /**
+     * Returns the message text for no file uploaded.
+     * 
+     * @gwt.key uploadedfiles.empty
+     */
+    public String getUploadedFilesEmpty();
+
+    /**
      * Returns the help text for uploading files.
      * 
      * @gwt.key uploadfiles.help.temporary
@@ -183,6 +197,7 @@ public interface IMessageResources extends Messages
     public String getUploadFilesHelpTemporaryUser();
 
     /**
+
      * Returns the download file part title.
      * 
      * @gwt.key downloadfiles.part.title
@@ -230,4 +245,11 @@ public interface IMessageResources extends Messages
      * @gwt.key file.registerer.label
      */
     public String getFileRegistererLabel();
+
+    /**
+     * Returns the label of the file registerer column.
+     * 
+     * @gwt.key files
+     */
+    public String getFilesPartTitle();
 }

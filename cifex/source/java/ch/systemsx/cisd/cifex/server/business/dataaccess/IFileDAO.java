@@ -54,7 +54,7 @@ public interface IFileDAO
 
     /** Returns detailed information about file, including registerer data and list of users the file is shared with. */
     public FileDTO tryGetFile(final long fileId) throws DataAccessException;
-    
+
     /**
      * Adds a link between the specified file and user.
      */
@@ -67,4 +67,9 @@ public interface IFileDAO
      * Returns a list of all files given <var>userId</var> has access to.
      */
     public List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException;
+
+    /**
+     * Returns a list of all files uploaded by user with given <var>userId</var>.
+     */
+    public List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException;
 }

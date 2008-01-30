@@ -29,7 +29,6 @@ import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
-
 /**
  * The main page for non-administrators (permanent and temporary users).
  * 
@@ -37,6 +36,10 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 final class MainPage extends AbstractMainPage
 {
+    private final static boolean DOWNLOAD = true;
+
+    private final static boolean UPLOAD = false;
+
     MainPage(final ViewContext context)
     {
         super(context);
@@ -67,8 +70,8 @@ final class MainPage extends AbstractMainPage
         {
             fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
         }
-        final User user = context.getModel().getUser();
-        if (fileId == null)
+		final User user = context.getModel().getUser();
+        if (fileId == null )
         {
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
@@ -78,14 +81,26 @@ final class MainPage extends AbstractMainPage
                 verticalPanel.add(createUserPanel);
             }
         }
-        verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
-        context.getCifexService().listDownloadFiles(new FileAsyncCallback(context, verticalPanel, fileId));
+        createListFilesGrid(verticalPanel, fileId, UPLOAD);
+        createListFilesGrid(verticalPanel, fileId, DOWNLOAD);
         return contentPanel;
     }
 
     //
     // Helper classes
     //
+
+    private void createListFilesGrid(VerticalPanel verticalPanel, String fileId, boolean showDownload)
+    {
+        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, verticalPanel, fileId, showDownload);
+        if (showDownload)
+        {
+            context.getCifexService().listDownloadFiles(fileAsyncCallback);
+        } else
+        {
+            context.getCifexService().listUploadedFiles(fileAsyncCallback);
+        }
+    }
 
     private final class FileAsyncCallback extends AbstractAsyncCallback
     {
@@ -100,11 +115,25 @@ final class MainPage extends AbstractMainPage
          */
         private final String fileId;
 
-        FileAsyncCallback(final ViewContext context, final VerticalPanel verticalPanel, final String fileId)
+        private Widget titleWidget;
+
+        private boolean showDownloaded;
+
+        FileAsyncCallback(final ViewContext context, final VerticalPanel verticalPanel, final String fileId,
+                boolean showDownload)
         {
             super(context);
+            if (showDownload)
+            {
+                titleWidget = createPartTitle(context.getMessageResources().getDownloadFilesPartTitle());
+            } else
+            {
+                titleWidget = createPartTitle(context.getMessageResources().getUploadedFilesPartTitle());
+            }
+
             this.verticalPanel = verticalPanel;
             this.fileId = fileId;
+            this.showDownloaded = showDownload;
         }
 
         private final File[] getFiles(final File[] files)
@@ -136,7 +165,14 @@ final class MainPage extends AbstractMainPage
             final IMessageResources messageResources = context.getMessageResources();
             if (files.length > 0)
             {
-                final IDataGridModel gridModel = new FileGridModel(messageResources);
+                final IDataGridModel gridModel;
+                if (showDownloaded)
+                {
+                    gridModel = new DownloadFileGridModel(messageResources);
+                } else
+                {
+                    gridModel = new UploadedFileGridModel(messageResources);
+                }
                 final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
                 fileGrid.addGridCellListener(new FileGridCellListener());
                 widget = fileGrid;
@@ -146,9 +182,9 @@ final class MainPage extends AbstractMainPage
                 html.setText(messageResources.getDownloadFilesEmpty());
                 widget = html;
             }
+            verticalPanel.add(titleWidget);
             verticalPanel.add(widget);
         }
-
     }
 
 }

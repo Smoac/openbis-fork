@@ -105,7 +105,9 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     public List<FileDTO> listFiles() throws DataAccessException
     {
-        final List<FileDTO> list = getSimpleJdbcTemplate().query(SELECT + " from files as f", FILE_ROW_MAPPER);
+        final List<FileDTO> list =
+                getSimpleJdbcTemplate().query(SELECT + ", u.* from files f, users u " + "where f.user_id = u.id",
+                        FILE_WITH_REGISTERER_ROW_MAPPER);
         return list;
     }
 
@@ -142,6 +144,15 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 getSimpleJdbcTemplate().query(
                         SELECT + ", u.* from files f, file_shares s, users u "
                                 + "where s.file_id = f.id and f.user_id = u.id and s.user_id = ?",
+                        FILE_WITH_REGISTERER_ROW_MAPPER, userId);
+        return list;
+    }
+
+    public final List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException
+    {
+        final List<FileDTO> list =
+                getSimpleJdbcTemplate().query(
+                        SELECT + ", u.* from files f, users u " + "where f.user_id = u.id and u.id = ?",
                         FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }

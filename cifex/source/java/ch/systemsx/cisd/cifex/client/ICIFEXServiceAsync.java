@@ -62,4 +62,9 @@ public interface ICIFEXServiceAsync extends RemoteService
      */
     public void listDownloadFiles(final AsyncCallback callback);
 
+    /**
+     * List the files uploaded by the currently logged user.
+     */
+    public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
+
 }

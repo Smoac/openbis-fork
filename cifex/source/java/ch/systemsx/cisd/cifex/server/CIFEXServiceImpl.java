@@ -70,6 +70,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private final IAuthenticationService externalAuthenticationService;
 
+    private final static boolean DOWNLOAD = true;
+
+    private final static boolean UPLOAD = false;
+
     /** Session timeout in seconds. */
     private int sessionExpirationPeriod;
 
@@ -267,8 +271,28 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final File[] listDownloadFiles() throws UserFailureException
     {
+        return listFiles(DOWNLOAD);
+    }
+
+    public final File[] listUploadedFiles() throws UserFailureException
+    {
+        return listFiles(UPLOAD);
+    }
+
+    private File[] listFiles(boolean showDownload) throws InvalidSessionException
+    {
         final UserDTO user = privGetCurrentUser();
-        final List<FileDTO> files = domainModel.getFileManager().listFiles(user.getID());
+        final List<FileDTO> files;
+        if (user.isAdmin())
+        {
+            files = domainModel.getFileManager().listFiles();
+        } else if (showDownload)
+        {
+            files = domainModel.getFileManager().listDownloadFiles(user.getID());
+        } else
+        {
+            files = domainModel.getFileManager().listUploadedFiles(user.getID());
+        }
         return BeanUtils.createBeanArray(File.class, files, new BeanUtils.Converter()
             {
                 @SuppressWarnings("unused")

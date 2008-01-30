@@ -37,7 +37,7 @@ class AdminMainPage extends AbstractMainPage
 {
 
     private VerticalPanel listUserPanel;
-    
+
     private VerticalPanel listFilesPanel;
 
     AdminMainPage(ViewContext context)
@@ -52,7 +52,7 @@ class AdminMainPage extends AbstractMainPage
 
         listUserPanel = createVerticalPanelPart();
         createListUserGrid();
-        
+
         listFilesPanel = createVerticalPanelPart();
         createListFileGrid();
 
@@ -64,7 +64,7 @@ class AdminMainPage extends AbstractMainPage
 
     private final void createListFileGrid()
     {
-        context.getCifexService().listDownloadFiles(new FileAdminAsyncCallback());
+        context.getCifexService().listUploadedFiles(new FileAdminAsyncCallback());
     }
 
     private final void createListUserGrid()
@@ -108,13 +108,13 @@ class AdminMainPage extends AbstractMainPage
         public void onSuccess(Object result)
         {
             File[] files = (File[]) result;
-            listFilesPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
+            listFilesPanel.add(createPartTitle(context.getMessageResources().getFilesPartTitle()));
             listFilesPanel.add(createFileTable(files));
         }
 
         private Widget createFileTable(File[] files)
         {
-            final IDataGridModel gridModel = new FileGridModel(context.getMessageResources());
+            final IDataGridModel gridModel = new DownloadFileGridModel(context.getMessageResources());
             final Grid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
             return fileGrid;
         }

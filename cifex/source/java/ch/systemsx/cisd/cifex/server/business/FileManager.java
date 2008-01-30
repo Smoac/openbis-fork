@@ -117,9 +117,15 @@ final class FileManager extends AbstractManager implements IFileManager
     //
 
     @Transactional
-    public final List<FileDTO> listFiles(final long userId) throws UserFailureException
+    public final List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException
     {
         return daoFactory.getFileDAO().listDownloadFiles(userId);
+    }
+
+    @Transactional
+    public final List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException
+    {
+        return daoFactory.getFileDAO().listUploadedFiles(userId);
     }
 
     @Transactional
@@ -286,4 +292,11 @@ final class FileManager extends AbstractManager implements IFileManager
         mailClient.sendMessage("Files for download available on the Cifex Server", builder.toString(), new String[]
             { email });
     }
+
+    @Transactional
+    public final List<FileDTO> listFiles() throws UserFailureException
+    {
+        return daoFactory.getFileDAO().listFiles();
+    }
+
 }

@@ -88,6 +88,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listDownloadFiles();
     }
 
+    public File[] listUploadedFiles() throws UserFailureException
+    {
+        return cifexServiceDelegate.listUploadedFiles();
+    }
+
     //
     // RemoteServiceServlet
     //

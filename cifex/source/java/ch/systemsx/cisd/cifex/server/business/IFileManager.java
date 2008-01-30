@@ -53,7 +53,7 @@ public interface IFileManager
      */
     public FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream inputStream);
-    
+
     /**
      * Creates sharing links between the users specified by their e-mail addresses and the specified files.
      * For users not known a temporary account is created. Each user will be informed by an e-mail.
@@ -65,7 +65,10 @@ public interface IFileManager
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers, Collection<FileDTO> files);
 
     /** Lists files for given <var>userId</var>. */
-    public List<FileDTO> listFiles(final long userId) throws UserFailureException;
+    public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;
+
+    /** Lists files uploaded by user with given <var>userId</var>. */
+    public List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException;
 
     //
     // Helper classes
@@ -88,5 +91,8 @@ public interface IFileManager
 
     /** Deletes expired files from database and filesystem */
     public void deleteExpiredFiles();
+
+    /** Returns all files */
+    public List<FileDTO> listFiles();
 
 }

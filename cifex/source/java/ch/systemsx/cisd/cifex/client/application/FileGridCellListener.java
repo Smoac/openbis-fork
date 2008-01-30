@@ -63,10 +63,10 @@ final class FileGridCellListener extends GridCellListenerAdapter
     {
         final ModelBasedGrid modelBasedGrid = (ModelBasedGrid) grid;
         final String dataIndex = modelBasedGrid.getColumnModel().getDataIndex(colIndex);
-        if (dataIndex.equals(FileGridModel.NAME))
+        if (dataIndex.equals(AbstractFileGridModel.NAME))
         {
             final Record record = modelBasedGrid.getStore().getAt(rowIndex);
-            final String fileName = record.getAsString(FileGridModel.NAME);
+            final String fileName = record.getAsString(AbstractFileGridModel.NAME);
             final File file = getFileFromGrid(modelBasedGrid.getObjects(), fileName);
             final String url = createDownloadUrl(file);
             WindowUtils.openNewDependentWindow(url);
