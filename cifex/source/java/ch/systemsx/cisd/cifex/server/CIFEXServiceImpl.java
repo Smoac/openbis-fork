@@ -63,6 +63,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
+
     private final IDomainModel domainModel;
 
     private final IRequestContextProvider requestContextProvider;
@@ -261,10 +263,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
         try
         {
             sendPasswordToNewUser(user, finalPassword);
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
-            throw new EnvironmentFailureException("Sending email to email '" + user.getEmail() + "' failed: "
-                    + ex.getMessage());
+            final String msg = "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
+            operationLog.error(msg, ex);
+            throw new EnvironmentFailureException(msg);
         }
     }
 
@@ -289,7 +292,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
             loggingContextHandler.destroyContext(httpSession.getId());
             httpSession.removeAttribute(SESSION_NAME);
             httpSession.invalidate();
-            authenticationLog.info("Logout of user " + user);
+            if (authenticationLog.isInfoEnabled())
+            {
+                authenticationLog.info("Logout of user " + user);
+            }
         }
     }
 
