@@ -35,7 +35,7 @@ public interface IProcess extends Runnable
     public boolean succeeded();
 
     /**
-     * The number of times we should try if this <code>IProcess</code> failed.
+     * The number of times we should try if this <code>IProcess</code> failed (including the first excecution).
      * <p>
      * This is a static method: it only gets called once during the initialization process.
      * </p>

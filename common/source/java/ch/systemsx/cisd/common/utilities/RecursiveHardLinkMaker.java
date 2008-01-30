@@ -42,24 +42,89 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
 
     private final String linkExecPath;
 
-    private RecursiveHardLinkMaker(final String linkExecPath)
+    private final RetryingOperationTimeout singleFileLinkTimeout;
+
+    private RecursiveHardLinkMaker(final String linkExecPath, RetryingOperationTimeout singleFileLinkTimeoutOrNull)
     {
         this.linkExecPath = linkExecPath;
+        this.singleFileLinkTimeout =
+                singleFileLinkTimeoutOrNull != null ? singleFileLinkTimeoutOrNull : createNoTimeout();
+    }
+
+    private RetryingOperationTimeout createNoTimeout()
+    {
+        return new RetryingOperationTimeout(0, 1, 0);
     }
 
     public static final IPathImmutableCopier create(final String linkExecPath)
     {
-        return new RecursiveHardLinkMaker(linkExecPath);
+        return new RecursiveHardLinkMaker(linkExecPath, null);
     }
 
+    private static class RetryingOperationTimeout
+    {
+        private final long millisToWaitForCompletion;
+
+        private final int maxRetryOnFailure;
+
+        private final long millisToSleepOnFailure;
+
+        private RetryingOperationTimeout(long millisToWaitForCompletion, int maxRetryOnFailure,
+                long millisToSleepOnFailure)
+        {
+            this.millisToWaitForCompletion = millisToWaitForCompletion;
+            this.maxRetryOnFailure = maxRetryOnFailure;
+            this.millisToSleepOnFailure = millisToSleepOnFailure;
+        }
+
+        public long getMillisToWaitForCompletion()
+        {
+            return millisToWaitForCompletion;
+        }
+
+        public int getMaxRetryOnFailure()
+        {
+            return maxRetryOnFailure;
+        }
+
+        public long getMillisToSleepOnFailure()
+        {
+            return millisToSleepOnFailure;
+        }
+    }
+
+    /**
+     * Creates copier which is able to retry the operation of creating each hard link of a file if it does not complete
+     * after a specified timeout.
+     * 
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is
+     *            not finished after that time, it will be terminated.
+     * @param maxRetryOnFailure The number of times we should try if copy operation fails.
+     * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing the copy of a single
+     *            file. Specify 0 to wait till the first operation completes.
+     */
+    public static final IPathImmutableCopier tryCreateRetrying(final long millisToWaitForCompletion,
+            final int maxRetryOnFailure, final long millisToSleepOnFailure)
+    {
+        RetryingOperationTimeout timeout =
+                new RetryingOperationTimeout(millisToWaitForCompletion, maxRetryOnFailure, millisToSleepOnFailure);
+        return tryCreate(timeout);
+    }
+
+    /** Creates copier trying to find the path to hard link tool, null if nothing is found. */
     public static final IPathImmutableCopier tryCreate()
+    {
+        return tryCreate(null);
+    }
+
+    private static final IPathImmutableCopier tryCreate(RetryingOperationTimeout singleFileLinkTimeoutOrNull)
     {
         final File lnExec = OSUtilities.findExecutable(HARD_LINK_EXEC);
         if (lnExec == null)
         {
             return null;
         }
-        return new RecursiveHardLinkMaker(lnExec.getAbsolutePath());
+        return new RecursiveHardLinkMaker(lnExec.getAbsolutePath(), singleFileLinkTimeoutOrNull);
     }
 
     /**
@@ -156,7 +221,17 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         assert file.isFile() : String.format("Given file '%s' must be a file and is not.", file);
         final File destFile = new File(destDir, nameOrNull == null ? file.getName() : nameOrNull);
         final List<String> cmd = createLnCmdLine(file, destFile);
-        final boolean ok = ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog);
+        IProcessTask processTask = new IProcessTask()
+            {
+                public boolean run()
+                {
+                    return ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout.getMillisToWaitForCompletion(),
+                            operationLog, machineLog);
+                }
+            };
+        boolean ok =
+                runRepeatableProcess(processTask, singleFileLinkTimeout.getMaxRetryOnFailure(), singleFileLinkTimeout
+                        .getMillisToSleepOnFailure());
         return ok ? destFile : null;
     }
 
@@ -167,5 +242,41 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         tokens.add(srcFile.getAbsolutePath());
         tokens.add(destFile.getAbsolutePath());
         return tokens;
+    }
+
+    interface IProcessTask
+    {
+        boolean run(); // returns true if operation succeeded
+    }
+
+    private static boolean runRepeatableProcess(final IProcessTask task, final int maxRetryOnFailure,
+            final long millisToSleepOnFailure)
+    {
+        IProcess process = new IProcess()
+            {
+                private boolean succeded;
+
+                public int getMaxRetryOnFailure()
+                {
+                    return maxRetryOnFailure;
+                }
+
+                public long getMillisToSleepOnFailure()
+                {
+                    return millisToSleepOnFailure;
+                }
+
+                public boolean succeeded()
+                {
+                    return succeded;
+                }
+
+                public void run()
+                {
+                    succeded = task.run();
+                }
+            };
+        new ProcessRunner(process);
+        return process.succeeded();
     }
 }
