@@ -59,5 +59,5 @@ public interface IUserManager
      * Deletes the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void tryToDeleteUser(UserDTO user);
+    public void tryToDeleteUser(String email);
 }

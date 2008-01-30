@@ -327,9 +327,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public void tryToDeleteUser(final User user)
     {
-        final IUserManager userManager = domainModel.getUserManager();
-        UserDTO userDTO = userManager.tryToFindUser(user.getEmail());
-        userManager.tryToDeleteUser(userDTO);
+        domainModel.getUserManager().tryToDeleteUser(user.getEmail());
     }
 
     public void tryToDeleteFile(final File file)
