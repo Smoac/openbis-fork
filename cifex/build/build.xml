@@ -40,7 +40,6 @@
         <property name="dist.file.name" value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
         <property name="jetty.path" value="${lib}/jetty" />
         <property name="zipped.dir" value="${dist}/${ant.project.name}" />
-        <property name="install.file.name" value="install.sh" />
 
         <mkdir dir="${zipped.dir}" />
         <move file="${webapp.file}" todir="${zipped.dir}" />
@@ -57,15 +56,15 @@
 		// by the administrator. The idea is to replace the one in the war with it in the 'install.sh' script.
 		-->
         <copy file="${original.dist}/etc/service.properties" todir="${zipped.dir}" />
-        <!-- Copy all files but 'install.sh'. -->
+        <!-- Copy all files but '*.sh'. -->
         <copy todir="${zipped.dir}">
             <fileset dir="${original.dist.server}">
-                <exclude name="${install.file.name}" />
+                <exclude name="*.sh" />
             </fileset>
         </copy>
 
         <zip basedir="${dist}" destfile="${dist}/${dist.file.name}">
-            <zipfileset file="${original.dist.server}/${install.file.name}"
+            <zipfileset file="${original.dist.server}/*.sh"
                         filemode="755"
                         prefix="${ant.project.name}" />
         </zip>

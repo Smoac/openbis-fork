@@ -57,12 +57,16 @@ mkdir -p "$war_classes"
 cp -p "$properties_file" "$war_classes"
 jar -ufv "$installation_folder"/cifex.war "$war_classes"/service.properties
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
-rm -rf "$war_classes"
+rm -rf WEB-INF
 
 # Create symlinks for easier access
 cd "$server_folder"
 ln -s "${rel_jetty_folder}" jetty
-cd "$jetty_folder"
 
+cp -p "$installation_folder"/startup.sh "$jetty_folder"
+cp -p "$installation_folder"/shutdown.sh "$jetty_folder"
+cp -p "$installation_folder"/jetty.properties "$jetty_folder"
+
+cd "$jetty_folder"
 echo Starting Jetty...
-java -Djavax.net.ssl.trustStore=etc/source-systemsx.ethz.ch.keystore -jar start.jar etc/cifex-jetty.xml etc/cifex-jetty-ssl.xml
+./startup.sh
