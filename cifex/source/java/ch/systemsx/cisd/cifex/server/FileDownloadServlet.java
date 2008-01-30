@@ -70,7 +70,7 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 {
                     response.setContentType(contentType);
                 }
-                response.setHeader("Content-Disposition", "inline; filename=" + fileOutput.getBasicFile().getName());
+                response.setHeader("Content-Disposition", "inline; filename=\"" + fileOutput.getBasicFile().getName()+"\"");
                 inputStream = fileOutput.getInputStream();
                 outputStream = response.getOutputStream();
                 IOUtils.copy(inputStream, outputStream);
