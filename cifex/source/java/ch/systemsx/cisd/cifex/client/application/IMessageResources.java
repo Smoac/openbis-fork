@@ -265,4 +265,19 @@ public interface IMessageResources extends Messages
      * @gwt.key cisd.logo.title
      */
     public String getCISDLogoTitle();
+    
+
+    /**
+     * Returns the action label.
+     * 
+     * @gwt.key action.label
+     */
+    public String getActionLabel();
+
+    /**
+     * Returns the label for the delete action.
+     * 
+     * @gwt.key action.delete.label
+     */
+    public String getActionDeleteLabel();
 }
