@@ -65,6 +65,18 @@ public final class UserLinkRenderer implements Renderer
         }
     }
 
+    /**
+     * Creates a Mailto Link with the Email Adress
+     */
+    public final static String createMailAnchor(String email)
+    {
+        assert email != null;
+
+        final Element anchor = createAnchorElement(email);
+        DOM.setInnerText(anchor, email);
+        return DOM.toString(anchor);
+    }
+
     private final static Element createAnchorElement(String email)
     {
         final Element anchor = DOM.createAnchor();

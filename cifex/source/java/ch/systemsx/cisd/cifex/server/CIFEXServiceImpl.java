@@ -303,6 +303,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
             });
     }
 
+    public void tryToDeleteUser(final User user)
+    {
+        final IUserManager userManager = domainModel.getUserManager();
+        UserDTO userDTO = userManager.tryToFindUser(user.getEmail());
+        userManager.tryToDeleteUser(userDTO);
+    }
+
     private void sendPasswordToNewUser(User user, String password)
     {
         StringBuilder builder = new StringBuilder();

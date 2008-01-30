@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 class UserManager extends AbstractManager implements IUserManager
 {
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
-    
+
     public UserManager(IDAOFactory daoFactory, BusinessObjectFactory boFactory, BusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
@@ -76,16 +76,40 @@ class UserManager extends AbstractManager implements IUserManager
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Expired user [" + user.getUserName() + "] removed from user database.");
+                    logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                            + "] removed from user database.");
                 }
             } else
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Expired user [" + user.getUserName() + "] could not be deleted from user database.");
+                    logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                            + "] could not be deleted from user database.");
                 }
             }
         }
+    }
+
+    public void tryToDeleteUser(UserDTO user)
+    {
+        assert user != null : "User is null";
+        assert user.getID() == null : "User ID is not null";
+
+        IUserDAO userDAO = daoFactory.getUserDAO();
+        UserDTO userWithID = userDAO.tryFindUserByEmail(user.getEmail());
+        boolean returnValue = userDAO.removeUser(userWithID.getID());
+        if (logger.isInfoEnabled())
+        {
+            if (returnValue)
+            {
+                logger.info("User [" + user.getUserName() + " - " + user.getEmail() + "] deleted from user database.");
+            } else
+            {
+                logger.info("Could not delete User [" + user.getUserName() + " - " + user.getEmail()
+                        + "] from user database.");
+            }
+        }
+
     }
 
 }

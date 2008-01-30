@@ -75,6 +75,11 @@ public interface ICIFEXService extends RemoteService
     public File[] listDownloadFiles() throws UserFailureException;
 
     /**
+     * Deletes the Cifex <code>User</code>.
+     */
+    public void tryToDeleteUser(final User user);
+
+    /**
      * List the files uploaded by the currently logged user.
      * <p>
      * Never returns <code>null</code> but could return an empty array.

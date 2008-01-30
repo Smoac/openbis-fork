@@ -61,6 +61,11 @@ public interface ICIFEXServiceAsync extends RemoteService
      * List the files that the currently logged user has access on.
      */
     public void listDownloadFiles(final AsyncCallback callback);
+    
+    /**
+     * Deletes the Cifex <code>User</code>.
+     */
+    public void tryToDeleteUser(final User user, final AsyncCallback callback);
 
     /**
      * List the files uploaded by the currently logged user.

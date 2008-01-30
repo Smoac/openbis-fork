@@ -20,8 +20,11 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
+import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
@@ -92,7 +95,50 @@ class AdminMainPage extends AbstractMainPage
         {
             final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
             final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, null);
+            // Delete user function
+            // TODO 2008-01-29, Basil Neff Tidy up
+            userGrid.addGridCellListener(new GridCellListenerAdapter()
+                {
+                    public void onCellClick(Grid grid, int rowIndex, int colIndex, EventObject e)
+                    {
+                        ModelBasedGrid modelBasedGrid = (ModelBasedGrid) grid;
+                        if (grid.getColumnModel().getDataIndex(colIndex).equals("Action"))
+                        {
+                            final User user = ((User) modelBasedGrid.getObjects()[rowIndex]);
+                            // TODO 2008-01-29, Basil Neff Get title from Message Resource
+                            MessageBox.confirm("Delete User", "Are you sure you want to delete the user with email "
+                                    + user.getEmail(), new MessageBox.ConfirmCallback()
+                                {
+                                    public void execute(String btnID)
+                                    {
+                                        if (btnID.equals("yes"))
+                                        {
+                                            context.getCifexService().tryToDeleteUser(user,
+                                                    new DeleteUserAsyncCallback());
+                                        }
+                                    }
+                                });
+
+                        }
+                    }
+                });
+
             return userGrid;
+        }
+    }
+
+    private final class DeleteUserAsyncCallback extends AbstractAsyncCallback
+    {
+
+        DeleteUserAsyncCallback()
+        {
+            super(context);
+        }
+
+        public void onSuccess(Object result)
+        {
+            listUserPanel.clear();
+            createListUserGrid();
         }
     }
 

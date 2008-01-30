@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gwtext.client.data.StringFieldDef;
+import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.UserLinkRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -32,12 +35,12 @@ public class UserGridModel extends AbstractDataGridModel
 {
 
     private final String EMAIL = "Email";
-    
+
     private final String FULL_NAME = "Full Name";
 
     private final String STATUS = "Status";
 
-    private final String MODIFY_USER = "Modify";
+    private final String MODIFY_USER = "Action";
 
     /**
      * @param messageResources
@@ -51,11 +54,13 @@ public class UserGridModel extends AbstractDataGridModel
     {
         final List configs = new ArrayList();
 
-     // TODO 2008-1-28 Basil Neff: Get Field from MessageResource (2nd Parameter)
+        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource (2nd Parameter)
         configs.add(createSortableColumnConfig(EMAIL, EMAIL, 180));
         configs.add(createSortableColumnConfig(FULL_NAME, FULL_NAME, 120));
         configs.add(createSortableColumnConfig(STATUS, STATUS, 250));
-        configs.add(createSortableColumnConfig(MODIFY_USER, MODIFY_USER, 120));
+        ColumnConfig actionColumn = createSortableColumnConfig(MODIFY_USER, MODIFY_USER, 120);
+        actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
+        configs.add(actionColumn);
         return configs;
     }
 
@@ -80,7 +85,7 @@ public class UserGridModel extends AbstractDataGridModel
                 stateField += "expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
             }
             final Object[] objects = new Object[]
-                { user.getEmail(), user.getUserName(), stateField, "delete" };
+                { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, "delete" };
             list.add(objects);
         }
         return list;

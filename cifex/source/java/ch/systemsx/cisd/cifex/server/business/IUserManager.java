@@ -33,4 +33,6 @@ public interface IUserManager
 
     /** Removes expired users from user base */
     public void deleteExpiredUsers();
+    
+    public void tryToDeleteUser(UserDTO user);
 }
