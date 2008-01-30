@@ -303,7 +303,7 @@ public class CreateUserWidget extends Form
 
         public final void onSuccess(final Object result)
         {
-            String title = messageResources.getMessageBoxWarningTitle();
+            String title = messageResources.getMessageBoxInfoTitle();
             MessageBox.alert(title, messageResources.getUserCreationSuccessMessage(emailField.getText()));
             context.getPageController().createMainPage();
         }
