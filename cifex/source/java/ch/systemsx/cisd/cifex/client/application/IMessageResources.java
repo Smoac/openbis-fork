@@ -83,7 +83,7 @@ public interface IMessageResources extends Messages
      * @gwt.key login.admin.label
      */
     public String getLoginAdminLabel();
-    
+
     /**
      * Returns the logout label for the logout link.
      * 
@@ -197,7 +197,6 @@ public interface IMessageResources extends Messages
     public String getUploadFilesHelpTemporaryUser();
 
     /**
-
      * Returns the download file part title.
      * 
      * @gwt.key downloadfiles.part.title
@@ -252,4 +251,18 @@ public interface IMessageResources extends Messages
      * @gwt.key files
      */
     public String getFilesPartTitle();
+
+    /**
+     * Returns welcome text that appears on the first page (login page).
+     * 
+     * @gwt.key login.welcome.text
+     */
+    public String getLoginWelcomeText();
+
+    /**
+     * Returns <i>CISD</i> logo title.
+     * 
+     * @gwt.key cisd.logo.title
+     */
+    public String getCISDLogoTitle();
 }

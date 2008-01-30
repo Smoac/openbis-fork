@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 
 /**
  * The login page.
@@ -30,15 +35,46 @@ final class LoginPage extends VerticalPanel
 {
     private static final int CELL_SPACING = 20;
 
-    LoginPage(final ViewContext context)
+    private final ViewContext viewContext;
+
+    LoginPage(final ViewContext viewContext)
     {
+        this.viewContext = viewContext;
         setSpacing(CELL_SPACING);
         setWidth("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        final LoginWidget loginWidget = new LoginWidget(context);
+        final LoginWidget loginWidget = new LoginWidget(viewContext);
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
+        Image cisdLogo = createImage();
+        final HTML welcomePanel = createWelcomePanel();
+        final CellPanel northPanel = createNorthPanel();
+        northPanel.add(cisdLogo);
+        northPanel.add(welcomePanel);
+        add(northPanel);
         add(loginPanel);
     }
+
+    private final static CellPanel createNorthPanel()
+    {
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        horizontalPanel.setSpacing(20);
+        return horizontalPanel;
+    }
+
+    private final Image createImage()
+    {
+        final Image image = ImageUtils.getLogoImage();
+        image.setTitle(viewContext.getMessageResources().getCISDLogoTitle());
+        return image;
+    }
+
+    private final HTML createWelcomePanel()
+    {
+        final HTML html = new HTML(viewContext.getMessageResources().getLoginWelcomeText());
+        html.setStyleName("cifex-font-huge");
+        return html;
+    }
+
 }
