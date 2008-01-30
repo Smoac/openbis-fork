@@ -20,8 +20,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
@@ -78,21 +78,6 @@ public interface IFileManager
     //
     // Helper classes
     //
-
-    public final static class FileOutput
-    {
-        /** Basic information about a file. */
-        public final BasicFileDTO basicFile;
-
-        /** To access the file content. */
-        public final InputStream inputStream;
-
-        FileOutput(final BasicFileDTO basicFile, final InputStream inputStream)
-        {
-            this.basicFile = basicFile;
-            this.inputStream = inputStream;
-        }
-    }
 
     /** Deletes expired files from database and filesystem */
     @LogAnnotation(logCategory = LogCategory.TRACKING)

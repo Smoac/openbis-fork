@@ -28,7 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
-import ch.systemsx.cisd.cifex.server.business.IFileManager.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -60,18 +60,18 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 final long fileId = Long.parseLong(fileIdParameter);
                 // Do not check for null value.
                 final FileOutput fileOutput = domainModel.getFileManager().getFile(getUserDTO(request), fileId);
-                final Long size = fileOutput.basicFile.getSize();
+                final Long size = fileOutput.getBasicFile().getSize();
                 if (size != null && size <= Integer.MAX_VALUE)
                 {
                     response.setContentLength(size.intValue());
                 }
-                final String contentType = fileOutput.basicFile.getContentType();
+                final String contentType = fileOutput.getBasicFile().getContentType();
                 if (contentType != null)
                 {
                     response.setContentType(contentType);
                 }
-                response.setHeader("Content-Disposition", "inline; filename=" + fileOutput.basicFile.getName());
-                inputStream = fileOutput.inputStream;
+                response.setHeader("Content-Disposition", "inline; filename=" + fileOutput.getBasicFile().getName());
+                inputStream = fileOutput.getInputStream();
                 outputStream = response.getOutputStream();
                 IOUtils.copy(inputStream, outputStream);
             } catch (final NumberFormatException ex)
