@@ -242,13 +242,15 @@ final class FileManager extends AbstractManager implements IFileManager
                     });
         IFileDAO fileDAO = daoFactory.getFileDAO();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
+        PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
         for (String email : emailsOfUsers)
         {
             UserDTO user = existingUsers.tryToGet(email);
             String password = null;
             if (user == null)
             {
-                user = tryToCreateUser(requestUser, existingUsers, email, invalidEmailAdresses);
+                password = passwordGenerator.generatePassword(10);
+                user = tryToCreateUser(requestUser, existingUsers, email, invalidEmailAdresses, password);
             }
             if (user != null)
             {
@@ -264,15 +266,13 @@ final class FileManager extends AbstractManager implements IFileManager
     }
     
     private UserDTO tryToCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
-            List<String> invalidEmailAdresses)
+            List<String> invalidEmailAdresses, String password)
     {
         UserDTO user = null;
         if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
         {
             user = new UserDTO();
             user.setEmail(email);
-            PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
-            String password = passwordGenerator.generatePassword(10);
             user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
             user.setRegistrator(requestUser);
             IUserBO userBO = boFactory.createUserBO();
@@ -295,7 +295,7 @@ final class FileManager extends AbstractManager implements IFileManager
             builder.append(fileDTO.getName()).append(" ");
             builder.append(url).append("/index.html?fileId=").append(fileDTO.getID()).append('\n');
         }
-        builder.append("\nClick on a link for starting downloading. You have to login with your e-mail address (i.e.");
+        builder.append("\nClick on a link for starting downloading. You have to login with your e-mail address (i.e. ");
         builder.append(email).append(")");
         if (password != null)
         {
