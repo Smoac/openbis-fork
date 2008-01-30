@@ -88,8 +88,6 @@ public class CreateUserWidget extends Form
         passwordField = createPasswordField();
         add(passwordField);
 
-        // adminRadioButton = createAdminCheckbox();
-        // add(adminRadioButton);
 
         end();
 
@@ -213,7 +211,7 @@ public class CreateUserWidget extends Form
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
         checkboxConfig.setFieldLabel("Admin");
         checkboxConfig.setName("role");
-        checkboxConfig.setChecked(true);
+        checkboxConfig.setChecked(false);
         checkboxConfig.setTabIndex(5);
         return new Radio(checkboxConfig);
     }
@@ -235,6 +233,7 @@ public class CreateUserWidget extends Form
         // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
         checkboxConfig.setFieldLabel("Temporary");
         checkboxConfig.setName("role");
+        checkboxConfig.setChecked(false);
         checkboxConfig.setTabIndex(7);
         return new Radio(checkboxConfig);
     }
