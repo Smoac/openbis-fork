@@ -368,7 +368,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             builder.append("\n\nThe user is only temporary, the login expires in a few days. "
                     + "You can see the expiration date when you login.");
         }
-        IMailClient mailClient = domainModel.getMailClient();
+        final IMailClient mailClient = domainModel.getMailClient();
         mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
             { user.getEmail() });
     }
