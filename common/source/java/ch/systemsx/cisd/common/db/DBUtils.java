@@ -21,21 +21,21 @@ import java.util.Date;
 
 /**
  * Useful utility method concerning database code.
- *
+ * 
  * @author Basil Neff
  */
-public class DBUtils
+public final class DBUtils
 {
     /**
      * Translates the specified timestamp to a {@link Date} object.
      * 
      * @return <code>null</code> if <code>timestamp == null</code>.
      */
-    public static Date tryToTranslateTimestampToDate(Timestamp timestampOrNull)
+    public final static Date tryToTranslateTimestampToDate(final Timestamp timestampOrNull)
     {
         return timestampOrNull == null ? null : new Date(timestampOrNull.getTime());
     }
-    
+
     private DBUtils()
     {
     }
