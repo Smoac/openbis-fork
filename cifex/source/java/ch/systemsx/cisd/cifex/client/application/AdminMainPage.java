@@ -110,7 +110,8 @@ class AdminMainPage extends AbstractMainPage
                                         "You cannot delete yourself.");
                                 return;
                             }
-                            MessageBox.confirm(messageResources.getMessageBoxInfoTitle(), messageResources.getDeleteUserConfirmText(user.getEmail()), new MessageBox.ConfirmCallback()
+                            MessageBox.confirm(messageResources.getMessageBoxInfoTitle(), messageResources
+                                    .getDeleteUserConfirmText(user.getEmail()), new MessageBox.ConfirmCallback()
                                 {
                                     public void execute(String btnID)
                                     {
@@ -179,6 +180,7 @@ class AdminMainPage extends AbstractMainPage
         {
             final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
             final ModelBasedGrid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
+            fileGrid.addGridCellListener(new FileGridCellListener());
             fileGrid.addGridCellListener(new GridCellListenerAdapter()
                 {
 
