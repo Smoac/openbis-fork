@@ -240,7 +240,6 @@ final class FileManager extends AbstractManager implements IFileManager
                         }
                     });
         IFileDAO fileDAO = daoFactory.getFileDAO();
-        PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         for (String email : emailsOfUsers)
         {
@@ -248,29 +247,41 @@ final class FileManager extends AbstractManager implements IFileManager
             String password = null;
             if (user == null)
             {
-                if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
-                {
-                    user = new UserDTO();
-                    user.setEmail(email);
-                    password = passwordGenerator.generatePassword(10);
-                    user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
-                    user.setRegistrator(requestUser);
-                    IUserBO userBO = boFactory.createUserBO();
-                    userBO.define(user);
-                    userBO.save();
-                    existingUsers.add(user);
-                } else
-                {
-                    invalidEmailAdresses.add(email);
-                }
+                user = tryToCreateUser(requestUser, existingUsers, email, invalidEmailAdresses);
             }
-            for (FileDTO file : files)
+            if (user != null)
             {
-                fileDAO.createSharingLink(file.getID(), user.getID());
+                for (FileDTO file : files)
+                {
+                    fileDAO.createSharingLink(file.getID(), user.getID());
+                }
+                sendEmail(url, files, email, password);
             }
-            sendEmail(url, files, email, password);
         }
         return invalidEmailAdresses;
+    }
+    
+    private UserDTO tryToCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
+            List<String> invalidEmailAdresses)
+    {
+        UserDTO user = null;
+        if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
+        {
+            user = new UserDTO();
+            user.setEmail(email);
+            PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+            String password = passwordGenerator.generatePassword(10);
+            user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+            user.setRegistrator(requestUser);
+            IUserBO userBO = boFactory.createUserBO();
+            userBO.define(user);
+            userBO.save();
+            existingUsers.add(user);
+        } else
+        {
+            invalidEmailAdresses.add(email);
+        }
+        return user;
     }
 
     private void sendEmail(String url, Collection<FileDTO> files, String email, String password)
