@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import javax.servlet.http.HttpServletRequest;
@@ -148,6 +149,35 @@ public class CIFEXServiceImplTest
     }
 
     @Test
+    public void testInitialLoginWithoutExternalService() throws UserFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        String password = "pswd";
+        userDTO.setUserName(null);
+        userDTO.setEmail("user@users.org");
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPermanent(true);
+        userDTO.setAdmin(true);
+        prepareForDBEmptyCheck(true);
+        context.checking(new Expectations()
+        {
+            {
+                one(userManager).createUser(userDTO);
+            }
+        });
+        prepareForGettingUserFromHTTPSession(userDTO, true);
+
+        CIFEXServiceImpl service = createService(new NullAuthenticationService());
+        service.setSessionExpirationPeriodInMinutes(1);
+        User user = service.tryToLogin(userDTO.getEmail(), password, false);
+        assertEquals(userDTO.getEmail(), user.getEmail());
+        assertNull(user.getUserName());
+        assertTrue(user.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testLoginWithoutExternalService() throws UserFailureException
     {
         final UserDTO userDTO = new UserDTO();
@@ -238,6 +268,7 @@ public class CIFEXServiceImplTest
     @Test
     public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed()
     {
+        prepareForDBEmptyCheck();
         context.checking(new Expectations()
             {
                 {
@@ -265,6 +296,7 @@ public class CIFEXServiceImplTest
     {
         final String userName = "u";
         final String password = "p";
+        prepareForDBEmptyCheck();
         prepareForExternalAuthentication(userName, password, null);
 
         ICIFEXService service = createService(authenticationService);
@@ -319,6 +351,7 @@ public class CIFEXServiceImplTest
     {
         final String userName = "u";
         final String password = "p";
+        prepareForDBEmptyCheck();
         context.checking(new Expectations()
             {
                 {
@@ -329,9 +362,6 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
                     will(returnValue(false));
                     
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(userManager).tryToFindUser(userName);
                     will(returnValue(null));
                 }
@@ -461,14 +491,36 @@ public class CIFEXServiceImplTest
             });
     }
 
+    private void prepareForDBEmptyCheck()
+    {
+        prepareForDBEmptyCheck(false);
+    }
+    
+    private void prepareForDBEmptyCheck(final boolean dbEmpty)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                allowing(domainModel).getUserManager();
+                will(returnValue(userManager));
+
+                one(userManager).isDatabaseEmpty();
+                will(returnValue(dbEmpty));
+            }
+        });
+    }
+    
     private void prepareForFindUser(final String email, final UserDTO userDTO)
     {
+        prepareForFindUser(email, userDTO, false);
+    }
+    
+    private void prepareForFindUser(final String email, final UserDTO userDTO, final boolean dbEmpty)
+    {
+        prepareForDBEmptyCheck(dbEmpty);
         context.checking(new Expectations()
             {
                 {
-                    allowing(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(userManager).tryToFindUser(email);
                     will(returnValue(userDTO));
                 }

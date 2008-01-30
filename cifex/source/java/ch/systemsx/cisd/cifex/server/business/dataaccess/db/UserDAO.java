@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -81,6 +82,12 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     private long createID()
     {
         return getNextValueOf("USER_ID_SEQ");
+    }
+
+    public int getNumberOfUsers() throws DataAccessException
+    {
+        final JdbcTemplate template = getJdbcTemplate();
+        return template.queryForInt("select count(*) from users");
     }
 
     public List<UserDTO> listUsers() throws DataAccessException
@@ -145,4 +152,5 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 template.query("select * from users where expiration_timestamp < now() ", new UserRowMapper());
         return list;
     }
+
 }

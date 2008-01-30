@@ -27,6 +27,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
  */
 public interface IUserManager
 {
+
+    /**
+     * Returns <code>true</code>, if there are not yet any users in the database.
+     */
+    public boolean isDatabaseEmpty();
+    
     /**
      * Tries to find the user with the specified e-mail address.
      * 

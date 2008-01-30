@@ -50,7 +50,12 @@ public interface IUserDAO
     public void createUser(UserDTO user) throws DataAccessException;
 
     /**
-     * @returns The list of all users currently present in the database.
+     * @return The number of users in the database. 
+     */
+    public int getNumberOfUsers() throws DataAccessException;
+    
+    /**
+     * @return The list of all users currently present in the database.
      */
     public List<UserDTO> listUsers() throws DataAccessException;
 

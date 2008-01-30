@@ -167,10 +167,20 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throws UserFailureException
     {
         authenticationLog.info("Try to login user '" + userOrEmail + "'.");
+        final IUserManager userManager = domainModel.getUserManager();
+        if (userManager.isDatabaseEmpty())
+        {
+            final UserDTO userDTO = new UserDTO();
+            userDTO.setEmail(userOrEmail);
+            userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+            userDTO.setAdmin(true);
+            userDTO.setPermanent(true);
+            userManager.createUser(userDTO);
+            return finishLogin(userDTO, true);
+        }
         UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userOrEmail, password, requestAdmin);
         if (userDTOOrNull == null)
         {
-            final IUserManager userManager = domainModel.getUserManager();
             final String encryptedPassword = StringUtilities.computeMD5Hash(password);
             userDTOOrNull = userManager.tryToFindUser(userOrEmail);
             if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())

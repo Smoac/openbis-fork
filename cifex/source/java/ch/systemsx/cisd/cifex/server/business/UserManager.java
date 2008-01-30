@@ -44,6 +44,12 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
+    public boolean isDatabaseEmpty()
+    {
+        return daoFactory.getUserDAO().getNumberOfUsers() == 0;
+    }
+    
+    @Transactional
     public final UserDTO tryToFindUser(final String email)
     {
         assert email != null : "Email Adress is null!";
@@ -65,6 +71,7 @@ class UserManager extends AbstractManager implements IUserManager
         return daoFactory.getUserDAO().listUsers();
     }
 
+    @Transactional
     public void deleteExpiredUsers()
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
@@ -90,6 +97,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    @Transactional
     public void tryToDeleteUser(UserDTO user)
     {
         assert user != null : "User is null";
