@@ -153,7 +153,8 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         final List<UserDTO> sharingUsers = file.getSharingUsers();
         // Administrator can download the file not shared with him.
-        if (containsUser(userDTO, sharingUsers) == false && userDTO.isAdmin() == false)
+        if (userDTO.getID().equals(file.getRegistererId()) == false && containsUser(userDTO, sharingUsers) == false
+                && userDTO.isAdmin() == false)
         {
             throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", userDTO
                     .getUserName(), file.getPath());
