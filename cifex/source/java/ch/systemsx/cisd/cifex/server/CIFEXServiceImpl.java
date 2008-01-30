@@ -324,7 +324,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private void sendPasswordToNewUser(User user, String password)
     {
         StringBuilder builder = new StringBuilder();
-        String url = requestContextProvider.getHttpServletRequest().getRequestURL().toString();
+        String url = HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest());
         String role = "temporary";
         if (user.isAdmin())
         {
@@ -334,18 +334,16 @@ public final class CIFEXServiceImpl implements ICIFEXService
             role = "permanent";
         }
 
-        builder
-                .append("There is a "
-                        + role
-                        + " user created for you on the Cifex Server. You can reach the service with the following login information: ");
-        builder.append("\nURL:\t").append(url).append("/index.html");
-        builder.append("\nLogin:\t").append(user.getEmail());
+        builder.append("There is a " + role + " user created for you on the Cifex Server. "
+                + "You can reach the service with the following login information: ");
+        builder.append("\nURL:\t\t").append(url);
+        builder.append("\nLogin:\t\t").append(user.getEmail());
         builder.append("\nPassword:\t").append(password);
 
         if (user.isPermanent() == false)
         {
-            builder
-                    .append("\n\nThe user is only temporary, the login expires in a few days. You can see the expiration date when you login.");
+            builder.append("\n\nThe user is only temporary, the login expires in a few days. "
+                    + "You can see the expiration date when you login.");
         }
         IMailClient mailClient = domainModel.getMailClient();
         mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
