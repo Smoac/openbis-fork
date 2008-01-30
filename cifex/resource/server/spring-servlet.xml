@@ -11,10 +11,13 @@
         <property name="mappings">
             <props>
                 <prop key="cifex">cifex-service-servlet</prop>
+                <prop key="*load">url-servlet-forwarding-controller</prop>
             </props>
         </property>
     </bean>
 
     <bean id="cifex-service-servlet" class="ch.systemsx.cisd.cifex.server.CIFEXServiceServlet" />
+
+    <bean id="url-servlet-forwarding-controller" class="ch.systemsx.cisd.cifex.server.UrlServletForwardingController" />
 
 </beans>
