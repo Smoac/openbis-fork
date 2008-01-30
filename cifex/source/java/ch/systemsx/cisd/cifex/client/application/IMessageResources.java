@@ -99,6 +99,13 @@ public interface IMessageResources extends Messages
     public String getLogoutLinkTooltip();
 
     /**
+     * Returns the label for creating new User
+     * 
+     * @gwt.key usercreation.label
+     */
+    public String getCreateUserLabel();
+
+    /**
      * Returns message that creating a new user was successfull.
      * 
      * @gwt.key usercreation.success.message
@@ -265,7 +272,6 @@ public interface IMessageResources extends Messages
      * @gwt.key cisd.logo.title
      */
     public String getCISDLogoTitle();
-    
 
     /**
      * Returns the action label.
@@ -280,4 +286,89 @@ public interface IMessageResources extends Messages
      * @gwt.key action.delete.label
      */
     public String getActionDeleteLabel();
+
+    /**
+     * Returns the User List part title.
+     * 
+     * @gwt.key userlist.part.title
+     */
+    public String getUsersPartTitle();
+
+    /**
+     * Returns the label of the user email column.
+     * 
+     * @gwt.key userlist.email.label
+     */
+    public String getUserEmailLabel();
+
+    /**
+     * Returns the label of the user Full Name column.
+     * 
+     * @gwt.key userlist.name.label
+     */
+    public String getUserNameLabel();
+
+    /**
+     * Returns the label of the user Full Name column.
+     * 
+     * @gwt.key userlist.status.label
+     */
+    public String getStatusLabel();
+
+    /**
+     * Returns label for the Password field.
+     * 
+     * @gwt.key usercreation.password.label
+     */
+    public String getPasswordLabel();
+
+    /**
+     * Returns label for the validate Password field.
+     * 
+     * @gwt.key usercreation.password.validate.label
+     */
+    public String getValidatePasswordLabel();
+
+    /**
+     * Returns the content the confirm MessageBox, to delete a user.
+     * 
+     * @gwt.key action.user.delete.confirm
+     */
+    public String getDeleteUserConfirmText(String email);
+
+    /**
+     * Returns the label the User Create Button
+     * 
+     * @gwt.key usercreation.button.label
+     */
+    public String getUserCreateButton();
+
+    /**
+     * Returns the Message for thhe alert Box, if the 2 Password did not match.
+     * 
+     * @gwt.key usercreation.password.missmatch.message
+     */
+    public String getPasswordMissmatchMessage();
+
+    /**
+     * Returns the role name for an administrator.
+     * 
+     * @gwt.key usercreation.role.admin
+     */
+    public String getAdminRoleName();
+
+    /**
+     * Returns the role name for an permanent user.
+     * 
+     * @gwt.key usercreation.role.permanent
+     */
+    public String getPermanentRoleName();
+
+    /**
+     * Returns the role name for an permanent user.
+     * 
+     * @gwt.key usercreation.role.temporary
+     */
+    public String getTemporaryRoleName();
+
 }

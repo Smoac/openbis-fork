@@ -46,6 +46,8 @@ public class CreateUserWidget extends Form
 
     private final ViewContext context;
 
+    private final IMessageResources messageResources;
+
     private static final int FIELD_WIDTH = 175;
 
     private static final int COLUMN_WIDTH = 300;
@@ -65,13 +67,14 @@ public class CreateUserWidget extends Form
     private Radio temporaryRadioButton;
 
     private Button submitButton;
-    
+
     private final boolean allowPermanentUsers;
 
     public CreateUserWidget(final ViewContext context, final boolean allowPermanentUsers)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
         this.context = context;
+        this.messageResources = context.getMessageResources();
         this.allowPermanentUsers = allowPermanentUsers;
         createCreateUserForm();
     }
@@ -87,7 +90,6 @@ public class CreateUserWidget extends Form
 
         passwordField = createPasswordField();
         add(passwordField);
-
 
         end();
 
@@ -110,18 +112,16 @@ public class CreateUserWidget extends Form
         {
             adminRadioButton = createAdminRadioButton();
             add(adminRadioButton);
-    
+
             permanentRadioButton = createPermanentRadioButton();
             add(permanentRadioButton);
-    
+
             temporaryRadioButton = createTemporaryRadioButton();
             add(temporaryRadioButton);
         }
         end();
-        // add(createRadioButtonPanel());
 
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        submitButton = addButton("Create");
+        submitButton = addButton(messageResources.getUserCreateButton());
         submitButton.addButtonListener(new ButtonListenerAdapter()
             {
 
@@ -150,11 +150,10 @@ public class CreateUserWidget extends Form
     private final TextField createEmailField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Email");
+        fieldConfig.setFieldLabel(messageResources.getUserEmailLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setVtype(VType.EMAIL);
-        fieldConfig.setName("Email");
+        fieldConfig.setName(messageResources.getUserEmailLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(1);
@@ -164,10 +163,9 @@ public class CreateUserWidget extends Form
     private final TextField createUsernameField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Full Name");
+        fieldConfig.setFieldLabel(messageResources.getUserNameLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName("Full Name");
+        fieldConfig.setName(messageResources.getUserNameLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(2);
@@ -177,10 +175,9 @@ public class CreateUserWidget extends Form
     private final TextField createPasswordField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Password");
+        fieldConfig.setFieldLabel(messageResources.getPasswordLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName("Password");
+        fieldConfig.setName(messageResources.getPasswordLabel());
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
@@ -192,10 +189,9 @@ public class CreateUserWidget extends Form
     private final TextField createValidatePasswordField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        fieldConfig.setFieldLabel("Repeat Password");
+        fieldConfig.setFieldLabel(messageResources.getValidatePasswordLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName("Repeat Password");
+        fieldConfig.setName(messageResources.getValidatePasswordLabel());
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
@@ -208,8 +204,7 @@ public class CreateUserWidget extends Form
     {
 
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        checkboxConfig.setFieldLabel("Admin");
+        checkboxConfig.setFieldLabel(messageResources.getAdminRoleName());
         checkboxConfig.setName("role");
         checkboxConfig.setChecked(false);
         checkboxConfig.setTabIndex(5);
@@ -219,8 +214,7 @@ public class CreateUserWidget extends Form
     private final Radio createPermanentRadioButton()
     {
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        checkboxConfig.setFieldLabel("Permanent");
+        checkboxConfig.setFieldLabel(messageResources.getPermanentRoleName());
         checkboxConfig.setName("role");
         checkboxConfig.setChecked(true);
         checkboxConfig.setTabIndex(6);
@@ -230,8 +224,7 @@ public class CreateUserWidget extends Form
     private final Radio createTemporaryRadioButton()
     {
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-        checkboxConfig.setFieldLabel("Temporary");
+        checkboxConfig.setFieldLabel(messageResources.getTemporaryRoleName());
         checkboxConfig.setName("role");
         checkboxConfig.setChecked(false);
         checkboxConfig.setTabIndex(7);
@@ -244,8 +237,7 @@ public class CreateUserWidget extends Form
         // Check if passwords are equal.
         if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
         {
-            // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
-            MessageBox.alert("Password did not match", "The 2 Password fields did not match!");
+            MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
             submitButton.enable();
             return;
         }
@@ -271,7 +263,8 @@ public class CreateUserWidget extends Form
                     user.setAdmin(false);
                     user.setPermanent(false);
                 }
-            } else {
+            } else
+            {
                 user.setAdmin(false);
                 user.setPermanent(false);
             }
@@ -280,7 +273,8 @@ public class CreateUserWidget extends Form
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.tryToCreateUser(user, password, new CreateUserAsyncCallBack());
-        } else {
+        } else
+        {
             submitButton.enable();
         }
     }
@@ -309,7 +303,6 @@ public class CreateUserWidget extends Form
 
         public final void onSuccess(final Object result)
         {
-            IMessageResources messageResources = context.getMessageResources();
             String title = messageResources.getMessageBoxWarningTitle();
             MessageBox.alert(title, messageResources.getUserCreationSuccessMessage(emailField.getText()));
             context.getPageController().createMainPage();

@@ -40,6 +40,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 abstract class AbstractMainPage extends BorderLayout
 {
     
+    protected IMessageResources messageResources;
+    
     protected VerticalPanel createUserPanel;
     
     private final static LayoutRegionConfig createCenterRegion()
@@ -73,6 +75,7 @@ abstract class AbstractMainPage extends BorderLayout
     {
         super("100%", "100%", createNorthRegion(), null, null, null, createCenterRegion());
         this.context = context;
+        this.messageResources = context.getMessageResources();
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
         add(LayoutRegionConfig.CENTER, createMainPanel());
     }
@@ -118,7 +121,6 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final ToolbarButton createLogoutButton()
     {
-        final IMessageResources messageResources = context.getMessageResources();
         final ToolbarButton logoutButton = new ToolbarButton(messageResources.getLogoutLinkLabel(), new ButtonConfig()
             {
                 {
@@ -153,7 +155,7 @@ abstract class AbstractMainPage extends BorderLayout
     protected final void createUserPanel(final boolean allowPermanentUsers)
     {
         createUserPanel = createVerticalPanelPart();
-        createUserPanel.add(createPartTitle("Create User"));
+        createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
         createUserPanel.add(createCreateUserWidget(allowPermanentUsers));
     }
 

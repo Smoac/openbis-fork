@@ -36,7 +36,7 @@ public class UserGridModel extends AbstractDataGridModel
 
     private final String EMAIL = "Email";
 
-    private final String FULL_NAME = "Full Name";
+    private final String FULL_NAME = "FullName";
 
     private final String STATUS = "Status";
 
@@ -54,11 +54,10 @@ public class UserGridModel extends AbstractDataGridModel
     {
         final List configs = new ArrayList();
 
-        // TODO 2008-1-28 Basil Neff: Get Field from MessageResource (2nd Parameter)
-        configs.add(createSortableColumnConfig(EMAIL, EMAIL, 180));
-        configs.add(createSortableColumnConfig(FULL_NAME, FULL_NAME, 120));
-        configs.add(createSortableColumnConfig(STATUS, STATUS, 250));
-        ColumnConfig actionColumn = createSortableColumnConfig(MODIFY_USER, MODIFY_USER, 120);
+        configs.add(createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180));
+        configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
+        configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
+        ColumnConfig actionColumn = createSortableColumnConfig(MODIFY_USER, messageResources.getActionLabel(), 120);
         actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
         configs.add(actionColumn);
         return configs;
@@ -74,15 +73,14 @@ public class UserGridModel extends AbstractDataGridModel
             String stateField = "";
             if (user.isAdmin())
             {
-                stateField = "Administrator, ";
+                stateField = messageResources.getAdminRoleName();
             }
-
-            if (user.isPermanent())
+            else if (user.isPermanent())
             {
-                stateField += "permanent";
+                stateField += messageResources.getPermanentRoleName() +" User";
             } else
             {
-                stateField += "expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
+                stateField += messageResources.getTemporaryRoleName()+" User expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
             }
             final Object[] objects = new Object[]
                 { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, "delete" };
