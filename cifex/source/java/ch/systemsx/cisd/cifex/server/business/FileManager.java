@@ -254,6 +254,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 for (FileDTO file : files)
                 {
                     fileDAO.createSharingLink(file.getID(), user.getID());
+                    continue;
                 }
                 sendEmail(url, files, email, password);
             }
