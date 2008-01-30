@@ -253,6 +253,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     user.setEmail(email);
                     password = passwordGenerator.generatePassword(10);
                     user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+                    user.setRegistrator(requestUser);
                     IUserBO userBO = boFactory.createUserBO();
                     userBO.define(user);
                     userBO.save();

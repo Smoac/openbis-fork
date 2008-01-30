@@ -309,11 +309,18 @@ public interface IMessageResources extends Messages
     public String getUserNameLabel();
 
     /**
-     * Returns the label of the user Full Name column.
+     * Returns the label of the user Status column.
      * 
      * @gwt.key userlist.status.label
      */
     public String getStatusLabel();
+
+    /**
+     * Returns the label of the user Registrator column.
+     * 
+     * @gwt.key userlist.registrator.label
+     */
+    public String getRegistratorLabel();
 
     /**
      * Returns label for the Password field.

@@ -40,6 +40,8 @@ public class UserGridModel extends AbstractDataGridModel
 
     private final String STATUS = "Status";
 
+    private final String REGISTRATOR = "Registrator";
+
     private final String MODIFY_USER = "Action";
 
     /**
@@ -57,6 +59,7 @@ public class UserGridModel extends AbstractDataGridModel
         configs.add(createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180));
         configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
+        configs.add(createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180));
         ColumnConfig actionColumn = createSortableColumnConfig(MODIFY_USER, messageResources.getActionLabel(), 120);
         actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
         configs.add(actionColumn);
@@ -83,7 +86,8 @@ public class UserGridModel extends AbstractDataGridModel
                 stateField += messageResources.getTemporaryRoleName()+" User expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
             }
             final Object[] objects = new Object[]
-                { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, "delete" };
+                { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, 
+                    UserLinkRenderer.createMailAnchor(user.getRegistrator().getEmail()), "delete" };
             list.add(objects);
         }
         return list;
@@ -95,6 +99,7 @@ public class UserGridModel extends AbstractDataGridModel
         fieldDefs.add(new StringFieldDef(EMAIL));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
+        fieldDefs.add(new StringFieldDef(REGISTRATOR));
         fieldDefs.add(new StringFieldDef(MODIFY_USER));
         return fieldDefs;
     }

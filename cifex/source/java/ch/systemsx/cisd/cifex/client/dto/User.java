@@ -60,6 +60,8 @@ public final class User implements IsSerializable
     private boolean permanent;
 
     private Date expirationDate;
+    
+    private User registrator;
 
     public final boolean isAdmin()
     {
@@ -109,6 +111,16 @@ public final class User implements IsSerializable
     public final void setExpirationDate(final Date expirationDate)
     {
         this.expirationDate = expirationDate;
+    }
+
+    public final User getRegistrator()
+    {
+        return registrator;
+    }
+
+    public final void setRegistrator(User registrator)
+    {
+        this.registrator = registrator;
     }
 
 }

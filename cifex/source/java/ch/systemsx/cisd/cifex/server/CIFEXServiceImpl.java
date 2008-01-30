@@ -247,13 +247,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return userList;
     }
 
-    public void tryToCreateUser(User user, String password) throws EnvironmentFailureException
+    public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException
     {
         final IUserManager userManager = domainModel.getUserManager();
 
-        UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
+        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         final String finalPassword = getFinalPassword(password);
         userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
+        final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registratorOrNull);
+        userDTO.setRegistrator(registratorDTO);
         userManager.createUser(userDTO);
 
         try

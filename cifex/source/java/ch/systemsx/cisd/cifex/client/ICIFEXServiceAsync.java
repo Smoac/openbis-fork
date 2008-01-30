@@ -54,9 +54,11 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listUsers(final AsyncCallback callback);
 
     /**
-     * Creates a new <code>User</code> with the given parameter.
+     * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
+     * <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void tryToCreateUser(final User user, final String password, final AsyncCallback callback);
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+            final AsyncCallback callback);
 
     /**
      * List the files that the currently logged user has access on.

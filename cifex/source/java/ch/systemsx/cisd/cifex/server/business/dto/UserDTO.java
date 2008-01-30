@@ -30,6 +30,8 @@ public class UserDTO extends ID
     private String email;
 
     private String encryptedPassword;
+    
+    private UserDTO registrator;
 
     /**
      * Whether this user is an administrator or not.
@@ -131,6 +133,16 @@ public class UserDTO extends ID
     public final void setRegistrationDate(final Date registrationDate)
     {
         this.registrationDate = registrationDate;
+    }
+
+    public final UserDTO getRegistrator()
+    {
+        return registrator;
+    }
+
+    public final void setRegistrator(UserDTO registrator)
+    {
+        this.registrator = registrator;
     }
 
 }

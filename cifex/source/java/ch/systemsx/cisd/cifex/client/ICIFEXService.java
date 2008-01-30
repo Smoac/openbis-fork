@@ -62,9 +62,11 @@ public interface ICIFEXService extends RemoteService
     public List listUsers();
 
     /**
-     * Create a new Cifex <code>User</code> with the given parameters.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
+     * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void tryToCreateUser(final User user, final String password) throws EnvironmentFailureException;
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
+            throws EnvironmentFailureException;
 
     /**
      * List the files that the currently logged user has access on.

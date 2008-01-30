@@ -18,7 +18,9 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -60,6 +62,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final public static UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {
             final UserDTO user = new UserDTO();
+            final UserDTO registrator = new UserDTO();
             user.setID(rs.getLong("id"));
             user.setEmail(rs.getString("email"));
             user.setUserName(rs.getString("user_name"));
@@ -69,6 +72,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setPermanent(rs.getBoolean("is_permanent"));
             user.setRegistrationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("registration_timestamp")));
             user.setExpirationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("expiration_timestamp")));
+            registrator.setID(rs.getLong("user_id_registrator"));
+            user.setRegistrator(registrator);
             return user;
         }
 
@@ -94,23 +99,65 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list = template.query("select * from users", new UserRowMapper());
+        fillInRegistrators(list);
         return list;
     }
 
+    private void fillInRegistrators(List<UserDTO> users)
+    {
+        final Map<Long, UserDTO> idToUserMap = new HashMap<Long, UserDTO>();
+        for (UserDTO user : users)
+        {
+            idToUserMap.put(user.getID(), user);
+        }
+        for (UserDTO user : users)
+        {
+            final UserDTO registratorDTO = idToUserMap.get(user.getRegistrator().getID());
+            if (registratorDTO != null)
+            {
+                user.setRegistrator(registratorDTO);
+            }
+        }
+    }
+    
     public void createUser(final UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
 
         final Long id = createID();
 
+        final Long registratorIdOrNull = tryGetRegistratorId(user);
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template.update(
                 "insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin,"
-                        + "is_permanent, expiration_timestamp) values (?,?,?,?,?,?,?,?)", id, user.getEmail(), user
-                        .getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(), user.isAdmin(),
-                user.isPermanent(), user.getExpirationDate());
+                        + "is_permanent, user_id_registrator, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", id, user
+                        .getEmail(), user.getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
+                user.isAdmin(), user.isPermanent(), registratorIdOrNull, user.getExpirationDate());
 
         user.setID(id);
+    }
+
+    private Long tryGetRegistratorId(UserDTO user)
+    {
+        assert user != null;
+
+        UserDTO registrator = user.getRegistrator();
+        if (registrator == null)
+        {
+            return null;
+        } else
+        {
+            Long registratorId = registrator.getID();
+            if (registratorId == null)
+            {
+                registrator = tryFindUserByEmail(registrator.getEmail());
+                if (registrator != null)
+                {
+                    registratorId = registrator.getID();
+                }
+            }
+            return registratorId;
+        }
     }
 
     public UserDTO tryFindUserByEmail(final String email) throws DataAccessException

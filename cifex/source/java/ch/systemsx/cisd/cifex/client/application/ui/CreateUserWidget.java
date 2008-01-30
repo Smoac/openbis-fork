@@ -272,7 +272,7 @@ public class CreateUserWidget extends Form
             String password = passwordField.getText();
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToCreateUser(user, password, new CreateUserAsyncCallBack());
+            cifexService.tryToCreateUser(user, password, context.getModel().getUser(), new CreateUserAsyncCallBack());
         } else
         {
             submitButton.enable();
