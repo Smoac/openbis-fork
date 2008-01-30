@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
@@ -219,15 +221,35 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return userList;
     }
 
-    public void tryToCreateUser(User user, String password)
+    public void tryToCreateUser(User user, String password) throws EnvironmentFailureException
     {
         final IUserManager userManager = domainModel.getUserManager();
 
         UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        final String finalPassword = getFinalPassword(password);
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
         userManager.createUser(userDTO);
 
-        sendPasswordToNewUser(user, password);
+        try
+        {
+            sendPasswordToNewUser(user, finalPassword);
+        } catch (Exception ex)
+        {
+            throw new EnvironmentFailureException("Sending email to email '" + user.getEmail() + "' failed: "
+                    + ex.getMessage());
+        }
+    }
+
+    private String getFinalPassword(String password)
+    {
+        if (StringUtils.isBlank(password))
+        {
+            PasswordGenerator passwordGenerator = domainModel.getPasswordGenerator();
+            return passwordGenerator.generatePassword(10);
+        } else
+        {
+            return password;
+        }
     }
 
     public final void logout()

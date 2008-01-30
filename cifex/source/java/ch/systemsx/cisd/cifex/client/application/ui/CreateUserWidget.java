@@ -33,6 +33,7 @@ import com.gwtext.client.widgets.form.VType;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -183,7 +184,7 @@ public class CreateUserWidget extends Form
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setName("Password");
         fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(false);
+        fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(3);
         fieldConfig.setMinLength(4);
@@ -198,7 +199,7 @@ public class CreateUserWidget extends Form
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setName("Repeat Password");
         fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(false);
+        fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(4);
         fieldConfig.setMinLength(4);
@@ -241,7 +242,7 @@ public class CreateUserWidget extends Form
     private void submitForm()
     {
         submitButton.disable();
-        // Validate Password if they are equal
+        // Check if passwords are equal.
         if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
         {
             // TODO 2008-1-28 Basil Neff: Get Field from MessageResource
@@ -280,6 +281,8 @@ public class CreateUserWidget extends Form
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.tryToCreateUser(user, password, new CreateUserAsyncCallBack());
+        } else {
+            submitButton.enable();
         }
     }
 
@@ -307,6 +310,9 @@ public class CreateUserWidget extends Form
 
         public final void onSuccess(final Object result)
         {
+            IMessageResources messageResources = context.getMessageResources();
+            String title = messageResources.getMessageBoxWarningTitle();
+            MessageBox.alert(title, messageResources.getUserCreationSuccessMessage(emailField.getText()));
             context.getPageController().createMainPage();
         }
     }

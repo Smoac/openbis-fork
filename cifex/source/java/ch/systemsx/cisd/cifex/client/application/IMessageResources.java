@@ -99,6 +99,13 @@ public interface IMessageResources extends Messages
     public String getLogoutLinkTooltip();
 
     /**
+     * Returns message that creating a new user was successfull.
+     * 
+     * @gwt.key usercreation.success.message
+     */
+    public String getUserCreationSuccessMessage(String user);
+
+    /**
      * Returns the title for error message box.
      * 
      * @gwt.key messagebox.error.title
@@ -111,6 +118,13 @@ public interface IMessageResources extends Messages
      * @gwt.key messagebox.warning.title
      */
     public String getMessageBoxWarningTitle();
+
+    /**
+     * Returns the title for info message box.
+     * 
+     * @gwt.key messagebox.info.title
+     */
+    public String getMessageBoxInfoTitle();
 
     /**
      * Returns the title of the file upload field set.
@@ -157,9 +171,16 @@ public interface IMessageResources extends Messages
     /**
      * Returns the help text for uploading files.
      * 
-     * @gwt.key uploadfiles.help
+     * @gwt.key uploadfiles.help.permanent
      */
-    public String getUploadFilesHelp();
+    public String getUploadFilesHelpPermanentUser();
+
+    /**
+     * Returns the help text for uploading files.
+     * 
+     * @gwt.key uploadfiles.help.temporary
+     */
+    public String getUploadFilesHelpTemporaryUser();
 
     /**
      * Returns the download file part title.

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * @author Franz-Josef Elmer
@@ -38,5 +39,10 @@ public interface IDomainModel
      * Returns the one and only instance of {@link IMailClient}.
      */
     public IMailClient getMailClient();
+    
+    /**
+     * Returns the {@link PasswordGenerator}.
+     */
+    public PasswordGenerator getPasswordGenerator();
 
 }

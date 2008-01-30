@@ -44,7 +44,9 @@ final class MainPage extends AbstractMainPage
 
     private final HTML createExplanationPanel()
     {
-        return new HTML(context.getMessageResources().getUploadFilesHelp());
+        final boolean isPermanent = context.getModel().getUser().isPermanent();
+        return new HTML(isPermanent ? context.getMessageResources().getUploadFilesHelpPermanentUser() : context
+                .getMessageResources().getUploadFilesHelpTemporaryUser());
     }
 
     //
@@ -66,12 +68,15 @@ final class MainPage extends AbstractMainPage
             fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
         }
         final User user = context.getModel().getUser();
-        if (fileId == null && user.isPermanent())
+        if (fileId == null)
         {
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
             verticalPanel.add(new FileUploadWidget(context));
-            verticalPanel.add(createUserPanel);
+            if (user.isPermanent())
+            {
+                verticalPanel.add(createUserPanel);
+            }
         }
         verticalPanel.add(createPartTitle(context.getMessageResources().getDownloadFilesPartTitle()));
         context.getCifexService().listDownloadFiles(new FileAsyncCallback(context, verticalPanel, fileId));

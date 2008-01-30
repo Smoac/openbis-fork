@@ -198,4 +198,13 @@ public final class DomainModel implements IDomainModel
     {
         return businessContext.getMailClient();
     }
+    
+    /**
+     * Returns the {@link PasswordGenerator}.
+     */
+    public final PasswordGenerator getPasswordGenerator()
+    {
+        return businessContext.getPasswordGenerator();
+    }
+
 }

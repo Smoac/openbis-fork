@@ -98,19 +98,28 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         {
             List<FileDTO> files = new ArrayList<FileDTO>();
             List<String> users = new ArrayList<String>();
-            extractEmailsAndUploadFiles(request, files, users);
+            final UserDTO requestUser = extractEmailsAndUploadFiles(request, files, users);
             StringBuffer requestURL = request.getRequestURL();
             String pathInfo = request.getPathInfo();
             if (pathInfo != null)
             {
                 requestURL.delete(requestURL.length() - pathInfo.length(), requestURL.length());
             }
-            domainModel.getFileManager().shareFilesWith(requestURL.toString(), users, files);
+            final List<String> invalidEmailAddresses = domainModel.getFileManager().shareFilesWith(requestURL.toString(), requestUser, users, files);
             
             operationLog.info("Uploading finished.");
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
-            writer.write("Upload finished.");
+            writer.write("Upload finished.\n");
+            if (invalidEmailAddresses.isEmpty() == false)
+            {
+                writer.write("Invalid email addresses found: ");
+                for (String email : invalidEmailAddresses)
+                {
+                    writer.write(email);
+                    writer.write(' ');
+                }
+            }
             writer.flush();
         } catch (final Exception ex)
         {
@@ -119,7 +128,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
-    private void extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
+    private UserDTO extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
             throws FileUploadException, IOException
     {
         final UserDTO user = getUserDTO(request);
@@ -153,6 +162,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 }
             }
         }
+        return user;
     }
     
     private String extractFileName(FileItemStream item)

@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -167,7 +168,7 @@ final class FileManager extends AbstractManager implements IFileManager
         assert StringUtils.isNotBlank(fileName) : "Unspecified file name.";
         assert StringUtils.isNotBlank(contentType) : "Unspecified content type.";
         assert input != null : "Unspecified input stream.";
-        
+
         final File folder = createFolderFor(user);
         final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
         OutputStream outputStream = null;
@@ -216,9 +217,10 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         return folder;
     }
-    
+
     @Transactional
-    public void shareFilesWith(String url, Collection<String> emailsOfUsers, Collection<FileDTO> files)
+    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
+            Collection<FileDTO> files)
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
         TableMap<String, UserDTO> existingUsers =
@@ -231,20 +233,27 @@ final class FileManager extends AbstractManager implements IFileManager
                     });
         IFileDAO fileDAO = daoFactory.getFileDAO();
         PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+        final List<String> invalidEmailAdresses = new ArrayList<String>();
         for (String email : emailsOfUsers)
         {
             UserDTO user = existingUsers.tryToGet(email);
             String password = null;
             if (user == null)
             {
-                user = new UserDTO();
-                user.setEmail(email);
-                password = passwordGenerator.generatePassword(10);
-                user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
-                IUserBO userBO = boFactory.createUserBO();
-                userBO.define(user);
-                userBO.save();
-                existingUsers.add(user);
+                if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
+                {
+                    user = new UserDTO();
+                    user.setEmail(email);
+                    password = passwordGenerator.generatePassword(10);
+                    user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+                    IUserBO userBO = boFactory.createUserBO();
+                    userBO.define(user);
+                    userBO.save();
+                    existingUsers.add(user);
+                } else
+                {
+                    invalidEmailAdresses.add(email);
+                }
             }
             for (FileDTO file : files)
             {
@@ -252,7 +261,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
             sendEmail(url, files, email, password);
         }
-
+        return invalidEmailAdresses;
     }
 
     private void sendEmail(String url, Collection<FileDTO> files, String email, String password)

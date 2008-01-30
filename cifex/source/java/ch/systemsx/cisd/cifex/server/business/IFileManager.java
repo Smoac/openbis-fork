@@ -59,8 +59,10 @@ public interface IFileManager
      * For users not known a temporary account is created. Each user will be informed by an e-mail.
      * 
      * @param url URL for creating the links in the e-mails.
+     * 
+     * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary users.
      */
-    public void shareFilesWith(String url, Collection<String> emailsOfUsers, Collection<FileDTO> files);
+    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers, Collection<FileDTO> files);
 
     /** Lists files for given <var>userId</var>. */
     public List<FileDTO> listFiles(final long userId) throws UserFailureException;
