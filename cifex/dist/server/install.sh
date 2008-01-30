@@ -1,9 +1,29 @@
 #! /bin/bash
 
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <server folder> [<service properties file>]"
-    exit 1
+check_arguments() {
+	if [ $# -lt 1 ]; then
+		echo "Usage: $0 [--http-port <http port>] [--https-port <https port>] <server folder> [<service properties file>]"
+		exit 1
+	fi
+}
+
+check_arguments $@
+JETTY_PORT=8080
+if [ $1 == "--http-port" ]; then
+	shift
+	check_arguments $@
+	JETTY_PORT=$1
+	shift
 fi
+check_arguments $@
+JETTY_SSL_PORT=8443
+if [ $1 == "--https-port" ]; then
+	shift
+	check_arguments $@
+	JETTY_SSL_PORT=$1
+	shift
+fi
+check_arguments $@
 
 # Installation folder: where the stuff have been installed, where this script is,...
 installation_folder="`dirname $0`"
@@ -65,8 +85,11 @@ ln -s "${rel_jetty_folder}" jetty
 
 cp -p "$installation_folder"/startup.sh "$jetty_folder"
 cp -p "$installation_folder"/shutdown.sh "$jetty_folder"
-cp -p "$installation_folder"/jetty.properties "$jetty_folder"
+echo "JETTY_PORT=$JETTY_PORT" > "$jetty_folder/jetty.properties"
+echo "JETTY_SSL_PORT=$JETTY_SSL_PORT" >> "$jetty_folder/jetty.properties"
+echo "JETTY_STOP_PORT=8079" >> "$jetty_folder/jetty.properties"
+echo "JETTY_STOP_KEY=secret" >> "$jetty_folder/jetty.properties"
 
 cd "$jetty_folder"
 echo Starting Jetty...
-./startup.sh
+./startup.sh $3 $4
