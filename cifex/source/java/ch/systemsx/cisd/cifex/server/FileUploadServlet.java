@@ -99,10 +99,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             List<FileDTO> files = new ArrayList<FileDTO>();
             List<String> users = new ArrayList<String>();
             final UserDTO requestUser = extractEmailsAndUploadFiles(request, files, users);
-            StringBuffer requestURL = request.getRequestURL();
-            int indexOfLastSeparator = requestURL.lastIndexOf("/");
-            requestURL.delete(indexOfLastSeparator, requestURL.length());
-            final List<String> invalidEmailAddresses = domainModel.getFileManager().shareFilesWith(requestURL.toString(), requestUser, users, files);
+            String url = getURL(request);
+            IFileManager fileManager = domainModel.getFileManager();
+            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, users, files);
             
             operationLog.info("Uploading finished.");
             response.setContentType("text/plain");
@@ -123,6 +122,19 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error("Could not process multipart content.", ex);
             sendErrorMessage(response, ex);
         }
+    }
+
+    private String getURL(final HttpServletRequest request)
+    {
+        StringBuffer requestURL = request.getRequestURL();
+        System.out.println("request URL:" + requestURL);
+        String url = requestURL.toString();
+        if (url.endsWith("/"))
+        {
+            url = url.substring(0, url.length() - 1);
+        }
+        int indexOfLastSeparator = url.lastIndexOf("/");
+        return url.substring(0, indexOfLastSeparator);
     }
 
     private UserDTO extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
