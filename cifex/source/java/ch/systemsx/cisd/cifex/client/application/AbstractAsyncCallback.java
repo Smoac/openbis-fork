@@ -59,7 +59,13 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
         final String msg;
         if (caught instanceof InvocationException)
         {
-            msg = messageResources.getInvocationExceptionMessage();
+            if (StringUtils.isBlank(caught.getMessage()))
+            {
+                msg = messageResources.getInvocationExceptionMessage();
+            } else
+            {
+                msg = caught.getMessage();
+            }
         } else
         {
             String message = caught.getMessage();
