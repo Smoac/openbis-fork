@@ -34,15 +34,15 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class UserGridModel extends AbstractDataGridModel
 {
 
-    private final String EMAIL = "Email";
+    public static final String EMAIL = "Email";
 
-    private final String FULL_NAME = "FullName";
+    public static final String FULL_NAME = "FullName";
 
-    private final String STATUS = "Status";
+    public static final String STATUS = "Status";
 
-    private final String REGISTRATOR = "Registrator";
+    public static final String REGISTRATOR = "Registrator";
 
-    private final String MODIFY_USER = "Action";
+    public static final String ACTION = "Action";
 
     /**
      * @param messageResources
@@ -60,7 +60,7 @@ public class UserGridModel extends AbstractDataGridModel
         configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
         configs.add(createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180));
-        ColumnConfig actionColumn = createSortableColumnConfig(MODIFY_USER, messageResources.getActionLabel(), 120);
+        ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
         actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
         configs.add(actionColumn);
         return configs;
@@ -100,7 +100,7 @@ public class UserGridModel extends AbstractDataGridModel
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
         fieldDefs.add(new StringFieldDef(REGISTRATOR));
-        fieldDefs.add(new StringFieldDef(MODIFY_USER));
+        fieldDefs.add(new StringFieldDef(ACTION));
         return fieldDefs;
     }
 

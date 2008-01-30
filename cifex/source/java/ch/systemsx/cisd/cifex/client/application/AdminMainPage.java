@@ -100,9 +100,7 @@ class AdminMainPage extends AbstractMainPage
                     public void onCellClick(Grid grid, int rowIndex, int colIndex, EventObject e)
                     {
                         ModelBasedGrid modelBasedGrid = (ModelBasedGrid) grid;
-                        if (grid.getColumnModel().getDataIndex(colIndex).equals(
-                                context.getMessageResources().getActionLabel()))
-                        {
+                        if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION)){
                             final User user = ((User) modelBasedGrid.getObjects()[rowIndex]);
                             if (user.getEmail().equals(context.getModel().getUser().getEmail()))
                             {
