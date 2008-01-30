@@ -163,7 +163,6 @@ final class MainPage extends AbstractMainPage
         {
             final File[] files = (File[]) result;
             final Widget widget;
-            final IMessageResources messageResources = context.getMessageResources();
             if (files.length > 0)
             {
                 final IDataGridModel gridModel;
