@@ -19,20 +19,39 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.logging.LogAnnotation;
+import ch.systemsx.cisd.common.logging.LogCategory;
 
 /**
  * @author Franz-Josef Elmer
  */
 public interface IUserManager
 {
+    /**
+     * Tries to find the user with the specified e-mail address.
+     * 
+     * @return <code>null</code> if not found.
+     */
     public UserDTO tryToFindUser(String email);
 
+    /**
+     * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
+     */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void createUser(UserDTO user);
 
+    /**
+     * Returns a list of all users.
+     */
     public List<UserDTO> listUsers();
 
     /** Removes expired users from user base */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteExpiredUsers();
-    
+
+    /**
+     * Deletes the specified user.
+     */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void tryToDeleteUser(UserDTO user);
 }

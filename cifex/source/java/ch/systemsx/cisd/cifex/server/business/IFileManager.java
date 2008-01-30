@@ -24,6 +24,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogAnnotation;
+import ch.systemsx.cisd.common.logging.LogCategory;
 
 /**
  * A manager that proxies and handles access to {@link FileDTO}.
@@ -51,6 +53,7 @@ public interface IFileManager
      * @param inputStream Input stream of file content.
      * @return file DTO with id.
      */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream inputStream);
 
@@ -62,7 +65,9 @@ public interface IFileManager
      * 
      * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary users.
      */
-    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers, Collection<FileDTO> files);
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
+            Collection<FileDTO> files);
 
     /** Lists files for given <var>userId</var>. */
     public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;
@@ -90,6 +95,7 @@ public interface IFileManager
     }
 
     /** Deletes expired files from database and filesystem */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteExpiredFiles();
 
     /** Returns all files */
