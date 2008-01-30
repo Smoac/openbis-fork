@@ -179,7 +179,8 @@ final class MainPage extends AbstractMainPage
             } else
             {
                 final HTML html = new HTML();
-                html.setText(messageResources.getDownloadFilesEmpty());
+                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty() 
+                                            : messageResources.getUploadedFilesEmpty());
                 widget = html;
             }
             verticalPanel.add(titleWidget);
