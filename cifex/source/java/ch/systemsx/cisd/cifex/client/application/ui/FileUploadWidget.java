@@ -77,7 +77,7 @@ public class FileUploadWidget extends Form
                     if (StringUtils.isBlank(response) == false)
                     {
                         final IMessageResources messageResources = context.getMessageResources();
-                        final String title = messageResources.getMessageBoxWarningTitle();
+                        final String title = messageResources.getMessageBoxErrorTitle();
                         MessageBox.alert(title, response);
                     }
                     button.enable();
