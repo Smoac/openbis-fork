@@ -127,7 +127,6 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     private String getURL(final HttpServletRequest request)
     {
         StringBuffer requestURL = request.getRequestURL();
-        System.out.println("request URL:" + requestURL);
         String url = requestURL.toString();
         if (url.endsWith("/"))
         {
