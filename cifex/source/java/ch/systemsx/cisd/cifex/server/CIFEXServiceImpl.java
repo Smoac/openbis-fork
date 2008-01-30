@@ -167,7 +167,24 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throws UserFailureException
     {
         authenticationLog.info("Try to login user '" + userOrEmail + "'.");
-        final IUserManager userManager = domainModel.getUserManager();
+        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userOrEmail, password, requestAdmin);
+        if (userDTOOrNull == null)
+        {
+            final IUserManager userManager = domainModel.getUserManager();
+            final String encryptedPassword = StringUtilities.computeMD5Hash(password);
+            userDTOOrNull = userManager.tryToFindUser(userOrEmail);
+            if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
+                    || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
+            {
+                return null;
+            }
+        }
+        return finishLogin(userDTOOrNull, requestAdmin);
+    }
+
+    private UserDTO tryExternalAuthenticationServiceLogin(String userOrEmail, String password, boolean requestAdmin)
+            throws UserFailureException
+    {
         if (hasExternalAuthenticationService() && requestAdmin == false)
         {
             final String applicationToken = externalAuthenticationService.authenticateApplication();
@@ -192,6 +209,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 throw new UserFailureException("Unable to retrieve user information.");
             }
             final String email = principal.getEmail();
+            final IUserManager userManager = domainModel.getUserManager();
             UserDTO userDTO = userManager.tryToFindUser(email);
             if (userDTO == null)
             {
@@ -204,17 +222,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 userDTO.setPermanent(true);
                 userManager.createUser(userDTO);
             }
-            return finishLogin(userDTO, false);
+            return userDTO;
         } else
         {
-            final String encryptedPassword = StringUtilities.computeMD5Hash(password);
-            final UserDTO userDTO = userManager.tryToFindUser(userOrEmail);
-            if (userDTO == null || StringUtils.isBlank(userDTO.getEncryptedPassword())
-                    || encryptedPassword.equals(userDTO.getEncryptedPassword()) == false)
-            {
-                return null;
-            }
-            return finishLogin(userDTO, requestAdmin);
+            return null;
         }
     }
 

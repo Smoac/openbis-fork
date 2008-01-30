@@ -241,9 +241,6 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
@@ -284,22 +281,59 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFailedLoginAtExternalService() throws UserFailureException
+    public void testFailedLoginAtExternalServiceAndInternalService() throws UserFailureException
     {
         final String userName = "u";
         final String password = "p";
+        final String email = "user@users.org";
+        final UserDTO userDTO = new UserDTO();
+        userDTO.setUserName(userName);
+        userDTO.setEmail(email);
+        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         context.checking(new Expectations()
             {
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
                     one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
                     will(returnValue(false));
+                }
+            });
+        prepareForFindUser(userName, userDTO);
+        prepareForGettingUserFromHTTPSession(userDTO, true);
+
+        CIFEXServiceImpl service = createService(authenticationService);
+        service.setSessionExpirationPeriodInMinutes(1);
+        User user = service.tryToLogin(userName, password, false);
+        assertEquals(userDTO.getEmail(), user.getEmail());
+        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertFalse(userDTO.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testFailedLoginAtExternalServiceAndSuccessfulLoginAtInternalService() throws UserFailureException
+    {
+        final String userName = "u";
+        final String password = "p";
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
+
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
+                    will(returnValue(false));
+                    
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(userManager).tryToFindUser(userName);
+                    will(returnValue(null));
                 }
             });
 
