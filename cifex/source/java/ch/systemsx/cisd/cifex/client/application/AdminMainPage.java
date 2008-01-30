@@ -145,7 +145,21 @@ class AdminMainPage extends AbstractMainPage
         }
     }
 
-    // TODO, 2008-01-29, Franz-Josef Elmer, same functionality as in MainPage.FileAsyncCallback
+    private final class DeleteFileAsyncCallback extends AbstractAsyncCallback
+    {
+
+        DeleteFileAsyncCallback()
+        {
+            super(context);
+        }
+
+        public void onSuccess(Object result)
+        {
+            listFilesPanel.clear();
+            createListFileGrid();
+        }
+    }
+
     private final class FileAdminAsyncCallback extends AbstractAsyncCallback
     {
 
@@ -163,8 +177,34 @@ class AdminMainPage extends AbstractMainPage
 
         private Widget createFileTable(File[] files)
         {
-            final IDataGridModel gridModel = new DownloadFileGridModel(context.getMessageResources());
-            final Grid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
+            final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
+            final ModelBasedGrid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
+            fileGrid.addGridCellListener(new GridCellListenerAdapter()
+                {
+
+                    public final void onCellClick(final Grid grid, final int rowIndex, final int colindex,
+                            final EventObject e)
+                    {
+                        final ModelBasedGrid modelBasedGrid = (ModelBasedGrid) grid;
+                        final File file = (File) modelBasedGrid.getObjects()[rowIndex];
+                        if (grid.getColumnModel().getDataIndex(colindex).equals(AbstractFileGridModel.ACTION))
+                        {
+                            MessageBox.confirm("Delete File", "Are you sure you want to delete [" + file.getName()
+                                    + "] ?", new MessageBox.ConfirmCallback()
+                                {
+                                    public void execute(String btnID)
+                                    {
+                                        if (btnID.equals("yes"))
+                                        {
+                                            context.getCifexService().tryToDeleteFile(file,
+                                                    new DeleteFileAsyncCallback());
+                                        }
+                                    }
+                                });
+
+                        }
+                    }
+                });
             return fileGrid;
         }
     }

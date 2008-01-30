@@ -131,4 +131,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.tryToDeleteUser(user);
 
     }
+
+    public void tryToDeleteFile(File file)
+    {
+        cifexServiceDelegate.tryToDeleteFile(file);
+
+    }
 }

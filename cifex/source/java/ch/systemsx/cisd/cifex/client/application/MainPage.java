@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
+
 /**
  * The main page for non-administrators (permanent and temporary users).
  * 
@@ -70,8 +71,8 @@ final class MainPage extends AbstractMainPage
         {
             fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
         }
-		final User user = context.getModel().getUser();
-        if (fileId == null )
+        final User user = context.getModel().getUser();
+        if (fileId == null)
         {
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
@@ -174,13 +175,13 @@ final class MainPage extends AbstractMainPage
                     gridModel = new UploadedFileGridModel(messageResources);
                 }
                 final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
-                fileGrid.addGridCellListener(new FileGridCellListener());
+                // fileGrid.addGridCellListener(new FileGridCellListener());
                 widget = fileGrid;
             } else
             {
                 final HTML html = new HTML();
-                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty() 
-                                            : messageResources.getUploadedFilesEmpty());
+                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty() : messageResources
+                        .getUploadedFilesEmpty());
                 widget = html;
             }
             verticalPanel.add(titleWidget);

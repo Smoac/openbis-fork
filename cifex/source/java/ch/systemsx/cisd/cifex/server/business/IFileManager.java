@@ -84,6 +84,9 @@ public interface IFileManager
     public void deleteExpiredFiles();
 
     /** Returns all files */
-    public List<FileDTO> listFiles();
+    public List<FileDTO> listFiles();    
+
+    /** Deletes file with given <code>fileId</code> */
+    public void deleteFile(long fileId);
 
 }

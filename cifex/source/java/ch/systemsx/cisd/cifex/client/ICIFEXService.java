@@ -80,6 +80,11 @@ public interface ICIFEXService extends RemoteService
     public void tryToDeleteUser(final User user);
 
     /**
+     * Deletes the <code>File</code>.
+     */
+    public void tryToDeleteFile(final File file);
+
+    /**
      * List the files uploaded by the currently logged user.
      * <p>
      * Never returns <code>null</code> but could return an empty array.

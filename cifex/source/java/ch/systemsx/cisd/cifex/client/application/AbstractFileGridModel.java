@@ -42,6 +42,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String REGISTERER = "registerer";
 
+    protected static final String ACTION = "action";
+
     AbstractFileGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
@@ -67,6 +69,14 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         final ColumnConfig registererConfig =
                 createSortableColumnConfig(REGISTERER, messageResources.getFileRegistererLabel(), 120);
         registererConfig.setRenderer(UserRenderer.USER_RENDERER);
+        return registererConfig;
+    }
+
+    protected ColumnConfig createActionColumnConfig()
+    {
+        final ColumnConfig registererConfig =
+                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
+        registererConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return registererConfig;
     }
 

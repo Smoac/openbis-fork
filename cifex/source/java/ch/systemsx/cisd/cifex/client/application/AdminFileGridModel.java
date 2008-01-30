@@ -27,10 +27,10 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 /**
  * @author Izabela Adamczyk
  */
-public class UploadedFileGridModel extends AbstractFileGridModel
+public class AdminFileGridModel extends AbstractFileGridModel
 {
 
-    UploadedFileGridModel(IMessageResources messageResources)
+    AdminFileGridModel(IMessageResources messageResources)
     {
         super(messageResources);
     }
@@ -39,10 +39,11 @@ public class UploadedFileGridModel extends AbstractFileGridModel
     {
         final List configs = new ArrayList();
         configs.add(createNameColumnConfig());
+        configs.add(createRegistererColumnConfig());
         configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
         configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
         configs.add(createExpirationDateColumnConfig());
-        // configs.add(createActionColumnConfig());
+        configs.add(createActionColumnConfig());
         return configs;
     }
 
@@ -52,11 +53,10 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         for (int i = 0; i < data.length; i++)
         {
             final File file = (File) data[i];
-            final Object[] objects = new Object[]
-                { file.getName(), file.getContentType(), file.getSize(), file.getExpirationDate() /*
-                 * ,
-                 * messageResources.getActionDeleteLabel()
-                 */};
+            final Object[] objects =
+                    new Object[]
+                        { file.getName(), file.getRegisterer().getEmail(), file.getContentType(), file.getSize(),
+                                file.getExpirationDate(), messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
@@ -66,10 +66,11 @@ public class UploadedFileGridModel extends AbstractFileGridModel
     {
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(NAME));
+        fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new StringFieldDef(SIZE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
-        // fieldDefs.add(new StringFieldDef(ACTION));
+        fieldDefs.add(new StringFieldDef(ACTION));
         return fieldDefs;
     }
 }

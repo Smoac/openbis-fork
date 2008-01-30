@@ -36,6 +36,7 @@ import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
+import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -329,6 +330,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IUserManager userManager = domainModel.getUserManager();
         UserDTO userDTO = userManager.tryToFindUser(user.getEmail());
         userManager.tryToDeleteUser(userDTO);
+    }
+
+    public void tryToDeleteFile(final File file)
+    {
+        final IFileManager fileManager = domainModel.getFileManager();
+        fileManager.deleteFile(file.getID());
     }
 
     private void sendPasswordToNewUser(User user, String password)

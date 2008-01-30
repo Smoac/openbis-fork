@@ -105,11 +105,11 @@ final class FileManager extends AbstractManager implements IFileManager
             file.delete();
             if (logger.isInfoEnabled())
             {
-                logger.info("Expired file [" + path + "] deleted.");
+                logger.info("File [" + path + "] deleted.");
             }
         } else
         {
-            logger.warn("Expired file [" + path + "] not deleted: doesn't exist.");
+            logger.warn("File [" + path + "] not deleted: doesn't exist.");
         }
     }
 
@@ -298,6 +298,14 @@ final class FileManager extends AbstractManager implements IFileManager
     public final List<FileDTO> listFiles() throws UserFailureException
     {
         return daoFactory.getFileDAO().listFiles();
+    }
+
+    public void deleteFile(long fileId)
+    {
+        FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        daoFactory.getFileDAO().deleteFile(file.getID());
+        deleteFromFileSystem(file.getPath());
+
     }
 
 }
