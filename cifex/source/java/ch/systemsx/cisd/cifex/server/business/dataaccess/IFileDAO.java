@@ -44,8 +44,9 @@ public interface IFileDAO
      * Removes <code>File</code> with given id from database.
      * 
      * @param fileId Id of file which should be removed from database.
+     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no file found with that id.
      */
-    public void deleteFile(final long fileId) throws DataAccessException;
+    public boolean deleteFile(final long fileId) throws DataAccessException;
 
     /**
      * Returns a list of all files existing in database.

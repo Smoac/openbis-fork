@@ -76,24 +76,41 @@ class UserManager extends AbstractManager implements IUserManager
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
         List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
+        if (logger.isInfoEnabled() && expiredUsers.size() > 0)
+        {
+            logger.info("Found " + expiredUsers.size() + " expired users.");
+        }
+        RuntimeException ex_all = null; 
         for (UserDTO user : expiredUsers)
         {
-            boolean success = userDAO.removeUser(user.getID());
-            if (success)
+            try
             {
-                if (logger.isInfoEnabled())
+                boolean success = userDAO.deleteUser(user.getID());
+                if (success)
                 {
-                    logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
-                            + "] removed from user database.");
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                                + "] removed from database.");
+                    }
+                } else
+                {
+                    logger.warn("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                                + "] could not be found in the database.");
                 }
-            } else
+            } catch (RuntimeException ex)
             {
-                if (logger.isInfoEnabled())
+                logger.error("Error deleting user [" + user.getUserName() + " - " + user.getEmail() + "].", ex);
+                if (ex_all == null)
                 {
-                    logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
-                            + "] could not be deleted from user database.");
+                    ex_all = ex;
                 }
             }
+        }
+        // Rethrow exception, if any
+        if (ex_all != null)
+        {
+            throw ex_all;
         }
     }
 
@@ -104,7 +121,7 @@ class UserManager extends AbstractManager implements IUserManager
 
         IUserDAO userDAO = daoFactory.getUserDAO();
         UserDTO user = userDAO.tryFindUserByEmail(email);
-        boolean returnValue = userDAO.removeUser(user.getID());
+        boolean returnValue = userDAO.deleteUser(user.getID());
         if (logger.isInfoEnabled())
         {
             if (returnValue)

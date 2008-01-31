@@ -98,9 +98,10 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         file.setID(id);
     }
 
-    public void deleteFile(final long id) throws DataAccessException
+    public boolean deleteFile(final long id) throws DataAccessException
     {
-        getSimpleJdbcTemplate().update("delete from files where id = ?", id);
+        final int affectedRows = getSimpleJdbcTemplate().update("delete from files where id = ?", id);
+        return affectedRows > 0;
     }
 
     public List<FileDTO> listFiles() throws DataAccessException

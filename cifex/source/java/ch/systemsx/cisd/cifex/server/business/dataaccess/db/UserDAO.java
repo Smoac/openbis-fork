@@ -176,20 +176,11 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public boolean removeUser(final Long userID)
+    public boolean deleteUser(final long userId)
     {
-        assert userID != null : "Given userID can not be null!";
-
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final int affectedRows = template.update("delete from users where id = ?", userID);
-
-        if (affectedRows > 0)
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
+        final int affectedRows = template.update("delete from users where id = ?", userId);
+        return affectedRows > 0;
     }
 
     public List<UserDTO> listExpiredUsers() throws DataAccessException

@@ -133,10 +133,40 @@ final class FileManager extends AbstractManager implements IFileManager
     public final void deleteExpiredFiles()
     {
         final List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
+        if (logger.isInfoEnabled() && expiredFiles.size() > 0)
+        {
+            logger.info("Found " + expiredFiles.size() + " expired files.");
+        }
+        RuntimeException ex_all = null; 
         for (final FileDTO file : expiredFiles)
         {
-            daoFactory.getFileDAO().deleteFile(file.getID());
+            try
+            {
+                boolean success = daoFactory.getFileDAO().deleteFile(file.getID());
+                if (success)
+                {
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Expired file '" + file.getPath() + "' removed from database.");
+                    }
+                } else
+                {
+                    logger.warn("Expired file '" + file.getPath() + "' could not be found in the database.");
+                }
             deleteFromFileSystem(file.getPath());
+            } catch (RuntimeException ex)
+            {
+                logger.error("Error deleting file '" + file.getPath() + "'.", ex);
+                if (ex_all == null)
+                {
+                    ex_all = ex;
+                }
+            }
+        }
+        // Rethrow exception, if any
+        if (ex_all != null)
+        {
+            throw ex_all;
         }
     }
 

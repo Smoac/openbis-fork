@@ -50,20 +50,23 @@ public interface IUserDAO
     public void createUser(UserDTO user) throws DataAccessException;
 
     /**
-     * @return The number of users in the database. 
+     * @return The number of users in the database.
      */
     public int getNumberOfUsers() throws DataAccessException;
-    
+
     /**
      * @return The list of all users currently present in the database.
      */
     public List<UserDTO> listUsers() throws DataAccessException;
 
     /**
-     * Deletes the given <code>User</code> from the Database.
+     * Deletes the user with the given <code>userId</code> from the database.
+     * 
+     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if no user was found
+     *         with that id.
      */
-    public boolean removeUser(Long userID) throws DataAccessException;
+    public boolean deleteUser(long userId) throws DataAccessException;
 
-    /** Returns a list of expired users */
+    /** Returns a list of expired users. */
     public List<UserDTO> listExpiredUsers();
 }
