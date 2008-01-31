@@ -87,7 +87,7 @@ public class UserGridModel extends AbstractDataGridModel
             }
             final Object[] objects = new Object[]
                 { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, 
-                    UserLinkRenderer.createMailAnchor(user.getRegistrator().getEmail()), "delete" };
+                    UserLinkRenderer.createMailAnchor(user.getRegistrator().getEmail()), "Delete" };
             list.add(objects);
         }
         return list;
