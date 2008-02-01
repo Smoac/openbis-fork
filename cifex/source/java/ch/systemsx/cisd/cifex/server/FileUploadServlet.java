@@ -46,6 +46,12 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  */
 public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 {
+    /*
+     * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload was successful, so
+     * if you change the value of the constant here it should also be changed in the widget.
+     */
+    private static final String UPLOAD_FINISHED = "Upload finished.\n";
+
     private static final String MAX_UPLOAD_SIZE = "max-upload-size";
 
     private static final long serialVersionUID = 1L;
@@ -108,7 +114,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             }
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
-            writer.write("Upload finished.\n");
+            writer.write(UPLOAD_FINISHED);
             if (invalidEmailAddresses.isEmpty() == false)
             {
                 writer.write("Invalid email addresses found: ");

@@ -45,6 +45,11 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public class FileUploadWidget extends Form
 {
+    /*
+     * This constant should be the same as in <code>FileUploadServlet</code>.
+     */
+    private static final String UPLOAD_FINISHED = "Upload finished.\n";
+
     private static final int FIELD_WIDTH = 230;
 
     private static final int COLUMN_WIDTH = 342;
@@ -77,10 +82,18 @@ public class FileUploadWidget extends Form
                     if (StringUtils.isBlank(response) == false)
                     {
                         final IMessageResources messageResources = context.getMessageResources();
-                        final String title = messageResources.getMessageBoxErrorTitle();
+                        String title;
+                        if (response.equals(UPLOAD_FINISHED))
+                        {
+                            title = messageResources.getMessageBoxInfoTitle();
+                        } else
+                        {
+                            title = messageResources.getMessageBoxErrorTitle();
+
+                        }
                         MessageBox.alert(title, response);
                     }
-                    //button.enable();
+                    // button.enable();
                     context.getPageController().createMainPage();
                 }
 
