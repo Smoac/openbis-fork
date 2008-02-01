@@ -325,7 +325,7 @@ final class FileManager extends AbstractManager implements IFileManager
             builder.append(fileDTO.getName()).append(" ");
             builder.append(url).append("/index.html?fileId=").append(fileDTO.getID()).append('\n');
         }
-        builder.append("\nClick on a link for starting downloading. You have to login with your e-mail address (i.e. ");
+        builder.append("\nClick on a link to start downloading. You have to login with your e-mail address (i.e. ");
         builder.append(email).append(")");
         if (password != null)
         {
