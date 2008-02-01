@@ -215,13 +215,12 @@ public final class ClassUtils
         return classes;
     }
 
-    @SuppressWarnings("unchecked")
     private final static <T> Constructor<T> getConstructor(final Class<?> clazz, final Class<?>[] classes)
             throws NoSuchMethodException
     {
-        final Constructor<T>[] constructors = clazz.getConstructors();
-        Constructor<T> returned = null;
-        for (final Constructor<T> constructor : constructors)
+        final Constructor<?>[] constructors = clazz.getConstructors();
+        Constructor<?> returned = null;
+        for (final Constructor<?> constructor : constructors)
         {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
             final int len = parameterTypes.length;
@@ -241,7 +240,13 @@ public final class ClassUtils
                 returned = constructor;
             }
         }
-        return returned;
+        return toGenericType(returned);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> toGenericType(Constructor<?> returned)
+    {
+        return (Constructor<T>) returned;
     }
 
     @SuppressWarnings("unchecked")
