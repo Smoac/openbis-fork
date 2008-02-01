@@ -45,7 +45,7 @@ public class DBMigrationEngine
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
-        
+
         final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory = context.createDAOFactory();
         final String scriptFolder = context.getScriptFolder();
         String databaseEngineCode = context.getDatabaseEngineCode();
@@ -90,6 +90,10 @@ public class DBMigrationEngine
     {
         if (shouldCreateFromScratch)
         {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Dropping database.");
+            }
             adminDAO.dropDatabase();
         }
         if (databaseExists() == false)
@@ -106,8 +110,8 @@ public class DBMigrationEngine
                 final String databaseName = adminDAO.getDatabaseName();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.debug("No migration needed for database '" + databaseName + "'. It has the right version (" 
-                                      + version + ").");
+                    operationLog.debug("No migration needed for database '" + databaseName
+                            + "'. It has the right version (" + version + ").");
                 }
             }
         } else if (version.compareTo(databaseVersion) > 0)
@@ -117,8 +121,8 @@ public class DBMigrationEngine
                 final String databaseName = adminDAO.getDatabaseName();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Trying to migrate database '" + databaseName + "' from version " + databaseVersion 
-                            + " to " + version + ".");
+                    operationLog.info("Trying to migrate database '" + databaseName + "' from version "
+                            + databaseVersion + " to " + version + ".");
                 }
             }
             migrate(databaseVersion, version);
@@ -127,15 +131,16 @@ public class DBMigrationEngine
                 final String databaseName = adminDAO.getDatabaseName();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Database '" + databaseName + "' successfully migrated from version " 
-                                      + databaseVersion + " to " + version + ".");
+                    operationLog.info("Database '" + databaseName + "' successfully migrated from version "
+                            + databaseVersion + " to " + version + ".");
                 }
             }
         } else
         {
             final String databaseName = adminDAO.getDatabaseName();
-            final String message = "Cannot revert database '" + databaseName + "' from version " 
-                             + databaseVersion + " to earlier version " + version + ".";
+            final String message =
+                    "Cannot revert database '" + databaseName + "' from version " + databaseVersion
+                            + " to earlier version " + version + ".";
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
