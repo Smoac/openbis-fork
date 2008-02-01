@@ -25,12 +25,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -157,6 +157,31 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return (UserDTO) session.getAttribute(SESSION_NAME);
     }
 
+    private String describeUser(UserDTO user)
+    {
+        if (user.isAdmin())
+        {
+            return "admin user " + user.getEmail();
+        } else if (user.isPermanent())
+        {
+            return "permanent user " + user.getEmail();
+        } else
+        {
+            return "temporary user " + user.getEmail();
+        }
+    }
+
+    private final void checkAdmin(final String methodName) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        final UserDTO user = privGetCurrentUser();
+        if (privGetCurrentUser().isAdmin() == false)
+        {
+            throw new InsufficientPrivilegesException("Method '" + methodName + "': insufficient privileges for "
+                    + describeUser(user) + ".");
+        }
+    }
+
     //
     // ICifexService
     //
@@ -242,14 +267,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public final User[] listUsers()
+    public final User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
     {
+        checkAdmin("listUsers");
         final List<UserDTO> users = domainModel.getUserManager().listUsers();
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException
+    public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException,
+            InvalidSessionException, InsufficientPrivilegesException
     {
+        checkCreateUserAllowed(user);
         final IUserManager userManager = domainModel.getUserManager();
 
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
@@ -267,6 +295,20 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final String msg = "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
             operationLog.error(msg, ex);
             throw new EnvironmentFailureException(msg);
+        }
+    }
+
+    private void checkCreateUserAllowed(User user) throws InvalidSessionException, InsufficientPrivilegesException
+    {
+        final UserDTO requestUser = privGetCurrentUser();
+        if (requestUser.isPermanent() == false)
+        {
+            throw new InsufficientPrivilegesException("Method 'tryToCreateUser': insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        } else if (requestUser.isAdmin() == false && (user.isPermanent() || user.isAdmin()))
+        {
+            throw new InsufficientPrivilegesException("Method 'tryToCreateUser': insufficient privileges for "
+                    + describeUser(requestUser) + ".");
         }
     }
 
@@ -298,12 +340,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public final File[] listDownloadFiles() throws UserFailureException
+    public final File[] listDownloadFiles() throws InvalidSessionException
     {
         return listFiles(DOWNLOAD);
     }
 
-    public final File[] listUploadedFiles() throws UserFailureException
+    public final File[] listUploadedFiles() throws InvalidSessionException
     {
         return listFiles(UPLOAD);
     }
@@ -332,13 +374,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
             });
     }
 
-    public void tryToDeleteUser(final String email)
+    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException
     {
+        checkAdmin("tryToDeleteUser");
         domainModel.getUserManager().tryToDeleteUser(email);
     }
 
-    public void tryToDeleteFile(final long id)
+    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException
     {
+        checkAdmin("tryToDeleteUser");
         final IFileManager fileManager = domainModel.getFileManager();
         fileManager.deleteFile(id);
     }

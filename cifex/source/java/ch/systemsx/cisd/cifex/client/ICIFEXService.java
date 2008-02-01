@@ -55,14 +55,14 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns a list of <code>User</code>s.
      */
-    public User[] listUsers();
+    public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      */
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
-            throws EnvironmentFailureException;
+            throws EnvironmentFailureException, InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * List the files that the currently logged user has access on.
@@ -70,17 +70,17 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public File[] listDownloadFiles() throws UserFailureException;
+    public File[] listDownloadFiles() throws InvalidSessionException;
 
     /**
      * Tries to delete the user given by its <var>email</var>.
      */
-    public void tryToDeleteUser(final String email);
+    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * Deletes file given by its <var>id</var>
      */
-    public void tryToDeleteFile(final long id);
+    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * List the files uploaded by the currently logged user.
@@ -88,5 +88,5 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public File[] listUploadedFiles() throws UserFailureException;
+    public File[] listUploadedFiles() throws InvalidSessionException;
 }

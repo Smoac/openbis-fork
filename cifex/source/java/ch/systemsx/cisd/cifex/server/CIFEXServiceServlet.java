@@ -26,6 +26,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -81,35 +82,35 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.logout();
     }
 
-    public File[] listDownloadFiles() throws UserFailureException
+    public File[] listDownloadFiles() throws InvalidSessionException
     {
         return cifexServiceDelegate.listDownloadFiles();
     }
 
-    public File[] listUploadedFiles() throws UserFailureException
+    public File[] listUploadedFiles() throws InvalidSessionException
     {
         return cifexServiceDelegate.listUploadedFiles();
     }
 
-    public User[] listUsers()
+    public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listUsers();
     }
 
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
-            throws EnvironmentFailureException
+            throws EnvironmentFailureException, InvalidSessionException, InsufficientPrivilegesException
     {
         cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull);
 
     }
 
-    public void tryToDeleteUser(final String email)
+    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException
     {
         cifexServiceDelegate.tryToDeleteUser(email);
 
     }
 
-    public void tryToDeleteFile(final long id)
+    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException
     {
         cifexServiceDelegate.tryToDeleteFile(id);
     }
