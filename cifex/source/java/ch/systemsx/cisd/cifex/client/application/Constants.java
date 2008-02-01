@@ -31,7 +31,7 @@ public final class Constants
     }
 
     /** Default date/time format. */
-    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
+    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
 
     /** Default <code>DateTimeFormat</code> used here. */
     public static final DateTimeFormat defaultDateTimeFormat = DateTimeFormat.getFormat(DEFAULT_DATE_TIME_FORMAT);
