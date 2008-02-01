@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -56,10 +54,8 @@ public interface ICIFEXService extends RemoteService
 
     /**
      * Returns a list of <code>User</code>s.
-     * 
-     * @gwt.typeArgs <ch.systemsx.cisd.cifex.client.dto.User>
      */
-    public List listUsers();
+    public User[] listUsers();
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
@@ -77,14 +73,14 @@ public interface ICIFEXService extends RemoteService
     public File[] listDownloadFiles() throws UserFailureException;
 
     /**
-     * Deletes the Cifex <code>User</code>.
+     * Tries to delete the user given by its <var>email</var>.
      */
-    public void tryToDeleteUser(final User user);
+    public void tryToDeleteUser(final String email);
 
     /**
-     * Deletes the <code>File</code>.
+     * Deletes file given by its <var>id</var>
      */
-    public void tryToDeleteFile(final File file);
+    public void tryToDeleteFile(final long id);
 
     /**
      * List the files uploaded by the currently logged user.

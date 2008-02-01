@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -93,6 +91,29 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUploadedFiles();
     }
 
+    public User[] listUsers()
+    {
+        return cifexServiceDelegate.listUsers();
+    }
+
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
+            throws EnvironmentFailureException
+    {
+        cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull);
+
+    }
+
+    public void tryToDeleteUser(final String email)
+    {
+        cifexServiceDelegate.tryToDeleteUser(email);
+
+    }
+
+    public void tryToDeleteFile(final long id)
+    {
+        cifexServiceDelegate.tryToDeleteFile(id);
+    }
+
     //
     // RemoteServiceServlet
     //
@@ -113,28 +134,5 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             notificationLog.fatal("Failure during CIFEX service servlet initialization.", ex);
             throw new ServletException(ex);
         }
-    }
-
-    public List listUsers()
-    {
-        return cifexServiceDelegate.listUsers();
-    }
-
-    public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException
-    {
-        cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull);
-
-    }
-
-    public void tryToDeleteUser(User user)
-    {
-        cifexServiceDelegate.tryToDeleteUser(user);
-
-    }
-
-    public void tryToDeleteFile(File file)
-    {
-        cifexServiceDelegate.tryToDeleteFile(file);
-
     }
 }

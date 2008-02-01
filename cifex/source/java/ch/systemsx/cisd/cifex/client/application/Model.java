@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -35,14 +36,14 @@ public final class Model
      * Is never <code>null</code> but could be empty.
      * </p>
      */
-    private HashMap urlParams = new HashMap();
+    private Map urlParams = new HashMap();
 
-    public final HashMap getUrlParams()
+    public final Map getUrlParams()
     {
         return urlParams;
     }
 
-    public final void setUrlParams(final HashMap urlParams)
+    public final void setUrlParams(final Map urlParams)
     {
         assert urlParams != null : "URL params can not be null.";
         this.urlParams = urlParams;

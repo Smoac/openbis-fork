@@ -25,10 +25,12 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.UserLinkRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
+ * An <code>AbstractDataGridModel</code> extension for user grid.
+ * 
  * @author Basil Neff
  */
 public class UserGridModel extends AbstractDataGridModel
@@ -44,56 +46,70 @@ public class UserGridModel extends AbstractDataGridModel
 
     public static final String ACTION = "Action";
 
-    /**
-     * @param messageResources
-     */
-    public UserGridModel(IMessageResources messageResources)
+    public UserGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
     }
 
-    public List getColumnConfigs()
+    private final ColumnConfig createActionColumnConfig()
+    {
+        final ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
+        actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
+        return actionColumn;
+    }
+
+    private ColumnConfig createEmailColumnConfig()
+    {
+        final ColumnConfig columnConfig = createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180);
+        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
+        return columnConfig;
+    }
+
+    //
+    // AbstractDataGridModel
+    //
+
+    public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
-
-        configs.add(createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180));
+        configs.add(createEmailColumnConfig());
         configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
         configs.add(createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180));
-        ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
-        actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
-        configs.add(actionColumn);
+        configs.add(createActionColumnConfig());
         return configs;
     }
 
-    public List getData(Object[] data)
+    public final List getData(final Object[] data)
     {
         final List list = new ArrayList();
         for (int i = 0; i < data.length; i++)
         {
             final User user = (User) data[i];
-
             String stateField = "";
             if (user.isAdmin())
             {
                 stateField = messageResources.getAdminRoleName();
-            }
-            else if (user.isPermanent())
+            } else if (user.isPermanent())
             {
-                stateField += messageResources.getPermanentRoleName() +" User";
+                stateField += messageResources.getPermanentRoleName() + " User";
             } else
             {
-                stateField += messageResources.getTemporaryRoleName()+" User expires on ".concat(Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
+                stateField +=
+                        messageResources.getTemporaryRoleName()
+                                + " User expires on ".concat(Constants.defaultDateTimeFormat.format(user
+                                        .getExpirationDate()));
             }
-            final Object[] objects = new Object[]
-                { UserLinkRenderer.createMailAnchor(user.getEmail()), user.getUserName(), stateField, 
-                    UserLinkRenderer.createMailAnchor(user.getRegistrator().getEmail()), "Delete" };
+            final Object[] objects =
+                    new Object[]
+                        { user.getEmail(), user.getUserName(), stateField, user.getRegistrator().getEmail(),
+                                messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
     }
 
-    public List getFieldDefs()
+    public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(EMAIL));

@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -39,6 +40,29 @@ public final class UserRenderer implements Renderer
     private UserRenderer()
     {
         // Can not be instantiated.
+    }
+
+    /** Creates an HTML A element for given <var>user</var> representation. */
+    public final static String createUserAnchor(final User user)
+    {
+        final String name;
+        if (StringUtils.isBlank(user.getUserName()))
+        {
+            name = user.getEmail();
+        } else
+        {
+            name = user.getUserName();
+        }
+        final String email = user.getEmail();
+        if (email != null)
+        {
+            final Element anchor = createAnchorElement(email);
+            DOM.setInnerText(anchor, name);
+            return DOM.toString(anchor);
+        } else
+        {
+            return name;
+        }
     }
 
     private final static Element createAnchorElement(final String email)

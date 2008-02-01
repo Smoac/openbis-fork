@@ -38,10 +38,11 @@ public class DownloadFileGridModel extends AbstractFileGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
+        configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
         configs.add(createRegistererColumnConfig());
-        configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
-        configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
+        configs.add(createContentTypeColumnConfig());
+        configs.add(createFileSizeColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         return configs;
     }
@@ -54,8 +55,8 @@ public class DownloadFileGridModel extends AbstractFileGridModel
             final File file = (File) data[i];
             final Object[] objects =
                     new Object[]
-                        { file.getName(), file.getRegisterer().getEmail(), file.getContentType(), file.getSize(),
-                                file.getExpirationDate() };
+                        { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
+                                file.getContentType(), file.getSize(), file.getExpirationDate() };
             list.add(objects);
         }
         return list;
@@ -64,6 +65,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
+        fieldDefs.add(new StringFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));

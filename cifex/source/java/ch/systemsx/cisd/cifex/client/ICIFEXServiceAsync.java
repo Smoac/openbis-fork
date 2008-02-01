@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -66,14 +65,14 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listDownloadFiles(final AsyncCallback callback);
 
     /**
-     * Deletes the Cifex <code>User</code>.
+     * Deletes an user given by its <var>email</var>.
      */
-    public void tryToDeleteUser(final User user, final AsyncCallback callback);
+    public void tryToDeleteUser(final String email, final AsyncCallback callback);
 
     /**
-     * Deletes the <code>File</code>.
+     * Deletes file given by its <code>id</code>.
      */
-    public void tryToDeleteFile(final File file, final AsyncCallback callback);
+    public void tryToDeleteFile(final long id, final AsyncCallback callback);
 
     /**
      * List the files uploaded by the currently logged user.

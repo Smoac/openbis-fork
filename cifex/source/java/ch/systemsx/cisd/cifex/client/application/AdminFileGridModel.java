@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gwtext.client.data.DateFieldDef;
+import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -38,10 +39,11 @@ public class AdminFileGridModel extends AbstractFileGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
+        configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
         configs.add(createRegistererColumnConfig());
-        configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
-        configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
+        configs.add(createContentTypeColumnConfig());
+        configs.add(createFileSizeColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;
@@ -55,8 +57,9 @@ public class AdminFileGridModel extends AbstractFileGridModel
             final File file = (File) data[i];
             final Object[] objects =
                     new Object[]
-                        { file.getName(), file.getRegisterer().getEmail(), file.getContentType(), file.getSize(),
-                                file.getExpirationDate(), messageResources.getActionDeleteLabel() };
+                        { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
+                                file.getContentType(), file.getSize(), file.getExpirationDate(),
+                                messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
@@ -65,6 +68,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
+        fieldDefs.add(new IntegerFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));

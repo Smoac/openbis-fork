@@ -32,7 +32,9 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 abstract class AbstractFileGridModel extends AbstractDataGridModel
 {
 
-    static final String NAME = "name";
+    protected static final String ID = "id";
+
+    protected static final String NAME = "name";
 
     protected static final String CONTENT_TYPE = "contentType";
 
@@ -49,14 +51,20 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         super(messageResources);
     }
 
-    protected ColumnConfig createNameColumnConfig()
+    protected final ColumnConfig createIdColumnConfig()
+    {
+        final ColumnConfig nameConfig = createSortableColumnConfig(ID, Constants.TABLE_EMPTY_VALUE, 50);
+        return nameConfig;
+    }
+
+    protected final ColumnConfig createNameColumnConfig()
     {
         final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100);
         nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return nameConfig;
     }
 
-    protected ColumnConfig createExpirationDateColumnConfig()
+    protected final ColumnConfig createExpirationDateColumnConfig()
     {
         final ColumnConfig expirationDateConfig =
                 createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
@@ -64,7 +72,7 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return expirationDateConfig;
     }
 
-    protected ColumnConfig createRegistererColumnConfig()
+    protected final ColumnConfig createRegistererColumnConfig()
     {
         final ColumnConfig registererConfig =
                 createSortableColumnConfig(REGISTERER, messageResources.getFileRegistererLabel(), 120);
@@ -72,12 +80,22 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return registererConfig;
     }
 
-    protected ColumnConfig createActionColumnConfig()
+    protected final ColumnConfig createActionColumnConfig()
     {
         final ColumnConfig registererConfig =
                 createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
         registererConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return registererConfig;
+    }
+
+    protected final ColumnConfig createFileSizeColumnConfig()
+    {
+        return createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120);
+    }
+
+    protected final ColumnConfig createContentTypeColumnConfig()
+    {
+        return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120);
     }
 
 }

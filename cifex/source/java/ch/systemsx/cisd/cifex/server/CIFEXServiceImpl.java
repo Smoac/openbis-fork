@@ -242,11 +242,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public final List listUsers()
+    public final User[] listUsers()
     {
         final List<UserDTO> users = domainModel.getUserManager().listUsers();
-        List<User> userList = BeanUtils.createBeanList(User.class, users);
-        return userList;
+        return BeanUtils.createBeanArray(User.class, users, null);
     }
 
     public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException
@@ -333,15 +332,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
             });
     }
 
-    public void tryToDeleteUser(final User user)
+    public void tryToDeleteUser(final String email)
     {
-        domainModel.getUserManager().tryToDeleteUser(user.getEmail());
+        domainModel.getUserManager().tryToDeleteUser(email);
     }
 
-    public void tryToDeleteFile(final File file)
+    public void tryToDeleteFile(final long id)
     {
         final IFileManager fileManager = domainModel.getFileManager();
-        fileManager.deleteFile(file.getID());
+        fileManager.deleteFile(id);
     }
 
     private void sendPasswordToNewUser(User user, String password)

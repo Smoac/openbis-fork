@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.utils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.http.client.URL;
 
@@ -51,11 +52,11 @@ public final class GWTUtils
     /**
      * Parses given URL <var>string</var> and returns the key-value pairs
      */
-    public final static HashMap parseParamString(final String string)
+    public final static Map parseParamString(final String string)
     {
         assert string != null : "Given text can not be null.";
         final String[] ray = string.split(PARAMETER_SEPARATOR);
-        final HashMap map = new HashMap();
+        final Map map = new HashMap();
         for (int i = 0; i < ray.length; i++)
         {
             final String[] substrRay = ray[i].split(KEY_VALUE_SEPARATOR);

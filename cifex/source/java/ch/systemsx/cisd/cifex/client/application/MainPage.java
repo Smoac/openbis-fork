@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -65,7 +65,7 @@ final class MainPage extends AbstractMainPage
         contentPanel.setWidth("100%");
         verticalPanel.setSpacing(5);
         contentPanel.add(verticalPanel);
-        final HashMap urlParams = context.getModel().getUrlParams();
+        final Map urlParams = context.getModel().getUrlParams();
         String fileId = null;
         if (urlParams.isEmpty() == false)
         {
@@ -174,7 +174,7 @@ final class MainPage extends AbstractMainPage
                     gridModel = new UploadedFileGridModel(messageResources);
                 }
                 final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
-                fileGrid.addGridCellListener(new FileGridCellListener());
+                fileGrid.addGridCellListener(new FileGridCellListener(new FileTableMap(files)));
                 widget = fileGrid;
             } else
             {
