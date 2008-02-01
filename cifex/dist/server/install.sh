@@ -79,17 +79,24 @@ jar -ufv "$installation_folder"/cifex.war "$war_classes"/service.properties
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
 
-# Create symlinks for easier access
+# Create symlinks for easier access.
 cd "$server_folder"
 ln -s "${rel_jetty_folder}" jetty
 
-cp -p "$installation_folder"/startup.sh "$jetty_folder"
-cp -p "$installation_folder"/shutdown.sh "$jetty_folder"
-echo "JETTY_PORT=$JETTY_PORT" > "$jetty_folder/jetty.properties"
-echo "JETTY_SSL_PORT=$JETTY_SSL_PORT" >> "$jetty_folder/jetty.properties"
-echo "JETTY_STOP_PORT=8079" >> "$jetty_folder/jetty.properties"
-echo "JETTY_STOP_KEY=secret" >> "$jetty_folder/jetty.properties"
+JETTY_BIN_DIR="$jetty_folder"/bin
+cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"
+cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
+
+# Create a file called 'jetty.properties'.
+JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
+echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
+echo "JETTY_SSL_PORT=$JETTY_SSL_PORT" >> "$JETTY_PROPERTIES"
+echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
+echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
+
+# Create a 'work' directory in jetty folder. Web applications will be unpacked there.
+mkdir -p "$jetty_folder"/work
 
 cd "$jetty_folder"
 echo Starting Jetty...
-./startup.sh $3 $4
+./bin/startup.sh $3 $4
