@@ -61,10 +61,6 @@ final class MainPage extends AbstractMainPage
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
         createUserPanel(false);
-        final VerticalPanel verticalPanel = new VerticalPanel();
-        contentPanel.setWidth("100%");
-        verticalPanel.setSpacing(5);
-        contentPanel.add(verticalPanel);
         final Map urlParams = context.getModel().getUrlParams();
         String fileId = null;
         if (urlParams.isEmpty() == false)
@@ -74,16 +70,18 @@ final class MainPage extends AbstractMainPage
         final User user = context.getModel().getUser();
         if (fileId == null)
         {
+            final VerticalPanel verticalPanel = createVerticalPanelPart();
             verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
             verticalPanel.add(createExplanationPanel());
             verticalPanel.add(new FileUploadWidget(context));
+            contentPanel.add(verticalPanel);
             if (user.isPermanent())
             {
-                verticalPanel.add(createUserPanel);
+                contentPanel.add(createUserPanel);
             }
         }
-        createListFilesGrid(verticalPanel, fileId, UPLOAD);
-        createListFilesGrid(verticalPanel, fileId, DOWNLOAD);
+        createListFilesGrid(contentPanel, fileId, UPLOAD);
+        createListFilesGrid(contentPanel, fileId, DOWNLOAD);
         return contentPanel;
     }
 
@@ -91,9 +89,9 @@ final class MainPage extends AbstractMainPage
     // Helper classes
     //
 
-    private void createListFilesGrid(VerticalPanel verticalPanel, String fileId, boolean showDownload)
+    private void createListFilesGrid(final ContentPanel contentPanel, String fileId, boolean showDownload)
     {
-        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, verticalPanel, fileId, showDownload);
+        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, contentPanel, fileId, showDownload);
         if (showDownload)
         {
             context.getCifexService().listDownloadFiles(fileAsyncCallback);
@@ -106,7 +104,7 @@ final class MainPage extends AbstractMainPage
     private final class FileAsyncCallback extends AbstractAsyncCallback
     {
 
-        private final VerticalPanel verticalPanel;
+        private final ContentPanel contentPanel;
 
         /**
          * The file we are interested in.
@@ -120,7 +118,7 @@ final class MainPage extends AbstractMainPage
 
         private boolean showDownloaded;
 
-        FileAsyncCallback(final ViewContext context, final VerticalPanel verticalPanel, final String fileId,
+        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel, final String fileId,
                 boolean showDownload)
         {
             super(context);
@@ -132,7 +130,7 @@ final class MainPage extends AbstractMainPage
                 titleWidget = createPartTitle(context.getMessageResources().getUploadedFilesPartTitle());
             }
 
-            this.verticalPanel = verticalPanel;
+            this.contentPanel = contentPanel;
             this.fileId = fileId;
             this.showDownloaded = showDownload;
         }
@@ -173,8 +171,8 @@ final class MainPage extends AbstractMainPage
                 {
                     gridModel = new UploadedFileGridModel(messageResources);
                 }
-                final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, null);
-                fileGrid.addGridCellListener(new FileDownloadGridCellListener(new FileTableMap(files)));
+                final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, "100px");
+                fileGrid.addGridCellListener(new FileDownloadGridCellListener());
                 widget = fileGrid;
             } else
             {
@@ -183,8 +181,10 @@ final class MainPage extends AbstractMainPage
                         .getUploadedFilesEmpty());
                 widget = html;
             }
+            final VerticalPanel verticalPanel = createVerticalPanelPart();
             verticalPanel.add(titleWidget);
             verticalPanel.add(widget);
+            contentPanel.add(verticalPanel);
         }
     }
 

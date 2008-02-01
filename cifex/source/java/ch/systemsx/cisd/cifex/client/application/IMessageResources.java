@@ -26,6 +26,55 @@ import com.google.gwt.i18n.client.Messages;
 public interface IMessageResources extends Messages
 {
     /**
+     * Returns the label for the delete action.
+     * 
+     * @gwt.key action.delete.label
+     */
+    public String getActionDeleteLabel();
+
+    /**
+     * Returns the action label.
+     * 
+     * @gwt.key action.label
+     */
+    public String getActionLabel();
+
+    /**
+     * Returns the role name for an administrator.
+     * 
+     * @gwt.key usercreation.role.admin
+     */
+    public String getAdminRoleName();
+
+    /**
+     * Returns <i>CISD</i> logo title.
+     * 
+     * @gwt.key cisd.logo.title
+     */
+    public String getCISDLogoTitle();
+
+    /**
+     * Returns the label for creating new User
+     * 
+     * @gwt.key usercreation.label
+     */
+    public String getCreateUserLabel();
+
+    /**
+     * Returns the message text for no file to download.
+     * 
+     * @gwt.key downloadfiles.empty
+     */
+    public String getDownloadFilesEmpty();
+
+    /**
+     * Returns the download file part title.
+     * 
+     * @gwt.key downloadfiles.part.title
+     */
+    public String getDownloadFilesPartTitle();
+
+    /**
      * Returns a default message for exception that does not contain any message.
      * <p>
      * The returned error message will contain the type of the exception thrown.
@@ -36,6 +85,83 @@ public interface IMessageResources extends Messages
     public String getExceptionWithoutMessage(final String typeName);
 
     /**
+     * Returns the label of the file content type column.
+     * 
+     * @gwt.key file.contenttype.label
+     */
+    public String getFileContentTypeLabel();
+
+    /**
+     * Returns the content the confirm MessageBox, to delete a file.
+     * 
+     * @gwt.key file.delete.confirm.text
+     */
+    public String getFileDeleteConfirmText(final String name);
+
+    /**
+     * Returns the title for file deletion.
+     * 
+     * @gwt.key file.delete.title
+     */
+    public String getFileDeleteTitle();
+
+    /**
+     * Returns the label of the file expiration date column.
+     * 
+     * @gwt.key file.expirationdate.label
+     */
+    public String getFileExpirationDateLabel();
+
+    /**
+     * Returns the label of the file name column.
+     * 
+     * @gwt.key file.name.label
+     */
+    public String getFileNameLabel();
+
+    /**
+     * Returns the label of the file registerer column.
+     * 
+     * @gwt.key file.registerer.label
+     */
+    public String getFileRegistererLabel();
+
+    /**
+     * Returns the label of the file size column.
+     * 
+     * @gwt.key file.size.label
+     */
+    public String getFileSizeLabel();
+
+    /**
+     * Returns the label of the file registerer column.
+     * 
+     * @gwt.key files.part.title
+     */
+    public String getFilesPartTitle();
+
+    /**
+     * Returns the file upload submit button label.
+     * 
+     * @gwt.key fileupload.button.label
+     */
+    public String getFileUploadButtonLabel();
+
+    /**
+     * Returns the file upload field label.
+     * 
+     * @gwt.key fileupload.field.label
+     */
+    public String getFileUploadFieldLabel(final int index);
+
+    /**
+     * Returns the title of the file upload field set.
+     * 
+     * @gwt.key fileupload.legend
+     */
+    public String getFileUploadLegend();
+
+    /**
      * Returns a default invocation exception message (as it obviously does not contain any).
      * 
      * @gwt.key exception.invocation.message
@@ -43,11 +169,25 @@ public interface IMessageResources extends Messages
     public String getInvocationExceptionMessage();
 
     /**
+     * Returns the label for the login form that decides whether it is an admin login.
+     * 
+     * @gwt.key login.admin.label
+     */
+    public String getLoginAdminLabel();
+
+    /**
      * Returns the button label for the login form.
      * 
      * @gwt.key login.button.label
      */
     public String getLoginButtonLabel();
+
+    /**
+     * Returns the email label for the login form.
+     * 
+     * @gwt.key login.email.label
+     */
+    public String getLoginEmailLabel();
 
     /**
      * Returns message that you get when the login failed.
@@ -71,18 +211,11 @@ public interface IMessageResources extends Messages
     public String getLoginPasswordLabel();
 
     /**
-     * Returns the email label for the login form.
+     * Returns welcome text that appears on the first page (login page).
      * 
-     * @gwt.key login.email.label
+     * @gwt.key login.welcome.text
      */
-    public String getLoginEmailLabel();
-
-    /**
-     * Returns the label for the login form that decides whether it is an admin login.
-     * 
-     * @gwt.key login.admin.label
-     */
-    public String getLoginAdminLabel();
+    public String getLoginWelcomeText();
 
     /**
      * Returns the logout label for the logout link.
@@ -99,32 +232,11 @@ public interface IMessageResources extends Messages
     public String getLogoutLinkTooltip();
 
     /**
-     * Returns the label for creating new User
-     * 
-     * @gwt.key usercreation.label
-     */
-    public String getCreateUserLabel();
-
-    /**
-     * Returns message that creating a new user was successfull.
-     * 
-     * @gwt.key usercreation.success.message
-     */
-    public String getUserCreationSuccessMessage(String user);
-
-    /**
      * Returns the title for error message box.
      * 
      * @gwt.key messagebox.error.title
      */
     public String getMessageBoxErrorTitle();
-
-    /**
-     * Returns the title for warning message box.
-     * 
-     * @gwt.key messagebox.warning.title
-     */
-    public String getMessageBoxWarningTitle();
 
     /**
      * Returns the title for info message box.
@@ -134,32 +246,32 @@ public interface IMessageResources extends Messages
     public String getMessageBoxInfoTitle();
 
     /**
-     * Returns the title of the file upload field set.
+     * Returns the title for warning message box.
      * 
-     * @gwt.key fileupload.legend
+     * @gwt.key messagebox.warning.title
      */
-    public String getFileUploadLegend();
+    public String getMessageBoxWarningTitle();
 
     /**
-     * Returns the file upload field label.
+     * Returns label for the Password field.
      * 
-     * @gwt.key fileupload.field.label
+     * @gwt.key usercreation.password.label
      */
-    public String getFileUploadFieldLabel(final int index);
+    public String getPasswordLabel();
 
     /**
-     * Returns the file upload submit button label.
+     * Returns the Message for thhe alert Box, if the 2 Password did not match.
      * 
-     * @gwt.key fileupload.button.label
+     * @gwt.key usercreation.password.missmatch.message
      */
-    public String getFileUploadButtonLabel();
+    public String getPasswordMissmatchMessage();
 
     /**
-     * Returns the title of the recipient field set.
+     * Returns the role name for an permanent user.
      * 
-     * @gwt.key recipient.legend
+     * @gwt.key usercreation.role.permanent
      */
-    public String getRecipientLegend();
+    public String getPermanentRoleName();
 
     /**
      * Returns the recipient text area field label.
@@ -169,25 +281,32 @@ public interface IMessageResources extends Messages
     public String getRecipientFieldLabel();
 
     /**
-     * Returns the upload file part title.
+     * Returns the title of the recipient field set.
      * 
-     * @gwt.key uploadfiles.part.title
+     * @gwt.key recipient.legend
      */
-    public String getUploadFilesPartTitle();
+    public String getRecipientLegend();
 
     /**
-     * Returns the help text for uploading files.
+     * Returns the label of the user Registrator column.
      * 
-     * @gwt.key uploadfiles.help.permanent
+     * @gwt.key userlist.registrator.label
      */
-    public String getUploadFilesHelpPermanentUser();
+    public String getRegistratorLabel();
 
     /**
-     * Returns the uploaded files part title.
+     * Returns the label of the user Status column.
      * 
-     * @gwt.key uploadedfiles.part.title
+     * @gwt.key userlist.status.label
      */
-    public String getUploadedFilesPartTitle();
+    public String getStatusLabel();
+
+    /**
+     * Returns the role name for an permanent user.
+     * 
+     * @gwt.key usercreation.role.temporary
+     */
+    public String getTemporaryRoleName();
 
     /**
      * Returns the message text for no file uploaded.
@@ -197,6 +316,20 @@ public interface IMessageResources extends Messages
     public String getUploadedFilesEmpty();
 
     /**
+     * Returns the uploaded files part title.
+     * 
+     * @gwt.key uploadedfiles.part.title
+     */
+    public String getUploadedFilesPartTitle();
+
+    /**
+     * Returns the help text for uploading files.
+     * 
+     * @gwt.key uploadfiles.help.permanent
+     */
+    public String getUploadFilesHelpPermanentUser();
+
+    /**
      * Returns the help text for uploading files.
      * 
      * @gwt.key uploadfiles.help.temporary
@@ -204,95 +337,46 @@ public interface IMessageResources extends Messages
     public String getUploadFilesHelpTemporaryUser();
 
     /**
-     * Returns the download file part title.
+     * Returns the upload file part title.
      * 
-     * @gwt.key downloadfiles.part.title
+     * @gwt.key uploadfiles.part.title
      */
-    public String getDownloadFilesPartTitle();
+    public String getUploadFilesPartTitle();
 
     /**
-     * Returns the message text for no file to download.
+     * Returns the label the User Create Button
      * 
-     * @gwt.key downloadfiles.empty
+     * @gwt.key usercreation.button.label
      */
-    public String getDownloadFilesEmpty();
+    public String getUserCreateButton();
 
     /**
-     * Returns the label of the file name column.
+     * Returns message that creating a new user was successfull.
      * 
-     * @gwt.key file.name.label
+     * @gwt.key usercreation.success.message
      */
-    public String getFileNameLabel();
+    public String getUserCreationSuccessMessage(String user);
 
     /**
-     * Returns the label of the file content type column.
+     * Returns the content the confirm MessageBox, to delete an user.
      * 
-     * @gwt.key file.contenttype.label
+     * @gwt.key user.delete.confirm.text
      */
-    public String getFileContentTypeLabel();
+    public String getUserDeleteConfirmText(final String name);
 
     /**
-     * Returns the label of the file size column.
+     * Returns the title for user deletion.
      * 
-     * @gwt.key file.size.label
+     * @gwt.key user.delete.title
      */
-    public String getFileSizeLabel();
+    public String getUserDeleteTitle();
 
     /**
-     * Returns the label of the file expiration date column.
+     * Returns the error message the user gets when it tries to delete himself.
      * 
-     * @gwt.key file.expirationdate.label
+     * @gwt.key user.delete.himself
      */
-    public String getFileExpirationDateLabel();
-
-    /**
-     * Returns the label of the file registerer column.
-     * 
-     * @gwt.key file.registerer.label
-     */
-    public String getFileRegistererLabel();
-
-    /**
-     * Returns the label of the file registerer column.
-     * 
-     * @gwt.key files
-     */
-    public String getFilesPartTitle();
-
-    /**
-     * Returns welcome text that appears on the first page (login page).
-     * 
-     * @gwt.key login.welcome.text
-     */
-    public String getLoginWelcomeText();
-
-    /**
-     * Returns <i>CISD</i> logo title.
-     * 
-     * @gwt.key cisd.logo.title
-     */
-    public String getCISDLogoTitle();
-
-    /**
-     * Returns the action label.
-     * 
-     * @gwt.key action.label
-     */
-    public String getActionLabel();
-
-    /**
-     * Returns the label for the delete action.
-     * 
-     * @gwt.key action.delete.label
-     */
-    public String getActionDeleteLabel();
-
-    /**
-     * Returns the User List part title.
-     * 
-     * @gwt.key userlist.part.title
-     */
-    public String getUsersPartTitle();
+    public String getUserDeleteHimself();
 
     /**
      * Returns the label of the user email column.
@@ -309,25 +393,11 @@ public interface IMessageResources extends Messages
     public String getUserNameLabel();
 
     /**
-     * Returns the label of the user Status column.
+     * Returns the User List part title.
      * 
-     * @gwt.key userlist.status.label
+     * @gwt.key userlist.part.title
      */
-    public String getStatusLabel();
-
-    /**
-     * Returns the label of the user Registrator column.
-     * 
-     * @gwt.key userlist.registrator.label
-     */
-    public String getRegistratorLabel();
-
-    /**
-     * Returns label for the Password field.
-     * 
-     * @gwt.key usercreation.password.label
-     */
-    public String getPasswordLabel();
+    public String getUsersPartTitle();
 
     /**
      * Returns label for the validate Password field.
@@ -335,47 +405,5 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.validate.label
      */
     public String getValidatePasswordLabel();
-
-    /**
-     * Returns the content the confirm MessageBox, to delete a user.
-     * 
-     * @gwt.key action.user.delete.confirm
-     */
-    public String getDeleteUserConfirmText(String email);
-
-    /**
-     * Returns the label the User Create Button
-     * 
-     * @gwt.key usercreation.button.label
-     */
-    public String getUserCreateButton();
-
-    /**
-     * Returns the Message for thhe alert Box, if the 2 Password did not match.
-     * 
-     * @gwt.key usercreation.password.missmatch.message
-     */
-    public String getPasswordMissmatchMessage();
-
-    /**
-     * Returns the role name for an administrator.
-     * 
-     * @gwt.key usercreation.role.admin
-     */
-    public String getAdminRoleName();
-
-    /**
-     * Returns the role name for an permanent user.
-     * 
-     * @gwt.key usercreation.role.permanent
-     */
-    public String getPermanentRoleName();
-
-    /**
-     * Returns the role name for an permanent user.
-     * 
-     * @gwt.key usercreation.role.temporary
-     */
-    public String getTemporaryRoleName();
 
 }

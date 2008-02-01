@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.data.ArrayReader;
+import com.gwtext.client.data.DataProxy;
 import com.gwtext.client.data.FieldDef;
 import com.gwtext.client.data.MemoryProxy;
 import com.gwtext.client.data.RecordDef;
@@ -37,8 +38,9 @@ import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
  */
 public final class ModelBasedGrid extends Grid
 {
+    private final static Object[][] OBJECT_ARRAY_ARRAY = new Object[0][];
 
-    private final IDataGridModel model;
+    private IDataGridModel model;
 
     public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model,
             final String height)
@@ -51,9 +53,14 @@ public final class ModelBasedGrid extends Grid
         render();
     }
 
+    private final static DataProxy createDataProxy(final Object[] objects, final IDataGridModel newModel)
+    {
+        return new MemoryProxy((Object[][]) newModel.getData(objects).toArray(OBJECT_ARRAY_ARRAY));
+    }
+
     private final static Store createStore(final Object[] objects, final IDataGridModel model)
     {
-        final MemoryProxy memoryProxy = new MemoryProxy((Object[][]) model.getData(objects).toArray(new Object[0][]));
+        final DataProxy memoryProxy = createDataProxy(objects, model);
         final RecordDef recordDef = new RecordDef((FieldDef[]) model.getFieldDefs().toArray(new FieldDef[0]));
         final Store store = new Store(memoryProxy, new ArrayReader(recordDef));
         store.load();
@@ -71,6 +78,7 @@ public final class ModelBasedGrid extends Grid
         final GridConfig gridConfig = new GridConfig();
         // True to set the grid's width to the default total width of the grid's columns instead of a fixed width.
         gridConfig.setAutoWidth(true);
+        // gridConfig.setAutoHeight(true);
         // gridConfig.setMaxRowsToMeasure(5);
         // gridConfig.setAutoSizeColumns(true);
         // gridConfig.setAutoSizeHeaders(true);
@@ -82,11 +90,11 @@ public final class ModelBasedGrid extends Grid
     /** Reloads the store with given new <var>objects</var> and given <var>newModel</var>. */
     public final void reloadStore(final Object[] objects, final IDataGridModel newModel)
     {
-        final MemoryProxy memoryProxy =
-                new MemoryProxy((Object[][]) newModel.getData(objects).toArray(new Object[0][]));
+        final DataProxy dataProxy = createDataProxy(objects, newModel);
         final Store store = getStore();
-        store.setProxy(memoryProxy);
+        store.setProxy(dataProxy);
         store.reload();
+        this.model = newModel;
         render();
     }
 

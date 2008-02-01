@@ -102,8 +102,10 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, users, files);
-            
-            operationLog.info("Uploading finished.");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Uploading finished.");
+            }
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
             writer.write("Upload finished.\n");
@@ -124,8 +126,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
-    private UserDTO extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files, List<String> users)
-            throws FileUploadException, IOException
+    private UserDTO extractEmailsAndUploadFiles(final HttpServletRequest request, List<FileDTO> files,
+            List<String> users) throws FileUploadException, IOException
     {
         final UserDTO user = getUserDTO(request);
         final ServletFileUpload upload = new ServletFileUpload();
@@ -160,7 +162,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
         return user;
     }
-    
+
     private String extractFileName(FileItemStream item)
     {
         String fileName = item.getName().replace('\\', '/');

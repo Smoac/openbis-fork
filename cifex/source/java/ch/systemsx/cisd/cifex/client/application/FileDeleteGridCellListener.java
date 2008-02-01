@@ -36,7 +36,8 @@ final class FileDeleteGridCellListener extends GridCellListenerAdapter
         final String name = record.getAsString(AbstractFileGridModel.NAME);
         if (grid.getColumnModel().getDataIndex(colindex).equals(AbstractFileGridModel.ACTION))
         {
-            MessageBox.confirm("Delete File", "Are you sure you want to delete [" + name + "] ?",
+            final IMessageResources messageResources = viewContext.getMessageResources();
+            MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources.getFileDeleteConfirmText(name),
                     new MessageBox.ConfirmCallback()
                         {
                             //

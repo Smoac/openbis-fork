@@ -39,11 +39,10 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 abstract class AbstractMainPage extends BorderLayout
 {
-    
     protected IMessageResources messageResources;
-    
+
     protected VerticalPanel createUserPanel;
-    
+
     private final static LayoutRegionConfig createCenterRegion()
     {
         LayoutRegionConfig center = new LayoutRegionConfig();
@@ -137,7 +136,7 @@ abstract class AbstractMainPage extends BorderLayout
             });
         return logoutButton;
     }
-    
+
     private final Widget createCreateUserWidget(final boolean allowPermanentUsers)
     {
         return new CreateUserWidget(context, allowPermanentUsers);

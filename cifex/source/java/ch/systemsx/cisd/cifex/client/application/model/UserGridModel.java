@@ -65,6 +65,14 @@ public class UserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
+    private final ColumnConfig createRegistratorColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
+        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
+        return columnConfig;
+    }
+
     //
     // AbstractDataGridModel
     //
@@ -75,7 +83,7 @@ public class UserGridModel extends AbstractDataGridModel
         configs.add(createEmailColumnConfig());
         configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
-        configs.add(createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180));
+        configs.add(createRegistratorColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;
     }

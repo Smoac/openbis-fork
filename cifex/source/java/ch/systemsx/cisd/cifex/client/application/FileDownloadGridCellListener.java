@@ -21,7 +21,6 @@ import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
-import ch.systemsx.cisd.cifex.client.application.utils.TableMap;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -33,11 +32,8 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 final class FileDownloadGridCellListener extends GridCellListenerAdapter
 {
 
-    private final TableMap files;
-
-    FileDownloadGridCellListener(final TableMap files)
+    FileDownloadGridCellListener()
     {
-        this.files = files;
     }
 
     private final static String createDownloadUrl(final long id)

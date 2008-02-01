@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
@@ -34,29 +35,31 @@ final class UserDeleteGridCellListener extends GridCellListenerAdapter
         final IMessageResources messageResources = viewContext.getMessageResources();
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
-            final String email = grid.getStore().getAt(rowIndex).getAsString(UserGridModel.EMAIL);
+            final Record record = grid.getStore().getAt(rowIndex);
+            final String email = record.getAsString(UserGridModel.EMAIL);
+            final String name = record.getAsString(UserGridModel.FULL_NAME);
             if (email.equals(viewContext.getModel().getUser().getEmail()))
             {
-                MessageBox.alert(messageResources.getMessageBoxErrorTitle(), "You cannot delete yourself.");
+                MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getUserDeleteHimself());
                 return;
             }
-            MessageBox.confirm(messageResources.getMessageBoxInfoTitle(), messageResources
-                    .getDeleteUserConfirmText(email), new MessageBox.ConfirmCallback()
-                {
-
-                    //
-                    // ConfirmCallback
-                    //
-
-                    public final void execute(final String btnID)
-                    {
-                        if (btnID.equals("yes"))
+            MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources.getUserDeleteConfirmText(name),
+                    new MessageBox.ConfirmCallback()
                         {
-                            viewContext.getCifexService().tryToDeleteUser(email,
-                                    new DeleteUserAsyncCallback((ModelBasedGrid) grid));
-                        }
-                    }
-                });
+
+                            //
+                            // ConfirmCallback
+                            //
+
+                            public final void execute(final String btnID)
+                            {
+                                if (btnID.equals("yes"))
+                                {
+                                    viewContext.getCifexService().tryToDeleteUser(email,
+                                            new DeleteUserAsyncCallback((ModelBasedGrid) grid));
+                                }
+                            }
+                        });
 
         }
     }

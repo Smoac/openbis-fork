@@ -91,7 +91,7 @@ final class AdminMainPage extends AbstractMainPage
         private Widget createUserTable(final User[] users)
         {
             final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
-            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, null);
+            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, "100px");
             // Delete user function
             userGrid.addGridCellListener(new UserDeleteGridCellListener(context));
             return userGrid;
@@ -119,9 +119,9 @@ final class AdminMainPage extends AbstractMainPage
         private final Widget createFileTable(final File[] files)
         {
             final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
-            final ModelBasedGrid fileGrid = new ModelBasedGrid(context.getMessageResources(), files, gridModel, null);
-            final FileTableMap fileTableMap = new FileTableMap(files);
-            fileGrid.addGridCellListener(new FileDownloadGridCellListener(fileTableMap));
+            final ModelBasedGrid fileGrid =
+                    new ModelBasedGrid(context.getMessageResources(), files, gridModel, "100px");
+            fileGrid.addGridCellListener(new FileDownloadGridCellListener());
             fileGrid.addGridCellListener(new FileDeleteGridCellListener(context));
             return fileGrid;
         }
