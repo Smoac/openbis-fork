@@ -273,10 +273,10 @@ public class ProcessExecutionHelper
     {
         if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the watchDog
         {
-            machineLog.error(String.format("Execution of %s interupted", process), ex);
+            machineLog.error(String.format("Execution of %s interrupted", process), ex);
         } else
         {
-            operationLog.warn(String.format("Execution of %s interupted after timeout", process));
+            operationLog.warn(String.format("Execution of %s interrupted after timeout", process));
         }
     }
 
@@ -307,7 +307,7 @@ public class ProcessExecutionHelper
                             {
                                 exitStatus.setInterruptedAfterTimeout();
                                 operationLog.info(String.format(
-                                        "Interupting waiting for the process %s by the watchDog", process));
+                                        "Interrupting waiting for the process %s by the watchDog", process));
                                 // stop waiting for the process. We need this, because sometimes the child process,
                                 // which is an external program, gets stuck and cannot be destroyed. We do not want the
                                 // whole system to hang because of that.
