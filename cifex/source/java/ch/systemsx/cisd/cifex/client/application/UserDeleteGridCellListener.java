@@ -15,12 +15,12 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Christian Ribeaud
  */
-final class UserGridCellListener extends GridCellListenerAdapter
+final class UserDeleteGridCellListener extends GridCellListenerAdapter
 {
 
     private final ViewContext viewContext;
 
-    UserGridCellListener(final ViewContext viewContext)
+    UserDeleteGridCellListener(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
@@ -80,7 +80,7 @@ final class UserGridCellListener extends GridCellListenerAdapter
         // AbstractAsyncCallback
         //
 
-        public void onSuccess(final Object result)
+        public final void onSuccess(final Object result)
         {
             final IDataGridModel model = modelBasedGrid.getModel();
             viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)

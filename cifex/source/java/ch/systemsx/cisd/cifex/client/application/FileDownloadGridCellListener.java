@@ -30,12 +30,12 @@ import ch.systemsx.cisd.cifex.client.dto.File;
  * 
  * @author Christian Ribeaud
  */
-final class FileGridCellListener extends GridCellListenerAdapter
+final class FileDownloadGridCellListener extends GridCellListenerAdapter
 {
 
     private final TableMap files;
 
-    FileGridCellListener(final TableMap files)
+    FileDownloadGridCellListener(final TableMap files)
     {
         this.files = files;
     }

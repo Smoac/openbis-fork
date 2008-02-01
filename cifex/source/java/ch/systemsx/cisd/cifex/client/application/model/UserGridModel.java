@@ -58,7 +58,7 @@ public class UserGridModel extends AbstractDataGridModel
         return actionColumn;
     }
 
-    private ColumnConfig createEmailColumnConfig()
+    private final ColumnConfig createEmailColumnConfig()
     {
         final ColumnConfig columnConfig = createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180);
         columnConfig.setRenderer(UserRenderer.USER_RENDERER);
