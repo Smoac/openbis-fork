@@ -158,7 +158,7 @@ public class ProcessExecutionHelperTest
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
                         operationLog, machineLog);
-        assertTrue(ProcessExecutionHelper.isProcessTerminated(result.exitValue()));
+        assertTrue(result.hasBlocked() || ProcessExecutionHelper.isProcessTerminated(result.exitValue()));
     }
 
     @Test(groups =

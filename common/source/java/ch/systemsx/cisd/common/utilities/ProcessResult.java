@@ -15,7 +15,9 @@ import org.apache.log4j.Logger;
  */
 public final class ProcessResult
 {
-    private final Process processOrNull;
+    private final Process processOrNull; // null if not started
+
+    private final boolean hasBlocked;
 
     private final List<String> commandLine;
 
@@ -27,11 +29,32 @@ public final class ProcessResult
 
     private List<String> outputLines;
 
-    ProcessResult(Process processOrNull, List<String> commandLine, Logger operationLog, Logger machineLog)
+    // process finished or was terminated after timeout
+    public static ProcessResult create(Process process, List<String> commandLine, Logger operationLog, Logger machineLog)
+    {
+        return new ProcessResult(process, false, commandLine, operationLog, machineLog);
+    }
+
+    // process could not start at all
+    public static ProcessResult createNotStarted(List<String> commandLine, Logger operationLog, Logger machineLog)
+    {
+        return new ProcessResult(null, false, commandLine, operationLog, machineLog);
+    }
+
+    // process started, but was blocked and could not be terminated, so we stopped waiting for it
+    public static ProcessResult createWaitingInterrupted(Process process, List<String> commandLine,
+            Logger operationLog, Logger machineLog)
+    {
+        return new ProcessResult(process, true, commandLine, operationLog, machineLog);
+    }
+
+    private ProcessResult(Process processOrNull, boolean hasBlocked, List<String> commandLine, Logger operationLog,
+            Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = new File(commandLine.get(0)).getName();
         this.processOrNull = processOrNull;
+        this.hasBlocked = hasBlocked;
         this.operationLog = operationLog;
         this.machineLog = machineLog;
         this.outputLines = null;
@@ -84,7 +107,7 @@ public final class ProcessResult
 
     public int exitValue()
     {
-        if (processOrNull != null)
+        if (hasBlocked == false && processOrNull != null)
         {
             return processOrNull.exitValue();
         } else
@@ -103,7 +126,16 @@ public final class ProcessResult
      */
     public boolean isRun()
     {
-        return exitValue() != ProcessExecutionHelper.NO_EXIT_VALUE;
+        return processOrNull != null;
+    }
+
+    /**
+     * Returns <code>true</code> if the process could not been terminated after the timeout and we stopped waiting for
+     * it.
+     */
+    public boolean hasBlocked()
+    {
+        return hasBlocked;
     }
 
     /**
@@ -136,6 +168,10 @@ public final class ProcessResult
         } else if (isTerminated())
         {
             operationLog.log(logLevel, String.format("[%s] process was destroyed.", commandName));
+        } else if (hasBlocked())
+        {
+            operationLog.log(logLevel, String.format("[%s] process has blocked and could not be destroyed.",
+                    commandName));
         } else
         {
             operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", commandName,
