@@ -33,6 +33,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
@@ -93,7 +94,10 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        operationLog.info("Uploading ...");
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info("Uploading ...");
+        }
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
@@ -102,15 +106,15 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
         try
         {
-            List<FileDTO> files = new ArrayList<FileDTO>();
-            List<String> users = new ArrayList<String>();
+            final List<FileDTO> files = new ArrayList<FileDTO>();
+            final List<String> users = new ArrayList<String>();
             final UserDTO requestUser = extractEmailsAndUploadFiles(request, files, users);
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, users, files);
-            if (operationLog.isInfoEnabled())
+            if (operationLog.isDebugEnabled())
             {
-                operationLog.info("Uploading finished.");
+                operationLog.debug("Uploading finished.");
             }
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
@@ -118,13 +122,14 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             if (invalidEmailAddresses.isEmpty() == false)
             {
                 writer.write("Invalid email addresses found: ");
-                for (String email : invalidEmailAddresses)
+                for (final String email : invalidEmailAddresses)
                 {
                     writer.write(email);
                     writer.write(' ');
                 }
             }
             writer.flush();
+            writer.close();
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
@@ -144,21 +149,33 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         while (iter.hasNext())
         {
             final FileItemStream item = iter.next();
-            operationLog.info("Handle field '" + item.getFieldName() + "' with file: " + item.getName());
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Handle field '%s' with file '%s'.", item.getFieldName(), item
+                        .getName()));
+            }
             final InputStream stream = item.openStream();
             if (item.isFormField() == false)
             {
-                final String fileName = extractFileName(item);
+                final String fileName = item.getName();
                 // Blank file name are empty file fields.
                 if (StringUtils.isNotBlank(fileName))
                 {
-                    files.add(fileManager.saveFile(user, fileName, item.getContentType(), stream));
+                    final FileDTO file =
+                            fileManager.saveFile(user, FilenameUtils.getName(fileName), item.getContentType(), stream);
+                    files.add(file);
+                } else
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format("No file specified in field '%s'.", item.getFieldName()));
+                    }
                 }
             } else
             {
                 if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
                 {
-                    StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream));
+                    final StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream));
                     while (stringTokenizer.hasMoreTokens())
                     {
                         users.add(stringTokenizer.nextToken());
@@ -167,16 +184,5 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             }
         }
         return user;
-    }
-
-    private String extractFileName(FileItemStream item)
-    {
-        String fileName = item.getName().replace('\\', '/');
-        int indexOfLastPathSeparator = fileName.lastIndexOf('/');
-        if (indexOfLastPathSeparator >= 0)
-        {
-            fileName = fileName.substring(indexOfLastPathSeparator + 1);
-        }
-        return fileName;
     }
 }

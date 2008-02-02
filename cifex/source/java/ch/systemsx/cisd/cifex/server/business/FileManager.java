@@ -64,7 +64,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
-    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
     FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
     {
@@ -103,13 +103,13 @@ final class FileManager extends AbstractManager implements IFileManager
         if (file.exists())
         {
             file.delete();
-            if (logger.isInfoEnabled())
+            if (operationLog.isInfoEnabled())
             {
-                logger.info("File [" + path + "] deleted.");
+                operationLog.info("File [" + path + "] deleted.");
             }
         } else
         {
-            logger.warn("File [" + path + "] not deleted: doesn't exist.");
+            operationLog.warn("File [" + path + "] not deleted: doesn't exist.");
         }
     }
 
@@ -133,11 +133,11 @@ final class FileManager extends AbstractManager implements IFileManager
     public final void deleteExpiredFiles()
     {
         final List<FileDTO> expiredFiles = daoFactory.getFileDAO().getExpiredFiles();
-        if (logger.isInfoEnabled() && expiredFiles.size() > 0)
+        if (operationLog.isInfoEnabled() && expiredFiles.size() > 0)
         {
-            logger.info("Found " + expiredFiles.size() + " expired files.");
+            operationLog.info("Found " + expiredFiles.size() + " expired files.");
         }
-        RuntimeException ex_all = null; 
+        RuntimeException ex_all = null;
         for (final FileDTO file : expiredFiles)
         {
             try
@@ -145,18 +145,18 @@ final class FileManager extends AbstractManager implements IFileManager
                 boolean success = daoFactory.getFileDAO().deleteFile(file.getID());
                 if (success)
                 {
-                    if (logger.isInfoEnabled())
+                    if (operationLog.isInfoEnabled())
                     {
-                        logger.info("Expired file '" + file.getPath() + "' removed from database.");
+                        operationLog.info("Expired file '" + file.getPath() + "' removed from database.");
                     }
                 } else
                 {
-                    logger.warn("Expired file '" + file.getPath() + "' could not be found in the database.");
+                    operationLog.warn("Expired file '" + file.getPath() + "' could not be found in the database.");
                 }
-            deleteFromFileSystem(file.getPath());
+                deleteFromFileSystem(file.getPath());
             } catch (RuntimeException ex)
             {
-                logger.error("Error deleting file '" + file.getPath() + "'.", ex);
+                operationLog.error("Error deleting file '" + file.getPath() + "'.", ex);
                 if (ex_all == null)
                 {
                     ex_all = ex;
@@ -210,28 +210,45 @@ final class FileManager extends AbstractManager implements IFileManager
 
         final File folder = createFolderFor(user);
         final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
-        OutputStream outputStream = null;
-        CountingInputStream inputStream = null;
         try
         {
-            outputStream = new FileOutputStream(file);
-            inputStream = new CountingInputStream(input);
-            IOUtils.copy(inputStream, outputStream);
-            final FileDTO fileDTO = new FileDTO(user.getID());
-            fileDTO.setName(fileName);
-            fileDTO.setContentType(contentType);
-            fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
-            fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
-            fileDTO.setSize(inputStream.getByteCount());
-            daoFactory.getFileDAO().createFile(fileDTO);
-            return fileDTO;
-        } catch (IOException ex)
+            OutputStream outputStream = null;
+            CountingInputStream inputStream = null;
+            try
+            {
+                outputStream = new FileOutputStream(file);
+                inputStream = new CountingInputStream(input);
+                IOUtils.copy(inputStream, outputStream);
+                final long byteCount = inputStream.getByteCount();
+                if (byteCount > 0)
+                {
+                    final FileDTO fileDTO = new FileDTO(user.getID());
+                    fileDTO.setName(fileName);
+                    fileDTO.setContentType(contentType);
+                    fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
+                    fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+                    fileDTO.setSize(byteCount);
+                    daoFactory.getFileDAO().createFile(fileDTO);
+                    return fileDTO;
+                } else
+                {
+                    final String msgFormat = "File '%s' does not seem to exist. It has not been saved.";
+                    operationLog.warn(String.format(msgFormat, fileName));
+                    file.delete();
+                    throw UserFailureException.fromTemplate(msgFormat, fileName);
+                }
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                IOUtils.closeQuietly(inputStream);
+                IOUtils.closeQuietly(outputStream);
+            }
+        } catch (RuntimeException e)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
+            file.delete();
+            throw e;
         }
     }
 
@@ -294,7 +311,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         return invalidEmailAdresses;
     }
-    
+
     private UserDTO tryToCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
             List<String> invalidEmailAdresses, String password)
     {

@@ -123,6 +123,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         }
         writer.write(message);
         writer.flush();
+        writer.close();
     }
 
     //
