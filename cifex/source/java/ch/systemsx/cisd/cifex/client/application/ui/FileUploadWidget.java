@@ -30,6 +30,8 @@ import com.gwtext.client.widgets.form.TextArea;
 import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
+import com.gwtext.client.widgets.form.ValidationException;
+import com.gwtext.client.widgets.form.Validator;
 import com.gwtext.client.widgets.form.event.FormListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
@@ -93,7 +95,6 @@ public class FileUploadWidget extends Form
                         }
                         MessageBox.alert(title, response);
                     }
-                    // button.enable();
                     context.getPageController().createMainPage();
                 }
 
@@ -172,15 +173,25 @@ public class FileUploadWidget extends Form
     {
         final TextAreaConfig textAreaConfig = new TextAreaConfig();
         textAreaConfig.setAllowBlank(false);
-        textAreaConfig.setFieldLabel(context.getMessageResources().getRecipientFieldLabel());
+        final IMessageResources messageResources = context.getMessageResources();
+        textAreaConfig.setFieldLabel(messageResources.getRecipientFieldLabel());
         textAreaConfig.setName("email-addresses");
         textAreaConfig.setGrow(true);
         textAreaConfig.setPreventScrollbars(true);
         textAreaConfig.setWidth(FIELD_WIDTH);
-        // TODO 2008-01-27, Christian Ribeaud: use regex validation here or our own validation schema.
-        // textAreaConfig.setRegex(regex);
-        // textAreaConfig.setRegexText(regexText);
-        // textAreaConfig.setValidator(validator);
+        textAreaConfig.setValidator(new Validator()
+            {
+
+                //
+                // Validator
+                //
+
+                public final boolean validate(final String value) throws ValidationException
+                {
+                    return true;
+                }
+            });
+        textAreaConfig.setInvalidText(messageResources.getRecipientFieldInvalidText());
         return textAreaConfig;
     }
 

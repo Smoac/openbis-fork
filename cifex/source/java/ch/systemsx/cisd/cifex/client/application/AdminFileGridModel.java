@@ -26,6 +26,8 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
+ * A <code>AbstractFileGridModel</code> extension for files in the administration.
+ * 
  * @author Izabela Adamczyk
  */
 public class AdminFileGridModel extends AbstractFileGridModel
@@ -43,7 +45,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         configs.add(createNameColumnConfig());
         configs.add(createRegistererColumnConfig());
         configs.add(createContentTypeColumnConfig());
-        configs.add(createFileSizeColumnConfig());
+        configs.add(createSizeColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;

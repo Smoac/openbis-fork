@@ -25,6 +25,8 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
+ * A <code>AbstractFileGridModel</code> extension for downloaded files.
+ * 
  * @author Izabela Adamczyk
  */
 public class DownloadFileGridModel extends AbstractFileGridModel
@@ -42,7 +44,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         configs.add(createNameColumnConfig());
         configs.add(createRegistererColumnConfig());
         configs.add(createContentTypeColumnConfig());
-        configs.add(createFileSizeColumnConfig());
+        configs.add(createSizeColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         return configs;
     }

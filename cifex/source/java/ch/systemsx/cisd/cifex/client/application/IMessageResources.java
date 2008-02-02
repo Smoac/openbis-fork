@@ -281,6 +281,13 @@ public interface IMessageResources extends Messages
     public String getRecipientFieldLabel();
 
     /**
+     * Returns the recipient text area field label.
+     * 
+     * @gwt.key recipient.field.invalid.text
+     */
+    public String getRecipientFieldInvalidText();
+
+    /**
      * Returns the title of the recipient field set.
      * 
      * @gwt.key recipient.legend

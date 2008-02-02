@@ -53,13 +53,13 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected final ColumnConfig createIdColumnConfig()
     {
-        final ColumnConfig nameConfig = createSortableColumnConfig(ID, Constants.TABLE_EMPTY_VALUE, 50);
+        final ColumnConfig nameConfig = createSortableColumnConfig(ID, Constants.TABLE_EMPTY_VALUE, 20);
         return nameConfig;
     }
 
     protected final ColumnConfig createNameColumnConfig()
     {
-        final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 100);
+        final ColumnConfig nameConfig = createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 140);
         nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return nameConfig;
     }
@@ -67,7 +67,7 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final ColumnConfig createExpirationDateColumnConfig()
     {
         final ColumnConfig expirationDateConfig =
-                createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 140);
+                createSortableColumnConfig(EXPIRATION_DATE, messageResources.getFileExpirationDateLabel(), 200);
         expirationDateConfig.setRenderer(DateRenderer.DATE_RENDERER);
         return expirationDateConfig;
     }
@@ -82,20 +82,19 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected final ColumnConfig createActionColumnConfig()
     {
-        final ColumnConfig registererConfig =
-                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
+        final ColumnConfig registererConfig = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 80);
         registererConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return registererConfig;
     }
 
-    protected final ColumnConfig createFileSizeColumnConfig()
+    protected final ColumnConfig createSizeColumnConfig()
     {
-        return createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120);
+        return createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 60);
     }
 
     protected final ColumnConfig createContentTypeColumnConfig()
     {
-        return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120);
+        return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 140);
     }
 
 }

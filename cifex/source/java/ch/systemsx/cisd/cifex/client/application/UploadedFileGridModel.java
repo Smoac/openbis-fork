@@ -25,6 +25,8 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
+ * A <code>AbstractFileGridModel</code> extension for uploaded files.
+ * 
  * @author Izabela Adamczyk
  */
 public class UploadedFileGridModel extends AbstractFileGridModel
@@ -40,8 +42,8 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         final List configs = new ArrayList();
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
-        configs.add(createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(), 120));
-        configs.add(createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 120));
+        configs.add(createContentTypeColumnConfig());
+        configs.add(createSizeColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         return configs;
     }
