@@ -48,7 +48,7 @@
   -->
 
   <root>
-    <priority value="info" />
+    <priority value="debug" />
     <appender-ref ref="STDOUT" />
   </root>
 
