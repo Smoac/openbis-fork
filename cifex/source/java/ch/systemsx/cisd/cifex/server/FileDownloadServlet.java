@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -48,8 +49,9 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
 
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException
+            throws ServletException, IOException, InvalidSessionException
     {
+        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not valid.
         final String fileIdParameter = request.getParameter(Constants.FILE_ID_PARAMETER);
         if (StringUtils.isNotBlank(fileIdParameter))
         {
@@ -59,7 +61,7 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
             {
                 final long fileId = Long.parseLong(fileIdParameter);
                 // Do not check for null value.
-                final FileOutput fileOutput = domainModel.getFileManager().getFile(getUserDTO(request), fileId);
+                final FileOutput fileOutput = domainModel.getFileManager().getFile(requestUser, fileId);
                 final Long size = fileOutput.getBasicFile().getSize();
                 if (size != null && size <= Integer.MAX_VALUE)
                 {

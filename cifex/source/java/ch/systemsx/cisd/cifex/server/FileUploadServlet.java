@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.CollectionUtils;
 
@@ -97,8 +98,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException
+            throws ServletException, IOException, InvalidSessionException
     {
+        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not valid.
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
@@ -129,7 +131,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Request of user '%s' has a content length of %s.",
-                        getUserDTO(request).getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
+                        requestUser.getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
             }
             if (contentLength > maxUploadSizeInBytes)
             {
@@ -142,7 +144,6 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             }
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> users = new ArrayList<String>();
-            final UserDTO requestUser = getUserDTO(request);
             extractEmailsAndUploadFiles(request, requestUser, filenamesToUpload, files, users);
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
