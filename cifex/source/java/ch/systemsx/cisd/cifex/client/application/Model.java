@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -38,6 +39,8 @@ public final class Model
      */
     private Map urlParams = new HashMap();
 
+    private Configuration configuration;
+    
     public final Map getUrlParams()
     {
         return urlParams;
@@ -51,12 +54,24 @@ public final class Model
 
     public final void setUser(final User user)
     {
-        assert user != null : "Do not set an null user.";
+        assert user != null : "User must not be null.";
         this.user = user;
     }
 
     public final User getUser()
     {
         return user;
+    }
+
+    public final Configuration getConfiguration()
+    {
+        return configuration;
+    }
+
+    public final void setConfiguration(Configuration configuration)
+    {
+        assert configuration != null : "Configuration must not be null.";
+        
+        this.configuration = configuration;
     }
 }

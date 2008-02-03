@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -44,6 +45,15 @@ public interface ICIFEXService extends RemoteService
      */
     public void logout();
 
+    /**
+     * Returns the configuration data of this CIFEX instance.
+     * 
+     * @return The configuration data.
+     * @throws InvalidSessionException if user not logged in.
+
+     */
+    public Configuration getConfiguration() throws InvalidSessionException;
+    
     /**
      * Returns the currently logged user if this user is already authenticated.
      * 

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -185,6 +186,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
     //
     // ICifexService
     //
+
+    public Configuration getConfiguration() throws InvalidSessionException
+    {
+        return domainModel.getConfiguration();
+    }
 
     public final User getCurrentUser() throws InvalidSessionException
     {
@@ -415,4 +421,5 @@ public final class CIFEXServiceImpl implements ICIFEXService
         mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
             { user.getEmail() });
     }
+
 }

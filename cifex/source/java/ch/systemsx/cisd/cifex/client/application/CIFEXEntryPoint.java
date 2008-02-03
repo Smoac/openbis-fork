@@ -4,6 +4,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.form.Field;
 
@@ -12,6 +13,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -54,6 +56,41 @@ public final class CIFEXEntryPoint implements EntryPoint
         {
             viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
         }
+        cifexService.getConfiguration(new AsyncCallback()
+        {
+
+            //
+            // AsyncCallbackAdapter
+            //
+
+            public void onSuccess(Object result)
+            {
+                final Configuration configuration = (Configuration) result;
+                if (configuration != null)
+                {
+                    viewContext.getModel().setConfiguration(configuration);
+                } else
+                {
+                    onFailure(null);
+                }
+                
+            }
+            
+            public void onFailure(Throwable caught)
+            {
+                final IMessageResources resources = viewContext.getMessageResources(); 
+                final String title = resources.getMessageBoxErrorTitle();
+                final String msg = caught.getMessage();
+                if (StringUtils.isBlank(msg))
+                {
+                    MessageBox.alert(title, resources.getLoginConfigFailedMessage());
+                } else
+                {
+                    MessageBox.alert(title, resources.getLoginConfigFailedMessage() + "\n" + msg);
+                }
+            }
+
+        });
         cifexService.getCurrentUser(new AsyncCallback()
             {
 

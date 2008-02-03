@@ -37,6 +37,9 @@ class BusinessContext implements IBusinessContext
     /** How long (in minutes) the user is going to stay in the system? */
     private int userRetention;
     
+    /** The maximum size of an upload request in Megabyte. */
+    private int maxUploadRequestSizeInMB;
+    
     private IMailClient mailClient;
     
     private PasswordGenerator passwordGenerator;
@@ -71,16 +74,26 @@ class BusinessContext implements IBusinessContext
         this.userRetention = userRetention;
     }
 
+    public final int getMaxUploadRequestSizeInMB()
+    {
+        return maxUploadRequestSizeInMB;
+    }
+
+    public final void setMaxUploadRequestSizeInMB(int maxUploadRequestSizeInMB)
+    {
+        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+    }
+
     public final IMailClient getMailClient()
     {
         return mailClient;
     }
-
+    
     public final void setMailClient(IMailClient mailClient)
     {
         this.mailClient = mailClient;
     }
-
+    
     public final PasswordGenerator getPasswordGenerator()
     {
         return passwordGenerator;

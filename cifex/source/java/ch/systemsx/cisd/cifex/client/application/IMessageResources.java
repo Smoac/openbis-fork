@@ -197,6 +197,13 @@ public interface IMessageResources extends Messages
     public String getLoginFailedMessage();
 
     /**
+     * Returns the message when obtaining the program configuration failed.
+     * 
+     * @gwt.key login.getconfig.failed.message
+     */
+    public String getLoginConfigFailedMessage();
+    
+    /**
      * Returns the login field set legend.
      * 
      * @gwt.key login.legend
@@ -334,14 +341,14 @@ public interface IMessageResources extends Messages
      * 
      * @gwt.key uploadfiles.help.permanent
      */
-    public String getUploadFilesHelpPermanentUser();
+    public String getUploadFilesHelpPermanentUser(String maxRequestUploadSize);
 
     /**
      * Returns the help text for uploading files.
      * 
      * @gwt.key uploadfiles.help.temporary
      */
-    public String getUploadFilesHelpTemporaryUser();
+    public String getUploadFilesHelpTemporaryUser(String maxRequestUploadSize);
 
     /**
      * Returns the upload file part title.

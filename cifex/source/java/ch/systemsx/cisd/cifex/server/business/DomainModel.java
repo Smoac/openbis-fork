@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -151,6 +152,21 @@ public final class DomainModel implements IDomainModel
         }
     }
 
+    /**
+     * Sets the maximum request upload size in MB.
+     * <p>
+     * This is typically by <i>Spring</i> via injection.
+     * </p>
+     */
+    public final void setMaxRequestUploadSizeInMB(final int maxRequestUploadSizeInMB)
+    {
+        businessContext.setMaxUploadRequestSizeInMB(maxRequestUploadSizeInMB);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Maximum request upload size set to %d MB.", maxRequestUploadSizeInMB));
+        }
+    }
+
     private final <T> T createLoggingProxy(final T manager)
     {
         final Object proxy =
@@ -198,6 +214,16 @@ public final class DomainModel implements IDomainModel
     public final IMailClient getMailClient()
     {
         return businessContext.getMailClient();
+    }
+    
+    /**
+     * Returns the part of the configuration of this CIFEX instance that the client needs to know about.
+     */
+    public final Configuration getConfiguration()
+    {
+        final Configuration configuration = new Configuration();
+        configuration.setMaxRequestUploadSizeInMB(businessContext.getMaxUploadRequestSizeInMB());
+        return configuration;
     }
     
     /**

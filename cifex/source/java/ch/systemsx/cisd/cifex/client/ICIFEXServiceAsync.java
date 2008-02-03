@@ -43,6 +43,12 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void logout(final AsyncCallback callback);
 
     /**
+     * Returns the configuration data of this CIFEX instance.
+
+     */
+    public void getConfiguration(final AsyncCallback callback);
+    
+    /**
      * Returns the currently logged user if this user is already authenticated.
      */
     public void getCurrentUser(final AsyncCallback callback);

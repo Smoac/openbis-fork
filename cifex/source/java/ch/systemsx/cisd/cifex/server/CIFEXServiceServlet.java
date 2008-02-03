@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -65,6 +66,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     //
     // ICifexService
     //
+
+    public Configuration getConfiguration() throws InvalidSessionException
+    {
+        return cifexServiceDelegate.getConfiguration();
+    }
 
     public final User getCurrentUser() throws InvalidSessionException
     {
@@ -136,4 +142,5 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             throw new ServletException(ex);
         }
     }
+
 }

@@ -46,11 +46,25 @@ final class MainPage extends AbstractMainPage
         super(context);
     }
 
+    private final String getMaxRequestUploadSizeText(int maxRequestUploadSizeInMB)
+    {
+        if (maxRequestUploadSizeInMB < 0)
+        {
+            return "-";
+        } else
+        {
+            return maxRequestUploadSizeInMB + " MB";
+        }
+    }
+
     private final HTML createExplanationPanel()
     {
         final boolean isPermanent = context.getModel().getUser().isPermanent();
-        return new HTML(isPermanent ? context.getMessageResources().getUploadFilesHelpPermanentUser() : context
-                .getMessageResources().getUploadFilesHelpTemporaryUser());
+        final String maxRequestUploadSizeTest =
+                getMaxRequestUploadSizeText(context.getModel().getConfiguration().getMaxRequestUploadSizeInMB());
+        return new HTML(isPermanent ? context.getMessageResources().getUploadFilesHelpPermanentUser(
+                maxRequestUploadSizeTest) : context.getMessageResources().getUploadFilesHelpTemporaryUser(
+                maxRequestUploadSizeTest));
     }
 
     //

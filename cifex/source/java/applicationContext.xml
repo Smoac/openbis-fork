@@ -57,6 +57,7 @@
         <property name="fileStorePath" value="${file-store}"/>
         <property name="fileRetention" value="${file-retention}"/>
         <property name="userRetention" value="${user-retention}"/>
+        <property name="maxRequestUploadSizeInMB" value="${max-upload-size}"/>
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
