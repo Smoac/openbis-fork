@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -156,7 +157,7 @@ public final class DomainModel implements IDomainModel
                 processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
         final Class<? extends DomainModel> clazz = getClass();
         final InvocationHandler invocationHandler =
-                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), clazz);
+                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.DEBUG, clazz);
         final Class<?>[] interfaces = manager.getClass().getInterfaces();
         return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
     }
