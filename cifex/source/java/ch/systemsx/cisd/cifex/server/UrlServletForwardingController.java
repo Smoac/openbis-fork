@@ -53,7 +53,10 @@ public final class UrlServletForwardingController extends AbstractController
     protected final ModelAndView handleRequestInternal(final HttpServletRequest request,
             final HttpServletResponse response) throws Exception
     {
-        operationLog.info("forward " + request.getRequestURL());
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Forwarding request '" + request.getRequestURL() + "'.");
+        }
         String servletName = getServletName(request);
         if (servletName.charAt(0) == '/')
         {
@@ -64,12 +67,12 @@ public final class UrlServletForwardingController extends AbstractController
         {
             throw new ServletException(String.format("No servlet with name '%s' defined in web.xml", servletName));
         }
-        rd.forward(request, response);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("Forwarded to servlet [%s] in '%s'.", servletName, getClass()
+            operationLog.debug(String.format("Forwarding to servlet [%s] in '%s'.", servletName, getClass()
                     .getSimpleName()));
         }
+        rd.forward(request, response);
         return null;
     }
 }
