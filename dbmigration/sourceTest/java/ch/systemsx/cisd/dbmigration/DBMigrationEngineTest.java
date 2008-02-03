@@ -135,7 +135,8 @@ public class DBMigrationEngineTest
             });
         final DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
         migrationEngine.migrateTo(version);
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.", logRecorder.getLogContent());
@@ -176,7 +177,8 @@ public class DBMigrationEngineTest
             });
         final DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
         migrationEngine.migrateTo(version);
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.", logRecorder.getLogContent());
@@ -217,7 +219,8 @@ public class DBMigrationEngineTest
         {
             assertSame(exception, e);
         }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -568,7 +571,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
                 .getLogContent());
 
         context.assertIsSatisfied();
@@ -610,7 +614,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
                 .getLogContent());
 
         context.assertIsSatisfied();
@@ -653,7 +658,8 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
+        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                + OSUtilities.LINE_SEPARATOR + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message, logRecorder
                 .getLogContent());
 
         context.assertIsSatisfied();
