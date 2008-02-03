@@ -709,7 +709,22 @@ public final class BeanUtils
         {
             return null;
         }
-        return getter.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
+        final boolean isAccessible = getter.isAccessible(); 
+        if (isAccessible == false)
+        {
+            getter.setAccessible(true);
+        }
+        try
+        {
+            final Object oldBean = getter.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY); 
+            return oldBean;
+        } finally
+        {
+            if (isAccessible == false)
+            {
+                getter.setAccessible(false);
+            }
+        }
     }
 
     private static Method getConverterMethod(Method setter, Object sourceBean, Converter converter)
