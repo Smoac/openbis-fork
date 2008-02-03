@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -42,9 +41,9 @@ public interface IDomainModel
     public IMailClient getMailClient();
     
     /**
-     * Returns the part of the configuration of this CIFEX instance that the client needs to know about.
+     * Returns the business context (server configuration).
      */
-    public Configuration getConfiguration();
+    public IBusinessContext getBusinessContext();
     
     /**
      * Returns the {@link PasswordGenerator}.

@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -217,13 +216,11 @@ public final class DomainModel implements IDomainModel
     }
     
     /**
-     * Returns the part of the configuration of this CIFEX instance that the client needs to know about.
+     * Returns the business context (server configuration).
      */
-    public final Configuration getConfiguration()
+    public final IBusinessContext getBusinessContext()
     {
-        final Configuration configuration = new Configuration();
-        configuration.setMaxRequestUploadSizeInMB(businessContext.getMaxUploadRequestSizeInMB());
-        return configuration;
+        return businessContext;
     }
     
     /**

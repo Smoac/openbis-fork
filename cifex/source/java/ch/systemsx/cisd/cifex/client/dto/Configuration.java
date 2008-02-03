@@ -28,16 +28,16 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Configuration implements IsSerializable
 {
 
-    private int maxRequestUploadSizeInMB;
+    private int maxUploadRequestSizeInMB;
 
-    public final int getMaxRequestUploadSizeInMB()
+    public final int getMaxUploadRequestSizeInMB()
     {
-        return maxRequestUploadSizeInMB;
+        return maxUploadRequestSizeInMB;
     }
 
-    public final void setMaxRequestUploadSizeInMB(int maxRequestSizeInMB)
+    public final void setMaxUploadRequestSizeInMB(int maxRequestSizeInMB)
     {
-        this.maxRequestUploadSizeInMB = maxRequestSizeInMB;
+        this.maxUploadRequestSizeInMB = maxRequestSizeInMB;
     }
     
 }

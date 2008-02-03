@@ -61,7 +61,7 @@ final class MainPage extends AbstractMainPage
     {
         final boolean isPermanent = context.getModel().getUser().isPermanent();
         final String maxRequestUploadSizeTest =
-                getMaxRequestUploadSizeText(context.getModel().getConfiguration().getMaxRequestUploadSizeInMB());
+                getMaxRequestUploadSizeText(context.getModel().getConfiguration().getMaxUploadRequestSizeInMB());
         return new HTML(isPermanent ? context.getMessageResources().getUploadFilesHelpPermanentUser(
                 maxRequestUploadSizeTest) : context.getMessageResources().getUploadFilesHelpTemporaryUser(
                 maxRequestUploadSizeTest));

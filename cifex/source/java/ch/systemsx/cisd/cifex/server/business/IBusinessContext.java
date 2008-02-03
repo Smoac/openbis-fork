@@ -44,6 +44,11 @@ public interface IBusinessContext
     public int getUserRetention();
 
     /**
+     * Returns the maximum upload request size in Megabyte.
+     */
+    public int getMaxUploadRequestSizeInMB();
+    
+    /**
      * Returns the mail client.
      */
     public IMailClient getMailClient();

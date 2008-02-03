@@ -189,7 +189,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public Configuration getConfiguration() throws InvalidSessionException
     {
-        return domainModel.getConfiguration();
+        return BeanUtils.createBean(Configuration.class, domainModel.getBusinessContext());
     }
 
     public final User getCurrentUser() throws InvalidSessionException
