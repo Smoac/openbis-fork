@@ -232,14 +232,13 @@ final class FileManager extends AbstractManager implements IFileManager
                     return fileDTO;
                 } else
                 {
-                    final String msgFormat = "File '%s' does not seem to exist. It has not been saved.";
-                    operationLog.warn(String.format(msgFormat, fileName));
                     file.delete();
-                    throw UserFailureException.fromTemplate(msgFormat, fileName);
+                    throwExceptionOnFileDoesNotExist(fileName);
+                    return null; // never reached
                 }
             } catch (IOException ex)
             {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s' (Is it a file?).", fileName);
             } finally
             {
                 IOUtils.closeQuietly(inputStream);
@@ -250,6 +249,13 @@ final class FileManager extends AbstractManager implements IFileManager
             file.delete();
             throw e;
         }
+    }
+
+    public void throwExceptionOnFileDoesNotExist(final String fileName)
+    {
+        final String msg = String.format("File '%s' does not seem to exist. It has not been saved.", fileName);
+        operationLog.warn(msg);
+        throw new UserFailureException(msg);
     }
 
     private File createFolderFor(final UserDTO user)

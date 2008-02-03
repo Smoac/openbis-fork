@@ -121,6 +121,16 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.tryToDeleteFile(id);
     }
 
+    public void registerFilenamesForUpload(String[] filenamesForUpload) throws InvalidSessionException
+    {
+        cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
+    }
+
+    public String waitForUploadToFinish() throws InvalidSessionException
+    {
+        return cifexServiceDelegate.waitForUploadToFinish();
+    }
+
     //
     // RemoteServiceServlet
     //

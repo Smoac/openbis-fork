@@ -99,4 +99,16 @@ public interface ICIFEXService extends RemoteService
      * </p>
      */
     public File[] listUploadedFiles() throws InvalidSessionException;
+    
+    /**
+     * Registers the file names for the next upload request in the session.
+     */
+    public void registerFilenamesForUpload(final String[] filenamesForUpload)  throws InvalidSessionException;
+    
+    /**
+     * Waits for the file upload to finish.
+     * 
+     * @return An error message, if an error occurred, or <code>""</code>, if the upload finished successfully.
+     */
+    public String waitForUploadToFinish() throws InvalidSessionException;
 }

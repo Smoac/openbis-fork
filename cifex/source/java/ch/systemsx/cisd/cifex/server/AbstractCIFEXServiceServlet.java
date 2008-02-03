@@ -104,14 +104,21 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp. JSON response which
     // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
     // formConfig.setReader(reader)).
-    protected final void sendErrorMessage(final HttpServletResponse response, final Exception exception)
+    protected final void sendErrorMessage(final HttpServletResponse response, final String message)
             throws IOException
     {
-        assert exception != null : "Given exception can not be null.";
+        assert message != null : "Given msg can not be null.";
         response.setContentType("text/plain");
+        final PrintWriter writer = response.getWriter();
+        writer.write(message);
+        writer.flush();
+        writer.close();
+    }
+
+    protected String getErrorMessage(final Exception exception)
+    {
         final String message;
         final String exceptionMsg = exception.getMessage();
-        final PrintWriter writer = response.getWriter();
         if (StringUtils.isNotBlank(exceptionMsg))
         {
             message = exceptionMsg;
@@ -121,9 +128,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
                     String.format("The request could not be processed because an unknown problem [%s] occurred.",
                             exception.getClass().getSimpleName());
         }
-        writer.write(message);
-        writer.flush();
-        writer.close();
+        return message;
     }
 
     //

@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -160,11 +162,11 @@ public class CIFEXServiceImplTest
         userDTO.setAdmin(true);
         prepareForDBEmptyCheck(true);
         context.checking(new Expectations()
-        {
             {
-                one(userManager).createUser(userDTO);
-            }
-        });
+                {
+                    one(userManager).createUser(userDTO);
+                }
+            });
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         CIFEXServiceImpl service = createService(new NullAuthenticationService());
@@ -285,7 +287,8 @@ public class CIFEXServiceImplTest
             fail("UserFailureException expected.");
         } catch (UserFailureException ex)
         {
-            assertEquals("Authentication of the server application at the external authentication service failed.", ex.getMessage());
+            assertEquals("Authentication of the server application at the external authentication service failed.", ex
+                    .getMessage());
         }
 
         context.assertIsSatisfied();
@@ -361,7 +364,7 @@ public class CIFEXServiceImplTest
 
                     one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
                     will(returnValue(false));
-                    
+
                     one(userManager).tryToFindUser(userName);
                     will(returnValue(null));
                 }
@@ -458,8 +461,9 @@ public class CIFEXServiceImplTest
     {
         prepareForGettingUserFromHTTPSession(userDTO, createFlag, false);
     }
-    
-    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag, final boolean resetAdmin)
+
+    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag,
+            final boolean resetAdmin)
     {
         context.checking(new Expectations()
             {
@@ -480,6 +484,10 @@ public class CIFEXServiceImplTest
                             transferredUserDTO.setAdmin(false);
                         }
                         one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME, transferredUserDTO);
+                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_QUEUE)),
+                                with(any(LinkedBlockingQueue.class)));
+                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_MSG_QUEUE)),
+                                with(any(LinkedBlockingQueue.class)));
                         one(httpSession).getId();
                         will(returnValue(SESSION_TOKEN_EXAMPLE));
                     } else
@@ -495,26 +503,26 @@ public class CIFEXServiceImplTest
     {
         prepareForDBEmptyCheck(false);
     }
-    
+
     private void prepareForDBEmptyCheck(final boolean dbEmpty)
     {
         context.checking(new Expectations()
-        {
             {
-                allowing(domainModel).getUserManager();
-                will(returnValue(userManager));
+                {
+                    allowing(domainModel).getUserManager();
+                    will(returnValue(userManager));
 
-                one(userManager).isDatabaseEmpty();
-                will(returnValue(dbEmpty));
-            }
-        });
+                    one(userManager).isDatabaseEmpty();
+                    will(returnValue(dbEmpty));
+                }
+            });
     }
-    
+
     private void prepareForFindUser(final String email, final UserDTO userDTO)
     {
         prepareForFindUser(email, userDTO, false);
     }
-    
+
     private void prepareForFindUser(final String email, final UserDTO userDTO, final boolean dbEmpty)
     {
         prepareForDBEmptyCheck(dbEmpty);

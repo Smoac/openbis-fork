@@ -84,5 +84,15 @@ public interface ICIFEXServiceAsync extends RemoteService
      * List the files uploaded by the currently logged user.
      */
     public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
+    
+    /**
+     * Registers the file names for the next upload request in the session.
+     */
+    public void registerFilenamesForUpload(final String[] filenamesForUpload, final AsyncCallback callback);
+
+    /**
+     * Waits for the file upload to finish.
+     */
+    public void waitForUploadToFinish(final AsyncCallback callback);
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.core.Connection;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
@@ -32,12 +33,10 @@ import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.ValidationException;
 import com.gwtext.client.widgets.form.Validator;
-import com.gwtext.client.widgets.form.event.FormListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
@@ -71,39 +70,6 @@ public class FileUploadWidget extends Form
         super(Ext.generateId(FILE_UPLOAD_PREFIX), createFormConfig());
         this.context = context;
         createForm();
-        addFormListenerListener(new FormListenerAdapter()
-            {
-
-                //
-                // FormListenerAdapter
-                //
-
-                public final void onActionComplete(final Form form, final int httpStatus, final String responseText)
-                {
-                    final String response = DOMUtils.getElementValue("pre", responseText);
-                    if (StringUtils.isBlank(response) == false)
-                    {
-                        final IMessageResources messageResources = context.getMessageResources();
-                        String title;
-                        if (response.equals(UPLOAD_FINISHED))
-                        {
-                            title = messageResources.getMessageBoxInfoTitle();
-                        } else
-                        {
-                            title = messageResources.getMessageBoxErrorTitle();
-
-                        }
-                        MessageBox.alert(title, response);
-                    }
-                    context.getPageController().createMainPage();
-                }
-
-                public final void onActionFailed(final Form form, final int httpStatus, final String responseText)
-                {
-                    button.enable();
-                }
-
-            });
     }
 
     private final static FormConfig createFormConfig()
@@ -199,7 +165,7 @@ public class FileUploadWidget extends Form
     {
         final TextFieldConfig fileFieldConfig = new TextFieldConfig();
         fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
-        fileFieldConfig.setName("upload-file-" + index);
+        fileFieldConfig.setName(getFilenameFieldName(index));
         fileFieldConfig.setInputType("file");
         fileFieldConfig.setWidth(FIELD_WIDTH);
         fileFieldConfig.setAllowBlank(index > 0);
@@ -207,13 +173,64 @@ public class FileUploadWidget extends Form
         return fileFieldConfig;
     }
 
+    private String getFilenameFieldName(final int index)
+    {
+        return "upload-file-" + index;
+    }
+
     protected void submitForm()
     {
+        final String[] filenames = new String[FILE_FIELD_NUMBER];
+        for (int i = 0; i < FILE_FIELD_NUMBER; i++)
+        {
+            final String filename = findField(getFilenameFieldName(i)).getValueAsString();
+            if (StringUtils.isBlank(filename) == false)
+                filenames[i] = filename;
+        }
+
+        context.getCifexService().registerFilenamesForUpload(filenames, new AsyncCallback()
+            {
+                public void onFailure(Throwable caught)
+                {
+                    // Nothing to do here.
+                }
+
+                public void onSuccess(Object result)
+                {
+                    // Nothing to do here.
+                }
+            });
         submit();
         if (isValid())
         {
             button.disable();
         }
-    }
+        context.getCifexService().waitForUploadToFinish(new AsyncCallback()
+            {
 
+                public void onFailure(Throwable caught)
+                {
+                    final IMessageResources messageResources = context.getMessageResources();
+                    final String msg = caught.getMessage();
+                    MessageBox.alert(messageResources.getMessageBoxErrorTitle(), "Upload failed: "
+                            + (StringUtils.isBlank(msg) ? "Unkonwn failure (see server log)" : msg));
+                    context.getPageController().createMainPage();
+                }
+
+                public void onSuccess(Object result)
+                {
+                    final String resultStr = (String) result;
+                    final IMessageResources messageResources = context.getMessageResources();
+                    if (StringUtils.isBlank(resultStr))
+                    {
+                        MessageBox.alert(messageResources.getMessageBoxInfoTitle(), UPLOAD_FINISHED);
+                    } else
+                    {
+                        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), resultStr);
+                    }
+                    context.getPageController().createMainPage();
+                }
+
+            });
+    }
 }

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.http.HttpSession;
 
@@ -59,6 +61,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
 {
     /** The attribute name under which the session could be found. */
     static final String SESSION_NAME = "cifex-user";
+
+    /**
+     * The attribute name that holds the queue that has the names of the files that should be uploaded in the next
+     * request.
+     */
+    static final String UPLOAD_QUEUE = "filenames-for-upload";
+
+    /** The attribute name that holds the queue that has the messages of the upload. */
+    static final String UPLOAD_MSG_QUEUE = "upload-messages";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
 
@@ -122,6 +133,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
+        httpSession.setAttribute(UPLOAD_QUEUE, new LinkedBlockingQueue<String[]>());
+        httpSession.setAttribute(UPLOAD_MSG_QUEUE, new LinkedBlockingQueue<String>());
         return httpSession.getId();
     }
 
@@ -391,6 +404,28 @@ public final class CIFEXServiceImpl implements ICIFEXService
         checkAdmin("tryToDeleteUser");
         final IFileManager fileManager = domainModel.getFileManager();
         fileManager.deleteFile(id);
+    }
+
+    public void registerFilenamesForUpload(String[] filenamesForUpload) throws InvalidSessionException
+    {
+        privGetCurrentUser();
+        final BlockingQueue<String[]> uploadQueue =
+                (BlockingQueue<String[]>) getSession(false).getAttribute(UPLOAD_QUEUE);
+        uploadQueue.add(filenamesForUpload);
+    }
+
+    public String waitForUploadToFinish() throws InvalidSessionException
+    {
+        privGetCurrentUser();
+        final BlockingQueue<String> uploadQueue =
+                (BlockingQueue<String>) getSession(false).getAttribute(UPLOAD_MSG_QUEUE);
+        try
+        {
+            return uploadQueue.take();
+        } catch (InterruptedException ex)
+        {
+            return ex.getClass().getSimpleName();
+        }
     }
 
     private void sendPasswordToNewUser(User user, String password)

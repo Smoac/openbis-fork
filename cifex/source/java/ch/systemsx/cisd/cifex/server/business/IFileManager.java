@@ -75,6 +75,11 @@ public interface IFileManager
     /** Lists files uploaded by user with given <var>userId</var>. */
     public List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException;
 
+    /**
+     * @throws UserFailureException indicating that <var>filename</var> does not exist and thus has not been saved.
+     */
+    public void throwExceptionOnFileDoesNotExist(final String fileName);
+
     //
     // Helper classes
     //
