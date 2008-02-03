@@ -21,11 +21,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
  * Invocation handler used to log invocations.
- * 
  *
  * @author Franz-Josef Elmer
  */
@@ -33,19 +33,22 @@ public final class LogInvocationHandler implements InvocationHandler
 {
     private final Object object;
     private final String name;
+    private final Level logLevel;
     private final Class<?> classUsedToNameLogger;
 
     /**
      * Creates a new instance.
      *
-     * @param object Object whos invocations should be logged.
+     * @param object Object whose invocations should be logged.
      * @param name Meaningful name of <code>object</code>. Will be used in the log message.
+     * @param logLevel The log level to use for normal (successful) events.
      * @param classUsedToNameLogger Class used to specify the name of the logger.
      */
-    public LogInvocationHandler(Object object, String name, Class<?> classUsedToNameLogger)
+    public LogInvocationHandler(Object object, String name, Level logLevel, Class<?> classUsedToNameLogger)
     {
         this.object = object;
         this.name = name;
+        this.logLevel = logLevel;
         this.classUsedToNameLogger = classUsedToNameLogger;
     }
 
@@ -70,36 +73,39 @@ public final class LogInvocationHandler implements InvocationHandler
             throw t;
         } finally
         {
-            StringBuilder builder = new StringBuilder(throwable == null ? "Successful" : "Failed");
-            builder.append(" invocation of ");
-            builder.append(name).append('.').append(method.getName()).append('(');
-            if (args != null)
+            final Logger logger = createLogger(method);
+            if (throwable != null || logger.isEnabledFor(logLevel))
             {
-                for (int i = 0; i < args.length; i++)
+                final StringBuilder builder = new StringBuilder(throwable == null ? "Successful" : "Failed");
+                builder.append(" invocation of ");
+                builder.append(name).append('.').append(method.getName()).append('(');
+                if (args != null)
                 {
-                    builder.append(args[i]);
-                    if (i < args.length - 1)
+                    for (int i = 0; i < args.length; i++)
                     {
-                        builder.append(", ");
+                        builder.append(args[i]);
+                        if (i < args.length - 1)
+                        {
+                            builder.append(", ");
+                        }
                     }
                 }
-            }
-            builder.append(") took ").append(System.currentTimeMillis() - time).append(" msec");
-            Logger logger = createLogger(method);
-            if (throwable == null)
-            {
-                logger.info(builder);
-            } else
-            {
-                logger.error(builder, throwable);
+                builder.append(") took ").append(System.currentTimeMillis() - time).append(" msec");
+                if (throwable == null)
+                {
+                    logger.log(logLevel, builder.toString());
+                } else
+                {
+                    logger.error(builder.toString(), throwable);
+                }
             }
         }
     }
 
     private Logger createLogger(Method method)
     {
-        LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
-        LogCategory logCategory = annotation == null ? LogCategory.ACCESS : annotation.logCategory();
+        final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
+        final LogCategory logCategory = (annotation == null) ? LogCategory.ACCESS : annotation.logCategory();
         return LogFactory.getLogger(logCategory, classUsedToNameLogger);
     }
 }
