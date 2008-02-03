@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
@@ -39,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.utilities.CollectionUtils;
 
 /**
  * Servlet for uploading file into Cifex.
@@ -60,9 +62,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
 
     /**
-     * The maximum allow upload size (in megabytes).
+     * The maximum allow upload size (in bytes).
      */
-    private long maxUploadSizeInMegabytes;
+    private long maxUploadSizeInBytes;
 
     private final long getMaxUploadSizeInMegabytes()
     {
@@ -87,46 +89,51 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     @Override
     protected final void postInitialization()
     {
-        maxUploadSizeInMegabytes = getMaxUploadSizeInMegabytes();
+        maxUploadSizeInBytes = getMaxUploadSizeInMegabytes() * FileUtils.ONE_MB;
     }
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.info("Uploading ...");
-        }
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
-            operationLog.warn("Request is not a multipart content file upload: " + request.getRequestURI());
+            operationLog.warn(String.format("Request '%s' is not a multipart content file upload.", request
+                    .getRequestURI()));
             return;
         }
         try
         {
+            // Returns the length, in bytes, of the request body and made available by the input stream, or -1 if the
+            // length is not known.
+            final int contentLength = request.getContentLength();
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Request of user '%s' has a content length of %s.",
+                        getUserDTO(request).getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
+            }
+            if (contentLength > maxUploadSizeInBytes)
+            {
+                final String msg =
+                        String.format("Request size (%s) exceeds maximum permitted one (%s).", FileUtils
+                                .byteCountToDisplaySize(contentLength), FileUtils
+                                .byteCountToDisplaySize(maxUploadSizeInBytes));
+                operationLog.warn(msg);
+                throw new FileUploadBase.SizeLimitExceededException(msg, contentLength, maxUploadSizeInBytes);
+            }
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> users = new ArrayList<String>();
             final UserDTO requestUser = extractEmailsAndUploadFiles(request, files, users);
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, users, files);
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Uploading finished.");
-            }
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
             writer.write(UPLOAD_FINISHED);
             if (invalidEmailAddresses.isEmpty() == false)
             {
-                writer.write("Invalid email addresses found: ");
-                for (final String email : invalidEmailAddresses)
-                {
-                    writer.write(email);
-                    writer.write(' ');
-                }
+                writer.write("Invalid email addresses found: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10));
             }
             writer.flush();
             writer.close();
@@ -144,16 +151,11 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         final ServletFileUpload upload = new ServletFileUpload();
         IFileManager fileManager = domainModel.getFileManager();
         // Sets the maximum allowed size of a complete request in bytes.
-        upload.setSizeMax(maxUploadSizeInMegabytes * FileUtils.ONE_MB);
+        upload.setSizeMax(maxUploadSizeInBytes);
         final FileItemIterator iter = upload.getItemIterator(request);
         while (iter.hasNext())
         {
             final FileItemStream item = iter.next();
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format("Handle field '%s' with file '%s'.", item.getFieldName(), item
-                        .getName()));
-            }
             final InputStream stream = item.openStream();
             if (item.isFormField() == false)
             {
@@ -161,6 +163,11 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 // Blank file name are empty file fields.
                 if (StringUtils.isNotBlank(fileName))
                 {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format("Handle field '%s' with file '%s'.", item.getFieldName(), item
+                                .getName()));
+                    }
                     final FileDTO file =
                             fileManager.saveFile(user, FilenameUtils.getName(fileName), item.getContentType(), stream);
                     files.add(file);
