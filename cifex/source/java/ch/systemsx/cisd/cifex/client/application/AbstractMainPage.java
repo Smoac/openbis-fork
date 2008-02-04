@@ -131,6 +131,7 @@ abstract class AbstractMainPage extends BorderLayout
                 public final void onClick(Button button, EventObject e)
                 {
                     context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
+                    context.getModel().getUrlParams().clear();
                     context.getPageController().createLoginPage();
                 }
             });
