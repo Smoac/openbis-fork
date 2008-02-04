@@ -50,10 +50,9 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return The configuration data.
      * @throws InvalidSessionException if user not logged in.
-
      */
     public Configuration getConfiguration() throws InvalidSessionException;
-    
+
     /**
      * Returns the currently logged user if this user is already authenticated.
      * 
@@ -88,7 +87,7 @@ public interface ICIFEXService extends RemoteService
     public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Deletes file given by its <var>id</var>
+     * Deletes file given by its <var>id</var>.
      */
     public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException;
 
