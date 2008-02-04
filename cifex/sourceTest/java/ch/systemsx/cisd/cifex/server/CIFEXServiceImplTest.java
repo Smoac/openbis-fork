@@ -117,7 +117,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithoutExternalServiceFailedBecauseOfInvalidUser() throws UserFailureException
+    public void testLoginWithoutExternalServiceFailedBecauseOfInvalidUser() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -134,7 +134,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithoutExternalServiceFailedBecauseOfInvalidPassword() throws UserFailureException
+    public void testLoginWithoutExternalServiceFailedBecauseOfInvalidPassword() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -151,7 +151,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testInitialLoginWithoutExternalService() throws UserFailureException
+    public void testInitialLoginWithoutExternalService() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -180,7 +180,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithoutExternalService() throws UserFailureException
+    public void testLoginWithoutExternalService() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -201,7 +201,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testAdminAsNormalUserLoginWithoutExternalService() throws UserFailureException
+    public void testAdminAsNormalUserLoginWithoutExternalService() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -223,7 +223,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testAdminLoginWithoutExternalService() throws UserFailureException
+    public void testAdminLoginWithoutExternalService() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -245,7 +245,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFailedAdminLoginWithoutExternalService() throws UserFailureException
+    public void testFailedAdminLoginWithoutExternalService() throws Exception
     {
         final UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -268,7 +268,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed()
+    public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed() throws Exception
     {
         prepareForDBEmptyCheck();
         context.checking(new Expectations()
@@ -295,7 +295,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithExternalServiceFailedBecausePrincipalNotFound()
+    public void testLoginWithExternalServiceFailedBecausePrincipalNotFound() throws Exception
     {
         final String userName = "u";
         final String password = "p";
@@ -316,7 +316,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFailedLoginAtExternalServiceAndInternalService() throws UserFailureException
+    public void testFailedLoginAtExternalServiceAndInternalService() throws Exception
     {
         final String userName = "u";
         final String password = "p";
@@ -350,7 +350,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFailedLoginAtExternalServiceAndSuccessfulLoginAtInternalService() throws UserFailureException
+    public void testFailedLoginAtExternalServiceAndSuccessfulLoginAtInternalService() throws Exception
     {
         final String userName = "u";
         final String password = "p";
@@ -377,7 +377,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testSecondLoginWithExternalService() throws UserFailureException
+    public void testSecondLoginWithExternalService() throws Exception
     {
         UserDTO userDTO = new UserDTO();
         String password = "pswd";
@@ -400,7 +400,7 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFirstLoginWithExternalService() throws UserFailureException
+    public void testFirstLoginWithExternalService() throws Exception
     {
         String password = "pswd";
         String userName = "ae";

@@ -38,7 +38,7 @@ public interface ICIFEXService extends RemoteService
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
     public User tryToLogin(final String user, final String password, final boolean requestAdmin)
-            throws UserFailureException;
+            throws UserFailureException, EnvironmentFailureException;
 
     /**
      * Logout the current user.
@@ -72,7 +72,7 @@ public interface ICIFEXService extends RemoteService
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      */
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
-            throws EnvironmentFailureException, InvalidSessionException, InsufficientPrivilegesException;
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * List the files that the currently logged user has access on.

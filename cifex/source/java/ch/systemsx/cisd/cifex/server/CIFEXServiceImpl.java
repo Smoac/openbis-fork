@@ -27,6 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
@@ -211,7 +213,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     public final User tryToLogin(final String userOrEmail, final String password, final boolean requestAdmin)
-            throws UserFailureException
+            throws UserFailureException, EnvironmentFailureException
     {
         authenticationLog.info("Try to login user '" + userOrEmail + "'.");
         final IUserManager userManager = domainModel.getUserManager();
@@ -240,7 +242,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     private UserDTO tryExternalAuthenticationServiceLogin(String userOrEmail, String password, boolean requestAdmin)
-            throws UserFailureException
+            throws UserFailureException, EnvironmentFailureException
     {
         if (hasExternalAuthenticationService() && requestAdmin == false)
         {
@@ -277,7 +279,20 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
-                userManager.createUser(userDTO);
+                try
+                {
+                    userManager.createUser(userDTO);
+                } catch (DataIntegrityViolationException ex)
+                {
+                    final String msg =
+                            "User '"
+                                    + userOrEmail
+                                    + "' with email '"
+                                    + email
+                                    + "' cannot be created because a user with this email already exists in the database.";
+                    operationLog.error(msg, ex);
+                    throw new EnvironmentFailureException(msg);
+                }
             }
             return userDTO;
         } else
@@ -294,7 +309,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException,
-            InvalidSessionException, InsufficientPrivilegesException
+            InvalidSessionException, InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
         final IUserManager userManager = domainModel.getUserManager();
@@ -304,7 +319,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
         final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registratorOrNull);
         userDTO.setRegistrator(registratorDTO);
-        userManager.createUser(userDTO);
+        try
+        {
+            userManager.createUser(userDTO);
+        } catch (DataIntegrityViolationException ex)
+        {
+            final String msg =
+                "User with email '" + user.getEmail()
+                        + "' already exists in the database but email needs to be unique.";
+            operationLog.error(msg, ex);
+            throw new UserFailureException(msg);
+        }
 
         try
         {
