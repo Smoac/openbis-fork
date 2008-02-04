@@ -55,7 +55,7 @@ public class FileUploadWidget extends Form
 
     private static final int COLUMN_WIDTH = 342;
 
-    private static final int LABEL_WIDTH = 60;
+    private static final int LABEL_WIDTH = 80;
 
     private static final int FILE_FIELD_NUMBER = 3;
 
