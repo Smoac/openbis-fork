@@ -122,9 +122,16 @@ public interface IMessageResources extends Messages
     /**
      * Returns the label of the file registerer column.
      * 
-     * @gwt.key file.registerer.label
+     * @gwt.key file.registrator.label
      */
-    public String getFileRegistererLabel();
+    public String getFileRegistratorLabel();
+
+    /**
+     * Returns the label of the file registration date column.
+     * 
+     * @gwt.key file.registrationdate.label
+     */
+    public String getFileRegistrationDateLabel();
 
     /**
      * Returns the label of the file size column.
@@ -183,6 +190,13 @@ public interface IMessageResources extends Messages
     public String getLoginButtonLabel();
 
     /**
+     * Returns the message when obtaining the program configuration failed.
+     * 
+     * @gwt.key login.getconfig.failed.message
+     */
+    public String getLoginConfigFailedMessage();
+
+    /**
      * Returns the email label for the login form.
      * 
      * @gwt.key login.email.label
@@ -196,13 +210,6 @@ public interface IMessageResources extends Messages
      */
     public String getLoginFailedMessage();
 
-    /**
-     * Returns the message when obtaining the program configuration failed.
-     * 
-     * @gwt.key login.getconfig.failed.message
-     */
-    public String getLoginConfigFailedMessage();
-    
     /**
      * Returns the login field set legend.
      * 
@@ -283,16 +290,16 @@ public interface IMessageResources extends Messages
     /**
      * Returns the recipient text area field label.
      * 
-     * @gwt.key recipient.field.label
+     * @gwt.key recipient.field.invalid.text
      */
-    public String getRecipientFieldLabel();
+    public String getRecipientFieldInvalidText();
 
     /**
      * Returns the recipient text area field label.
      * 
-     * @gwt.key recipient.field.invalid.text
+     * @gwt.key recipient.field.label
      */
-    public String getRecipientFieldInvalidText();
+    public String getRecipientFieldLabel();
 
     /**
      * Returns the title of the recipient field set.
@@ -379,18 +386,18 @@ public interface IMessageResources extends Messages
     public String getUserDeleteConfirmText(final String name);
 
     /**
-     * Returns the title for user deletion.
-     * 
-     * @gwt.key user.delete.title
-     */
-    public String getUserDeleteTitle();
-
-    /**
      * Returns the error message the user gets when it tries to delete himself.
      * 
      * @gwt.key user.delete.himself
      */
     public String getUserDeleteHimself();
+
+    /**
+     * Returns the title for user deletion.
+     * 
+     * @gwt.key user.delete.title
+     */
+    public String getUserDeleteTitle();
 
     /**
      * Returns the label of the user email column.
