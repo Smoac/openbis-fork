@@ -46,12 +46,12 @@ public final class UserRenderer implements Renderer
     public final static String createUserAnchor(final User user)
     {
         final String name;
-        if (StringUtils.isBlank(user.getUserName()))
+        if (StringUtils.isBlank(user.getUserFullName()))
         {
             name = user.getEmail();
         } else
         {
-            name = user.getUserName();
+            name = user.getUserFullName();
         }
         final String email = user.getEmail();
         if (email != null)

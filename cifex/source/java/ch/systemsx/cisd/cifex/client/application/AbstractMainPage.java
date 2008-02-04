@@ -94,7 +94,7 @@ abstract class AbstractMainPage extends BorderLayout
     {
 
         StringBuffer buffer = new StringBuffer();
-        String userName = user.getUserName();
+        String userName = user.getUserFullName();
         if (userName != null)
         {
             buffer.append(userName);

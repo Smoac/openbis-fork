@@ -247,7 +247,7 @@ public class CreateUserWidget extends Form
 
             User user = new User();
             user.setEmail(emailField.getText());
-            user.setUserName(usernameField.getText());
+            user.setUserFullName(usernameField.getText());
             if (allowPermanentUsers)
             {
                 if (adminRadioButton.getValue())

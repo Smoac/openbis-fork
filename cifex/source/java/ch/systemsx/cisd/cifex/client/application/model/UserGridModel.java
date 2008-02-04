@@ -110,7 +110,7 @@ public class UserGridModel extends AbstractDataGridModel
             }
             final Object[] objects =
                     new Object[]
-                        { user.getEmail(), user.getUserName(), stateField, user.getRegistrator().getEmail(),
+                        { user.getEmail(), user.getUserFullName(), stateField, user.getRegistrator().getEmail(),
                                 messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
