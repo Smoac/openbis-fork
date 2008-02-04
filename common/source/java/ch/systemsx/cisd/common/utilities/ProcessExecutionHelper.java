@@ -174,7 +174,7 @@ public class ProcessExecutionHelper
         this.machineLog = machineLog;
     }
 
-    private static class ProcessSatus
+    private static class ProcessStatus
     {
         private boolean canInterrupt;
 
@@ -182,7 +182,7 @@ public class ProcessExecutionHelper
 
         private Process processOrNull;
 
-        public ProcessSatus(boolean canInterrupt)
+        public ProcessStatus(boolean canInterrupt)
         {
             this.canInterrupt = canInterrupt;
             this.isInterruptedAfterTimeout = false;
@@ -224,7 +224,7 @@ public class ProcessExecutionHelper
 
     private ProcessResult run(List<String> commandLine, long millisoWaitForCompletion)
     {
-        ProcessSatus processStatus = new ProcessSatus(true);
+        ProcessStatus processStatus = new ProcessStatus(true);
         Timer watchDogOrNull = null;
         boolean isInterrupted = false;
         try
@@ -294,7 +294,7 @@ public class ProcessExecutionHelper
         }
     }
 
-    private void logInterruption(final String commandLine, ProcessSatus terminationStatus, InterruptedException ex)
+    private void logInterruption(final String commandLine, ProcessStatus terminationStatus, InterruptedException ex)
     {
         if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the watchDog
         {
@@ -308,7 +308,7 @@ public class ProcessExecutionHelper
     /*
      * isTerminated is passed by reference. Access to it should be synchronized on process variable
      */
-    private Timer tryCreateWatchDog(final ProcessSatus processStatus, final long millisToWaitForCompletion,
+    private Timer tryCreateWatchDog(final ProcessStatus processStatus, final long millisToWaitForCompletion,
             final String commandForLog)
     {
         final Timer watchDogOrNull;
