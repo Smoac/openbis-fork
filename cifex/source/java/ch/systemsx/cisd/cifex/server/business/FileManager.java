@@ -343,10 +343,12 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         StringBuilder builder = new StringBuilder();
         builder.append("The followings files are available for downloading:\n");
-        for (FileDTO fileDTO : files)
+        for (final FileDTO fileDTO : files)
         {
             builder.append(fileDTO.getName()).append(" ");
-            builder.append(url).append("/index.html?fileId=").append(fileDTO.getID()).append('\n');
+            builder.append(url).append("/index.html?fileId=").append(fileDTO.getID());
+            builder.append("&email=").append(email);
+            builder.append('\n');
         }
         builder.append("\nClick on a link to start downloading. You have to login with your e-mail address (i.e. ");
         builder.append(email).append(")");

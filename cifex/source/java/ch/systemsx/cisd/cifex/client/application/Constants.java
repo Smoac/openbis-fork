@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 /**
@@ -42,6 +43,9 @@ public final class Constants
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";
 
+    /** The HTTP URL parameter used to specify the email. */
+    public static final String EMAIL_PARAMETER = "email";
+
     /** Name of the <code>HttpServlet</code> extension to upload a file. */
     public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";
 
@@ -56,6 +60,6 @@ public final class Constants
 
     private final static String getPrepend()
     {
-        return "/cifex/";
+        return "/cifex/" + (GWT.isScript() ? "cifex/" : "");
     }
 }

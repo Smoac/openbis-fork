@@ -111,7 +111,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             throw new UserFailureException(msg);
         }
         final BlockingQueue<String> uploadMsgQueue =
-            (BlockingQueue<String>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_MSG_QUEUE);
+                (BlockingQueue<String>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_MSG_QUEUE);
         try
         {
             final BlockingQueue<String[]> uploadQueue =
@@ -130,8 +130,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final int contentLength = request.getContentLength();
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("Request of user '%s' has a content length of %s.",
-                        requestUser.getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
+                operationLog.debug(String.format("Request of user '%s' has a content length of %s.", requestUser
+                        .getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
             }
             if (contentLength > maxUploadSizeInBytes)
             {
@@ -158,7 +158,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             writer.flush();
             writer.close();
             uploadMsgQueue.add("");
-            
+
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
@@ -183,7 +183,6 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final String pathnameToUpload =
                     (fileIndex < pathnamesToUpload.length) ? pathnamesToUpload[fileIndex] : null;
             ++fileIndex;
-            System.out.println(fileIndex + ": " + pathnameToUpload);
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
             final FileItemStream item = iter.next();
             final InputStream stream = item.openStream();

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -25,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
  * The login page.
@@ -43,7 +46,7 @@ final class LoginPage extends VerticalPanel
         setSpacing(CELL_SPACING);
         setWidth("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        final LoginWidget loginWidget = new LoginWidget(viewContext);
+        final LoginWidget loginWidget = createLoginWidget();
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
@@ -54,6 +57,18 @@ final class LoginPage extends VerticalPanel
         northPanel.add(welcomePanel);
         add(northPanel);
         add(loginPanel);
+    }
+
+    private final LoginWidget createLoginWidget()
+    {
+        final LoginWidget loginWidget = new LoginWidget(viewContext);
+        final Map urlParams = viewContext.getModel().getUrlParams();
+        final String email = (String) urlParams.get(Constants.EMAIL_PARAMETER);
+        if (StringUtils.isBlank(email) == false)
+        {
+            loginWidget.getEmailField().setValue(email);
+        }
+        return loginWidget;
     }
 
     private final static CellPanel createNorthPanel()

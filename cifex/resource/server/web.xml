@@ -40,20 +40,10 @@
         <servlet-class>ch.systemsx.cisd.cifex.server.FileDownloadServlet</servlet-class>
     </servlet>
 
-    <servlet-mapping>
-        <servlet-name>file-download</servlet-name>
-        <url-pattern>/file-download</url-pattern>
-    </servlet-mapping>
-
     <servlet>
         <servlet-name>file-upload</servlet-name>
         <servlet-class>ch.systemsx.cisd.cifex.server.FileUploadServlet</servlet-class>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>file-upload</servlet-name>
-        <url-pattern>/file-upload</url-pattern>
-    </servlet-mapping>
 
     &gwt;
 </web-app>

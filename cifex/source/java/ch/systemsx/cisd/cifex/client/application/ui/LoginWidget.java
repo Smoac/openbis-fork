@@ -52,7 +52,7 @@ public class LoginWidget extends Form
     private TextField emailField;
 
     private TextField passwordField;
-    
+
     private Checkbox adminCheckbox;
 
     private Button button;
@@ -66,7 +66,7 @@ public class LoginWidget extends Form
 
     private final void createLoginForm()
     {
-        IMessageResources messageResources = context.getMessageResources();
+        final IMessageResources messageResources = context.getMessageResources();
         fieldset(messageResources.getLoginLegend());
         emailField = createEmailField();
         add(emailField);
@@ -136,7 +136,7 @@ public class LoginWidget extends Form
         fieldConfig.setValidateOnBlur(false);
         return new TextField(fieldConfig);
     }
-    
+
     private final Checkbox createAdminCheckbox()
     {
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
@@ -174,6 +174,16 @@ public class LoginWidget extends Form
     {
         context.getModel().setUser(user);
         context.getPageController().createMainPage();
+    }
+
+    public final TextField getEmailField()
+    {
+        return emailField;
+    }
+
+    public final TextField getPasswordField()
+    {
+        return passwordField;
     }
 
     //
