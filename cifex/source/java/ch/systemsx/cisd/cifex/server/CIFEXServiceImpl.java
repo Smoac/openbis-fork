@@ -325,8 +325,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         } catch (DataIntegrityViolationException ex)
         {
             final String msg =
-                "User with email '" + user.getEmail()
-                        + "' already exists in the database but email needs to be unique.";
+                    "User with email '" + user.getEmail()
+                            + "' already exists in the database but email needs to be unique.";
             operationLog.error(msg, ex);
             throw new UserFailureException(msg);
         }
@@ -426,7 +426,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException
     {
-        checkAdmin("tryToDeleteUser");
+        checkAdmin("tryToDeleteFile");
         final IFileManager fileManager = domainModel.getFileManager();
         fileManager.deleteFile(id);
     }
