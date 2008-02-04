@@ -368,6 +368,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return daoFactory.getFileDAO().listFiles();
     }
 
+    @Transactional
     public void deleteFile(long fileId)
     {
         FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
