@@ -173,7 +173,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getEmail(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertNull(user.getUserName());
+        assertNull(user.getUserFullName());
         assertTrue(user.isAdmin());
 
         context.assertIsSatisfied();
@@ -194,7 +194,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getEmail(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
@@ -216,7 +216,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getEmail(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
@@ -238,7 +238,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getEmail(), password, true);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertTrue(userDTO.isAdmin());
 
         context.assertIsSatisfied();
@@ -343,7 +343,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userName, password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
@@ -393,7 +393,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getUserName(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
@@ -429,7 +429,7 @@ public class CIFEXServiceImplTest
         service.setSessionExpirationPeriodInMinutes(1);
         User user = service.tryToLogin(userDTO.getUserName(), password, false);
         assertEquals(userDTO.getEmail(), user.getEmail());
-        assertEquals(userDTO.getUserName(), user.getUserName());
+        assertEquals(userDTO.getUserName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
 
         context.assertIsSatisfied();
