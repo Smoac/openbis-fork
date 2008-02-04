@@ -272,7 +272,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
-                userDTO.setUserName(userOrEmail);
+                userDTO.setUserFullName(userOrEmail);
                 userDTO.setEmail(email);
                 userDTO.setEncryptedPassword(null);
                 userDTO.setExternallyAuthenticated(true);

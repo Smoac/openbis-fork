@@ -187,7 +187,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 && userDTO.isAdmin() == false)
         {
             throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", userDTO
-                    .getUserName(), file.getPath());
+                    .getUserFullName(), file.getPath());
         }
         try
         {

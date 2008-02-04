@@ -53,7 +53,7 @@ public final class UserDAOTest extends AbstractDAOTest
         assertEquals(expectedUser.getEmail(), actualUser.getEmail());
         assertEquals(expectedUser.getEncryptedPassword(), actualUser.getEncryptedPassword());
         assertEquals(expectedUser.getExpirationDate(), actualUser.getExpirationDate());
-        assertEquals(expectedUser.getUserName(), actualUser.getUserName());
+        assertEquals(expectedUser.getUserFullName(), actualUser.getUserFullName());
         assertNotNull(actualUser.getID());
         assertNotNull(actualUser.getRegistrationDate());
     }
@@ -68,7 +68,7 @@ public final class UserDAOTest extends AbstractDAOTest
         {
             user.setEmail(email);
         }
-        user.setUserName(getTestUserName());
+        user.setUserFullName(getTestUserName());
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);

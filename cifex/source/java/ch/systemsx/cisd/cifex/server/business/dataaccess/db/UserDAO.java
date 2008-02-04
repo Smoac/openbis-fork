@@ -65,7 +65,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO registrator = new UserDTO();
             user.setID(rs.getLong("id"));
             user.setEmail(rs.getString("email"));
-            user.setUserName(rs.getString("user_name"));
+            user.setUserFullName(rs.getString("user_name"));
             user.setEncryptedPassword(rs.getString("encrypted_password"));
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
@@ -131,7 +131,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         template.update(
                 "insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin,"
                         + "is_permanent, user_id_registrator, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", id, user
-                        .getEmail(), user.getUserName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
+                        .getEmail(), user.getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
                 user.isAdmin(), user.isPermanent(), registratorIdOrNull, user.getExpirationDate());
 
         user.setID(id);

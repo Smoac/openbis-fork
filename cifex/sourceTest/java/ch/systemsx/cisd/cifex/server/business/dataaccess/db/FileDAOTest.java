@@ -62,7 +62,7 @@ public final class FileDAOTest extends AbstractDAOTest
     private final FileDTO createSampleFile(final UserDTO registerer)
     {
         final String name = "file.txt";
-        final String path = "/files/" + registerer.getUserName() + "/" + name;
+        final String path = "/files/" + registerer.getUserFullName() + "/" + name;
         final Date expirationDate = new Date(new Long("1222249782000").longValue());
         return createFile(name, path, registerer, expirationDate);
     }

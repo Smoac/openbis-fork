@@ -90,17 +90,17 @@ class UserManager extends AbstractManager implements IUserManager
                 {
                     if (logger.isInfoEnabled())
                     {
-                        logger.info("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                        logger.info("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
                                 + "] removed from database.");
                     }
                 } else
                 {
-                    logger.warn("Expired user [" + user.getUserName() + " - " + user.getEmail()
+                    logger.warn("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
                                 + "] could not be found in the database.");
                 }
             } catch (RuntimeException ex)
             {
-                logger.error("Error deleting user [" + user.getUserName() + " - " + user.getEmail() + "].", ex);
+                logger.error("Error deleting user [" + user.getUserFullName() + " - " + user.getEmail() + "].", ex);
                 if (ex_all == null)
                 {
                     ex_all = ex;
@@ -126,10 +126,10 @@ class UserManager extends AbstractManager implements IUserManager
         {
             if (returnValue)
             {
-                logger.info("User [" + user.getUserName() + " - " + user.getEmail() + "] deleted from user database.");
+                logger.info("User [" + user.getUserFullName() + " - " + user.getEmail() + "] deleted from user database.");
             } else
             {
-                logger.info("Could not delete User [" + user.getUserName() + " - " + user.getEmail()
+                logger.info("Could not delete User [" + user.getUserFullName() + " - " + user.getEmail()
                         + "] from user database.");
             }
         }

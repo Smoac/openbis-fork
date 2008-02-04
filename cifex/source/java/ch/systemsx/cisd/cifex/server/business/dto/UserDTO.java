@@ -114,12 +114,12 @@ public class UserDTO extends ID
         this.permanent = permanent;
     }
 
-    public final String getUserName()
+    public final String getUserFullName()
     {
         return userFullName;
     }
 
-    public final void setUserName(final String userID)
+    public final void setUserFullName(final String userID)
     {
         this.userFullName = userID;
     }
