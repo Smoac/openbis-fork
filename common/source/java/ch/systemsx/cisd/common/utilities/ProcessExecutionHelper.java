@@ -174,73 +174,78 @@ public class ProcessExecutionHelper
         this.machineLog = machineLog;
     }
 
-    // access to this class should be synchronized on itself
-    private static class ProcessExitSatus
+    private static class ProcessSatus
     {
-        private boolean isTerminated;
+        private boolean canInterrupt;
 
-        private boolean isInterrupted;
+        private boolean isInterruptedAfterTimeout;
 
-        public ProcessExitSatus(boolean isTerminated)
+        private Process processOrNull;
+
+        public ProcessSatus(boolean canInterrupt)
         {
-            this.isTerminated = isTerminated;
-            this.isInterrupted = false;
+            this.canInterrupt = canInterrupt;
+            this.isInterruptedAfterTimeout = false;
         }
 
-        public void setStopped()
+        // this prevents interruption from watch-dog when we are outside of catch InterruptedException
+        synchronized public void interruptionUnnecesary()
         {
-            isTerminated = true;
+            canInterrupt = false;
         }
 
-        public boolean isRunning()
+        synchronized public boolean canInterrupt()
         {
-            return isTerminated == false;
+            return canInterrupt;
         }
 
-        public void setInterruptedAfterTimeout()
+        synchronized public void setInterruptedAfterTimeout()
         {
-            setStopped();
-            isInterrupted = true;
+            interruptionUnnecesary();
+            isInterruptedAfterTimeout = true;
         }
 
-        public boolean isInterruptedAfterTimeout()
+        synchronized public boolean isInterruptedAfterTimeout()
         {
-            return isInterrupted;
+            return isInterruptedAfterTimeout;
         }
+
+        synchronized public Process tryGetProcess()
+        {
+            return processOrNull;
+        }
+
+        synchronized public void setProcess(Process process)
+        {
+            this.processOrNull = process;
+        }
+
     }
 
     private ProcessResult run(List<String> commandLine, long millisoWaitForCompletion)
     {
-        final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
-        processBuilder.redirectErrorStream(true);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Executing command: " + commandLine);
-        }
-        final Process process;
-        try
-        {
-            process = processBuilder.start();
-        } catch (IOException ex)
-        {
-            return createNotStartedResult(commandLine, ex);
-        }
-
-        ProcessExitSatus exitStatus = new ProcessExitSatus(false);
-        final Timer watchDogOrNull =
-                tryCreateWatchDog(process, millisoWaitForCompletion, commandLine.get(0), exitStatus);
+        ProcessSatus processStatus = new ProcessSatus(true);
+        Timer watchDogOrNull = null;
         boolean isInterrupted = false;
         try
         {
-            Thread.interrupted(); // clear 'interrupted' status
-            process.waitFor();
-            synchronized (exitStatus)
+            watchDogOrNull = tryCreateWatchDog(processStatus, millisoWaitForCompletion, commandLine.get(0));
+            final Process process;
+            try
             {
-                exitStatus.setStopped(); // mark, that the process terminated and does not block anymore
+                process = launchProcess(commandLine);
+                processStatus.setProcess(process);
+            } catch (IOException ex)
+            {
+                processStatus.interruptionUnnecesary();
+                return createNotStartedResult(commandLine, ex);
             }
+            process.waitFor();
+            processStatus.interruptionUnnecesary(); // the process terminated and does not block anymore
         } catch (InterruptedException ex)
         {
-            logInterruption(process, exitStatus, ex);
+            processStatus.interruptionUnnecesary();
+            logInterruption(commandLine.get(0), processStatus, ex);
             isInterrupted = true;
         } finally
         {
@@ -249,7 +254,21 @@ public class ProcessExecutionHelper
                 watchDogOrNull.cancel();
             }
         }
-        return createResult(commandLine, process, isInterrupted);
+        return createResult(commandLine, processStatus.tryGetProcess(), isInterrupted);
+    }
+
+    private Process launchProcess(List<String> commandLine) throws IOException
+    {
+        final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
+        processBuilder.redirectErrorStream(true);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Executing command: " + commandLine);
+        }
+        // NOTE 2008-02-04, Tomasz Pylak: This operation can get blocked. I've observed it when ln was executed on NAS
+        // file system mounted locally.
+        final Process process = processBuilder.start();
+        return process;
     }
 
     private ProcessResult createNotStartedResult(List<String> commandLine, IOException ex)
@@ -258,33 +277,39 @@ public class ProcessExecutionHelper
         return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
     }
 
-    private ProcessResult createResult(List<String> commandLine, final Process process, boolean isInterrupted)
+    private ProcessResult createResult(List<String> commandLine, final Process processOrNull, boolean isInterrupted)
     {
-        if (isInterrupted)
+        if (processOrNull == null)
         {
-            return ProcessResult.createWaitingInterrupted(process, commandLine, operationLog, machineLog);
+            return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
         } else
         {
-            return ProcessResult.create(process, commandLine, operationLog, machineLog);
+            if (isInterrupted)
+            {
+                return ProcessResult.createWaitingInterrupted(processOrNull, commandLine, operationLog, machineLog);
+            } else
+            {
+                return ProcessResult.create(processOrNull, commandLine, operationLog, machineLog);
+            }
         }
     }
 
-    private void logInterruption(final Process process, ProcessExitSatus terminationStatus, InterruptedException ex)
+    private void logInterruption(final String commandLine, ProcessSatus terminationStatus, InterruptedException ex)
     {
         if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the watchDog
         {
-            machineLog.error(String.format("Execution of %s interrupted", process), ex);
+            machineLog.error(String.format("Execution of %s interrupted", commandLine), ex);
         } else
         {
-            operationLog.warn(String.format("Execution of %s interrupted after timeout", process));
+            operationLog.warn(String.format("Execution of %s interrupted after timeout", commandLine));
         }
     }
 
     /*
      * isTerminated is passed by reference. Access to it should be synchronized on process variable
      */
-    private Timer tryCreateWatchDog(final Process process, final long millisToWaitForCompletion, String commandForLog,
-            final ProcessExitSatus exitStatus)
+    private Timer tryCreateWatchDog(final ProcessSatus processStatus, final long millisToWaitForCompletion,
+            final String commandForLog)
     {
         final Timer watchDogOrNull;
         if (millisToWaitForCompletion > 0L)
@@ -298,19 +323,23 @@ public class ProcessExecutionHelper
                     {
                         operationLog.warn(String.format("Destroy process since it didn't finish in %d milli seconds",
                                 millisToWaitForCompletion));
-                        process.destroy();
-                        sleep(millisToWaitForCompletion / 2); // allow the process to termiante normally
-                        synchronized (exitStatus)
+                        Process process = processStatus.tryGetProcess();
+                        if (process != null)
+                        {
+                            process.destroy();
+                            sleep(millisToWaitForCompletion / 2); // allow the process to terminate normally
+                        }
+                        synchronized (processStatus)
                         {
                             // Interrupt waiting for the process termination if we still wait.
-                            if (exitStatus.isRunning() && processThread.isInterrupted() == false)
+                            if (processStatus.canInterrupt())
                             {
-                                exitStatus.setInterruptedAfterTimeout();
+                                processStatus.setInterruptedAfterTimeout();
                                 operationLog.info(String.format(
-                                        "Interrupting waiting for the process %s by the watchDog", process));
-                                // stop waiting for the process. We need this, because sometimes the child process,
-                                // which is an external program, gets stuck and cannot be destroyed. We do not want the
-                                // whole system to hang because of that.
+                                        "Interrupting waiting for the process %s by the watchDog", commandForLog));
+                                // stop waiting for the process. We want to prevent situations when the child process,
+                                // which is an external program, gets stuck during the start or cannot be destroyed. It
+                                // would cause the whole system to hang and we do not want that.
                                 processThread.interrupt();
                             }
                         }
