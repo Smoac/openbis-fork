@@ -45,6 +45,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         configs.add(createNameColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
+        configs.add(createRegistrationDateColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;
@@ -60,8 +61,8 @@ public class UploadedFileGridModel extends AbstractFileGridModel
             final Object[] objects =
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getContentType(),
-                                size == null ? null : new Integer(size.intValue()), file.getExpirationDate(),
-                                messageResources.getActionDeleteLabel() };
+                                size == null ? null : new Integer(size.intValue()), file.getRegistrationDate(),
+                                file.getExpirationDate(), messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
@@ -74,6 +75,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));
+        fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
         fieldDefs.add(new StringFieldDef(ACTION));
         return fieldDefs;

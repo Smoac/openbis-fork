@@ -43,6 +43,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String EXPIRATION_DATE = "expirationDate";
 
+    protected static final String REGISTRATION_DATE = "registrationDate";
+
     protected static final String REGISTERER = "registerer";
 
     protected static final String ACTION = "action";
@@ -54,8 +56,9 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected final ColumnConfig createIdColumnConfig()
     {
-        final ColumnConfig nameConfig = createSortableColumnConfig(ID, Constants.TABLE_EMPTY_VALUE, 20);
-        return nameConfig;
+        final ColumnConfig columnConfig = createSortableColumnConfig(ID, "Id", 20);
+        columnConfig.setHidden(true);
+        return columnConfig;
     }
 
     protected final ColumnConfig createNameColumnConfig()
@@ -73,10 +76,18 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return expirationDateConfig;
     }
 
+    protected final ColumnConfig createRegistrationDateColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(REGISTRATION_DATE, messageResources.getFileRegistrationDateLabel(), 200);
+        columnConfig.setRenderer(DateRenderer.DATE_RENDERER);
+        return columnConfig;
+    }
+
     protected final ColumnConfig createRegistererColumnConfig()
     {
         final ColumnConfig registererConfig =
-                createSortableColumnConfig(REGISTERER, messageResources.getFileRegistererLabel(), 120);
+                createSortableColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
         registererConfig.setRenderer(UserRenderer.USER_RENDERER);
         return registererConfig;
     }

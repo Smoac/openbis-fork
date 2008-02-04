@@ -46,6 +46,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         configs.add(createRegistererColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
+        configs.add(createRegistrationDateColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         return configs;
     }
@@ -61,7 +62,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
                                 file.getContentType(), size == null ? null : new Integer(size.intValue()),
-                                file.getExpirationDate() };
+                                file.getRegistrationDate(), file.getExpirationDate() };
             list.add(objects);
         }
         return list;
@@ -75,6 +76,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));
+        fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
         return fieldDefs;
     }
