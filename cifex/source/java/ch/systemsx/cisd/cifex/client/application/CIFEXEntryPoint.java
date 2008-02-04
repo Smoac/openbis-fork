@@ -57,40 +57,40 @@ public final class CIFEXEntryPoint implements EntryPoint
             viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
         }
         cifexService.getConfiguration(new AsyncCallback()
-        {
-
-            //
-            // AsyncCallbackAdapter
-            //
-
-            public void onSuccess(Object result)
             {
-                final Configuration configuration = (Configuration) result;
-                if (configuration != null)
-                {
-                    viewContext.getModel().setConfiguration(configuration);
-                } else
-                {
-                    onFailure(null);
-                }
-                
-            }
-            
-            public void onFailure(Throwable caught)
-            {
-                final IMessageResources resources = viewContext.getMessageResources(); 
-                final String title = resources.getMessageBoxErrorTitle();
-                final String msg = caught.getMessage();
-                if (StringUtils.isBlank(msg))
-                {
-                    MessageBox.alert(title, resources.getLoginConfigFailedMessage());
-                } else
-                {
-                    MessageBox.alert(title, resources.getLoginConfigFailedMessage() + "\n" + msg);
-                }
-            }
 
-        });
+                //
+                // AsyncCallbackAdapter
+                //
+
+                public final void onSuccess(final Object result)
+                {
+                    final Configuration configuration = (Configuration) result;
+                    if (configuration != null)
+                    {
+                        viewContext.getModel().setConfiguration(configuration);
+                    } else
+                    {
+                        onFailure(null);
+                    }
+
+                }
+
+                public final void onFailure(final Throwable caught)
+                {
+                    final IMessageResources resources = viewContext.getMessageResources();
+                    final String title = resources.getMessageBoxErrorTitle();
+                    final String msg = caught == null ? null : caught.getMessage();
+                    if (StringUtils.isBlank(msg))
+                    {
+                        MessageBox.alert(title, resources.getLoginConfigFailedMessage());
+                    } else
+                    {
+                        MessageBox.alert(title, resources.getLoginConfigFailedMessage() + "\n" + msg);
+                    }
+                }
+
+            });
         cifexService.getCurrentUser(new AsyncCallback()
             {
 
