@@ -58,11 +58,10 @@ public interface IFileManager
             final InputStream inputStream);
 
     /**
-     * Creates sharing links between the users specified by their e-mail addresses and the specified files.
-     * For users not known a temporary account is created. Each user will be informed by an e-mail.
+     * Creates sharing links between the users specified by their e-mail addresses and the specified files. For users
+     * not known a temporary account is created. Each user will be informed by an e-mail.
      * 
      * @param url URL for creating the links in the e-mails.
-     * 
      * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary users.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
@@ -89,7 +88,7 @@ public interface IFileManager
     public void deleteExpiredFiles();
 
     /** Returns all files */
-    public List<FileDTO> listFiles();    
+    public List<FileDTO> listFiles();
 
     /** Deletes file with given <code>fileId</code> */
     public void deleteFile(long fileId);

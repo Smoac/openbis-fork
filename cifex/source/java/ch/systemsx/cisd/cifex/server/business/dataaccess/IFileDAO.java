@@ -44,7 +44,8 @@ public interface IFileDAO
      * Removes <code>File</code> with given id from database.
      * 
      * @param fileId Id of file which should be removed from database.
-     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no file found with that id.
+     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no file found with that
+     *         id.
      */
     public boolean deleteFile(final long fileId) throws DataAccessException;
 
@@ -53,7 +54,7 @@ public interface IFileDAO
      */
     public List<FileDTO> listFiles() throws DataAccessException;
 
-    /** Returns detailed information about file, including registerer data and list of users the file is shared with. */
+    /** Returns detailed information about file, including registrator data and list of users the file is shared with. */
     public FileDTO tryGetFile(final long fileId) throws DataAccessException;
 
     /**
