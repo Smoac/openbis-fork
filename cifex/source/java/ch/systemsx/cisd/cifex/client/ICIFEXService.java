@@ -71,7 +71,8 @@ public interface ICIFEXService extends RemoteService
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      */
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException, InsufficientPrivilegesException;
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+            InsufficientPrivilegesException;
 
     /**
      * List the files that the currently logged user has access on.
@@ -89,7 +90,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Deletes file given by its <var>id</var>.
      */
-    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException;
+    public void tryToDeleteFile(final long id) throws InvalidSessionException;
 
     /**
      * List the files uploaded by the currently logged user.
@@ -98,12 +99,12 @@ public interface ICIFEXService extends RemoteService
      * </p>
      */
     public File[] listUploadedFiles() throws InvalidSessionException;
-    
+
     /**
      * Registers the file names for the next upload request in the session.
      */
-    public void registerFilenamesForUpload(final String[] filenamesForUpload)  throws InvalidSessionException;
-    
+    public void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException;
+
     /**
      * Waits for the file upload to finish.
      * 

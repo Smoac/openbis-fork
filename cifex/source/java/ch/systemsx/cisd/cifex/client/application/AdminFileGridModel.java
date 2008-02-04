@@ -57,11 +57,12 @@ public class AdminFileGridModel extends AbstractFileGridModel
         for (int i = 0; i < data.length; i++)
         {
             final File file = (File) data[i];
+            final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
-                                file.getContentType(), file.getSize(), file.getExpirationDate(),
-                                messageResources.getActionDeleteLabel() };
+                                file.getContentType(), size == null ? null : new Integer(size.intValue()),
+                                file.getExpirationDate(), messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
@@ -74,7 +75,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new StringFieldDef(SIZE));
+        fieldDefs.add(new IntegerFieldDef(SIZE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
         fieldDefs.add(new StringFieldDef(ACTION));
         return fieldDefs;

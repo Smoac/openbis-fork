@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gwtext.client.data.DateFieldDef;
+import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -55,10 +56,12 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         for (int i = 0; i < data.length; i++)
         {
             final File file = (File) data[i];
+            final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
-                                file.getContentType(), file.getSize(), file.getExpirationDate() };
+                                file.getContentType(), size == null ? null : new Integer(size.intValue()),
+                                file.getExpirationDate() };
             list.add(objects);
         }
         return list;
@@ -71,7 +74,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new StringFieldDef(SIZE));
+        fieldDefs.add(new IntegerFieldDef(SIZE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
         return fieldDefs;
     }

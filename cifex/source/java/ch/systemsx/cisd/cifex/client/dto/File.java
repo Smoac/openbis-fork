@@ -37,12 +37,12 @@ public final class File implements IsSerializable
     private String name;
 
     /**
-     * Human readable size of the file.
+     * Size of the file.
      * <p>
      * If <code>null</code> then the size has not been set.
      * </p>
      */
-    private String size;
+    private Long size;
 
     /**
      * Person who registered the file.
@@ -118,12 +118,12 @@ public final class File implements IsSerializable
         this.expirationDate = expirationDate;
     }
 
-    public final String getSize()
+    public final Long getSize()
     {
         return size;
     }
 
-    public final void setSize(final String size)
+    public final void setSize(final Long size)
     {
         this.size = size;
     }

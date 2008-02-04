@@ -23,7 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
@@ -394,7 +393,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return listFiles(UPLOAD);
     }
 
-    private File[] listFiles(boolean showDownload) throws InvalidSessionException
+    private final File[] listFiles(final boolean showDownload) throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
         final List<FileDTO> files;
@@ -408,14 +407,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             files = domainModel.getFileManager().listUploadedFiles(user.getID());
         }
-        return BeanUtils.createBeanArray(File.class, files, new BeanUtils.Converter()
-            {
-                @SuppressWarnings("unused")
-                public final String convertToSize(final FileDTO fileDTO)
-                {
-                    return FileUtils.byteCountToDisplaySize(fileDTO.getSize());
-                }
-            });
+        return BeanUtils.createBeanArray(File.class, files, null);
     }
 
     public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException
@@ -424,10 +416,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         domainModel.getUserManager().tryToDeleteUser(email);
     }
 
-    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteFile(final long id) throws InvalidSessionException
     {
-        checkAdmin("tryToDeleteFile");
+        final UserDTO currentUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
+        // Following throws UserFailureException if no access to the file.
+        fileManager.getFile(currentUser, id);
         fileManager.deleteFile(id);
     }
 

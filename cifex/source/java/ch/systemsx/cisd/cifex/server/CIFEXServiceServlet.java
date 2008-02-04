@@ -104,7 +104,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     }
 
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException, InsufficientPrivilegesException
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+            InsufficientPrivilegesException
     {
         cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull);
 
@@ -116,7 +117,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void tryToDeleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteFile(final long id) throws InvalidSessionException
     {
         cifexServiceDelegate.tryToDeleteFile(id);
     }

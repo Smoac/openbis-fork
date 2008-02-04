@@ -187,6 +187,10 @@ final class MainPage extends AbstractMainPage
                 }
                 final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, "100px");
                 fileGrid.addGridCellListener(new FileDownloadGridCellListener());
+                if (showDownloaded == false)
+                {
+                    fileGrid.addGridCellListener(new FileDeleteGridCellListener(context));
+                }
                 widget = fileGrid;
             } else
             {

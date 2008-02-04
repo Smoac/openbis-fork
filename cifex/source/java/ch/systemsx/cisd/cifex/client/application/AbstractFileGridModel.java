@@ -20,6 +20,7 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -89,7 +90,9 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected final ColumnConfig createSizeColumnConfig()
     {
-        return createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 60);
+        final ColumnConfig columnConfig = createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 60);
+        columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
+        return columnConfig;
     }
 
     protected final ColumnConfig createContentTypeColumnConfig()
