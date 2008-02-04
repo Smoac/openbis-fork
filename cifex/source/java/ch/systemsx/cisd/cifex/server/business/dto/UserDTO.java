@@ -25,12 +25,16 @@ import java.util.Date;
  */
 public class UserDTO extends ID
 {
-    private String userName;
+    private String userFullName;
 
+    /**
+     * Email Address of the user.
+     * Is not Unique!
+     */
     private String email;
 
     private String encryptedPassword;
-    
+
     private UserDTO registrator;
 
     /**
@@ -54,6 +58,11 @@ public class UserDTO extends ID
     private Date registrationDate;
 
     private Date expirationDate;
+
+    /**
+     * The unique userCode of the <code>UserDTO</code>.
+     */
+    private String userCode;
 
     public final boolean isExternallyAuthenticated()
     {
@@ -107,12 +116,12 @@ public class UserDTO extends ID
 
     public final String getUserName()
     {
-        return userName;
+        return userFullName;
     }
 
     public final void setUserName(final String userID)
     {
-        this.userName = userID;
+        this.userFullName = userID;
     }
 
     public final Date getExpirationDate()
@@ -143,6 +152,16 @@ public class UserDTO extends ID
     public final void setRegistrator(UserDTO registrator)
     {
         this.registrator = registrator;
+    }
+
+    public String getUserCode()
+    {
+        return userCode;
+    }
+
+    public void setUserCode(String userCode)
+    {
+        this.userCode = userCode;
     }
 
 }

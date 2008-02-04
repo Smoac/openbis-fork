@@ -33,12 +33,12 @@ public final class User implements IsSerializable
      * Could be <code>null</code> if not defined.
      * </p>
      */
-    private String userName;
+    private String userFullName;
 
     /**
-     * Unique identifier in the database.
+     * Email Adress of the user.
      * <p>
-     * We are sure that this key is unique and not <code>null</code>.
+     * We are sure that this key is not <code>null</code>.
      * </p>
      */
     private String email;
@@ -59,9 +59,20 @@ public final class User implements IsSerializable
      */
     private boolean permanent;
 
+    /**
+     * Unique identifier of the user.
+     * <p>
+     * We are sure that this key is unique not <code>null</code>. If no <code>userCode</code> is specified, the
+     * email adress is used as userCode.
+     * </p>
+     */
+    private String userCode;
+
     private Date expirationDate;
-    
+
     private User registrator;
+
+    private boolean externallyAuthenticated;
 
     public final boolean isAdmin()
     {
@@ -93,14 +104,14 @@ public final class User implements IsSerializable
         this.permanent = permanent;
     }
 
-    public final String getUserName()
+    public final String getUserFullName()
     {
-        return userName;
+        return userFullName;
     }
 
-    public final void setUserName(final String userID)
+    public final void setUserFullName(final String userFullName)
     {
-        this.userName = userID;
+        this.userFullName = userFullName;
     }
 
     public final Date getExpirationDate()
@@ -121,6 +132,27 @@ public final class User implements IsSerializable
     public final void setRegistrator(User registrator)
     {
         this.registrator = registrator;
+    }
+
+    public final boolean isExternallyAuthenticated()
+    {
+
+        return externallyAuthenticated;
+    }
+
+    public final void setExternallyAuthenticated(final boolean externallyAuthenticated)
+    {
+        this.externallyAuthenticated = externallyAuthenticated;
+    }
+
+    public String getUserCode()
+    {
+        return userCode;
+    }
+
+    public void setUserCode(String userCode)
+    {
+        this.userCode = userCode;
     }
 
 }
