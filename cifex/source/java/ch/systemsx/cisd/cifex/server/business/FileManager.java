@@ -25,8 +25,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
@@ -45,7 +47,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -284,10 +286,9 @@ final class FileManager extends AbstractManager implements IFileManager
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
             Collection<FileDTO> files)
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        // FIXME 2008-02-05, Bernd Rinn: emails are no longer guaranteed to be unique, so we need to change the data structure here!
-        TableMap<String, UserDTO> existingUsers =
-                new TableMap<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final TableMapNonUniqueKey<String, UserDTO> existingUsers =
+                new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
                     {
                         public String getKey(UserDTO user)
                         {
@@ -299,18 +300,29 @@ final class FileManager extends AbstractManager implements IFileManager
         PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
         for (String email : emailsOfUsers)
         {
-            UserDTO user = existingUsers.tryToGet(email);
+            Set<UserDTO> users = existingUsers.tryGet(email);
             String password = null;
-            if (user == null)
+            if (users == null) // Try to create user.
             {
                 password = passwordGenerator.generatePassword(10);
-                user = tryCreateUser(requestUser, existingUsers, email, invalidEmailAdresses, password);
-            }
-            if (user != null)
-            {
-                for (FileDTO file : files)
+                final UserDTO user = tryCreateUser(requestUser, email, password);
+                if (user != null)
                 {
-                    fileDAO.createSharingLink(file.getID(), user.getID());
+                    existingUsers.add(user);
+                    users = Collections.singleton(user);
+                } else
+                {
+                    invalidEmailAdresses.add(email);
+                }
+            }
+            if (users != null)
+            {
+                for (UserDTO user : users)
+                {
+                    for (FileDTO file : files)
+                    {
+                        fileDAO.createSharingLink(file.getID(), user.getID());
+                    }
                     continue;
                 }
                 sendEmail(url, files, email, password);
@@ -319,8 +331,7 @@ final class FileManager extends AbstractManager implements IFileManager
         return invalidEmailAdresses;
     }
 
-    private UserDTO tryCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
-            List<String> invalidEmailAdresses, String password)
+    private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
     {
         if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
         {
@@ -332,11 +343,9 @@ final class FileManager extends AbstractManager implements IFileManager
             IUserBO userBO = boFactory.createUserBO();
             userBO.define(user);
             userBO.save();
-            existingUsers.add(user);
             return user;
         } else
         {
-            invalidEmailAdresses.add(email);
             return null;
         }
     }
