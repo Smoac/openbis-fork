@@ -1,0 +1,82 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.cifex.server;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.servlet.http.HttpSession;
+
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+
+/**
+ * A user session manager which holds the active sessions and invalidate them on demand.
+ * <p>
+ * This class is synchronized.
+ * </p>
+ * 
+ * @author Christian Ribeaud
+ */
+public final class UserHttpSessionHolder
+{
+
+    public final static String USER_SESSION_MANAGER_BEAN_NAME = "user-session-holder";
+
+    private final List<HttpSession> activeSessions;
+
+    /** A flag to avoid <code>ConcurrentModificationException</code> exception when session gets invalidated here. */
+    private final ReentrantLock invalidatingLock = new ReentrantLock();
+
+    public UserHttpSessionHolder()
+    {
+        activeSessions = new ArrayList<HttpSession>();
+    }
+
+    public final synchronized void addUserSession(final HttpSession session)
+    {
+        activeSessions.add(session);
+    }
+
+    public final synchronized void invalidateSessionWithUser(final UserDTO userDTO)
+    {
+        invalidatingLock.lock();
+        for (final HttpSession httpSession : activeSessions)
+        {
+            final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
+            if (user != null && user.getID().longValue() == userDTO.getID().longValue())
+            {
+                for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration
+                        .hasMoreElements();)
+                {
+                    httpSession.removeAttribute(enumeration.nextElement());
+                }
+                httpSession.invalidate();
+            }
+        }
+        invalidatingLock.unlock();
+    }
+
+    public final synchronized void removeUserSession(final HttpSession session)
+    {
+        if (invalidatingLock.isHeldByCurrentThread() == false)
+        {
+            activeSessions.remove(session);
+        }
+    }
+}
