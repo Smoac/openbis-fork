@@ -39,15 +39,18 @@ public interface IDomainModel
      * Returns the one and only instance of {@link IMailClient}.
      */
     public IMailClient getMailClient();
-    
+
     /**
      * Returns the business context (server configuration).
      */
     public IBusinessContext getBusinessContext();
-    
+
     /**
      * Returns the {@link PasswordGenerator}.
      */
     public PasswordGenerator getPasswordGenerator();
+
+    /** Returns administrator email */
+    public String getAdministratorEmail();
 
 }

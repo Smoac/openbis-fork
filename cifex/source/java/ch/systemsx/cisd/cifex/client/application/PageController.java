@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -38,8 +37,8 @@ class PageController implements IPageController
     /**
      * This method clears <code>RootPanel</code>.
      * <p>
-     * Note that this method should be called in a very early stage, before building any new GUI stuff.
-     * Otherwise <code>RootPanel.get().clear()</code> may destroy some of the created GUI elements.
+     * Note that this method should be called in a very early stage, before building any new GUI stuff. Otherwise
+     * <code>RootPanel.get().clear()</code> may destroy some of the created GUI elements.
      * </p>
      */
     private final void clearRootPanel()
@@ -59,7 +58,7 @@ class PageController implements IPageController
     {
         clearRootPanel();
         final User user = viewContext.getModel().getUser();
-        Widget mainPage = null;
+        AbstractMainPage mainPage = null;
         if (user.isAdmin())
         {
             mainPage = new AdminMainPage(viewContext);

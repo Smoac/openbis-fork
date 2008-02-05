@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * Context needed by the business layer. Usually it is provided by some configuration parameters.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IBusinessContext
@@ -32,14 +32,14 @@ public interface IBusinessContext
      * Returns the directory which contains all uploaded files.
      */
     public File getFileStore();
-    
+
     /**
      * Returns the file retention time in minutes.
      */
     public int getFileRetention();
 
     /**
-     * Returns the retention time in minutes of temporary users. 
+     * Returns the retention time in minutes of temporary users.
      */
     public int getUserRetention();
 
@@ -47,7 +47,7 @@ public interface IBusinessContext
      * Returns the maximum upload request size in Megabyte.
      */
     public int getMaxUploadRequestSizeInMB();
-    
+
     /**
      * Returns the mail client.
      */
@@ -57,4 +57,9 @@ public interface IBusinessContext
      * Returns the password generator.
      */
     public PasswordGenerator getPasswordGenerator();
+
+    /**
+     * Returns the administrator email.
+     */
+    public String getAdministratorEmail();
 }

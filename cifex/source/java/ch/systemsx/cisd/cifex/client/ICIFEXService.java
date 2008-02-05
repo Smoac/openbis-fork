@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -111,4 +112,9 @@ public interface ICIFEXService extends RemoteService
      * @return An error message, if an error occurred, or <code>""</code>, if the upload finished successfully.
      */
     public String waitForUploadToFinish() throws InvalidSessionException;
+
+    /**
+     * Returns the footer data (version and administrator email).
+     */
+    public FooterData getFooterData() throws InvalidSessionException;
 }

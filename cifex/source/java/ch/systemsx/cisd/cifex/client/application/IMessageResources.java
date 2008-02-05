@@ -427,4 +427,18 @@ public interface IMessageResources extends Messages
      */
     public String getValidatePasswordLabel();
 
+    /**
+     * Returns application name.
+     * 
+     * @gwt.key footer.powered.by.text
+     */
+    public String getFooterPoweredBy();
+
+    /**
+     * Returns application name.
+     * 
+     * @gwt.key footer.contact.administrator.text
+     */
+    public String getFooterContactAdministrator(final String email);
+
 }

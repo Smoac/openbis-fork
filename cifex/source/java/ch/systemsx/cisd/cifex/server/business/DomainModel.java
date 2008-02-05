@@ -214,7 +214,7 @@ public final class DomainModel implements IDomainModel
     {
         return businessContext.getMailClient();
     }
-    
+
     /**
      * Returns the business context (server configuration).
      */
@@ -222,13 +222,23 @@ public final class DomainModel implements IDomainModel
     {
         return businessContext;
     }
-    
+
     /**
      * Returns the {@link PasswordGenerator}.
      */
     public final PasswordGenerator getPasswordGenerator()
     {
         return businessContext.getPasswordGenerator();
+    }
+
+    public final void setAdministratorEmail(String administratorEmail)
+    {
+        businessContext.setAdministratorEmail(administratorEmail);
+    }
+
+    public final String getAdministratorEmail()
+    {
+        return businessContext.getAdministratorEmail();
     }
 
 }

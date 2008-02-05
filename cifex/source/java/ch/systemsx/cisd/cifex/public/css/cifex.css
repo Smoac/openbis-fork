@@ -17,6 +17,11 @@ body,div,td {
     cursor: hand;
 }
 
+.cifex-light-div {
+    color: gray;
+    display:inline;
+}
+
 .cifex-font-huge {
     font-size: 16px;
 }

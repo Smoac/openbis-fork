@@ -38,6 +38,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
@@ -476,4 +478,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
             { user.getEmail() });
     }
 
+    public FooterData getFooterData() throws InvalidSessionException
+    {
+        String administratorEmail = domainModel.getAdministratorEmail();
+        String systemVersion = BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
+        FooterData footerData = new FooterData();
+        footerData.setAdministratorEmail(administratorEmail);
+        footerData.setSystemVersion(systemVersion);
+        return footerData;
+    }
 }

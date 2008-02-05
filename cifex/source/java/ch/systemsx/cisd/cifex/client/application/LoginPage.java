@@ -51,12 +51,16 @@ final class LoginPage extends VerticalPanel
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
         Image cisdLogo = createImage();
+        final FooterPanel footerPanel = new FooterPanel(viewContext);
         final HTML welcomePanel = createWelcomePanel();
         final CellPanel northPanel = createNorthPanel();
         northPanel.add(cisdLogo);
         northPanel.add(welcomePanel);
         add(northPanel);
         add(loginPanel);
+        add(footerPanel);
+        this.setHeight("100%");
+        this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
     }
 
     private final LoginWidget createLoginWidget()

@@ -58,6 +58,7 @@
         <property name="fileRetention" value="${file-retention}"/>
         <property name="userRetention" value="${user-retention}"/>
         <property name="maxRequestUploadSizeInMB" value="${max-upload-size}"/>
+        <property name="administratorEmail" value="${administrator.email}"/>
     </bean>
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />

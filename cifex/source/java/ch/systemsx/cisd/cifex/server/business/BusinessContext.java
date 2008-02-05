@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * Bean implementing {@link IBusinessContext}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 class BusinessContext implements IBusinessContext
@@ -36,13 +36,15 @@ class BusinessContext implements IBusinessContext
 
     /** How long (in minutes) the user is going to stay in the system? */
     private int userRetention;
-    
+
     /** The maximum size of an upload request in Megabyte. */
     private int maxUploadRequestSizeInMB;
-    
+
     private IMailClient mailClient;
-    
+
     private PasswordGenerator passwordGenerator;
+
+    private String administratorEmail;
 
     public final int getFileRetention()
     {
@@ -88,12 +90,12 @@ class BusinessContext implements IBusinessContext
     {
         return mailClient;
     }
-    
+
     public final void setMailClient(IMailClient mailClient)
     {
         this.mailClient = mailClient;
     }
-    
+
     public final PasswordGenerator getPasswordGenerator()
     {
         return passwordGenerator;
@@ -102,6 +104,16 @@ class BusinessContext implements IBusinessContext
     public final void setPasswordGenerator(PasswordGenerator passwordGenerator)
     {
         this.passwordGenerator = passwordGenerator;
+    }
+
+    public final void setAdministratorEmail(String administratorEmail)
+    {
+        this.administratorEmail = administratorEmail;
+    }
+
+    public final String getAdministratorEmail()
+    {
+        return administratorEmail;
     }
 
 }

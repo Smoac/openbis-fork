@@ -61,6 +61,15 @@ abstract class AbstractMainPage extends BorderLayout
         return north;
     }
 
+    private final static LayoutRegionConfig createSouthRegion()
+    {
+        LayoutRegionConfig south = new LayoutRegionConfig();
+        south.setTitlebar(false);
+        south.setAutoScroll(false);
+        south.setInitialSize(20);
+        return south;
+    }
+
     protected static final Widget createPartTitle(final String text)
     {
         final HTML html = new HTML(text);
@@ -72,11 +81,15 @@ abstract class AbstractMainPage extends BorderLayout
 
     AbstractMainPage(ViewContext context)
     {
-        super("100%", "100%", createNorthRegion(), null, null, null, createCenterRegion());
+        super("100%", "100%", createNorthRegion(), createSouthRegion(), null, null, createCenterRegion());
         this.context = context;
         this.messageResources = context.getMessageResources();
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
         add(LayoutRegionConfig.CENTER, createMainPanel());
+        FooterPanel footerPanel = new FooterPanel(context);
+        ContentPanel contentPanel = new ContentPanel();
+        contentPanel.add(footerPanel);
+        add(LayoutRegionConfig.SOUTH, contentPanel);
     }
 
     private ContentPanel createToolbarPanel()

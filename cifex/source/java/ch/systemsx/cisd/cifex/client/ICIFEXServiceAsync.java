@@ -44,10 +44,9 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /**
      * Returns the configuration data of this CIFEX instance.
-
      */
     public void getConfiguration(final AsyncCallback callback);
-    
+
     /**
      * Returns the currently logged user if this user is already authenticated.
      */
@@ -84,7 +83,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * List the files uploaded by the currently logged user.
      */
     public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
-    
+
     /**
      * Registers the file names for the next upload request in the session.
      */
@@ -94,5 +93,10 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Waits for the file upload to finish.
      */
     public void waitForUploadToFinish(final AsyncCallback callback);
+
+    /**
+     * Returns the footer data (version and administrator email).
+     */
+    public void getFooterData(final AsyncCallback callback);
 
 }

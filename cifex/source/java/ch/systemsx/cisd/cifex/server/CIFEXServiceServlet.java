@@ -31,6 +31,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -152,6 +153,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             notificationLog.fatal("Failure during CIFEX service servlet initialization.", ex);
             throw new ServletException(ex);
         }
+    }
+
+    public FooterData getFooterData() throws InvalidSessionException
+    {
+        return cifexServiceDelegate.getFooterData();
     }
 
 }
