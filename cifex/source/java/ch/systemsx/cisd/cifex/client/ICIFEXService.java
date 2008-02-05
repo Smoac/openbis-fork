@@ -84,9 +84,9 @@ public interface ICIFEXService extends RemoteService
     public File[] listDownloadFiles() throws InvalidSessionException;
 
     /**
-     * Tries to delete the user given by its <var>email</var>.
+     * Tries to delete the user given by its user <var>code</var>.
      */
-    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException;
+    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * Deletes file given by its <var>id</var>.

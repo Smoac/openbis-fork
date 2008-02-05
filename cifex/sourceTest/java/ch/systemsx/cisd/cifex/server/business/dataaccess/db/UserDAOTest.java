@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -36,9 +37,11 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 public final class UserDAOTest extends AbstractDAOTest
 {
 
-    final UserDTO testTemporaryUser = createUser(false, false, null);
+    final UserDTO testTemporaryUser = createUser(false, false, "tempuser", "someuser@somewhereelse.edu");
 
-    final UserDTO testAdminUser = createUser(true, true, "admin@systemsx.ch");
+    final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch");
+
+    final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch");
 
     final static String getTestUserName()
     {
@@ -47,6 +50,8 @@ public final class UserDAOTest extends AbstractDAOTest
 
     private void checkUser(final UserDTO expectedUser, final UserDTO actualUser)
     {
+        assertNotNull(actualUser.getID());
+        assertTrue(actualUser.getID() > 0);
         assertEquals(expectedUser.isAdmin(), actualUser.isAdmin());
         assertEquals(expectedUser.isExternallyAuthenticated(), actualUser.isExternallyAuthenticated());
         assertEquals(expectedUser.isPermanent(), actualUser.isPermanent());
@@ -58,16 +63,11 @@ public final class UserDAOTest extends AbstractDAOTest
         assertNotNull(actualUser.getRegistrationDate());
     }
 
-    final static UserDTO createUser(boolean permanent, boolean admin, String email)
+    final static UserDTO createUser(boolean permanent, boolean admin, String code, String email)
     {
         UserDTO user = new UserDTO();
-        if (email == null)
-        {
-            user.setEmail("basil.neff@systemsx.ch");
-        } else
-        {
-            user.setEmail(email);
-        }
+        user.setEmail(email);
+        user.setUserCode(code);
         user.setUserFullName(getTestUserName());
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
@@ -90,7 +90,7 @@ public final class UserDAOTest extends AbstractDAOTest
         {
             // Try with <code>null</code>
             userDAO.createUser(null);
-            AssertJUnit.fail("AssertionError not thrown.");
+            AssertJUnit.fail("null user not detected");
         } catch (AssertionError e)
         {
             // Nothing to do here.
@@ -105,30 +105,42 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.createUser(testTemporaryUser);
         assertEquals(listUsers.size() + 2, userDAO.listUsers().size());
 
+        userDAO.createUser(testPermanentUser);
+        assertEquals(listUsers.size() + 3, userDAO.listUsers().size());
+
         setComplete();
     }
 
     @Test(dependsOnMethods =
-        { "testCreateUser" })
+        { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
     @Transactional
-    public final void testTryFindUserByEmail()
+    public final void testCreateDuplicateUserID()
+    {
+        IUserDAO userDAO = daoFactory.getUserDAO();
+        userDAO.createUser(testPermanentUser);
+    }
+
+    @Test(dependsOnMethods =
+        { "testCreateDuplicateUserID" })
+    @Transactional
+    public final void testTryFindUserByCode()
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
         try
         {
-            assert userDAO.tryFindUserByEmail(null) != null;
+            userDAO.tryFindUserByCode(null);
             fail("Email Adress is null");
         } catch (AssertionError e)
         {
-            assertEquals("No email specified!", e.getMessage());
+            assertEquals("No code specified!", e.getMessage());
         }
 
         // Unknown Mail Address
-        UserDTO testUnknownUserFromDB = userDAO.tryFindUserByEmail("unknown@cisd.user");
+        UserDTO testUnknownUserFromDB = userDAO.tryFindUserByCode("unknown");
         assertEquals("Unknown user is not null", null, testUnknownUserFromDB);
 
         // Existing admin User
-        UserDTO testAdminUserFromDB = userDAO.tryFindUserByEmail(testAdminUser.getEmail());
+        UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
         assert testAdminUserFromDB != null;
         assert testAdminUserFromDB.getID() != null;
         assert testAdminUserFromDB.getID() > 0;
@@ -136,7 +148,7 @@ public final class UserDAOTest extends AbstractDAOTest
         checkUser(testAdminUser, testAdminUserFromDB);
 
         // Existing Temporary User
-        UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByEmail(testTemporaryUser.getEmail());
+        UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         assert testTemporaryUserFromDB != null;
         assert testTemporaryUserFromDB.getID() != null;
         assert testTemporaryUserFromDB.getID() > 0;
@@ -145,7 +157,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods =
-        { "testTryFindUserByEmail" })
+        { "testTryFindUserByCode" })
     @Transactional
     public final void testDeleteUser()
     {

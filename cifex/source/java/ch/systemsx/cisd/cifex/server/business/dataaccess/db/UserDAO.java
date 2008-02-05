@@ -64,8 +64,9 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO user = new UserDTO();
             final UserDTO registrator = new UserDTO();
             user.setID(rs.getLong("id"));
+            user.setUserCode(rs.getString("user_id"));
             user.setEmail(rs.getString("email"));
-            user.setUserFullName(rs.getString("user_name"));
+            user.setUserFullName(rs.getString("full_name"));
             user.setEncryptedPassword(rs.getString("encrypted_password"));
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
@@ -119,7 +120,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             }
         }
     }
-    
+
     public void createUser(final UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
@@ -129,10 +130,11 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final Long registratorIdOrNull = tryGetRegistratorId(user);
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template.update(
-                "insert into users (id, email, user_name, encrypted_password, is_externally_authenticated, is_admin,"
-                        + "is_permanent, user_id_registrator, expiration_timestamp) values (?,?,?,?,?,?,?,?,?)", id, user
-                        .getEmail(), user.getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
-                user.isAdmin(), user.isPermanent(), registratorIdOrNull, user.getExpirationDate());
+                "insert into users (id, user_id, email, full_name, encrypted_password, is_externally_authenticated, is_admin,"
+                        + "is_permanent, user_id_registrator, expiration_timestamp) values (?,?,?,?,?,?,?,?,?,?)", id,
+                user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getEncryptedPassword(), user
+                        .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
+                        .getExpirationDate());
 
         user.setID(id);
     }
@@ -150,7 +152,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             Long registratorId = registrator.getID();
             if (registratorId == null)
             {
-                registrator = tryFindUserByEmail(registrator.getEmail());
+                registrator = tryFindUserByCode(registrator.getUserCode());
                 if (registrator != null)
                 {
                     registratorId = registrator.getID();
@@ -160,15 +162,15 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public UserDTO tryFindUserByEmail(final String email) throws DataAccessException
+    public UserDTO tryFindUserByCode(final String userCode) throws DataAccessException
     {
-        assert StringUtils.isNotBlank(email) : "No email specified!";
+        assert StringUtils.isNotBlank(userCode) : "No code specified!";
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         try
         {
             final UserDTO user =
-                    template.queryForObject("select * from users where email = ?", new UserRowMapper(), email);
+                    template.queryForObject("select * from users where user_id = ?", new UserRowMapper(), userCode);
             return user;
         } catch (final EmptyResultDataAccessException e)
         {

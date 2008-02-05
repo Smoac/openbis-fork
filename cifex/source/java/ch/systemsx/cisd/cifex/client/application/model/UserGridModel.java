@@ -36,6 +36,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class UserGridModel extends AbstractDataGridModel
 {
 
+    public static final String CODE = "Code";
+
     public static final String EMAIL = "Email";
 
     public static final String FULL_NAME = "FullName";
@@ -56,6 +58,13 @@ public class UserGridModel extends AbstractDataGridModel
         final ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
         actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
         return actionColumn;
+    }
+
+    private final ColumnConfig createCodeColumnConfig()
+    {
+        final ColumnConfig columnConfig = createSortableColumnConfig(CODE, messageResources.getUserCodeLabel(), 180);
+        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
+        return columnConfig;
     }
 
     private final ColumnConfig createEmailColumnConfig()
@@ -80,8 +89,9 @@ public class UserGridModel extends AbstractDataGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
+        configs.add(createCodeColumnConfig());
         configs.add(createEmailColumnConfig());
-        configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserNameLabel(), 120));
+        configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
         configs.add(createRegistratorColumnConfig());
         configs.add(createActionColumnConfig());
@@ -110,8 +120,8 @@ public class UserGridModel extends AbstractDataGridModel
             }
             final Object[] objects =
                     new Object[]
-                        { user.getEmail(), user.getUserFullName(), stateField, user.getRegistrator().getEmail(),
-                                messageResources.getActionDeleteLabel() };
+                        { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
+                                user.getRegistrator().getUserCode(), messageResources.getActionDeleteLabel() };
             list.add(objects);
         }
         return list;
@@ -120,6 +130,7 @@ public class UserGridModel extends AbstractDataGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
+        fieldDefs.add(new StringFieldDef(CODE));
         fieldDefs.add(new StringFieldDef(EMAIL));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));

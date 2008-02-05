@@ -36,9 +36,9 @@ final class UserDeleteGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final Record record = grid.getStore().getAt(rowIndex);
-            final String email = record.getAsString(UserGridModel.EMAIL);
+            final String code = record.getAsString(UserGridModel.CODE);
             final String name = record.getAsString(UserGridModel.FULL_NAME);
-            if (email.equals(viewContext.getModel().getUser().getEmail()))
+            if (code.equals(viewContext.getModel().getUser().getUserCode()))
             {
                 MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getUserDeleteHimself());
                 return;
@@ -55,7 +55,7 @@ final class UserDeleteGridCellListener extends GridCellListenerAdapter
                             {
                                 if (btnID.equals("yes"))
                                 {
-                                    viewContext.getCifexService().tryToDeleteUser(email,
+                                    viewContext.getCifexService().tryToDeleteUser(code,
                                             new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                                 }
                             }

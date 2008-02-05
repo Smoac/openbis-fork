@@ -50,11 +50,11 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final UserDTO tryToFindUser(final String email)
+    public final UserDTO tryToFindUserByCode(final String code)
     {
-        assert email != null : "Email Adress is null!";
+        assert code != null : "User Code is null!";
 
-        return daoFactory.getUserDAO().tryFindUserByEmail(email);
+        return daoFactory.getUserDAO().tryFindUserByCode(code);
     }
 
     @Transactional
@@ -116,12 +116,12 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void tryToDeleteUser(String email)
+    public void tryToDeleteUser(String code)
     {
-        assert email != null : "User is null";
+        assert code != null : "User is null";
 
         IUserDAO userDAO = daoFactory.getUserDAO();
-        UserDTO user = userDAO.tryFindUserByEmail(email);
+        UserDTO user = userDAO.tryFindUserByCode(code);
         boolean returnValue = userDAO.deleteUser(user.getID());
         if (logger.isInfoEnabled())
         {

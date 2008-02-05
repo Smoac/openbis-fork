@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.io.IOException;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
@@ -62,6 +66,33 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         cifexServiceDelegate = (ICIFEXService) context.getBean(CIFEX_SERVICE_BEAN_NAME);
+    }
+
+    @Override
+    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    {
+        try
+        {
+            super.service(request, response);
+        } catch (Throwable th)
+        {
+            operationLog.error("Error processing request for method '" + request.getMethod() + "'.", th);
+            if (th instanceof Error)
+            {
+                throw (Error) th;
+            } else if (th instanceof RuntimeException)
+            {
+                throw (RuntimeException) th;
+            } else if (th instanceof ServletException)
+            {
+                throw (ServletException) th;
+            } else if (th instanceof IOException)
+            {
+                throw (IOException) th;
+            } else {
+                throw new Error("Unexpected error: " + th.getMessage());
+            }
+        }
     }
 
     //
@@ -112,9 +143,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException
     {
-        cifexServiceDelegate.tryToDeleteUser(email);
+        cifexServiceDelegate.tryToDeleteUser(code);
 
     }
 

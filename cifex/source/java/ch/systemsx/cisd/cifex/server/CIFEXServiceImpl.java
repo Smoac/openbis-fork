@@ -214,26 +214,27 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryToLogin(final String userOrEmail, final String password, final boolean requestAdmin)
+    public final User tryToLogin(final String userCode, final String password, final boolean requestAdmin)
             throws UserFailureException, EnvironmentFailureException
     {
-        authenticationLog.info("Try to login user '" + userOrEmail + "'.");
+        authenticationLog.info("Try to login user '" + userCode + "'.");
         final IUserManager userManager = domainModel.getUserManager();
         if (userManager.isDatabaseEmpty())
         {
             final UserDTO userDTO = new UserDTO();
-            userDTO.setEmail(userOrEmail);
+            userDTO.setUserCode(userCode);
+            userDTO.setEmail(userCode);
             userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
             userDTO.setAdmin(true);
             userDTO.setPermanent(true);
             userManager.createUser(userDTO);
             return finishLogin(userDTO, true);
         }
-        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userOrEmail, password, requestAdmin);
+        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password, requestAdmin);
         if (userDTOOrNull == null)
         {
             final String encryptedPassword = StringUtilities.computeMD5Hash(password);
-            userDTOOrNull = userManager.tryToFindUser(userOrEmail);
+            userDTOOrNull = userManager.tryToFindUserByCode(userCode);
             if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
                     || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
             {
@@ -269,12 +270,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 authenticationLog.error("Principal is null for successfully authenticated user '" + userOrEmail + "'.");
                 throw new UserFailureException("Unable to retrieve user information.");
             }
+            final String code = principal.getUserId();
             final String email = principal.getEmail();
             final IUserManager userManager = domainModel.getUserManager();
-            UserDTO userDTO = userManager.tryToFindUser(email);
+            UserDTO userDTO = userManager.tryToFindUserByCode(code);
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
+                userDTO.setUserCode(code);
                 userDTO.setUserFullName(userOrEmail);
                 userDTO.setEmail(email);
                 userDTO.setEncryptedPassword(null);
@@ -416,10 +419,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(File.class, files, null);
     }
 
-    public void tryToDeleteUser(final String email) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException
     {
         checkAdmin("tryToDeleteUser");
-        domainModel.getUserManager().tryToDeleteUser(email);
+        domainModel.getUserManager().tryToDeleteUser(code);
     }
 
     public void tryToDeleteFile(final long id) throws InvalidSessionException

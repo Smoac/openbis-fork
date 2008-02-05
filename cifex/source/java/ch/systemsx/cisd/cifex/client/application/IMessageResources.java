@@ -56,6 +56,13 @@ public interface IMessageResources extends Messages
     /**
      * Returns the label for creating new User
      * 
+     * @gwt.key usercreation.label.admin
+     */
+    public String getAdminCreateUserLabel();
+
+    /**
+     * Returns the label for creating new User
+     * 
      * @gwt.key usercreation.label
      */
     public String getCreateUserLabel();
@@ -400,6 +407,13 @@ public interface IMessageResources extends Messages
     public String getUserDeleteTitle();
 
     /**
+     * Returns the label of the user code column.
+     * 
+     * @gwt.key userlist.code.label
+     */
+    public String getUserCodeLabel();
+
+    /**
      * Returns the label of the user email column.
      * 
      * @gwt.key userlist.email.label
@@ -409,9 +423,9 @@ public interface IMessageResources extends Messages
     /**
      * Returns the label of the user Full Name column.
      * 
-     * @gwt.key userlist.name.label
+     * @gwt.key userlist.fullname.label
      */
-    public String getUserNameLabel();
+    public String getUserFullNameLabel();
 
     /**
      * Returns the User List part title.

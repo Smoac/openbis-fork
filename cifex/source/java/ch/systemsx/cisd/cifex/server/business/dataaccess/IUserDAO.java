@@ -31,12 +31,12 @@ public interface IUserDAO
 {
 
     /**
-     * Finds with the email of the user the specified user id.
+     * Finds the user with the given user code.
      * 
-     * @param email EmailAdress. Can not be blank.
-     * @return <code>null</code>, if no user with that id exists.
+     * @param userCode user code. Can not be blank.
+     * @return <code>null</code>, if no user with that code exists.
      */
-    public UserDTO tryFindUserByEmail(String email) throws DataAccessException;
+    public UserDTO tryFindUserByCode(String userCode) throws DataAccessException;
 
     /**
      * Inserts given <code>User</code> into the database.

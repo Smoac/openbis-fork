@@ -285,6 +285,7 @@ final class FileManager extends AbstractManager implements IFileManager
             Collection<FileDTO> files)
     {
         IUserDAO userDAO = daoFactory.getUserDAO();
+        // FIXME 2008-02-05, Bernd Rinn: emails are no longer guaranteed to be unique, so we need to change the data structure here!
         TableMap<String, UserDTO> existingUsers =
                 new TableMap<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
                     {
@@ -303,7 +304,7 @@ final class FileManager extends AbstractManager implements IFileManager
             if (user == null)
             {
                 password = passwordGenerator.generatePassword(10);
-                user = tryToCreateUser(requestUser, existingUsers, email, invalidEmailAdresses, password);
+                user = tryCreateUser(requestUser, existingUsers, email, invalidEmailAdresses, password);
             }
             if (user != null)
             {
@@ -318,13 +319,13 @@ final class FileManager extends AbstractManager implements IFileManager
         return invalidEmailAdresses;
     }
 
-    private UserDTO tryToCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
+    private UserDTO tryCreateUser(UserDTO requestUser, TableMap<String, UserDTO> existingUsers, String email,
             List<String> invalidEmailAdresses, String password)
     {
-        UserDTO user = null;
         if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
         {
-            user = new UserDTO();
+            final UserDTO user = new UserDTO();
+            user.setUserCode(email);
             user.setEmail(email);
             user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
             user.setRegistrator(requestUser);
@@ -332,11 +333,12 @@ final class FileManager extends AbstractManager implements IFileManager
             userBO.define(user);
             userBO.save();
             existingUsers.add(user);
+            return user;
         } else
         {
             invalidEmailAdresses.add(email);
+            return null;
         }
-        return user;
     }
 
     private void sendEmail(String url, Collection<FileDTO> files, String email, String password)

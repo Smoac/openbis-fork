@@ -168,7 +168,13 @@ abstract class AbstractMainPage extends BorderLayout
     protected final void createUserPanel(final boolean allowPermanentUsers)
     {
         createUserPanel = createVerticalPanelPart();
-        createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
+        if (allowPermanentUsers)
+        {
+            createUserPanel.add(createPartTitle(messageResources.getAdminCreateUserLabel()));
+        } else
+        {
+            createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
+        }
         createUserPanel.add(createCreateUserWidget(allowPermanentUsers));
     }
 

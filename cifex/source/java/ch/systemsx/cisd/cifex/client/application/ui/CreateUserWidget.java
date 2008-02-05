@@ -52,9 +52,11 @@ public class CreateUserWidget extends Form
 
     private static final int COLUMN_WIDTH = 300;
 
+    private TextField userCodeField;
+    
     private TextField emailField;
 
-    private TextField usernameField;
+    private TextField fullNameField;
 
     private TextField passwordField;
 
@@ -85,6 +87,9 @@ public class CreateUserWidget extends Form
         leftColumn.setWidth(COLUMN_WIDTH);
         column(leftColumn);
 
+        userCodeField = createCodeField();
+        add(userCodeField);
+        
         emailField = createEmailField();
         add(emailField);
 
@@ -97,8 +102,8 @@ public class CreateUserWidget extends Form
         rightColumn.setWidth(COLUMN_WIDTH);
         column(rightColumn);
 
-        usernameField = createUsernameField();
-        add(usernameField);
+        fullNameField = createFullNameField();
+        add(fullNameField);
 
         validatePasswordField = createValidatePasswordField();
         add(validatePasswordField);
@@ -147,6 +152,19 @@ public class CreateUserWidget extends Form
         return formConfig;
     }
 
+    private final TextField createCodeField()
+    {
+        final TextFieldConfig fieldConfig = new TextFieldConfig();
+        fieldConfig.setFieldLabel(messageResources.getUserCodeLabel());
+        fieldConfig.setWidth(FIELD_WIDTH);
+        fieldConfig.setVtype(VType.ALPHANUM);
+        fieldConfig.setName(messageResources.getUserCodeLabel());
+        fieldConfig.setAllowBlank(false);
+        fieldConfig.setValidateOnBlur(false);
+        fieldConfig.setTabIndex(1);
+        return new TextField(fieldConfig);
+    }
+
     private final TextField createEmailField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
@@ -160,12 +178,12 @@ public class CreateUserWidget extends Form
         return new TextField(fieldConfig);
     }
 
-    private final TextField createUsernameField()
+    private final TextField createFullNameField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(messageResources.getUserNameLabel());
+        fieldConfig.setFieldLabel(messageResources.getUserFullNameLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setName(messageResources.getUserNameLabel());
+        fieldConfig.setName(messageResources.getUserFullNameLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setTabIndex(2);
@@ -242,12 +260,13 @@ public class CreateUserWidget extends Form
             return;
         }
 
-        if (usernameField.validate() && passwordField.validate() && emailField.validate())
+        if (userCodeField.validate() && fullNameField.validate() && passwordField.validate() && emailField.validate())
         {
 
             User user = new User();
+            user.setUserCode(userCodeField.getText());
             user.setEmail(emailField.getText());
-            user.setUserFullName(usernameField.getText());
+            user.setUserFullName(fullNameField.getText());
             if (allowPermanentUsers)
             {
                 if (adminRadioButton.getValue())

@@ -34,7 +34,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * <p>
      * If <code>requestAdmin==true</code>, then request an admin login.
      */
-    public void tryToLogin(final String user, final String password, final boolean requestAdmin,
+    public void tryToLogin(final String userCode, final String password, final boolean requestAdmin,
             final AsyncCallback callback);
 
     /**
@@ -70,9 +70,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listDownloadFiles(final AsyncCallback callback);
 
     /**
-     * Deletes an user given by its <var>email</var>.
+     * Deletes an user given by its <var>userCode</var>.
      */
-    public void tryToDeleteUser(final String email, final AsyncCallback callback);
+    public void tryToDeleteUser(final String userCode, final AsyncCallback callback);
 
     /**
      * Deletes file given by its <code>id</code>.

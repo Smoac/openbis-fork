@@ -213,7 +213,7 @@ public class FileUploadWidget extends Form
                     final IMessageResources messageResources = context.getMessageResources();
                     final String msg = caught.getMessage();
                     MessageBox.alert(messageResources.getMessageBoxErrorTitle(), "Upload failed: "
-                            + (StringUtils.isBlank(msg) ? "Unkonwn failure (see server log)" : msg));
+                            + (StringUtils.isBlank(msg) ? "Unknown failure (ask administrator)" : msg));
                     context.getPageController().createMainPage();
                 }
 

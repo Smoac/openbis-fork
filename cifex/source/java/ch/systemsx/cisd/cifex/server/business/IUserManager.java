@@ -34,11 +34,11 @@ public interface IUserManager
     public boolean isDatabaseEmpty();
     
     /**
-     * Tries to find the user with the specified e-mail address.
+     * Tries to find the user with the specified user code.
      * 
      * @return <code>null</code> if not found.
      */
-    public UserDTO tryToFindUser(String email);
+    public UserDTO tryToFindUserByCode(String code);
 
     /**
      * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
@@ -59,5 +59,5 @@ public interface IUserManager
      * Deletes the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void tryToDeleteUser(String email);
+    public void tryToDeleteUser(String code);
 }

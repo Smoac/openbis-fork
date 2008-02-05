@@ -98,6 +98,33 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
     }
 
+    @Override
+    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    {
+        try
+        {
+            super.service(request, response);
+        } catch (Throwable th)
+        {
+            operationLog.error("Error processing request for method '" + request.getMethod() + "'.", th);
+            if (th instanceof Error)
+            {
+                throw (Error) th;
+            } else if (th instanceof RuntimeException)
+            {
+                throw (RuntimeException) th;
+            } else if (th instanceof ServletException)
+            {
+                throw (ServletException) th;
+            } else if (th instanceof IOException)
+            {
+                throw (IOException) th;
+            } else {
+                throw new Error("Unexpected error: " + th.getMessage());
+            }
+        }
+    }
+
     /**
      * Sends an error message to the client.
      */

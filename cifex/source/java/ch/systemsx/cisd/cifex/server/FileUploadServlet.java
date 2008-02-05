@@ -143,11 +143,11 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 throw new FileUploadBase.SizeLimitExceededException(msg, contentLength, maxUploadSizeInBytes);
             }
             final List<FileDTO> files = new ArrayList<FileDTO>();
-            final List<String> users = new ArrayList<String>();
-            extractEmailsAndUploadFiles(request, requestUser, filenamesToUpload, files, users);
+            final List<String> userEmails = new ArrayList<String>();
+            extractEmailsAndUploadFiles(request, requestUser, filenamesToUpload, files, userEmails);
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
-            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, users, files);
+            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, userEmails, files);
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
             writer.write(UPLOAD_FINISHED);
@@ -169,7 +169,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     }
 
     private void extractEmailsAndUploadFiles(final HttpServletRequest request, UserDTO requestUser,
-            String[] pathnamesToUpload, List<FileDTO> files, List<String> users) throws FileUploadException,
+            String[] pathnamesToUpload, List<FileDTO> files, List<String> userEmails) throws FileUploadException,
             IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
@@ -228,7 +228,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                     final StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream));
                     while (stringTokenizer.hasMoreTokens())
                     {
-                        users.add(stringTokenizer.nextToken());
+                        userEmails.add(stringTokenizer.nextToken());
                     }
                 }
             }
