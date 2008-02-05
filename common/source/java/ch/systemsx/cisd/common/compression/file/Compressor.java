@@ -61,6 +61,7 @@ public class Compressor
         {
             System.err.printf("Path '%s' is not a directory.\n", directory.getPath());
             System.exit(1);
+            return null; // never reached, avoid Eclipse warnings
         }
         if (filesToCompressOrNull.length == 0)
         {
@@ -74,8 +75,8 @@ public class Compressor
         return new ArrayBlockingQueue<File>(filesToCompressOrNull.length, false, Arrays.asList(filesToCompressOrNull));
     }
 
-    private static void startUpWorkerThreads(Queue<File> workerQueue,
-            Collection<FailureRecord> failed, ICompressionMethod compressor)
+    private static void startUpWorkerThreads(Queue<File> workerQueue, Collection<FailureRecord> failed,
+            ICompressionMethod compressor)
     {
         for (int i = 0; i < NUMBER_OF_WORKERS; ++i)
         {
@@ -87,16 +88,14 @@ public class Compressor
         }
     }
 
-    public static Collection<FailureRecord> start(String directoryName,
-            ICompressionMethod compressionMethod)
+    public static Collection<FailureRecord> start(String directoryName, ICompressionMethod compressionMethod)
     {
         if (compressionMethod instanceof ISelfTestable)
         {
             ((ISelfTestable) compressionMethod).check();
         }
         final Queue<File> workerQueue = fillWorkerQueueOrExit(new File(directoryName), compressionMethod);
-        final Collection<FailureRecord> failed =
-                Collections.synchronizedCollection(new ArrayList<FailureRecord>());
+        final Collection<FailureRecord> failed = Collections.synchronizedCollection(new ArrayList<FailureRecord>());
         startUpWorkerThreads(workerQueue, failed, compressionMethod);
         return failed;
     }
