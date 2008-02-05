@@ -106,21 +106,12 @@ public class TableMap<K, E> implements Iterable<E>
     public final void add(final E row)
     {
         final K key = extractor.getKey(row);
-        if (map.get(key) != null)
-        {
-            switch (uniqueKeyViolationStrategy)
-            {
-                case KEEP_FIRST:
-                    break;
-                case KEEP_LAST:
-                    map.put(key, row);
-                    break;
-                case ERROR:
-                    throw new UniqueKeyViolationException("Key '" + key.toString() + "' already in the map.");
-            }
-        } else
+        if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.KEEP_LAST || map.get(key) == null)
         {
             map.put(key, row);
+        } else if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.ERROR)
+        {
+            throw new UniqueKeyViolationException("Key '" + key.toString() + "' already in the map.");
         }
     }
 
