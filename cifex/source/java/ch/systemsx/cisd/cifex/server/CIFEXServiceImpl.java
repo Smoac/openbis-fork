@@ -64,7 +64,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
 public final class CIFEXServiceImpl implements ICIFEXService
 {
     /** The attribute name under which the session could be found. */
-    static final String SESSION_NAME = "cifex-user";
+    public static final String SESSION_NAME = "cifex-user";
 
     /**
      * The attribute name that holds the queue that has the names of the files that should be uploaded in the next

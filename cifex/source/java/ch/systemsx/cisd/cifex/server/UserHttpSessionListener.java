@@ -23,6 +23,8 @@ import javax.servlet.http.HttpSessionListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
+
 /**
  * A <code>HttpSessionListener</code> implementation which registers the active user sessions in a <i>Spring</i>
  * bean.

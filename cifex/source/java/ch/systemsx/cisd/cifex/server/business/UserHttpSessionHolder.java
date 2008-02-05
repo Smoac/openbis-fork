@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server;
+package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -23,18 +23,24 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A user session manager which holds the active sessions and invalidate them on demand.
  * <p>
- * This class is synchronized.
+ * This class is synchronized as it could be accessed by more than one thread.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 public final class UserHttpSessionHolder
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserHttpSessionHolder.class);
 
     public final static String USER_SESSION_MANAGER_BEAN_NAME = "user-session-holder";
 
@@ -46,6 +52,15 @@ public final class UserHttpSessionHolder
     public UserHttpSessionHolder()
     {
         activeSessions = new ArrayList<HttpSession>();
+    }
+
+    private final static void invalidateSession(final HttpSession httpSession)
+    {
+        for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
+        {
+            httpSession.removeAttribute(enumeration.nextElement());
+        }
+        httpSession.invalidate();
     }
 
     public final synchronized void addUserSession(final HttpSession session)
@@ -61,12 +76,12 @@ public final class UserHttpSessionHolder
             final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
             if (user != null && user.getID().longValue() == userDTO.getID().longValue())
             {
-                for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration
-                        .hasMoreElements();)
+                invalidateSession(httpSession);
+                if (operationLog.isInfoEnabled())
                 {
-                    httpSession.removeAttribute(enumeration.nextElement());
+                    operationLog.info("Currently logged in User [" + user.getUserFullName() + " - " + user.getEmail()
+                            + "] has been logged out.");
                 }
-                httpSession.invalidate();
             }
         }
         invalidatingLock.unlock();

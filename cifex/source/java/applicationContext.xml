@@ -62,7 +62,7 @@
         <property name="administratorEmail" value="${administrator.email}"/>
     </bean>
 
-    <bean id="user-session-holder" class="ch.systemsx.cisd.cifex.server.UserHttpSessionHolder" />
+    <bean id="user-session-holder" class="ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder" />
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
 
