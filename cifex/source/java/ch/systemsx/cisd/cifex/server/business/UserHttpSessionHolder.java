@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpSession;
 
@@ -47,7 +46,7 @@ public final class UserHttpSessionHolder
     private final List<HttpSession> activeSessions;
 
     /** A flag to avoid <code>ConcurrentModificationException</code> exception when session gets invalidated here. */
-    private final ReentrantLock invalidatingLock = new ReentrantLock();
+    private boolean isInvalidating;
 
     public UserHttpSessionHolder()
     {
@@ -60,6 +59,7 @@ public final class UserHttpSessionHolder
         {
             httpSession.removeAttribute(enumeration.nextElement());
         }
+        // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
         httpSession.invalidate();
     }
 
@@ -70,7 +70,7 @@ public final class UserHttpSessionHolder
 
     public final synchronized void invalidateSessionWithUser(final UserDTO userDTO)
     {
-        invalidatingLock.lock();
+        isInvalidating = true;
         for (final HttpSession httpSession : activeSessions)
         {
             final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
@@ -84,12 +84,12 @@ public final class UserHttpSessionHolder
                 }
             }
         }
-        invalidatingLock.unlock();
+        isInvalidating = false;
     }
 
     public final synchronized void removeUserSession(final HttpSession session)
     {
-        if (invalidatingLock.isHeldByCurrentThread() == false)
+        if (isInvalidating == false)
         {
             activeSessions.remove(session);
         }
