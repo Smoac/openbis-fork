@@ -108,10 +108,12 @@ public class TableMap<K, E> implements Iterable<E>
                     map.put(key, row);
                     break;
                 case ERROR:
-                    throw new IllegalStateException();
+                    throw new UniqueKeyViolationException("Key '" + key.toString() + "' already in the map.");
             }
+        } else
+        {
+            map.put(key, row);
         }
-        map.put(key, row);
     }
 
     /**
