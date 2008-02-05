@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,15 +26,39 @@ import java.util.Set;
 /**
  * A table of rows of type <code>E</code> with random access via a key of type <code>K</code> where the key does not
  * have to be unique.
+ * <p>
+ * Note that the <i>values</i> still need to be unique (according to the {@link Object#equals(Object)} contract), only
+ * duplicate <i>keys</i> are acceptable for this map.
  * 
  * @author Franz-Josef Elmer
  * @author Bernd Rinn
  */
 public class TableMapNonUniqueKey<K, E> implements Iterable<E>
 {
+    /** Strategy on how to handle unique value constraint violations. */
+    public enum UniqueValueViolationStrategy
+    {
+        KEEP_FIRST, KEEP_LAST, ERROR
+    }
+
+    /**
+     * Exception indicating a violation of the unique value constraint.
+     */
+    public static class UniqueValueViolationException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+
+        UniqueValueViolationException(String msg)
+        {
+            super(msg);
+        }
+    }
+
     private final Map<K, Set<E>> map = new LinkedHashMap<K, Set<E>>();
 
     private final IKeyExtractor<K, E> extractor;
+
+    private final UniqueValueViolationStrategy uniqueValueViolationStrategy;
 
     /**
      * Creates a new instance for the specified rows and key extractor.
@@ -44,9 +68,23 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      */
     public TableMapNonUniqueKey(final Iterable<E> rows, final IKeyExtractor<K, E> extractor)
     {
+        this(rows, extractor, UniqueValueViolationStrategy.ERROR);
+    }
+
+    /**
+     * Creates a new instance for the specified rows and key extractor.
+     * 
+     * @param rows Collection of rows of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     */
+    public TableMapNonUniqueKey(final Iterable<E> rows, final IKeyExtractor<K, E> extractor,
+            UniqueValueViolationStrategy uniqueValueViolationStrategy)
+    {
         assert rows != null : "Unspecified collection of rows.";
         assert extractor != null : "Unspecified key extractor.";
+        assert uniqueValueViolationStrategy != null : "Unspecified unique value violation strategy.";
         this.extractor = extractor;
+        this.uniqueValueViolationStrategy = uniqueValueViolationStrategy;
         for (final E row : rows)
         {
             add(row);
@@ -54,23 +92,47 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     }
 
     /**
-     * Adds the specified row to this table. An already existing row with the same key as <code>row</code> will be
-     * replaced by <code>row</code>.
+     * Adds the specified row to this table. What the method will do when a row is provided that is equals to a row that
+     * is already in the map (according to {@link Object#equals(Object)}, depends on the unique value violation
+     * strategy as given to the constructor:
+     * <ul>
+     * <li>For {@link UniqueValueViolationStrategy#KEEP_FIRST} the first inserted row will be kept and all later ones
+     * will be ignored.</li>
+     * <li>For {@link UniqueValueViolationStrategy#KEEP_LAST} the last inserted row will replace all the others.</li>
+     * <li>For {@link UniqueValueViolationStrategy#ERROR} a {@link UniqueValueViolationException} will be thrown when
+     * trying to insert a row with a key that is already in the map. <i>This is the default.</i>.</li>
+     * </ul>
+     * 
+     * @throws UniqueValueViolationException If a row that equals the <var>row</var> is already in the map and a unique
+     *             value violation strategy of {@link UniqueValueViolationStrategy#ERROR} has been chosen.
      */
-    public final void add(final E row)
+    public final void add(final E row) throws UniqueValueViolationException
     {
         final K key = extractor.getKey(row);
-        Set<E> set = map.get(key); 
+        Set<E> set = map.get(key);
         if (set == null)
         {
             set = new LinkedHashSet<E>();
             map.put(key, set);
+            set.add(row);
+        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_FIRST
+                || set.contains(row) == false)
+        {
+            set.add(row);
+        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_LAST)
+        {
+            set.remove(row);
+            set.add(row);
+        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.ERROR)
+        {
+            throw new UniqueValueViolationException("Row '" + row.toString() + "' already stored in the map.");
         }
-        set.add(row);
     }
 
     /**
      * Gets the row set for the specified key or <code>null</code> if not found.
+     * <p>
+     * The set is ordered by the order of addition.
      */
     public final Set<E> tryGet(final K key)
     {
@@ -78,21 +140,27 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     }
 
     /**
-     * Creates an iterator of the rows in the order they have been added. Removing is not supported.
+     * Creates an iterator of the rows. Removing is not supported.
+     * <p>
+     * The order is:
+     * <ol>
+     * <li>Order of addition of the key</li>
+     * <li>Order of the addition of the value for the value's key</li>
+     * </ol>
      */
     public final Iterator<E> iterator()
     {
         return new Iterator<E>()
             {
                 private Iterator<Map.Entry<K, Set<E>>> mapSetIterator = map.entrySet().iterator();
-                
+
                 private Iterator<E> setIterator;
 
                 private boolean setHasNext()
                 {
                     return (setIterator != null) && setIterator.hasNext();
                 }
-                
+
                 public boolean hasNext()
                 {
                     if (setHasNext() == false)
@@ -100,14 +168,14 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
                         if (mapSetIterator.hasNext())
                         {
                             setIterator = mapSetIterator.next().getValue().iterator();
-                        }                        
+                        }
                     }
                     return setHasNext();
                 }
 
                 public E next()
                 {
-                    if (setHasNext() == false)
+                    if (hasNext() == false)
                     {
                         throw new NoSuchElementException("No more elements.");
                     }
