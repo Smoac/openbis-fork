@@ -103,7 +103,7 @@ public class TableMap<K, E> implements Iterable<E>
      * @throws UniqueKeyViolationException If the key of <var>row</var> is already in the map and a unique key
      *             violation strategy of {@link UniqueKeyViolationStrategy#ERROR} has been chosen.
      */
-    public final void add(final E row)
+    public final void add(final E row) throws UniqueKeyViolationException
     {
         final K key = extractor.getKey(row);
         if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.KEEP_LAST || map.get(key) == null)
