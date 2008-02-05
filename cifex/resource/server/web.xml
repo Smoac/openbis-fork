@@ -24,6 +24,7 @@
     <servlet>
         <servlet-name>spring</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -34,15 +35,17 @@
     <!--
         // Servlets
     -->
-    
+
     <servlet>
         <servlet-name>file-download</servlet-name>
         <servlet-class>ch.systemsx.cisd.cifex.server.FileDownloadServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
         <servlet-name>file-upload</servlet-name>
         <servlet-class>ch.systemsx.cisd.cifex.server.FileUploadServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     &gwt;
