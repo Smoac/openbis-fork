@@ -54,12 +54,15 @@
             </bean>
         </constructor-arg>
         <constructor-arg ref="bean-post-processor" />
-        <property name="fileStorePath" value="${file-store}"/>
-        <property name="fileRetention" value="${file-retention}"/>
-        <property name="userRetention" value="${user-retention}"/>
-        <property name="maxRequestUploadSizeInMB" value="${max-upload-size}"/>
+        <constructor-arg ref="user-session-holder" />
+        <property name="fileStorePath" value="${file-store}" />
+        <property name="fileRetention" value="${file-retention}" />
+        <property name="userRetention" value="${user-retention}" />
+        <property name="maxRequestUploadSizeInMB" value="${max-upload-size}" />
         <property name="administratorEmail" value="${administrator.email}"/>
     </bean>
+
+    <bean id="user-session-holder" class="ch.systemsx.cisd.cifex.server.UserHttpSessionHolder" />
 
     <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
 
@@ -97,23 +100,24 @@
     </bean>
 
     <!-- 
-       // Clean up daemon
-    -->   
+        // Clean up daemon
+    -->
+
     <bean id="clean-up-daemon" class="ch.systemsx.cisd.cifex.server.CleanUpDaemon">
         <constructor-arg ref="domain-model" />
     </bean>
-          
-    <bean id="timerScheduler" class="org.springframework.scheduling.timer.TimerFactoryBean"> 
+
+    <bean id="timerScheduler" class="org.springframework.scheduling.timer.TimerFactoryBean">
         <property name="scheduledTimerTasks">
-            <list> 
-                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"> 
-                    <property name="delay" value="0"/>
-                    <property name="period" value="${cleaning-time-interval}"/>
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                    <property name="delay" value="0" />
+                    <property name="period" value="${cleaning-time-interval}" />
                     <property name="timerTask" ref="clean-up-daemon" />
-                </bean> 
-            </list> 
-        </property> 
+                </bean>
+            </list>
+        </property>
     </bean>
-  
+
 
 </beans>

@@ -48,7 +48,7 @@ class UserManager extends AbstractManager implements IUserManager
     {
         return daoFactory.getUserDAO().getNumberOfUsers() == 0;
     }
-    
+
     @Transactional
     public final UserDTO tryToFindUser(final String email)
     {
@@ -80,8 +80,8 @@ class UserManager extends AbstractManager implements IUserManager
         {
             logger.info("Found " + expiredUsers.size() + " expired users.");
         }
-        RuntimeException ex_all = null; 
-        for (UserDTO user : expiredUsers)
+        RuntimeException ex_all = null;
+        for (final UserDTO user : expiredUsers)
         {
             try
             {
@@ -93,10 +93,11 @@ class UserManager extends AbstractManager implements IUserManager
                         logger.info("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
                                 + "] removed from database.");
                     }
+                    businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
                 } else
                 {
                     logger.warn("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
-                                + "] could not be found in the database.");
+                            + "] could not be found in the database.");
                 }
             } catch (RuntimeException ex)
             {
@@ -126,7 +127,9 @@ class UserManager extends AbstractManager implements IUserManager
         {
             if (returnValue)
             {
-                logger.info("User [" + user.getUserFullName() + " - " + user.getEmail() + "] deleted from user database.");
+                logger.info("User [" + user.getUserFullName() + " - " + user.getEmail()
+                        + "] deleted from user database.");
+                businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
             } else
             {
                 logger.info("Could not delete User [" + user.getUserFullName() + " - " + user.getEmail()

@@ -25,18 +25,42 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
+ * A <code>TimerTask</code> extension which deletes expired files and users.
+ * <p>
+ * It gets registered via <i>Spring</i> framework.
+ * </p>
+ * 
  * @author Izabela Adamczyk
  */
-public class CleanUpDaemon extends TimerTask
+public final class CleanUpDaemon extends TimerTask
 {
-    IDomainModel domainModel;
-
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
 
     private final Stopwatch timer = new Stopwatch();
 
+    final IDomainModel domainModel;
+
+    public CleanUpDaemon(final IDomainModel domainModel)
+    {
+        this.domainModel = domainModel;
+    }
+
+    private final void deleteExpiredFiles()
+    {
+        domainModel.getFileManager().deleteExpiredFiles();
+    }
+
+    private final void deleteExpiredUsers()
+    {
+        domainModel.getUserManager().deleteExpiredUsers();
+    }
+
+    //
+    // TimerTask
+    //
+
     @Override
-    public void run()
+    public final void run()
     {
         timer.start();
         deleteExpiredUsers();
@@ -49,23 +73,11 @@ public class CleanUpDaemon extends TimerTask
 
     }
 
-    public CleanUpDaemon(final IDomainModel domainModel)
-    {
-        this.domainModel = domainModel;
-    }
+    //
+    // Helper classes
+    //
 
-    private void deleteExpiredFiles()
-    {
-        domainModel.getFileManager().deleteExpiredFiles();
-    }
-
-    private void deleteExpiredUsers()
-    {
-        domainModel.getUserManager().deleteExpiredUsers();
-
-    }
-
-    private class Stopwatch
+    private final static class Stopwatch
     {
         private long start = 0;
 

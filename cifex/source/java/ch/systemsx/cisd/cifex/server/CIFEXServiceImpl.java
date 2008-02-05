@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -376,7 +377,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             final UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
             loggingContextHandler.destroyContext(httpSession.getId());
-            httpSession.removeAttribute(SESSION_NAME);
+            for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
+            {
+                httpSession.removeAttribute(enumeration.nextElement());
+            }
             httpSession.invalidate();
             if (authenticationLog.isInfoEnabled())
             {
@@ -464,8 +468,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         builder.append("There is a " + role + " user created for you on the Cifex Server. "
                 + "You can reach the service with the following login information: ");
-        builder.append("\nURL:\t\t").append(url);
-        builder.append("\nLogin:\t\t").append(user.getEmail());
+        final String email = user.getEmail();
+        builder.append("\nURL:\t\t").append(url).append("&email=").append(email);
+        builder.append("\nLogin:\t\t").append(email);
         builder.append("\nPassword:\t").append(password);
 
         if (user.isPermanent() == false)
@@ -475,7 +480,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
         final IMailClient mailClient = domainModel.getMailClient();
         mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
-            { user.getEmail() });
+            { email });
     }
 
     public FooterData getFooterData() throws InvalidSessionException

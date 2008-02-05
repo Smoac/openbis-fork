@@ -21,6 +21,10 @@
         <listener-class>ch.systemsx.cisd.cifex.server.CIFEXContextLoaderListener</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>ch.systemsx.cisd.cifex.server.UserHttpSessionListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>spring</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

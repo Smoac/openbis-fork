@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+import ch.systemsx.cisd.cifex.server.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -59,7 +60,8 @@ public final class DomainModel implements IDomainModel
     /**
      * Constructor only used for unit tests.
      */
-    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient)
+    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
+            final UserHttpSessionHolder userSessionHolder)
     {
         this(daoFactory, mailClient, new BeanPostProcessor()
             {
@@ -74,7 +76,7 @@ public final class DomainModel implements IDomainModel
                 {
                     return bean;
                 }
-            });
+            }, userSessionHolder);
     }
 
     /**
@@ -83,16 +85,19 @@ public final class DomainModel implements IDomainModel
      * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
      *                processor is correctly configured with the right TransactionInterceptor.
      */
-    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient, final BeanPostProcessor processor)
+    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient, final BeanPostProcessor processor,
+            final UserHttpSessionHolder userSessionHolder)
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
+        assert userSessionHolder != null : "Undefined user session holder";
 
         this.daoFactory = daoFactory;
         this.processor = processor;
         businessContext = new BusinessContext();
         businessContext.setMailClient(mailClient);
         businessContext.setPasswordGenerator(new PasswordGenerator());
+        businessContext.setUserHttpSessionHolder(userSessionHolder);
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
     }
 

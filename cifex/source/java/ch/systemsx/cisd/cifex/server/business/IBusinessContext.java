@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
+import ch.systemsx.cisd.cifex.server.UserHttpSessionHolder;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -57,6 +58,11 @@ public interface IBusinessContext
      * Returns the password generator.
      */
     public PasswordGenerator getPasswordGenerator();
+
+    /**
+     * Returns the user session holder.
+     */
+    public UserHttpSessionHolder getUserHttpSessionHolder();
 
     /**
      * Returns the administrator email.

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
+import ch.systemsx.cisd.cifex.server.UserHttpSessionHolder;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -44,6 +45,18 @@ class BusinessContext implements IBusinessContext
 
     private PasswordGenerator passwordGenerator;
 
+    private UserHttpSessionHolder userHttpSessionHolder;
+
+    public final UserHttpSessionHolder getUserHttpSessionHolder()
+    {
+        return userHttpSessionHolder;
+    }
+
+    public final void setUserHttpSessionHolder(final UserHttpSessionHolder userHttpSessionHolder)
+    {
+        this.userHttpSessionHolder = userHttpSessionHolder;
+    }
+
     private String administratorEmail;
 
     public final int getFileRetention()
@@ -51,7 +64,7 @@ class BusinessContext implements IBusinessContext
         return fileRetention;
     }
 
-    public final void setFileRetention(int fileRetention)
+    public final void setFileRetention(final int fileRetention)
     {
         this.fileRetention = fileRetention;
     }
@@ -61,7 +74,7 @@ class BusinessContext implements IBusinessContext
         return fileStore;
     }
 
-    public final void setFileStore(File fileStore)
+    public final void setFileStore(final File fileStore)
     {
         this.fileStore = fileStore;
     }
@@ -71,7 +84,7 @@ class BusinessContext implements IBusinessContext
         return userRetention;
     }
 
-    public final void setUserRetention(int userRetention)
+    public final void setUserRetention(final int userRetention)
     {
         this.userRetention = userRetention;
     }
@@ -81,7 +94,7 @@ class BusinessContext implements IBusinessContext
         return maxUploadRequestSizeInMB;
     }
 
-    public final void setMaxUploadRequestSizeInMB(int maxUploadRequestSizeInMB)
+    public final void setMaxUploadRequestSizeInMB(final int maxUploadRequestSizeInMB)
     {
         this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
     }
@@ -91,7 +104,7 @@ class BusinessContext implements IBusinessContext
         return mailClient;
     }
 
-    public final void setMailClient(IMailClient mailClient)
+    public final void setMailClient(final IMailClient mailClient)
     {
         this.mailClient = mailClient;
     }
@@ -101,7 +114,7 @@ class BusinessContext implements IBusinessContext
         return passwordGenerator;
     }
 
-    public final void setPasswordGenerator(PasswordGenerator passwordGenerator)
+    public final void setPasswordGenerator(final PasswordGenerator passwordGenerator)
     {
         this.passwordGenerator = passwordGenerator;
     }
