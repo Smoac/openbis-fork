@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 /**
@@ -60,6 +59,6 @@ public final class Constants
 
     private final static String getPrepend()
     {
-        return "/cifex/" + (GWT.isScript() ? "cifex/" : "");
+        return "/cifex/";
     }
 }
