@@ -93,7 +93,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         final HttpSession session = request.getSession(false);
         if (session == null)
         {
-            throw new InvalidSessionException("You are not logged in. Please log in.");
+            throw new InvalidSessionException("You are not logged in or your session expired. Please log in.");
         }
         return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
     }
@@ -131,8 +131,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp. JSON response which
     // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
     // formConfig.setReader(reader)).
-    protected final void sendErrorMessage(final HttpServletResponse response, final String message)
-            throws IOException
+    protected final void sendErrorMessage(final HttpServletResponse response, final String message) throws IOException
     {
         assert message != null : "Given msg can not be null.";
         response.setContentType("text/plain");
