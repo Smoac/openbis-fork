@@ -38,7 +38,7 @@ public final class UserHttpSessionListener implements HttpSessionListener
     {
         final WebApplicationContext ctx =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
-        final String beanName = UserHttpSessionHolder.USER_SESSION_MANAGER_BEAN_NAME;
+        final String beanName = UserHttpSessionHolder.USER_SESSION_HOLDER_BEAN_NAME;
         final UserHttpSessionHolder sessionHolder = (UserHttpSessionHolder) ctx.getBean(beanName);
         assert sessionHolder != null : String.format("No bean '%s' defined.", beanName);
         return sessionHolder;
@@ -55,9 +55,9 @@ public final class UserHttpSessionListener implements HttpSessionListener
         sessionHolder.addUserSession(session);
     }
 
-    public final void sessionDestroyed(final HttpSessionEvent bindingEvent)
+    public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
-        final HttpSession session = bindingEvent.getSession();
+        final HttpSession session = sessionEvent.getSession();
         final UserHttpSessionHolder sessionHolder = getUserHttpSessionHolder(session);
         sessionHolder.removeUserSession(session);
     }

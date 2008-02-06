@@ -41,7 +41,7 @@ public final class UserHttpSessionHolder
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserHttpSessionHolder.class);
 
-    public final static String USER_SESSION_MANAGER_BEAN_NAME = "user-session-holder";
+    public final static String USER_SESSION_HOLDER_BEAN_NAME = "user-session-holder";
 
     private final List<HttpSession> activeSessions;
 
@@ -53,14 +53,17 @@ public final class UserHttpSessionHolder
         activeSessions = new ArrayList<HttpSession>();
     }
 
-    private final static void invalidateSession(final HttpSession httpSession)
+    public final static void invalidateSession(final HttpSession httpSession)
     {
-        for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
+        synchronized (httpSession)
         {
-            httpSession.removeAttribute(enumeration.nextElement());
+            for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
+            {
+                httpSession.removeAttribute(enumeration.nextElement());
+            }
+            // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
+            httpSession.invalidate();
         }
-        // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
-        httpSession.invalidate();
     }
 
     public final synchronized void addUserSession(final HttpSession session)

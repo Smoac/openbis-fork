@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
+import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
@@ -380,11 +380,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             final UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
             loggingContextHandler.destroyContext(httpSession.getId());
-            for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
-            {
-                httpSession.removeAttribute(enumeration.nextElement());
-            }
-            httpSession.invalidate();
+            UserHttpSessionHolder.invalidateSession(httpSession);
             if (authenticationLog.isInfoEnabled())
             {
                 authenticationLog.info("Logout of user " + user);
