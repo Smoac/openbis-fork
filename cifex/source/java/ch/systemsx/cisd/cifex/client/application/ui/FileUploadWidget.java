@@ -34,6 +34,7 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.ValidationException;
 import com.gwtext.client.widgets.form.Validator;
 
+import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -188,18 +189,7 @@ public class FileUploadWidget extends Form
                 filenames[i] = filename;
         }
 
-        context.getCifexService().registerFilenamesForUpload(filenames, new AsyncCallback()
-            {
-                public void onFailure(Throwable caught)
-                {
-                    // Nothing to do here.
-                }
-
-                public void onSuccess(Object result)
-                {
-                    // Nothing to do here.
-                }
-            });
+        context.getCifexService().registerFilenamesForUpload(filenames, new AsyncCallbackAdapter());
         submit();
         if (isValid())
         {
