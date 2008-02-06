@@ -347,7 +347,7 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
                     will(returnValue(false));
 
-                    one(userManager).tryToFindUserByCode(userName);
+                    one(userManager).tryFindUserByCode(userName);
                     will(returnValue(null));
                 }
             });
@@ -512,7 +512,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(userManager).tryToFindUserByCode(code);
+                    one(userManager).tryFindUserByCode(code);
                     will(returnValue(userDTO));
                 }
             });

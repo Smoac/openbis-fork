@@ -38,7 +38,7 @@ public interface IUserManager
      * 
      * @return <code>null</code> if not found.
      */
-    public UserDTO tryToFindUserByCode(String code);
+    public UserDTO tryFindUserByCode(String code);
 
     /**
      * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
@@ -59,11 +59,11 @@ public interface IUserManager
      * Deletes the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void tryToDeleteUser(String code);
+    public void deleteUser(String code);
     
     /**
      * Updates the fields of the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void tryToUpdateUser(UserDTO user, String encryptedPassword);
+    public void updateUser(UserDTO user, String encryptedPassword);
 }

@@ -227,7 +227,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         if (userDTOOrNull == null)
         {
             final String encryptedPassword = StringUtilities.computeMD5Hash(password);
-            userDTOOrNull = userManager.tryToFindUserByCode(userCode);
+            userDTOOrNull = userManager.tryFindUserByCode(userCode);
             if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
                     || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
             {
@@ -266,7 +266,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final String code = principal.getUserId();
             final String email = principal.getEmail();
             final IUserManager userManager = domainModel.getUserManager();
-            UserDTO userDTO = userManager.tryToFindUserByCode(code);
+            UserDTO userDTO = userManager.tryFindUserByCode(code);
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
@@ -412,7 +412,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException
     {
         checkAdmin("tryToDeleteUser");
-        domainModel.getUserManager().tryToDeleteUser(code);
+        domainModel.getUserManager().deleteUser(code);
     }
 
     public void tryToDeleteFile(final long id) throws InvalidSessionException
@@ -513,14 +513,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
         
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
-        userManager.tryToUpdateUser(userDTO, encryptedPassword);
+        userManager.updateUser(userDTO, encryptedPassword);
     }
 
     public User tryToFindUserByUserCode(final String userCode)
     {
         IUserManager userManager = domainModel.getUserManager();
 
-        UserDTO userDTO = userManager.tryToFindUserByCode(userCode);
+        UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(User.class, userDTO);
     }
 }

@@ -52,7 +52,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final UserDTO tryToFindUserByCode(final String code)
+    public final UserDTO tryFindUserByCode(final String code)
     {
         assert code != null : "User Code is null!";
 
@@ -118,7 +118,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void tryToDeleteUser(String code)
+    public void deleteUser(String code)
     {
         assert code != null : "User is null";
 
@@ -141,7 +141,7 @@ class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    public void tryToUpdateUser(UserDTO user, String encryptedPassword)
+    public void updateUser(UserDTO user, String encryptedPassword)
     {
         assert user != null;
 
