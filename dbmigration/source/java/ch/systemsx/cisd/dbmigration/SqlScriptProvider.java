@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Script;
@@ -40,9 +43,9 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
     private final String genericScriptFolder;
-    
+
     private final String specificScriptFolder;
-    
+
     /**
      * Creates an instance for the specified script folders. They are either resource folders or folders relative to the
      * working directory.
@@ -56,13 +59,23 @@ public class SqlScriptProvider implements ISqlScriptProvider
         this.genericScriptFolder = schemaScriptRootFolder + "/generic";
         this.specificScriptFolder = schemaScriptRootFolder + "/" + databaseEngineCode;
     }
-    
+
     /**
      * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code> otherwise.
      */
     public boolean isDumpRestore(String version)
     {
-        return new File(getDumpFolder(version), DUMP_FILENAME).exists();
+        return getDumprestoreFile(version).exists();
+    }
+
+    public void markAsDumpRestorable(String version) throws IOException
+    {
+        FileUtils.touch(getDumprestoreFile(version));
+    }
+
+    private File getDumprestoreFile(String version)
+    {
+        return new File(getDumpFolder(version), DUMP_FILENAME);
     }
 
     /**
@@ -126,13 +139,13 @@ public class SqlScriptProvider implements ISqlScriptProvider
     {
         return tryLoadScript(scriptName, scriptVersion, scriptVersion);
     }
-    
+
     private Script tryLoadScript(String scriptName, String scriptVersion, String prefix)
     {
         Script script = tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
         if (script == null)
         {
-            script = tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion); 
+            script = tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion);
         }
         return script;
     }

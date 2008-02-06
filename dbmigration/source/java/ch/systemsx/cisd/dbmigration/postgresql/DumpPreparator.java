@@ -39,20 +39,19 @@ import javax.swing.JFileChooser;
 
 /**
  * Helper application which creates 'mass upload' files to be used to setup the database from a PostgreSQL dump.
- * <p> 
+ * <p>
  * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option <b>--no-owner</b>.
  * <p>
- * Note, that this is a stand alone class which only uses J2EE library classes. 
- *
+ * Note, that this is a stand alone class which only uses J2EE library classes.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DumpPreparator
 {
     private static final Set<String> FILTERED_SCHEMA_LINES =
             new LinkedHashSet<String>(Arrays.asList("SET client_encoding = 'UTF8';",
-                                                    "COMMENT ON SCHEMA public IS 'Standard public schema';", 
-                                                    "CREATE PROCEDURAL LANGUAGE plpgsql;"));
-    
+                    "COMMENT ON SCHEMA public IS 'Standard public schema';", "CREATE PROCEDURAL LANGUAGE plpgsql;"));
+
     public static void main(String[] args) throws IOException
     {
         if (args.length < 1)
@@ -85,8 +84,8 @@ public class DumpPreparator
     /**
      * Creates all files necessary to setup a database from the specified PostgreSQL dump file.
      * 
-     * @param destination Destination folder in which the folder with the files will be created. The folder
-     *      will be named after the database version extracted from the dump. 
+     * @param destination Destination folder in which the folder with the files will be created. The folder will be
+     *            named after the database version extracted from the dump.
      */
     public static void createUploadFiles(File dumpFile, File destination) throws IOException
     {
@@ -94,11 +93,12 @@ public class DumpPreparator
         try
         {
             createUploadFiles(reader, destination);
-        } finally {
+        } finally
+        {
             reader.close();
         }
     }
-    
+
     static void createUploadFiles(Reader dumpReader, File destinationFolder) throws IOException
     {
         BufferedReader reader = new BufferedReader(dumpReader);
@@ -114,7 +114,7 @@ public class DumpPreparator
         }
         uploadFileManager.save();
     }
-    
+
     private static enum State
     {
         SCHEMA()
@@ -139,12 +139,13 @@ public class DumpPreparator
                 if (matcher.matches())
                 {
                     manager.createUploadFile(matcher.group(1));
-                } else {
+                } else
+                {
                     throw new IllegalArgumentException("Couldn't extract table name from the following line: " + line);
                 }
                 return IN_COPY;
             }
-        }, 
+        },
         IN_COPY
         {
             @Override
@@ -174,7 +175,7 @@ public class DumpPreparator
                 return this;
             }
         };
-        
+
         private static final Pattern COPY_PATTERN = Pattern.compile("COPY (\\w*).*");
 
         State processLine(String line, UploadFileManager manager)
@@ -183,22 +184,29 @@ public class DumpPreparator
         }
 
     }
-    
+
     private static class UploadFileManager
     {
         private static final String VERSION_LOGS_TABLE = "database_version_logs";
+
         private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d{3})\\t.*");
-        
+
         private final File destinationFolder;
+
         private final Set<String> filteredSchemaLines;
+
         private final StringWriter schemaScript = new StringWriter();
+
         private final PrintWriter schemaPrinter = new PrintWriter(schemaScript, true);
+
         private final StringWriter finishScript = new StringWriter();
+
         private final PrintWriter finishPrinter = new PrintWriter(finishScript, true);
+
         private final Map<String, Table> tables = new LinkedHashMap<String, Table>();
-        
+
         private Table currentTable;
-        
+
         UploadFileManager(File destinationFolder, Set<String> filteredSchemaLines)
         {
             this.destinationFolder = destinationFolder;
@@ -212,7 +220,7 @@ public class DumpPreparator
                 schemaPrinter.println(line);
             }
         }
-        
+
         void addFinishLine(String line)
         {
             finishPrinter.println(line);
@@ -223,7 +231,7 @@ public class DumpPreparator
             currentTable = new Table(tableName);
             tables.put(tableName, currentTable);
         }
-        
+
         boolean addTableLine(String line)
         {
             if (currentTable == null)
@@ -235,13 +243,13 @@ public class DumpPreparator
                 return true;
             }
             currentTable.addRow(line);
-            return false; 
+            return false;
         }
-        
+
         void save() throws IOException
         {
             String databaseVersion = getDatabaseVersion();
-            File folder = createFolder(databaseVersion);
+            File folder = createDestinationFolder();
             writeTo(folder, "schema-" + databaseVersion + ".sql", Arrays.asList(schemaScript.toString()));
             for (Table table : tables.values())
             {
@@ -276,9 +284,9 @@ public class DumpPreparator
             }
         }
 
-        private File createFolder(String databaseVersion)
+        private File createDestinationFolder()
         {
-            File folder = new File(destinationFolder, databaseVersion);
+            File folder = destinationFolder;
             if (folder.exists())
             {
                 if (folder.isDirectory())
@@ -317,7 +325,7 @@ public class DumpPreparator
             }
             return folder;
         }
-        
+
         private String getDatabaseVersion()
         {
             Table logTable = tables.get(VERSION_LOGS_TABLE);
@@ -343,19 +351,20 @@ public class DumpPreparator
             return result;
         }
     }
-    
+
     private static class Table
     {
         private static int counter;
-        
+
         private final String uploadFileName;
+
         private final List<String> rows = new ArrayList<String>();
 
         Table(String tableName)
         {
             uploadFileName = String.format("%03d=%s.tsv", ++counter, tableName);
         }
-        
+
         void addRow(String line)
         {
             rows.add(line);
