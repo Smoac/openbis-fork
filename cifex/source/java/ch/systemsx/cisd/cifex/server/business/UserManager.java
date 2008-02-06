@@ -23,7 +23,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**
  * The only <code>IUserManager</code> implementation.
@@ -143,7 +141,7 @@ class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    public void tryToUpdateUser(User user, String encryptedPassword)
+    public void tryToUpdateUser(UserDTO user, String encryptedPassword)
     {
         assert user != null;
 
@@ -153,31 +151,30 @@ class UserManager extends AbstractManager implements IUserManager
         assert existingUser != null;
         assert existingUser.getUserCode().equals(user.getUserCode()) : "User code can not be changed";
 
-        UserDTO updateUser = BeanUtils.createBean(UserDTO.class, user);
-        updateUser.setID(existingUser.getID());
+        user.setID(existingUser.getID());
 
         // Permanent User can not get temporary user.
         if (existingUser.isPermanent() == true && user.isPermanent() == false)
         {
-            updateUser.setPermanent(true);
+            user.setPermanent(true);
         }
 
         // Renew the expiration Date
         if (user.isPermanent() == false)
         {
-            updateUser.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+            user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
         }
 
         // Password, renew it or leave it as it is
         if (encryptedPassword != null && encryptedPassword.equals("") == false)
         {
-            updateUser.setEncryptedPassword(encryptedPassword);
+            user.setEncryptedPassword(encryptedPassword);
         } else
         {
-            updateUser.setEncryptedPassword(existingUser.getEncryptedPassword());
+            user.setEncryptedPassword(existingUser.getEncryptedPassword());
         }
 
-        userDAO.tryToUpdateUser(updateUser);
+        userDAO.tryToUpdateUser(user);
 
     }
 

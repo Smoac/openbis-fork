@@ -511,8 +511,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             encryptedPassword = StringUtilities.computeMD5Hash(password);
         }
-
-        userManager.tryToUpdateUser(user, encryptedPassword);
+        
+        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
+        userManager.tryToUpdateUser(userDTO, encryptedPassword);
     }
 
     public User tryToFindUserByUserCode(final String userCode)

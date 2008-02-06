@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -66,5 +65,5 @@ public interface IUserManager
      * Updates the fields of the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void tryToUpdateUser(User user, String encryptedPassword);
+    public void tryToUpdateUser(UserDTO user, String encryptedPassword);
 }
