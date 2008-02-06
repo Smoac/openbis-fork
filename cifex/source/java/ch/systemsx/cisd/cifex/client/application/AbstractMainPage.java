@@ -121,15 +121,17 @@ abstract class AbstractMainPage extends BorderLayout
     {
 
         StringBuffer buffer = new StringBuffer();
-        String userName = user.getUserFullName();
-        if (userName != null)
+        String fullUserName = user.getUserFullName();
+        if (fullUserName != null)
         {
-            buffer.append(userName);
+            buffer.append(fullUserName);
         } else
         {
             buffer.append(user.getEmail());
         }
-        buffer.append(" (Status: ");
+        buffer.append(" (");
+        buffer.append(user.getUserCode());
+        buffer.append(")   <i>&lt;Status: ");
         if (user.isAdmin())
         {
             buffer.append("administrator");
@@ -141,7 +143,7 @@ abstract class AbstractMainPage extends BorderLayout
             buffer.append("temporary account: expiration date: ").append(
                     Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
         }
-        buffer.append(")");
+        buffer.append("&gt;</i>");
         return new ToolbarTextItem(buffer.toString());
     }
 
