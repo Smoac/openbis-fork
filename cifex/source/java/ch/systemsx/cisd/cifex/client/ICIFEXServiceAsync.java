@@ -31,11 +31,8 @@ public interface ICIFEXServiceAsync extends RemoteService
 {
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
-     * <p>
-     * If <code>requestAdmin==true</code>, then request an admin login.
      */
-    public void tryToLogin(final String userCode, final String password, final boolean requestAdmin,
-            final AsyncCallback callback);
+    public void tryToLogin(final String userCode, final String password, final AsyncCallback callback);
 
     /**
      * Logout the current user.
@@ -98,5 +95,11 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Returns the footer data (version and administrator email).
      */
     public void getFooterData(final AsyncCallback callback);
+    
+    /** Update the fields of the user in the database. */
+    public void tryToUpdateUser(final User user, final String password, final AsyncCallback callback);
+    
+    /** Get the user by the userCode*/
+    public void tryToFindUserByUserCode(final String userCode, final AsyncCallback callback);
 
 }

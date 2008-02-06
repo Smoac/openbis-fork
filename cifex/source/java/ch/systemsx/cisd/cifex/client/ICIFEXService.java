@@ -38,7 +38,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User tryToLogin(final String user, final String password, final boolean requestAdmin)
+    public User tryToLogin(final String user, final String password)
             throws UserFailureException, EnvironmentFailureException;
 
     /**
@@ -117,4 +117,10 @@ public interface ICIFEXService extends RemoteService
      * Returns the footer data (version and administrator email).
      */
     public FooterData getFooterData() throws InvalidSessionException;
+    
+    /** Update the fields of the user in the database.*/
+    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException, InsufficientPrivilegesException;
+    
+    /** Try to get the user by the code. */
+    public User tryToFindUserByUserCode(final String userCode);
 }

@@ -169,7 +169,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         try
         {
-            final UserDTO user =
+            UserDTO user =
                     template.queryForObject("select * from users where user_id = ?", new UserRowMapper(), userCode);
             return user;
         } catch (final EmptyResultDataAccessException e)
@@ -191,6 +191,20 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final List<UserDTO> list =
                 template.query("select * from users where expiration_timestamp < now() ", new UserRowMapper());
         return list;
+    }
+
+    public void tryToUpdateUser(UserDTO user)
+    {
+        assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+
+        template
+                .update(
+                        "update users set email = ?, user_id = ?, full_name = ?, encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
+                                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user
+                                .getUserCode(), user.getUserFullName(), user.getEncryptedPassword(), user
+                                .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
+                                .getExpirationDate(), user.getID());
     }
 
 }

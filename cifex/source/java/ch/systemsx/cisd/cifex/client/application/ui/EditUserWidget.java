@@ -26,15 +26,14 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * @author Basil Neff
  */
-public class CreateUserWidget extends UserWidget
+public class EditUserWidget extends UserWidget
 {
-
-    public CreateUserWidget(final ViewContext context, final boolean allowPermanentUsers)
+    public EditUserWidget(final ViewContext context, final boolean allowPermanentUsers, User user)
     {
-        super(context, allowPermanentUsers);
+        super(context, allowPermanentUsers, user);
     }
 
-    protected void submitForm()
+    public final void submitForm()
     {
         // Check if passwords are equal.
         if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
@@ -43,14 +42,15 @@ public class CreateUserWidget extends UserWidget
             return;
         }
 
-        if (usernameField.validate() && passwordField.validate() && emailField.validate())
+        // Validate Fields
+        if (emailField.validate() && userCodeField.validate() && usernameField.validate())
         {
 
             User user = new User();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
-            if (allowPermanentUsers)
+            if (this.allowPermanentUsers == true)
             {
                 if (adminRadioButton.getValue())
                 {
@@ -67,32 +67,32 @@ public class CreateUserWidget extends UserWidget
                 }
             } else
             {
-                user.setAdmin(false);
-                user.setPermanent(false);
+                user.setAdmin(this.editUser.isAdmin());
+                user.setPermanent(this.editUser.isPermanent());
+            }
+            String password = null;
+            if (passwordField.getText().equals("") == false)
+            {
+                password = passwordField.getValueAsString();
             }
 
-            String password = passwordField.getText();
-
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToCreateUser(user, password, context.getModel().getUser(), new CreateUserAsyncCallBack());
+            cifexService.tryToUpdateUser(user, password, new UpdateUserAsyncCallBack());
+        } else
+        {
+            String title = messageResources.getMessageBoxWarningTitle();
+            MessageBox.alert(title, messageResources.getUserUpdateEmptyFieldsMessage());
         }
+
     }
 
-    //
-    // Helper classes
-    //
-
-    private final class CreateUserAsyncCallBack extends AbstractAsyncCallback
+    private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback
     {
 
-        CreateUserAsyncCallBack()
+        UpdateUserAsyncCallBack()
         {
             super(context);
         }
-
-        //
-        // AsyncCallback
-        //
 
         public final void onFailure(final Throwable caught)
         {
@@ -102,18 +102,14 @@ public class CreateUserWidget extends UserWidget
         public final void onSuccess(final Object result)
         {
             String title = messageResources.getMessageBoxInfoTitle();
-            MessageBox.alert(title, messageResources.getUserCreationSuccessMessage(emailField.getText()));
+            MessageBox.alert(title, messageResources.getUserUpdateSuccessMessage());
             context.getPageController().createAdminPage();
         }
     }
 
     String getSubmitButtonLabel()
     {
-        if(context.getModel().getUser().isAdmin()){
-            return messageResources.getAdminCreateUserLabel();            
-        }else{
-            return messageResources.getCreateUserLabel();
-        }
+        return messageResources.getActionEditLabel();
     }
 
 }

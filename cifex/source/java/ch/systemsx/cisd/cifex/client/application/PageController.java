@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 import ch.systemsx.cisd.cifex.client.dto.User;
 
+
 /**
  * Controller for creating pages.
  * 
@@ -46,7 +47,6 @@ class PageController implements IPageController
         final RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
     }
-
     public final void createLoginPage()
     {
         clearRootPanel();
@@ -57,8 +57,15 @@ class PageController implements IPageController
     public final void createMainPage()
     {
         clearRootPanel();
+        MainPage mainPage = new MainPage(viewContext);
+        RootPanel.get().add(mainPage);
+    }
+
+    public final void createAdminPage()
+    {
+        clearRootPanel();
         final User user = viewContext.getModel().getUser();
-        AbstractMainPage mainPage = null;
+        final AbstractMainPage mainPage;
         if (user.isAdmin())
         {
             mainPage = new AdminMainPage(viewContext);
@@ -67,6 +74,14 @@ class PageController implements IPageController
             mainPage = new MainPage(viewContext);
         }
         RootPanel.get().add(mainPage);
+    }
+
+    public void createEditCurrentUserPage()
+    {
+        clearRootPanel();
+        final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
+        RootPanel.get().add(editUserPage);
+
     }
 
 }

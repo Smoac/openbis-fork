@@ -24,7 +24,6 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -36,9 +35,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class UserGridModel extends AbstractDataGridModel
 {
 
-    public static final String CODE = "Code";
-
-    public static final String EMAIL = "Email";
+    public static final String USER_CODE = "UserCode";
 
     public static final String FULL_NAME = "FullName";
 
@@ -48,6 +45,12 @@ public class UserGridModel extends AbstractDataGridModel
 
     public static final String ACTION = "Action";
 
+    /**
+     * User Code which is only internal needed, to identify the user in the column.
+     * In this row is no renderer set, that you can get the user with the String function.
+     */
+    public static final String INTERNAL_USER_CODE = "IntUserCode";
+
     public UserGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
@@ -56,21 +59,12 @@ public class UserGridModel extends AbstractDataGridModel
     private final ColumnConfig createActionColumnConfig()
     {
         final ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
-        actionColumn.setRenderer(LinkRenderer.LINK_RENDERER);
         return actionColumn;
     }
 
-    private final ColumnConfig createCodeColumnConfig()
+    private final ColumnConfig createUserCodeColumnConfig()
     {
-        final ColumnConfig columnConfig = createSortableColumnConfig(CODE, messageResources.getUserCodeLabel(), 180);
-        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
-        return columnConfig;
-    }
-
-    private final ColumnConfig createEmailColumnConfig()
-    {
-        final ColumnConfig columnConfig = createSortableColumnConfig(EMAIL, messageResources.getUserEmailLabel(), 180);
-        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
+        final ColumnConfig columnConfig = createSortableColumnConfig(USER_CODE, messageResources.getUserCodeLabel(), 180);
         return columnConfig;
     }
 
@@ -89,8 +83,7 @@ public class UserGridModel extends AbstractDataGridModel
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
-        configs.add(createCodeColumnConfig());
-        configs.add(createEmailColumnConfig());
+        configs.add(createUserCodeColumnConfig());
         configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 120));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
         configs.add(createRegistratorColumnConfig());
@@ -118,10 +111,13 @@ public class UserGridModel extends AbstractDataGridModel
                                 + " User expires on ".concat(Constants.defaultDateTimeFormat.format(user
                                         .getExpirationDate()));
             }
+            String actionLabel =
+                    "<a href=\"#\" class=\"edit\" id=\"edit\">"+messageResources.getActionEditLabel()+"</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
+                            + messageResources.getActionDeleteLabel() + "</a>";
             final Object[] objects =
                     new Object[]
-                        { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
-                                user.getRegistrator().getUserCode(), messageResources.getActionDeleteLabel() };
+                        { UserRenderer.createUserAnchor(user), user.getUserFullName(), stateField,
+                                user.getRegistrator().getEmail(), actionLabel, user.getUserCode() };
             list.add(objects);
         }
         return list;
@@ -130,12 +126,12 @@ public class UserGridModel extends AbstractDataGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(CODE));
-        fieldDefs.add(new StringFieldDef(EMAIL));
+        fieldDefs.add(new StringFieldDef(USER_CODE));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
         fieldDefs.add(new StringFieldDef(REGISTRATOR));
         fieldDefs.add(new StringFieldDef(ACTION));
+        fieldDefs.add(new StringFieldDef(INTERNAL_USER_CODE));
         return fieldDefs;
     }
 

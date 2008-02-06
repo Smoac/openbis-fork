@@ -28,4 +28,10 @@ public interface IPageController
 
     /** Instantiates <code>MainPage</code> and adds it to the <code>RootPanel</code>. */
     public void createMainPage();
+
+    /** Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>. */
+    public void createAdminPage();
+
+    /** Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the <code>RootPanel</code>. */
+    public void createEditCurrentUserPage();
 }

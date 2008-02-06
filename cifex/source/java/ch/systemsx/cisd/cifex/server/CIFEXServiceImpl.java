@@ -147,17 +147,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private User finishLogin(final UserDTO userDTO, final boolean requestAdmin) throws UserFailureException
+    private User finishLogin(final UserDTO userDTO) throws UserFailureException
     {
         // Do not transfer the hash value to the client (security).
         userDTO.setEncryptedPassword(null);
-        if (requestAdmin == false)
-        {
-            userDTO.setAdmin(false);
-        } else if (userDTO.isAdmin() == false)
-        {
-            throw new UserFailureException("User does not have admin permissions on this server.");
-        }
         authenticationLog.info("Successful login of user " + userDTO);
         final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail() + ", session start:"
@@ -214,7 +207,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryToLogin(final String userCode, final String password, final boolean requestAdmin)
+    public final User tryToLogin(final String userCode, final String password)
             throws UserFailureException, EnvironmentFailureException
     {
         authenticationLog.info("Try to login user '" + userCode + "'.");
@@ -228,9 +221,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
             userDTO.setAdmin(true);
             userDTO.setPermanent(true);
             userManager.createUser(userDTO);
-            return finishLogin(userDTO, true);
+            return finishLogin(userDTO);
         }
-        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password, requestAdmin);
+        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password);
         if (userDTOOrNull == null)
         {
             final String encryptedPassword = StringUtilities.computeMD5Hash(password);
@@ -241,13 +234,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 return null;
             }
         }
-        return finishLogin(userDTOOrNull, requestAdmin);
+        return finishLogin(userDTOOrNull);
     }
 
-    private UserDTO tryExternalAuthenticationServiceLogin(String userOrEmail, String password, boolean requestAdmin)
+    private UserDTO tryExternalAuthenticationServiceLogin(String userOrEmail, String password)
             throws UserFailureException, EnvironmentFailureException
     {
-        if (hasExternalAuthenticationService() && requestAdmin == false)
+        if (hasExternalAuthenticationService())
         {
             final String applicationToken = externalAuthenticationService.authenticateApplication();
             if (applicationToken == null)
@@ -313,6 +306,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
+    // TODO 2008-02-06 Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
     public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException,
             InvalidSessionException, InsufficientPrivilegesException, UserFailureException
     {
@@ -330,7 +324,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         } catch (DataIntegrityViolationException ex)
         {
             final String msg =
-                    "User with email '" + user.getEmail()
+                    "User with Username '" + user.getUserCode()
                             + "' already exists in the database but email needs to be unique.";
             operationLog.error(msg, ex);
             throw new UserFailureException(msg);
@@ -452,6 +446,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
+    // TODO 2008-02-06 Basil Neff Move to UserManager and add Expiration date for temporary user
     private void sendPasswordToNewUser(User user, String password)
     {
         StringBuilder builder = new StringBuilder();
@@ -490,5 +485,41 @@ public final class CIFEXServiceImpl implements ICIFEXService
         footerData.setAdministratorEmail(administratorEmail);
         footerData.setSystemVersion(systemVersion);
         return footerData;
+    }
+
+    /** Update the fields of the user in the database. */
+    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        // Permission
+        final UserDTO requestUser = privGetCurrentUser();
+        if (requestUser.isPermanent() == false)
+        {
+            throw new InsufficientPrivilegesException("Method 'tryToUpdateUser': insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        } else if (requestUser.isAdmin() == false && (user.getUserCode().equals(requestUser.getUserCode()) == false))
+        {
+            throw new InsufficientPrivilegesException("Method 'tryToUpdateUser': insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+
+        IUserManager userManager = domainModel.getUserManager();
+        assert user != null : "User can't be null";
+
+        String encryptedPassword = null;
+        if (password != null && password.equals("") == false)
+        {
+            encryptedPassword = StringUtilities.computeMD5Hash(password);
+        }
+
+        userManager.tryToUpdateUser(user, encryptedPassword);
+    }
+
+    public User tryToFindUserByUserCode(final String userCode)
+    {
+        IUserManager userManager = domainModel.getUserManager();
+
+        UserDTO userDTO = userManager.tryToFindUserByCode(userCode);
+        return BeanUtils.createBean(User.class, userDTO);
     }
 }

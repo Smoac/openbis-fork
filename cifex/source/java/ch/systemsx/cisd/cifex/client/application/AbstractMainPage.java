@@ -98,6 +98,20 @@ abstract class AbstractMainPage extends BorderLayout
         ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
         Toolbar toolbar = new Toolbar(Ext.generateId());
         toolbar.addItem(createUserDescription(user));
+        if (user.isPermanent() == true)
+        {
+            toolbar.addButton(createMainViewButton());
+        }
+
+        if (user.isAdmin() == true)
+        {
+            toolbar.addButton(createAdminViewButton());
+        }
+
+        if (user.isExternallyAuthenticated() == false && user.isPermanent() == true)
+        {
+            toolbar.addButton(createEditProfileButton());
+        }
         toolbar.addButton(createLogoutButton());
         contentPanel.add(toolbar);
         return contentPanel;
@@ -151,9 +165,68 @@ abstract class AbstractMainPage extends BorderLayout
         return logoutButton;
     }
 
-    private final Widget createCreateUserWidget(final boolean allowPermanentUsers)
+    private final ToolbarButton createMainViewButton()
     {
-        return new CreateUserWidget(context, allowPermanentUsers);
+        final ToolbarButton editProfileButton =
+                new ToolbarButton(messageResources.getMainViewLinkLabel(), new ButtonConfig()
+                    {
+                        {
+                            setTooltip(messageResources.getMainViewTooltipLabel());
+                        }
+                    });
+        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+            {
+                public final void onClick(Button button, EventObject e)
+                {
+                    context.getPageController().createMainPage();
+                }
+            });
+        return editProfileButton;
+    }
+
+    private final ToolbarButton createEditProfileButton()
+    {
+        final ToolbarButton editProfileButton =
+                new ToolbarButton(messageResources.getEditUserLinkLabel(), new ButtonConfig()
+                    {
+                        {
+                            setTooltip(messageResources.getEditUserTooltipLabel());
+                        }
+                    });
+        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+            {
+                public final void onClick(Button button, EventObject e)
+                {
+                    context.getPageController().createEditCurrentUserPage();
+                }
+            });
+        return editProfileButton;
+    }
+
+    private final ToolbarButton createAdminViewButton()
+    {
+        final ToolbarButton adminViewButton =
+                new ToolbarButton(messageResources.getAdminViewLinkLabel(), new ButtonConfig()
+                    {
+                        {
+                            setTooltip(messageResources.getAdminViewTooltipLabel());
+                        }
+                    });
+        adminViewButton.addButtonListener(new ButtonListenerAdapter()
+            {
+                public final void onClick(Button button, EventObject e)
+                {
+                    context.getPageController().createAdminPage();
+                }
+            });
+        return adminViewButton;
+    }
+
+    private final CreateUserWidget createCreateUserWidget(final boolean allowPermanentUsers)
+    {
+
+        CreateUserWidget createUserWidget = new CreateUserWidget(context, allowPermanentUsers);
+        return createUserWidget;
 
     }
 
@@ -175,7 +248,9 @@ abstract class AbstractMainPage extends BorderLayout
         {
             createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
         }
-        createUserPanel.add(createCreateUserWidget(allowPermanentUsers));
+        CreateUserWidget createUserWidget = createCreateUserWidget(allowPermanentUsers);
+        createUserPanel.add(createUserWidget);
+        createUserPanel.add(createUserWidget.getSubmitButton());
     }
 
     protected abstract ContentPanel createMainPanel();

@@ -109,10 +109,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
-    public final User tryToLogin(final String user, final String password, final boolean requestAdmin)
+    public final User tryToLogin(final String user, final String password)
             throws UserFailureException, EnvironmentFailureException
     {
-        return cifexServiceDelegate.tryToLogin(user, password, requestAdmin);
+        return cifexServiceDelegate.tryToLogin(user, password);
     }
 
     public final void logout()
@@ -189,6 +189,15 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     public FooterData getFooterData() throws InvalidSessionException
     {
         return cifexServiceDelegate.getFooterData();
+    }
+    
+    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException, InsufficientPrivilegesException{
+        cifexServiceDelegate.tryToUpdateUser(user, password);
+    }
+
+    public User tryToFindUserByUserCode(String userCode)
+    {
+        return cifexServiceDelegate.tryToFindUserByUserCode(userCode);
     }
 
 }

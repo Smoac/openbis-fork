@@ -93,7 +93,7 @@ final class AdminMainPage extends AbstractMainPage
             final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
             final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, "100px");
             // Delete user function
-            userGrid.addGridCellListener(new UserDeleteGridCellListener(context));
+            userGrid.addGridCellListener(new UserActionGridCellListener(context));
             return userGrid;
         }
 

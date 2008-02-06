@@ -2,6 +2,7 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
+import com.gwtext.client.widgets.LayoutDialog;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
@@ -16,12 +17,12 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Christian Ribeaud
  */
-final class UserDeleteGridCellListener extends GridCellListenerAdapter
+final class UserActionGridCellListener extends GridCellListenerAdapter
 {
 
     private final ViewContext viewContext;
 
-    UserDeleteGridCellListener(final ViewContext viewContext)
+    UserActionGridCellListener(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
@@ -36,31 +37,45 @@ final class UserDeleteGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final Record record = grid.getStore().getAt(rowIndex);
-            final String code = record.getAsString(UserGridModel.CODE);
+            final String userCode = record.getAsString(UserGridModel.INTERNAL_USER_CODE);
             final String name = record.getAsString(UserGridModel.FULL_NAME);
-            if (code.equals(viewContext.getModel().getUser().getUserCode()))
+            // Delete user
+            if (e.getTarget(".delete", 1) != null)
             {
-                MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getUserDeleteHimself());
-                return;
-            }
-            MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources.getUserDeleteConfirmText(name),
-                    new MessageBox.ConfirmCallback()
+                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
+                {
+                    MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
+                            .getUserDeleteHimself());
+                    return;
+                }
+                MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources
+                        .getUserDeleteConfirmText(name), new MessageBox.ConfirmCallback()
+                    {
+
+                        //
+                        // ConfirmCallback
+                        //
+
+                        public final void execute(final String btnID)
                         {
-
-                            //
-                            // ConfirmCallback
-                            //
-
-                            public final void execute(final String btnID)
+                            if (btnID.equals("yes"))
                             {
-                                if (btnID.equals("yes"))
-                                {
-                                    viewContext.getCifexService().tryToDeleteUser(code,
-                                            new DeleteUserAsyncCallback((ModelBasedGrid) grid));
-                                }
+                                viewContext.getCifexService().tryToDeleteUser(userCode, new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                             }
-                        });
+                        }
+                    });
 
+            } else if (e.getTarget(".edit", 1) != null)
+            {
+                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
+                {
+                    viewContext.getPageController().createEditCurrentUserPage();
+                    return;
+                }
+                // Edit User
+                viewContext.getCifexService().tryToFindUserByUserCode(userCode, new FindUserAsyncCallback(viewContext));
+
+           }
         }
     }
 
@@ -98,6 +113,25 @@ final class UserDeleteGridCellListener extends GridCellListenerAdapter
                         modelBasedGrid.reloadStore((User[]) res, model);
                     }
                 });
+        }
+    }
+
+    private final class FindUserAsyncCallback extends AbstractAsyncCallback
+    {
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public FindUserAsyncCallback(ViewContext context)
+        {
+            super(context);
+        }
+
+        public final void onSuccess(final Object result)
+        {
+            LayoutDialog dialog = new EditUserDialog(viewContext, (User) result);
+            dialog.show();
         }
     }
 

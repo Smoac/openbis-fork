@@ -33,6 +33,13 @@ public interface IMessageResources extends Messages
     public String getActionDeleteLabel();
 
     /**
+     * Returns the label for the edit action.
+     * 
+     * @gwt.key action.edit.label
+     */
+    public String getActionEditLabel();
+
+    /**
      * Returns the action label.
      * 
      * @gwt.key action.label
@@ -274,6 +281,13 @@ public interface IMessageResources extends Messages
     public String getMessageBoxWarningTitle();
 
     /**
+     * Returns label for the User Code field.
+     * 
+     * @gwt.key usercreation.usercode.label
+     */
+    public String getUserCodeLabel();
+
+    /**
      * Returns label for the Password field.
      * 
      * @gwt.key usercreation.password.label
@@ -386,6 +400,27 @@ public interface IMessageResources extends Messages
     public String getUserCreationSuccessMessage(String user);
 
     /**
+     * Returns label for editing a user.
+     * 
+     * @gwt.key edituser.label
+     */
+    public String getEditUserLabel();
+
+    /**
+     * Returns message that updateing a user was successfull.
+     * 
+     * @gwt.key edituser.success.message
+     */
+    public String getUserUpdateSuccessMessage();
+
+    /**
+     * Returns message that not all fields are filled out.
+     * 
+     * @gwt.key edituser.failure.emptyfields
+     */
+    public String getUserUpdateEmptyFieldsMessage();
+
+    /**
      * Returns the content the confirm MessageBox, to delete an user.
      * 
      * @gwt.key user.delete.confirm.text
@@ -407,13 +442,6 @@ public interface IMessageResources extends Messages
     public String getUserDeleteTitle();
 
     /**
-     * Returns the label of the user code column.
-     * 
-     * @gwt.key userlist.code.label
-     */
-    public String getUserCodeLabel();
-
-    /**
      * Returns the label of the user email column.
      * 
      * @gwt.key userlist.email.label
@@ -426,6 +454,7 @@ public interface IMessageResources extends Messages
      * @gwt.key userlist.fullname.label
      */
     public String getUserFullNameLabel();
+
 
     /**
      * Returns the User List part title.
@@ -440,6 +469,48 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.validate.label
      */
     public String getValidatePasswordLabel();
+
+    /**
+     * Label for the button, to edit the user
+     * 
+     * @gwt.key edituser.link.label
+     */
+    public String getEditUserLinkLabel();
+
+    /**
+     * Label for the tooltip of button, to edit the user
+     * 
+     * @gwt.key edituser.link.tooltip
+     */
+    public String getEditUserTooltipLabel();
+
+    /**
+     * Label for the button for the admin view.
+     * 
+     * @gwt.key adminview.link.label
+     */
+    public String getAdminViewLinkLabel();
+
+    /**
+     * Label for the tooltip of button, for the admin view.
+     * 
+     * @gwt.key adminview.link.tooltip
+     */
+    public String getAdminViewTooltipLabel();
+
+    /**
+     * Label for the button for the Main view.
+     * 
+     * @gwt.key mainview.link.label
+     */
+    public String getMainViewLinkLabel();
+
+    /**
+     * Label for the tooltip of button, for the main view.
+     * 
+     * @gwt.key mainview.link.tooltip
+     */
+    public String getMainViewTooltipLabel();
 
     /**
      * Returns application name.

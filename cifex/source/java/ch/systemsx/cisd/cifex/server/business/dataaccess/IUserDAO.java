@@ -69,4 +69,7 @@ public interface IUserDAO
 
     /** Returns a list of expired users. */
     public List<UserDTO> listExpiredUsers();
+    
+    /** Update the fields of the given user. */
+    public void tryToUpdateUser(UserDTO user);
 }

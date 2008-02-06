@@ -74,7 +74,8 @@ final class MainPage extends AbstractMainPage
     protected final ContentPanel createMainPanel()
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
-        createUserPanel(false);
+        createUserPanel(context.getModel().getUser().isAdmin());
+
         final Map urlParams = context.getModel().getUrlParams();
         String fileId = null;
         if (urlParams.isEmpty() == false)
