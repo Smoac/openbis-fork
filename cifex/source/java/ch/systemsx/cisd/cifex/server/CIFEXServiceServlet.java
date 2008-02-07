@@ -37,6 +37,7 @@ import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
+import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -162,7 +163,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
     }
 
-    public String waitForUploadToFinish() throws InvalidSessionException
+    public Message waitForUploadToFinish() throws InvalidSessionException
     {
         return cifexServiceDelegate.waitForUploadToFinish();
     }

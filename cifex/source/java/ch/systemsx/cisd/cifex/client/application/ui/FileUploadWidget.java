@@ -39,6 +39,8 @@ import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
+import ch.systemsx.cisd.cifex.client.dto.Message;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -47,11 +49,6 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public class FileUploadWidget extends Form
 {
-    /*
-     * This constant should be the same as in <code>FileUploadServlet</code>.
-     */
-    private static final String UPLOAD_FINISHED = "Upload finished.\n";
-
     private static final int FIELD_WIDTH = 230;
 
     private static final int COLUMN_WIDTH = 342;
@@ -209,15 +206,7 @@ public class FileUploadWidget extends Form
 
                 public void onSuccess(Object result)
                 {
-                    final String resultStr = (String) result;
-                    final IMessageResources messageResources = context.getMessageResources();
-                    if (StringUtils.isBlank(resultStr))
-                    {
-                        MessageBox.alert(messageResources.getMessageBoxInfoTitle(), UPLOAD_FINISHED);
-                    } else
-                    {
-                        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), resultStr);
-                    }
+                    WidgetUtils.showMessage((Message) result, context.getMessageResources());
                     context.getPageController().createMainPage();
                 }
 

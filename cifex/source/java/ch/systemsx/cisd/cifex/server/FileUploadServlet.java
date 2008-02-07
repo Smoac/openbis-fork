@@ -39,6 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -110,8 +111,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error(msg);
             throw new UserFailureException(msg);
         }
-        final BlockingQueue<String> uploadMsgQueue =
-                (BlockingQueue<String>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_MSG_QUEUE);
+        final BlockingQueue<Message> uploadMsgQueue =
+                (BlockingQueue<Message>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_MSG_QUEUE);
         try
         {
             final BlockingQueue<String[]> uploadQueue =
@@ -151,20 +152,24 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
             writer.write(UPLOAD_FINISHED);
-            if (invalidEmailAddresses.isEmpty() == false)
-            {
-                writer.write("Invalid email addresses found: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10));
-            }
             writer.flush();
             writer.close();
-            uploadMsgQueue.add("");
+            if (invalidEmailAddresses.isEmpty() == false)
+            {
+                final String msg =
+                    "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
+                uploadMsgQueue.add(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
+            } else
+            {
+                uploadMsgQueue.add(new Message(Message.INFO, UPLOAD_FINISHED));
+            }
 
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
             final String msg = getErrorMessage(ex);
             sendErrorMessage(response, msg);
-            uploadMsgQueue.add(msg);
+            uploadMsgQueue.add(new Message(Message.ERROR, msg));
         }
     }
 

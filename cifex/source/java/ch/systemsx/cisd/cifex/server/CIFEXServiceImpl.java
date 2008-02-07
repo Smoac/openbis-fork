@@ -40,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
+import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -140,7 +141,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
         httpSession.setAttribute(UPLOAD_QUEUE, new LinkedBlockingQueue<String[]>());
-        httpSession.setAttribute(UPLOAD_MSG_QUEUE, new LinkedBlockingQueue<String>());
+        httpSession.setAttribute(UPLOAD_MSG_QUEUE, new LinkedBlockingQueue<Message>());
         return httpSession.getId();
     }
 
@@ -445,17 +446,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         uploadQueue.add(filenamesForUpload);
     }
 
-    public String waitForUploadToFinish() throws InvalidSessionException
+    public Message waitForUploadToFinish() throws InvalidSessionException
     {
         privGetCurrentUser();
-        final BlockingQueue<String> uploadQueue =
-                (BlockingQueue<String>) getSession(false).getAttribute(UPLOAD_MSG_QUEUE);
+        final BlockingQueue<Message> uploadQueue =
+                (BlockingQueue<Message>) getSession(false).getAttribute(UPLOAD_MSG_QUEUE);
         try
         {
             return uploadQueue.take();
         } catch (InterruptedException ex)
         {
-            return ex.getClass().getSimpleName();
+            return new Message(Message.ERROR, ex.getClass().getSimpleName());
         }
     }
 
