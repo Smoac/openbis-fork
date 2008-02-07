@@ -76,5 +76,5 @@ public interface IUserDAO
     public List<UserDTO> listExpiredUsers();
     
     /** Update the fields of the given user. */
-    public void tryToUpdateUser(UserDTO user);
+    public void updateUser(UserDTO user);
 }

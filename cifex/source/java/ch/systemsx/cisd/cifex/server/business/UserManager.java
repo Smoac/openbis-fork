@@ -187,7 +187,7 @@ class UserManager extends AbstractManager implements IUserManager
             user.setEncryptedPassword(existingUser.getEncryptedPassword());
         }
 
-        userDAO.tryToUpdateUser(user);
+        userDAO.updateUser(user);
 
     }
 

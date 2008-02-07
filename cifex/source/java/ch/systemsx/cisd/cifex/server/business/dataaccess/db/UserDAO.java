@@ -161,6 +161,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         if (registrator == null)
         {
             return null;
+        } else if( registrator.getUserCode() == null){
+            return null;
         } else
         {
             Long registratorId = registrator.getID();
@@ -207,7 +209,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
-    public void tryToUpdateUser(UserDTO user)
+    public void updateUser(UserDTO user)
     {
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
