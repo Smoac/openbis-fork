@@ -125,7 +125,7 @@ public class LoginWidget extends Form
     private final TextField createEmailField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(context.getMessageResources().getLoginEmailLabel());
+        fieldConfig.setFieldLabel(context.getMessageResources().getLoginUserLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);

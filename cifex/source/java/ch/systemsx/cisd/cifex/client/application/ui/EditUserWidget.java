@@ -109,7 +109,7 @@ public class EditUserWidget extends UserWidget
 
     String getSubmitButtonLabel()
     {
-        return messageResources.getActionEditLabel();
+        return messageResources.getEditUserButtonLabel();
     }
 
 }

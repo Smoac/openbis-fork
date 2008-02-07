@@ -79,7 +79,7 @@ class PageController implements IPageController
     public void createEditCurrentUserPage()
     {
         clearRootPanel();
-        final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
+        EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
         RootPanel.get().add(editUserPage);
 
     }

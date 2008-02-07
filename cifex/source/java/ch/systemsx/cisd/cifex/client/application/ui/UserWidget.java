@@ -119,7 +119,7 @@ public abstract class UserWidget extends Form
 
         end();
 
-        final ColumnConfig rightColumn = new ColumnConfig();
+        ColumnConfig rightColumn = new ColumnConfig();
         rightColumn.setWidth(COLUMN_WIDTH);
         column(rightColumn);
 
@@ -133,7 +133,7 @@ public abstract class UserWidget extends Form
         add(validatePasswordField);
         end();
 
-        final ColumnConfig lastColumn = new ColumnConfig();
+        ColumnConfig lastColumn = new ColumnConfig();
         lastColumn.setWidth(COLUMN_WIDTH - 150);
         column(lastColumn);
 

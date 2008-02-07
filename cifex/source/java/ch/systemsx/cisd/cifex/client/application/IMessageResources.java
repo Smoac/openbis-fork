@@ -213,9 +213,9 @@ public interface IMessageResources extends Messages
     /**
      * Returns the email label for the login form.
      * 
-     * @gwt.key login.email.label
+     * @gwt.key login.user.label
      */
-    public String getLoginEmailLabel();
+    public String getLoginUserLabel();
 
     /**
      * Returns message that you get when the login failed.
@@ -405,6 +405,13 @@ public interface IMessageResources extends Messages
      * @gwt.key edituser.label
      */
     public String getEditUserLabel();
+    
+    /**
+     * Returns label for the button of editing a user.
+     * 
+     * @gwt.key edituser.button.label
+     */
+    public String getEditUserButtonLabel();
 
     /**
      * Returns message that updateing a user was successfull.
