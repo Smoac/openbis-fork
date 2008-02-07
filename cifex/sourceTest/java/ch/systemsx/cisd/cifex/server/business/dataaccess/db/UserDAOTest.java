@@ -120,35 +120,6 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods =
-        { "testCreateUser" })
-    @Transactional
-    public final void testListUserRegisteredBy()
-    {
-        IUserDAO userDAO = daoFactory.getUserDAO();
-
-        List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
-        assertEquals(1, listUsersRegisteredByAdmin.size());
-        assertEqualsUserRegisteredBy(testPermanentUser, listUsersRegisteredByAdmin.get(0));
-
-        List<UserDTO> listUsersRegisteredByPermanent = userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
-        assertEquals(1, listUsersRegisteredByPermanent.size());
-        assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
-
-        setComplete();
-    }
-
-    private void assertEqualsUserRegisteredBy(UserDTO expected, UserDTO actual)
-    {
-        UserDTO expectedForComparison = BeanUtils.createBean(UserDTO.class, expected);
-        UserDTO registratorMinimal = new UserDTO();
-        registratorMinimal.setID(expected.getRegistrator().getID());
-        registratorMinimal.setUserCode(expected.getRegistrator().getUserCode());
-        expectedForComparison.setRegistrator(registratorMinimal);
-        actual.setRegistrationDate(null);
-        assertEquals(expectedForComparison, actual);
-    }
-    
-    @Test(dependsOnMethods =
         { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
     @Transactional
     public final void testCreateDuplicateUserID()
@@ -225,10 +196,41 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.updateUser(testPermanentUser);
         testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
         checkUser(testPermanentUser, testPermanentUserFromDB);
+
+        setComplete();
     }
 
     @Test(dependsOnMethods =
-        { "testTryFindUserByCode" })
+        { "testUpdateUser" })
+    @Transactional
+    public final void testListUserRegisteredBy()
+    {
+        IUserDAO userDAO = daoFactory.getUserDAO();
+
+        List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByAdmin.size());
+        assertEqualsUserRegisteredBy(testPermanentUser, listUsersRegisteredByAdmin.get(0));
+
+        List<UserDTO> listUsersRegisteredByPermanent = userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByPermanent.size());
+        assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
+
+        setComplete();
+    }
+
+    private void assertEqualsUserRegisteredBy(UserDTO expected, UserDTO actual)
+    {
+        final UserDTO strippedDownExpected = BeanUtils.createBean(UserDTO.class, expected);
+        strippedDownExpected.getRegistrator().setRegistrator(null);
+        actual.setRegistrationDate(null);
+        actual.getRegistrator().setRegistrationDate(null);
+        actual.getRegistrator().setRegistrator(null);
+        actual.getRegistrator().setRegistrator(null);
+        assertEquals(strippedDownExpected, actual);
+    }
+    
+    @Test(dependsOnMethods =
+        { "testListUserRegisteredBy" })
     @Transactional
     public final void testDeleteUser()
     {

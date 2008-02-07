@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -106,14 +107,18 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
     public List<UserDTO> listUsersRegisteredBy(String userCode) throws DataAccessException
     {
+        final UserDTO registrator = tryFindUserByCode(userCode);
+        if (registrator == null)
+        {
+            throw new DataRetrievalFailureException("User '" + userCode + "' does not exist.");
+        }
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
                 template.query(
-                        "select * from users where user_id_registrator = (select id from users where user_id=?)",
-                        new UserRowMapper(), userCode);
+                        "select * from users where user_id_registrator = ?", new UserRowMapper(), registrator.getID());
         for (UserDTO user : list)
         {
-            user.getRegistrator().setUserCode(userCode);
+            user.setRegistrator(registrator);
         }
         return list;
     }
