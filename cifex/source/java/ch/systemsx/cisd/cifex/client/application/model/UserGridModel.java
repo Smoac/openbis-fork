@@ -72,7 +72,6 @@ public class UserGridModel extends AbstractDataGridModel
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
-        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
         return columnConfig;
     }
 
@@ -117,7 +116,7 @@ public class UserGridModel extends AbstractDataGridModel
             final Object[] objects =
                     new Object[]
                         { UserRenderer.createUserAnchor(user), user.getUserFullName(), stateField,
-                                user.getRegistrator().getEmail(), actionLabel, user.getUserCode() };
+                                UserRenderer.createUserAnchor(user.getRegistrator()), actionLabel, user.getUserCode() };
             list.add(objects);
         }
         return list;
