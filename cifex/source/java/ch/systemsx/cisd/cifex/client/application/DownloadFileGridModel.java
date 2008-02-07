@@ -43,9 +43,9 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         final List configs = new ArrayList();
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
-        configs.add(createRegistererColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
+        configs.add(createRegistererColumnConfig());
         configs.add(createRegistrationDateColumnConfig());
         configs.add(createExpirationDateColumnConfig());
         return configs;
@@ -60,9 +60,10 @@ public class DownloadFileGridModel extends AbstractFileGridModel
             final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
-                        { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
-                                file.getContentType(), size == null ? null : new Integer(size.intValue()),
-                                file.getRegistrationDate(), file.getExpirationDate() };
+                        { new Integer((int) file.getID()), file.getName(), file.getContentType(),
+                                size == null ? null : new Integer(size.intValue()),
+                                createUserAnchor(file.getRegisterer()), file.getRegistrationDate(),
+                                file.getExpirationDate() };
             list.add(objects);
         }
         return list;
@@ -73,9 +74,9 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
-        fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));
+        fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
         fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
         return fieldDefs;

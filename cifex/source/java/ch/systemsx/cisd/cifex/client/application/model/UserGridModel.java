@@ -24,7 +24,6 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -46,8 +45,8 @@ public class UserGridModel extends AbstractDataGridModel
     public static final String ACTION = "Action";
 
     /**
-     * User Code which is only internal needed, to identify the user in the column.
-     * In this row is no renderer set, that you can get the user with the String function.
+     * User Code which is only internal needed, to identify the user in the column. In this row is no renderer set, that
+     * you can get the user with the String function.
      */
     public static final String INTERNAL_USER_CODE = "IntUserCode";
 
@@ -64,7 +63,8 @@ public class UserGridModel extends AbstractDataGridModel
 
     private final ColumnConfig createUserCodeColumnConfig()
     {
-        final ColumnConfig columnConfig = createSortableColumnConfig(USER_CODE, messageResources.getUserCodeLabel(), 180);
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(USER_CODE, messageResources.getUserCodeLabel(), 180);
         return columnConfig;
     }
 
@@ -111,13 +111,15 @@ public class UserGridModel extends AbstractDataGridModel
                                         .getExpirationDate()));
             }
             String actionLabel =
-                    "<a href=\"#\" class=\"edit\" id=\"edit\">"+messageResources.getActionEditLabel()+"</a> | <a href=\"#\" class=\"renew\" id=\"renew\">"
-                            + messageResources.getActionRenewLabel() + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
+                    "<a href=\"#\" class=\"edit\" id=\"edit\">" + messageResources.getActionEditLabel()
+                            + "</a> | <a href=\"#\" class=\"renew\" id=\"renew\">"
+                            + messageResources.getActionRenewLabel()
+                            + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
                             + messageResources.getActionDeleteLabel() + "</a>";
             final Object[] objects =
                     new Object[]
-                        { UserRenderer.createUserAnchor(user), user.getUserFullName(), stateField,
-                                UserRenderer.createUserAnchor(user.getRegistrator()), actionLabel, user.getUserCode() };
+                        { createUserAnchor(user), user.getUserFullName(), stateField,
+                                createUserAnchor(user.getRegistrator()), actionLabel, user.getUserCode() };
             list.add(objects);
         }
         return list;

@@ -22,7 +22,6 @@ import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
-import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -88,7 +87,6 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig registererConfig =
                 createSortableColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
-        registererConfig.setRenderer(UserRenderer.USER_RENDERER);
         return registererConfig;
     }
 

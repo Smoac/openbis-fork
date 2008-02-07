@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * Abstract data grid model with convenient methods.
@@ -59,4 +62,32 @@ public abstract class AbstractDataGridModel implements IDataGridModel
         columnConfig.setWidth(width);
         return columnConfig;
     }
+    
+    /** Creates an HTML A element for given <var>user</var> representation. */
+    protected final static String createUserAnchor(final User user)
+    {
+        final String userCode;
+
+        userCode = user.getUserCode();
+        final String email = user.getEmail();
+        if (email != null)
+        {
+            final Element anchor = createAnchorElement(email);
+            DOM.setInnerText(anchor, userCode);
+            return DOM.toString(anchor);
+        } else
+        {
+            return userCode;
+        }
+    }
+
+    private final static Element createAnchorElement(final String email)
+    {
+        final Element anchor = DOM.createAnchor();
+        DOM.setElementAttribute(anchor, "href", "mailto:" + email);
+        DOM.setElementAttribute(anchor, "class", "cifex-a");
+        DOM.setElementAttribute(anchor, "title", email);
+        return anchor;
+    }
+
 }
