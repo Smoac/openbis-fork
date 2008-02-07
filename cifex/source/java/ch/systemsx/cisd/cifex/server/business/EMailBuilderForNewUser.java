@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 public class EMailBuilderForNewUser extends AbstractEMailBuilder
 {
     private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\n\nThis login account expires on {0,date} at {0,time}. "
+            new MessageFormat("\n\nThis login account expires on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}. "
                     + "Please access your account now!");
 
     private final UserDTO newUser;
