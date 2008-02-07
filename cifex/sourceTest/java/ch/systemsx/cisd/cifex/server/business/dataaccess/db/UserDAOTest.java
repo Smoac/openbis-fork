@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Test cases for corresponding {@link UserDAO} class.
@@ -74,8 +75,12 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
+        if(registrator == null){
+            user.setRegistrator(new UserDTO());
+        }else{
+            user.setRegistrator(registrator);
+        }
         user.setPermanent(permanent);
-        user.setRegistrator(registrator);
         if (permanent == false)
         {
             user.setExpirationDate(new Date(new Long("1222249782000").longValue()));
@@ -115,7 +120,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods =
-        { "testTryFindUserByCode" })
+        { "testCreateUser" })
     @Transactional
     public final void testListUserRegisteredBy()
     {
@@ -186,6 +191,40 @@ public final class UserDAOTest extends AbstractDAOTest
         assert testTemporaryUserFromDB.getID() > 0;
 
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
+    }
+
+    @Test(dependsOnMethods =
+        { "testListUserRegisteredBy" })
+    @Transactional
+    public final void testUpdateUser()
+    {
+        IUserDAO userDAO = daoFactory.getUserDAO();
+
+        // No change
+        userDAO.updateUser(testAdminUser);
+        UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
+        checkUser(testAdminUser, testAdminUserFromDB);
+           
+        // Try Update Email
+        testTemporaryUser.setEmail("updated@temporary.cifex");
+        userDAO.updateUser(testTemporaryUser);
+        UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        checkUser(testTemporaryUser, testTemporaryUserFromDB);
+        
+        // Try update Password
+        testPermanentUser.setEncryptedPassword(StringUtilities.computeMD5Hash("NewPassword"));
+        testPermanentUser.setAdmin(true);
+        testPermanentUser.setExternallyAuthenticated(false);
+        testPermanentUser.setUserFullName("User Full Name");
+        userDAO.updateUser(testPermanentUser);
+        UserDTO testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
+        checkUser(testPermanentUser, testPermanentUserFromDB);
+        
+        // Remove admin Permissions of permanent user
+        testPermanentUser.setAdmin(false);
+        userDAO.updateUser(testPermanentUser);
+        testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
+        checkUser(testPermanentUser, testPermanentUserFromDB);
     }
 
     @Test(dependsOnMethods =
