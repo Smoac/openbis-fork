@@ -141,8 +141,8 @@ class UserManager extends AbstractManager implements IUserManager
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Could not delete User [" + userOrNull.getUserFullName() + " - " + userOrNull.getEmail()
-                            + "] from user database.");
+                    logger.info("Could not delete User [" + userOrNull.getUserFullName() + " - "
+                            + userOrNull.getEmail() + "] from user database.");
                 }
             }
         } else if (logger.isInfoEnabled())
@@ -189,6 +189,14 @@ class UserManager extends AbstractManager implements IUserManager
 
         userDAO.updateUser(user);
 
+    }
+
+    public List<UserDTO> listUsersRegisteredBy(UserDTO user)
+    {
+        assert user != null;
+
+        IUserDAO userDAO = daoFactory.getUserDAO();
+        return userDAO.listUsersRegisteredBy(user.getUserCode());
     }
 
 }

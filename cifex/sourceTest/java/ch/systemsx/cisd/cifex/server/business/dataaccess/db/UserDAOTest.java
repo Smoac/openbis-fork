@@ -214,6 +214,9 @@ public final class UserDAOTest extends AbstractDAOTest
         List<UserDTO> listUsersRegisteredByPermanent = userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
         assertEquals(1, listUsersRegisteredByPermanent.size());
         assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
+        
+        List<UserDTO> listUsersRegisteredByTemporary = userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
+        assertEquals(0, listUsersRegisteredByTemporary.size());
 
         setComplete();
     }

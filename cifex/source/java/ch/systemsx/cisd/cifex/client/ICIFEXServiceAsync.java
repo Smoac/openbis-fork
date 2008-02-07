@@ -54,6 +54,9 @@ public interface ICIFEXServiceAsync extends RemoteService
      */
     public void listUsers(final AsyncCallback callback);
 
+    /** Returns a list of users, which where registered by the given user. */
+    public void listUsersRegisteredBy(User user, final AsyncCallback callback);
+
     /**
      * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
      * <code>null</code>, it will be interpreted as the user who creates the new user.
@@ -95,11 +98,11 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Returns the footer data (version and administrator email).
      */
     public void getFooterData(final AsyncCallback callback);
-    
+
     /** Update the fields of the user in the database. */
     public void tryToUpdateUser(final User user, final String password, final AsyncCallback callback);
-    
-    /** Get the user by the userCode*/
+
+    /** Get the user by the userCode */
     public void tryToFindUserByUserCode(final String userCode, final AsyncCallback callback);
 
 }

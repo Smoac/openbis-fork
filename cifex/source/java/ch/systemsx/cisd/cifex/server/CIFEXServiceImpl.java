@@ -419,7 +419,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
             UserNotFoundException
     {
-        checkAdmin("tryToDeleteUser");
+        UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
+        checkUpdateOfUserIsAllowed(user);
         try
         {
             domainModel.getUserManager().deleteUser(code);
@@ -474,20 +475,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
-        // Permission
-        final UserDTO requestUser = privGetCurrentUser();
-        if (requestUser.isPermanent() == false)
-        {
-            throw new InsufficientPrivilegesException("Method 'tryToUpdateUser': insufficient privileges for "
-                    + describeUser(requestUser) + ".");
-        } else if (requestUser.isAdmin() == false && (user.getUserCode().equals(requestUser.getUserCode()) == false))
-        {
-            throw new InsufficientPrivilegesException("Method 'tryToUpdateUser': insufficient privileges for "
-                    + describeUser(requestUser) + ".");
-        }
-
-        IUserManager userManager = domainModel.getUserManager();
         assert user != null : "User can't be null";
+        IUserManager userManager = domainModel.getUserManager();
+        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
+
+        checkUpdateOfUserIsAllowed(userDTO);
 
         String encryptedPassword = null;
         if (password != null && password.equals("") == false)
@@ -495,8 +487,33 @@ public final class CIFEXServiceImpl implements ICIFEXService
             encryptedPassword = StringUtilities.computeMD5Hash(password);
         }
 
-        final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         userManager.updateUser(userDTO, encryptedPassword);
+    }
+
+    /** Check if the current user is allowed to update the given user. */
+    private final void checkUpdateOfUserIsAllowed(UserDTO userToUpdate) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        IUserManager userManager = domainModel.getUserManager();
+        final UserDTO currentUser = privGetCurrentUser();
+        final List<UserDTO> ownedUsers = userManager.listUsersRegisteredBy(currentUser);
+
+        if (currentUser.isAdmin())
+        {
+            return;
+        }
+        // Check if the current user is the owner
+        for (int i = 0; i < ownedUsers.size(); i++)
+        {
+            System.out.println(ownedUsers.get(i).getRegistrator().getUserCode() + " - " + currentUser.getUserCode());
+            if (ownedUsers.get(i).getRegistrator().getUserCode() == currentUser.getUserCode())
+            {
+                return;
+            }
+        }
+
+        throw new InsufficientPrivilegesException("Insufficient privileges for "
+                + describeUser(privGetCurrentUser()) + ".");
     }
 
     public User tryToFindUserByUserCode(final String userCode)
@@ -505,5 +522,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(User.class, userDTO);
+    }
+
+    public User[] listUsersRegisteredBy(User user)
+    {
+        IUserManager userManager = domainModel.getUserManager();
+
+        List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));
+
+        return BeanUtils.createBeanArray(User.class, users, null);
     }
 }

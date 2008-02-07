@@ -25,6 +25,7 @@ import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -40,6 +41,8 @@ final class MainPage extends AbstractMainPage
     private final static boolean DOWNLOAD = true;
 
     private final static boolean UPLOAD = false;
+
+    protected VerticalPanel listCreatedUserPanel;
 
     MainPage(final ViewContext context)
     {
@@ -75,6 +78,7 @@ final class MainPage extends AbstractMainPage
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
         createUserPanel(context.getModel().getUser().isAdmin());
+        createListCreatedUserPanel();
 
         final Map urlParams = context.getModel().getUrlParams();
         String fileId = null;
@@ -94,15 +98,18 @@ final class MainPage extends AbstractMainPage
             {
                 contentPanel.add(createUserPanel);
             }
+            contentPanel.add(listCreatedUserPanel);
         }
         createListFilesGrid(contentPanel, fileId, UPLOAD);
         createListFilesGrid(contentPanel, fileId, DOWNLOAD);
         return contentPanel;
     }
 
-    //
-    // Helper classes
-    //
+    private void createListCreatedUserPanel()
+    {
+        listCreatedUserPanel = createVerticalPanelPart();
+        context.getCifexService().listUsersRegisteredBy(context.getModel().getUser(), new CreatedUserAsyncCallback());
+    }
 
     private void createListFilesGrid(final ContentPanel contentPanel, String fileId, boolean showDownload)
     {
@@ -116,6 +123,9 @@ final class MainPage extends AbstractMainPage
         }
     }
 
+    //
+    // Helper classes
+    //
     private final class FileAsyncCallback extends AbstractAsyncCallback
     {
 
@@ -204,6 +214,37 @@ final class MainPage extends AbstractMainPage
             verticalPanel.add(titleWidget);
             verticalPanel.add(widget);
             contentPanel.add(verticalPanel);
+        }
+    }
+
+    private final class CreatedUserAsyncCallback extends AbstractAsyncCallback
+    {
+
+        CreatedUserAsyncCallback()
+        {
+            super(context);
+        }
+
+        private Widget createUserTable(final User[] users)
+        {
+            final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
+            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, "100px");
+            // Delete user function
+            userGrid.addGridCellListener(new UserActionGridCellListener(context));
+            return userGrid;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Object result)
+        {
+            if (((User[]) result).length > 0)
+            {
+                listCreatedUserPanel.add(createPartTitle(context.getMessageResources().getOwnUserTitle()));
+                listCreatedUserPanel.add(createUserTable((User[]) result));
+            }
         }
     }
 

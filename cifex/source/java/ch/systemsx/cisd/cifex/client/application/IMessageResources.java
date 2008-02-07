@@ -31,6 +31,12 @@ public interface IMessageResources extends Messages
      * @gwt.key action.delete.label
      */
     public String getActionDeleteLabel();
+    /**
+     * Returns the label for the renew action.
+     * 
+     * @gwt.key action.renew.label
+     */
+    public String getActionRenewLabel();
 
     /**
      * Returns the label for the edit action.
@@ -461,7 +467,14 @@ public interface IMessageResources extends Messages
      * @gwt.key userlist.fullname.label
      */
     public String getUserFullNameLabel();
-
+    
+    /**
+     * Returns the title of Own User Table.
+     * 
+     * @gwt.key userlist.ownusers.part.title
+     */
+    public String getOwnUserTitle();
+    
 
     /**
      * Returns the User List part title.

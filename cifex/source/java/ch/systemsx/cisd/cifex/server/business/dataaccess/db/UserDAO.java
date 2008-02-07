@@ -107,15 +107,19 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
     public List<UserDTO> listUsersRegisteredBy(String userCode) throws DataAccessException
     {
+        assert userCode != null;
         final UserDTO registrator = tryFindUserByCode(userCode);
         if (registrator == null)
         {
+
             throw new DataRetrievalFailureException("User '" + userCode + "' does not exist.");
         }
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
                 template.query(
-                        "select * from users where user_id_registrator = ?", new UserRowMapper(), registrator.getID());
+                        "select * from users where user_id_registrator = (select id from users where user_id=?)",
+                        new UserRowMapper(), userCode);
+
         for (UserDTO user : list)
         {
             user.setRegistrator(registrator);
@@ -166,7 +170,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         if (registrator == null)
         {
             return null;
-        } else if( registrator.getUserCode() == null){
+        } else if (registrator.getUserCode() == null)
+        {
             return null;
         } else
         {

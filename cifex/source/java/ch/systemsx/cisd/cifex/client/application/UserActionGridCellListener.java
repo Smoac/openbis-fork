@@ -60,7 +60,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().tryToDeleteUser(userCode, new DeleteUserAsyncCallback((ModelBasedGrid) grid));
+                                viewContext.getCifexService().tryToDeleteUser(userCode,
+                                        new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                             }
                         }
                     });
@@ -75,7 +76,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                 // Edit User
                 viewContext.getCifexService().tryToFindUserByUserCode(userCode, new FindUserAsyncCallback(viewContext));
 
-           }
+            }
         }
     }
 
@@ -101,18 +102,28 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
         public final void onSuccess(final Object result)
         {
             final IDataGridModel model = modelBasedGrid.getModel();
-            viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
-                {
-
-                    //
-                    // AbstractAsyncCallback
-                    //
-
-                    public final void onSuccess(final Object res)
+            // Basil Neff: Also normal user need this action, to edit own user. But there is a permission problem on the
+            // server side. So also check the permissions here.
+            if (viewContext.getModel().getUser().isAdmin())
+            {
+                viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
                     {
-                        modelBasedGrid.reloadStore((User[]) res, model);
-                    }
-                });
+                        public final void onSuccess(final Object res)
+                        {
+                            modelBasedGrid.reloadStore((User[]) res, model);
+                        }
+                    });
+            } else
+            {
+                viewContext.getCifexService().listUsersRegisteredBy(viewContext.getModel().getUser(),
+                        new AbstractAsyncCallback(viewContext)
+                            {
+                                public final void onSuccess(final Object res)
+                                {
+                                    modelBasedGrid.reloadStore((User[]) res, model);
+                                }
+                            });
+            }
         }
     }
 

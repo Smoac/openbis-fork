@@ -33,7 +33,7 @@ public interface IUserManager
      * Returns <code>true</code>, if there are not yet any users in the database.
      */
     public boolean isDatabaseEmpty();
-    
+
     /**
      * Tries to find the user with the specified user code.
      * 
@@ -63,10 +63,16 @@ public interface IUserManager
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteUser(String userCode) throws UserFailureException;
-    
+
     /**
      * Updates the fields of the specified user.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void updateUser(UserDTO user, String encryptedPassword);
+
+    /**
+     * Returns a list of users, which where registered by the given user.
+     */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    public List<UserDTO> listUsersRegisteredBy(UserDTO user);
 }

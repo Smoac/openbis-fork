@@ -128,4 +128,7 @@ public interface ICIFEXService extends RemoteService
 
     /** Try to get the user by the code. */
     public User tryToFindUserByUserCode(final String userCode);
+    
+    /** Returns a list of users, which where registered by the given user. */
+    public User[] listUsersRegisteredBy(User user);
 }

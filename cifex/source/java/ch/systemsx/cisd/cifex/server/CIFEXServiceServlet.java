@@ -205,5 +205,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         return cifexServiceDelegate.tryToFindUserByUserCode(userCode);
     }
+    
+    public User[] listUsersRegisteredBy(User user){
+        return cifexServiceDelegate.listUsersRegisteredBy(user);
+    }
 
 }
