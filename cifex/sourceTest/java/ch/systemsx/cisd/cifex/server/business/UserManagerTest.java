@@ -34,6 +34,7 @@ import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
@@ -170,7 +171,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
         return new Object[][]
             {
-                { "nonexistent", null },
                 { "alice@users.com", getSimpleUser("alice@users.com") },
                 { "alice", getSimpleUser("alice") } };
     }
@@ -233,7 +233,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "userCodesAndUsers")
-    public void testTryToDeleteUser(final String userCode, final UserDTO user)
+    public void testDeleteUser(final String userCode, final UserDTO user)
     {
 
         context.checking(new Expectations()
@@ -258,5 +258,22 @@ public class UserManagerTest extends AbstractFileSystemTestCase
             });
         userManager.deleteUser(userCode);
         context.assertIsSatisfied();
+    }
+
+    @Transactional
+    @Test(expectedExceptions=UserFailureException.class)
+    public void testDeleteUserUserNotFound()
+    {
+        final String userCode = "nonexistent";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).tryFindUserByCode(userCode);
+                    will(returnValue(null));
+                }
+            });
+        userManager.deleteUser(userCode);
     }
 }

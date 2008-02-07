@@ -33,6 +33,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
@@ -89,7 +90,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             } else if (th instanceof IOException)
             {
                 throw (IOException) th;
-            } else {
+            } else
+            {
                 throw new Error("Unexpected error: " + th.getMessage());
             }
         }
@@ -109,8 +111,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
-    public final User tryToLogin(final String user, final String password)
-            throws UserFailureException, EnvironmentFailureException
+    public final User tryToLogin(final String user, final String password) throws UserFailureException,
+            EnvironmentFailureException
     {
         return cifexServiceDelegate.tryToLogin(user, password);
     }
@@ -143,7 +145,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
+            UserNotFoundException
     {
         cifexServiceDelegate.tryToDeleteUser(code);
 
@@ -190,8 +193,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         return cifexServiceDelegate.getFooterData();
     }
-    
-    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException, InsufficientPrivilegesException{
+
+    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
         cifexServiceDelegate.tryToUpdateUser(user, password);
     }
 

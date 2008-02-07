@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
 import ch.systemsx.cisd.common.logging.LogCategory;
 
@@ -57,9 +58,11 @@ public interface IUserManager
 
     /**
      * Deletes the specified user.
+     * 
+     * @throws UserFailureException If the user with the given <var>userCode</var> was not found.
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void deleteUser(String code);
+    public void deleteUser(String userCode) throws UserFailureException;
     
     /**
      * Updates the fields of the specified user.

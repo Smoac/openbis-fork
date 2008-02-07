@@ -36,6 +36,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
+import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
@@ -208,8 +209,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryToLogin(final String userCode, final String password)
-            throws UserFailureException, EnvironmentFailureException
+    public final User tryToLogin(final String userCode, final String password) throws UserFailureException,
+            EnvironmentFailureException
     {
         authenticationLog.info("Try to login user '" + userCode + "'.");
         final IUserManager userManager = domainModel.getUserManager();
@@ -414,10 +415,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(File.class, files, null);
     }
 
-    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException
+    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
+            UserNotFoundException
     {
         checkAdmin("tryToDeleteUser");
-        domainModel.getUserManager().deleteUser(code);
+        try
+        {
+            domainModel.getUserManager().deleteUser(code);
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+        {
+            throw new UserNotFoundException(ex.getMessage());
+        }
     }
 
     public void tryToDeleteFile(final long id) throws InvalidSessionException
@@ -485,7 +493,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             encryptedPassword = StringUtilities.computeMD5Hash(password);
         }
-        
+
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         userManager.updateUser(userDTO, encryptedPassword);
     }

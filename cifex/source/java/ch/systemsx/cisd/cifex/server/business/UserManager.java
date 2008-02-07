@@ -28,6 +28,7 @@ import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -118,35 +119,37 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void deleteUser(String code)
+    public void deleteUser(String userCode) throws UserFailureException
     {
-        assert code != null : "User is null";
+        assert userCode != null : "User is null";
 
         IUserDAO userDAO = daoFactory.getUserDAO();
-        UserDTO user = userDAO.tryFindUserByCode(code);
-        if (user != null)
+        UserDTO userOrNull = userDAO.tryFindUserByCode(userCode);
+        if (userOrNull != null)
         {
-            boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(user.getID());
+            boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(userOrNull.getID());
 
             if (userSuccesfullyDeletedFromDatabase)
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("User [" + user.getUserFullName() + " - " + user.getEmail()
+                    logger.info("User [" + userOrNull.getUserFullName() + " - " + userOrNull.getEmail()
                             + "] deleted from user database.");
                 }
-                businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
+                businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(userOrNull);
             } else
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Could not delete User [" + user.getUserFullName() + " - " + user.getEmail()
+                    logger.info("Could not delete User [" + userOrNull.getUserFullName() + " - " + userOrNull.getEmail()
                             + "] from user database.");
                 }
             }
         } else if (logger.isInfoEnabled())
         {
-            logger.info("Could not delete User with user code [" + code + "] from user database (user not found).");
+            final String msg = String.format("Could not delete user '%s' (user not found)", userCode);
+            logger.info(msg);
+            throw new UserFailureException(msg);
         }
 
     }

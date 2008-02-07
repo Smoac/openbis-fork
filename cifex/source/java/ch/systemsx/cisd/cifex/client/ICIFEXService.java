@@ -38,8 +38,8 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User tryToLogin(final String user, final String password)
-            throws UserFailureException, EnvironmentFailureException;
+    public User tryToLogin(final String user, final String password) throws UserFailureException,
+            EnvironmentFailureException;
 
     /**
      * Logout the current user.
@@ -84,9 +84,12 @@ public interface ICIFEXService extends RemoteService
     public File[] listDownloadFiles() throws InvalidSessionException;
 
     /**
-     * Tries to delete the user given by its user <var>code</var>.
+     * Tries to delete the user given by its user <var>userCode</var>.
+     * 
+     * @throws UserNotFoundException if the user with the given <var>userCode</var> was not found.
      */
-    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException;
+    public void tryToDeleteUser(final String userCode) throws InvalidSessionException, InsufficientPrivilegesException,
+            UserNotFoundException;
 
     /**
      * Deletes file given by its <var>id</var>.
@@ -117,10 +120,11 @@ public interface ICIFEXService extends RemoteService
      * Returns the footer data (version and administrator email).
      */
     public FooterData getFooterData() throws InvalidSessionException;
-    
-    /** Update the fields of the user in the database.*/
-    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException, InsufficientPrivilegesException;
-    
+
+    /** Update the fields of the user in the database. */
+    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+            InsufficientPrivilegesException;
+
     /** Try to get the user by the code. */
     public User tryToFindUserByUserCode(final String userCode);
 }
