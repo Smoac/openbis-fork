@@ -194,7 +194,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods =
-        { "testListUserRegisteredBy" })
+        { "testTryFindUserByCode" })
     @Transactional
     public final void testUpdateUser()
     {
