@@ -432,7 +432,21 @@ public interface IMessageResources extends Messages
      * @gwt.key edituser.failure.emptyfields
      */
     public String getUserUpdateEmptyFieldsMessage();
-
+    
+    /**
+     * Returns message that the renew of the expiration date was successfull.
+     * 
+     * @gwt.key userrenew.success.message
+     */
+    public String getUserRenewSuccessMessage();
+    
+    /**
+     * Returns message that a permanent user cannot renewed.
+     * 
+     * @gwt.key userrenew.permanentuser.message
+     */
+    public String getPermanentUserFailure();
+    
     /**
      * Returns the content the confirm MessageBox, to delete an user.
      * 

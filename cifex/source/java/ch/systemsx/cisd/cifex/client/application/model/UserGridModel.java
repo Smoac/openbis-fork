@@ -111,7 +111,8 @@ public class UserGridModel extends AbstractDataGridModel
                                         .getExpirationDate()));
             }
             String actionLabel =
-                    "<a href=\"#\" class=\"edit\" id=\"edit\">"+messageResources.getActionEditLabel()+"</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
+                    "<a href=\"#\" class=\"edit\" id=\"edit\">"+messageResources.getActionEditLabel()+"</a> | <a href=\"#\" class=\"renew\" id=\"renew\">"
+                            + messageResources.getActionRenewLabel() + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
                             + messageResources.getActionDeleteLabel() + "</a>";
             final Object[] objects =
                     new Object[]

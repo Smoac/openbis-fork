@@ -179,7 +179,6 @@ public abstract class UserWidget extends Form
         fieldConfig.setName(messageResources.getUserCodeLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setTabIndex(2);
         TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getUserCode() != null)
         {
@@ -207,7 +206,6 @@ public abstract class UserWidget extends Form
         fieldConfig.setName(messageResources.getUserEmailLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setTabIndex(1);
         TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getEmail() != null)
         {
@@ -225,7 +223,6 @@ public abstract class UserWidget extends Form
         fieldConfig.setName(messageResources.getUserFullNameLabel());
         fieldConfig.setAllowBlank(false);
         fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setTabIndex(3);
         TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getUserFullName() != null)
         {
@@ -243,7 +240,6 @@ public abstract class UserWidget extends Form
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setTabIndex(4);
         fieldConfig.setMinLength(4);
         return new TextField(fieldConfig);
     }
@@ -257,7 +253,6 @@ public abstract class UserWidget extends Form
         fieldConfig.setPassword(true);
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setTabIndex(5);
         fieldConfig.setMinLength(4);
         return new TextField(fieldConfig);
     }
@@ -275,7 +270,6 @@ public abstract class UserWidget extends Form
         }
         checkboxConfig.setFieldLabel(messageResources.getAdminRoleName());
         checkboxConfig.setName("role");
-        checkboxConfig.setTabIndex(6);
         return new Radio(checkboxConfig);
     }
 
@@ -295,7 +289,6 @@ public abstract class UserWidget extends Form
         }
         checkboxConfig.setFieldLabel(messageResources.getPermanentRoleName());
         checkboxConfig.setName("role");
-        checkboxConfig.setTabIndex(6);
         return new Radio(checkboxConfig);
     }
 
@@ -312,7 +305,6 @@ public abstract class UserWidget extends Form
         }
         checkboxConfig.setFieldLabel(messageResources.getTemporaryRoleName());
         checkboxConfig.setName("role");
-        checkboxConfig.setTabIndex(7);
         return new Radio(checkboxConfig);
     }
 
