@@ -40,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
@@ -332,7 +333,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         try
         {
-            sendPasswordToNewUser(user, finalPassword);
+            IMailClient mailClient = domainModel.getMailClient();
+            EMailBuilderForNewUser builder = new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
+            builder.setURL(HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest()));
+            builder.setPassword(finalPassword);
+            builder.sendEMail();
         } catch (final Exception ex)
         {
             final String msg = "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
@@ -444,37 +449,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             return ex.getClass().getSimpleName();
         }
-    }
-
-    // TODO 2008-02-06 Basil Neff Move to UserManager and add Expiration date for temporary user
-    private void sendPasswordToNewUser(User user, String password)
-    {
-        StringBuilder builder = new StringBuilder();
-        String url = HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest());
-        String role = "temporary";
-        if (user.isAdmin())
-        {
-            role = "administration";
-        } else if (user.isPermanent())
-        {
-            role = "permanent";
-        }
-
-        builder.append("There is a " + role + " user created for you on the Cifex Server. "
-                + "You can reach the service with the following login information: ");
-        final String email = user.getEmail();
-        builder.append("\nURL:\t\t").append(url).append("&email=").append(email);
-        builder.append("\nLogin:\t\t").append(email);
-        builder.append("\nPassword:\t").append(password);
-
-        if (user.isPermanent() == false)
-        {
-            builder.append("\n\nThe user is only temporary, the login expires in a few days. "
-                    + "You can see the expiration date when you login.");
-        }
-        final IMailClient mailClient = domainModel.getMailClient();
-        mailClient.sendMessage("A " + role + " user is created on the Cifex Server", builder.toString(), new String[]
-            { email });
     }
 
     public FooterData getFooterData() throws InvalidSessionException
