@@ -286,18 +286,11 @@ final class FileManager extends AbstractManager implements IFileManager
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
             Collection<FileDTO> files)
     {
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        final TableMapNonUniqueKey<String, UserDTO> existingUsers =
-                new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
-                    {
-                        public String getKey(UserDTO user)
-                        {
-                            return user.getEmail();
-                        }
-                    });
+        final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
         IFileDAO fileDAO = daoFactory.getFileDAO();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+        IMailClient mailClient = businessContext.getMailClient();
         for (String email : emailsOfUsers)
         {
             Set<UserDTO> users = existingUsers.tryGet(email);
@@ -325,10 +318,30 @@ final class FileManager extends AbstractManager implements IFileManager
                     }
                     continue;
                 }
-                sendEmail(url, files, email, password);
+                EMailBuilderForUploadedFiles builder = new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
+                builder.setURL(url);
+                builder.setPassword(password);
+                builder.setUserCode(email);
+                for (final FileDTO fileDTO : files)
+                {
+                    builder.addFile(fileDTO);
+                }
+                builder.sendEMail();
             }
         }
         return invalidEmailAdresses;
+    }
+
+    private TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsers()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        return new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
+            {
+                public String getKey(UserDTO user)
+                {
+                    return user.getEmail();
+                }
+            });
     }
 
     private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
@@ -348,31 +361,6 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             return null;
         }
-    }
-
-    private void sendEmail(String url, Collection<FileDTO> files, String email, String password)
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append("The followings files are available for downloading:\n");
-        for (final FileDTO fileDTO : files)
-        {
-            builder.append(fileDTO.getName()).append(" ");
-            builder.append(url).append("/index.html?fileId=").append(fileDTO.getID());
-            builder.append("&email=").append(email);
-            builder.append('\n');
-        }
-        builder.append("\nClick on a link to start downloading. You have to login with your e-mail address (i.e. ");
-        builder.append(email).append(")");
-        if (password != null)
-        {
-            builder.append(" with the following password:\n\n").append(password);
-        } else
-        {
-            builder.append(" with your password.");
-        }
-        IMailClient mailClient = businessContext.getMailClient();
-        mailClient.sendMessage("Files for download available on the Cifex Server", builder.toString(), new String[]
-            { email });
     }
 
     @Transactional

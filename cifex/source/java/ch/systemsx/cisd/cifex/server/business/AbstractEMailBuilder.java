@@ -30,13 +30,17 @@ abstract class AbstractEMailBuilder
                                        + "CIFEX - CISD File EXchanger\n"
                                        + "Center for Information Sciences and Databases\n" 
                                        + "ETH Zurich";
+
+    protected static final String DATE_TEMPLATE = "on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}";
     
     protected final UserDTO registrator;
     protected String comment;
+    protected String url;
     
     private final IMailClient mailClient;
     private final String email;
 
+    protected String password;
 
     /**
      *
@@ -53,6 +57,11 @@ abstract class AbstractEMailBuilder
         this.email = email;
     }
     
+    public void setURL(String url)
+    {
+        this.url = url;
+    }
+    
     public void setComment(String comment)
     {
         this.comment = comment;
@@ -60,10 +69,28 @@ abstract class AbstractEMailBuilder
     
     public void sendEMail()
     {
+        assert url != null : "Missing URL.";
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
     }
     
     protected abstract String createSubject();
     
     protected abstract String createContent();
+
+    protected void addRegistratorDetails(StringBuilder builder)
+    {
+        builder.append("------------------------------------------------------------\n");
+        String fullName = registrator.getUserFullName();
+        builder.append("\nFrom:\t").append(fullName == null ? registrator.getUserCode() : fullName);
+        builder.append("\nEmail:\t").append(registrator.getEmail());
+        if (comment != null)
+        {
+            builder.append("\nComment:\t").append(comment);
+        }
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
 }

@@ -24,29 +24,12 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class EMailBuilderForNewUserTest
 {
-    private static final class MockMailClient implements IMailClient
-    {
-        private String subject;
-        private String content;
-        private String[] recipients;
-
-        public void sendMessage(String subj, String contentText, String... emails)
-                throws EnvironmentFailureException
-        {
-            this.subject = subj;
-            this.content = contentText;
-            this.recipients = emails;
-        }
-        
-    }
 
     @Test
     public void testNewAdminUser()
@@ -139,7 +122,7 @@ public class EMailBuilderForNewUserTest
     }
     
     @Test
-    public void testNewTemporarzUser()
+    public void testNewTemporaryUser()
     {
         UserDTO registrator = new UserDTO();
         registrator.setUserCode("registrator");

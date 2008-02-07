@@ -28,15 +28,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 public class EMailBuilderForNewUser extends AbstractEMailBuilder
 {
     private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\n\nThis login account expires on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}. "
-                    + "Please access your account now!");
+            new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE + ". Please access your account now!");
 
     private final UserDTO newUser;
     
-    private String url;
-
-    private String password;
-
     /**
      * @param mailClient
      * @param registrator
@@ -47,20 +42,9 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         this.newUser = newUser;
     }
 
-    public void setURL(String url)
-    {
-        this.url = url;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
     @Override
     protected String createContent()
     {
-        assert url != null : "Missing URL.";
         assert password != null : "Missing password.";
         
         StringBuilder builder = new StringBuilder();
@@ -70,14 +54,7 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         builder.append(" account on our server for you.\n\n");
         builder.append("------------------------------------------------------------\n");  
         builder.append("Information about the person who requested the account:\n");  
-        builder.append("------------------------------------------------------------\n");
-        String fullName = registrator.getUserFullName();
-        builder.append("\nFrom:\t").append(fullName == null ? registrator.getUserCode() : fullName);
-        builder.append("\nEmail:\t").append(registrator.getEmail());
-        if (comment != null)
-        {
-            builder.append("\nComment:\t").append(comment);
-        }
+        addRegistratorDetails(builder);
         builder.append("\n\n-------------------------------------------------\n");
         builder.append("Here\'s how to login:\n");
         builder.append("-------------------------------------------------\n");
