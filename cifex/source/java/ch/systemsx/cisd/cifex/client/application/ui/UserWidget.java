@@ -111,8 +111,8 @@ public abstract class UserWidget extends Form
         leftColumn.setWidth(COLUMN_WIDTH);
         column(leftColumn);
 
-        emailField = createEmailField();
-        add(emailField);
+        userCodeField = createUserCodeField();
+        add(userCodeField);
 
         usernameField = createUsernameField();
         add(usernameField);
@@ -123,8 +123,8 @@ public abstract class UserWidget extends Form
         rightColumn.setWidth(COLUMN_WIDTH);
         column(rightColumn);
 
-        userCodeField = createUserCodeField();
-        add(userCodeField);
+        emailField = createEmailField();
+        add(emailField);
 
         passwordField = createPasswordField();
         add(passwordField);

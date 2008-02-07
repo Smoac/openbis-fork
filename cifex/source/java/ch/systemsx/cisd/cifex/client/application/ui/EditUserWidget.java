@@ -103,6 +103,13 @@ public class EditUserWidget extends UserWidget
         {
             String title = messageResources.getMessageBoxInfoTitle();
             MessageBox.alert(title, messageResources.getUserUpdateSuccessMessage());
+            User user = context.getModel().getUser();
+            // Update User, if it is to one who is logged in
+            if(user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false){
+                user.setEmail(emailField.getText());
+                user.setUserFullName(usernameField.getValueAsString());
+                context.getModel().setUser(user);
+            }
             context.getPageController().createAdminPage();
         }
     }
