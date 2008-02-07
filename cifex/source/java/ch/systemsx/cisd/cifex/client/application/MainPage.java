@@ -90,7 +90,7 @@ final class MainPage extends AbstractMainPage
             verticalPanel.add(createExplanationPanel());
             verticalPanel.add(new FileUploadWidget(context));
             contentPanel.add(verticalPanel);
-            if (user.isPermanent())
+            if (user.isPermanent() && user.isAdmin() == false)
             {
                 contentPanel.add(createUserPanel);
             }
