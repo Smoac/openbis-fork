@@ -60,6 +60,11 @@ public interface IUserDAO
     public List<UserDTO> listUsers() throws DataAccessException;
 
     /**
+     * @return The list of users that have been registered by the user with given <var>userCode</var>.
+     */
+    public List<UserDTO> listUsersRegisteredBy(String userCode);
+    
+    /**
      * Deletes the user with the given <code>userId</code> from the database.
      * 
      * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if no user was found

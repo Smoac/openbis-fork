@@ -39,7 +39,7 @@ public final class FileDAOTest extends AbstractDAOTest
 {
     private static final Long NOT_SET = null;
 
-    private final UserDTO permanentUser = UserDAOTest.createUser(true, true, "user", "someuser@systemsx.ch");
+    private final UserDTO permanentUser = UserDAOTest.createUser(true, true, "user", "someuser@systemsx.ch", null);
 
     private final UserDTO getSampleUserFromDB()
     {

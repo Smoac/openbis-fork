@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**
  * Test cases for corresponding {@link UserDAO} class.
@@ -37,11 +38,12 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 public final class UserDAOTest extends AbstractDAOTest
 {
 
-    final UserDTO testTemporaryUser = createUser(false, false, "tempuser", "someuser@somewhereelse.edu");
+    final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
 
-    final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch");
+    final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
 
-    final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch");
+    final UserDTO testTemporaryUser =
+            createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser);
 
     final static String getTestUserName()
     {
@@ -63,7 +65,7 @@ public final class UserDAOTest extends AbstractDAOTest
         assertNotNull(actualUser.getRegistrationDate());
     }
 
-    final static UserDTO createUser(boolean permanent, boolean admin, String code, String email)
+    final static UserDTO createUser(boolean permanent, boolean admin, String code, String email, UserDTO registrator)
     {
         UserDTO user = new UserDTO();
         user.setEmail(email);
@@ -73,6 +75,7 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
         user.setPermanent(permanent);
+        user.setRegistrator(registrator);
         if (permanent == false)
         {
             user.setExpirationDate(new Date(new Long("1222249782000").longValue()));
@@ -102,15 +105,44 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.createUser(testAdminUser);
         assertEquals(listUsers.size() + 1, userDAO.listUsers().size());
 
-        userDAO.createUser(testTemporaryUser);
+        userDAO.createUser(testPermanentUser);
         assertEquals(listUsers.size() + 2, userDAO.listUsers().size());
 
-        userDAO.createUser(testPermanentUser);
+        userDAO.createUser(testTemporaryUser);
         assertEquals(listUsers.size() + 3, userDAO.listUsers().size());
 
         setComplete();
     }
 
+    @Test(dependsOnMethods =
+        { "testTryFindUserByCode" })
+    @Transactional
+    public final void testListUserRegisteredBy()
+    {
+        IUserDAO userDAO = daoFactory.getUserDAO();
+
+        List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByAdmin.size());
+        assertEqualsUserRegisteredBy(testPermanentUser, listUsersRegisteredByAdmin.get(0));
+
+        List<UserDTO> listUsersRegisteredByPermanent = userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByPermanent.size());
+        assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
+
+        setComplete();
+    }
+
+    private void assertEqualsUserRegisteredBy(UserDTO expected, UserDTO actual)
+    {
+        UserDTO expectedForComparison = BeanUtils.createBean(UserDTO.class, expected);
+        UserDTO registratorMinimal = new UserDTO();
+        registratorMinimal.setID(expected.getRegistrator().getID());
+        registratorMinimal.setUserCode(expected.getRegistrator().getUserCode());
+        expectedForComparison.setRegistrator(registratorMinimal);
+        actual.setRegistrationDate(null);
+        assertEquals(expectedForComparison, actual);
+    }
+    
     @Test(dependsOnMethods =
         { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
     @Transactional

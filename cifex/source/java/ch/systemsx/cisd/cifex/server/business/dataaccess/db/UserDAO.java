@@ -104,6 +104,20 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
+    public List<UserDTO> listUsersRegisteredBy(String userCode) throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        final List<UserDTO> list =
+                template.query(
+                        "select * from users where user_id_registrator = (select id from users where user_id=?)",
+                        new UserRowMapper(), userCode);
+        for (UserDTO user : list)
+        {
+            user.getRegistrator().setUserCode(userCode);
+        }
+        return list;
+    }
+
     private void fillInRegistrators(List<UserDTO> users)
     {
         final Map<Long, UserDTO> idToUserMap = new HashMap<Long, UserDTO>();
