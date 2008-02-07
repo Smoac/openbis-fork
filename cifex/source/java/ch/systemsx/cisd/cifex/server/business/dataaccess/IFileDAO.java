@@ -66,7 +66,7 @@ public interface IFileDAO
     public List<FileDTO> getExpiredFiles();
 
     /**
-     * Returns a list of all files given <var>userId</var> has access to.
+     * Returns a list of all files (including expired and not yet deleted) given <var>userId</var> has access to.
      */
     public List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException;
 

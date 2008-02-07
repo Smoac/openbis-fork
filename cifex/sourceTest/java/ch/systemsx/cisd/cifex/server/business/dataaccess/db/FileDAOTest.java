@@ -37,10 +37,19 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
     { "db", "file" })
 public final class FileDAOTest extends AbstractDAOTest
 {
+    private static final Long NOT_SET = null;
+
+    private final UserDTO permanentUser = UserDAOTest.createUser(true, true, "user", "someuser@systemsx.ch");
+
     private final UserDTO getSampleUserFromDB()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        final List<UserDTO> listUsers = userDAO.listUsers();
+        List<UserDTO> listUsers = userDAO.listUsers();
+        if (listUsers.size() == 0)
+        {
+            userDAO.createUser(permanentUser);
+            listUsers = userDAO.listUsers();
+        }
         assertTrue(listUsers.size() > 0);
         return listUsers.get(0);
     }
@@ -170,12 +179,52 @@ public final class FileDAOTest extends AbstractDAOTest
         final int numberOfFiles = 5;
         for (int i = 1; i <= numberOfFiles; i++)
         {
-            final FileDTO sampleFile = createSampleFile();
+            FileDTO sampleFile = createSampleFile();
             sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
             fileDAO.createFile(sampleFile);
             assertEquals(i, fileDAO.listFiles().size());
         }
 
+    }
+
+    @Transactional
+    @Test
+    public final void testListDownloadFilesForNonexistentUser()
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        List<FileDTO> filesToDownload = fileDAO.listDownloadFiles(-1L);
+        assertEquals(0, filesToDownload.size());
+    }
+
+    @Transactional
+    @Test
+    public final void testListDownloadFiles()
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final UserDTO user = getSampleUserFromDB();
+        FileDTO newFile = createSampleFile(user);
+        fileDAO.createFile(newFile);
+        /* Existing user id */
+        List<FileDTO> filesToDownload = fileDAO.listDownloadFiles(user.getID());
+        boolean newFileInDownloadList = false;
+        for (FileDTO f : filesToDownload)
+        {
+            if (f.getID() == newFile.getID())
+            {
+                newFileInDownloadList = true;
+            }
+        }
+        assertFalse(newFileInDownloadList);
+        fileDAO.createSharingLink(newFile.getID(), user.getID());
+        filesToDownload = fileDAO.listDownloadFiles(user.getID());
+        for (FileDTO f : filesToDownload)
+        {
+            if (f.getID() == newFile.getID())
+            {
+                newFileInDownloadList = true;
+            }
+        }
+        assertTrue(newFileInDownloadList);
     }
 
     @Transactional
@@ -200,13 +249,13 @@ public final class FileDAOTest extends AbstractDAOTest
 
     /**
      * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date created from
-     * <code>expirationTime</code>. If expirationTime is null then default time is used.
+     * <code>expirationTime</code>. If expirationTime is NOT_SET then default time is used.
      */
     private void createFileWithExpirationTimeAndNumber(Long expirationTime, IFileDAO fileDAO, int i)
     {
         FileDTO sampleFile = createSampleFile();
         sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
-        if (expirationTime != null)
+        if (expirationTime != NOT_SET)
         {
             sampleFile.setExpirationDate(new Date(expirationTime));
         }

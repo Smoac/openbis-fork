@@ -16,24 +16,38 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+import org.hamcrest.core.IsInstanceOf;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
+import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Test cases for corresponding {@link FileManager} class.
@@ -49,15 +63,23 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private IFileDAO fileDAO;
 
+    private IMailClient mailClient;
+
     private IFileManager fileManager;
 
     File fileStore;
 
     private IBusinessObjectFactory boFactory;
 
+    private UserDTO userAlice;
+
+    private FileDTO imageFile;
+
     @BeforeMethod
-    public final void setUp()
+    public final void setUp() throws IOException
     {
+        userAlice = createSampleUserDTO(1L, "alice@users.com");
+        imageFile = cerateSampleFileDTO(1L, userAlice, "image.jpg", "image");
         daoFactory = context.mock(IDAOFactory.class);
         fileDAO = context.mock(IFileDAO.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
@@ -65,22 +87,39 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         BusinessContext businessContext = new BusinessContext();
         businessContext.setFileRetention(5);
         businessContext.setFileStore(fileStore);
+        mailClient = context.mock(IMailClient.class);
+        businessContext.setMailClient(mailClient);
         fileManager = new FileManager(daoFactory, boFactory, businessContext);
+
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        File userFolder = new File(fileStore, userAlice.getEmail());
+        deleteFileRecursive(userFolder);
+        context.assertIsSatisfied();
+    }
+
+    private void deleteFileRecursive(File file)
+    {
+        if (file.isDirectory())
+        {
+            File[] files = file.listFiles();
+            for (File f : files)
+            {
+                deleteFileRecursive(f);
+            }
+        }
+        file.delete();
     }
 
     @Test
     public void testDeleteExpiredFiles()
     {
         final List<FileDTO> fileDTOs = new ArrayList<FileDTO>();
-        Long ownerId = 1L;
-        final Long fileId = 1L;
-        String filename = "file.txt";
-        String path = "/" + filename;
-        FileDTO fileDTO = new FileDTO(ownerId);
-        fileDTO.setID(fileId);
-        fileDTO.setPath(path);
-        fileDTOs.add(fileDTO);
-        File realFile = createRealFile(path);
+        fileDTOs.add(imageFile);
+        File realFile = createRealFile(imageFile.getPath());
         context.checking(new Expectations()
             {
                 {
@@ -88,12 +127,143 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(fileDAO));
                     one(fileDAO).getExpiredFiles();
                     will(returnValue(fileDTOs));
-                    one(fileDAO).deleteFile(fileId);
+                    one(fileDAO).deleteFile(imageFile.getID());
                 }
             });
 
         fileManager.deleteExpiredFiles();
         assertFalse(realFile.exists());
+        context.assertIsSatisfied();
+    }
+
+    @Test(dependsOnMethods =
+        { "testSaveFile", "testGetFile" })
+    public void testDeleteFile()
+    {
+
+        final long fileId = imageFile.getID();
+        File realFile = createRealFile(imageFile.getPath());
+        assertTrue(realFile.exists());
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).tryGetFile(fileId);
+                    will(returnValue(imageFile));
+                    one(fileDAO).deleteFile(fileId);
+                    will(returnValue(true));
+                }
+            });
+        fileManager.deleteFile(fileId);
+        assertFalse(realFile.exists());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetFile()
+    {
+        UserDTO user = userAlice;
+        final long fileId = imageFile.getID();
+        File realFile = createRealFile(imageFile.getPath());
+        assertTrue(realFile.exists());
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).tryGetFile(fileId);
+                    will(returnValue(imageFile));
+                }
+            });
+        FileOutput returnedFile = fileManager.getFile(user, fileId);
+        assertNotNull(returnedFile);
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "booleans")
+    public void testListFiles(boolean listOfSharedFilesEmpty)
+    {
+        final long userId = userAlice.getID();
+        final List<FileDTO> files = new ArrayList<FileDTO>();
+        if (listOfSharedFilesEmpty == false)
+        {
+            files.add(new FileDTO(userAlice.getID()));
+        }
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).listDownloadFiles(userId);
+                    will(returnValue(files));
+                    one(fileDAO).listFiles();
+                    will(returnValue(files));
+                    one(fileDAO).listUploadedFiles(userId);
+                    will(returnValue(files));
+                }
+            });
+        /* listDownloadFiles */
+        assertEquals(files, fileManager.listDownloadFiles(userId));
+        /* listFiles */
+        assertEquals(files, fileManager.listFiles());
+        /* listUploadedFiles */
+        assertEquals(files, fileManager.listUploadedFiles(userId));
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unused")
+    @DataProvider(name = "booleans")
+    private Object[][] provideAllBooleans()
+    {
+        return new Object[][]
+            {
+                { true },
+                { false } };
+    }
+
+    @Transactional
+    @Test(dataProvider = "booleans")
+    public void testSaveFile(final boolean fileAlreadyExists) throws FileNotFoundException
+    {
+        UserDTO user = userAlice;
+        final String filePath = imageFile.getPath();
+        File inputFile = createRealFile(filePath + "_user");
+        InputStream inputStream = new FileInputStream(inputFile);
+        File filePathIfFileNotExisted = new File(fileStore, filePath);
+        File expectedFilePath;
+        if (fileAlreadyExists == false)
+        {
+            filePathIfFileNotExisted = createRealFile(filePath);
+            assertTrue(filePathIfFileNotExisted.exists());
+            expectedFilePath = FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
+            assertFalse(expectedFilePath.compareTo(filePathIfFileNotExisted) == 0);
+
+        } else
+        {
+            filePathIfFileNotExisted.delete();
+            assertFalse(filePathIfFileNotExisted.exists());
+            expectedFilePath = filePathIfFileNotExisted;
+        }
+        assertFalse(expectedFilePath.exists());
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).createFile(this.with(new IsInstanceOf<FileDTO>(FileDTO.class)));
+                }
+            });
+        FileDTO createdFileDTO =
+                fileManager.saveFile(user, imageFile.getName(), imageFile.getContentType(), inputStream);
+        File createdFile = new File(fileStore, createdFileDTO.getPath());
+        assertTrue(createdFile.exists());
+        assertEquals(createdFile.getPath(), expectedFilePath.getPath());
+        assertEquals(createdFileDTO.getContentType(), imageFile.getContentType());
+        assertEquals(createdFileDTO.getRegistererId(), imageFile.getRegistererId());
+        assertEquals(createdFileDTO.getSharingUsers(), imageFile.getSharingUsers());
+        assertEquals(createdFileDTO.getName(), imageFile.getName());
+        assertEquals(createdFileDTO.getSize().longValue(), inputFile.length());
         context.assertIsSatisfied();
     }
 
@@ -103,7 +273,17 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         boolean fileCannotBeCreated = false;
         try
         {
+            String directoryName = FilenameUtils.getPathNoEndSeparator(path);
+            if (directoryName != "")
+            {
+                File directory = new File(fileStore, directoryName);
+                directory.mkdirs();
+            }
             realFile.createNewFile();
+            if (realFile.length() == 0)
+            {
+                FileUtilities.writeToFile(realFile, "Lorem ipsum.");
+            }
         } catch (IOException ex)
         {
             fileCannotBeCreated = true;
@@ -113,6 +293,26 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             assertFalse(fileCannotBeCreated);
         }
         return realFile;
+    }
+
+    final static UserDTO createSampleUserDTO(long id, String email)
+    {
+        UserDTO user = new UserDTO();
+        user.setID(id);
+        user.setUserCode(email);
+        user.setEmail(email);
+        return user;
+    }
+
+    final static private FileDTO cerateSampleFileDTO(long id, UserDTO owner, String fileName, String contentType)
+    {
+        FileDTO fileDTO = new FileDTO(owner.getID());
+        fileDTO.setID(id);
+        fileDTO.setName(fileName);
+        String path = owner.getEmail() + "/" + fileName;
+        fileDTO.setPath(path);
+        fileDTO.setContentType(contentType);
+        return fileDTO;
     }
 
 }

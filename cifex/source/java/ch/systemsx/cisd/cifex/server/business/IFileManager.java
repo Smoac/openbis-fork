@@ -90,7 +90,7 @@ public interface IFileManager
     /** Returns all files */
     public List<FileDTO> listFiles();
 
-    /** Deletes file with given <code>fileId</code> */
+    /** Deletes file with given <code>fileId</code> from database and filesystem */
     public void deleteFile(long fileId);
 
 }
