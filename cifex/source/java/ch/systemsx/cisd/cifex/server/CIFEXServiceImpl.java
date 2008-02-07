@@ -505,7 +505,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
         // Check if the current user is the owner
         for (int i = 0; i < ownedUsers.size(); i++)
         {
-            System.out.println(ownedUsers.get(i).getRegistrator().getUserCode() + " - " + currentUser.getUserCode());
             if (ownedUsers.get(i).getRegistrator().getUserCode() == currentUser.getUserCode())
             {
                 return;
