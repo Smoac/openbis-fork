@@ -20,7 +20,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * 
+ * Abstract super class of all CIFEX e-mail builder.
  *
  * @author Franz-Josef Elmer
  */
@@ -42,11 +42,7 @@ abstract class AbstractEMailBuilder
 
     protected String password;
 
-    /**
-     *
-     *
-     */
-    public AbstractEMailBuilder(IMailClient mailClient, UserDTO registrator, String email)
+    protected AbstractEMailBuilder(IMailClient mailClient, UserDTO registrator, String email)
     {
         assert mailClient != null : "Unspecified mail client.";
         assert registrator != null : "Unspecified registrator.";
@@ -57,26 +53,39 @@ abstract class AbstractEMailBuilder
         this.email = email;
     }
     
+    /**
+     * Sets the base URL used to creating links in the e-mail. Has to be called before e-mail will be send.
+     */
     public void setURL(String url)
     {
         this.url = url;
     }
     
+    /**
+     * Sets an optional comment.
+     */
     public void setComment(String comment)
     {
         this.comment = comment;
     }
+
+    /**
+     * Sets the password which might be needed.
+     */
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
     
+    /**
+     * Sends the e-mail
+     */
     public void sendEMail()
     {
         assert url != null : "Missing URL.";
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
     }
     
-    protected abstract String createSubject();
-    
-    protected abstract String createContent();
-
     protected void addRegistratorDetails(StringBuilder builder)
     {
         builder.append("------------------------------------------------------------\n");
@@ -89,8 +98,8 @@ abstract class AbstractEMailBuilder
         }
     }
 
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
+    protected abstract String createSubject();
+    
+    protected abstract String createContent();
+    
 }

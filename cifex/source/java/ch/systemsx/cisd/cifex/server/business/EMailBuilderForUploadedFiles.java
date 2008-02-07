@@ -28,7 +28,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * 
+ * Class which creates and sends an e-mail informing someone that some files for downloading are available.
  *
  * @author Franz-Josef Elmer
  */
@@ -42,22 +42,25 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
     private String userCode;
     
     /**
-     *
-     *
-     * @param mailClient
-     * @param registrator
-     * @param email
+     * Creates an new instance for the specified mail client, registrator of the new files, and the email
+     * of the recipient.
      */
     public EMailBuilderForUploadedFiles(IMailClient mailClient, UserDTO registrator, String email)
     {
         super(mailClient, registrator, email);
     }
     
+    /**
+     * Adds a file. At least one file has to be added before sending the e-mail.
+     */
     public void addFile(FileDTO file)
     {
        files.add(file); 
     }
 
+    /**
+     * Sets the user name. Has to be set before sending the e-mail.
+     */
     public final void setUserCode(String userCode)
     {
         this.userCode = userCode;
@@ -66,6 +69,7 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
     @Override
     protected String createContent()
     {
+        assert files.size() > 0 : "No files to upload.";
         assert userCode != null : "Missing user code";
         
         StringBuilder builder = new StringBuilder();
@@ -99,11 +103,6 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         return builder.toString();
     }
 
-    private String createFileText()
-    {
-        return files.size() == 1 ? "a file" : "files";
-    }
-
     @Override
     protected String createSubject()
     {
@@ -111,4 +110,9 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         return StringUtils.capitalize(createFileText()) + " available for download from " + registrator.getEmail();
     }
 
+    private String createFileText()
+    {
+        return files.size() == 1 ? "a file" : "files";
+    }
+    
 }
