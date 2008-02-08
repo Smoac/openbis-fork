@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -92,5 +93,12 @@ public interface IFileManager
 
     /** Deletes file with given <code>fileId</code> from database and filesystem */
     public void deleteFile(long fileId);
+    
+    /**
+     * Update the Expiration Date of the file with the given ID.
+     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
+     * @param newExpirationDate The new Expiration date, can only used from an admin.
+     */
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate);
 
 }

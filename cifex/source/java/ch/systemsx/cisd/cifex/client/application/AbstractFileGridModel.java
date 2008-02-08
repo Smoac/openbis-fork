@@ -93,7 +93,6 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final ColumnConfig createActionColumnConfig()
     {
         final ColumnConfig registererConfig = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 80);
-        registererConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return registererConfig;
     }
 

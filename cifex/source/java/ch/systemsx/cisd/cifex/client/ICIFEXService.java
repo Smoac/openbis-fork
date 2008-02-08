@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
@@ -106,6 +108,14 @@ public interface ICIFEXService extends RemoteService
     public File[] listUploadedFiles() throws InvalidSessionException;
 
     /**
+     * Update the Expiration Date of the file with the given ID.
+     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
+     * @param newExpirationDate The new Expiration date, can only used from an admin.
+     */
+    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
+            InsufficientPrivilegesException;
+
+    /**
      * Registers the file names for the next upload request in the session.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException;
@@ -128,7 +138,7 @@ public interface ICIFEXService extends RemoteService
 
     /** Try to get the user by the code. */
     public User tryToFindUserByUserCode(final String userCode);
-    
+
     /** Returns a list of users, which where registered by the given user. */
     public User[] listUsersRegisteredBy(User user);
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -205,9 +206,16 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         return cifexServiceDelegate.tryToFindUserByUserCode(userCode);
     }
-    
-    public User[] listUsersRegisteredBy(User user){
+
+    public User[] listUsersRegisteredBy(User user)
+    {
         return cifexServiceDelegate.listUsersRegisteredBy(user);
+    }
+
+    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        cifexServiceDelegate.updateFileExpiration(id, newExpirationDate);
     }
 
 }

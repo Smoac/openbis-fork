@@ -200,7 +200,7 @@ final class MainPage extends AbstractMainPage
                 fileGrid.addGridCellListener(new FileDownloadGridCellListener());
                 if (showDownloaded == false)
                 {
-                    fileGrid.addGridCellListener(new FileDeleteGridCellListener(context));
+                    fileGrid.addGridCellListener(new FileActionGridCellListener(context));
                 }
                 widget = fileGrid;
             } else

@@ -15,12 +15,12 @@ import ch.systemsx.cisd.cifex.client.dto.File;
  * 
  * @author Christian Ribeaud
  */
-final class FileDeleteGridCellListener extends GridCellListenerAdapter
+final class FileActionGridCellListener extends GridCellListenerAdapter
 {
 
     private final ViewContext viewContext;
 
-    FileDeleteGridCellListener(final ViewContext viewContext)
+    FileActionGridCellListener(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
@@ -37,22 +37,29 @@ final class FileDeleteGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colindex).equals(AbstractFileGridModel.ACTION))
         {
             final IMessageResources messageResources = viewContext.getMessageResources();
-            MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources.getFileDeleteConfirmText(name),
-                    new MessageBox.ConfirmCallback()
-                        {
-                            //
-                            // ConfirmCallback
-                            //
+            // Delete
+            if (e.getTarget(".delete", 1) != null)
+            {
+                MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
+                        .getFileDeleteConfirmText(name), new MessageBox.ConfirmCallback()
+                    {
+                        //
+                        // ConfirmCallback
+                        //
 
-                            public final void execute(final String btnID)
+                        public final void execute(final String btnID)
+                        {
+                            if (btnID.equals("yes"))
                             {
-                                if (btnID.equals("yes"))
-                                {
-                                    viewContext.getCifexService().tryToDeleteFile(id,
-                                            new DeleteFileAsyncCallback((ModelBasedGrid) grid));
-                                }
+                                viewContext.getCifexService().tryToDeleteFile(id,
+                                        new DeleteFileAsyncCallback((ModelBasedGrid) grid));
                             }
-                        });
+                        }
+                    });
+            // Renew
+            }if (e.getTarget(".renew", 1) != null){
+                viewContext.getCifexService().updateFileExpiration(id, null, new UpdateFileAsyncCallback((ModelBasedGrid) grid));
+            }
 
         }
     }
@@ -81,6 +88,38 @@ final class FileDeleteGridCellListener extends GridCellListenerAdapter
             viewContext.getCifexService().listUploadedFiles(new AbstractAsyncCallback(viewContext)
                 {
 
+                    //
+                    // AbstractAsyncCallback
+                    //
+
+                    public final void onSuccess(final Object res)
+                    {
+                        modelBasedGrid.reloadStore((File[]) res, model);
+                    }
+                });
+        }
+    }
+    
+    private final class UpdateFileAsyncCallback extends AbstractAsyncCallback
+    {
+        private final ModelBasedGrid modelBasedGrid;
+
+        UpdateFileAsyncCallback(final ModelBasedGrid modelBasedGrid)
+        {
+            super(viewContext);
+            this.modelBasedGrid = modelBasedGrid;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Object result)
+        {
+            MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(), viewContext.getMessageResources().getUpdateSuccessMessage("File expiration"));
+            final IDataGridModel model = modelBasedGrid.getModel();
+            viewContext.getCifexService().listUploadedFiles(new AbstractAsyncCallback(viewContext)
+                {
                     //
                     // AbstractAsyncCallback
                     //

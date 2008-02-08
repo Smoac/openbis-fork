@@ -420,11 +420,11 @@ public interface IMessageResources extends Messages
     public String getEditUserButtonLabel();
 
     /**
-     * Returns message that updateing a user was successfull.
+     * Returns message that updateing of the type was successfull.
      * 
-     * @gwt.key edituser.success.message
+     * @gwt.key action.renew.successfull.message
      */
-    public String getUserUpdateSuccessMessage();
+    public String getUpdateSuccessMessage(String type);
 
     /**
      * Returns message that not all fields are filled out.

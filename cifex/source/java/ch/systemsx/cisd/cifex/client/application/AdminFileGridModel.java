@@ -61,10 +61,17 @@ public class AdminFileGridModel extends AbstractFileGridModel
             final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
-                        { new Integer((int) file.getID()), file.getName(), file.getRegisterer().getEmail(),
-                                file.getContentType(), size == null ? null : new Integer(size.intValue()),
-                                file.getRegistrationDate(), file.getExpirationDate(),
-                                messageResources.getActionDeleteLabel() };
+                        {
+                                new Integer((int) file.getID()),
+                                file.getName(),
+                                file.getRegisterer().getEmail(),
+                                file.getContentType(),
+                                size == null ? null : new Integer(size.intValue()),
+                                file.getRegistrationDate(),
+                                file.getExpirationDate(),
+                                "<a href=\"#\" class=\"renew\" id=\"renew\">" + messageResources.getActionRenewLabel()
+                                        + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
+                                        + messageResources.getActionDeleteLabel() + "</a>" };
             list.add(objects);
         }
         return list;

@@ -378,4 +378,15 @@ final class FileManager extends AbstractManager implements IFileManager
 
     }
 
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate){
+        
+        FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        if(newExpirationDate == null){
+            file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+        }else{
+            file.setExpirationDate(newExpirationDate);
+        }
+        
+        daoFactory.getFileDAO().updateFile(file);
+    }
 }

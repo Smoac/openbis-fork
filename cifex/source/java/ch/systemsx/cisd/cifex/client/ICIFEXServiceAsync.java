@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
@@ -104,5 +106,12 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /** Get the user by the userCode */
     public void tryToFindUserByUserCode(final String userCode, final AsyncCallback callback);
+    
+    /**
+     * Update the Expiration Date of the file with the given ID.
+     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
+     * @param newExpirationDate The new Expiration date, can only used from an admin. <code>null</code> if the default expiration date should be used.
+     */
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate, final AsyncCallback callback);
 
 }

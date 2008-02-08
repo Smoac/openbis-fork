@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -511,8 +512,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
             }
         }
 
-        throw new InsufficientPrivilegesException("Insufficient privileges for "
-                + describeUser(privGetCurrentUser()) + ".");
+        throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(privGetCurrentUser())
+                + ".");
     }
 
     public User tryToFindUserByUserCode(final String userCode)
@@ -530,5 +531,18 @@ public final class CIFEXServiceImpl implements ICIFEXService
         List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));
 
         return BeanUtils.createBeanArray(User.class, users, null);
+    }
+
+    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException
+    {
+        IFileManager fileManager = domainModel.getFileManager();
+        Date expirationDate;
+        if(privGetCurrentUser().isAdmin() == true && newExpirationDate != null){
+            expirationDate = newExpirationDate;
+        }else{
+            expirationDate = DateUtils.addMinutes(new Date(), domainModel.getBusinessContext().getFileRetention());
+        }
+        
+        fileManager.updateFileExpiration(id, expirationDate);
     }
 }

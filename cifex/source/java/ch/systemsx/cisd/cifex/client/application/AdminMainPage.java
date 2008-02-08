@@ -122,7 +122,7 @@ final class AdminMainPage extends AbstractMainPage
             final ModelBasedGrid fileGrid =
                     new ModelBasedGrid(context.getMessageResources(), files, gridModel, "100px");
             fileGrid.addGridCellListener(new FileDownloadGridCellListener());
-            fileGrid.addGridCellListener(new FileDeleteGridCellListener(context));
+            fileGrid.addGridCellListener(new FileActionGridCellListener(context));
             return fileGrid;
         }
 
