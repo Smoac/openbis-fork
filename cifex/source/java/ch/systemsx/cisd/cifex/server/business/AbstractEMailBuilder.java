@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -36,7 +38,8 @@ abstract class AbstractEMailBuilder
     protected final UserDTO registrator;
     protected String comment;
     protected String url;
-    
+
+    private String fullName;
     private final IMailClient mailClient;
     private final String email;
 
@@ -78,6 +81,14 @@ abstract class AbstractEMailBuilder
     }
     
     /**
+     * Sets the full name, to be used in the greeting (if available).
+     */
+    public void setFullName(String fullName)
+    {
+        this.fullName = fullName;
+    }
+
+    /**
      * Sends the e-mail
      */
     public void sendEMail()
@@ -86,11 +97,21 @@ abstract class AbstractEMailBuilder
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
     }
     
-    protected void addRegistratorDetails(StringBuilder builder)
+    protected final void addGreeting(StringBuilder builder)
+    {
+        builder.append("Hello");
+        if (StringUtils.isNotBlank(fullName))
+        {
+            builder.append(' ');
+            builder.append(fullName);
+        }
+        builder.append(",\n\n");
+    }
+
+    protected final void addRegistratorDetails(StringBuilder builder)
     {
         builder.append("------------------------------------------------------------\n");
-        String fullName = registrator.getUserFullName();
-        builder.append("\nFrom:\t").append(fullName == null ? registrator.getUserCode() : fullName);
+        builder.append("\nFrom:\t").append(getShortRegistratorDescription());
         builder.append("\nEmail:\t").append(registrator.getEmail());
         if (comment != null)
         {
@@ -98,8 +119,19 @@ abstract class AbstractEMailBuilder
         }
     }
 
+    protected final String getShortRegistratorDescription()
+    {
+        final String registratorFullName = registrator.getUserFullName();
+        return StringUtils.isBlank(registratorFullName) ? registrator.getUserCode() : registratorFullName;
+    }
+    
+    protected final String getLongRegistratorDescription()
+    {
+        return getShortRegistratorDescription() + " <" + registrator.getEmail() + ">";
+    }
+    
     protected abstract String createSubject();
     
     protected abstract String createContent();
-    
+
 }

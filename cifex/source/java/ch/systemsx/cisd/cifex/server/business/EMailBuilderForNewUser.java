@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.text.MessageFormat;
 import java.util.Date;
 
+
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -41,6 +42,7 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     {
         super(mailClient, registrator, newUser.getEmail());
         this.newUser = newUser;
+        setFullName(newUser.getUserFullName());
     }
 
     @Override
@@ -49,7 +51,8 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         assert password != null : "Missing password.";
         
         StringBuilder builder = new StringBuilder();
-        builder.append("Hello,\n\n").append(registrator.getEmail());
+        addGreeting(builder);
+        builder.append(getLongRegistratorDescription());
         builder.append(" has requested a ");
         builder.append(createTypeAdjective());
         builder.append(" account on our server for you.\n\n");
@@ -74,7 +77,7 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     @Override
     protected String createSubject()
     {
-        return registrator.getEmail() + " has requested a " + createTypeAdjective() + " account for you";
+        return getShortRegistratorDescription() + " has requested a " + createTypeAdjective() + " account for you";
     }
 
     private String createTypeAdjective()

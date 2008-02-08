@@ -28,34 +28,34 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Class which creates and sends an e-mail informing someone that some files for downloading are available.
- *
+ * Class which creates and sends an e-mail informing someone that some files are available for download.
+ * 
  * @author Franz-Josef Elmer
  */
 public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
 {
     private static final MessageFormat EXPIRATION_TEMPLATE =
-        new MessageFormat("\nExpiration: Files will be removed  " + DATE_TEMPLATE);
-    
+            new MessageFormat("\nExpiration: Files will be removed  " + DATE_TEMPLATE);
+
     private final List<FileDTO> files = new ArrayList<FileDTO>();
-    
+
     private String userCode;
-    
+
     /**
-     * Creates an new instance for the specified mail client, registrator of the new files, and the email
-     * of the recipient.
+     * Creates an new instance for the specified mail client, registrator of the new files, and the email of the
+     * recipient.
      */
     public EMailBuilderForUploadedFiles(IMailClient mailClient, UserDTO registrator, String email)
     {
         super(mailClient, registrator, email);
     }
-    
+
     /**
      * Adds a file. At least one file has to be added before sending the e-mail.
      */
     public void addFile(FileDTO file)
     {
-       files.add(file); 
+        files.add(file);
     }
 
     /**
@@ -71,9 +71,10 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
     {
         assert files.size() > 0 : "No files to upload.";
         assert userCode != null : "Missing user code";
-        
+
         StringBuilder builder = new StringBuilder();
-        builder.append("Hello,\n\n").append(registrator.getEmail());
+        addGreeting(builder);
+        builder.append(getLongRegistratorDescription());
         builder.append(" has stored ").append(createFileText());
         builder.append(" on our server for you to download. File information appears below.\n\n");
         addRegistratorDetails(builder);
@@ -91,7 +92,8 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
                 minExpirationDate = expirationDate;
             }
         }
-        builder.append(EXPIRATION_TEMPLATE.format(new Object[] {minExpirationDate}));
+        builder.append(EXPIRATION_TEMPLATE.format(new Object[]
+            { minExpirationDate }));
         if (password != null)
         {
             builder.append("\n\nFor downloading you have to enter the following password: ").append(password);
@@ -107,12 +109,13 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
     protected String createSubject()
     {
         assert files.size() > 0 : "No files to upload.";
-        return StringUtils.capitalize(createFileText()) + " available for download from " + registrator.getEmail();
+        return StringUtils.capitalize(createFileText()) + " available for download from "
+                + getShortRegistratorDescription();
     }
 
     private String createFileText()
     {
         return files.size() == 1 ? "a file" : "files";
     }
-    
+
 }
