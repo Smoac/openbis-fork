@@ -90,12 +90,26 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         assert file != null : "Given file cannot be null.";
 
         final long id = createID();
-        getSimpleJdbcTemplate()
-                .update(
+        getSimpleJdbcTemplate().update(
                         "insert into files (ID, NAME, PATH, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?)",
                         id, file.getName(), file.getPath(), file.getRegistererId(), file.getContentType(),
                         file.getSize(), file.getExpirationDate());
         file.setID(id);
+    }
+
+    /**
+     * Updates all fields from <var>file</var> in the database.
+     */
+    public void updateFile(final FileDTO file) throws DataAccessException
+    {
+        assert file != null;
+        assert file.getID() != null : "File needs an ID, otherwise it can't be updated";
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+
+        template.update(
+                        "update files set name = ?, path = ?, expiration_timestamp = ?, user_id = ?, content_type = ?,"
+                                + "size = ? where id = ?", file.getName(), file.getPath(),
+                        file.getExpirationDate(), file.getRegistererId(), file.getContentType(), file.getSize(), file.getID());
     }
 
     public boolean deleteFile(final long id) throws DataAccessException

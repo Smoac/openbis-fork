@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -33,6 +34,9 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  * 
  * @author Izabela Adamczyk
  */
+
+// TODO 2008-02-08, Basil Neff: Add dependencies of the test and set the transaction complete (setComplete()) at the end of the test,
+// otherwise the state of the DB is always roled back after the test and you have to create new Files. This is how it is done in UserDAOTest.
 @Test(groups =
     { "db", "file" })
 public final class FileDAOTest extends AbstractDAOTest
@@ -136,14 +140,42 @@ public final class FileDAOTest extends AbstractDAOTest
         files = fileDAO.listFiles();
         assertEquals(1, files.size());
         final FileDTO file = files.get(0);
-        assertEquals(sampleFile.getID(), file.getID());
-        assertEquals(sampleFile.getName(), file.getName());
-        assertEquals(sampleFile.getPath(), file.getPath());
-        assertEquals(sampleFile.getRegistererId(), file.getRegistererId());
-        assertNotNull(file.getRegistrationDate());
-        assertEquals(sampleFile.getExpirationDate(), file.getExpirationDate());
+        assertEqual(sampleFile, file);
+    }
+    
+    @Transactional
+    @Test(dependsOnMethods = { "testTryGetFile" })
+    public final void testUpdateFile(){
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO sampleFile = createSampleFile();
+        fileDAO.createFile(sampleFile);
+        
+        assertNotNull(sampleFile.getID());
+        assertEquals(1, fileDAO.listFiles().size());
+        
+        Date newExpirationDate = DateUtils.addMinutes(new Date(), 42);
+        String newName = "AppendNewName_"+sampleFile.getName();
+        sampleFile.setExpirationDate(newExpirationDate);
+        sampleFile.setName(newName);
+        fileDAO.updateFile(sampleFile);
+        
+        assertEquals(1, fileDAO.listFiles().size());
+        FileDTO file = fileDAO.listFiles().get(0);
+        
+        assertEqual(sampleFile, file);
     }
 
+    /** Test if the file is equal.*/
+    private void assertEqual(final FileDTO expected, FileDTO actual)
+    {
+        assertEquals(expected.getID(), actual.getID());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getPath(), actual.getPath());
+        assertEquals(expected.getRegistererId(), actual.getRegistererId());
+        assertNotNull(actual.getRegistrationDate());
+        assertEquals(expected.getExpirationDate(), actual.getExpirationDate());
+    }
+    
     @Transactional
     @Test
     public final void testDeleteFile()
