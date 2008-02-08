@@ -291,7 +291,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
         IMailClient mailClient = businessContext.getMailClient();
-        for (String email : emailsOfUsers)
+        for (final String email : emailsOfUsers)
         {
             Set<UserDTO> users = existingUsers.tryGet(email);
             String password = null;
@@ -305,32 +305,47 @@ final class FileManager extends AbstractManager implements IFileManager
                     users = Collections.singleton(user);
                 } else
                 {
+                    // Email address is invalid because user does not exist and requestUser is not allowed to create new
+                    // users.
                     invalidEmailAdresses.add(email);
                 }
             }
             if (users != null)
             {
-                for (UserDTO user : users)
+                // Implementation note: we do the sharing link creation and the email sending in two loops in order to
+                // ensure that all database links are created before any email is sent (note that this method is
+                // @Transactional).
+                for (final UserDTO user : users)
                 {
                     for (FileDTO file : files)
                     {
                         fileDAO.createSharingLink(file.getID(), user.getID());
                     }
-                    continue;
                 }
-                EMailBuilderForUploadedFiles builder = new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
-                builder.setURL(url);
-                builder.setPassword(password);
-                // FIXME 2008-02-08 Basil Neff This is wrong, should be the user code and not Email! I will have a look for it.
-                builder.setUserCode(email);
-                for (final FileDTO fileDTO : files)
+                for (final UserDTO user : users)
                 {
-                    builder.addFile(fileDTO);
+                    final EMailBuilderForUploadedFiles builder =
+                            new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
+                    builder.setURL(url);
+                    builder.setPassword(password);
+                    builder.setUserCode(user.getUserCode());
+                    for (final FileDTO fileDTO : files)
+                    {
+                        builder.addFile(fileDTO);
+                    }
+                    if (StringUtils.isNotBlank(comment))
+                    {
+                        builder.setComment(comment);
+                    }
+                    try
+                    {
+                        builder.sendEMail();
+                    } catch (EnvironmentFailureException ex)
+                    {
+                        // Email address is invalid because we can't send emails to it.
+                        invalidEmailAdresses.add(email);
+                    }
                 }
-                if(comment != null && comment.equals("") == false){
-                    builder.setComment(comment);
-                }
-                builder.sendEMail();
             }
         }
         return invalidEmailAdresses;
@@ -382,15 +397,18 @@ final class FileManager extends AbstractManager implements IFileManager
 
     }
 
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate){
-        
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate)
+    {
+
         FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-        if(newExpirationDate == null){
+        if (newExpirationDate == null)
+        {
             file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
-        }else{
+        } else
+        {
             file.setExpirationDate(newExpirationDate);
         }
-        
+
         daoFactory.getFileDAO().updateFile(file);
     }
 }
