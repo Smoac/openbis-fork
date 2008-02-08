@@ -43,7 +43,7 @@ public final class Constants
     public static final String FILE_ID_PARAMETER = "fileId";
 
     /** The HTTP URL parameter used to specify the email. */
-    public static final String EMAIL_PARAMETER = "email";
+    public static final String USERCODE_PARAMETER = "user";
 
     /** Name of the <code>HttpServlet</code> extension to upload a file. */
     public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";

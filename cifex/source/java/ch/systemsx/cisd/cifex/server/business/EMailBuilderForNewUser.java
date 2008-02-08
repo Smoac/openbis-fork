@@ -59,7 +59,7 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         builder.append("\n\n-------------------------------------------------\n");
         builder.append("Here\'s how to login:\n");
         builder.append("-------------------------------------------------\n");
-        builder.append("\nVisit:\t\t").append(url).append("?email=").append(newUser.getUserCode());
+        builder.append("\nVisit:\t\t").append(url).append("?user=").append(newUser.getUserCode());
         builder.append("\nUser:\t").append(newUser.getUserCode());
         builder.append("\nPassword:\t").append(password);
         if (newUser.isAdmin() == false && newUser.isPermanent() == false)

@@ -47,7 +47,7 @@ public class LoginWidget extends Form
 
     private final ViewContext context;
 
-    private TextField emailField;
+    private TextField userField;
 
     private TextField passwordField;
 
@@ -64,8 +64,8 @@ public class LoginWidget extends Form
     {
         final IMessageResources messageResources = context.getMessageResources();
         fieldset(messageResources.getLoginLegend());
-        emailField = createEmailField();
-        add(emailField);
+        userField = createUserField();
+        add(userField);
         passwordField = createPasswordField();
         add(passwordField);
 
@@ -122,7 +122,7 @@ public class LoginWidget extends Form
         return new TextField(fieldConfig);
     }
 
-    private final TextField createEmailField()
+    private final TextField createUserField()
     {
         final TextFieldConfig fieldConfig = new TextFieldConfig();
         fieldConfig.setFieldLabel(context.getMessageResources().getLoginUserLabel());
@@ -142,10 +142,10 @@ public class LoginWidget extends Form
     /** Submits given <var>loginForm</var>. */
     protected void submitForm()
     {
-        if (emailField.validate() & passwordField.validate())
+        if (userField.validate() & passwordField.validate())
         {
             button.disable();
-            final String username = emailField.getText();
+            final String username = userField.getText();
             final String password = passwordField.getText();
             ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.tryToLogin(username, password, new LoginAsyncCallBack());
@@ -164,9 +164,9 @@ public class LoginWidget extends Form
         context.getPageController().createMainPage();
     }
 
-    public final TextField getEmailField()
+    public final TextField getUserField()
     {
-        return emailField;
+        return userField;
     }
 
     public final TextField getPasswordField()

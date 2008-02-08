@@ -67,10 +67,10 @@ final class LoginPage extends VerticalPanel
     {
         final LoginWidget loginWidget = new LoginWidget(viewContext);
         final Map urlParams = viewContext.getModel().getUrlParams();
-        final String email = (String) urlParams.get(Constants.EMAIL_PARAMETER);
-        if (StringUtils.isBlank(email) == false)
+        final String userCode = (String) urlParams.get(Constants.USERCODE_PARAMETER);
+        if (StringUtils.isBlank(userCode) == false)
         {
-            loginWidget.getEmailField().setValue(email);
+            loginWidget.getUserField().setValue(userCode);
         }
         return loginWidget;
     }
