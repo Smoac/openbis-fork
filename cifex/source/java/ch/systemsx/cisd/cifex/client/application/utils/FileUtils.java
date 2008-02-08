@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import com.google.gwt.i18n.client.NumberFormat;
+
 /**
  * General file manipulation utilities.
  * 
@@ -44,6 +46,8 @@ public final class FileUtils
      */
     public static final long ONE_GB = ONE_KB * ONE_MB;
 
+    private final static NumberFormat FORMATTER = NumberFormat.getFormat("0.00");
+
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * 
@@ -51,6 +55,36 @@ public final class FileUtils
      * @return a human-readable display value (includes units)
      */
     public final static String byteCountToDisplaySize(final long size)
+    {
+        final String displaySize;
+
+        double result = (double) size / ONE_GB;
+        if (result > 1)
+        {
+            displaySize = FORMATTER.format(result) + " GB";
+        } else if ((result = (double) size / ONE_MB) > 1)
+        {
+            displaySize = FORMATTER.format(result) + " MB";
+        } else if ((result = (double) size / ONE_KB) > 1)
+        {
+            displaySize = FORMATTER.format(result) + " KB";
+        } else
+        {
+            displaySize = FORMATTER.format(size) + " bytes";
+        }
+        return displaySize;
+    }
+
+    /**
+     * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
+     * <p>
+     * This method does not use a {@link NumberFormat} and is not as precise as {@link #byteCountToDisplaySize(long)}.
+     * </p>
+     * 
+     * @param size the number of bytes
+     * @return a human-readable display value (includes units)
+     */
+    public final static String fastByteCountToDisplaySize(final long size)
     {
         final String displaySize;
 
@@ -69,5 +103,4 @@ public final class FileUtils
         }
         return displaySize;
     }
-
 }
