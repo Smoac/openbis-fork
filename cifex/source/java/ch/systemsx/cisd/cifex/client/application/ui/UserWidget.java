@@ -26,6 +26,8 @@ import com.gwtext.client.widgets.form.ColumnConfig;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
 import com.gwtext.client.widgets.form.Radio;
+import com.gwtext.client.widgets.form.TextArea;
+import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.VType;
@@ -76,6 +78,9 @@ public abstract class UserWidget extends Form
     /* Protected, that the subclasses can get the value. */
     protected Radio temporaryRadioButton;
 
+    /* Protected, that the subclasses can get the value. */
+    protected TextArea commentArea;
+
     protected final boolean allowPermanentUsers;
 
     public UserWidget(final ViewContext context, final boolean allowPermanentUsers)
@@ -117,6 +122,12 @@ public abstract class UserWidget extends Form
         usernameField = createUsernameField();
         add(usernameField);
 
+        // only add it, if a new user is created, not when editing a user.
+        if(editUser == null){
+            commentArea = createCommentArea();
+            add(commentArea);            
+        }
+        
         end();
 
         ColumnConfig rightColumn = new ColumnConfig();
@@ -255,6 +266,18 @@ public abstract class UserWidget extends Form
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setMinLength(4);
         return new TextField(fieldConfig);
+    }
+    
+    private final TextArea createCommentArea(){
+        final TextAreaConfig textAreaConfig = new TextAreaConfig();
+        textAreaConfig.setAllowBlank(true);
+        textAreaConfig.setFieldLabel(messageResources.getCommentLabel());
+        textAreaConfig.setName("user-comment");
+        textAreaConfig.setGrow(true);
+        textAreaConfig.setPreventScrollbars(true);
+        textAreaConfig.setWidth(FIELD_WIDTH);
+        return new TextArea(textAreaConfig);
+        
     }
 
     protected Radio createAdminRadioButton()

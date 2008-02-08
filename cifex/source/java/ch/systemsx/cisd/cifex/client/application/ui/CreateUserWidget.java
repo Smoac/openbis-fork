@@ -39,7 +39,8 @@ public class CreateUserWidget extends UserWidget
         // Check if passwords are equal.
         if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
         {
-            MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
+            MessageBox
+                    .alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
             return;
         }
 
@@ -50,6 +51,11 @@ public class CreateUserWidget extends UserWidget
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
+            String comment = null;
+            if (commentArea != null)
+            {
+                comment = commentArea.getText();
+            }
             if (allowPermanentUsers)
             {
                 if (adminRadioButton.getValue())
@@ -74,7 +80,8 @@ public class CreateUserWidget extends UserWidget
             String password = passwordField.getText();
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToCreateUser(user, password, context.getModel().getUser(), null, new CreateUserAsyncCallBack());
+            cifexService.tryToCreateUser(user, password, context.getModel().getUser(), comment,
+                    new CreateUserAsyncCallBack());
         }
     }
 
@@ -109,9 +116,11 @@ public class CreateUserWidget extends UserWidget
 
     String getSubmitButtonLabel()
     {
-        if(context.getModel().getUser().isAdmin()){
-            return messageResources.getAdminCreateUserLabel();            
-        }else{
+        if (context.getModel().getUser().isAdmin())
+        {
+            return messageResources.getAdminCreateUserLabel();
+        } else
+        {
             return messageResources.getCreateUserLabel();
         }
     }
