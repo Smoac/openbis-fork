@@ -67,7 +67,7 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
-            Collection<FileDTO> files);
+            Collection<FileDTO> files, String comment);
 
     /** Lists files for given <var>userId</var>. */
     public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;

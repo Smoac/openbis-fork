@@ -73,7 +73,7 @@ public class FileUploadWidget extends Form
     private final static FormConfig createFormConfig()
     {
         final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(700);
+        formConfig.setWidth(1050);
         formConfig.setLabelAlign(Position.LEFT);
         formConfig.setButtonAlign(Position.RIGHT);
         formConfig.setLabelWidth(LABEL_WIDTH);
@@ -94,10 +94,18 @@ public class FileUploadWidget extends Form
         end();
         end();
 
-        column(createRightColumnConfig());
+        
+        column(createMiddleColumnCongig());
         fieldset(context.getMessageResources().getRecipientLegend());
-        add(new TextArea(createTextAreaConfig()));
+        add(new TextArea(createEmailAreaConfig()));
+        end();
+        end();
 
+        column(createRightColumnConfig());
+        fieldset(context.getMessageResources().getCommentLabel());
+        add(new TextArea(createCommentAreaConfig()));
+
+        
         button = addButton(context.getMessageResources().getFileUploadButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
@@ -123,6 +131,15 @@ public class FileUploadWidget extends Form
         columnConfig.setLabelWidth(LABEL_WIDTH);
         return columnConfig;
     }
+    
+    
+    private final static ColumnConfig createMiddleColumnCongig(){
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setWidth(COLUMN_WIDTH);
+        columnConfig.setLabelWidth(LABEL_WIDTH);
+        columnConfig.setStyle("margin-left:10px;");
+        return columnConfig;
+    }
 
     private final static ColumnConfig createRightColumnConfig()
     {
@@ -133,7 +150,7 @@ public class FileUploadWidget extends Form
         return columnConfig;
     }
 
-    private final TextAreaConfig createTextAreaConfig()
+    private final TextAreaConfig createEmailAreaConfig()
     {
         final TextAreaConfig textAreaConfig = new TextAreaConfig();
         textAreaConfig.setAllowBlank(false);
@@ -157,6 +174,19 @@ public class FileUploadWidget extends Form
             });
         textAreaConfig.setInvalidText(messageResources.getRecipientFieldInvalidText());
         return textAreaConfig;
+    }
+    
+    private final TextAreaConfig createCommentAreaConfig(){
+        final TextAreaConfig textAreaConfig = new TextAreaConfig();
+        textAreaConfig.setAllowBlank(true);
+        final IMessageResources messageResources = context.getMessageResources();
+        textAreaConfig.setFieldLabel(messageResources.getCommentLabel());
+        textAreaConfig.setName("upload-comment");
+        textAreaConfig.setGrow(true);
+        textAreaConfig.setPreventScrollbars(true);
+        textAreaConfig.setWidth(FIELD_WIDTH);
+        return textAreaConfig;
+        
     }
 
     private final TextFieldConfig createFileFieldConfig(final int index)

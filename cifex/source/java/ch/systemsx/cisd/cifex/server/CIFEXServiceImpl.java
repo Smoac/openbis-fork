@@ -311,7 +311,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     // TODO 2008-02-06 Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
-    public void tryToCreateUser(User user, String password, User registratorOrNull) throws EnvironmentFailureException,
+    public void tryToCreateUser(User user, String password, User registratorOrNull, String comment) throws EnvironmentFailureException,
             InvalidSessionException, InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
@@ -340,6 +340,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
             EMailBuilderForNewUser builder = new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
             builder.setURL(HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest()));
             builder.setPassword(finalPassword);
+            if(comment != null && comment.equals("") == false){
+                builder.setComment(comment);
+            }
             builder.sendEMail();
         } catch (final Exception ex)
         {

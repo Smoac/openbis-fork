@@ -284,7 +284,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
-            Collection<FileDTO> files)
+            Collection<FileDTO> files, String comment)
     {
         final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
         IFileDAO fileDAO = daoFactory.getFileDAO();
@@ -321,10 +321,14 @@ final class FileManager extends AbstractManager implements IFileManager
                 EMailBuilderForUploadedFiles builder = new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
                 builder.setURL(url);
                 builder.setPassword(password);
+                // FIXME 2008-02-08 Basil Neff This is wrong, should be the user code and not Email! I will have a look for it.
                 builder.setUserCode(email);
                 for (final FileDTO fileDTO : files)
                 {
                     builder.addFile(fileDTO);
+                }
+                if(comment != null && comment.equals("") == false){
+                    builder.setComment(comment);
                 }
                 builder.sendEMail();
             }

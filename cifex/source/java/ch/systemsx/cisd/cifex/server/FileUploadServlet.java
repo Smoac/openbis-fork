@@ -65,6 +65,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     private static final long serialVersionUID = 1L;
 
     private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
+    
+    private final static String COMMENT_FIELD_NAME = "upload-comment";
 
     /**
      * The maximum allow upload size (in bytes).
@@ -145,10 +147,11 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             }
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> userEmails = new ArrayList<String>();
-            extractEmailsAndUploadFiles(request, requestUser, filenamesToUpload, files, userEmails);
+            final StringBuffer comment = new StringBuffer();
+            extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files, userEmails, comment);
             String url = HttpUtils.getBasicURL(request);
             IFileManager fileManager = domainModel.getFileManager();
-            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, userEmails, files);
+            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, userEmails, files, comment.toString());
             response.setContentType("text/plain");
             final PrintWriter writer = response.getWriter();
             writer.write(UPLOAD_FINISHED);
@@ -173,8 +176,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
-    private void extractEmailsAndUploadFiles(final HttpServletRequest request, UserDTO requestUser,
-            String[] pathnamesToUpload, List<FileDTO> files, List<String> userEmails) throws FileUploadException,
+    private void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request, UserDTO requestUser,
+            String[] pathnamesToUpload, List<FileDTO> files, List<String> userEmails, StringBuffer comment) throws FileUploadException,
             IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
@@ -235,6 +238,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                     {
                         userEmails.add(stringTokenizer.nextToken());
                     }
+                }
+                if(item.getFieldName().equals(COMMENT_FIELD_NAME)){
+                    comment.append(Streams.asString(stream));
                 }
             }
         }

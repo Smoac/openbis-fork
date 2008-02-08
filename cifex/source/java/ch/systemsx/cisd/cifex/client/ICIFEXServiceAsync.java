@@ -63,7 +63,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
      * <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull, final String comment, 
             final AsyncCallback callback);
 
     /**

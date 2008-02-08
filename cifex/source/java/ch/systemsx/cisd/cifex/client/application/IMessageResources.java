@@ -299,6 +299,13 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.label
      */
     public String getPasswordLabel();
+    
+    /**
+     * Returns label for the Comment field.
+     * 
+     * @gwt.key usercreation.comment.label
+     */
+    public String getCommentLabel();
 
     /**
      * Returns the Message for thhe alert Box, if the 2 Password did not match.

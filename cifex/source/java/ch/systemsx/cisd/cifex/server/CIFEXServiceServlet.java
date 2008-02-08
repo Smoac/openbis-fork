@@ -139,11 +139,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull)
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
-        cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull);
+        cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull, comment);
 
     }
 
