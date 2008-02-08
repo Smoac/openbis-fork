@@ -52,10 +52,10 @@ public class EMailBuilderForUploadedFilesTest
         builder.setPassword("a1234");
         builder.sendEMail();
         
-        assertEquals("[CIFEX] A file available for download from reg@r.rr", mailClient.subject);
+        assertEquals("[CIFEX] A file available for download from registrator", mailClient.subject);
         assertEquals("Hello,\n" + 
         		"\n" + 
-        		"reg@r.rr has stored a file on our server for you to download. File information appears below.\n" + 
+        		"registrator <reg@r.rr> has stored a file on our server for you to download. File information appears below.\n" + 
         		"\n" + 
         		"------------------------------------------------------------\n" + 
         		"\n" + 
@@ -65,7 +65,7 @@ public class EMailBuilderForUploadedFilesTest
         		"\n" + 
         		"A file (click to download):\n" + 
         		"\n" + 
-        		"myData.zip http://localhost/cifex/index.html?fileId=42&email=userCode\n" + 
+        		"myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + 
         		"\n" + 
         		"Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + 
         		"\n" + 
@@ -107,10 +107,10 @@ public class EMailBuilderForUploadedFilesTest
         builder.setURL("http://localhost/cifex");
         builder.sendEMail();
         
-        assertEquals("[CIFEX] Files available for download from reg@r.rr", mailClient.subject);
+        assertEquals("[CIFEX] Files available for download from registrator", mailClient.subject);
         assertEquals("Hello,\n" + 
                 "\n" + 
-                "reg@r.rr has stored files on our server for you to download. File information appears below.\n" + 
+                "registrator <reg@r.rr> has stored files on our server for you to download. File information appears below.\n" + 
                 "\n" + 
                 "------------------------------------------------------------\n" + 
                 "\n" + 
@@ -119,8 +119,8 @@ public class EMailBuilderForUploadedFilesTest
                 "\n" + 
                 "Files (click to download):\n" + 
                 "\n" + 
-                "myData.zip http://localhost/cifex/index.html?fileId=42&email=userCode\n" + 
-                "otherData.zip http://localhost/cifex/index.html?fileId=4711&email=userCode\n" + 
+                "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + 
+                "otherData.zip http://localhost/cifex/index.html?fileId=4711&user=userCode\n" + 
                 "\n" + 
                 "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + 
                 "------------------------------------------------------------\n" + 

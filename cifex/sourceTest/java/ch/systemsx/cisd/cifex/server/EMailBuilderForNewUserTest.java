@@ -48,10 +48,10 @@ public class EMailBuilderForNewUserTest
         builder.setComment("Hello new user!");
         builder.sendEMail();
         
-        assertEquals("[CIFEX] reg@r.rr has requested a administrative account for you", mailClient.subject);
+        assertEquals("[CIFEX] registrator has requested a administrative account for you", mailClient.subject);
         assertEquals("Hello,\n" + 
                 "\n" + 
-                "reg@r.rr has requested a administrative account on our server for you.\n" + 
+                "registrator <reg@r.rr> has requested a administrative account on our server for you.\n" + 
                 "\n" + 
                 "------------------------------------------------------------\n" + 
                 "Information about the person who requested the account:\n" + 
@@ -65,8 +65,8 @@ public class EMailBuilderForNewUserTest
                 "Here's how to login:\n" + 
                 "-------------------------------------------------\n" + 
                 "\n" + 
-                "Visit:\t\thttp://localhost/cifex?email=a\n" + 
-                "Username:\ta\n" + 
+                "Visit:\t\thttp://localhost/cifex?user=a\n" + 
+                "User:\ta\n" + 
                 "Password:\ta1234\n" + 
                 "\n" + 
                 "--------------------------------------------------\n" + 
@@ -93,10 +93,10 @@ public class EMailBuilderForNewUserTest
         builder.setPassword("p1234");
         builder.sendEMail();
         
-        assertEquals("[CIFEX] reg@r.rr has requested a permanent account for you", mailClient.subject);
+        assertEquals("[CIFEX] registrator has requested a permanent account for you", mailClient.subject);
         assertEquals("Hello,\n" + 
                 "\n" + 
-                "reg@r.rr has requested a permanent account on our server for you.\n" + 
+                "registrator <reg@r.rr> has requested a permanent account on our server for you.\n" + 
                 "\n" + 
                 "------------------------------------------------------------\n" + 
                 "Information about the person who requested the account:\n" + 
@@ -109,8 +109,8 @@ public class EMailBuilderForNewUserTest
                 "Here's how to login:\n" + 
                 "-------------------------------------------------\n" + 
                 "\n" + 
-                "Visit:\t\thttp://localhost/cifex?email=p\n" + 
-                "Username:\tp\n" + 
+                "Visit:\t\thttp://localhost/cifex?user=p\n" + 
+                "User:\tp\n" + 
                 "Password:\tp1234\n" + 
                 "\n" + 
                 "--------------------------------------------------\n" + 
@@ -137,10 +137,10 @@ public class EMailBuilderForNewUserTest
         builder.setPassword("t1234");
         builder.sendEMail();
         
-        assertEquals("[CIFEX] reg@r.rr has requested a temporary account for you", mailClient.subject);
+        assertEquals("[CIFEX] registrator has requested a temporary account for you", mailClient.subject);
         assertEquals("Hello,\n" + 
                 "\n" + 
-                "reg@r.rr has requested a temporary account on our server for you.\n" + 
+                "registrator <reg@r.rr> has requested a temporary account on our server for you.\n" + 
                 "\n" + 
                 "------------------------------------------------------------\n" + 
                 "Information about the person who requested the account:\n" + 
@@ -153,8 +153,8 @@ public class EMailBuilderForNewUserTest
                 "Here's how to login:\n" + 
                 "-------------------------------------------------\n" + 
                 "\n" + 
-                "Visit:\t\thttp://localhost/cifex?email=t\n" + 
-                "Username:\tt\n" + 
+                "Visit:\t\thttp://localhost/cifex?user=t\n" + 
+                "User:\tt\n" + 
                 "Password:\tt1234\n" + 
                 "\n" + 
                 "This login account expires on 15-Jan-1970 at 07:56:07. Please access your account now!\n" + 
