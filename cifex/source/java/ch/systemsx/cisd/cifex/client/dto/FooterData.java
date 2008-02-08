@@ -23,30 +23,30 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Izabela Adamczyk
  */
-public class FooterData implements IsSerializable
+public final class FooterData implements IsSerializable
 {
-    String administratorEmail;
+    private String administratorEmail;
 
-    String systemVesrion;
+    private String systemVersion;
 
-    public String getAdministratorEmail()
+    public final String getAdministratorEmail()
     {
         return administratorEmail;
     }
 
-    public void setAdministratorEmail(String administratorEmail)
+    public final void setAdministratorEmail(final String administratorEmail)
     {
         this.administratorEmail = administratorEmail;
     }
 
-    public String getSystemVesrion()
+    public final String getSystemVersion()
     {
-        return systemVesrion;
+        return systemVersion;
     }
 
-    public void setSystemVersion(String systemVesrion)
+    public final void setSystemVersion(final String systemVersion)
     {
-        this.systemVesrion = systemVesrion;
+        this.systemVersion = systemVersion;
     }
 
 }

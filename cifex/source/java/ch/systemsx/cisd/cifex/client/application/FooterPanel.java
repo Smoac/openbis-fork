@@ -53,7 +53,7 @@ public class FooterPanel extends HorizontalPanel
             IMessageResources mr = context.getMessageResources();
             String poweredBy = mr.getFooterPoweredBy();
             String contactAdmin = mr.getFooterContactAdministrator(footerData.getAdministratorEmail());
-            String version = "(Version: " + footerData.getSystemVesrion() + ")";
+            String version = "(Version: " + footerData.getSystemVersion() + ")";
             String footerText = getFooterText(poweredBy, version, contactAdmin, " - ", "cifex-light-div");
             HTML html = new HTML(footerText);
             panel.setWidth("100%");
