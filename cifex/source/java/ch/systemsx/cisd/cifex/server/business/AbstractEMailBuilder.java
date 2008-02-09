@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -23,7 +26,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
  * Abstract super class of all CIFEX e-mail builder.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 abstract class AbstractEMailBuilder
@@ -34,13 +37,17 @@ abstract class AbstractEMailBuilder
                                        + "ETH Zurich";
 
     protected static final String DATE_TEMPLATE = "on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}";
-    
+
     protected final UserDTO registrator;
+
     protected String comment;
+
     protected String url;
 
     private String fullName;
+
     private final IMailClient mailClient;
+
     private final String email;
 
     protected String password;
@@ -50,12 +57,12 @@ abstract class AbstractEMailBuilder
         assert mailClient != null : "Unspecified mail client.";
         assert registrator != null : "Unspecified registrator.";
         assert email != null : "Unspecified email.";
-        
+
         this.mailClient = mailClient;
         this.registrator = registrator;
         this.email = email;
     }
-    
+
     /**
      * Sets the base URL used to creating links in the e-mail. Has to be called before e-mail will be send.
      */
@@ -63,7 +70,7 @@ abstract class AbstractEMailBuilder
     {
         this.url = url;
     }
-    
+
     /**
      * Sets an optional comment.
      */
@@ -79,7 +86,7 @@ abstract class AbstractEMailBuilder
     {
         this.password = password;
     }
-    
+
     /**
      * Sets the full name, to be used in the greeting (if available).
      */
@@ -96,7 +103,7 @@ abstract class AbstractEMailBuilder
         assert url != null : "Missing URL.";
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
     }
-    
+
     protected final void addGreeting(StringBuilder builder)
     {
         builder.append("Hello");
@@ -124,14 +131,25 @@ abstract class AbstractEMailBuilder
         final String registratorFullName = registrator.getUserFullName();
         return StringUtils.isBlank(registratorFullName) ? registrator.getUserCode() : registratorFullName;
     }
-    
+
     protected final String getLongRegistratorDescription()
     {
         return getShortRegistratorDescription() + " <" + registrator.getEmail() + ">";
     }
-    
+
+    protected final String encodeURLParam(final String value)
+    {
+        try
+        {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (final UnsupportedEncodingException ex)
+        {
+            return value;
+        }
+    }
+
     protected abstract String createSubject();
-    
+
     protected abstract String createContent();
 
 }

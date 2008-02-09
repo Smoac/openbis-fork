@@ -84,7 +84,7 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         {
             builder.append(file.getName()).append(" ");
             builder.append(url).append("/index.html?fileId=").append(file.getID());
-            builder.append("&user=").append(userCode);
+            builder.append("&user=").append(encodeURLParam(userCode));
             builder.append('\n');
             Date expirationDate = file.getExpirationDate();
             if (expirationDate.getTime() < minExpirationDate.getTime())

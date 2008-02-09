@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.text.MessageFormat;
 import java.util.Date;
 
-
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -34,7 +33,7 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
             new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE + ". Please access your account now!");
 
     private final UserDTO newUser;
-    
+
     /**
      * Creates an instance for the specified mail client, registrator of the new user, and the new user.
      */
@@ -49,27 +48,28 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     protected String createContent()
     {
         assert password != null : "Missing password.";
-        
+
         StringBuilder builder = new StringBuilder();
         addGreeting(builder);
         builder.append(getLongRegistratorDescription());
         builder.append(" has requested a ");
         builder.append(createTypeAdjective());
         builder.append(" account on our server for you.\n\n");
-        builder.append("------------------------------------------------------------\n");  
-        builder.append("Information about the person who requested the account:\n");  
+        builder.append("------------------------------------------------------------\n");
+        builder.append("Information about the person who requested the account:\n");
         addRegistratorDetails(builder);
         builder.append("\n\n-------------------------------------------------\n");
         builder.append("Here\'s how to login:\n");
         builder.append("-------------------------------------------------\n");
-        builder.append("\nVisit:\t\t").append(url).append("?user=").append(newUser.getUserCode());
+        builder.append("\nVisit:\t\t").append(url).append("?user=").append(encodeURLParam(newUser.getUserCode()));
         builder.append("\nUser:\t").append(newUser.getUserCode());
         builder.append("\nPassword:\t").append(password);
         if (newUser.isAdmin() == false && newUser.isPermanent() == false)
         {
             Date expirationDate = newUser.getExpirationDate();
             System.out.println(expirationDate);
-            builder.append(EXPIRATION_TEMPLATE.format(new Object[] {expirationDate}));
+            builder.append(EXPIRATION_TEMPLATE.format(new Object[]
+                { expirationDate }));
         }
         return builder.toString();
     }
@@ -84,5 +84,5 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     {
         return newUser.isAdmin() ? "administrative" : (newUser.isPermanent() ? "permanent" : "temporary");
     }
-    
+
 }

@@ -61,7 +61,7 @@ public final class GWTUtils
         {
             final String[] substrRay = ray[i].split(KEY_VALUE_SEPARATOR);
             assert substrRay.length == 2 : "Only two items should be found here.";
-            map.put(substrRay[0], URL.decode(substrRay[1]));
+            map.put(substrRay[0], URL.decodeComponent(substrRay[1]));
         }
         return map;
     }
