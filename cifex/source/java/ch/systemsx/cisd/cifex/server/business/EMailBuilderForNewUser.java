@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.text.MessageFormat;
 import java.util.Date;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
@@ -61,7 +62,8 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         builder.append("\n\n-------------------------------------------------\n");
         builder.append("Here\'s how to login:\n");
         builder.append("-------------------------------------------------\n");
-        builder.append("\nVisit:\t\t").append(url).append("?user=").append(encodeURLParam(newUser.getUserCode()));
+        builder.append("\nVisit:\t\t").append(url);
+        appendURLParam(builder, Constants.USERCODE_PARAMETER, newUser.getUserCode(), true);
         builder.append("\nUser:\t").append(newUser.getUserCode());
         builder.append("\nPassword:\t").append(password);
         if (newUser.isAdmin() == false && newUser.isPermanent() == false)

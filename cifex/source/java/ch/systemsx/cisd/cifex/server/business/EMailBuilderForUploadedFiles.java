@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -83,8 +84,9 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         for (FileDTO file : files)
         {
             builder.append(file.getName()).append(" ");
-            builder.append(url).append("/index.html?fileId=").append(file.getID());
-            builder.append("&user=").append(encodeURLParam(userCode));
+            builder.append(url).append("/index.html");
+            appendURLParam(builder, Constants.FILE_ID_PARAMETER, file.getID(), true);
+            appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, false);
             builder.append('\n');
             Date expirationDate = file.getExpirationDate();
             if (expirationDate.getTime() < minExpirationDate.getTime())

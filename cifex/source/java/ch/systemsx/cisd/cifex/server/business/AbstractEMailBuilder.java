@@ -31,10 +31,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  */
 abstract class AbstractEMailBuilder
 {
-    private static final String FOOTER = "\n\n--------------------------------------------------\n" 
-                                       + "CIFEX - CISD File EXchanger\n"
-                                       + "Center for Information Sciences and Databases\n" 
-                                       + "ETH Zurich";
+    private static final String FOOTER =
+            "\n\n--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
+                    + "Center for Information Sciences and Databases\n" + "ETH Zurich";
 
     protected static final String DATE_TEMPLATE = "on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}";
 
@@ -61,6 +60,17 @@ abstract class AbstractEMailBuilder
         this.mailClient = mailClient;
         this.registrator = registrator;
         this.email = email;
+    }
+
+    private final static String encodeURLParam(final String value)
+    {
+        try
+        {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (final UnsupportedEncodingException ex)
+        {
+            return value;
+        }
     }
 
     /**
@@ -137,15 +147,20 @@ abstract class AbstractEMailBuilder
         return getShortRegistratorDescription() + " <" + registrator.getEmail() + ">";
     }
 
-    protected final String encodeURLParam(final String value)
+    protected final StringBuilder appendURLParam(final StringBuilder builder, final String param, final Object value,
+            final boolean firstParam)
     {
-        try
+        assert param != null : "Undefined URL parameter";
+        assert value != null : "Undefined URL parameter value";
+        if (firstParam)
         {
-            return URLEncoder.encode(value, "UTF-8");
-        } catch (final UnsupportedEncodingException ex)
+            builder.append("?");
+        } else
         {
-            return value;
+            builder.append("&");
         }
+        builder.append(param).append("=").append(encodeURLParam(value.toString()));
+        return builder;
     }
 
     protected abstract String createSubject();
