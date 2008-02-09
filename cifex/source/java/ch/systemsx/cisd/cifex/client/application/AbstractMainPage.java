@@ -32,6 +32,7 @@ import com.gwtext.client.widgets.layout.ContentPanel;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
+import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -141,7 +142,7 @@ abstract class AbstractMainPage extends BorderLayout
         } else
         {
             buffer.append("temporary account: expiration date: ").append(
-                    Constants.defaultDateTimeFormat.format(user.getExpirationDate()));
+                    DateTimeUtils.formatDate(user.getExpirationDate()));
         }
         buffer.append("&gt;</i>");
         return new ToolbarTextItem(buffer.toString());

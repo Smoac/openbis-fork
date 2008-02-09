@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 
 /**
  * A <code>Renderer</code> implementation suitable for date.
@@ -51,6 +52,6 @@ public final class DateRenderer implements Renderer
         {
             return Constants.TABLE_NULL_VALUE;
         }
-        return Constants.defaultDateTimeFormat.format((Date) value);
+        return DateTimeUtils.formatDate((Date) value);
     }
 }

@@ -22,8 +22,8 @@ import java.util.List;
 import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -107,8 +107,7 @@ public class UserGridModel extends AbstractDataGridModel
             {
                 stateField +=
                         messageResources.getTemporaryRoleName()
-                                + " User expires on ".concat(Constants.defaultDateTimeFormat.format(user
-                                        .getExpirationDate()));
+                                + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
             }
             String actionLabel =
                     "<a href=\"#\" class=\"edit\" id=\"edit\">" + messageResources.getActionEditLabel()
