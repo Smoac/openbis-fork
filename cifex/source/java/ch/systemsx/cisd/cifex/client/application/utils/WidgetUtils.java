@@ -22,20 +22,20 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 
 /**
- * Usefule utility function concerning widgets.
- *
+ * Useful utility functions concerning widgets.
+ * 
  * @author Franz-Josef Elmer
  */
-public class WidgetUtils
+public final class WidgetUtils
 {
     /**
      * Shows the specified method.
      * 
      * @param messageResources Message resources used for getting message box title.
      */
-    public static void showMessage(Message message, IMessageResources messageResources)
+    public final static void showMessage(final Message message, final IMessageResources messageResources)
     {
-        String type = message.getType();
+        final String type = message.getType();
         String title;
         if (Message.INFO.equals(type))
         {
@@ -49,9 +49,9 @@ public class WidgetUtils
         }
         MessageBox.alert(title, message.getMessageText());
     }
-    
+
     private WidgetUtils()
     {
     }
-    
+
 }
