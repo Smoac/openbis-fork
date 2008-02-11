@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.server;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -467,9 +467,7 @@ public class CIFEXServiceImplTest
                             transferredUserDTO.setAdmin(false);
                         }
                         one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME, transferredUserDTO);
-                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_QUEUE)),
-                                with(any(LinkedBlockingQueue.class)));
-                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_MSG_QUEUE)),
+                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE)),
                                 with(any(LinkedBlockingQueue.class)));
                         one(httpSession).getId();
                         will(returnValue(SESSION_TOKEN_EXAMPLE));

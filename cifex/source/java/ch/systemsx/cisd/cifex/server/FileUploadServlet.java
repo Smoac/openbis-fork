@@ -18,12 +18,10 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -65,7 +64,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     private static final long serialVersionUID = 1L;
 
     private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
-    
+
     private final static String COMMENT_FIELD_NAME = "upload-comment";
 
     /**
@@ -113,17 +112,17 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error(msg);
             throw new UserFailureException(msg);
         }
-        final BlockingQueue<Message> uploadMsgQueue =
-                (BlockingQueue<Message>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_MSG_QUEUE);
+        final BlockingQueue<FileUploadFeedback> uploadMsgQueue =
+                (BlockingQueue<FileUploadFeedback>) request.getSession().getAttribute(
+                        CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
         try
         {
-            final BlockingQueue<String[]> uploadQueue =
-                    (BlockingQueue<String[]>) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_QUEUE);
-            final String[] filenamesToUpload = uploadQueue.poll(1, TimeUnit.SECONDS);
+            final String[] filenamesToUpload =
+                    (String[]) request.getSession().getAttribute(CIFEXServiceImpl.FILES_TO_UPLOAD);
             if (filenamesToUpload == null)
             {
                 final String msg =
-                        String.format("Protocol error : no filenames registered for request '%s'.", request
+                        String.format("Protocol error: no filenames registered for request '%s'.", request
                                 .getRequestURI());
                 operationLog.warn(msg);
                 throw new UserFailureException(msg);
@@ -149,48 +148,51 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final List<String> userEmails = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
             extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files, userEmails, comment);
-            String url = HttpUtils.getBasicURL(request);
-            IFileManager fileManager = domainModel.getFileManager();
-            final List<String> invalidEmailAddresses = fileManager.shareFilesWith(url, requestUser, userEmails, files, comment.toString());
-            response.setContentType("text/plain");
-            final PrintWriter writer = response.getWriter();
-            writer.write(UPLOAD_FINISHED);
-            writer.flush();
-            writer.close();
+            final String url = HttpUtils.getBasicURL(request);
+            final IFileManager fileManager = domainModel.getFileManager();
+            final List<String> invalidEmailAddresses =
+                    fileManager.shareFilesWith(url, requestUser, userEmails, files, comment.toString());
             if (invalidEmailAddresses.isEmpty() == false)
             {
                 final String msg =
-                    "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
-                uploadMsgQueue.add(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
+                        "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
+                uploadMsgQueue.clear();
+                final FileUploadFeedback feedback = new FileUploadFeedback();
+                feedback.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
+                uploadMsgQueue.add(feedback);
             } else
             {
-                uploadMsgQueue.add(new Message(Message.INFO, UPLOAD_FINISHED));
+                uploadMsgQueue.clear();
+                final FileUploadFeedback feedback = new FileUploadFeedback();
+                feedback.setTerminated(true);
+                uploadMsgQueue.add(feedback);
             }
 
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
+            uploadMsgQueue.clear();
             final String msg = getErrorMessage(ex);
-            sendErrorMessage(response, msg);
-            uploadMsgQueue.add(new Message(Message.ERROR, msg));
+            final FileUploadFeedback feedback = new FileUploadFeedback();
+            feedback.setMessage(new Message(Message.ERROR, msg));
+            uploadMsgQueue.add(feedback);
         }
     }
 
-    private void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request, UserDTO requestUser,
-            String[] pathnamesToUpload, List<FileDTO> files, List<String> userEmails, StringBuffer comment) throws FileUploadException,
-            IOException
+    private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
+            final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
+            final List<String> userEmails, final StringBuffer comment) throws FileUploadException, IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
-        IFileManager fileManager = domainModel.getFileManager();
+        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false), pathnamesToUpload));
+        final IFileManager fileManager = domainModel.getFileManager();
         // Sets the maximum allowed size of a complete request in bytes.
         upload.setSizeMax(maxUploadSizeInBytes);
         final FileItemIterator iter = upload.getItemIterator(request);
-        int fileIndex = 0;
-        while (iter.hasNext())
+        for (int fileIndex = 0; iter.hasNext(); fileIndex++)
         {
             final String pathnameToUpload =
                     (fileIndex < pathnamesToUpload.length) ? pathnamesToUpload[fileIndex] : null;
-            ++fileIndex;
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
             final FileItemStream item = iter.next();
             final InputStream stream = item.openStream();
@@ -239,7 +241,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                         userEmails.add(stringTokenizer.nextToken());
                     }
                 }
-                if(item.getFieldName().equals(COMMENT_FIELD_NAME)){
+                if (item.getFieldName().equals(COMMENT_FIELD_NAME))
+                {
                     comment.append(Streams.asString(stream));
                 }
             }

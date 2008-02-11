@@ -31,6 +31,7 @@ public interface IMessageResources extends Messages
      * @gwt.key action.delete.label
      */
     public String getActionDeleteLabel();
+
     /**
      * Returns the label for the renew action.
      * 
@@ -175,6 +176,20 @@ public interface IMessageResources extends Messages
     public String getFileUploadButtonLabel();
 
     /**
+     * Returns the file upload feedback window title.
+     * 
+     * @gwt.key fileupload.feedback.title
+     */
+    public String getFileUploadFeedbackTitle();
+
+    /**
+     * Returns the file upload feedback window initializing message.
+     * 
+     * @gwt.key fileupload.feedback.message
+     */
+    public String getFileUploadFeedbackMessage();
+
+    /**
      * Returns the file upload field label.
      * 
      * @gwt.key fileupload.field.label
@@ -299,7 +314,7 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.label
      */
     public String getPasswordLabel();
-    
+
     /**
      * Returns label for the Comment field.
      * 
@@ -418,7 +433,7 @@ public interface IMessageResources extends Messages
      * @gwt.key edituser.label
      */
     public String getEditUserLabel();
-    
+
     /**
      * Returns label for the button of editing a user.
      * 
@@ -439,21 +454,21 @@ public interface IMessageResources extends Messages
      * @gwt.key edituser.failure.emptyfields
      */
     public String getUserUpdateEmptyFieldsMessage();
-    
+
     /**
      * Returns message that the renew of the expiration date was successfull.
      * 
      * @gwt.key userrenew.success.message
      */
     public String getUserRenewSuccessMessage();
-    
+
     /**
      * Returns message that a permanent user cannot renewed.
      * 
      * @gwt.key userrenew.permanentuser.message
      */
     public String getPermanentUserFailure();
-    
+
     /**
      * Returns the content the confirm MessageBox, to delete an user.
      * 
@@ -488,14 +503,13 @@ public interface IMessageResources extends Messages
      * @gwt.key userlist.fullname.label
      */
     public String getUserFullNameLabel();
-    
+
     /**
      * Returns the title of Own User Table.
      * 
      * @gwt.key userlist.ownusers.part.title
      */
     public String getOwnUserTitle();
-    
 
     /**
      * Returns the User List part title.

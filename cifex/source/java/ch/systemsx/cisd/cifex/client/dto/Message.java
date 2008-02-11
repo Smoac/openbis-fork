@@ -20,23 +20,27 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Message has a type and a message text.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Message implements IsSerializable
 {
     public static final String INFO = "INFO";
+
     public static final String WARNING = "WARNING";
+
     public static final String ERROR = "ERROR";
-    
+
     private String type; // enum would be better but not possible in GWT 1.4
+
     private String messageText;
-    
+
     public Message()
     {
+        // For serialization
     }
 
-    public Message(String type, String messageText)
+    public Message(final String type, final String messageText)
     {
         this.type = type;
         this.messageText = messageText;
@@ -46,20 +50,20 @@ public class Message implements IsSerializable
     {
         return type;
     }
-    
-    public final void setType(String type)
+
+    public final void setType(final String type)
     {
         this.type = type;
     }
-    
+
     public final String getMessageText()
     {
         return messageText;
     }
-    
-    public final void setMessageText(String messageText)
+
+    public final void setMessageText(final String messageText)
     {
         this.messageText = messageText;
     }
-    
+
 }

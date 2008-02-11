@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.http.HttpSession;
 
@@ -40,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -74,10 +75,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
      * The attribute name that holds the queue that has the names of the files that should be uploaded in the next
      * request.
      */
-    static final String UPLOAD_QUEUE = "filenames-for-upload";
+    static final String FILES_TO_UPLOAD = "filenames-for-upload";
 
-    /** The attribute name that holds the queue that has the messages of the upload. */
-    static final String UPLOAD_MSG_QUEUE = "upload-messages";
+    /** The attribute name that holds the queue that has the feedbacks of the upload. */
+    static final String UPLOAD_FEEDBACK_QUEUE = "upload-messages";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
 
@@ -141,8 +142,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
-        httpSession.setAttribute(UPLOAD_QUEUE, new LinkedBlockingQueue<String[]>());
-        httpSession.setAttribute(UPLOAD_MSG_QUEUE, new LinkedBlockingQueue<Message>());
+        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new ArrayBlockingQueue<Message>(1));
         return httpSession.getId();
     }
 
@@ -172,7 +172,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return (UserDTO) session.getAttribute(SESSION_NAME);
     }
 
-    private String describeUser(UserDTO user)
+    private String describeUser(final UserDTO user)
     {
         if (user.isAdmin())
         {
@@ -241,7 +241,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return finishLogin(userDTOOrNull);
     }
 
-    private UserDTO tryExternalAuthenticationServiceLogin(String userOrEmail, String password)
+    private UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail, final String password)
             throws UserFailureException, EnvironmentFailureException
     {
         if (hasExternalAuthenticationService())
@@ -284,7 +284,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 try
                 {
                     userManager.createUser(userDTO);
-                } catch (DataIntegrityViolationException ex)
+                } catch (final DataIntegrityViolationException ex)
                 {
                     final String msg =
                             "User '"
@@ -311,8 +311,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     // TODO 2008-02-06 Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
-    public void tryToCreateUser(User user, String password, User registratorOrNull, String comment) throws EnvironmentFailureException,
-            InvalidSessionException, InsufficientPrivilegesException, UserFailureException
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+            final String comment) throws EnvironmentFailureException, InvalidSessionException,
+            InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
         final IUserManager userManager = domainModel.getUserManager();
@@ -325,7 +326,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         try
         {
             userManager.createUser(userDTO);
-        } catch (DataIntegrityViolationException ex)
+        } catch (final DataIntegrityViolationException ex)
         {
             final String msg =
                     "User with Username '" + user.getUserCode()
@@ -336,11 +337,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         try
         {
-            IMailClient mailClient = domainModel.getMailClient();
-            EMailBuilderForNewUser builder = new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
+            final IMailClient mailClient = domainModel.getMailClient();
+            final EMailBuilderForNewUser builder = new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
             builder.setURL(HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest()));
             builder.setPassword(finalPassword);
-            if(comment != null && comment.equals("") == false){
+            if (comment != null && comment.equals("") == false)
+            {
                 builder.setComment(comment);
             }
             builder.sendEMail();
@@ -352,7 +354,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    private void checkCreateUserAllowed(User user) throws InvalidSessionException, InsufficientPrivilegesException
+    private void checkCreateUserAllowed(final User user) throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
         final UserDTO requestUser = privGetCurrentUser();
         if (requestUser.isPermanent() == false)
@@ -366,11 +369,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    private String getFinalPassword(String password)
+    private String getFinalPassword(final String password)
     {
         if (StringUtils.isBlank(password))
         {
-            PasswordGenerator passwordGenerator = domainModel.getPasswordGenerator();
+            final PasswordGenerator passwordGenerator = domainModel.getPasswordGenerator();
             return passwordGenerator.generatePassword(10);
         } else
         {
@@ -423,12 +426,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
             UserNotFoundException
     {
-        UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
+        final UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
         checkUpdateOfUserIsAllowed(user);
         try
         {
             domainModel.getUserManager().deleteUser(code);
-        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserNotFoundException(ex.getMessage());
         }
@@ -443,33 +446,35 @@ public final class CIFEXServiceImpl implements ICIFEXService
         fileManager.deleteFile(id);
     }
 
-    public void registerFilenamesForUpload(String[] filenamesForUpload) throws InvalidSessionException
+    public final void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException
     {
         privGetCurrentUser();
-        final BlockingQueue<String[]> uploadQueue =
-                (BlockingQueue<String[]>) getSession(false).getAttribute(UPLOAD_QUEUE);
-        uploadQueue.add(filenamesForUpload);
+        getSession(false).setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
     }
 
-    public Message waitForUploadToFinish() throws InvalidSessionException
+    public final FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException
     {
         privGetCurrentUser();
-        final BlockingQueue<Message> uploadQueue =
-                (BlockingQueue<Message>) getSession(false).getAttribute(UPLOAD_MSG_QUEUE);
+        final HttpSession session = getSession(false);
+        final BlockingQueue<FileUploadFeedback> queue =
+                (BlockingQueue<FileUploadFeedback>) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
+        assert queue != null : "Queue must not be null.";
         try
         {
-            return uploadQueue.take();
-        } catch (InterruptedException ex)
+            return queue.take();
+        } catch (final InterruptedException ex)
         {
-            return new Message(Message.ERROR, ex.getClass().getSimpleName());
+            final FileUploadFeedback feedback = new FileUploadFeedback();
+            feedback.setMessage(new Message(Message.ERROR, ex.getClass().getSimpleName()));
+            return feedback;
         }
     }
 
     public FooterData getFooterData() throws InvalidSessionException
     {
-        String administratorEmail = domainModel.getAdministratorEmail();
-        String systemVersion = BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
-        FooterData footerData = new FooterData();
+        final String administratorEmail = domainModel.getAdministratorEmail();
+        final String systemVersion = BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
+        final FooterData footerData = new FooterData();
         footerData.setAdministratorEmail(administratorEmail);
         footerData.setSystemVersion(systemVersion);
         return footerData;
@@ -480,7 +485,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             InsufficientPrivilegesException
     {
         assert user != null : "User can't be null";
-        IUserManager userManager = domainModel.getUserManager();
+        final IUserManager userManager = domainModel.getUserManager();
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
 
         checkUpdateOfUserIsAllowed(userDTO);
@@ -495,10 +500,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     /** Check if the current user is allowed to update the given user. */
-    private final void checkUpdateOfUserIsAllowed(UserDTO userToUpdate) throws InvalidSessionException,
+    private final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
-        IUserManager userManager = domainModel.getUserManager();
+        final IUserManager userManager = domainModel.getUserManager();
         final UserDTO currentUser = privGetCurrentUser();
         final List<UserDTO> ownedUsers = userManager.listUsersRegisteredBy(currentUser);
 
@@ -521,31 +526,33 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public User tryToFindUserByUserCode(final String userCode)
     {
-        IUserManager userManager = domainModel.getUserManager();
+        final IUserManager userManager = domainModel.getUserManager();
 
-        UserDTO userDTO = userManager.tryFindUserByCode(userCode);
+        final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(User.class, userDTO);
     }
 
-    public User[] listUsersRegisteredBy(User user)
+    public User[] listUsersRegisteredBy(final User user)
     {
-        IUserManager userManager = domainModel.getUserManager();
+        final IUserManager userManager = domainModel.getUserManager();
 
-        List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));
+        final List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));
 
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
     public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException
     {
-        IFileManager fileManager = domainModel.getFileManager();
+        final IFileManager fileManager = domainModel.getFileManager();
         Date expirationDate;
-        if(privGetCurrentUser().isAdmin() == true && newExpirationDate != null){
+        if (privGetCurrentUser().isAdmin() == true && newExpirationDate != null)
+        {
             expirationDate = newExpirationDate;
-        }else{
+        } else
+        {
             expirationDate = DateUtils.addMinutes(new Date(), domainModel.getBusinessContext().getFileRetention());
         }
-        
+
         fileManager.updateFileExpiration(id, expirationDate);
     }
 }

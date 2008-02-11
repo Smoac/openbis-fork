@@ -21,6 +21,7 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -63,8 +64,8 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
      * <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull, final String comment, 
-            final AsyncCallback callback);
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+            final String comment, final AsyncCallback callback);
 
     /**
      * List the files that the currently logged user has access on.
@@ -92,9 +93,12 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void registerFilenamesForUpload(final String[] filenamesForUpload, final AsyncCallback callback);
 
     /**
-     * Waits for the file upload to finish.
+     * Get file upload feedback.
+     * <p>
+     * A never-<code>null</code> {@link FileUploadFeedback} is expected in given <code>AsyncCallback</code>.
+     * </p>
      */
-    public void waitForUploadToFinish(final AsyncCallback callback);
+    public void tryGetFileUploadFeedback(final AsyncCallback callback);
 
     /**
      * Returns the footer data (version and administrator email).
@@ -106,11 +110,13 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /** Get the user by the userCode */
     public void tryToFindUserByUserCode(final String userCode, final AsyncCallback callback);
-    
+
     /**
-     * Update the Expiration Date of the file with the given ID.
-     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
-     * @param newExpirationDate The new Expiration date, can only used from an admin. <code>null</code> if the default expiration date should be used.
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
+     * the others, the default expiration Date is used.
+     * 
+     * @param newExpirationDate The new Expiration date, can only used from an admin. <code>null</code> if the default
+     *            expiration date should be used.
      */
     public void updateFileExpiration(final long fileId, final Date newExpirationDate, final AsyncCallback callback);
 

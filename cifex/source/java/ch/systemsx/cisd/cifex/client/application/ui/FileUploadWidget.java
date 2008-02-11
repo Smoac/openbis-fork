@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.core.Connection;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.ColumnConfig;
 import com.gwtext.client.widgets.form.Form;
@@ -34,21 +32,20 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.ValidationException;
 import com.gwtext.client.widgets.form.Validator;
 
-import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
+import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
-import ch.systemsx.cisd.cifex.client.dto.Message;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
  * 
  * @author Franz-Josef Elmer
  */
-public class FileUploadWidget extends Form
+public final class FileUploadWidget extends Form
 {
+
     private static final int FIELD_WIDTH = 230;
 
     private static final int COLUMN_WIDTH = 342;
@@ -94,7 +91,6 @@ public class FileUploadWidget extends Form
         end();
         end();
 
-        
         column(createMiddleColumnCongig());
         fieldset(context.getMessageResources().getRecipientLegend());
         add(new TextArea(createEmailAreaConfig()));
@@ -105,7 +101,6 @@ public class FileUploadWidget extends Form
         fieldset(context.getMessageResources().getCommentLabel());
         add(new TextArea(createCommentAreaConfig()));
 
-        
         button = addButton(context.getMessageResources().getFileUploadButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
@@ -131,9 +126,9 @@ public class FileUploadWidget extends Form
         columnConfig.setLabelWidth(LABEL_WIDTH);
         return columnConfig;
     }
-    
-    
-    private final static ColumnConfig createMiddleColumnCongig(){
+
+    private final static ColumnConfig createMiddleColumnCongig()
+    {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setWidth(COLUMN_WIDTH);
         columnConfig.setLabelWidth(LABEL_WIDTH);
@@ -175,8 +170,9 @@ public class FileUploadWidget extends Form
         textAreaConfig.setInvalidText(messageResources.getRecipientFieldInvalidText());
         return textAreaConfig;
     }
-    
-    private final TextAreaConfig createCommentAreaConfig(){
+
+    private final TextAreaConfig createCommentAreaConfig()
+    {
         final TextAreaConfig textAreaConfig = new TextAreaConfig();
         textAreaConfig.setAllowBlank(true);
         final IMessageResources messageResources = context.getMessageResources();
@@ -186,7 +182,7 @@ public class FileUploadWidget extends Form
         textAreaConfig.setPreventScrollbars(true);
         textAreaConfig.setWidth(FIELD_WIDTH);
         return textAreaConfig;
-        
+
     }
 
     private final TextFieldConfig createFileFieldConfig(final int index)
@@ -201,45 +197,44 @@ public class FileUploadWidget extends Form
         return fileFieldConfig;
     }
 
-    private String getFilenameFieldName(final int index)
+    private final static String getFilenameFieldName(final int index)
     {
         return "upload-file-" + index;
     }
 
-    protected void submitForm()
+    protected final void submitForm()
     {
+        if (isValid() == false)
+        {
+            return;
+        }
+        button.disable();
         final String[] filenames = new String[FILE_FIELD_NUMBER];
         for (int i = 0; i < FILE_FIELD_NUMBER; i++)
         {
             final String filename = findField(getFilenameFieldName(i)).getValueAsString();
             if (StringUtils.isBlank(filename) == false)
-                filenames[i] = filename;
-        }
-
-        context.getCifexService().registerFilenamesForUpload(filenames, new AsyncCallbackAdapter());
-        submit();
-        if (isValid())
-        {
-            button.disable();
-        }
-        context.getCifexService().waitForUploadToFinish(new AsyncCallback()
             {
+                filenames[i] = filename;
+            }
+        }
+        context.getCifexService().registerFilenamesForUpload(filenames, new AbstractAsyncCallback(context)
+            {
+                //
+                // AbstractAsyncCallback
+                //
 
-                public void onFailure(Throwable caught)
+                public final void onSuccess(final Object result)
                 {
-                    final IMessageResources messageResources = context.getMessageResources();
-                    final String msg = caught.getMessage();
-                    MessageBox.alert(messageResources.getMessageBoxErrorTitle(), "Upload failed: "
-                            + (StringUtils.isBlank(msg) ? "Unknown failure (ask administrator)" : msg));
-                    context.getPageController().createMainPage();
+                    submit();
+                    context.getCifexService().tryGetFileUploadFeedback(new FileUploadFeedbackCallback(context));
                 }
 
-                public void onSuccess(Object result)
+                public final void onFailure(final Throwable caught)
                 {
-                    WidgetUtils.showMessage((Message) result, context.getMessageResources());
-                    context.getPageController().createMainPage();
+                    super.onFailure(caught);
+                    button.enable();
                 }
-
             });
     }
 }

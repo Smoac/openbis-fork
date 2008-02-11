@@ -22,8 +22,8 @@ import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
-import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -73,8 +73,9 @@ public interface ICIFEXService extends RemoteService
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
-     * 
+     * <p>
      * This method sends an email to the new user, to inform him about the new user account.
+     * </p>
      */
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull, String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
@@ -110,8 +111,9 @@ public interface ICIFEXService extends RemoteService
     public File[] listUploadedFiles() throws InvalidSessionException;
 
     /**
-     * Update the Expiration Date of the file with the given ID.
-     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
+     * the others, the default expiration Date is used.
+     * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
     public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
@@ -123,11 +125,12 @@ public interface ICIFEXService extends RemoteService
     public void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException;
 
     /**
-     * Waits for the file upload to finish.
-     * 
-     * @return A message.
+     * Gets current file upload feedback.
+     * <p>
+     * Note that this method never returns <code>null</code> but waits till the first feedback is in the queue.
+     * </p>
      */
-    public Message waitForUploadToFinish() throws InvalidSessionException;
+    public FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException;
 
     /**
      * Returns the footer data (version and administrator email).

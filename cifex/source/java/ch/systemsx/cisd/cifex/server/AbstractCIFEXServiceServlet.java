@@ -119,7 +119,8 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
             } else if (th instanceof IOException)
             {
                 throw (IOException) th;
-            } else {
+            } else
+            {
                 throw new Error("Unexpected error: " + th.getMessage());
             }
         }
@@ -141,7 +142,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         writer.close();
     }
 
-    protected String getErrorMessage(final Exception exception)
+    protected final String getErrorMessage(final Exception exception)
     {
         final String message;
         final String exceptionMsg = exception.getMessage();

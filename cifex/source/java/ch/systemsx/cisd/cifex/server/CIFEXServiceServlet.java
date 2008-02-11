@@ -37,8 +37,8 @@ import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.FooterData;
-import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -139,8 +139,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull, final String comment)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+            final String comment) throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
         cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull, comment);
@@ -164,9 +164,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
     }
 
-    public Message waitForUploadToFinish() throws InvalidSessionException
+    public FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException
     {
-        return cifexServiceDelegate.waitForUploadToFinish();
+        return cifexServiceDelegate.tryGetFileUploadFeedback();
     }
 
     //

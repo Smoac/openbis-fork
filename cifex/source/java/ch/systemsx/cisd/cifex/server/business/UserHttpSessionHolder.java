@@ -55,15 +55,12 @@ public final class UserHttpSessionHolder
 
     public final static void invalidateSession(final HttpSession httpSession)
     {
-        synchronized (httpSession)
+        for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
         {
-            for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
-            {
-                httpSession.removeAttribute(enumeration.nextElement());
-            }
-            // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
-            httpSession.invalidate();
+            httpSession.removeAttribute(enumeration.nextElement());
         }
+        // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
+        httpSession.invalidate();
     }
 
     public final synchronized void addUserSession(final HttpSession session)
