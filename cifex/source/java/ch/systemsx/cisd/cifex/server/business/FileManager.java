@@ -287,10 +287,10 @@ final class FileManager extends AbstractManager implements IFileManager
             Collection<FileDTO> files, String comment)
     {
         final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
-        IFileDAO fileDAO = daoFactory.getFileDAO();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
-        PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
-        IMailClient mailClient = businessContext.getMailClient();
+        final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+        final IMailClient mailClient = businessContext.getMailClient();
         for (final String email : emailsOfUsers)
         {
             Set<UserDTO> users = existingUsers.tryGet(email);
@@ -394,13 +394,12 @@ final class FileManager extends AbstractManager implements IFileManager
         FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
         daoFactory.getFileDAO().deleteFile(file.getID());
         deleteFromFileSystem(file.getPath());
-
     }
 
+    @Transactional
     public void updateFileExpiration(final long fileId, final Date newExpirationDate)
     {
-
-        FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
         if (newExpirationDate == null)
         {
             file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
@@ -408,7 +407,6 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             file.setExpirationDate(newExpirationDate);
         }
-
         daoFactory.getFileDAO().updateFile(file);
     }
 }
