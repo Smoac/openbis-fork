@@ -211,6 +211,13 @@ public interface IMessageResources extends Messages
     public String getFileUploadFeedbackTimeLabel();
 
     /**
+     * Returns the label when the upload is finished.
+     * 
+     * @gwt.key fileupload.feedback.finished
+     */
+    public String getFileUploadFeedbackFinished();
+
+    /**
      * Returns the file upload field label.
      * 
      * @gwt.key fileupload.field.label

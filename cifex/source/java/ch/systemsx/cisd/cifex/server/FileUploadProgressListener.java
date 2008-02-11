@@ -48,6 +48,9 @@ final class FileUploadProgressListener extends ThresholdProgressListener
      */
     private final long start;
 
+    /** The approximate time needed to complete the file upload (in milliseconds). */
+    private long timeNeeded;
+
     FileUploadProgressListener(final HttpSession httpSession, final String[] pathnamesToUpload)
     {
         super(THRESHOLD);
@@ -77,7 +80,7 @@ final class FileUploadProgressListener extends ThresholdProgressListener
         {
             return Long.MAX_VALUE;
         }
-        final long timeNeeded = contentLength / bytesRead * timeSpent;
+        timeNeeded = Math.max(contentLength / bytesRead * timeSpent, timeNeeded);
         return timeNeeded - timeSpent;
     }
 

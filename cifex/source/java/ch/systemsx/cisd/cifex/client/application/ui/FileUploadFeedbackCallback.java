@@ -124,7 +124,8 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
                         new InternalFileUploadFeedbackCallback(getViewContext()));
             } else
             {
-                MessageBox.alert(messageResources.getMessageBoxInfoTitle(), "Upload finished.");
+                MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
+                        .getFileUploadFeedbackFinished());
                 finishDownload();
             }
         }
