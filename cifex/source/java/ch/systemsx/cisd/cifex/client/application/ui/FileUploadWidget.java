@@ -167,6 +167,20 @@ public final class FileUploadWidget extends Form
 
                 public final boolean validate(final String value) throws ValidationException
                 {
+                    final String[] result = value.split("\\s");
+                    if (result.length == 0)
+                    {
+                        return false;
+                    }
+                    for (int i = 0; i < result.length; i++)
+                    {
+                        assert result[i] != null : "Must not be null.";
+                        final String item = result[i].trim();
+                        if (item.length() > 0 && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
+                        {
+                            return false;
+                        }
+                    }
                     return true;
                 }
             });
@@ -210,9 +224,11 @@ public final class FileUploadWidget extends Form
         final List filePaths = new ArrayList(FILE_FIELD_NUMBER);
         for (int i = 0; i < FILE_FIELD_NUMBER; i++)
         {
-            final String filePath = findField(getFilenameFieldName(i)).getValueAsString();
+            final String fieldValue = findField(getFilenameFieldName(i)).getValueAsString();
+            assert fieldValue != null : "Must not be null.";
+            final String filePath = fieldValue.trim();
             // Ignore duplicates.
-            if (StringUtils.isBlank(filePath) == false && filePaths.contains(filePath) == false)
+            if (filePath.length() > 0 && filePaths.contains(filePath) == false)
             {
                 filePaths.add(filePath);
             }
