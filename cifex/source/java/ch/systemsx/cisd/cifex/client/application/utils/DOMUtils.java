@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+
 /**
  * Useful DOM utility methods.
  * 
@@ -26,6 +29,17 @@ public final class DOMUtils
     private DOMUtils()
     {
         // Can not be instantiated.
+    }
+
+    /** A <code>HTML</code> break (<code>&lt;br&gt;</code>). */
+    public static final String BR = DOM.toString(DOM.createElement("br"));
+
+    /** Surrounds given <var>text</var> with italic HTML tags. */
+    public static final String renderItalic(final String text)
+    {
+        final Element element = DOM.createElement("i");
+        DOM.setInnerText(element, text);
+        return DOM.toString(element);
     }
 
     /**

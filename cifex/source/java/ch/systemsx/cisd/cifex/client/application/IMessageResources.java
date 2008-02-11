@@ -190,6 +190,27 @@ public interface IMessageResources extends Messages
     public String getFileUploadFeedbackMessage();
 
     /**
+     * Returns the file upload feedback 'file being read' label.
+     * 
+     * @gwt.key fileupload.feedback.file.label
+     */
+    public String getFileUploadFeedbackFileLabel();
+
+    /**
+     * Returns the file upload feedback 'byte read till now' label.
+     * 
+     * @gwt.key fileupload.feedback.bytes.label
+     */
+    public String getFileUploadFeedbackBytesLabel();
+
+    /**
+     * Returns the file upload feedback 'time remaining' label.
+     * 
+     * @gwt.key fileupload.feedback.time.label
+     */
+    public String getFileUploadFeedbackTimeLabel();
+
+    /**
      * Returns the file upload field label.
      * 
      * @gwt.key fileupload.field.label

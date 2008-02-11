@@ -21,6 +21,9 @@ import com.gwtext.client.widgets.MessageBox;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
@@ -74,6 +77,26 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
             getViewContext().getPageController().createMainPage();
         }
 
+        private final String createUpdateMessage(final FileUploadFeedback feedback)
+        {
+            final StringBuffer buffer = new StringBuffer();
+            final IMessageResources messageResources = getViewContext().getMessageResources();
+            final String space = " ";
+            buffer.append(messageResources.getFileUploadFeedbackFileLabel()).append(space).append(
+                    DOMUtils.renderItalic(feedback.getFileName()));
+            buffer.append(DOMUtils.BR);
+            buffer.append(messageResources.getFileUploadFeedbackBytesLabel()).append(space).append(
+                    DOMUtils.renderItalic(FileUtils.byteCountToDisplaySize(feedback.getBytesRead())));
+            buffer.append(DOMUtils.BR);
+            final long timeLeft = feedback.getTimeLeft();
+            if (timeLeft < Long.MAX_VALUE)
+            {
+                buffer.append(messageResources.getFileUploadFeedbackTimeLabel()).append(space).append(
+                        DOMUtils.renderItalic(DateTimeUtils.formatDuration(timeLeft)));
+            }
+            return buffer.toString();
+        }
+
         //
         // AbstractAsyncCallback
         //
@@ -96,7 +119,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
             }
             if (feedback.isTerminated() == false)
             {
-                MessageBox.updateProgress(feedback.getPercentage(), "2. Message");
+                MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
                 getViewContext().getCifexService().tryGetFileUploadFeedback(
                         new InternalFileUploadFeedbackCallback(getViewContext()));
             } else

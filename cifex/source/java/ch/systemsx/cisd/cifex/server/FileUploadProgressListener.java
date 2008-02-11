@@ -20,17 +20,21 @@ import java.util.concurrent.BlockingQueue;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.fileupload.ProgressListener;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
 
 /**
  * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code> as session attribute.
  * 
  * @author Christian Ribeaud
  */
-final class FileUploadProgressListener implements ProgressListener
+final class FileUploadProgressListener extends ThresholdProgressListener
 {
+    private static final long THRESHOLD = 200 * FileUtils.ONE_KB;
+
     private final HttpSession httpSession;
 
     private final String[] pathnamesToUpload;
@@ -46,6 +50,7 @@ final class FileUploadProgressListener implements ProgressListener
 
     FileUploadProgressListener(final HttpSession httpSession, final String[] pathnamesToUpload)
     {
+        super(THRESHOLD);
         this.httpSession = httpSession;
         this.pathnamesToUpload = pathnamesToUpload;
         start = System.currentTimeMillis();
@@ -59,7 +64,7 @@ final class FileUploadProgressListener implements ProgressListener
         feedback.setContentLength(contentLength);
         if (items > 0)
         {
-            feedback.setFileName(pathnamesToUpload[items - 1]);
+            feedback.setFileName(FilenameUtils.getName(pathnamesToUpload[items - 1]));
         }
         feedback.setTimeLeft(createTimeLeft(bytesRead, contentLength));
         return feedback;
@@ -72,19 +77,19 @@ final class FileUploadProgressListener implements ProgressListener
         {
             return Long.MAX_VALUE;
         }
-        return contentLength / bytesRead * timeSpent;
+        final long timeNeeded = contentLength / bytesRead * timeSpent;
+        return timeNeeded - timeSpent;
     }
 
     //
     // ProgressListener
     //
 
-    public final void update(final long bytesRead, final long contentLength, final int items)
+    public final void hasProgressed(final long bytesRead, final long contentLength, final int items)
     {
         final BlockingQueue<FileUploadFeedback> queue =
                 (BlockingQueue<FileUploadFeedback>) httpSession.getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
         assert queue != null : "Queue must not be null.";
-        queue.clear();
         queue.add(createFileUploadFeedback(bytesRead, contentLength, items));
     }
 }

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import javax.servlet.http.HttpSession;
@@ -51,6 +50,7 @@ import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.SizedBlockingQueue;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -72,13 +72,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public static final String SESSION_NAME = "cifex-user";
 
     /**
-     * The attribute name that holds the queue that has the names of the files that should be uploaded in the next
-     * request.
+     * The attribute name that holds the absolute paths of the files that should be uploaded in the next request.
      */
-    static final String FILES_TO_UPLOAD = "filenames-for-upload";
+    static final String FILES_TO_UPLOAD = "files-to-upload";
 
     /** The attribute name that holds the queue that has the feedbacks of the upload. */
-    static final String UPLOAD_FEEDBACK_QUEUE = "upload-messages";
+    static final String UPLOAD_FEEDBACK_QUEUE = "upload-feedback-queue";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
 
@@ -142,7 +141,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
-        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new ArrayBlockingQueue<Message>(1));
+        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new SizedBlockingQueue<FileUploadFeedback>(1));
         return httpSession.getId();
     }
 

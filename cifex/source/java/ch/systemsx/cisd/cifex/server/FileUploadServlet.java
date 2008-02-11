@@ -112,7 +112,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error(msg);
             throw new UserFailureException(msg);
         }
-        final BlockingQueue<FileUploadFeedback> uploadMsgQueue =
+        final BlockingQueue<FileUploadFeedback> queue =
                 (BlockingQueue<FileUploadFeedback>) request.getSession().getAttribute(
                         CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
         try
@@ -156,26 +156,23 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             {
                 final String msg =
                         "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
-                uploadMsgQueue.clear();
                 final FileUploadFeedback feedback = new FileUploadFeedback();
                 feedback.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
-                uploadMsgQueue.add(feedback);
+                queue.add(feedback);
             } else
             {
-                uploadMsgQueue.clear();
                 final FileUploadFeedback feedback = new FileUploadFeedback();
                 feedback.setTerminated(true);
-                uploadMsgQueue.add(feedback);
+                queue.add(feedback);
             }
 
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
-            uploadMsgQueue.clear();
             final String msg = getErrorMessage(ex);
             final FileUploadFeedback feedback = new FileUploadFeedback();
             feedback.setMessage(new Message(Message.ERROR, msg));
-            uploadMsgQueue.add(feedback);
+            queue.add(feedback);
         }
     }
 

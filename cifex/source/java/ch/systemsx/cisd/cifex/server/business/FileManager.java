@@ -215,13 +215,16 @@ final class FileManager extends AbstractManager implements IFileManager
         try
         {
             OutputStream outputStream = null;
-            CountingInputStream inputStream = null;
+            InputStream inputStream = null;
             try
             {
                 outputStream = new FileOutputStream(file);
-                inputStream = new CountingInputStream(input);
+                final CountingInputStream countingInputStream = new CountingInputStream(input);
+                inputStream = countingInputStream;
+                // Uncomment the following line if you want a more perceptible effect in the file upload feedback.
+                // inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
-                final long byteCount = inputStream.getByteCount();
+                final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
                 {
                     final FileDTO fileDTO = new FileDTO(user.getID());
