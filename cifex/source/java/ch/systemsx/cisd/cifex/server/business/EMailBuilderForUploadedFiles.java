@@ -81,13 +81,15 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         addRegistratorDetails(builder);
         builder.append("\n\n").append(StringUtils.capitalize(createFileText())).append(" (click to download):\n\n");
         Date minExpirationDate = new Date(Long.MAX_VALUE);
-        for (FileDTO file : files)
+        for (final FileDTO file : files)
         {
             builder.append(file.getName()).append(" ");
             builder.append(url).append("/index.html");
             appendURLParam(builder, Constants.FILE_ID_PARAMETER, file.getID(), true);
             appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, false);
-            builder.append('\n');
+            // Append line separator as String as not as Character. On MacOS with Entourage I got a not-so-correctly
+            // formatted email.
+            builder.append("\n");
             Date expirationDate = file.getExpirationDate();
             if (expirationDate.getTime() < minExpirationDate.getTime())
             {
