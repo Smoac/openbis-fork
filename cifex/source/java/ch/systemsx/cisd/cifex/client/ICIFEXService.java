@@ -121,6 +121,8 @@ public interface ICIFEXService extends RemoteService
 
     /**
      * Registers the file names for the next upload request in the session.
+     * 
+     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException;
 

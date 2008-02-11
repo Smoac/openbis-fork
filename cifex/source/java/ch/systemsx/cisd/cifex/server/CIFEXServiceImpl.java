@@ -448,6 +448,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     public final void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException
     {
+        assert filenamesForUpload != null && filenamesForUpload.length > 0 : "No file path found.";
         privGetCurrentUser();
         getSession(false).setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
     }

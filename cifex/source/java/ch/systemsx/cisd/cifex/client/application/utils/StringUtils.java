@@ -25,6 +25,8 @@ public final class StringUtils
 {
     public static final String EMPTY_STRING = "";
 
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private StringUtils()
     {
         // Can not be instantiated

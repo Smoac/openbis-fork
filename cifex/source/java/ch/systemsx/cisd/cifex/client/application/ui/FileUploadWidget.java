@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.gwtext.client.core.Connection;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
@@ -202,6 +205,21 @@ public final class FileUploadWidget extends Form
         return "upload-file-" + index;
     }
 
+    private final String[] getFilePaths()
+    {
+        final List filePaths = new ArrayList(FILE_FIELD_NUMBER);
+        for (int i = 0; i < FILE_FIELD_NUMBER; i++)
+        {
+            final String filePath = findField(getFilenameFieldName(i)).getValueAsString();
+            // Ignore duplicates.
+            if (StringUtils.isBlank(filePath) == false && filePaths.contains(filePath) == false)
+            {
+                filePaths.add(filePath);
+            }
+        }
+        return (String[]) filePaths.toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
     protected final void submitForm()
     {
         if (isValid() == false)
@@ -209,14 +227,10 @@ public final class FileUploadWidget extends Form
             return;
         }
         button.disable();
-        final String[] filenames = new String[FILE_FIELD_NUMBER];
-        for (int i = 0; i < FILE_FIELD_NUMBER; i++)
+        final String[] filenames = getFilePaths();
+        if (filenames.length == 0)
         {
-            final String filename = findField(getFilenameFieldName(i)).getValueAsString();
-            if (StringUtils.isBlank(filename) == false)
-            {
-                filenames[i] = filename;
-            }
+            return;
         }
         context.getCifexService().registerFilenamesForUpload(filenames, new AbstractAsyncCallback(context)
             {
