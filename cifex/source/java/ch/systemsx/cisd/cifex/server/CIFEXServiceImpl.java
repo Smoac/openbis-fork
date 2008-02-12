@@ -395,6 +395,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
+    public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    {
+        checkAdmin("listFiles");
+        final List<FileDTO> files = domainModel.getFileManager().listFiles();
+        return BeanUtils.createBeanArray(File.class, files, null);
+    }
+    
     public final File[] listDownloadFiles() throws InvalidSessionException
     {
         return listFiles(DOWNLOAD);
@@ -409,10 +416,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         final UserDTO user = privGetCurrentUser();
         final List<FileDTO> files;
-        if (user.isAdmin())
-        {
-            files = domainModel.getFileManager().listFiles();
-        } else if (showDownload)
+        if (showDownload)
         {
             files = domainModel.getFileManager().listDownloadFiles(user.getID());
         } else
@@ -555,4 +559,5 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         fileManager.updateFileExpiration(id, expirationDate);
     }
+
 }

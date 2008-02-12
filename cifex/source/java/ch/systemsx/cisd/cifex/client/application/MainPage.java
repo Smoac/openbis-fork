@@ -102,13 +102,13 @@ final class MainPage extends AbstractMainPage
 
     private void createListFilesGrid(final ContentPanel contentPanel, final boolean showDownload)
     {
-        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, contentPanel, showDownload);
+        final FileAsyncCallback callback = new FileAsyncCallback(context, contentPanel, showDownload);
         if (showDownload)
         {
-            context.getCifexService().listDownloadFiles(fileAsyncCallback);
+            context.getCifexService().listDownloadFiles(callback);
         } else
         {
-            context.getCifexService().listUploadedFiles(fileAsyncCallback);
+            context.getCifexService().listUploadedFiles(callback);
         }
     }
 
@@ -162,7 +162,7 @@ final class MainPage extends AbstractMainPage
                 fileGrid.addGridCellListener(new FileDownloadGridCellListener());
                 if (showDownloaded == false)
                 {
-                    fileGrid.addGridCellListener(new FileActionGridCellListener(context));
+                    fileGrid.addGridCellListener(new FileActionGridCellListener(false, context));
                 }
                 widget = fileGrid;
             } else

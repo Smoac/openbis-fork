@@ -68,10 +68,20 @@ public interface ICIFEXServiceAsync extends RemoteService
             final String comment, final AsyncCallback callback);
 
     /**
-     * List the files that the currently logged user has access on.
+     * List the files that have been uploaded for the currently logged in user.
      */
     public void listDownloadFiles(final AsyncCallback callback);
 
+    /**
+     * List the files uploaded by the currently logged user.
+     */
+    public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
+    
+    /**
+     * List all files (only for admins).
+     */
+    public void listFiles(final AsyncCallback fileAsyncCallback);
+    
     /**
      * Deletes an user given by its <var>userCode</var>.
      */
@@ -81,11 +91,6 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Deletes file given by its <code>id</code>.
      */
     public void tryToDeleteFile(final long id, final AsyncCallback callback);
-
-    /**
-     * List the files uploaded by the currently logged user.
-     */
-    public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
 
     /**
      * Registers the file names for the next upload request in the session.

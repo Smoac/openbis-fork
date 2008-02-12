@@ -82,13 +82,26 @@ public interface ICIFEXService extends RemoteService
             InsufficientPrivilegesException;
 
     /**
-     * List the files that the currently logged user has access on.
+     * List the files that have been uploaded for the currently logged in user.
      * <p>
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
     public File[] listDownloadFiles() throws InvalidSessionException;
 
+    /**
+     * List the files uploaded by the currently logged user.
+     * <p>
+     * Never returns <code>null</code> but could return an empty array.
+     * </p>
+     */
+    public File[] listUploadedFiles() throws InvalidSessionException;
+    
+    /**
+     * List all files (only for admins).
+     */
+    public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
+    
     /**
      * Tries to delete the user given by its user <var>userCode</var>.
      * 
@@ -101,14 +114,6 @@ public interface ICIFEXService extends RemoteService
      * Deletes file given by its <var>id</var>.
      */
     public void tryToDeleteFile(final long id) throws InvalidSessionException;
-
-    /**
-     * List the files uploaded by the currently logged user.
-     * <p>
-     * Never returns <code>null</code> but could return an empty array.
-     * </p>
-     */
-    public File[] listUploadedFiles() throws InvalidSessionException;
 
     /**
      * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all

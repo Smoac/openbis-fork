@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.MessageBox;
@@ -11,7 +12,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
- * A <code>GridCellListenerAdapter</code> extension for deleting <code>File</code>.
+ * A <code>GridCellListenerAdapter</code> extension for deleting or renewing a <code>File</code>.
  * 
  * @author Christian Ribeaud
  */
@@ -20,8 +21,11 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
     private final ViewContext viewContext;
 
-    FileActionGridCellListener(final ViewContext viewContext)
+    private final boolean adminView;
+
+    FileActionGridCellListener(final boolean adminView, final ViewContext viewContext)
     {
+        this.adminView = adminView;
         this.viewContext = viewContext;
     }
 
@@ -56,9 +60,12 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                             }
                         }
                     });
-            // Renew
-            }if (e.getTarget(".renew", 1) != null){
-                viewContext.getCifexService().updateFileExpiration(id, null, new UpdateFileAsyncCallback((ModelBasedGrid) grid));
+                // Renew
+            }
+            if (e.getTarget(".renew", 1) != null)
+            {
+                viewContext.getCifexService().updateFileExpiration(id, null,
+                        new UpdateFileAsyncCallback((ModelBasedGrid) grid));
             }
 
         }
@@ -85,7 +92,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         public final void onSuccess(final Object result)
         {
             final IDataGridModel model = modelBasedGrid.getModel();
-            viewContext.getCifexService().listUploadedFiles(new AbstractAsyncCallback(viewContext)
+            final AsyncCallback callback = new AbstractAsyncCallback(viewContext)
                 {
 
                     //
@@ -96,10 +103,17 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                     {
                         modelBasedGrid.reloadStore((File[]) res, model);
                     }
-                });
+                };
+            if (adminView)
+            {
+                viewContext.getCifexService().listFiles(callback);
+            } else
+            {
+                viewContext.getCifexService().listUploadedFiles(callback);
+            }
         }
     }
-    
+
     private final class UpdateFileAsyncCallback extends AbstractAsyncCallback
     {
         private final ModelBasedGrid modelBasedGrid;
@@ -118,7 +132,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         {
             MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(), viewContext.getMessageResources().getUpdateSuccessMessage("File expiration"));
             final IDataGridModel model = modelBasedGrid.getModel();
-            viewContext.getCifexService().listUploadedFiles(new AbstractAsyncCallback(viewContext)
+            AbstractAsyncCallback callback = new AbstractAsyncCallback(viewContext)
                 {
                     //
                     // AbstractAsyncCallback
@@ -128,7 +142,13 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                     {
                         modelBasedGrid.reloadStore((File[]) res, model);
                     }
-                });
+                };
+                if (adminView)
+                {
+                    viewContext.getCifexService().listFiles(callback);
+                } else {
+                    viewContext.getCifexService().listUploadedFiles(callback);
+                }
         }
     }
 }

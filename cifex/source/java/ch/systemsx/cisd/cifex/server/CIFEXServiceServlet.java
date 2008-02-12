@@ -134,6 +134,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUploadedFiles();
     }
 
+    public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    {
+        return cifexServiceDelegate.listFiles();
+    }
+
     public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listUsers();

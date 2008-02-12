@@ -47,7 +47,7 @@ final class AdminMainPage extends AbstractMainPage
 
     private final void createListFileGrid()
     {
-        context.getCifexService().listUploadedFiles(new FileAdminAsyncCallback());
+        context.getCifexService().listFiles(new FileAdminAsyncCallback());
     }
 
     private final void createListUserGrid()
@@ -122,7 +122,7 @@ final class AdminMainPage extends AbstractMainPage
             final ModelBasedGrid fileGrid =
                     new ModelBasedGrid(context.getMessageResources(), files, gridModel, "100px");
             fileGrid.addGridCellListener(new FileDownloadGridCellListener());
-            fileGrid.addGridCellListener(new FileActionGridCellListener(context));
+            fileGrid.addGridCellListener(new FileActionGridCellListener(true, context));
             return fileGrid;
         }
 
