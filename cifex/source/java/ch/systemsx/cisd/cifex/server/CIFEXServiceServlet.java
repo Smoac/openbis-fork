@@ -38,7 +38,6 @@ import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
-import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -113,10 +112,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
-    public final User tryToLogin(final String user, final String password) throws UserFailureException,
+    public final User tryLogin(final String user, final String password) throws UserFailureException,
             EnvironmentFailureException
     {
-        return cifexServiceDelegate.tryToLogin(user, password);
+        return cifexServiceDelegate.tryLogin(user, password);
     }
 
     public final void logout()
@@ -144,24 +143,24 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment) throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
-        cifexServiceDelegate.tryToCreateUser(user, password, registratorOrNull, comment);
+        cifexServiceDelegate.createUser(user, password, registratorOrNull, comment);
 
     }
 
-    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
+    public void deleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
             UserNotFoundException
     {
-        cifexServiceDelegate.tryToDeleteUser(code);
+        cifexServiceDelegate.deleteUser(code);
 
     }
 
-    public void tryToDeleteFile(final long id) throws InvalidSessionException
+    public void deleteFile(final long id) throws InvalidSessionException
     {
-        cifexServiceDelegate.tryToDeleteFile(id);
+        cifexServiceDelegate.deleteFile(id);
     }
 
     public void registerFilenamesForUpload(String[] filenamesForUpload) throws InvalidSessionException
@@ -169,9 +168,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
     }
 
-    public FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException
+    public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException
     {
-        return cifexServiceDelegate.tryGetFileUploadFeedback();
+        return cifexServiceDelegate.getFileUploadFeedback();
     }
 
     //
@@ -196,20 +195,15 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         }
     }
 
-    public FooterData getFooterData() throws InvalidSessionException
-    {
-        return cifexServiceDelegate.getFooterData();
-    }
-
-    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+    public void updateUser(final User user, final String password) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
-        cifexServiceDelegate.tryToUpdateUser(user, password);
+        cifexServiceDelegate.updateUser(user, password);
     }
 
-    public User tryToFindUserByUserCode(String userCode)
+    public User tryFindUserByUserCode(String userCode)
     {
-        return cifexServiceDelegate.tryToFindUserByUserCode(userCode);
+        return cifexServiceDelegate.tryFindUserByUserCode(userCode);
     }
 
     public User[] listUsersRegisteredBy(User user)

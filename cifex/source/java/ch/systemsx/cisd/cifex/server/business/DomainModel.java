@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
@@ -97,6 +98,7 @@ public final class DomainModel implements IDomainModel
         businessContext.setMailClient(mailClient);
         businessContext.setPasswordGenerator(new PasswordGenerator());
         businessContext.setUserHttpSessionHolder(userSessionHolder);
+        businessContext.setSystemVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
     }
 
@@ -238,11 +240,6 @@ public final class DomainModel implements IDomainModel
     public final void setAdministratorEmail(String administratorEmail)
     {
         businessContext.setAdministratorEmail(administratorEmail);
-    }
-
-    public final String getAdministratorEmail()
-    {
-        return businessContext.getAdministratorEmail();
     }
 
 }

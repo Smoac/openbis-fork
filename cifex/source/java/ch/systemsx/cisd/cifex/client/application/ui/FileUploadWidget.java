@@ -257,7 +257,7 @@ public final class FileUploadWidget extends Form
                 public final void onSuccess(final Object result)
                 {
                     submit();
-                    context.getCifexService().tryGetFileUploadFeedback(new FileUploadFeedbackCallback(context));
+                    context.getCifexService().getFileUploadFeedback(new FileUploadFeedbackCallback(context));
                 }
 
                 public final void onFailure(final Throwable caught)

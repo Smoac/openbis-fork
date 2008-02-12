@@ -35,7 +35,7 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      */
-    public void tryToLogin(final String userCode, final String password, final AsyncCallback callback);
+    public void tryLogin(final String userCode, final String password, final AsyncCallback callback);
 
     /**
      * Logout the current user.
@@ -60,12 +60,23 @@ public interface ICIFEXServiceAsync extends RemoteService
     /** Returns a list of users, which where registered by the given user. */
     public void listUsersRegisteredBy(User user, final AsyncCallback callback);
 
+    /** Get the user by the userCode */
+    public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
+
     /**
      * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
      * <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment, final AsyncCallback callback);
+
+    /** Update the fields of the user in the database. */
+    public void updateUser(final User user, final String password, final AsyncCallback callback);
+
+    /**
+     * Deletes an user given by its <var>userCode</var>.
+     */
+    public void deleteUser(final String userCode, final AsyncCallback callback);
 
     /**
      * List the files that have been uploaded for the currently logged in user.
@@ -83,14 +94,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listFiles(final AsyncCallback fileAsyncCallback);
     
     /**
-     * Deletes an user given by its <var>userCode</var>.
-     */
-    public void tryToDeleteUser(final String userCode, final AsyncCallback callback);
-
-    /**
      * Deletes file given by its <code>id</code>.
      */
-    public void tryToDeleteFile(final long id, final AsyncCallback callback);
+    public void deleteFile(final long id, final AsyncCallback callback);
 
     /**
      * Registers the file names for the next upload request in the session.
@@ -105,18 +111,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * A never-<code>null</code> {@link FileUploadFeedback} is expected in given <code>AsyncCallback</code>.
      * </p>
      */
-    public void tryGetFileUploadFeedback(final AsyncCallback callback);
-
-    /**
-     * Returns the footer data (version and administrator email).
-     */
-    public void getFooterData(final AsyncCallback callback);
-
-    /** Update the fields of the user in the database. */
-    public void tryToUpdateUser(final User user, final String password, final AsyncCallback callback);
-
-    /** Get the user by the userCode */
-    public void tryToFindUserByUserCode(final String userCode, final AsyncCallback callback);
+    public void getFileUploadFeedback(final AsyncCallback callback);
 
     /**
      * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all

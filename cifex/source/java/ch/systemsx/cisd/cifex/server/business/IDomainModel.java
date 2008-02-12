@@ -50,7 +50,4 @@ public interface IDomainModel
      */
     public PasswordGenerator getPasswordGenerator();
 
-    /** Returns administrator email */
-    public String getAdministratorEmail();
-
 }

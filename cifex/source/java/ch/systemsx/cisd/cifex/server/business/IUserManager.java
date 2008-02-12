@@ -35,9 +35,9 @@ public interface IUserManager
     public boolean isDatabaseEmpty();
 
     /**
-     * Tries to find the user with the specified user code.
+     * Returns the user with the specified user code.
      * 
-     * @return <code>null</code> if not found.
+     * @return <code>null</code> if a user with the given <var>code</var> is not found.
      */
     public UserDTO tryFindUserByCode(String code);
 

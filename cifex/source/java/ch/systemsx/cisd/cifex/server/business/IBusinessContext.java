@@ -67,4 +67,8 @@ public interface IBusinessContext
      * Returns the administrator email.
      */
     public String getAdministratorEmail();
+    
+    /** Returns the full version information of this server. */
+    public String getSystemVersion();
+
 }

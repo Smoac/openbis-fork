@@ -77,7 +77,7 @@ public class EditUserWidget extends UserWidget
             }
 
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToUpdateUser(user, password, new UpdateUserAsyncCallBack());
+            cifexService.updateUser(user, password, new UpdateUserAsyncCallBack());
         } else
         {
             String title = messageResources.getMessageBoxWarningTitle();

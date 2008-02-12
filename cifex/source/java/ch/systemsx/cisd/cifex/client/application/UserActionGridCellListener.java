@@ -60,7 +60,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().tryToDeleteUser(internalUserCode,
+                                viewContext.getCifexService().deleteUser(internalUserCode,
                                         new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                             }
                         }
@@ -74,12 +74,12 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                     return;
                 }
                 // Edit User
-                viewContext.getCifexService().tryToFindUserByUserCode(internalUserCode, new FindUserAsyncCallback(viewContext));
+                viewContext.getCifexService().tryFindUserByUserCode(internalUserCode, new FindUserAsyncCallback(viewContext));
 
             } else if (e.getTarget(".renew", 1) != null)
             {
                 // renew User
-                viewContext.getCifexService().tryToFindUserByUserCode(internalUserCode,
+                viewContext.getCifexService().tryFindUserByUserCode(internalUserCode,
                         new RenewUserAsyncCallback(viewContext, (ModelBasedGrid) grid));
 
             }
@@ -178,7 +178,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             if (((User) result).isPermanent() == false)
             {
                 ((User) result).setExpirationDate(null);
-                viewContext.getCifexService().tryToUpdateUser(((User) result), null,
+                viewContext.getCifexService().updateUser(((User) result), null,
                         new AbstractAsyncCallback(viewContext)
                             {
                                 public final void onSuccess(final Object UpdateResult)

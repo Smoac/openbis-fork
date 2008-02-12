@@ -40,7 +40,6 @@ import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
-import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
@@ -57,7 +56,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
@@ -210,7 +208,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryToLogin(final String userCode, final String password) throws UserFailureException,
+    public final User tryLogin(final String userCode, final String password) throws UserFailureException,
             EnvironmentFailureException
     {
         authenticationLog.info("Try to login user '" + userCode + "'.");
@@ -310,7 +308,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
@@ -426,7 +424,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(File.class, files, null);
     }
 
-    public void tryToDeleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
+    public void deleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
             UserNotFoundException
     {
         final UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
@@ -440,7 +438,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public void tryToDeleteFile(final long id) throws InvalidSessionException
+    public void deleteFile(final long id) throws InvalidSessionException
     {
         final UserDTO currentUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
@@ -456,7 +454,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         getSession(false).setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
     }
 
-    public final FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException
+    public final FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException
     {
         privGetCurrentUser();
         final HttpSession session = getSession(false);
@@ -474,18 +472,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public FooterData getFooterData() throws InvalidSessionException
-    {
-        final String administratorEmail = domainModel.getAdministratorEmail();
-        final String systemVersion = BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
-        final FooterData footerData = new FooterData();
-        footerData.setAdministratorEmail(administratorEmail);
-        footerData.setSystemVersion(systemVersion);
-        return footerData;
-    }
-
     /** Update the fields of the user in the database. */
-    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+    public void updateUser(final User user, final String password) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
         assert user != null : "User can't be null";
@@ -528,7 +516,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 + ".");
     }
 
-    public User tryToFindUserByUserCode(final String userCode)
+    public User tryFindUserByUserCode(final String userCode)
     {
         final IUserManager userManager = domainModel.getUserManager();
 

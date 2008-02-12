@@ -23,7 +23,6 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
-import ch.systemsx.cisd.cifex.client.dto.FooterData;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -41,7 +40,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User tryToLogin(final String user, final String password) throws UserFailureException,
+    public User tryLogin(final String user, final String password) throws UserFailureException,
             EnvironmentFailureException;
 
     /**
@@ -70,16 +69,34 @@ public interface ICIFEXService extends RemoteService
      */
     public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
 
-    /**
+    /** Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists. */
+    public User tryFindUserByUserCode(final String userCode);
+
+    /** Returns a list of users, which where registered by the given user. */
+    public User[] listUsersRegisteredBy(User user);
+
+/**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void tryToCreateUser(final User user, final String password, final User registratorOrNull, String comment)
+    public void createUser(final User user, final String password, final User registratorOrNull, String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
+
+    /** Update the fields of the user in the database. */
+    public void updateUser(final User user, final String password) throws InvalidSessionException,
+            InsufficientPrivilegesException;
+
+    /**
+     * Tries to delete the user given by its user <var>userCode</var>.
+     * 
+     * @throws UserNotFoundException if the user with the given <var>userCode</var> was not found.
+     */
+    public void deleteUser(final String userCode) throws InvalidSessionException, InsufficientPrivilegesException,
+            UserNotFoundException;
 
     /**
      * List the files that have been uploaded for the currently logged in user.
@@ -103,26 +120,9 @@ public interface ICIFEXService extends RemoteService
     public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
     
     /**
-     * Tries to delete the user given by its user <var>userCode</var>.
-     * 
-     * @throws UserNotFoundException if the user with the given <var>userCode</var> was not found.
-     */
-    public void tryToDeleteUser(final String userCode) throws InvalidSessionException, InsufficientPrivilegesException,
-            UserNotFoundException;
-
-    /**
      * Deletes file given by its <var>id</var>.
      */
-    public void tryToDeleteFile(final long id) throws InvalidSessionException;
-
-    /**
-     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
-     * the others, the default expiration Date is used.
-     * 
-     * @param newExpirationDate The new Expiration date, can only used from an admin.
-     */
-    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
-            InsufficientPrivilegesException;
+    public void deleteFile(final long id) throws InvalidSessionException;
 
     /**
      * Registers the file names for the next upload request in the session.
@@ -137,20 +137,15 @@ public interface ICIFEXService extends RemoteService
      * Note that this method never returns <code>null</code> but waits till the first feedback is in the queue.
      * </p>
      */
-    public FileUploadFeedback tryGetFileUploadFeedback() throws InvalidSessionException;
+    public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
 
     /**
-     * Returns the footer data (version and administrator email).
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
+     * the others, the default expiration Date is used.
+     * 
+     * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
-    public FooterData getFooterData() throws InvalidSessionException;
-
-    /** Update the fields of the user in the database. */
-    public void tryToUpdateUser(final User user, final String password) throws InvalidSessionException,
+    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
             InsufficientPrivilegesException;
 
-    /** Try to get the user by the code. */
-    public User tryToFindUserByUserCode(final String userCode);
-
-    /** Returns a list of users, which where registered by the given user. */
-    public User[] listUsersRegisteredBy(User user);
 }

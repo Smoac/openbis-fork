@@ -46,6 +46,10 @@ class BusinessContext implements IBusinessContext
 
     private UserHttpSessionHolder userHttpSessionHolder;
 
+    private String administratorEmail;
+
+    private String systemVersion;
+
     public final UserHttpSessionHolder getUserHttpSessionHolder()
     {
         return userHttpSessionHolder;
@@ -55,8 +59,6 @@ class BusinessContext implements IBusinessContext
     {
         this.userHttpSessionHolder = userHttpSessionHolder;
     }
-
-    private String administratorEmail;
 
     public final int getFileRetention()
     {
@@ -126,6 +128,16 @@ class BusinessContext implements IBusinessContext
     public final String getAdministratorEmail()
     {
         return administratorEmail;
+    }
+
+    public final String getSystemVersion()
+    {
+        return systemVersion;
+    }
+
+    public final void setSystemVersion(final String systemVersion)
+    {
+        this.systemVersion = systemVersion;
     }
 
 }

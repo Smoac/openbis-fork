@@ -55,7 +55,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().tryToDeleteFile(id,
+                                viewContext.getCifexService().deleteFile(id,
                                         new DeleteFileAsyncCallback((ModelBasedGrid) grid));
                             }
                         }

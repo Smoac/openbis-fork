@@ -56,7 +56,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         final IMessageResources messageResources = getViewContext().getMessageResources();
         MessageBox.progress(messageResources.getFileUploadFeedbackTitle(), messageResources
                 .getFileUploadFeedbackMessage());
-        getViewContext().getCifexService().tryGetFileUploadFeedback(
+        getViewContext().getCifexService().getFileUploadFeedback(
                 new InternalFileUploadFeedbackCallback(getViewContext()));
     }
 
@@ -121,7 +121,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
             if (feedback.isTerminated() == false)
             {
                 MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
-                getViewContext().getCifexService().tryGetFileUploadFeedback(
+                getViewContext().getCifexService().getFileUploadFeedback(
                         new InternalFileUploadFeedbackCallback(getViewContext()));
             } else
             {

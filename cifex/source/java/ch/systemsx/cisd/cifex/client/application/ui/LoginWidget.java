@@ -157,7 +157,7 @@ public class LoginWidget extends Form
             final String username = userField.getText();
             final String password = passwordField.getText();
             ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryToLogin(username, password, new LoginAsyncCallBack());
+            cifexService.tryLogin(username, password, new LoginAsyncCallBack());
         }
     }
 
