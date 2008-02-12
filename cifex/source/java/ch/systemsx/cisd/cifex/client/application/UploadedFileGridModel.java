@@ -60,13 +60,14 @@ public class UploadedFileGridModel extends AbstractFileGridModel
             final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
-                        {
-                                new Integer((int) file.getID()),
+                        { new Integer((int) file.getID()),
                                 file.getName(),
                                 file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
                                 file.getRegistrationDate(),
                                 file.getExpirationDate(),
+                                // TODO 2008-02-12, Christian Ribeaud: use DOM class here and ensure we get the hand
+                                // cursor when going with the mouse over the links.
                                 "<a href=\"#\" class=\"renew\" id=\"renew\">" + messageResources.getActionRenewLabel()
                                         + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
                                         + messageResources.getActionDeleteLabel() + "</a>" };
