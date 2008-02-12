@@ -81,18 +81,19 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         {
             final StringBuffer buffer = new StringBuffer();
             final IMessageResources messageResources = getViewContext().getMessageResources();
-            final String space = " ";
-            buffer.append(messageResources.getFileUploadFeedbackFileLabel()).append(space).append(
-                    DOMUtils.renderItalic(feedback.getFileName()));
+            buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback.getFileName()));
             buffer.append(DOMUtils.BR);
-            buffer.append(messageResources.getFileUploadFeedbackBytesLabel()).append(space).append(
-                    DOMUtils.renderItalic(FileUtils.byteCountToDisplaySize(feedback.getBytesRead())));
+            final String byteRead = FileUtils.byteCountToDisplaySize(feedback.getBytesRead());
+            final long length = feedback.getContentLength();
+            final String contentLength =
+                    length == Long.MAX_VALUE ? messageResources.getUnknownLabel() : FileUtils
+                            .byteCountToDisplaySize(length);
+            buffer.append(messageResources.getFileUploadFeedbackBytesLabel(byteRead, contentLength));
             buffer.append(DOMUtils.BR);
             final long timeLeft = feedback.getTimeLeft();
             if (timeLeft < Long.MAX_VALUE)
             {
-                buffer.append(messageResources.getFileUploadFeedbackTimeLabel()).append(space).append(
-                        DOMUtils.renderItalic(DateTimeUtils.formatDuration(timeLeft)));
+                buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils.formatDuration(timeLeft)));
             }
             return buffer.toString();
         }

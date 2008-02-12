@@ -194,21 +194,21 @@ public interface IMessageResources extends Messages
      * 
      * @gwt.key fileupload.feedback.file.label
      */
-    public String getFileUploadFeedbackFileLabel();
+    public String getFileUploadFeedbackFileLabel(final String fileName);
 
     /**
      * Returns the file upload feedback 'byte read till now' label.
      * 
      * @gwt.key fileupload.feedback.bytes.label
      */
-    public String getFileUploadFeedbackBytesLabel();
+    public String getFileUploadFeedbackBytesLabel(final String bytesRead, final String contentLength);
 
     /**
      * Returns the file upload feedback 'time remaining' label.
      * 
      * @gwt.key fileupload.feedback.time.label
      */
-    public String getFileUploadFeedbackTimeLabel();
+    public String getFileUploadFeedbackTimeLabel(final String remainingTime);
 
     /**
      * Returns the label when the upload is finished.
@@ -609,4 +609,10 @@ public interface IMessageResources extends Messages
      */
     public String getFooterContactAdministrator(final String email);
 
+    /**
+     * Returns unknown label.
+     * 
+     * @gwt.key unknown.label
+     */
+    public String getUnknownLabel();
 }
