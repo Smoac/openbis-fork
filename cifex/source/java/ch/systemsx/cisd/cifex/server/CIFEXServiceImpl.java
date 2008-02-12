@@ -309,7 +309,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    // TODO 2008-02-06 Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
+    // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
     public void tryToCreateUser(final User user, final String password, final User registratorOrNull,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException

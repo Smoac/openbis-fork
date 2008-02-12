@@ -79,8 +79,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             } else if (e.getTarget(".renew", 1) != null)
             {
                 // renew User
-                viewContext.getCifexService()
-                        .tryToFindUserByUserCode(userCode, new RenewUserAsyncCallback(viewContext, (ModelBasedGrid)grid));
+                viewContext.getCifexService().tryToFindUserByUserCode(userCode,
+                        new RenewUserAsyncCallback(viewContext, (ModelBasedGrid) grid));
 
             }
         }
@@ -155,7 +155,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
     private final class RenewUserAsyncCallback extends AbstractAsyncCallback
     {
         private final ModelBasedGrid modelBasedGrid;
-        public RenewUserAsyncCallback(ViewContext context, final ModelBasedGrid modelBasedGrid )
+
+        public RenewUserAsyncCallback(ViewContext context, final ModelBasedGrid modelBasedGrid)
         {
             super(context);
             this.modelBasedGrid = modelBasedGrid;
@@ -176,7 +177,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                                             viewContext.getMessageResources().getUserRenewSuccessMessage());
 
                                     // Update the Grid
-                                    // TODO 2008-02-07 Basil Neff Move this logic to a method, the same is also used for delete and Update User.
+                                    // TODO 2008-02-07, Basil Neff Move this logic to a method, the same is also used
+                                    // for delete and Update User.
                                     if (viewContext.getModel().getUser().isAdmin())
                                     {
                                         viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
@@ -203,8 +205,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
             } else
             {
-                MessageBox.alert(viewContext.getMessageResources().getMessageBoxErrorTitle(),
-                        viewContext.getMessageResources().getPermanentUserFailure());
+                MessageBox.alert(viewContext.getMessageResources().getMessageBoxErrorTitle(), viewContext
+                        .getMessageResources().getPermanentUserFailure());
             }
         }
     }
