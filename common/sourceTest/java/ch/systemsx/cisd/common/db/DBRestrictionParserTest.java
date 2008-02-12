@@ -49,7 +49,7 @@ public class DBRestrictionParserTest
         LogInitializer.init();
         sqlScript =
                 FileUtilities.loadToString(new File(
-                        "sourceTest/java/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql"));
+                        "../common/sourceTest/java/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql"));
         assert sqlScript != null;
     }
 
