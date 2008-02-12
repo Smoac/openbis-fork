@@ -48,6 +48,7 @@ public class UserGridModel extends AbstractDataGridModel
      * User Code which is only internal needed, to identify the user in the column. In this row is no renderer set, that
      * you can get the user with the String function.
      */
+    // TODO 2008-02-12 Bernd Rinn: Why do we need this column? It returns the same string as the USER_CODE above.
     public static final String INTERNAL_USER_CODE = "IntUserCode";
 
     public UserGridModel(final IMessageResources messageResources)
