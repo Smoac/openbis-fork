@@ -117,17 +117,19 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
             {
                 WidgetUtils.showMessage(message, messageResources);
                 finishDownload();
-            }
-            if (feedback.isFinished() == false)
-            {
-                MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
-                getViewContext().getCifexService().getFileUploadFeedback(
-                        new InternalFileUploadFeedbackCallback(getViewContext()));
             } else
             {
-                MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
-                        .getFileUploadFeedbackFinished());
-                finishDownload();
+                if (feedback.isFinished() == false)
+                {
+                    MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
+                    getViewContext().getCifexService().getFileUploadFeedback(
+                            new InternalFileUploadFeedbackCallback(getViewContext()));
+                } else
+                {
+                    MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
+                            .getFileUploadFeedbackFinished());
+                    finishDownload();
+                }
             }
         }
     }
