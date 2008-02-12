@@ -162,7 +162,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             } else
             {
                 final FileUploadFeedback feedback = new FileUploadFeedback();
-                feedback.setTerminated(true);
+                feedback.setFinished(true);
                 queue.add(feedback);
             }
 

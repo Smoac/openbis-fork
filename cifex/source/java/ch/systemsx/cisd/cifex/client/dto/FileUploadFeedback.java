@@ -51,7 +51,7 @@ public final class FileUploadFeedback implements IsSerializable
     private Message message;
 
     /** Whether the file upload is terminated. */
-    private boolean isTerminated;
+    private boolean finished;
 
     public final long getContentLength()
     {
@@ -98,14 +98,14 @@ public final class FileUploadFeedback implements IsSerializable
         this.message = message;
     }
 
-    public final boolean isTerminated()
+    public final boolean isFinished()
     {
-        return isTerminated;
+        return finished;
     }
 
-    public final void setTerminated(final boolean isTerminated)
+    public final void setFinished(final boolean isTerminated)
     {
-        this.isTerminated = isTerminated;
+        this.finished = isTerminated;
     }
 
     //
