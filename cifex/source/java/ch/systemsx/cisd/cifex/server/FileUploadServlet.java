@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.concurrent.BlockingQueue;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,11 +35,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.CollectionUtils;
@@ -112,9 +110,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error(msg);
             throw new UserFailureException(msg);
         }
-        final BlockingQueue<FileUploadFeedback> queue =
-                (BlockingQueue<FileUploadFeedback>) request.getSession().getAttribute(
-                        CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
+        final FileUploadFeedbackProvider feedbackProvider =
+                (FileUploadFeedbackProvider) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
         try
         {
             final String[] filenamesToUpload =
@@ -156,23 +153,17 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             {
                 final String msg =
                         "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
-                final FileUploadFeedback feedback = new FileUploadFeedback();
-                feedback.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
-                queue.add(feedback);
+                feedbackProvider.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
             } else
             {
-                final FileUploadFeedback feedback = new FileUploadFeedback();
-                feedback.setFinished(true);
-                queue.add(feedback);
+                feedbackProvider.setFileUploadFinished();
             }
 
         } catch (final Exception ex)
         {
             operationLog.error("Could not process multipart content.", ex);
             final String msg = getErrorMessage(ex);
-            final FileUploadFeedback feedback = new FileUploadFeedback();
-            feedback.setMessage(new Message(Message.ERROR, msg));
-            queue.add(feedback);
+            feedbackProvider.setMessage(new Message(Message.ERROR, msg));
         }
     }
 

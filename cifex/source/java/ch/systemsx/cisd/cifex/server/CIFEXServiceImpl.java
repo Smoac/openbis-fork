@@ -18,8 +18,6 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +47,7 @@ import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.server.util.SizedBlockingQueue;
+import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -139,7 +137,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
         httpSession.setAttribute(SESSION_NAME, user);
-        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new SizedBlockingQueue<FileUploadFeedback>(1));
+        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new FileUploadFeedbackProvider());
         return httpSession.getId();
     }
 
@@ -308,9 +306,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
-    public void createUser(final User user, final String password, final User registratorOrNull,
-            final String comment) throws EnvironmentFailureException, InvalidSessionException,
-            InsufficientPrivilegesException, UserFailureException
+    public void createUser(final User user, final String password, final User registratorOrNull, final String comment)
+            throws EnvironmentFailureException, InvalidSessionException, InsufficientPrivilegesException,
+            UserFailureException
     {
         checkCreateUserAllowed(user);
         final IUserManager userManager = domainModel.getUserManager();
@@ -399,7 +397,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final List<FileDTO> files = domainModel.getFileManager().listFiles();
         return BeanUtils.createBeanArray(File.class, files, null);
     }
-    
+
     public final File[] listDownloadFiles() throws InvalidSessionException
     {
         return listFiles(DOWNLOAD);
@@ -451,19 +449,23 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         assert filenamesForUpload != null && filenamesForUpload.length > 0 : "No file path found.";
         privGetCurrentUser();
-        getSession(false).setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
+        final HttpSession session = getSession(false);
+        session.setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
+        final FileUploadFeedbackProvider feedbackProvider =
+            (FileUploadFeedbackProvider) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
+        feedbackProvider.set(new FileUploadFeedback());
     }
 
     public final FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException
     {
         privGetCurrentUser();
         final HttpSession session = getSession(false);
-        final BlockingQueue<FileUploadFeedback> queue =
-                (BlockingQueue<FileUploadFeedback>) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
-        assert queue != null : "Queue must not be null.";
+        final FileUploadFeedbackProvider feedbackProvider =
+                (FileUploadFeedbackProvider) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
+        assert feedbackProvider != null : "Provider must not be null.";
         try
         {
-            return queue.take();
+            return feedbackProvider.take();
         } catch (final InterruptedException ex)
         {
             final FileUploadFeedback feedback = new FileUploadFeedback();

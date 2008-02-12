@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-import java.util.concurrent.BlockingQueue;
-
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
 
 /**
@@ -94,9 +93,9 @@ final class FileUploadProgressListener extends ThresholdProgressListener
 
     public final void hasProgressed(final long bytesRead, final long contentLength, final int items)
     {
-        final BlockingQueue<FileUploadFeedback> queue =
-                (BlockingQueue<FileUploadFeedback>) httpSession.getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
-        assert queue != null : "Queue must not be null.";
-        queue.add(createFileUploadFeedback(bytesRead, contentLength, items));
+        final FileUploadFeedbackProvider feedbackProvider =
+                (FileUploadFeedbackProvider) httpSession.getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
+        assert feedbackProvider != null : "Provider must not be null.";
+        feedbackProvider.set(createFileUploadFeedback(bytesRead, contentLength, items));
     }
 }
