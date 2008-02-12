@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import java.util.Map;
-
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,7 +47,7 @@ final class MainPage extends AbstractMainPage
         super(context);
     }
 
-    private final String getMaxRequestUploadSizeText(int maxRequestUploadSizeInMB)
+    private final String getMaxRequestUploadSizeText(final int maxRequestUploadSizeInMB)
     {
         if (maxRequestUploadSizeInMB < 0)
         {
@@ -80,28 +78,19 @@ final class MainPage extends AbstractMainPage
         createUserPanel(context.getModel().getUser().isAdmin());
         createListCreatedUserPanel();
 
-        final Map urlParams = context.getModel().getUrlParams();
-        String fileId = null;
-        if (urlParams.isEmpty() == false)
-        {
-            fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
-        }
         final User user = context.getModel().getUser();
-        if (fileId == null)
+        final VerticalPanel verticalPanel = createVerticalPanelPart();
+        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
+        verticalPanel.add(createExplanationPanel());
+        verticalPanel.add(new FileUploadWidget(context));
+        contentPanel.add(verticalPanel);
+        if (user.isPermanent() && user.isAdmin() == false)
         {
-            final VerticalPanel verticalPanel = createVerticalPanelPart();
-            verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
-            verticalPanel.add(createExplanationPanel());
-            verticalPanel.add(new FileUploadWidget(context));
-            contentPanel.add(verticalPanel);
-            if (user.isPermanent() && user.isAdmin() == false)
-            {
-                contentPanel.add(createUserPanel);
-            }
-            contentPanel.add(listCreatedUserPanel);
+            contentPanel.add(createUserPanel);
         }
-        createListFilesGrid(contentPanel, fileId, UPLOAD);
-        createListFilesGrid(contentPanel, fileId, DOWNLOAD);
+        contentPanel.add(listCreatedUserPanel);
+        createListFilesGrid(contentPanel, UPLOAD);
+        createListFilesGrid(contentPanel, DOWNLOAD);
         return contentPanel;
     }
 
@@ -111,9 +100,9 @@ final class MainPage extends AbstractMainPage
         context.getCifexService().listUsersRegisteredBy(context.getModel().getUser(), new CreatedUserAsyncCallback());
     }
 
-    private void createListFilesGrid(final ContentPanel contentPanel, String fileId, boolean showDownload)
+    private void createListFilesGrid(final ContentPanel contentPanel, final boolean showDownload)
     {
-        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, contentPanel, fileId, showDownload);
+        final FileAsyncCallback fileAsyncCallback = new FileAsyncCallback(context, contentPanel, showDownload);
         if (showDownload)
         {
             context.getCifexService().listDownloadFiles(fileAsyncCallback);
@@ -126,25 +115,17 @@ final class MainPage extends AbstractMainPage
     //
     // Helper classes
     //
+
     private final class FileAsyncCallback extends AbstractAsyncCallback
     {
 
         private final ContentPanel contentPanel;
 
-        /**
-         * The file we are interested in.
-         * <p>
-         * Could be <code>null</code>.
-         * </p>
-         */
-        private final String fileId;
-
         private Widget titleWidget;
 
         private boolean showDownloaded;
 
-        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel, final String fileId,
-                boolean showDownload)
+        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel, final boolean showDownload)
         {
             super(context);
             if (showDownload)
@@ -156,26 +137,7 @@ final class MainPage extends AbstractMainPage
             }
 
             this.contentPanel = contentPanel;
-            this.fileId = fileId;
             this.showDownloaded = showDownload;
-        }
-
-        private final File[] getFiles(final File[] files)
-        {
-            if (fileId == null)
-            {
-                return files;
-            }
-            for (int i = 0; i < files.length; i++)
-            {
-                final File file = files[i];
-                if (String.valueOf(file.getID()).equals(fileId))
-                {
-                    return new File[]
-                        { file };
-                }
-            }
-            return files;
         }
 
         //
@@ -196,7 +158,7 @@ final class MainPage extends AbstractMainPage
                 {
                     gridModel = new UploadedFileGridModel(messageResources);
                 }
-                final Grid fileGrid = new ModelBasedGrid(messageResources, getFiles(files), gridModel, "100px");
+                final Grid fileGrid = new ModelBasedGrid(messageResources, files, gridModel, "100px");
                 fileGrid.addGridCellListener(new FileDownloadGridCellListener());
                 if (showDownloaded == false)
                 {

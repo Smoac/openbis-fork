@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import java.util.Map;
+
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.core.Position;
@@ -30,8 +32,11 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -132,6 +137,10 @@ public class LoginWidget extends Form
         return new TextField(fieldConfig);
     }
 
+    private final static String createDownloadUrl(final long id)
+    {
+        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "=" + id;
+    }
 
     /** Returns the button that will starts the login process. */
     public final Button getButton()
@@ -160,7 +169,25 @@ public class LoginWidget extends Form
      */
     protected void loginSuccessful(final User user)
     {
-        context.getModel().setUser(user);
+        final Model model = context.getModel();
+        final Map urlParams = context.getModel().getUrlParams();
+        String fileId = null;
+        if (urlParams.isEmpty() == false)
+        {
+            fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
+        }
+        model.setUser(user);
+        if (fileId != null)
+        {
+            try
+            {
+                final String url = createDownloadUrl(Long.parseLong(fileId));
+                WindowUtils.openNewDependentWindow(url);
+            } catch (final NumberFormatException ex)
+            {
+                // Nothing to do here. Just do not open the new window.
+            }
+        }
         context.getPageController().createMainPage();
     }
 
