@@ -33,6 +33,9 @@ import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
  */
 final class FileUploadProgressListener extends ThresholdProgressListener
 {
+    /**
+     * The threshold at which progress listener events are propagated.
+     */
     private static final long THRESHOLD = 200 * FileUtils.ONE_KB;
 
     private final HttpSession httpSession;
@@ -80,7 +83,8 @@ final class FileUploadProgressListener extends ThresholdProgressListener
         {
             return Long.MAX_VALUE;
         }
-        timeNeeded = Math.max(contentLength / bytesRead * timeSpent, timeNeeded);
+        final long localTimeNeeded = contentLength / bytesRead * timeSpent;
+        timeNeeded = Math.max(localTimeNeeded, timeNeeded);
         return timeNeeded - timeSpent;
     }
 
