@@ -36,9 +36,44 @@ import ch.systemsx.cisd.cifex.client.dto.Message;
 final class FileUploadFeedbackCallback extends AbstractAsyncCallback
 {
 
+    /** Whether the progress bar has already been initialized (using {@link MessageBox#progress(String, String)}). */
+    private final boolean initialized;
+
     FileUploadFeedbackCallback(final ViewContext context)
     {
+        this(context, false);
+    }
+
+    private FileUploadFeedbackCallback(final ViewContext context, final boolean initialized)
+    {
         super(context);
+        this.initialized = initialized;
+    }
+
+    private final void refreshMainPage()
+    {
+        getViewContext().getPageController().createMainPage();
+    }
+
+    private final String createUpdateMessage(final FileUploadFeedback feedback)
+    {
+        final StringBuffer buffer = new StringBuffer();
+        final IMessageResources messageResources = getViewContext().getMessageResources();
+        buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback.getFileName()));
+        buffer.append(DOMUtils.BR);
+        final String byteRead = FileUtils.byteCountToDisplaySize(feedback.getBytesRead());
+        final long length = feedback.getContentLength();
+        final String contentLength =
+                length == Long.MAX_VALUE ? messageResources.getUnknownLabel() : FileUtils
+                        .byteCountToDisplaySize(length);
+        buffer.append(messageResources.getFileUploadFeedbackBytesLabel(byteRead, contentLength));
+        buffer.append(DOMUtils.BR);
+        final long timeLeft = feedback.getTimeLeft();
+        if (timeLeft < Long.MAX_VALUE)
+        {
+            buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils.formatDuration(timeLeft)));
+        }
+        return buffer.toString();
     }
 
     //
@@ -48,89 +83,36 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
     public final void onFailure(final Throwable caught)
     {
         super.onFailure(caught);
-        getViewContext().getPageController().createMainPage();
+        refreshMainPage();
     }
 
-    public final void onSuccess(final Object res)
+    public final void onSuccess(final Object result)
     {
+        final FileUploadFeedback feedback = (FileUploadFeedback) result;
         final IMessageResources messageResources = getViewContext().getMessageResources();
-        MessageBox.progress(messageResources.getFileUploadFeedbackTitle(), messageResources
-                .getFileUploadFeedbackMessage());
-        getViewContext().getCifexService().getFileUploadFeedback(
-                new InternalFileUploadFeedbackCallback(getViewContext()));
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final static class InternalFileUploadFeedbackCallback extends AbstractAsyncCallback
-    {
-
-        private InternalFileUploadFeedbackCallback(final ViewContext context)
+        final Message message = feedback.getMessage();
+        if (message != null)
         {
-            super(context);
+            WidgetUtils.showMessage(message, messageResources);
+            refreshMainPage();
+            return;
         }
-
-        private final void finishDownload()
+        if (feedback.isFinished())
         {
-            getViewContext().getPageController().createMainPage();
+            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
+                    .getFileUploadFeedbackFinished());
+            refreshMainPage();
+            return;
         }
-
-        private final String createUpdateMessage(final FileUploadFeedback feedback)
+        if (initialized == false)
         {
-            final StringBuffer buffer = new StringBuffer();
-            final IMessageResources messageResources = getViewContext().getMessageResources();
-            buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback.getFileName()));
-            buffer.append(DOMUtils.BR);
-            final String byteRead = FileUtils.byteCountToDisplaySize(feedback.getBytesRead());
-            final long length = feedback.getContentLength();
-            final String contentLength =
-                    length == Long.MAX_VALUE ? messageResources.getUnknownLabel() : FileUtils
-                            .byteCountToDisplaySize(length);
-            buffer.append(messageResources.getFileUploadFeedbackBytesLabel(byteRead, contentLength));
-            buffer.append(DOMUtils.BR);
-            final long timeLeft = feedback.getTimeLeft();
-            if (timeLeft < Long.MAX_VALUE)
-            {
-                buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils.formatDuration(timeLeft)));
-            }
-            return buffer.toString();
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        public final void onFailure(final Throwable caught)
+            MessageBox.progress(messageResources.getFileUploadFeedbackTitle(), messageResources
+                    .getFileUploadFeedbackMessage());
+        } else
         {
-            super.onFailure(caught);
-            finishDownload();
+            MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
         }
-
-        public final void onSuccess(final Object result)
-        {
-            final FileUploadFeedback feedback = (FileUploadFeedback) result;
-            final Message message = feedback.getMessage();
-            final IMessageResources messageResources = getViewContext().getMessageResources();
-            if (message != null)
-            {
-                WidgetUtils.showMessage(message, messageResources);
-                finishDownload();
-            } else
-            {
-                if (feedback.isFinished() == false)
-                {
-                    MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
-                    getViewContext().getCifexService().getFileUploadFeedback(
-                            new InternalFileUploadFeedbackCallback(getViewContext()));
-                } else
-                {
-                    MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
-                            .getFileUploadFeedbackFinished());
-                    finishDownload();
-                }
-            }
-        }
+        getViewContext().getCifexService()
+                .getFileUploadFeedback(new FileUploadFeedbackCallback(getViewContext(), true));
     }
 }
