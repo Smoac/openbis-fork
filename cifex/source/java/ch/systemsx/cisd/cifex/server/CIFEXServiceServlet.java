@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import com.google.gwt.user.client.rpc.SerializationException;
 
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
@@ -71,26 +70,20 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     }
 
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    public String processCall(String payload) throws SerializationException
     {
         try
         {
-            super.service(request, response);
+            return super.processCall(payload);
         } catch (Throwable th)
         {
-            operationLog.error("Error processing request for method '" + request.getMethod() + "'.", th);
+            operationLog.error("Error processing request for method '" + payload + "'.", th);
             if (th instanceof Error)
             {
                 throw (Error) th;
             } else if (th instanceof RuntimeException)
             {
                 throw (RuntimeException) th;
-            } else if (th instanceof ServletException)
-            {
-                throw (ServletException) th;
-            } else if (th instanceof IOException)
-            {
-                throw (IOException) th;
             } else
             {
                 throw new Error("Unexpected error: " + th.getMessage());
