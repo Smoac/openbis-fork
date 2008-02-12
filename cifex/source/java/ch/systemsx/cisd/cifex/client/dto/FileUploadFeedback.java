@@ -31,7 +31,7 @@ public final class FileUploadFeedback implements IsSerializable
      * Default value is <code>-1</code> meaning we do not know the request content length.
      * </p>
      */
-    private long contentLength;
+    private long contentLength = -1;
 
     /** The bytes read till now. */
     private long bytesRead;
