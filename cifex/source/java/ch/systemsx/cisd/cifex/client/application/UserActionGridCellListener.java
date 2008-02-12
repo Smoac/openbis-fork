@@ -37,19 +37,19 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final Record record = grid.getStore().getAt(rowIndex);
-            final String userCode = record.getAsString(UserGridModel.INTERNAL_USER_CODE);
-            final String name = record.getAsString(UserGridModel.FULL_NAME);
+            final String internalUserCode = record.getAsString(UserGridModel.INTERNAL_USER_CODE);
+            final String userDescription = getUserDescription(record);
             // Delete user
             if (e.getTarget(".delete", 1) != null)
             {
-                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
+                if (internalUserCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
                     MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
                             .getUserDeleteHimself());
                     return;
                 }
                 MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources
-                        .getUserDeleteConfirmText(name), new MessageBox.ConfirmCallback()
+                        .getUserDeleteConfirmText(userDescription), new MessageBox.ConfirmCallback()
                     {
 
                         //
@@ -60,7 +60,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().tryToDeleteUser(userCode,
+                                viewContext.getCifexService().tryToDeleteUser(internalUserCode,
                                         new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                             }
                         }
@@ -68,22 +68,33 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
             } else if (e.getTarget(".edit", 1) != null)
             {
-                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
+                if (internalUserCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
                     viewContext.getPageController().createEditCurrentUserPage();
                     return;
                 }
                 // Edit User
-                viewContext.getCifexService().tryToFindUserByUserCode(userCode, new FindUserAsyncCallback(viewContext));
+                viewContext.getCifexService().tryToFindUserByUserCode(internalUserCode, new FindUserAsyncCallback(viewContext));
 
             } else if (e.getTarget(".renew", 1) != null)
             {
                 // renew User
-                viewContext.getCifexService().tryToFindUserByUserCode(userCode,
+                viewContext.getCifexService().tryToFindUserByUserCode(internalUserCode,
                         new RenewUserAsyncCallback(viewContext, (ModelBasedGrid) grid));
 
             }
         }
+    }
+
+    private String getUserDescription(final Record record)
+    {
+        final String userFullName = record.getAsString(UserGridModel.FULL_NAME);
+        String userDescription = record.getAsString(UserGridModel.USER_CODE);
+        if (userFullName != null && userFullName.length() > 0)
+        {
+            userDescription += " (" + userFullName + ")";
+        }
+        return userDescription;
     }
 
     //
