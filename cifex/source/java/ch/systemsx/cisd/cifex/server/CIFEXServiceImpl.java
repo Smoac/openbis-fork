@@ -168,17 +168,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return (UserDTO) session.getAttribute(SESSION_NAME);
     }
 
-    private String describeUser(final UserDTO user)
+    private static String describeUser(final UserDTO user)
     {
         if (user.isAdmin())
         {
-            return "admin user " + user.getEmail();
+            return "admin user " + user.getUserCode();
         } else if (user.isPermanent())
         {
-            return "permanent user " + user.getEmail();
+            return "permanent user " + user.getUserCode();
         } else
         {
-            return "temporary user " + user.getEmail();
+            return "temporary user " + user.getUserCode();
         }
     }
 
@@ -353,15 +353,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private void checkCreateUserAllowed(final User user) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
-        final UserDTO requestUser = privGetCurrentUser();
-        if (requestUser.isPermanent() == false)
+        final UserDTO currentUser = privGetCurrentUser();
+        if (currentUser.isPermanent() == false)
         {
             throw new InsufficientPrivilegesException("Method 'tryToCreateUser': insufficient privileges for "
-                    + describeUser(requestUser) + ".");
-        } else if (requestUser.isAdmin() == false && (user.isPermanent() || user.isAdmin()))
+                    + describeUser(currentUser) + ".");
+        } else if (currentUser.isAdmin() == false && (user.isPermanent() || user.isAdmin()))
         {
             throw new InsufficientPrivilegesException("Method 'tryToCreateUser': insufficient privileges for "
-                    + describeUser(requestUser) + ".");
+                    + describeUser(currentUser) + ".");
         }
     }
 
@@ -443,7 +443,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IFileManager fileManager = domainModel.getFileManager();
         // Following throws UserFailureException if no access to the file.
         fileManager.getFile(currentUser, id);
-        fileManager.deleteFile(id);
+        fileManager.deleteFile(currentUser, id);
     }
 
     public final void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException
@@ -498,25 +498,49 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
-        final IUserManager userManager = domainModel.getUserManager();
-        final UserDTO currentUser = privGetCurrentUser();
-        final List<UserDTO> ownedUsers = userManager.listUsersRegisteredBy(currentUser);
+        checkUpdateOfUserIsAllowed(userToUpdate, privGetCurrentUser(), domainModel.getUserManager());
+    }
 
-        if (currentUser.isAdmin())
+    /** Check if the current user is allowed to update the given user. */
+    // @Private
+    static final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate, final UserDTO requestUser,
+            final IUserManager userManager) throws InvalidSessionException, InsufficientPrivilegesException
+    {
+        if (requestUser.isAdmin())
         {
             return;
         }
-        // Check if the current user is the owner
-        for (int i = 0; i < ownedUsers.size(); i++)
+        if (requestUser.isPermanent() == false)
         {
-            if (ownedUsers.get(i).getRegistrator().getUserCode() == currentUser.getUserCode())
+            throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(requestUser) + ".");
+        }
+        // A user is allowed to edit him or herself but not to raise his or her privilege level to admin.
+        if (requestUser.getUserCode().equals(userToUpdate.getUserCode()))
+        {
+            if (userToUpdate.isAdmin())
             {
+                throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(requestUser)
+                        + ".");
+            }
+            return;
+        }
+        final List<UserDTO> usersCreatedByRequestUser = userManager.listUsersRegisteredBy(requestUser);
+
+        // Check if the current user is the owner of the user to update.
+        for (UserDTO user : usersCreatedByRequestUser)
+        {
+            if (user.getUserCode().equals(userToUpdate.getUserCode()))
+            {
+                if (user.isAdmin() || user.isPermanent() || userToUpdate.isAdmin() || userToUpdate.isPermanent())
+                {
+                    throw new InsufficientPrivilegesException("Insufficient privileges for "
+                            + describeUser(requestUser) + ".");
+                }
                 return;
             }
         }
 
-        throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(privGetCurrentUser())
-                + ".");
+        throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(requestUser) + ".");
     }
 
     public User tryFindUserByUserCode(final String userCode)

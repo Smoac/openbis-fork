@@ -91,12 +91,17 @@ public interface IFileManager
     /** Returns all files */
     public List<FileDTO> listFiles();
 
-    /** Deletes file with given <code>fileId</code> from database and filesystem */
-    public void deleteFile(long fileId);
-    
     /**
-     * Update the Expiration Date of the file with the given ID.
-     * Only an Admin can set an own ExpirationDate, for all the others, the default expiration Date is used.
+     * Deletes file with given <code>fileId</code> from database and filesystem
+     * 
+     * @param currentUser
+     */
+    public void deleteFile(UserDTO currentUser, long fileId);
+
+    /**
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
+     * the others, the default expiration Date is used.
+     * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
     public void updateFileExpiration(final long fileId, final Date newExpirationDate);

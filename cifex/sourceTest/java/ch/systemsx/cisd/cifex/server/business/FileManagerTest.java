@@ -155,7 +155,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(true));
                 }
             });
-        fileManager.deleteFile(fileId);
+        fileManager.deleteFile(userAlice, fileId);
         assertFalse(realFile.exists());
         context.assertIsSatisfied();
     }
@@ -312,6 +312,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         String path = owner.getEmail() + "/" + fileName;
         fileDTO.setPath(path);
         fileDTO.setContentType(contentType);
+        fileDTO.setRegisterer(owner);
         return fileDTO;
     }
 

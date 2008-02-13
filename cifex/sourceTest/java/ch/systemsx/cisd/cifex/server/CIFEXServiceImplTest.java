@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,12 +33,14 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
+import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -519,5 +523,117 @@ public class CIFEXServiceImplTest
     private CIFEXServiceImpl createService(IAuthenticationService aService)
     {
         return new CIFEXServiceImpl(domainModel, requestContextProvider, aService);
+    }
+
+    @SuppressWarnings("unused")
+    @DataProvider(name = "currentUserAndUserToUpdate")
+    private Object[][] provideAllBooleans()
+    {
+        UserDTO adminRegistrant = createUser(true, true, "admin1", null);
+        UserDTO adminChanger = createUser(true, true, "admin2", null);
+        UserDTO alice = createUser(true, false, "alice", adminRegistrant);
+        UserDTO aliceWannabeAdmin = createUser(true, true, "alice", adminRegistrant);
+        UserDTO aliceTemp = createUser(false, false, "alice", adminRegistrant);
+        UserDTO permNotRegisteredByAlice = createUser(true, false, "perm1", adminRegistrant);
+        UserDTO permRegisteredByAlice = createUser(true, false, "perm2", alice);
+        UserDTO tempNotRegisteredByAlice = createUser(false, false, "temp1", adminRegistrant);
+        UserDTO tempRegisteredByAlice = createUser(false, false, "temp2", alice);
+
+        return new Object[][]
+            {
+                // admin can change everything
+                    { adminChanger, adminChanger, true },
+                    { adminChanger, adminRegistrant, true },
+                    { adminChanger, alice, true },
+                    { adminChanger, tempRegisteredByAlice, true },
+
+                    // permanent user can change
+                    { alice, alice, true }, // himself
+                        { alice, tempRegisteredByAlice, true }, // temp registered by him
+                        // permanent user cannot change
+
+                    { alice, adminRegistrant, false }, // admin
+                        { alice, adminChanger, false },
+                        { alice, permNotRegisteredByAlice, false }, // other perm
+                        { alice, permRegisteredByAlice, false },
+                        { alice, tempNotRegisteredByAlice, false }, // temp not registered by him
+                        { alice, aliceWannabeAdmin, false }, // himself to admin
+                        { alice, aliceTemp, true }, // himself to temp
+
+                        // temporary user cannot change anything
+                    { tempRegisteredByAlice, adminChanger, false },
+                    { tempRegisteredByAlice, adminRegistrant, false },
+                    { tempRegisteredByAlice, alice, false },
+                    { tempRegisteredByAlice, tempRegisteredByAlice, false },
+                    { tempRegisteredByAlice, tempNotRegisteredByAlice, false } };
+    }
+
+    final static UserDTO createUser(boolean permanent, boolean admin, String code, UserDTO registrator)
+    {
+        UserDTO user = new UserDTO();
+        user.setUserCode(code);
+        user.setAdmin(admin);
+        user.setPermanent(permanent);
+        if (registrator == null)
+        {
+            user.setRegistrator(new UserDTO());
+        } else
+        {
+            user.setRegistrator(registrator);
+        }
+        return user;
+    }
+
+    @Test(dataProvider = "currentUserAndUserToUpdate")
+    public void testCheckUpdateOfUserIsAllowedCurrentUserIsAdmin(final UserDTO currentUser, final UserDTO userToUpdate,
+            boolean canDo)
+    {
+        boolean invalidSessionExceptionThrown = false;
+        boolean insufficientPrivilegesExceptionThrown = false;
+        boolean unknownExceptionThrown = false;
+        final List<UserDTO> ownedUsers = new ArrayList<UserDTO>();
+        context.checking(new Expectations()
+            {
+                {
+                    // changer is not admin, not temporary and tries to change someone else
+                    if (currentUser.isAdmin() == false && currentUser.isPermanent()
+                            && (currentUser.getUserCode().equals(userToUpdate.getUserCode()) == false))
+                    {
+                        one(userManager).listUsersRegisteredBy(currentUser);
+                        if (currentUser.getUserCode().equals(userToUpdate.getRegistrator().getUserCode()))
+                        {
+                            ownedUsers.add(userToUpdate);
+                        }
+                        will(returnValue(ownedUsers));
+                    }
+                }
+            });
+        try
+        {
+            CIFEXServiceImpl.checkUpdateOfUserIsAllowed(userToUpdate, currentUser, userManager);
+        } catch (InvalidSessionException ex)
+        {
+            invalidSessionExceptionThrown = true;
+
+        } catch (InsufficientPrivilegesException ex)
+        {
+            insufficientPrivilegesExceptionThrown = true;
+
+        } catch (Exception ex)
+        {
+            unknownExceptionThrown = true;
+        }
+
+        assertFalse(invalidSessionExceptionThrown);
+        if (canDo)
+        {
+            assertFalse(insufficientPrivilegesExceptionThrown);
+        } else
+        {
+            assertTrue(insufficientPrivilegesExceptionThrown);
+        }
+        assertFalse(unknownExceptionThrown);
+
+        context.assertIsSatisfied();
     }
 }

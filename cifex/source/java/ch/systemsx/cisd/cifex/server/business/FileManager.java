@@ -392,9 +392,21 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void deleteFile(long fileId)
+    public void deleteFile(UserDTO currentUser, long fileId)
     {
+        assert currentUser != null : "Given user can not be null.";
+
         FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
+
+        if (file == null)
+        {
+            return;
+        }
+        if (currentUser.getID().equals(file.getRegistererId()) == false && currentUser.isAdmin() == false)
+        {
+            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", currentUser
+                    .getUserFullName(), file.getPath());
+        }
         daoFactory.getFileDAO().deleteFile(file.getID());
         deleteFromFileSystem(file.getPath());
     }

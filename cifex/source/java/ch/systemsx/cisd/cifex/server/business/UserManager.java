@@ -163,40 +163,40 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void updateUser(final UserDTO user, final String encryptedPassword)
+    public final void updateUser(final UserDTO userToUpdate, final String encryptedPassword)
     {
-        assert user != null : "Unspecified user";
+        assert userToUpdate != null : "Unspecified user";
 
         final IUserDAO userDAO = daoFactory.getUserDAO();
         // Get existing user
-        final UserDTO existingUser = userDAO.tryFindUserByCode(user.getUserCode());
+        final UserDTO existingUser = userDAO.tryFindUserByCode(userToUpdate.getUserCode());
         assert existingUser != null;
-        assert existingUser.getUserCode().equals(user.getUserCode()) : "User code can not be changed";
+        assert existingUser.getUserCode().equals(userToUpdate.getUserCode()) : "User code can not be changed";
 
-        user.setID(existingUser.getID());
+        userToUpdate.setID(existingUser.getID());
 
         // Permanent User can not get temporary user.
-        if (existingUser.isPermanent() == true && user.isPermanent() == false)
+        if (existingUser.isPermanent() == true && userToUpdate.isPermanent() == false)
         {
-            user.setPermanent(true);
+            userToUpdate.setPermanent(true);
         }
 
         // Renew the expiration Date
-        if (user.isPermanent() == false)
+        if (userToUpdate.isPermanent() == false)
         {
-            user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+            userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
         }
 
         // Password, renew it or leave it as it is
         if (encryptedPassword != null && encryptedPassword.equals("") == false)
         {
-            user.setEncryptedPassword(encryptedPassword);
+            userToUpdate.setEncryptedPassword(encryptedPassword);
         } else
         {
-            user.setEncryptedPassword(existingUser.getEncryptedPassword());
+            userToUpdate.setEncryptedPassword(existingUser.getEncryptedPassword());
         }
 
-        userDAO.updateUser(user);
+        userDAO.updateUser(userToUpdate);
 
     }
 
