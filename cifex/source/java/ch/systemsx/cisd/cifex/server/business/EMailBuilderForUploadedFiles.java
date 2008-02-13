@@ -98,12 +98,15 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         }
         builder.append(EXPIRATION_TEMPLATE.format(new Object[]
             { minExpirationDate }));
+        builder.append("\n");
         if (password != null)
         {
-            builder.append("\n\nFor downloading you have to enter the following password: ").append(password);
+            builder.append("\nFor downloading you have to enter the following password: ").append(password);
             builder.append("\n");
         }
-        builder.append("\n------------------------------------------------------------\n\n");
+        builder.append("\nTo login to the system: ").append(url).append("/index.html");
+        appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, true);
+        builder.append("\n\n------------------------------------------------------------\n\n");
         builder.append("We recommend that you install the latest version of your antivirus software ");
         builder.append("prior to downloading any files over the Internet.\n");
         return builder.toString();
