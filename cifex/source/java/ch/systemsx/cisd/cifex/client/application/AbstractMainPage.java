@@ -38,8 +38,12 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * @author Franz-Josef Elmer
  */
+// TODO 2008-02-13, Christian Ribeaud: the toolbar should be share between 'AdminMainPage', 'EditCurrentUserPage' and
+// 'MainPage'. The is no reason to re-create it everytime I switch the page.
 abstract class AbstractMainPage extends BorderLayout
 {
+    private static final String TOGGLE_GROUP = "toggleGroup";
+
     protected IMessageResources messageResources;
 
     protected VerticalPanel createUserPanel;
@@ -101,18 +105,22 @@ abstract class AbstractMainPage extends BorderLayout
         toolbar.addItem(createUserDescription(user));
         if (user.isPermanent() == true)
         {
+            toolbar.addSeparator();
             toolbar.addButton(createMainViewButton());
         }
 
         if (user.isAdmin() == true)
         {
+            toolbar.addSeparator();
             toolbar.addButton(createAdminViewButton());
         }
 
         if (user.isExternallyAuthenticated() == false && user.isPermanent() == true)
         {
+            toolbar.addSeparator();
             toolbar.addButton(createEditProfileButton());
         }
+        toolbar.addSeparator();
         toolbar.addButton(createLogoutButton());
         contentPanel.add(toolbar);
         return contentPanel;
@@ -175,6 +183,7 @@ abstract class AbstractMainPage extends BorderLayout
                     {
                         {
                             setTooltip(messageResources.getMainViewTooltipLabel());
+                            setToggleGroup(TOGGLE_GROUP);
                         }
                     });
         editProfileButton.addButtonListener(new ButtonListenerAdapter()
@@ -194,6 +203,7 @@ abstract class AbstractMainPage extends BorderLayout
                     {
                         {
                             setTooltip(messageResources.getEditUserTooltipLabel());
+                            setToggleGroup(TOGGLE_GROUP);
                         }
                     });
         editProfileButton.addButtonListener(new ButtonListenerAdapter()
@@ -213,6 +223,7 @@ abstract class AbstractMainPage extends BorderLayout
                     {
                         {
                             setTooltip(messageResources.getAdminViewTooltipLabel());
+                            setToggleGroup(TOGGLE_GROUP);
                         }
                     });
         adminViewButton.addButtonListener(new ButtonListenerAdapter()

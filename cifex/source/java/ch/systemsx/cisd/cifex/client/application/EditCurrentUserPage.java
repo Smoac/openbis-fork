@@ -48,6 +48,10 @@ final class EditCurrentUserPage extends AbstractMainPage
         editUserPanel.add(editUserWidget.getSubmitButton());
     }
 
+    //
+    // AbstractMainPage
+    //
+
     protected final ContentPanel createMainPanel()
     {
         final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
