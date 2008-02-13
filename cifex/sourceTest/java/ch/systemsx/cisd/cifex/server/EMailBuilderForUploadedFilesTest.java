@@ -27,8 +27,6 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class EMailBuilderForUploadedFilesTest
@@ -51,40 +49,28 @@ public class EMailBuilderForUploadedFilesTest
         builder.setComment("Here are my data.");
         builder.setPassword("a1234");
         builder.sendEMail();
-        
+
         assertEquals("[CIFEX] A file available for download from registrator", mailClient.subject);
-        assertEquals("Hello,\n" + 
-        		"\n" + 
-        		"registrator <reg@r.rr> has stored a file on our server for you to download. File information appears below.\n" + 
-        		"\n" + 
-        		"------------------------------------------------------------\n" + 
-        		"\n" + 
-        		"From:\tregistrator\n" + 
-        		"Email:\treg@r.rr\n" + 
-        		"Comment:\tHere are my data.\n" + 
-        		"\n" + 
-        		"A file (click to download):\n" + 
-        		"\n" + 
-        		"myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + 
-        		"\n" + 
-        		"Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + 
-        		"\n" + 
-        		"For downloading you have to enter the following password: a1234\n" + 
-        		"\n" + 
-        		"------------------------------------------------------------\n" + 
-        		"\n" + 
-        		"We recommend that you install the latest version of your antivirus software prior " +
-        		"to downloading any files over the Internet.\n" + 
-        		"\n" + 
-        		"\n" + 
-        		"--------------------------------------------------\n" + 
-        		"CIFEX - CISD File EXchanger\n" + 
-        		"Center for Information Sciences and Databases\n" + 
-        		"ETH Zurich", mailClient.content);
+        assertEquals(
+                "Hello,\n"
+                        + "\n"
+                        + "registrator <reg@r.rr> has stored a file on our server for you to download. File information appears below.\n"
+                        + "\n" + "------------------------------------------------------------\n" + "\n"
+                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n" + "Comment:\tHere are my data.\n" + "\n"
+                        + "A file (click to download):\n" + "\n"
+                        + "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + "\n"
+                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + "\n"
+                        + "For downloading you have to enter the following password: a1234\n" + "\n"
+                        + "To login to the system: http://localhost/cifex/index.html?user=userCode\n" + "\n"
+                        + "------------------------------------------------------------\n" + "\n"
+                        + "We recommend that you install the latest version of your antivirus software prior "
+                        + "to downloading any files over the Internet.\n" + "\n" + "\n"
+                        + "--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
+                        + "Center for Information Sciences and Databases\n" + "ETH Zurich", mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("a@a.aa", mailClient.recipients[0]);
     }
-    
+
     @Test
     public void testTwoFilesNoComment()
     {
@@ -106,36 +92,25 @@ public class EMailBuilderForUploadedFilesTest
         builder.setUserCode("userCode");
         builder.setURL("http://localhost/cifex");
         builder.sendEMail();
-        
+
         assertEquals("[CIFEX] Files available for download from registrator", mailClient.subject);
-        assertEquals("Hello,\n" + 
-                "\n" + 
-                "registrator <reg@r.rr> has stored files on our server for you to download. File information appears below.\n" + 
-                "\n" + 
-                "------------------------------------------------------------\n" + 
-                "\n" + 
-                "From:\tregistrator\n" + 
-                "Email:\treg@r.rr\n" + 
-                "\n" + 
-                "Files (click to download):\n" + 
-                "\n" + 
-                "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + 
-                "otherData.zip http://localhost/cifex/index.html?fileId=4711&user=userCode\n" + 
-                "\n" + 
-                "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + 
-                "------------------------------------------------------------\n" + 
-                "\n" + 
-                "We recommend that you install the latest version of your antivirus software prior " +
-                "to downloading any files over the Internet.\n" + 
-                "\n" + 
-                "\n" + 
-                "--------------------------------------------------\n" + 
-                "CIFEX - CISD File EXchanger\n" + 
-                "Center for Information Sciences and Databases\n" + 
-                "ETH Zurich", mailClient.content);
+        assertEquals(
+                "Hello,\n"
+                        + "\n"
+                        + "registrator <reg@r.rr> has stored files on our server for you to download. File information appears below.\n"
+                        + "\n" + "------------------------------------------------------------\n" + "\n"
+                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n" + "\n" + "Files (click to download):\n" + "\n"
+                        + "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n"
+                        + "otherData.zip http://localhost/cifex/index.html?fileId=4711&user=userCode\n" + "\n"
+                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + "\n"
+                        + "To login to the system: http://localhost/cifex/index.html?user=userCode" + "\n\n"
+                        + "------------------------------------------------------------\n" + "\n"
+                        + "We recommend that you install the latest version of your antivirus software prior "
+                        + "to downloading any files over the Internet.\n" + "\n" + "\n"
+                        + "--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
+                        + "Center for Information Sciences and Databases\n" + "ETH Zurich", mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("a@a.aa", mailClient.recipients[0]);
     }
-    
 
 }
