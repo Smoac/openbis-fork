@@ -123,7 +123,7 @@ public class OSUtilities
             }
             if (isMacOS())
             {
-                pathEntries.add("/opt/local/bin"); // Darwin ports
+                pathEntries.add("/opt/local/bin"); // MacPorts
                 pathEntries.add("/sw/bin"); // Fink
                 if (root)
                 {
