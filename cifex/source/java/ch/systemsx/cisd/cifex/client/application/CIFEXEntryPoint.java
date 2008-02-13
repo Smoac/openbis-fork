@@ -4,20 +4,24 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.form.Field;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
+import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
- * Entry point of <i>GWT</i> based <i>LIMS</i> client.
+ * Entry point of <i>GWT</i> <i>CIFEX</i>.
+ * <p>
+ * {@link #onModuleLoad()} gets called when the user enters the application (by calling <code>index.html</code> page)
+ * or when the user pushes the navigator refresh button.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -56,7 +60,7 @@ public final class CIFEXEntryPoint implements EntryPoint
         {
             viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
         }
-        cifexService.getConfiguration(new AsyncCallback()
+        cifexService.getConfiguration(new AbstractAsyncCallback(viewContext)
             {
 
                 //
@@ -65,29 +69,7 @@ public final class CIFEXEntryPoint implements EntryPoint
 
                 public final void onSuccess(final Object result)
                 {
-                    final Configuration configuration = (Configuration) result;
-                    if (configuration != null)
-                    {
-                        viewContext.getModel().setConfiguration(configuration);
-                    } else
-                    {
-                        onFailure(null);
-                    }
-
-                }
-
-                public final void onFailure(final Throwable caught)
-                {
-                    final IMessageResources resources = viewContext.getMessageResources();
-                    final String title = resources.getMessageBoxErrorTitle();
-                    final String msg = caught == null ? null : caught.getMessage();
-                    if (StringUtils.isBlank(msg))
-                    {
-                        MessageBox.alert(title, resources.getLoginConfigFailedMessage());
-                    } else
-                    {
-                        MessageBox.alert(title, resources.getLoginConfigFailedMessage() + "\n" + msg);
-                    }
+                    viewContext.getModel().setConfiguration((Configuration) result);
                 }
 
             });
@@ -95,7 +77,7 @@ public final class CIFEXEntryPoint implements EntryPoint
             {
 
                 //
-                // AsyncCallbackAdapter
+                // AsyncCallback
                 //
 
                 public final void onSuccess(final Object result)
@@ -103,7 +85,9 @@ public final class CIFEXEntryPoint implements EntryPoint
                     final IPageController pageController = viewContext.getPageController();
                     if (result != null)
                     {
-                        viewContext.getModel().setUser((User) result);
+                        final Model model = viewContext.getModel();
+                        model.setUser((User) result);
+                        FileDownloadHelper.startFileDownload(model);
                         pageController.createMainPage();
                     } else
                     {

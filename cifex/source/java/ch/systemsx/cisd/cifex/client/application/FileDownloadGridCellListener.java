@@ -21,6 +21,7 @@ import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -36,11 +37,6 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
     {
     }
 
-    private final static String createDownloadUrl(final long id)
-    {
-        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "=" + id;
-    }
-
     //
     // GridCellListenerAdapter
     //
@@ -52,7 +48,7 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
         {
             final Record record = grid.getStore().getAt(rowIndex);
             final int id = record.getAsInteger(AbstractFileGridModel.ID);
-            final String url = createDownloadUrl(id);
+            final String url = FileDownloadHelper.createDownloadUrl(id);
             WindowUtils.openNewDependentWindow(url);
         }
     }

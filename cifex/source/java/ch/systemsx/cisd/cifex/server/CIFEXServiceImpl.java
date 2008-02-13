@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server;
 
 import java.util.Date;
 import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -196,7 +197,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     // ICifexService
     //
 
-    public Configuration getConfiguration() throws InvalidSessionException
+    public final Configuration getConfiguration() throws InvalidSessionException
     {
         return BeanUtils.createBean(Configuration.class, domainModel.getBusinessContext());
     }
@@ -452,7 +453,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final HttpSession session = getSession(false);
         session.setAttribute(FILES_TO_UPLOAD, filenamesForUpload);
         final FileUploadFeedbackProvider feedbackProvider =
-            (FileUploadFeedbackProvider) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
+                (FileUploadFeedbackProvider) session.getAttribute(UPLOAD_FEEDBACK_QUEUE);
         feedbackProvider.set(new FileUploadFeedback());
     }
 

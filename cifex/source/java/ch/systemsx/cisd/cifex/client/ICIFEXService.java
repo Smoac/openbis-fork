@@ -51,7 +51,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns the configuration data of this CIFEX instance.
      * 
-     * @return The configuration data.
+     * @return The configuration data. Never <code>null</code>.
      * @throws InvalidSessionException if user not logged in.
      */
     public Configuration getConfiguration() throws InvalidSessionException;
@@ -75,7 +75,7 @@ public interface ICIFEXService extends RemoteService
     /** Returns a list of users, which where registered by the given user. */
     public User[] listUsersRegisteredBy(User user);
 
-/**
+    /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
      * is not <code>null</code>, it will be interpreted as the user who creates the new user.
      * <p>
@@ -113,12 +113,12 @@ public interface ICIFEXService extends RemoteService
      * </p>
      */
     public File[] listUploadedFiles() throws InvalidSessionException;
-    
+
     /**
      * List all files (only for admins).
      */
     public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
-    
+
     /**
      * Deletes file given by its <var>id</var>.
      */

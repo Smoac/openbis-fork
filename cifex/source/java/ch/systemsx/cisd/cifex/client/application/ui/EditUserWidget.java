@@ -38,7 +38,8 @@ public class EditUserWidget extends UserWidget
         // Check if passwords are equal.
         if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
         {
-            MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
+            MessageBox
+                    .alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
             return;
         }
 
@@ -105,7 +106,8 @@ public class EditUserWidget extends UserWidget
             MessageBox.alert(title, messageResources.getUpdateSuccessMessage("User"));
             User user = context.getModel().getUser();
             // Update User, if it is to one who is logged in
-            if(user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false){
+            if (user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false)
+            {
                 user.setEmail(emailField.getText());
                 user.setUserFullName(usernameField.getValueAsString());
                 context.getModel().setUser(user);

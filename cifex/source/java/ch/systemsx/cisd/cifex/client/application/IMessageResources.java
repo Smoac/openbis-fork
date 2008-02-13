@@ -253,13 +253,6 @@ public interface IMessageResources extends Messages
     public String getLoginButtonLabel();
 
     /**
-     * Returns the message when obtaining the program configuration failed.
-     * 
-     * @gwt.key login.getconfig.failed.message
-     */
-    public String getLoginConfigFailedMessage();
-
-    /**
      * Returns the email label for the login form.
      * 
      * @gwt.key login.user.label
