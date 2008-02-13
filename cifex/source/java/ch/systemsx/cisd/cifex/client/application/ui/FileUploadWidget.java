@@ -51,7 +51,11 @@ public final class FileUploadWidget extends Form
 
     private static final int FIELD_WIDTH = 230;
 
-    private static final int COLUMN_WIDTH = 342;
+    private static final int COLUMN_WIDTH = 360;
+    
+    private static final int WIDTH_OFS = 20;
+
+    private static final int TOTAL_WIDTH = 3 * COLUMN_WIDTH + WIDTH_OFS;
 
     private static final int LABEL_WIDTH = 80;
 
@@ -73,7 +77,7 @@ public final class FileUploadWidget extends Form
     private final static FormConfig createFormConfig()
     {
         final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(1050);
+        formConfig.setWidth(TOTAL_WIDTH);
         formConfig.setLabelAlign(Position.LEFT);
         formConfig.setButtonAlign(Position.RIGHT);
         formConfig.setLabelWidth(LABEL_WIDTH);
