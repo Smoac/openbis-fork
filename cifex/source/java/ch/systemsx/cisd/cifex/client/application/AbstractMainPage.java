@@ -146,7 +146,7 @@ abstract class AbstractMainPage extends BorderLayout
             buffer.append("administrator");
         } else if (user.isPermanent())
         {
-            buffer.append("permanent");
+            buffer.append("regular");
         } else
         {
             buffer.append("temporary account: expiration date: ").append(
