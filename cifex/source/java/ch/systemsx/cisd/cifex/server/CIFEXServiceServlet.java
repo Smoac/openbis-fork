@@ -29,6 +29,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
+import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
@@ -136,8 +137,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void createUser(final User user, final String password, final User registratorOrNull,
-            final String comment) throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+    public void createUser(final User user, final String password, final User registratorOrNull, final String comment)
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
         cifexServiceDelegate.createUser(user, password, registratorOrNull, comment);
@@ -151,7 +152,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void deleteFile(final long id) throws InvalidSessionException
+    public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
+            FileNotFoundException
     {
         cifexServiceDelegate.deleteFile(id);
     }

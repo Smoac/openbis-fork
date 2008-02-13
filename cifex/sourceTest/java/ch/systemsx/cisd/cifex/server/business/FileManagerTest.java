@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -42,8 +43,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
+import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
-import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -136,6 +137,55 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testRegistratorIsAllowedAccessAndDeletion()
+    {
+        final long userId = 17L;
+        final UserDTO user = new UserDTO();
+        user.setID(userId);
+        final FileDTO file = new FileDTO(userId);
+        assertTrue(fileManager.isAllowedDeletion(user, file));
+        assertTrue(fileManager.isAllowedAccess(user, file));
+    }
+    
+    @Test
+    public void testAdminIsAllowedAccessAndDeletion()
+    {
+        final long adminId = 42L;
+        final long userId = 17L;
+        final UserDTO admin = new UserDTO();
+        admin.setID(adminId);
+        admin.setAdmin(true);
+        final FileDTO file = new FileDTO(userId);
+        assertTrue(fileManager.isAllowedDeletion(admin, file));
+        assertTrue(fileManager.isAllowedAccess(admin, file));
+    }
+    
+    @Test
+    public void testSharingUserIsAllowedAccessButNotDeletion()
+    {
+        final long sharingUserId = 1L;
+        final long registratorIdId = 17L;
+        final UserDTO sharingUser = new UserDTO();
+        sharingUser.setID(sharingUserId);
+        final FileDTO file = new FileDTO(registratorIdId);
+        file.setSharingUsers(Arrays.asList(sharingUser));
+        assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
+        assertTrue(fileManager.isAllowedAccess(sharingUser, file));
+    }
+    
+    @Test
+    public void testNonInvolvedUserIsNotAllowedAccessAndDeletion()
+    {
+        final long sharingUserId = 1L;
+        final long registratorIdId = 17L;
+        final UserDTO sharingUser = new UserDTO();
+        sharingUser.setID(sharingUserId);
+        final FileDTO file = new FileDTO(registratorIdId);
+        assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
+        assertFalse(fileManager.isAllowedAccess(sharingUser, file));
+    }
+    
     @Test(dependsOnMethods =
         { "testSaveFile", "testGetFile" })
     public void testDeleteFile()
@@ -149,13 +199,11 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));
-                    one(fileDAO).tryGetFile(fileId);
-                    will(returnValue(imageFile));
                     one(fileDAO).deleteFile(fileId);
                     will(returnValue(true));
                 }
             });
-        fileManager.deleteFile(userAlice, fileId);
+        fileManager.deleteFile(imageFile);
         assertFalse(realFile.exists());
         context.assertIsSatisfied();
     }
@@ -163,21 +211,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     @Test
     public void testGetFile()
     {
-        UserDTO user = userAlice;
-        final long fileId = imageFile.getID();
         File realFile = createRealFile(imageFile.getPath());
         assertTrue(realFile.exists());
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getFileDAO();
-                    will(returnValue(fileDAO));
-                    one(fileDAO).tryGetFile(fileId);
-                    will(returnValue(imageFile));
-                }
-            });
-        FileOutput returnedFile = fileManager.getFile(user, fileId);
+        FileContent returnedFile = fileManager.getFileContent(imageFile);
         assertNotNull(returnedFile);
+        assertEquals(imageFile.getName(), returnedFile.getBasicFile().getName());
+        assertEquals(imageFile.getSize(), returnedFile.getBasicFile().getSize());
         context.assertIsSatisfied();
     }
 
@@ -260,7 +299,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertTrue(createdFile.exists());
         assertEquals(createdFile.getPath(), expectedFilePath.getPath());
         assertEquals(createdFileDTO.getContentType(), imageFile.getContentType());
-        assertEquals(createdFileDTO.getRegistererId(), imageFile.getRegistererId());
+        assertEquals(createdFileDTO.getRegistratorId(), imageFile.getRegistratorId());
         assertEquals(createdFileDTO.getSharingUsers(), imageFile.getSharingUsers());
         assertEquals(createdFileDTO.getName(), imageFile.getName());
         assertEquals(createdFileDTO.getSize().longValue(), inputFile.length());

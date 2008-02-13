@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
-import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
@@ -37,13 +37,32 @@ public interface IFileManager
 {
 
     /**
-     * Tries to find a file with given <var>fileId</var>.
+     * Returns the file DTO for given <var>fileId</var>.
      * 
-     * @return never returns <code>null</code> but prefers to throw an exception.
+     * @return The file DTO, or <code>null</code>, if no file object exists in the database for this <var>fileId</var>.
+     */
+    public FileInformation getFileInformation(final long fileId);
+
+    /**
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to file
+     * <var>fileDTO</var>.
+     */
+    public boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO);
+
+    /**
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file
+     * <var>fileDTO</var>.
+     */
+    public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO);
+
+    /**
+     * Returns the content for the given <var>fileDTO</var>.
+     * 
+     * @return The file content.
      * @throws UserFailureException if given <var>fileId</var> could not be found in the database or if current user
      *             does not have access to the file.
      */
-    public FileOutput getFile(final UserDTO userDTO, final long fileId) throws UserFailureException;
+    public FileContent getFileContent(final FileDTO fileDTO) throws UserFailureException;
 
     /**
      * Saves the data of the specified input stream which comes from a file with the specified name.
@@ -80,10 +99,6 @@ public interface IFileManager
      */
     public void throwExceptionOnFileDoesNotExist(final String fileName);
 
-    //
-    // Helper classes
-    //
-
     /** Deletes expired files from database and filesystem */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteExpiredFiles();
@@ -92,11 +107,9 @@ public interface IFileManager
     public List<FileDTO> listFiles();
 
     /**
-     * Deletes file with given <code>fileId</code> from database and filesystem
-     * 
-     * @param currentUser
+     * Deletes file with given <code>fileId</code> from database and file system.
      */
-    public void deleteFile(UserDTO currentUser, long fileId);
+    public void deleteFile(final FileDTO fileDTO);
 
     /**
      * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all

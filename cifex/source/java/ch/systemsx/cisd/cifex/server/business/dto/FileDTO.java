@@ -32,7 +32,7 @@ public final class FileDTO extends ID
     private String path;
 
     /**
-     * Represents registerer of the file.
+     * Represents registrator of the file.
      */
     private UserDTO registerer;
 
@@ -45,13 +45,13 @@ public final class FileDTO extends ID
     /** Users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
     private List<UserDTO> sharingUsers = Collections.emptyList();
 
-    private final Long registererId;
+    private final Long registratorId;
 
     private final BasicFileDTO basicFileDTO = new BasicFileDTO();
 
     public FileDTO(final Long registererId)
     {
-        this.registererId = registererId;
+        this.registratorId = registererId;
     }
 
     public final String getName()
@@ -81,7 +81,7 @@ public final class FileDTO extends ID
 
     public final void setRegisterer(final UserDTO registerer)
     {
-        getAndCheckID(registerer, registererId);
+        getAndCheckID(registerer, registratorId);
         this.registerer = registerer;
     }
 
@@ -115,9 +115,9 @@ public final class FileDTO extends ID
         this.sharingUsers = sharingUsers;
     }
 
-    public final Long getRegistererId()
+    public final Long getRegistratorId()
     {
-        return registererId;
+        return registratorId;
     }
 
     public final void setContentType(final String contentType)

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
-import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
@@ -86,16 +86,6 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         }
         return false;
-    }
-
-    private final FileDTO getFile(final long fileId) throws UserFailureException
-    {
-        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-        if (file == null)
-        {
-            throw UserFailureException.fromTemplate("No file could be found for id %d.", fileId);
-        }
-        return file;
     }
 
     /** Deletes file with given path from the file system. */
@@ -173,33 +163,67 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final FileOutput getFile(final UserDTO userDTO, final long fileId)
+    public final FileInformation getFileInformation(final long fileId) throws UserFailureException
     {
-        assert userDTO != null : "Given user can not be null.";
+        final FileDTO fileDTOOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
+        if (fileDTOOrNull == null)
+        {
+            return new FileInformation(fileId, "File [id=" + fileId + "] not found in the database.");
+        } else
+        {
+            final File realFile = new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
+            if (realFile.exists() == false)
+            {
+                return new FileInformation(fileId, String.format("File '%s' [id=%d] not found in the file store.",
+                        realFile.getPath(), fileId));
+            }
+        }
+        return new FileInformation(fileId, fileDTOOrNull);
+    }
 
-        final FileDTO file = getFile(fileId);
-        final java.io.File realFile = new java.io.File(businessContext.getFileStore(), file.getPath());
+    @Transactional
+    public final FileContent getFileContent(final FileDTO fileDTO)
+    {
+        final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
         if (realFile.exists() == false)
         {
-            throw new UserFailureException(String.format("File '%s' no longer available.", realFile.getAbsolutePath()));
-        }
-        final List<UserDTO> sharingUsers = file.getSharingUsers();
-        // Administrator can download the file not shared with him.
-        if (userDTO.getID().equals(file.getRegistererId()) == false && containsUser(userDTO, sharingUsers) == false
-                && userDTO.isAdmin() == false)
-        {
-            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", userDTO
-                    .getUserFullName(), file.getPath());
+            throw new IllegalStateException(String.format("File '%s' does not exist on the file system.", realFile
+                    .getAbsolutePath()));
         }
         try
         {
-            return new FileOutput(BeanUtils.createBean(BasicFileDTO.class, file), new FileInputStream(realFile));
+            return new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO), new FileInputStream(realFile));
         } catch (final FileNotFoundException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
+    @Transactional
+    public final boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO)
+    {
+        if (isAllowedDeletion(userDTO, fileDTO))
+        {
+            return true;
+        }
+        final List<UserDTO> sharingUsers = fileDTO.getSharingUsers();
+        return containsUser(userDTO, sharingUsers);
+    }
+
+    @Transactional
+    public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO)
+    {
+        if (userDTO.isAdmin())
+        {
+            return true;
+        }
+        if (userDTO.getID().equals(fileDTO.getRegistratorId()))
+        {
+            return true;
+        }
+        return false;
+    }
+    
     @Transactional
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream input)
@@ -392,23 +416,12 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void deleteFile(UserDTO currentUser, long fileId)
+    public void deleteFile(final FileDTO fileDTO)
     {
-        assert currentUser != null : "Given user can not be null.";
+        assert fileDTO != null : "Given file can not be null";
 
-        FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-
-        if (file == null)
-        {
-            return;
-        }
-        if (currentUser.getID().equals(file.getRegistererId()) == false && currentUser.isAdmin() == false)
-        {
-            throw UserFailureException.fromTemplate("Current user '%s' does not have access to file '%s'.", currentUser
-                    .getUserFullName(), file.getPath());
-        }
-        daoFactory.getFileDAO().deleteFile(file.getID());
-        deleteFromFileSystem(file.getPath());
+        daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+        deleteFromFileSystem(fileDTO.getPath());
     }
 
     @Transactional
@@ -424,4 +437,5 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         daoFactory.getFileDAO().updateFile(file);
     }
+
 }

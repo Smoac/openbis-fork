@@ -28,7 +28,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
-import ch.systemsx.cisd.cifex.server.business.dto.FileOutput;
+import ch.systemsx.cisd.cifex.server.business.FileInformation;
+import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -60,19 +62,23 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
             try
             {
                 final long fileId = Long.parseLong(fileIdParameter);
-                // Do not check for null value.
-                final FileOutput fileOutput = domainModel.getFileManager().getFile(requestUser, fileId);
+                final IFileManager fileManager = domainModel.getFileManager();
+                final FileInformation fileInfo = fileManager.getFileInformation(fileId);
+                if (fileInfo.isFileAvailable() == false)
+                {
+                    throw new UserFailureException(fileInfo.getErrorMessage());
+                }
+                if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
+                {
+                    throw UserFailureException.fromTemplate("User '%s' does not have access to file '%s'.", requestUser
+                            .getUserCode(), fileInfo.getFileDTO().getPath());
+                }
+                final FileContent fileOutput = fileManager.getFileContent(fileInfo.getFileDTO());
                 final Long size = fileOutput.getBasicFile().getSize();
                 if (size != null && size <= Integer.MAX_VALUE)
                 {
                     response.setContentLength(size.intValue());
                 }
-                // final String contentType = fileOutput.getBasicFile().getContentType();
-                // if (contentType != null)
-                // {
-                // response.setContentType(contentType);
-                //                    
-                // }
                 response.setContentType("application/x-unknown");
                 response.setHeader("Content-Disposition", "attachment; filename=\""
                         + fileOutput.getBasicFile().getName() + "\"");

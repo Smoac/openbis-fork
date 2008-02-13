@@ -21,7 +21,7 @@ import java.io.InputStream;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
-public final class FileOutput extends AbstractHashable
+public final class FileContent extends AbstractHashable
 {
     /** Basic information about a file. */
     private final BasicFileDTO basicFile;
@@ -29,7 +29,7 @@ public final class FileOutput extends AbstractHashable
     /** To access the file content. */
     private final InputStream inputStream;
 
-    public FileOutput(final BasicFileDTO basicFile, final InputStream inputStream)
+    public FileContent(final BasicFileDTO basicFile, final InputStream inputStream)
     {
         this.basicFile = basicFile;
         this.inputStream = inputStream;

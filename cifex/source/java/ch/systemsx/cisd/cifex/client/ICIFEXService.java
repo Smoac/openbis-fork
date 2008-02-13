@@ -121,8 +121,11 @@ public interface ICIFEXService extends RemoteService
 
     /**
      * Deletes file given by its <var>id</var>.
+     * 
+     * @throws FileNotFoundException If the file defined by <var>id</var> could not be found. 
      */
-    public void deleteFile(final long id) throws InvalidSessionException;
+    public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
+            FileNotFoundException;
 
     /**
      * Registers the file names for the next upload request in the session.

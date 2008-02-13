@@ -171,7 +171,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(expected.getID(), actual.getID());
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getPath(), actual.getPath());
-        assertEquals(expected.getRegistererId(), actual.getRegistererId());
+        assertEquals(expected.getRegistratorId(), actual.getRegistratorId());
         assertNotNull(actual.getRegistrationDate());
         assertEquals(expected.getExpirationDate(), actual.getExpirationDate());
     }

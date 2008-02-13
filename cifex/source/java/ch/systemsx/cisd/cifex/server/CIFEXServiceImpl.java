@@ -31,6 +31,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
+import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
+import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
@@ -437,13 +439,21 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public void deleteFile(final long id) throws InvalidSessionException
+    public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
+            FileNotFoundException
     {
-        final UserDTO currentUser = privGetCurrentUser();
+        final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        // Following throws UserFailureException if no access to the file.
-        fileManager.getFile(currentUser, id);
-        fileManager.deleteFile(currentUser, id);
+        final FileInformation fileInfo = fileManager.getFileInformation(id);
+        if (fileInfo.isFileAvailable() == false)
+        {
+            throw new FileNotFoundException(fileInfo.getErrorMessage());
+        }
+        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(requestUser) + ".");
+        }
+        fileManager.deleteFile(fileInfo.getFileDTO());
     }
 
     public final void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException
