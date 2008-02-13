@@ -52,7 +52,7 @@ public final class FileUploadWidget extends Form
     private static final int FIELD_WIDTH = 230;
 
     private static final int COLUMN_WIDTH = 360;
-    
+
     private static final int WIDTH_OFS = 20;
 
     private static final int TOTAL_WIDTH = 3 * COLUMN_WIDTH + WIDTH_OFS;
@@ -159,8 +159,7 @@ public final class FileUploadWidget extends Form
         final IMessageResources messageResources = context.getMessageResources();
         textAreaConfig.setFieldLabel(messageResources.getRecipientFieldLabel());
         textAreaConfig.setName("email-addresses");
-        textAreaConfig.setGrow(true);
-        textAreaConfig.setPreventScrollbars(true);
+        textAreaConfig.setPreventScrollbars(false);
         textAreaConfig.setWidth(FIELD_WIDTH);
         textAreaConfig.setValidator(new Validator()
             {

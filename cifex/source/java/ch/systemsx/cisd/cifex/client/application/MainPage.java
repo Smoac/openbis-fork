@@ -158,7 +158,7 @@ final class MainPage extends AbstractMainPage
                 {
                     gridModel = new UploadedFileGridModel(messageResources);
                 }
-                final Grid fileGrid = new ModelBasedGrid(messageResources, files, gridModel, "100px");
+                final Grid fileGrid = new ModelBasedGrid(messageResources, files, gridModel);
                 fileGrid.addGridCellListener(new FileDownloadGridCellListener());
                 if (showDownloaded == false)
                 {
@@ -190,7 +190,7 @@ final class MainPage extends AbstractMainPage
         private Widget createUserTable(final User[] users)
         {
             final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
-            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel, "100px");
+            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel);
             // Delete user function
             userGrid.addGridCellListener(new UserActionGridCellListener(context));
             return userGrid;

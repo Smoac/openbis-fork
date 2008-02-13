@@ -42,15 +42,19 @@ public final class ModelBasedGrid extends Grid
 
     private IDataGridModel model;
 
-    public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model,
-            final String height)
+    public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model)
     {
-        super(Ext.generateId(), null, height, createStore(objects, model), createColumnModel(messageResources, model),
-                createGridConfig());
+        super(Ext.generateId(), null, getHeight(objects), createStore(objects, model), createColumnModel(
+                messageResources, model), createGridConfig());
         this.model = model;
         // To turn off the row selection
         getSelectionModel().lock();
         render();
+    }
+
+    private final static String getHeight(final Object[] objects)
+    {
+        return "170px";
     }
 
     private final static DataProxy createDataProxy(final Object[] objects, final IDataGridModel newModel)
