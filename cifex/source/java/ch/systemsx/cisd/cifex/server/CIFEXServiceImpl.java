@@ -486,7 +486,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         checkUpdateOfUserIsAllowed(userDTO);
 
         String encryptedPassword = null;
-        if (password != null && password.equals("") == false)
+        if (StringUtils.isNotBlank(password) == false)
         {
             encryptedPassword = StringUtilities.computeMD5Hash(password);
         }
