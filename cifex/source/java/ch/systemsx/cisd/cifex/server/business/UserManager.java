@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,13 +42,26 @@ class UserManager extends AbstractManager implements IUserManager
 {
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
 
-    public UserManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
+    public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
+            final IBusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
     }
 
+    private final static String getUserDescription(final UserDTO user)
+    {
+        final String fullName = user.getUserFullName();
+        String description = StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
+        description += " <" + user.getEmail() + ">";
+        return description;
+    }
+
+    //
+    // IUserManager
+    //
+
     @Transactional
-    public boolean isDatabaseEmpty()
+    public final boolean isDatabaseEmpty()
     {
         return daoFactory.getUserDAO().getNumberOfUsers() == 0;
     }
@@ -63,7 +77,7 @@ class UserManager extends AbstractManager implements IUserManager
     @Transactional
     public final void createUser(final UserDTO user)
     {
-        IUserBO userBO = boFactory.createUserBO();
+        final IUserBO userBO = boFactory.createUserBO();
         userBO.define(user);
         userBO.save();
     }
@@ -77,8 +91,8 @@ class UserManager extends AbstractManager implements IUserManager
     @Transactional
     public void deleteExpiredUsers()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
         if (logger.isInfoEnabled() && expiredUsers.size() > 0)
         {
             logger.info("Found " + expiredUsers.size() + " expired users.");
@@ -88,23 +102,21 @@ class UserManager extends AbstractManager implements IUserManager
         {
             try
             {
-                boolean success = userDAO.deleteUser(user.getID());
+                final boolean success = userDAO.deleteUser(user.getID());
                 if (success)
                 {
                     if (logger.isInfoEnabled())
                     {
-                        logger.info("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
-                                + "] removed from database.");
+                        logger.info("Expired user [" + getUserDescription(user) + "] removed from database.");
                     }
                     businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
                 } else
                 {
-                    logger.warn("Expired user [" + user.getUserFullName() + " - " + user.getEmail()
-                            + "] could not be found in the database.");
+                    logger.warn("Expired user [" + getUserDescription(user) + "] could not be found in the database.");
                 }
-            } catch (RuntimeException ex)
+            } catch (final RuntimeException ex)
             {
-                logger.error("Error deleting user [" + user.getUserFullName() + " - " + user.getEmail() + "].", ex);
+                logger.error("Error deleting user [" + getUserDescription(user) + "].", ex);
                 if (ex_all == null)
                 {
                     ex_all = ex;
@@ -119,30 +131,27 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void deleteUser(String userCode) throws UserFailureException
+    public final void deleteUser(final String userCode) throws UserFailureException
     {
         assert userCode != null : "User is null";
 
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        UserDTO userOrNull = userDAO.tryFindUserByCode(userCode);
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final UserDTO userOrNull = userDAO.tryFindUserByCode(userCode);
         if (userOrNull != null)
         {
-            boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(userOrNull.getID());
-
+            final boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(userOrNull.getID());
             if (userSuccesfullyDeletedFromDatabase)
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("User [" + userOrNull.getUserFullName() + " - " + userOrNull.getEmail()
-                            + "] deleted from user database.");
+                    logger.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
                 }
                 businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(userOrNull);
             } else
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Could not delete User [" + userOrNull.getUserFullName() + " - "
-                            + userOrNull.getEmail() + "] from user database.");
+                    logger.info("Could not delete User [" + getUserDescription(userOrNull) + "] from user database.");
                 }
             }
         } else if (logger.isInfoEnabled())
@@ -151,16 +160,16 @@ class UserManager extends AbstractManager implements IUserManager
             logger.info(msg);
             throw new UserFailureException(msg);
         }
-
     }
 
-    public void updateUser(UserDTO user, String encryptedPassword)
+    @Transactional
+    public final void updateUser(final UserDTO user, final String encryptedPassword)
     {
-        assert user != null;
+        assert user != null : "Unspecified user";
 
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
         // Get existing user
-        UserDTO existingUser = userDAO.tryFindUserByCode(user.getUserCode());
+        final UserDTO existingUser = userDAO.tryFindUserByCode(user.getUserCode());
         assert existingUser != null;
         assert existingUser.getUserCode().equals(user.getUserCode()) : "User code can not be changed";
 
@@ -191,11 +200,12 @@ class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    public List<UserDTO> listUsersRegisteredBy(UserDTO user)
+    @Transactional
+    public final List<UserDTO> listUsersRegisteredBy(final UserDTO user)
     {
-        assert user != null;
+        assert user != null : "Unspecified user";
 
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
         return userDAO.listUsersRegisteredBy(user.getUserCode());
     }
 

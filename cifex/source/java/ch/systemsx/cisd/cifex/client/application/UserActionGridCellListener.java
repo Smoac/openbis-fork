@@ -10,6 +10,7 @@ import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -86,15 +87,15 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
         }
     }
 
-    private String getUserDescription(final Record record)
+    private final static String getUserDescription(final Record record)
     {
-        final String userFullName = record.getAsString(UserGridModel.FULL_NAME);
-        String userDescription = record.getAsString(UserGridModel.USER_CODE);
-        if (userFullName != null && userFullName.length() > 0)
+        final String fullName = record.getAsString(UserGridModel.FULL_NAME);
+        final String userCode = record.getAsString(UserGridModel.USER_CODE);
+        if (StringUtils.isBlank(fullName))
         {
-            userDescription += " (" + userFullName + ")";
+            return userCode;
         }
-        return userDescription;
+        return fullName;
     }
 
     //
