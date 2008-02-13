@@ -70,38 +70,38 @@ public final class CIFEXEntryPoint implements EntryPoint
                 public final void onSuccess(final Object result)
                 {
                     viewContext.getModel().setConfiguration((Configuration) result);
+                    cifexService.getCurrentUser(new AsyncCallback()
+                        {
+
+                            //
+                            // AsyncCallback
+                            //
+
+                            public final void onSuccess(final Object res)
+                            {
+                                final IPageController pageController = viewContext.getPageController();
+                                if (res != null)
+                                {
+                                    final Model model = viewContext.getModel();
+                                    model.setUser((User) res);
+                                    FileDownloadHelper.startFileDownload(model);
+                                    pageController.createMainPage();
+                                } else
+                                {
+                                    pageController.createLoginPage();
+                                }
+                            }
+
+                            public final void onFailure(final Throwable caught)
+                            {
+                                if (caught instanceof InvalidSessionException)
+                                {
+                                    viewContext.getPageController().createLoginPage();
+                                }
+                            }
+                        });
                 }
 
-            });
-        cifexService.getCurrentUser(new AsyncCallback()
-            {
-
-                //
-                // AsyncCallback
-                //
-
-                public final void onSuccess(final Object result)
-                {
-                    final IPageController pageController = viewContext.getPageController();
-                    if (result != null)
-                    {
-                        final Model model = viewContext.getModel();
-                        model.setUser((User) result);
-                        FileDownloadHelper.startFileDownload(model);
-                        pageController.createMainPage();
-                    } else
-                    {
-                        pageController.createLoginPage();
-                    }
-                }
-
-                public final void onFailure(final Throwable caught)
-                {
-                    if (caught instanceof InvalidSessionException)
-                    {
-                        viewContext.getPageController().createLoginPage();
-                    }
-                }
             });
     }
 }

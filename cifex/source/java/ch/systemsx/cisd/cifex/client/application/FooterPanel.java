@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
@@ -27,31 +28,26 @@ import ch.systemsx.cisd.cifex.client.dto.Configuration;
  * 
  * @author Izabela Adamczyk
  */
-public class FooterPanel extends HorizontalPanel
+final class FooterPanel extends HorizontalPanel
 {
-    ViewContext context;
 
     FooterPanel(final ViewContext context)
     {
-        this.context = context;
         final Configuration configuration = context.getModel().getConfiguration();
-        if (configuration == null) // Can only happen in hosted mode.
-        {
-            return;
-        }
-        IMessageResources mr = context.getMessageResources();
-        String poweredBy = mr.getFooterPoweredBy();
-        String contactAdmin = mr.getFooterContactAdministrator(configuration.getAdministratorEmail());
-        String version = "(Version: " + configuration.getSystemVersion() + ")";
-        String footerText = getFooterText(poweredBy, version, contactAdmin, " - ", "cifex-light-div");
-        HTML html = new HTML(footerText);
+        assert configuration != null : "Must not be null reached this point.";
+        final IMessageResources mr = context.getMessageResources();
+        final String poweredBy = mr.getFooterPoweredBy();
+        final String contactAdmin = mr.getFooterContactAdministrator(configuration.getAdministratorEmail());
+        final String version = "(Version: " + configuration.getSystemVersion() + ")";
+        final String footerText = getFooterText(poweredBy, version, contactAdmin, " - ", "cifex-light-div");
+        final HTML html = new HTML(footerText);
         setWidth("100%");
-        setHorizontalAlignment(HorizontalPanel.ALIGN_CENTER);
+        setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         add(html);
     }
 
-    private String getFooterText(String poweredBy, String version, String contact, String separator,
-            String versionStyle)
+    private final String getFooterText(final String poweredBy, final String version, final String contact,
+            final String separator, final String versionStyle)
     {
 
         final String formattedVersion = "<div class=\"" + versionStyle + "\">" + version + "</div>";
