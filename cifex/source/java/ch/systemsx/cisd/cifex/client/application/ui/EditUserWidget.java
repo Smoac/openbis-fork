@@ -51,7 +51,7 @@ public class EditUserWidget extends UserWidget
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
-            if (this.allowPermanentUsers == true)
+            if (this.allowPermanentUsers)
             {
                 if (adminRadioButton.getValue())
                 {
