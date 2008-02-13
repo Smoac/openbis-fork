@@ -99,6 +99,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         }
         if (feedback.isFinished())
         {
+            MessageBox.hide();
             refreshMainPage();
             return;
         }
