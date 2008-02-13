@@ -99,8 +99,6 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         }
         if (feedback.isFinished())
         {
-            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
-                    .getFileUploadFeedbackFinished());
             refreshMainPage();
             return;
         }

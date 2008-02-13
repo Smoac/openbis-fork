@@ -130,7 +130,6 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(), viewContext.getMessageResources().getUpdateSuccessMessage("File expiration"));
             final IDataGridModel model = modelBasedGrid.getModel();
             AbstractAsyncCallback callback = new AbstractAsyncCallback(viewContext)
                 {

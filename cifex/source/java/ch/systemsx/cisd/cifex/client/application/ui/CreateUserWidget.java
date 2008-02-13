@@ -108,8 +108,6 @@ public class CreateUserWidget extends UserWidget
 
         public final void onSuccess(final Object result)
         {
-            String title = messageResources.getMessageBoxInfoTitle();
-            MessageBox.alert(title, messageResources.getUserCreationSuccessMessage(emailField.getText()));
             context.getPageController().createAdminPage();
         }
     }

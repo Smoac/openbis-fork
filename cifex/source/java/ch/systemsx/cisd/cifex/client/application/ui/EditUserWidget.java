@@ -102,10 +102,8 @@ public class EditUserWidget extends UserWidget
 
         public final void onSuccess(final Object result)
         {
-            String title = messageResources.getMessageBoxInfoTitle();
-            MessageBox.alert(title, messageResources.getUpdateSuccessMessage("User"));
-            User user = context.getModel().getUser();
-            // Update User, if it is to one who is logged in
+            final User user = context.getModel().getUser();
+            // Update current user, if it was the one who has been changed.
             if (user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false)
             {
                 user.setEmail(emailField.getText());

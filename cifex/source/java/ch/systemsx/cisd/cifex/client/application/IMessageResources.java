@@ -211,13 +211,6 @@ public interface IMessageResources extends Messages
     public String getFileUploadFeedbackTimeLabel(final String remainingTime);
 
     /**
-     * Returns the label when the upload is finished.
-     * 
-     * @gwt.key fileupload.feedback.finished
-     */
-    public String getFileUploadFeedbackFinished();
-
-    /**
      * Returns the file upload field label.
      * 
      * @gwt.key fileupload.field.label
@@ -442,13 +435,6 @@ public interface IMessageResources extends Messages
     public String getUserCreateButton();
 
     /**
-     * Returns message that creating a new user was successfull.
-     * 
-     * @gwt.key usercreation.success.message
-     */
-    public String getUserCreationSuccessMessage(String user);
-
-    /**
      * Returns label for editing a user.
      * 
      * @gwt.key edituser.label
@@ -463,25 +449,11 @@ public interface IMessageResources extends Messages
     public String getEditUserButtonLabel();
 
     /**
-     * Returns message that updateing of the type was successfull.
-     * 
-     * @gwt.key action.renew.successfull.message
-     */
-    public String getUpdateSuccessMessage(String type);
-
-    /**
      * Returns message that not all fields are filled out.
      * 
      * @gwt.key edituser.failure.emptyfields
      */
     public String getUserUpdateEmptyFieldsMessage();
-
-    /**
-     * Returns message that the renew of the expiration date was successfull.
-     * 
-     * @gwt.key userrenew.success.message
-     */
-    public String getUserRenewSuccessMessage();
 
     /**
      * Returns message that a permanent user cannot renewed.

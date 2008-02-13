@@ -68,13 +68,22 @@ public final class UserRenderer implements Renderer
     public final static String createUserAnchor(final User user)
     {
         assert user != null : "Unspecified user.";
-        assert user.getEmail() != null : "Unspecified user email";
-        assert user.getUserCode() != null : "Unspecified user code";
 
         final String fullName = user.getUserFullName();
         final String userCode = user.getUserCode();
         final String email = user.getEmail();
-        return UserRenderer.createEmailAnchor(email, StringUtils.isBlank(fullName) ? userCode : fullName);
+        final String userDescription = StringUtils.isBlank(fullName) ? userCode : fullName;
+        if (StringUtils.isBlank(userDescription))
+        {
+            return "-";
+        }
+        if (StringUtils.isBlank(email))
+        {
+            return userDescription;
+        } else
+        {
+            return UserRenderer.createEmailAnchor(email, userDescription);
+        }
     }
 
     //

@@ -183,12 +183,10 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         public final void onSuccess(final Object UpdateResult)
                         {
                             final IDataGridModel model = modelBasedGrid.getModel();
-                            MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(), viewContext
-                                    .getMessageResources().getUserRenewSuccessMessage());
 
                             // Update the Grid
-                            // TODO 2008-02-07, Basil Neff Move this logic to a method, the same is also used
-                            // for delete and Update User.
+                            // TODO 2008-02-07, Basil Neff: Move this logic to a method, the same is also used
+                            // for delete and update user.
                             if (viewContext.getModel().getUser().isAdmin())
                             {
                                 viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
