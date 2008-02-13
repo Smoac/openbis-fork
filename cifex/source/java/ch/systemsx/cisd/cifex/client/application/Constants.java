@@ -24,6 +24,12 @@ package ch.systemsx.cisd.cifex.client.application;
  */
 public final class Constants
 {
+    static final String RENEW_TARGET = ".renew";
+
+    static final String EDIT_TARGET = ".edit";
+
+    static final String DELETE_TARGET = ".delete";
+
     private Constants()
     {
         // Can not be instantiated.

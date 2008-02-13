@@ -37,12 +37,12 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final Record record = grid.getStore().getAt(rowIndex);
-            final String internalUserCode = record.getAsString(UserGridModel.INTERNAL_USER_CODE);
+            final String userCode = record.getAsString(UserGridModel.USER_CODE);
             final String userDescription = getUserDescription(record);
             // Delete user
-            if (e.getTarget(".delete", 1) != null)
+            if (e.getTarget(Constants.DELETE_TARGET, 1) != null)
             {
-                if (internalUserCode.equals(viewContext.getModel().getUser().getUserCode()))
+                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
                     MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
                             .getUserDeleteHimself());
@@ -60,26 +60,26 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().deleteUser(internalUserCode,
+                                viewContext.getCifexService().deleteUser(userCode,
                                         new DeleteUserAsyncCallback((ModelBasedGrid) grid));
                             }
                         }
                     });
 
-            } else if (e.getTarget(".edit", 1) != null)
+            } else if (e.getTarget(Constants.EDIT_TARGET, 1) != null)
             {
-                if (internalUserCode.equals(viewContext.getModel().getUser().getUserCode()))
+                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
                     viewContext.getPageController().createEditCurrentUserPage();
                     return;
                 }
                 // Edit User
-                viewContext.getCifexService().tryFindUserByUserCode(internalUserCode, new FindUserAsyncCallback(viewContext));
+                viewContext.getCifexService().tryFindUserByUserCode(userCode, new FindUserAsyncCallback(viewContext));
 
-            } else if (e.getTarget(".renew", 1) != null)
+            } else if (e.getTarget(Constants.RENEW_TARGET, 1) != null)
             {
                 // renew User
-                viewContext.getCifexService().tryFindUserByUserCode(internalUserCode,
+                viewContext.getCifexService().tryFindUserByUserCode(userCode,
                         new RenewUserAsyncCallback(viewContext, (ModelBasedGrid) grid));
 
             }
@@ -178,41 +178,39 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             if (((User) result).isPermanent() == false)
             {
                 ((User) result).setExpirationDate(null);
-                viewContext.getCifexService().updateUser(((User) result), null,
-                        new AbstractAsyncCallback(viewContext)
-                            {
-                                public final void onSuccess(final Object UpdateResult)
-                                {
-                                    final IDataGridModel model = modelBasedGrid.getModel();
-                                    MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(),
-                                            viewContext.getMessageResources().getUserRenewSuccessMessage());
+                viewContext.getCifexService().updateUser(((User) result), null, new AbstractAsyncCallback(viewContext)
+                    {
+                        public final void onSuccess(final Object UpdateResult)
+                        {
+                            final IDataGridModel model = modelBasedGrid.getModel();
+                            MessageBox.alert(viewContext.getMessageResources().getMessageBoxInfoTitle(), viewContext
+                                    .getMessageResources().getUserRenewSuccessMessage());
 
-                                    // Update the Grid
-                                    // TODO 2008-02-07, Basil Neff Move this logic to a method, the same is also used
-                                    // for delete and Update User.
-                                    if (viewContext.getModel().getUser().isAdmin())
+                            // Update the Grid
+                            // TODO 2008-02-07, Basil Neff Move this logic to a method, the same is also used
+                            // for delete and Update User.
+                            if (viewContext.getModel().getUser().isAdmin())
+                            {
+                                viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
                                     {
-                                        viewContext.getCifexService().listUsers(new AbstractAsyncCallback(viewContext)
+                                        public final void onSuccess(final Object res)
+                                        {
+                                            modelBasedGrid.reloadStore((User[]) res, model);
+                                        }
+                                    });
+                            } else
+                            {
+                                viewContext.getCifexService().listUsersRegisteredBy(viewContext.getModel().getUser(),
+                                        new AbstractAsyncCallback(viewContext)
                                             {
                                                 public final void onSuccess(final Object res)
                                                 {
                                                     modelBasedGrid.reloadStore((User[]) res, model);
                                                 }
                                             });
-                                    } else
-                                    {
-                                        viewContext.getCifexService().listUsersRegisteredBy(
-                                                viewContext.getModel().getUser(),
-                                                new AbstractAsyncCallback(viewContext)
-                                                    {
-                                                        public final void onSuccess(final Object res)
-                                                        {
-                                                            modelBasedGrid.reloadStore((User[]) res, model);
-                                                        }
-                                                    });
-                                    }
-                                }
-                            });
+                            }
+                        }
+                    });
 
             } else
             {

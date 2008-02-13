@@ -38,7 +38,7 @@ public final class User implements IsSerializable
     /**
      * Email Adress of the user.
      * <p>
-     * We are sure that this key is not <code>null</code>.
+     * We are sure that this key is never <code>null</code>.
      * </p>
      */
     private String email;
@@ -62,8 +62,8 @@ public final class User implements IsSerializable
     /**
      * Unique identifier of the user.
      * <p>
-     * We are sure that this key is unique not <code>null</code>. If no <code>userCode</code> is specified, the
-     * email adress is used as userCode.
+     * We are sure that this key is unique and never <code>null</code>. If no <code>userCode</code> is specified,
+     * the email address is used as userCode.
      * </p>
      */
     private String userCode;

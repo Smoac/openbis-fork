@@ -36,16 +36,26 @@ public class LinkRenderer implements Renderer
     /** The unique instance of <code>LinkRenderer</code>. */
     public final static Renderer LINK_RENDERER = new LinkRenderer();
 
-    protected LinkRenderer()
+    private LinkRenderer()
     {
     }
 
-    protected Element createAnchorElement(final Object value)
+    /** Creates a basic anchor element with <code>cifex-a</code> as style class. */
+    public final static Element createBasicAnchorElement()
     {
         final Element anchor = DOM.createAnchor();
-        DOM.setElementAttribute(anchor, "href", "javascript:return void;");
         DOM.setElementAttribute(anchor, "class", "cifex-a");
         return anchor;
+    }
+
+    /** Creates an anchor with given <var>value</var>. */
+    public final static String createAnchor(final String value)
+    {
+        assert value != null : "Undefined value.";
+        final Element anchor = createBasicAnchorElement();
+        DOM.setElementAttribute(anchor, "href", "javascript:return void;");
+        DOM.setInnerText(anchor, value);
+        return DOM.toString(anchor);
     }
 
     //
@@ -59,9 +69,7 @@ public class LinkRenderer implements Renderer
         {
             return Constants.TABLE_NULL_VALUE;
         }
-        final Element anchor = createAnchorElement(value);
-        DOM.setInnerText(anchor, value.toString());
-        return DOM.toString(anchor);
+        return createAnchor(value.toString());
     }
 
 }

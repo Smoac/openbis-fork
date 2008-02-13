@@ -83,10 +83,13 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
+    /**
+     * Note that this column is not sortable.
+     */
     protected final ColumnConfig createRegistererColumnConfig()
     {
         final ColumnConfig registererConfig =
-                createSortableColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
+                createColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
         return registererConfig;
     }
 

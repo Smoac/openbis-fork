@@ -23,6 +23,7 @@ import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -31,25 +32,19 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Basil Neff
  */
-public class UserGridModel extends AbstractDataGridModel
+public final class UserGridModel extends AbstractDataGridModel
 {
+    public static final String USER_CODE = "userCode";
 
-    public static final String USER_CODE = "UserCode";
+    public static final String USER_EMAIL = "userEmail";
 
-    public static final String FULL_NAME = "FullName";
+    public static final String FULL_NAME = "fullName";
 
-    public static final String STATUS = "Status";
+    public static final String STATUS = "status";
 
-    public static final String REGISTRATOR = "Registrator";
+    public static final String REGISTRATOR = "registrator";
 
-    public static final String ACTION = "Action";
-
-    /**
-     * User Code which is only internal needed, to identify the user in the column. In this row is no renderer set, that
-     * you can get the user with the String function.
-     */
-    // TODO 2008-02-12 Bernd Rinn: Why do we need this column? It returns the same string as the USER_CODE above.
-    public static final String INTERNAL_USER_CODE = "IntUserCode";
+    public static final String ACTION = "action";
 
     public UserGridModel(final IMessageResources messageResources)
     {
@@ -69,11 +64,31 @@ public class UserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    private final ColumnConfig createRegistratorColumnConfig()
+    private final ColumnConfig createUserEmailColumnConfig()
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
+                createSortableColumnConfig(USER_EMAIL, messageResources.getUserEmailLabel(), 180);
+        columnConfig.setRenderer(UserRenderer.USER_RENDERER);
         return columnConfig;
+    }
+
+    /**
+     * Note that this column is not sortable.
+     */
+    private final ColumnConfig createRegistratorColumnConfig()
+    {
+        final ColumnConfig columnConfig = createColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createStatusColumnConfig()
+    {
+        return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250);
+    }
+
+    private final ColumnConfig createFullNameColumnConfig()
+    {
+        return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
     }
 
     //
@@ -84,8 +99,9 @@ public class UserGridModel extends AbstractDataGridModel
     {
         final List configs = new ArrayList();
         configs.add(createUserCodeColumnConfig());
-        configs.add(createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 120));
-        configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250));
+        configs.add(createUserEmailColumnConfig());
+        configs.add(createFullNameColumnConfig());
+        configs.add(createStatusColumnConfig());
         configs.add(createRegistratorColumnConfig());
         configs.add(createActionColumnConfig());
         return configs;
@@ -110,6 +126,8 @@ public class UserGridModel extends AbstractDataGridModel
                         messageResources.getTemporaryRoleName()
                                 + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
             }
+            // TODO 2008-02-13, Christian Ribeaud: use DOM class here and ensure we get the hand
+            // cursor when going with the mouse over the links.
             String actionLabel =
                     "<a href=\"#\" class=\"edit\" id=\"edit\">" + messageResources.getActionEditLabel()
                             + "</a> | <a href=\"#\" class=\"renew\" id=\"renew\">"
@@ -118,8 +136,8 @@ public class UserGridModel extends AbstractDataGridModel
                             + messageResources.getActionDeleteLabel() + "</a>";
             final Object[] objects =
                     new Object[]
-                        { createUserAnchor(user), user.getUserFullName(), stateField,
-                                createUserAnchor(user.getRegistrator()), actionLabel, user.getUserCode() };
+                        { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
+                                UserRenderer.createUserAnchor(user.getRegistrator()), actionLabel };
             list.add(objects);
         }
         return list;
@@ -129,11 +147,11 @@ public class UserGridModel extends AbstractDataGridModel
     {
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(USER_CODE));
+        fieldDefs.add(new StringFieldDef(USER_EMAIL));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
         fieldDefs.add(new StringFieldDef(STATUS));
         fieldDefs.add(new StringFieldDef(REGISTRATOR));
         fieldDefs.add(new StringFieldDef(ACTION));
-        fieldDefs.add(new StringFieldDef(INTERNAL_USER_CODE));
         return fieldDefs;
     }
 

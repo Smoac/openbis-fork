@@ -23,6 +23,7 @@ import com.gwtext.client.data.DateFieldDef;
 import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -62,7 +63,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
-                                createUserAnchor(file.getRegisterer()), file.getRegistrationDate(),
+                                UserRenderer.createUserAnchor(file.getRegisterer()), file.getRegistrationDate(),
                                 file.getExpirationDate() };
             list.add(objects);
         }
