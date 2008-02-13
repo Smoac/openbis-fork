@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
@@ -79,8 +80,10 @@ public final class UserHttpSessionHolder
                 invalidateSession(httpSession);
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Currently logged in User [" + user.getUserFullName() + " - " + user.getEmail()
-                            + "] has been logged out.");
+                    final String fullName = user.getUserFullName();
+                    String description = StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
+                    description += " <" + user.getEmail() + ">";
+                    operationLog.info("Currently logged in user [" + description + "] has been logged out.");
                 }
             }
         }
