@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.gwtext.client.data.Record;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 
 /**
  * A <code>Renderer</code> implementation that create an anchor element with inner text <code>value.toString()</code>.
@@ -40,24 +39,6 @@ public class LinkRenderer implements Renderer
     {
     }
 
-    /** Creates a basic anchor element with <code>cifex-a</code> as style class. */
-    public final static Element createBasicAnchorElement()
-    {
-        final Element anchor = DOM.createAnchor();
-        DOM.setElementAttribute(anchor, "class", "cifex-a");
-        return anchor;
-    }
-
-    /** Creates an anchor with given <var>value</var>. */
-    public final static String createAnchor(final String value)
-    {
-        assert value != null : "Undefined value.";
-        final Element anchor = createBasicAnchorElement();
-        DOM.setElementAttribute(anchor, "href", "javascript:return void;");
-        DOM.setInnerText(anchor, value);
-        return DOM.toString(anchor);
-    }
-
     //
     // Renderer
     //
@@ -69,7 +50,7 @@ public class LinkRenderer implements Renderer
         {
             return Constants.TABLE_NULL_VALUE;
         }
-        return createAnchor(value.toString());
+        return DOMUtils.createAnchor(value.toString());
     }
 
 }

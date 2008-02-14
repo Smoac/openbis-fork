@@ -33,13 +33,6 @@ public interface IMessageResources extends Messages
     public String getActionDeleteLabel();
 
     /**
-     * Returns the label for the renew action.
-     * 
-     * @gwt.key action.renew.label
-     */
-    public String getActionRenewLabel();
-
-    /**
      * Returns the label for the edit action.
      * 
      * @gwt.key action.edit.label
@@ -54,11 +47,39 @@ public interface IMessageResources extends Messages
     public String getActionLabel();
 
     /**
+     * Returns the label for the renew action.
+     * 
+     * @gwt.key action.renew.label
+     */
+    public String getActionRenewLabel();
+
+    /**
+     * Returns the label for creating new User
+     * 
+     * @gwt.key usercreation.label.admin
+     */
+    public String getAdminCreateUserLabel();
+
+    /**
      * Returns the role name for an administrator.
      * 
      * @gwt.key usercreation.role.admin
      */
     public String getAdminRoleName();
+
+    /**
+     * Label for the button for the admin view.
+     * 
+     * @gwt.key adminview.link.label
+     */
+    public String getAdminViewLinkLabel();
+
+    /**
+     * Label for the tooltip of button, for the admin view.
+     * 
+     * @gwt.key adminview.link.tooltip
+     */
+    public String getAdminViewTooltipLabel();
 
     /**
      * Returns <i>CISD</i> logo title.
@@ -68,11 +89,11 @@ public interface IMessageResources extends Messages
     public String getCISDLogoTitle();
 
     /**
-     * Returns the label for creating new User
+     * Returns label for the Comment field.
      * 
-     * @gwt.key usercreation.label.admin
+     * @gwt.key usercreation.comment.label
      */
-    public String getAdminCreateUserLabel();
+    public String getCommentLabel();
 
     /**
      * Returns the label for creating new User
@@ -94,6 +115,34 @@ public interface IMessageResources extends Messages
      * @gwt.key downloadfiles.part.title
      */
     public String getDownloadFilesPartTitle();
+
+    /**
+     * Returns label for the button of editing a user.
+     * 
+     * @gwt.key edituser.button.label
+     */
+    public String getEditUserButtonLabel();
+
+    /**
+     * Returns label for editing a user.
+     * 
+     * @gwt.key edituser.label
+     */
+    public String getEditUserLabel();
+
+    /**
+     * Label for the button, to edit the user
+     * 
+     * @gwt.key edituser.link.label
+     */
+    public String getEditUserLinkLabel();
+
+    /**
+     * Label for the tooltip of button, to edit the user
+     * 
+     * @gwt.key edituser.link.tooltip
+     */
+    public String getEditUserTooltipLabel();
 
     /**
      * Returns a default message for exception that does not contain any message.
@@ -141,18 +190,18 @@ public interface IMessageResources extends Messages
     public String getFileNameLabel();
 
     /**
-     * Returns the label of the file registerer column.
-     * 
-     * @gwt.key file.registrator.label
-     */
-    public String getFileRegistratorLabel();
-
-    /**
      * Returns the label of the file registration date column.
      * 
      * @gwt.key file.registrationdate.label
      */
     public String getFileRegistrationDateLabel();
+
+    /**
+     * Returns the label of the file registerer column.
+     * 
+     * @gwt.key file.registrator.label
+     */
+    public String getFileRegistratorLabel();
 
     /**
      * Returns the label of the file size column.
@@ -176,18 +225,11 @@ public interface IMessageResources extends Messages
     public String getFileUploadButtonLabel();
 
     /**
-     * Returns the file upload feedback window title.
+     * Returns the file upload feedback 'byte read till now' label.
      * 
-     * @gwt.key fileupload.feedback.title
+     * @gwt.key fileupload.feedback.bytes.label
      */
-    public String getFileUploadFeedbackTitle();
-
-    /**
-     * Returns the file upload feedback window initializing message.
-     * 
-     * @gwt.key fileupload.feedback.message
-     */
-    public String getFileUploadFeedbackMessage();
+    public String getFileUploadFeedbackBytesLabel(final String bytesRead, final String contentLength);
 
     /**
      * Returns the file upload feedback 'file being read' label.
@@ -197,11 +239,11 @@ public interface IMessageResources extends Messages
     public String getFileUploadFeedbackFileLabel(final String fileName);
 
     /**
-     * Returns the file upload feedback 'byte read till now' label.
+     * Returns the file upload feedback window initializing message.
      * 
-     * @gwt.key fileupload.feedback.bytes.label
+     * @gwt.key fileupload.feedback.message
      */
-    public String getFileUploadFeedbackBytesLabel(final String bytesRead, final String contentLength);
+    public String getFileUploadFeedbackMessage();
 
     /**
      * Returns the file upload feedback 'time remaining' label.
@@ -209,6 +251,13 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.feedback.time.label
      */
     public String getFileUploadFeedbackTimeLabel(final String remainingTime);
+
+    /**
+     * Returns the file upload feedback window title.
+     * 
+     * @gwt.key fileupload.feedback.title
+     */
+    public String getFileUploadFeedbackTitle();
 
     /**
      * Returns the file upload field label.
@@ -223,6 +272,34 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.legend
      */
     public String getFileUploadLegend();
+
+    /**
+     * Returns application description.
+     * 
+     * @gwt.key footer.application.description
+     */
+    public String getFooterApplicationDescription();
+
+    /**
+     * Returns footer contact administrator label.
+     * 
+     * @gwt.key footer.contact.administrator.text
+     */
+    public String getFooterContactAdministrator();
+
+    /**
+     * Returns disclaimer link label.
+     * 
+     * @gwt.key footer.disclaimer.link.label
+     */
+    public String getFooterDisclaimerLinkLabel();
+
+    /**
+     * Returns the 'powered by' label.
+     * 
+     * @gwt.key footer.powered.by.text
+     */
+    public String getFooterPoweredBy();
 
     /**
      * Returns a default invocation exception message (as it obviously does not contain any).
@@ -246,13 +323,6 @@ public interface IMessageResources extends Messages
     public String getLoginButtonLabel();
 
     /**
-     * Returns the email label for the login form.
-     * 
-     * @gwt.key login.user.label
-     */
-    public String getLoginUserLabel();
-
-    /**
      * Returns message that you get when the login failed.
      * 
      * @gwt.key login.failed.message
@@ -272,6 +342,13 @@ public interface IMessageResources extends Messages
      * @gwt.key login.password.label
      */
     public String getLoginPasswordLabel();
+
+    /**
+     * Returns the email label for the login form.
+     * 
+     * @gwt.key login.user.label
+     */
+    public String getLoginUserLabel();
 
     /**
      * Returns welcome text that appears on the first page (login page).
@@ -295,6 +372,20 @@ public interface IMessageResources extends Messages
     public String getLogoutLinkTooltip();
 
     /**
+     * Label for the button for the Main view.
+     * 
+     * @gwt.key mainview.link.label
+     */
+    public String getMainViewLinkLabel();
+
+    /**
+     * Label for the tooltip of button, for the main view.
+     * 
+     * @gwt.key mainview.link.tooltip
+     */
+    public String getMainViewTooltipLabel();
+
+    /**
      * Returns the title for error message box.
      * 
      * @gwt.key messagebox.error.title
@@ -316,11 +407,11 @@ public interface IMessageResources extends Messages
     public String getMessageBoxWarningTitle();
 
     /**
-     * Returns label for the User Code field.
+     * Returns the title of Own User Table.
      * 
-     * @gwt.key usercreation.usercode.label
+     * @gwt.key userlist.ownusers.part.title
      */
-    public String getUserCodeLabel();
+    public String getOwnUserTitle();
 
     /**
      * Returns label for the Password field.
@@ -328,13 +419,6 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.label
      */
     public String getPasswordLabel();
-
-    /**
-     * Returns label for the Comment field.
-     * 
-     * @gwt.key usercreation.comment.label
-     */
-    public String getCommentLabel();
 
     /**
      * Returns the Message for thhe alert Box, if the 2 Password did not match.
@@ -349,6 +433,13 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.role.permanent
      */
     public String getPermanentRoleName();
+
+    /**
+     * Returns message that a permanent user cannot renewed.
+     * 
+     * @gwt.key userrenew.permanentuser.message
+     */
+    public String getPermanentUserFailure();
 
     /**
      * Returns the recipient text area field label.
@@ -393,6 +484,13 @@ public interface IMessageResources extends Messages
     public String getTemporaryRoleName();
 
     /**
+     * Returns unknown label.
+     * 
+     * @gwt.key unknown.label
+     */
+    public String getUnknownLabel();
+
+    /**
      * Returns the message text for no file uploaded.
      * 
      * @gwt.key uploadedfiles.empty
@@ -428,39 +526,18 @@ public interface IMessageResources extends Messages
     public String getUploadFilesPartTitle();
 
     /**
+     * Returns label for the User Code field.
+     * 
+     * @gwt.key usercreation.usercode.label
+     */
+    public String getUserCodeLabel();
+
+    /**
      * Returns the label the User Create Button
      * 
      * @gwt.key usercreation.button.label
      */
     public String getUserCreateButton();
-
-    /**
-     * Returns label for editing a user.
-     * 
-     * @gwt.key edituser.label
-     */
-    public String getEditUserLabel();
-
-    /**
-     * Returns label for the button of editing a user.
-     * 
-     * @gwt.key edituser.button.label
-     */
-    public String getEditUserButtonLabel();
-
-    /**
-     * Returns message that not all fields are filled out.
-     * 
-     * @gwt.key edituser.failure.emptyfields
-     */
-    public String getUserUpdateEmptyFieldsMessage();
-
-    /**
-     * Returns message that a permanent user cannot renewed.
-     * 
-     * @gwt.key userrenew.permanentuser.message
-     */
-    public String getPermanentUserFailure();
 
     /**
      * Returns the content the confirm MessageBox, to delete an user.
@@ -498,13 +575,6 @@ public interface IMessageResources extends Messages
     public String getUserFullNameLabel();
 
     /**
-     * Returns the title of Own User Table.
-     * 
-     * @gwt.key userlist.ownusers.part.title
-     */
-    public String getOwnUserTitle();
-
-    /**
      * Returns the User List part title.
      * 
      * @gwt.key userlist.part.title
@@ -512,72 +582,16 @@ public interface IMessageResources extends Messages
     public String getUsersPartTitle();
 
     /**
+     * Returns message that not all fields are filled out.
+     * 
+     * @gwt.key edituser.failure.emptyfields
+     */
+    public String getUserUpdateEmptyFieldsMessage();
+
+    /**
      * Returns label for the validate Password field.
      * 
      * @gwt.key usercreation.password.validate.label
      */
     public String getValidatePasswordLabel();
-
-    /**
-     * Label for the button, to edit the user
-     * 
-     * @gwt.key edituser.link.label
-     */
-    public String getEditUserLinkLabel();
-
-    /**
-     * Label for the tooltip of button, to edit the user
-     * 
-     * @gwt.key edituser.link.tooltip
-     */
-    public String getEditUserTooltipLabel();
-
-    /**
-     * Label for the button for the admin view.
-     * 
-     * @gwt.key adminview.link.label
-     */
-    public String getAdminViewLinkLabel();
-
-    /**
-     * Label for the tooltip of button, for the admin view.
-     * 
-     * @gwt.key adminview.link.tooltip
-     */
-    public String getAdminViewTooltipLabel();
-
-    /**
-     * Label for the button for the Main view.
-     * 
-     * @gwt.key mainview.link.label
-     */
-    public String getMainViewLinkLabel();
-
-    /**
-     * Label for the tooltip of button, for the main view.
-     * 
-     * @gwt.key mainview.link.tooltip
-     */
-    public String getMainViewTooltipLabel();
-
-    /**
-     * Returns application name.
-     * 
-     * @gwt.key footer.powered.by.text
-     */
-    public String getFooterPoweredBy();
-
-    /**
-     * Returns application name.
-     * 
-     * @gwt.key footer.contact.administrator.text
-     */
-    public String getFooterContactAdministrator(final String email);
-
-    /**
-     * Returns unknown label.
-     * 
-     * @gwt.key unknown.label
-     */
-    public String getUnknownLabel();
 }

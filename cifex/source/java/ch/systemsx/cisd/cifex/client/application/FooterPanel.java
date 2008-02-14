@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 
 /**
@@ -30,28 +33,43 @@ import ch.systemsx.cisd.cifex.client.dto.Configuration;
  */
 final class FooterPanel extends HorizontalPanel
 {
+    private static final String SEPARATOR = " - ";
 
     FooterPanel(final ViewContext context)
     {
         final Configuration configuration = context.getModel().getConfiguration();
         assert configuration != null : "Must not be null reached this point.";
-        final IMessageResources mr = context.getMessageResources();
-        final String poweredBy = mr.getFooterPoweredBy();
-        final String contactAdmin = mr.getFooterContactAdministrator(configuration.getAdministratorEmail());
-        final String version = "(Version: " + configuration.getSystemVersion() + ")";
-        final String footerText = getFooterText(poweredBy, version, contactAdmin, " - ", "cifex-light-div");
-        final HTML html = new HTML(footerText);
+        final IMessageResources messageResources = context.getMessageResources();
+        final String poweredBy = messageResources.getFooterPoweredBy();
+        final String applicationDescription = messageResources.getFooterApplicationDescription();
+        final String contactAdministrator = createContactAdministrator(configuration, messageResources);
+        final String version = createVersionDiv(configuration);
+        final HTML html =
+                new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version + SEPARATOR
+                        + contactAdministrator + SEPARATOR + createDisclaimerLink(messageResources));
         setWidth("100%");
         setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         add(html);
     }
 
-    private final String getFooterText(final String poweredBy, final String version, final String contact,
-            final String separator, final String versionStyle)
+    private final static String createDisclaimerLink(final IMessageResources messageResources)
     {
-
-        final String formattedVersion = "<div class=\"" + versionStyle + "\">" + version + "</div>";
-        return poweredBy + separator + formattedVersion + separator + contact;
+        return DOMUtils.createAnchor(messageResources.getFooterDisclaimerLinkLabel(), "disclaimer.html", "_new");
     }
 
+    private final static String createVersionDiv(final Configuration configuration)
+    {
+        final Element versionDiv = DOM.createDiv();
+        DOM.setElementAttribute(versionDiv, "class", "cifex-light-div");
+        DOM.setInnerText(versionDiv, "(Version: " + configuration.getSystemVersion() + ")");
+        System.out.println(versionDiv.toString());
+        return DOM.toString(versionDiv);
+    }
+
+    private final static String createContactAdministrator(final Configuration configuration,
+            final IMessageResources messageResources)
+    {
+        return DOMUtils.createEmailAnchor(configuration.getAdministratorEmail(), messageResources
+                .getFooterContactAdministrator());
+    }
 }

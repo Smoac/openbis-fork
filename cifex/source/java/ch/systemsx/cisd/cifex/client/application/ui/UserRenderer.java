@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.gwtext.client.data.Record;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -41,21 +40,6 @@ public final class UserRenderer implements Renderer
 
     private UserRenderer()
     {
-    }
-
-    /**
-     * Creates an email anchor with given <var>email</var>.
-     * 
-     * @param innerText if blank, then given <var>email</var> is taken as inner text.
-     */
-    public final static String createEmailAnchor(final String email, final String innerText)
-    {
-        assert email != null : "Undefined email.";
-        final Element anchor = LinkRenderer.createBasicAnchorElement();
-        DOM.setElementAttribute(anchor, "href", "mailto:" + email);
-        DOM.setElementAttribute(anchor, "title", email);
-        DOM.setInnerText(anchor, StringUtils.isBlank(innerText) ? email : innerText);
-        return DOM.toString(anchor);
     }
 
     /**
@@ -82,7 +66,7 @@ public final class UserRenderer implements Renderer
             return userDescription;
         } else
         {
-            return UserRenderer.createEmailAnchor(email, userDescription);
+            return DOMUtils.createEmailAnchor(email, userDescription);
         }
     }
 
@@ -98,6 +82,6 @@ public final class UserRenderer implements Renderer
             return Constants.TABLE_NULL_VALUE;
         }
         final String email = value.toString();
-        return createEmailAnchor(email, null);
+        return DOMUtils.createEmailAnchor(email, null);
     }
 }

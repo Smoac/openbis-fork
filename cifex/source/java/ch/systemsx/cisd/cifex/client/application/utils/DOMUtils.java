@@ -37,6 +37,7 @@ public final class DOMUtils
     /** Surrounds given <var>text</var> with italic HTML tags. */
     public static final String renderItalic(final String text)
     {
+        assert text != null : "Given text can not be null.";
         final Element element = DOM.createElement("i");
         DOM.setInnerText(element, text);
         return DOM.toString(element);
@@ -57,5 +58,49 @@ public final class DOMUtils
             return text;
         }
         return text.substring(startTag.length(), endIndex);
+    }
+
+    /**
+     * Creates an email anchor with given <var>email</var>.
+     * 
+     * @param innerText if blank, then given <var>email</var> is taken as inner text.
+     */
+    public final static String createEmailAnchor(final String email, final String innerText)
+    {
+        assert email != null : "Undefined email.";
+        final Element anchor = DOMUtils.createBasicAnchorElement();
+        DOM.setElementAttribute(anchor, "href", "mailto:" + email);
+        DOM.setElementAttribute(anchor, "title", email);
+        DOM.setInnerText(anchor, innerText == null ? email : innerText);
+        return DOM.toString(anchor);
+    }
+
+    /** Creates a basic anchor element with <code>cifex-a</code> as style class. */
+    public final static Element createBasicAnchorElement()
+    {
+        final Element anchor = DOM.createAnchor();
+        DOM.setElementAttribute(anchor, "class", "cifex-a");
+        return anchor;
+    }
+
+    /** Creates an anchor with given <var>value</var>. */
+    public final static String createAnchor(final String value)
+    {
+        return createAnchor(value, null, null);
+    }
+
+    /** Creates an anchor with given <var>value</var>. */
+    public final static String createAnchor(final String value, final String href, final String target)
+    {
+        assert value != null : "Undefined value.";
+        final Element anchor = createBasicAnchorElement();
+        DOM.setElementAttribute(anchor, "href", href == null ? "javascript:return void;" : href);
+        DOM.setElementAttribute(anchor, "title", href == null ? value : href);
+        if (target != null)
+        {
+            DOM.setElementAttribute(anchor, "target", target);
+        }
+        DOM.setInnerText(anchor, value);
+        return DOM.toString(anchor);
     }
 }
