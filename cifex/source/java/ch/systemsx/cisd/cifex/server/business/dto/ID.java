@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
@@ -23,7 +25,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class ID extends AbstractHashable
+public abstract class ID extends AbstractHashable implements Serializable
 {
     private Long id;
 

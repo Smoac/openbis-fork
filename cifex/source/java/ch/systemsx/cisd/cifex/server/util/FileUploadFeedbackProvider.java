@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.util;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 
@@ -24,8 +26,9 @@ import ch.systemsx.cisd.cifex.client.dto.Message;
  * 
  * @author Bernd Rinn
  */
-public class FileUploadFeedbackProvider
+public final class FileUploadFeedbackProvider implements Serializable
 {
+    private static final long serialVersionUID = 1L;
 
     private FileUploadFeedback feedback;
 
@@ -42,7 +45,7 @@ public class FileUploadFeedbackProvider
         assert feedback != null;
         assert feedback.getMessage() == null;
         assert feedback.isFinished() == false;
-        
+
         this.fileUploadIsProgressing = true;
         this.message = null;
         this.feedback = feedback;
@@ -65,7 +68,7 @@ public class FileUploadFeedbackProvider
     public synchronized void setMessage(final Message message)
     {
         assert message != null;
-        
+
         this.message = message;
         setFileUploadFinished();
     }

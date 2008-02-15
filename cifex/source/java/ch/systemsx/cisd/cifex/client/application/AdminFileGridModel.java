@@ -62,10 +62,10 @@ public class AdminFileGridModel extends AbstractFileGridModel
             final Long size = file.getSize();
             final Object[] objects =
                     new Object[]
-                        { new Integer((int) file.getID()), file.getName(),
+                        { Integer.valueOf((int) file.getID()), file.getName(),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
                                 file.getContentType(),
-                                size == null ? null : new Integer(size.intValue()),
+                                size == null ? null : Integer.valueOf(size.intValue()),
                                 file.getRegistrationDate(),
                                 file.getExpirationDate(),
                                 // TODO 2008-02-13, Christian Ribeaud: use DOM class here and ensure we get the hand

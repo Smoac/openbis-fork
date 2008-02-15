@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -23,8 +25,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class FileUploadFeedback implements IsSerializable
+public final class FileUploadFeedback implements IsSerializable, Serializable
 {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * The request content length (in bytes).
      * <p>

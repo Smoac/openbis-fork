@@ -42,7 +42,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         {
             final IMessageResources messageResources = viewContext.getMessageResources();
             // Delete
-            if (e.getTarget(".delete", 1) != null)
+            if (e.getTarget(Constants.DELETE_TARGET, 1) != null)
             {
                 MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
                         .getFileDeleteConfirmText(name), new MessageBox.ConfirmCallback()
@@ -62,7 +62,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                     });
                 // Renew
             }
-            if (e.getTarget(".renew", 1) != null)
+            if (e.getTarget(Constants.RENEW_TARGET, 1) != null)
             {
                 viewContext.getCifexService().updateFileExpiration(id, null,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid));
@@ -142,12 +142,13 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                         modelBasedGrid.reloadStore((File[]) res, model);
                     }
                 };
-                if (adminView)
-                {
-                    viewContext.getCifexService().listFiles(callback);
-                } else {
-                    viewContext.getCifexService().listUploadedFiles(callback);
-                }
+            if (adminView)
+            {
+                viewContext.getCifexService().listFiles(callback);
+            } else
+            {
+                viewContext.getCifexService().listUploadedFiles(callback);
+            }
         }
     }
 }

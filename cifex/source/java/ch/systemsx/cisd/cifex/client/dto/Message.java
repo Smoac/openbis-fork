@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -23,8 +25,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class Message implements IsSerializable
+public class Message implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     public static final String INFO = "INFO";
 
     public static final String WARNING = "WARNING";

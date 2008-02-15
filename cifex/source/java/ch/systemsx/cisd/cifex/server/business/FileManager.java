@@ -43,8 +43,8 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
-import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
@@ -92,16 +92,28 @@ final class FileManager extends AbstractManager implements IFileManager
     private final void deleteFromFileSystem(final String path)
     {
         final File file = new File(businessContext.getFileStore(), path);
+        deleteFromFileSystem(file);
+    }
+
+    /** Deletes file with given path from the file system. */
+    private final void deleteFromFileSystem(final File file)
+    {
         if (file.exists())
         {
-            file.delete();
+            boolean successful = file.delete();
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("File [" + path + "] deleted.");
+                if (successful)
+                {
+                    operationLog.info("File [" + file.getAbsolutePath() + "] deleted.");
+                } else
+                {
+                    operationLog.info("File [" + file.getAbsolutePath() + "] not deleted: unknown reason.");
+                }
             }
         } else
         {
-            operationLog.warn("File [" + path + "] not deleted: doesn't exist.");
+            operationLog.warn("File [" + file.getAbsolutePath() + "] not deleted: doesn't exist.");
         }
     }
 
@@ -223,7 +235,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         return false;
     }
-    
+
     @Transactional
     public final FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
             final InputStream input)
@@ -261,7 +273,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     return fileDTO;
                 } else
                 {
-                    file.delete();
+                    deleteFromFileSystem(file);
                     throwExceptionOnFileDoesNotExist(fileName);
                     return null; // never reached
                 }
@@ -275,7 +287,7 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } catch (RuntimeException e)
         {
-            file.delete();
+            deleteFromFileSystem(file);
             throw e;
         }
     }

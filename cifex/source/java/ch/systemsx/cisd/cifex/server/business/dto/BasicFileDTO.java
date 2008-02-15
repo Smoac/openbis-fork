@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.cifex.server.business.dto;
 
+import java.io.Serializable;
+
 /**
  * A class that encapsulates general and basic information related to a file.
  * 
  * @author Christian Ribeaud
  */
-public final class BasicFileDTO
+public final class BasicFileDTO implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     /** Name of file. */
     private String name;

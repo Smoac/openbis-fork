@@ -25,11 +25,12 @@ import java.util.Date;
  */
 public class UserDTO extends ID
 {
+    private static final long serialVersionUID = 1L;
+
     private String userFullName;
 
     /**
-     * Email Address of the user.
-     * Is not Unique!
+     * Email Address of the user. Is not Unique!
      */
     private String email;
 

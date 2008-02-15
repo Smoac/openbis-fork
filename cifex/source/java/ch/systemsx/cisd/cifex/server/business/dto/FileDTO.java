@@ -28,6 +28,8 @@ import java.util.List;
 public final class FileDTO extends ID
 {
 
+    private static final long serialVersionUID = 1L;
+
     /** The relative location of this file. */
     private String path;
 

@@ -142,7 +142,7 @@ public class LoginWidget extends Form
     /** Submits given <var>loginForm</var>. */
     protected void submitForm()
     {
-        if (userField.validate() & passwordField.validate())
+        if (isValid())
         {
             button.disable();
             final String username = userField.getText();
