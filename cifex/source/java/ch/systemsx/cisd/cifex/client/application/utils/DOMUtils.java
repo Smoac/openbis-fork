@@ -86,11 +86,18 @@ public final class DOMUtils
     /** Creates an anchor with given <var>value</var>. */
     public final static String createAnchor(final String value)
     {
-        return createAnchor(value, null, null);
+        return createAnchor(value, null, null, null);
     }
 
-    /** Creates an anchor with given <var>value</var>. */
-    public final static String createAnchor(final String value, final String href, final String target)
+    /** Creates an anchor with given <var>value</var> and given style <var>id</var>. */
+    public final static String createAnchor(final String value, final String id)
+    {
+        assert value != null : "Undefined value.";
+        return createAnchor(value, null, null, id);
+    }
+
+    /** Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var> and given <var>id</var>. */
+    public final static String createAnchor(final String value, final String href, final String target, final String id)
     {
         assert value != null : "Undefined value.";
         final Element anchor = createBasicAnchorElement();
@@ -99,6 +106,10 @@ public final class DOMUtils
         if (target != null)
         {
             DOM.setElementAttribute(anchor, "target", target);
+        }
+        if (id != null)
+        {
+            DOM.setElementAttribute(anchor, "id", id);
         }
         DOM.setInnerText(anchor, value);
         return DOM.toString(anchor);

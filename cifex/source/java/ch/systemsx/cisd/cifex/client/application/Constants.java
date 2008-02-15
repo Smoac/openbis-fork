@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-
 /**
  * Some constants used through the whole web application.
  * 
@@ -24,11 +23,14 @@ package ch.systemsx.cisd.cifex.client.application;
  */
 public final class Constants
 {
-    static final String RENEW_TARGET = ".renew";
+    /** The <code>id</code> attribute value for renew action. */
+    public static final String RENEW_ID = "renew";
 
-    static final String EDIT_TARGET = ".edit";
+    /** The <code>id</code> attribute value for edit action. */
+    public static final String EDIT_ID = "edit";
 
-    static final String DELETE_TARGET = ".delete";
+    /** The <code>id</code> attribute value for delete action. */
+    public static final String DELETE_ID = "delete";
 
     private Constants()
     {
@@ -36,7 +38,7 @@ public final class Constants
     }
 
     /** Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side). */
-    public static final String CIFEX_SERVLET_NAME = "/cifex/cifex";
+    public static final String CIFEX_SERVLET_NAME = getPrepend() + "cifex";
 
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";

@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
@@ -41,8 +43,14 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         if (grid.getColumnModel().getDataIndex(colindex).equals(AbstractFileGridModel.ACTION))
         {
             final IMessageResources messageResources = viewContext.getMessageResources();
+            final Element element = e.getTarget();
+            if (element == null)
+            {
+                return;
+            }
+            final String targetId = DOM.getElementAttribute(e.getTarget(), "id");
             // Delete
-            if (e.getTarget(Constants.DELETE_TARGET, 1) != null)
+            if (Constants.DELETE_ID.equals(targetId))
             {
                 MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
                         .getFileDeleteConfirmText(name), new MessageBox.ConfirmCallback()
@@ -60,9 +68,9 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                             }
                         }
                     });
-                // Renew
             }
-            if (e.getTarget(Constants.RENEW_TARGET, 1) != null)
+            // Renew
+            if (Constants.RENEW_ID.equals(targetId))
             {
                 viewContext.getCifexService().updateFileExpiration(id, null,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid));

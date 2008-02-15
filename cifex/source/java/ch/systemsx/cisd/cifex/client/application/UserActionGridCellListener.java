@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.LayoutDialog;
@@ -40,8 +42,14 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             final Record record = grid.getStore().getAt(rowIndex);
             final String userCode = record.getAsString(UserGridModel.USER_CODE);
             final String userDescription = getUserDescription(record);
+            final Element element = e.getTarget();
+            if (element == null)
+            {
+                return;
+            }
+            final String targetId = DOM.getElementAttribute(e.getTarget(), "id");
             // Delete user
-            if (e.getTarget(Constants.DELETE_TARGET, 1) != null)
+            if (Constants.DELETE_ID.equals(targetId))
             {
                 if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
@@ -67,7 +75,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         }
                     });
 
-            } else if (e.getTarget(Constants.EDIT_TARGET, 1) != null)
+            } else if (Constants.EDIT_ID.equals(targetId))
             {
                 if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
@@ -77,7 +85,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                 // Edit User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode, new FindUserAsyncCallback(viewContext));
 
-            } else if (e.getTarget(Constants.RENEW_TARGET, 1) != null)
+            } else if (Constants.RENEW_ID.equals(targetId))
             {
                 // renew User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,

@@ -54,7 +54,7 @@ final class FooterPanel extends HorizontalPanel
 
     private final static String createDisclaimerLink(final IMessageResources messageResources)
     {
-        return DOMUtils.createAnchor(messageResources.getFooterDisclaimerLinkLabel(), "disclaimer.html", "_new");
+        return DOMUtils.createAnchor(messageResources.getFooterDisclaimerLinkLabel(), "disclaimer.html", "_new", null);
     }
 
     private final static String createVersionDiv(final Configuration configuration)
@@ -62,7 +62,6 @@ final class FooterPanel extends HorizontalPanel
         final Element versionDiv = DOM.createDiv();
         DOM.setElementAttribute(versionDiv, "class", "cifex-light-div");
         DOM.setInnerText(versionDiv, "(Version: " + configuration.getSystemVersion() + ")");
-        System.out.println(versionDiv.toString());
         return DOM.toString(versionDiv);
     }
 

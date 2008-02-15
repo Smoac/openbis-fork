@@ -22,8 +22,10 @@ import java.util.List;
 import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -126,14 +128,10 @@ public final class UserGridModel extends AbstractDataGridModel
                         messageResources.getTemporaryRoleName()
                                 + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
             }
-            // TODO 2008-02-13, Christian Ribeaud: use DOM class here and ensure we get the hand
-            // cursor when going with the mouse over the links.
-            String actionLabel =
-                    "<a href=\"#\" class=\"edit\" id=\"edit\">" + messageResources.getActionEditLabel()
-                            + "</a> | <a href=\"#\" class=\"renew\" id=\"renew\">"
-                            + messageResources.getActionRenewLabel()
-                            + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
-                            + messageResources.getActionDeleteLabel() + "</a>";
+            final String actionLabel =
+                    DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID) + " | "
+                            + DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID) + " | "
+                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(), Constants.DELETE_ID);
             final Object[] objects =
                     new Object[]
                         { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,

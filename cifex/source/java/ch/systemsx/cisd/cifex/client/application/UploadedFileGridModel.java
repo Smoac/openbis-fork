@@ -23,6 +23,7 @@ import com.gwtext.client.data.DateFieldDef;
 import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -58,18 +59,20 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         {
             final File file = (File) data[i];
             final Long size = file.getSize();
+            // We can not use 'Integer.valueOf' here as GWT does not support it.
             final Object[] objects =
                     new Object[]
-                        { Integer.valueOf((int) file.getID()), file.getName(),
+                        {
+                                new Integer((int) file.getID()),
+                                file.getName(),
                                 file.getContentType(),
-                                size == null ? null : Integer.valueOf(size.intValue()),
+                                size == null ? null : new Integer(size.intValue()),
                                 file.getRegistrationDate(),
                                 file.getExpirationDate(),
-                                // TODO 2008-02-12, Christian Ribeaud: use DOM class here and ensure we get the hand
-                                // cursor when going with the mouse over the links.
-                                "<a href=\"#\" class=\"renew\" id=\"renew\">" + messageResources.getActionRenewLabel()
-                                        + "</a> | <a href=\"#\" class=\"delete\" id=\"delete\">"
-                                        + messageResources.getActionDeleteLabel() + "</a>" };
+                                DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID)
+                                        + " | "
+                                        + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                                                Constants.DELETE_ID) };
             list.add(objects);
         }
         return list;
