@@ -9,7 +9,13 @@
 <!--                                                                 -->
 <!-- =============================================================== -->
 
-
+<!--
+   // IMPORTANT NOTE:
+   // Be careful when formatting this class! Jetty seems to be a bit sensitive regarding line separators in path.
+   // It will not understand following: '<SystemProperty name="jetty.home" default="." />
+   // /webapps'
+   // You should use: '<SystemProperty name="jetty.home" default="." />/webapps' instead.
+-->
 <Configure id="Server" class="org.mortbay.jetty.Server">
 
     <!-- =========================================================== -->
@@ -56,7 +62,9 @@
                 <Set name="maxIdleTime">30000</Set>
                 <Set name="Acceptors">2</Set>
                 <Set name="statsOn">false</Set>
-                <Set name="confidentialPort">8443</Set>
+                <Set name="confidentialPort">
+                    <SystemProperty name="jetty.ssl.port" default="8443" />
+                </Set>
                 <Set name="lowResourcesConnections">5000</Set>
                 <Set name="lowResourcesMaxIdleTime">5000</Set>
             </New>
@@ -91,7 +99,10 @@
                         <New id="Contexts" class="org.mortbay.jetty.handler.ContextHandlerCollection" />
                     </Item>
                     <Item>
-                        <New id="DefaultHandler" class="org.mortbay.jetty.handler.DefaultHandler" />
+                        <New id="DefaultHandler" class="org.mortbay.jetty.handler.DefaultHandler">
+                            <!-- Disable the Jetty default icon. -->
+                            <Set name="serveIcon">false</Set>
+                        </New>
                     </Item>
                 </Array>
             </Set>
