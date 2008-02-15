@@ -68,6 +68,8 @@ final class FileManager extends AbstractManager implements IFileManager
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
+
     FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
@@ -100,16 +102,14 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         if (file.exists())
         {
-            boolean successful = file.delete();
-            if (operationLog.isInfoEnabled())
+            if (file.delete())
             {
-                if (successful)
+                if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("File [" + file.getAbsolutePath() + "] deleted.");
-                } else
-                {
-                    operationLog.info("File [" + file.getAbsolutePath() + "] not deleted: unknown reason.");
                 }
+            } else {
+                notificationLog.warn("File [" + file.getAbsolutePath() + "] can not be deleted.");
             }
         } else
         {
@@ -330,6 +330,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
         final IMailClient mailClient = businessContext.getMailClient();
+        boolean notified = false;
         for (final String email : emailsOfUsers)
         {
             Set<UserDTO> users = existingUsers.tryGet(email);
@@ -379,10 +380,16 @@ final class FileManager extends AbstractManager implements IFileManager
                     try
                     {
                         builder.sendEMail();
-                    } catch (EnvironmentFailureException ex)
+                        notified = false;
+                    } catch (final EnvironmentFailureException ex)
                     {
-                        // Email address is invalid because we can't send emails to it.
-                        invalidEmailAdresses.add(email);
+                        if (notified == false)
+                        {                            
+                            // As we are sure that we get correct email addresses, this exception can only be related to
+                            // the configuration and/or environment. So inform the administrator about the problem.
+                            notificationLog.error("A problem has occurred while sending email.", ex);
+                            notified = true;
+                        }
                     }
                 }
             }
