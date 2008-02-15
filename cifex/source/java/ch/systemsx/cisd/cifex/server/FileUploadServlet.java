@@ -223,7 +223,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             {
                 if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
                 {
-                    final StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream));
+                    final StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream), ", \t\n\r\f");
                     while (stringTokenizer.hasMoreTokens())
                     {
                         userEmails.add(stringTokenizer.nextToken());

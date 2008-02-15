@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.gwtext.client.core.Connection;
@@ -170,7 +171,8 @@ public final class FileUploadWidget extends Form
 
                 public final boolean validate(final String value) throws ValidationException
                 {
-                    final String[] result = value.split("\\s");
+                    final String[] result = value.split("[,\\s]+");
+                    System.out.println(Arrays.asList(result));
                     if (result.length == 0)
                     {
                         return false;
