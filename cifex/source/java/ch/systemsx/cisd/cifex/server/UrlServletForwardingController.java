@@ -62,6 +62,10 @@ public final class UrlServletForwardingController extends AbstractController
         {
             servletName = servletName.substring(1);
         }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Servlet name is '" + servletName + "'.");
+        }
         final RequestDispatcher rd = getServletContext().getNamedDispatcher(servletName);
         if (rd == null)
         {
