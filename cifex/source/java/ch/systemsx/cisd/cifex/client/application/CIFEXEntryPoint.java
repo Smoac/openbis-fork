@@ -32,6 +32,11 @@ public final class CIFEXEntryPoint implements EntryPoint
     {
         final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        // 'GWT.getModuleBaseURL()/GWT.getHostPageBaseURL()' returns
+        // 'http://localhost:8888/ch.systemsx.cisd.cifex.Cifex/' in Hosted/Web mode and 'http://localhost:8080/cifex/'
+        // when deployed.
+        // 'GWT.getModuleName()' always returns 'ch.systemsx.cisd.cifex.Cifex'.
+        // Do not prepend 'GWT.getModuleBaseURL()' here as we want '/cifex/cifex' in Hosted Mode.
         endpoint.setServiceEntryPoint(Constants.CIFEX_SERVLET_NAME);
         return service;
     }

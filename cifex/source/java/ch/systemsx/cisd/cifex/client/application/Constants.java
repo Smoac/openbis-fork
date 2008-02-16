@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.core.client.GWT;
+
 /**
  * Some constants used through the whole web application.
  * 
@@ -23,6 +25,8 @@ package ch.systemsx.cisd.cifex.client.application;
  */
 public final class Constants
 {
+    private static final String CONTEXT_PATH = "/cifex";
+
     /** The <code>id</code> attribute value for renew action. */
     public static final String RENEW_ID = "renew";
 
@@ -37,8 +41,11 @@ public final class Constants
         // Can not be instantiated.
     }
 
-    /** Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side). */
-    public static final String CIFEX_SERVLET_NAME = getPrepend() + "cifex";
+    /**
+     * Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side).
+     */
+    // Do not use 'getPrepend()' here as this URL does not change, nor in Web/Hosted Mode neither in Deployed Mode.
+    public static final String CIFEX_SERVLET_NAME = CONTEXT_PATH + "/cifex";
 
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";
@@ -60,6 +67,17 @@ public final class Constants
 
     private final static String getPrepend()
     {
-        return "/cifex/";
+        return CONTEXT_PATH + "/" + (isDeployed() ? "cifex/" : "");
+    }
+
+    /**
+     * Whether this application is deployed.
+     * <p>
+     * Deployed means that module name (<code>ch.systemsx.cisd.cifex.Cifex</code>) not present in module base URL (<code>http://localhost:8080/cifex/</code>).
+     * </p>
+     */
+    private final static boolean isDeployed()
+    {
+        return GWT.getModuleBaseURL().indexOf(GWT.getModuleName()) < 0;
     }
 }

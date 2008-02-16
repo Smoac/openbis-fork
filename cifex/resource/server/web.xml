@@ -10,7 +10,7 @@
     <!--
         // Session holder
     -->
-    
+
     <listener>
         <listener-class>ch.systemsx.cisd.cifex.server.UserHttpSessionListener</listener-class>
     </listener>
@@ -35,6 +35,7 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
         <url-pattern>/cifex/*</url-pattern>
@@ -55,23 +56,6 @@
         <servlet-class>ch.systemsx.cisd.cifex.server.FileUploadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-    <!--
-        // Do not remove the following lines. Or be sure that following cases still works:
-        //   * Web Mode
-        //   * Hosted Mode
-        //   * Distribution build
-    -->
-
-    <servlet-mapping>
-        <servlet-name>file-download</servlet-name>
-        <url-pattern>/file-download</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>file-upload</servlet-name>
-        <url-pattern>/file-upload</url-pattern>
-    </servlet-mapping>
 
     &gwt;
 </web-app>

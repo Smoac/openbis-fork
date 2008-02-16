@@ -9,17 +9,16 @@
 
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
-            <props>
-                <prop key="cifex">cifex-service-servlet</prop>
-                <!-- DO NOT REMOVE THIS! IT WORKS ON SOME CONFIGURATIONS WITHOUT AND ONE SOME IT BREAKS! -->
-                <prop key="*load">url-servlet-forwarding-controller</prop>
-            </props>
+            <value>
+                cifex=cifex-service-servlet
+                file-download=url-servlet-forwarding-controller
+                file-upload=url-servlet-forwarding-controller
+            </value>
         </property>
     </bean>
 
     <bean id="cifex-service-servlet" class="ch.systemsx.cisd.cifex.server.CIFEXServiceServlet" />
 
-    <!-- DO NOT REMOVE THIS! IT WORKS ON SOME CONFIGURATIONS WITHOUT AND ONE SOME IT BREAKS! -->
     <bean id="url-servlet-forwarding-controller" class="ch.systemsx.cisd.cifex.server.UrlServletForwardingController" />
 
 </beans>
