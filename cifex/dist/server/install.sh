@@ -73,9 +73,13 @@ cp -p "$installation_folder"/source-systemsx.ethz.ch.keystore "$jetty_folder"/et
 
 echo Preparing and installing web archive...
 war_classes=WEB-INF/classes
-mkdir -p "$war_classes" 
+mkdir -p "$war_classes"/etc
+# Replace properties file in war
 cp -p "$properties_file" "$war_classes"
-jar -ufv "$installation_folder"/cifex.war "$war_classes"/service.properties
+jar -uf "$installation_folder"/cifex.war "$war_classes"/service.properties
+# Replace 'log.xml' file in war
+cp -p "$installation_folder"/log.xml "$war_classes"/etc
+jar -uf "$installation_folder"/cifex.war "$war_classes"/etc/log.xml
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
 

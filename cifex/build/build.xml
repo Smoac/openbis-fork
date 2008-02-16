@@ -52,9 +52,15 @@
         </copy>
         <copy file="../authentication/resource/source-systemsx.ethz.ch.keystore" todir="${zipped.dir}" />
         <!--
-		// Although there is already one 'service.properties' in the war, we need one here that can be configured
-		// by the administrator. The idea is to replace the one in the war with it in the 'install.sh' script.
+		// Although there is already one 'service.properties' and 'log.xml' in the war, we need one here that
+		// can be configured by the administrator. The idea is to replace the one in the war with it in the
+		// 'install.sh' script.
 		-->
+        <copy todir="${zipped.dir}">
+            <fileset dir="${original.dist}/etc">
+                <include name="*" />
+            </fileset>
+        </copy>
         <copy file="${original.dist}/etc/service.properties" todir="${zipped.dir}" />
         <!-- Copy all files but '*.sh'. -->
         <copy todir="${zipped.dir}">
@@ -64,9 +70,7 @@
         </copy>
 
         <zip basedir="${dist}" destfile="${dist}/${dist.file.name}">
-            <zipfileset file="${original.dist.server}/*.sh"
-                        filemode="755"
-                        prefix="${ant.project.name}" />
+            <zipfileset file="${original.dist.server}/*.sh" filemode="755" prefix="${ant.project.name}" />
         </zip>
 
         <!-- Does some cleaning. -->
@@ -179,7 +183,8 @@
             </classes>
             <classes dir="${original.dist}">
                 <!--
-				// 'log.xml'.
+				// 'log.xml'. Note that it is just a template and
+				// should be completed or replaced by 'install.sh' script.
 				-->
                 <include name="etc/log.xml" />
             </classes>
