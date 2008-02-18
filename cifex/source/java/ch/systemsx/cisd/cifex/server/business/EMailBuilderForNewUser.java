@@ -69,7 +69,6 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
         if (newUser.isAdmin() == false && newUser.isPermanent() == false)
         {
             Date expirationDate = newUser.getExpirationDate();
-            System.out.println(expirationDate);
             builder.append(EXPIRATION_TEMPLATE.format(new Object[]
                 { expirationDate }));
         }
