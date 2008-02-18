@@ -152,13 +152,6 @@ public interface IMessageResources extends Messages
     public String getEditUserLinkLabel();
 
     /**
-     * Returns the info message when the user has been edited successfully.
-     * 
-     * @gwt.key edituser.successful.message
-     */
-    public String getEditUserSuccessfulMessage(final String userCode);
-
-    /**
      * Label for the tooltip of button, to edit the user
      * 
      * @gwt.key edituser.link.tooltip

@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.widgets.MessageBox;
-
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -121,9 +118,6 @@ public class EditUserWidget extends UserWidget
                 user.setUserFullName(usernameField.getValueAsString());
                 context.getModel().setUser(user);
             }
-            final IMessageResources messageResources = getMessageResources();
-            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
-                    .getEditUserSuccessfulMessage(userCodeField.getText()));
             finishEditing();
         }
     }

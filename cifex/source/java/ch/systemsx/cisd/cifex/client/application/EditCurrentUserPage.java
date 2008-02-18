@@ -52,7 +52,7 @@ final class EditCurrentUserPage extends AbstractMainPage
 
                         protected final void finishEditing()
                         {
-                            context.getPageController().createEditCurrentUserPage();
+                            context.getPageController().createAdminPage();
                         }
                     };
         editUserPanel.add(editUserWidget);
