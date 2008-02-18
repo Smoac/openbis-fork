@@ -55,7 +55,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
 
         public final void onSuccess(final Object res)
         {
-            userGrid.reloadStore((User[]) res, userGrid.getModel());
+            userGrid.reloadStore((User[]) res);
         }
     }
 }

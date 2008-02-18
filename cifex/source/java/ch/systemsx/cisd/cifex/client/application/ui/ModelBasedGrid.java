@@ -40,16 +40,18 @@ public final class ModelBasedGrid extends Grid
 {
     private final static Object[][] OBJECT_ARRAY_ARRAY = new Object[0][];
 
-    private IDataGridModel model;
+    private final IDataGridModel model;
 
     public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model)
     {
         super(Ext.generateId(), null, getHeight(objects), createStore(objects, model), createColumnModel(
                 messageResources, model), createGridConfig());
         this.model = model;
-        // To turn off the row selection
+        // To turn off the row selection.
         getSelectionModel().lock();
+        // Render before loading the store.
         render();
+        getStore().load();
     }
 
     private final static String getHeight(final Object[] objects)
@@ -62,13 +64,12 @@ public final class ModelBasedGrid extends Grid
         return new MemoryProxy((Object[][]) newModel.getData(objects).toArray(OBJECT_ARRAY_ARRAY));
     }
 
+    /** This only creates the <code>Store</code> and does not load it. */
     private final static Store createStore(final Object[] objects, final IDataGridModel model)
     {
         final DataProxy memoryProxy = createDataProxy(objects, model);
         final RecordDef recordDef = new RecordDef((FieldDef[]) model.getFieldDefs().toArray(new FieldDef[0]));
-        final Store store = new Store(memoryProxy, new ArrayReader(recordDef));
-        store.load();
-        return store;
+        return new Store(memoryProxy, new ArrayReader(recordDef));
     }
 
     private final static ColumnModel createColumnModel(final IMessageResources messageResources,
@@ -91,15 +92,18 @@ public final class ModelBasedGrid extends Grid
         return gridConfig;
     }
 
-    /** Reloads the store with given new <var>objects</var> and given <var>newModel</var>. */
-    public final void reloadStore(final Object[] objects, final IDataGridModel newModel)
+    /**
+     * Reloads the store with given new <var>objects</var>.
+     * <p>
+     * IMPORTANT NOTE: do not call {@link #render()} here.
+     * </p>
+     */
+    public final void reloadStore(final Object[] objects)
     {
-        final DataProxy dataProxy = createDataProxy(objects, newModel);
+        final DataProxy dataProxy = createDataProxy(objects, model);
         final Store store = getStore();
         store.setProxy(dataProxy);
-        store.reload();
-        this.model = newModel;
-        render();
+        store.load();
     }
 
     /** Returns the current <code>IDataGridModel</code>. */

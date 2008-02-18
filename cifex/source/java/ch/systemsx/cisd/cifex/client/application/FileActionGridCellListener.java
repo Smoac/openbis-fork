@@ -9,7 +9,6 @@ import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
-import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -99,7 +98,6 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            final IDataGridModel model = modelBasedGrid.getModel();
             final AsyncCallback callback = new AbstractAsyncCallback(viewContext)
                 {
 
@@ -109,7 +107,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
                     public final void onSuccess(final Object res)
                     {
-                        modelBasedGrid.reloadStore((File[]) res, model);
+                        modelBasedGrid.reloadStore((File[]) res);
                     }
                 };
             if (adminView)
@@ -138,8 +136,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            final IDataGridModel model = modelBasedGrid.getModel();
-            AbstractAsyncCallback callback = new AbstractAsyncCallback(viewContext)
+            final AbstractAsyncCallback callback = new AbstractAsyncCallback(viewContext)
                 {
                     //
                     // AbstractAsyncCallback
@@ -147,7 +144,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
                     public final void onSuccess(final Object res)
                     {
-                        modelBasedGrid.reloadStore((File[]) res, model);
+                        modelBasedGrid.reloadStore((File[]) res);
                     }
                 };
             if (adminView)
