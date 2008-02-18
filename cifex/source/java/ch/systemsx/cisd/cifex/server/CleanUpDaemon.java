@@ -66,9 +66,9 @@ public final class CleanUpDaemon extends TimerTask
         deleteExpiredUsers();
         deleteExpiredFiles();
         timer.stop();
-        if (logger.isInfoEnabled())
+        if (logger.isDebugEnabled())
         {
-            logger.info("Cleaning time: " + timer.getTimeElapsed() + " ms");
+            logger.debug("Cleaning time: " + timer.getTimeElapsed() + " ms");
         }
 
     }
