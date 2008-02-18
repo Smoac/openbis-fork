@@ -243,9 +243,6 @@
             <lib dir="${lib}/mail">
                 <include name="mail.jar" />
             </lib>
-            <lib dir="${lib}/jetty">
-                <include name="*.jar" />
-            </lib>
         </war>
         <!-- Does some cleaning. -->
         <delete file="${jar.file}" failonerror="true" />
