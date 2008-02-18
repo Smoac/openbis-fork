@@ -29,7 +29,7 @@ class PageController implements IPageController
 {
     private ViewContext viewContext;
 
-    final void setViewContext(ViewContext viewContext)
+    final void setViewContext(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
@@ -46,6 +46,10 @@ class PageController implements IPageController
         final RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
     }
+
+    //
+    // IPageController
+    //
 
     public final void createLoginPage()
     {

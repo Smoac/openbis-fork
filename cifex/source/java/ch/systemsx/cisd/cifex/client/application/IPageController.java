@@ -29,7 +29,13 @@ public interface IPageController
     /** Instantiates <code>MainPage</code> and adds it to the <code>RootPanel</code>. */
     public void createMainPage();
 
-    /** Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>. */
+    /**
+     * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
+     * <p>
+     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i> and a {@link MainPage} for
+     * <i>regular</i> or <i>temporary</i> users.
+     * </p>
+     */
     public void createAdminPage();
 
     /** Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the <code>RootPanel</code>. */
