@@ -60,7 +60,7 @@ public class EditUserWidget extends UserWidget
             if (addStatusField)
             {
                 user.setAdmin(isAdminStatus());
-                user.setPermanent(isTemporaryStatus() == false);
+                user.setPermanent(isAdminStatus() || isPermanentStatus());
             } else
             {
                 user.setAdmin(editUser.isAdmin());

@@ -25,9 +25,19 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Franz-Josef Elmer
  */
-class PageController implements IPageController
+final class PageController implements IPageController
 {
+    public final static String MAIN_PAGE = "mainPage";
+
+    public final static String ADMIN_PAGE = "adminPage";
+
+    public final static String LOGIN_PAGE = "loginPage";
+
+    public final static String EDIT_CURRENT_USER_PAGE = "editCurrentUserPage";
+
     private ViewContext viewContext;
+
+    private String activePage;
 
     final void setViewContext(final ViewContext viewContext)
     {
@@ -55,6 +65,7 @@ class PageController implements IPageController
     {
         clearRootPanel();
         final LoginPage loginPage = new LoginPage(viewContext);
+        activePage = LOGIN_PAGE;
         RootPanel.get().add(loginPage);
     }
 
@@ -62,6 +73,7 @@ class PageController implements IPageController
     {
         clearRootPanel();
         final MainPage mainPage = new MainPage(viewContext);
+        activePage = MAIN_PAGE;
         RootPanel.get().add(mainPage);
     }
 
@@ -72,9 +84,11 @@ class PageController implements IPageController
         final AbstractMainPage mainPage;
         if (user.isAdmin())
         {
+            activePage = ADMIN_PAGE;
             mainPage = new AdminMainPage(viewContext);
         } else
         {
+            activePage = MAIN_PAGE;
             mainPage = new MainPage(viewContext);
         }
         RootPanel.get().add(mainPage);
@@ -84,7 +98,13 @@ class PageController implements IPageController
     {
         clearRootPanel();
         final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
+        activePage = EDIT_CURRENT_USER_PAGE;
         RootPanel.get().add(editUserPage);
+    }
+
+    public final String getActivePage()
+    {
+        return activePage;
     }
 
 }

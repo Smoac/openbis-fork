@@ -16,6 +16,9 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.
+ * <p>
+ * This is used on {@link AdminMainPage} and on {@link MainPage}.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -85,7 +88,6 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                             }
                         }
                     });
-
             } else if (Constants.EDIT_ID.equals(targetId))
             {
                 if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
@@ -96,13 +98,11 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                 // Edit User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
                         new FindUserAsyncCallback(viewContext, userGrid));
-
             } else if (Constants.RENEW_ID.equals(targetId))
             {
                 // renew User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
                         new RenewUserAsyncCallback(viewContext, userGrid));
-
             }
         }
     }

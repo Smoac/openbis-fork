@@ -42,7 +42,12 @@ public final class DateTimeUtils
      */
     public static final long MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
 
-    /** Default date/time format. */
+    /**
+     * Default date/time format.
+     * <p>
+     * <code>zzz</code> produces <code>GMT+01:00</code>.
+     * </p>
+     */
     public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
 
     /** Default <code>DateTimeFormat</code> used here. */

@@ -114,7 +114,7 @@ public abstract class AbstractLayoutDialog extends LayoutDialog
                 // ButtonListenerAdapter
                 //
 
-                public final void onClick(Button but, EventObject e)
+                public final void onClick(final Button but, final EventObject e)
                 {
                     hide();
                 }

@@ -34,9 +34,9 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class CreateUserWidget extends UserWidget
 {
 
-    public CreateUserWidget(final ViewContext context, final boolean allowPermanentUsers)
+    public CreateUserWidget(final ViewContext context, final boolean addStatusField)
     {
-        super(context, allowPermanentUsers);
+        super(context, addStatusField);
     }
 
     //
@@ -64,7 +64,7 @@ public class CreateUserWidget extends UserWidget
             if (addStatusField)
             {
                 user.setAdmin(isAdminStatus());
-                user.setPermanent(isTemporaryStatus() == false);
+                user.setPermanent(isAdminStatus() || isPermanentStatus());
             } else
             {
                 user.setAdmin(false);

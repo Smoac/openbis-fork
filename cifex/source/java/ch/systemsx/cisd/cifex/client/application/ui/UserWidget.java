@@ -64,25 +64,24 @@ public abstract class UserWidget extends Form
 
     protected final boolean addStatusField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextField emailField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextField usernameField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextField userCodeField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextField passwordField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextField validatePasswordField;
 
-    /* Protected, that the subclasses can get the value. */
     protected TextArea commentArea;
 
-    /** Status of the user. */
+    /**
+     * Status of the user.
+     * <p>
+     * An user can have one of following roles: <i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>.
+     * </p>
+     */
     protected ComboBox statusField;
 
     /** Button to submit the form. */
@@ -189,9 +188,9 @@ public abstract class UserWidget extends Form
         return statusField.getValue().equals(status);
     }
 
-    protected final boolean isTemporaryStatus()
+    protected final boolean isPermanentStatus()
     {
-        return isStatus(getMessageResources().getTemporaryRoleName());
+        return isStatus(getMessageResources().getPermanentRoleName());
     }
 
     protected final boolean isAdminStatus()

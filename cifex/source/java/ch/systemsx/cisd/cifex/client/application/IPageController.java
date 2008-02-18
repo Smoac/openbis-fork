@@ -40,4 +40,7 @@ public interface IPageController
 
     /** Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the <code>RootPanel</code>. */
     public void createEditCurrentUserPage();
+
+    /** Returns the currently active page. */
+    public String getActivePage();
 }

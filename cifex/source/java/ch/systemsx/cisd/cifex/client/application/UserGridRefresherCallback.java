@@ -26,7 +26,8 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
     public final void onSuccess(final Object object)
     {
         final ViewContext viewContext = getViewContext();
-        if (viewContext.getModel().getUser().isAdmin())
+        // Only administrators have access to the admin page, so no need to check the currently logged user here.
+        if (viewContext.getPageController().getActivePage().equals(PageController.ADMIN_PAGE))
         {
             viewContext.getCifexService().listUsers(new ListUsersCallback());
         } else
