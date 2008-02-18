@@ -44,6 +44,14 @@ public final class StringUtils
         return value == null || value.trim().length() == 0;
     }
 
+    /**
+     * Returns <code>null</code> if given <var>value</var> is blank.
+     */
+    public final static String nullIfBlank(final String value)
+    {
+        return isBlank(value) ? null : value;
+    }
+
     /** Returns an empty if given <var>stringOrNull</var> is <code>null</code>. */
     public final static String emptyIfNull(final String stringOrNull)
     {
