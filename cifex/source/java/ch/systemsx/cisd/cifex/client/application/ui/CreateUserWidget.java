@@ -24,6 +24,10 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * A <code>UserWidget</code> extension suitable for user creation.
+ * <p>
+ * This widget is used when a <i>regular</i> user creates new <i>temporary</i> users or/and when the administrator
+ * creates new users (<i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>).
+ * </p>
  * 
  * @author Basil Neff
  */
@@ -47,7 +51,8 @@ public class CreateUserWidget extends UserWidget
         }
         if (isValid())
         {
-            User user = new User();
+            button.disable();
+            final User user = new User();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
@@ -97,6 +102,12 @@ public class CreateUserWidget extends UserWidget
         //
         // AsyncCallback
         //
+
+        public final void onFailure(final Throwable caught)
+        {
+            super.onFailure(caught);
+            button.enable();
+        }
 
         public final void onSuccess(final Object result)
         {

@@ -31,7 +31,7 @@ final class EditCurrentUserPage extends AbstractMainPage
 {
     private VerticalPanel editUserPanel;
 
-    EditCurrentUserPage(ViewContext context)
+    EditCurrentUserPage(final ViewContext context)
     {
         super(context);
     }
@@ -42,7 +42,19 @@ final class EditCurrentUserPage extends AbstractMainPage
         boolean allowPermanentUsers = false;
         editUserPanel = createVerticalPanelPart();
         editUserPanel.add(createPartTitle(messageResources.getEditUserLabel()));
-        EditUserWidget editUserWidget = new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser());
+        final EditUserWidget editUserWidget =
+                new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser())
+                    {
+
+                        //
+                        // EditUserWidget
+                        //
+
+                        protected final void finishEditing()
+                        {
+                            context.getPageController().createEditCurrentUserPage();
+                        }
+                    };
         editUserPanel.add(editUserWidget);
     }
 

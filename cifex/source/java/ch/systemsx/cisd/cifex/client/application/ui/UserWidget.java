@@ -47,8 +47,6 @@ public abstract class UserWidget extends Form
 {
     private static final String STATUS_FIELD = "status";
 
-    private static final int TOTAL_WIDTH = 700;
-
     private static final String ID_PREFIX = "UserWidget-";
 
     private static final int FIELD_WIDTH = 175;
@@ -56,6 +54,8 @@ public abstract class UserWidget extends Form
     private static final int COLUMN_WIDTH = 350;
 
     private static final int LABEL_WIDTH = 120;
+
+    public static final int TOTAL_WIDTH = 700;
 
     protected final ViewContext context;
 
@@ -148,8 +148,8 @@ public abstract class UserWidget extends Form
             statusField = createStatusComboBox();
             add(statusField);
         }
-        createButton();
         end();
+        createButton();
         render();
     }
 
@@ -226,7 +226,7 @@ public abstract class UserWidget extends Form
         final FormConfig formConfig = new FormConfig();
         formConfig.setWidth(TOTAL_WIDTH);
         formConfig.setLabelAlign(Position.LEFT);
-        formConfig.setButtonAlign(Position.RIGHT);
+        formConfig.setButtonAlign(Position.LEFT);
         formConfig.setLabelWidth(LABEL_WIDTH);
         return formConfig;
     }

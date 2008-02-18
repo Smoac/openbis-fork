@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Basil Neff
  */
-public final class EditUserWidget extends UserWidget
+public class EditUserWidget extends UserWidget
 {
     public EditUserWidget(final ViewContext context, final boolean allowPermanentUsers, final User user)
     {
@@ -72,9 +72,16 @@ public final class EditUserWidget extends UserWidget
         }
     }
 
-    //
-    // UserWidget
-    //
+    /**
+     * This method is called after the editing has been performed and was successful.
+     * <p>
+     * By default, this method does nothing.
+     * </p>
+     */
+    protected void finishEditing()
+    {
+
+    }
 
     final String getSubmitButtonLabel()
     {
@@ -117,6 +124,7 @@ public final class EditUserWidget extends UserWidget
             final IMessageResources messageResources = getMessageResources();
             MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
                     .getEditUserSuccessfulMessage(userCodeField.getText()));
+            finishEditing();
         }
     }
 }
