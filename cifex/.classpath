@@ -26,5 +26,8 @@
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt-ext/gwtext.jar"/>
 	<classpathentry kind="lib" path="/libraries/activation/activation.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty/jetty.jar" sourcepath="/libraries/jetty/src/jetty.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty/jetty-util.jar" sourcepath="/libraries/jetty/src/jetty-util.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty/servlet-api-2.5.jar" sourcepath="/libraries/jetty/src/servlet-api-2.5.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

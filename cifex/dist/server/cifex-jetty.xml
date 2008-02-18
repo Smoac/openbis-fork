@@ -99,10 +99,11 @@
                         <New id="Contexts" class="org.mortbay.jetty.handler.ContextHandlerCollection" />
                     </Item>
                     <Item>
-                        <New id="DefaultHandler" class="org.mortbay.jetty.handler.DefaultHandler">
-                            <!-- Disable the Jetty default icon. -->
-                            <Set name="serveIcon">false</Set>
-                        </New>
+                        <!--
+                          // This is a CIFEX specific DefaultHandler extension. Note that the class file in the 
+                          // jetty.jar is used not the one in cifex.war.
+                        -->
+                        <New id="DefaultHandler" class="ch.systemsx.cisd.cifex.server.DefaultHandler" />
                     </Item>
                 </Array>
             </Set>
