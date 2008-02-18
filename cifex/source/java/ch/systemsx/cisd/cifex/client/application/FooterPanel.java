@@ -54,6 +54,7 @@ final class FooterPanel extends HorizontalPanel
 
     private final static String createDisclaimerLink(final IMessageResources messageResources)
     {
+        // TODO 2008-02-18, Christian Ribeaud: Put the disclaimer in a MessageBox.
         return DOMUtils.createAnchor(messageResources.getFooterDisclaimerLinkLabel(), "disclaimer.html", "_new", null);
     }
 
