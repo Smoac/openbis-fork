@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+
 /**
  * An interface to control the creation of (or switching to) current application pages.
  * 
@@ -41,6 +43,6 @@ public interface IPageController
     /** Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the <code>RootPanel</code>. */
     public void createEditCurrentUserPage();
 
-    /** Returns the currently active page. */
-    public String getActivePage();
+    /** Creates page specified by given <var>page</var>. */
+    public void createPage(final Page page);
 }

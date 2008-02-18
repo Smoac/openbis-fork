@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
 
 /**
@@ -52,7 +53,11 @@ final class EditCurrentUserPage extends AbstractMainPage
 
                         protected final void finishEditing()
                         {
-                            context.getPageController().createAdminPage();
+                            final IPageController pageController = context.getPageController();
+                            final IHistoryController historyController = context.getHistoryController();
+                            final Page previousPage = historyController.getPreviousPage();
+                            assert previousPage != null : "Undefined previous page.";
+                            pageController.createPage(previousPage);
                         }
                     };
         editUserPanel.add(editUserWidget);

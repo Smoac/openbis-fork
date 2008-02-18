@@ -31,6 +31,7 @@ import com.gwtext.client.widgets.layout.BorderLayout;
 import com.gwtext.client.widgets.layout.ContentPanel;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -128,7 +129,6 @@ abstract class AbstractMainPage extends BorderLayout
 
     private ToolbarTextItem createUserDescription(User user)
     {
-
         StringBuffer buffer = new StringBuffer();
         String fullUserName = user.getUserFullName();
         if (fullUserName != null)
@@ -170,6 +170,7 @@ abstract class AbstractMainPage extends BorderLayout
                 {
                     context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
                     context.getModel().getUrlParams().clear();
+                    context.getHistoryController().setCurrentPage(Page.LOGIN_PAGE);
                     context.getPageController().createLoginPage();
                 }
             });
@@ -190,6 +191,7 @@ abstract class AbstractMainPage extends BorderLayout
             {
                 public final void onClick(Button button, EventObject e)
                 {
+                    context.getHistoryController().setCurrentPage(Page.MAIN_PAGE);
                     context.getPageController().createMainPage();
                 }
             });
@@ -210,6 +212,7 @@ abstract class AbstractMainPage extends BorderLayout
             {
                 public final void onClick(Button button, EventObject e)
                 {
+                    context.getHistoryController().setCurrentPage(Page.EDIT_PROFILE);
                     context.getPageController().createEditCurrentUserPage();
                 }
             });
@@ -230,6 +233,7 @@ abstract class AbstractMainPage extends BorderLayout
             {
                 public final void onClick(Button button, EventObject e)
                 {
+                    context.getHistoryController().setCurrentPage(Page.ADMIN_PAGE);
                     context.getPageController().createAdminPage();
                 }
             });

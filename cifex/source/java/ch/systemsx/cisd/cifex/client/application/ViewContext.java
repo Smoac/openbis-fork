@@ -20,12 +20,14 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 
 /**
  * Context with everything needed by view classes.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ViewContext
 {
     private final IPageController pageController;
+
+    private final IHistoryController historyController;
 
     private final IMessageResources messageResources;
 
@@ -33,10 +35,11 @@ public class ViewContext
 
     private final Model model;
 
-    ViewContext(final IPageController pageController, final ICIFEXServiceAsync cifexService, final Model model,
-            final IMessageResources messageResources)
+    ViewContext(final IPageController pageController, final IHistoryController historyController,
+            final ICIFEXServiceAsync cifexService, final Model model, final IMessageResources messageResources)
     {
         this.pageController = pageController;
+        this.historyController = historyController;
         this.messageResources = messageResources;
         this.cifexService = cifexService;
         this.model = model;
@@ -60,5 +63,10 @@ public class ViewContext
     public final IPageController getPageController()
     {
         return pageController;
+    }
+
+    public final IHistoryController getHistoryController()
+    {
+        return historyController;
     }
 }

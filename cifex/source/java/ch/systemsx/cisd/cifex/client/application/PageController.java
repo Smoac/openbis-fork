@@ -25,23 +25,27 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Franz-Josef Elmer
  */
-final class PageController implements IPageController
+final class PageController implements IPageController, IHistoryController
 {
-    public final static String MAIN_PAGE = "mainPage";
-
-    public final static String ADMIN_PAGE = "adminPage";
-
-    public final static String LOGIN_PAGE = "loginPage";
-
-    public final static String EDIT_CURRENT_USER_PAGE = "editCurrentUserPage";
-
     private ViewContext viewContext;
 
-    private String activePage;
+    private Page currentPage;
+
+    private Page previousPage;
 
     final void setViewContext(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
+        setPageDescriptions();
+    }
+
+    private final void setPageDescriptions()
+    {
+        final IMessageResources messageResources = viewContext.getMessageResources();
+        Page.ADMIN_PAGE.setDescription(messageResources.getAdminViewLinkLabel());
+        Page.MAIN_PAGE.setDescription(messageResources.getMainViewLinkLabel());
+        Page.EDIT_PROFILE.setDescription(messageResources.getEditUserLinkLabel());
+        Page.LOGIN_PAGE.setDescription(messageResources.getLogoutLinkLabel());
     }
 
     /**
@@ -65,7 +69,6 @@ final class PageController implements IPageController
     {
         clearRootPanel();
         final LoginPage loginPage = new LoginPage(viewContext);
-        activePage = LOGIN_PAGE;
         RootPanel.get().add(loginPage);
     }
 
@@ -73,7 +76,6 @@ final class PageController implements IPageController
     {
         clearRootPanel();
         final MainPage mainPage = new MainPage(viewContext);
-        activePage = MAIN_PAGE;
         RootPanel.get().add(mainPage);
     }
 
@@ -84,11 +86,9 @@ final class PageController implements IPageController
         final AbstractMainPage mainPage;
         if (user.isAdmin())
         {
-            activePage = ADMIN_PAGE;
             mainPage = new AdminMainPage(viewContext);
         } else
         {
-            activePage = MAIN_PAGE;
             mainPage = new MainPage(viewContext);
         }
         RootPanel.get().add(mainPage);
@@ -98,13 +98,43 @@ final class PageController implements IPageController
     {
         clearRootPanel();
         final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
-        activePage = EDIT_CURRENT_USER_PAGE;
         RootPanel.get().add(editUserPage);
     }
 
-    public final String getActivePage()
+    public final void createPage(final Page page)
     {
-        return activePage;
+        if (page == Page.ADMIN_PAGE)
+        {
+            createAdminPage();
+        } else if (page == Page.EDIT_PROFILE)
+        {
+            createEditCurrentUserPage();
+        } else if (page == Page.LOGIN_PAGE)
+        {
+            createLoginPage();
+        } else if (page == Page.MAIN_PAGE)
+        {
+            createMainPage();
+        }
     }
 
+    //
+    // IHistoryController
+    //
+
+    public final Page getCurrentPage()
+    {
+        return currentPage;
+    }
+
+    public final Page getPreviousPage()
+    {
+        return previousPage;
+    }
+
+    public final void setCurrentPage(final Page page)
+    {
+        previousPage = currentPage;
+        currentPage = page;
+    }
 }

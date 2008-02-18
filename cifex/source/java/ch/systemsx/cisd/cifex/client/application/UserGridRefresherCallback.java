@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.cifex.client.application;
 
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -27,7 +28,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
     {
         final ViewContext viewContext = getViewContext();
         // Only administrators have access to the admin page, so no need to check the currently logged user here.
-        if (viewContext.getPageController().getActivePage().equals(PageController.ADMIN_PAGE))
+        if (viewContext.getHistoryController().getCurrentPage() == Page.ADMIN_PAGE)
         {
             viewContext.getCifexService().listUsers(new ListUsersCallback());
         } else
