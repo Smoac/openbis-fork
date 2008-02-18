@@ -61,7 +61,6 @@
                 <include name="*" />
             </fileset>
         </copy>
-        <copy file="${original.dist}/etc/service.properties" todir="${zipped.dir}" />
         <!-- Copy all files but '*.sh'. -->
         <copy todir="${zipped.dir}">
             <fileset dir="${original.dist.server}">
@@ -148,8 +147,9 @@
         <recursive-jar destfile="${jar.file}">
             <fileset dir="${classes}">
                 <include name="**/*.class" />
-                <!-- Exclude 'service.properties' file. -->
+                <!-- Exclude 'service.properties' and 'log.xml' file. -->
                 <exclude name="service.properties" />
+                <exclude name="log.xml" />
                 <include name="**/*.properties" />
                 <include name="${build.info.filename}" />
             </fileset>
@@ -173,20 +173,6 @@
             <classes dir="${sources}">
                 <!-- Add 'applicationContext.xml' and related files. -->
                 <include name="**/*.xml" />
-            </classes>
-            <classes dir="${original.dist}/etc">
-                <!--
-				// 'service.properties'. Note that it is just a template and
-				// should be completed or replaced by 'install.sh' script.
-				-->
-                <include name="service.properties" />
-            </classes>
-            <classes dir="${original.dist}">
-                <!--
-				// 'log.xml'. Note that it is just a template and
-				// should be completed or replaced by 'install.sh' script.
-				-->
-                <include name="etc/log.xml" />
             </classes>
             <!--
 			// Add the database specific files.

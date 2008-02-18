@@ -1,9 +1,13 @@
 #! /bin/bash
 
+usage() {
+	echo "Usage: $0 [--http-port <http port>] [--https-port <https port>] <server folder> [<service properties file> <log configuration file>]"
+	exit 1
+}
+
 check_arguments() {
 	if [ $# -lt 1 ]; then
-		echo "Usage: $0 [--http-port <http port>] [--https-port <https port>] <server folder> [<service properties file>]"
-		exit 1
+		usage
 	fi
 }
 
@@ -25,7 +29,7 @@ if [ $1 == "--https-port" ]; then
 fi
 check_arguments $@
 
-# Installation folder: where the stuff have been installed, where this script is,...
+# Installation folder: where the distribution zip file has been unzipped (and where this script resides)
 installation_folder="`dirname $0`"
 if [ ${installation_folder#/} == ${installation_folder} ]; then
 	installation_folder="`pwd`/${installation_folder}"
@@ -38,11 +42,20 @@ if [ ${server_folder#/} == ${server_folder} ]; then
 fi
 
 properties_file="$installation_folder/service.properties"
-# Specify properties file path as absolute
+logconf_file="$installation_folder/log.xml"
 if [ $# -gt 1 ]; then
+	if [ $# -lt 3 ]; then
+		usage
+	fi
 	properties_file="$2"
+	# Specify properties file path as absolute
 	if [ "${properties_file#/}" == "${properties_file}" ]; then
 		properties_file="`pwd`/${properties_file}"
+	fi
+	logconf_file="$3"
+	# Specify log configuration file path as absolute
+	if [ "logconf_file#/}" == "logconf_file}" ]; then
+		logconf_file="`pwd`/logconf_file}"
 	fi
 fi
 # Check whether given properties file exists and is a regular file.
@@ -50,6 +63,7 @@ if [ ! -f $properties_file ]; then
 	echo Given properties file \'$properties_file\' does not exist!
 	exit 1
 fi
+
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -68,15 +82,15 @@ fi
 echo Unzipping Jetty...
 # Files are unzipped in $rel_jetty_folder
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
-cp -p "$installation_folder"/*.xml "$jetty_folder"/etc
+cp -p "$installation_folder"/cifex-jetty*.xml "$jetty_folder"/etc
 cp -p "$installation_folder"/source-systemsx.ethz.ch.keystore "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
 war_classes=WEB-INF/classes
 mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
-cp -p "$properties_file" "$war_classes"
-cp -p "$installation_folder"/log.xml "$war_classes"/etc
+cp -p "$properties_file" "$war_classes/service.properties"
+cp -p "$logconf_file" "$war_classes/etc/log.xml"
 jar -uf "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
