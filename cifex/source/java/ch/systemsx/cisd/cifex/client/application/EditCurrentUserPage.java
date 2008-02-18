@@ -29,7 +29,6 @@ import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
  */
 final class EditCurrentUserPage extends AbstractMainPage
 {
-
     private VerticalPanel editUserPanel;
 
     EditCurrentUserPage(ViewContext context)
@@ -45,7 +44,6 @@ final class EditCurrentUserPage extends AbstractMainPage
         editUserPanel.add(createPartTitle(messageResources.getEditUserLabel()));
         EditUserWidget editUserWidget = new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser());
         editUserPanel.add(editUserWidget);
-        editUserPanel.add(editUserWidget.getSubmitButton());
     }
 
     //

@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.widgets.MessageBox;
-
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
+ * A <code>UserWidget</code> extension suitable for user creation.
+ * 
  * @author Basil Neff
  */
 public class CreateUserWidget extends UserWidget
@@ -34,19 +35,18 @@ public class CreateUserWidget extends UserWidget
         super(context, allowPermanentUsers);
     }
 
-    protected void submitForm()
+    //
+    // UserWidget
+    //
+
+    final void submitForm()
     {
-        // Check if passwords are equal.
-        if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
+        if (arePasswordsEqual() == false)
         {
-            MessageBox
-                    .alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
             return;
         }
-
-        if (usernameField.validate() && passwordField.validate() && emailField.validate())
+        if (isValid())
         {
-
             User user = new User();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
@@ -56,32 +56,29 @@ public class CreateUserWidget extends UserWidget
             {
                 comment = commentArea.getText();
             }
-            if (allowPermanentUsers)
+            if (addStatusField)
             {
-                if (adminRadioButton.getValue())
-                {
-                    user.setAdmin(true);
-                    user.setPermanent(true);
-                } else if (permanentRadioButton.getValue())
-                {
-                    user.setAdmin(false);
-                    user.setPermanent(true);
-                } else
-                {
-                    user.setAdmin(false);
-                    user.setPermanent(false);
-                }
+                user.setAdmin(isAdminStatus());
+                user.setPermanent(isTemporaryStatus() == false);
             } else
             {
                 user.setAdmin(false);
                 user.setPermanent(false);
             }
+            final ICIFEXServiceAsync cifexService = context.getCifexService();
+            cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getText()), context.getModel()
+                    .getUser(), comment, new CreateUserAsyncCallBack());
+        }
+    }
 
-            String password = passwordField.getText();
-
-            ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.createUser(user, password, context.getModel().getUser(), comment,
-                    new CreateUserAsyncCallBack());
+    final String getSubmitButtonLabel()
+    {
+        if (context.getModel().getUser().isAdmin())
+        {
+            return getMessageResources().getAdminCreateUserLabel();
+        } else
+        {
+            return getMessageResources().getCreateUserLabel();
         }
     }
 
@@ -101,26 +98,9 @@ public class CreateUserWidget extends UserWidget
         // AsyncCallback
         //
 
-        public final void onFailure(final Throwable caught)
-        {
-            super.onFailure(caught);
-        }
-
         public final void onSuccess(final Object result)
         {
             context.getPageController().createAdminPage();
         }
     }
-
-    String getSubmitButtonLabel()
-    {
-        if (context.getModel().getUser().isAdmin())
-        {
-            return messageResources.getAdminCreateUserLabel();
-        } else
-        {
-            return messageResources.getCreateUserLabel();
-        }
-    }
-
 }

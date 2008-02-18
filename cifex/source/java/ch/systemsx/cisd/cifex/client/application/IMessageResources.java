@@ -103,6 +103,13 @@ public interface IMessageResources extends Messages
     public String getCreateUserLabel();
 
     /**
+     * Returns a default invocation exception message (as it obviously does not contain any).
+     * 
+     * @gwt.key dialog.closebutton.label
+     */
+    public String getDialogCloseButtonLabel();
+
+    /**
      * Returns the message text for no file to download.
      * 
      * @gwt.key downloadfiles.empty
@@ -124,6 +131,13 @@ public interface IMessageResources extends Messages
     public String getEditUserButtonLabel();
 
     /**
+     * Returns dialog window title for editing an user.
+     * 
+     * @gwt.key edituser.dialog.title
+     */
+    public String getEditUserDialogTitle(final String userCode);
+
+    /**
      * Returns label for editing a user.
      * 
      * @gwt.key edituser.label
@@ -136,6 +150,13 @@ public interface IMessageResources extends Messages
      * @gwt.key edituser.link.label
      */
     public String getEditUserLinkLabel();
+
+    /**
+     * Returns the info message when the user has been edited successfully.
+     * 
+     * @gwt.key edituser.successful.message
+     */
+    public String getEditUserSuccessfulMessage(final String userCode);
 
     /**
      * Label for the tooltip of button, to edit the user
@@ -582,11 +603,11 @@ public interface IMessageResources extends Messages
     public String getUsersPartTitle();
 
     /**
-     * Returns message that not all fields are filled out.
+     * Returns user status label.
      * 
-     * @gwt.key edituser.failure.emptyfields
+     * @gwt.key user.status.label
      */
-    public String getUserUpdateEmptyFieldsMessage();
+    public String getUserStatusLabel();
 
     /**
      * Returns label for the validate Password field.

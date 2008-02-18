@@ -262,9 +262,8 @@ abstract class AbstractMainPage extends BorderLayout
         {
             createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
         }
-        CreateUserWidget createUserWidget = createCreateUserWidget(allowPermanentUsers);
+        final CreateUserWidget createUserWidget = createCreateUserWidget(allowPermanentUsers);
         createUserPanel.add(createUserWidget);
-        createUserPanel.add(createUserWidget.getSubmitButton());
     }
 
     protected abstract ContentPanel createMainPanel();

@@ -16,72 +16,37 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.LayoutDialog;
-import com.gwtext.client.widgets.LayoutDialogConfig;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.ContentPanel;
-import com.gwtext.client.widgets.layout.LayoutRegionConfig;
+import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.cifex.client.application.ui.AbstractLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
+ * A <code>AbstractLayoutDialog</code> to edit an user.
+ * 
  * @author Basil Neff
  */
-
-public class EditUserDialog extends LayoutDialog
+public final class EditUserDialog extends AbstractLayoutDialog
 {
-    private static int HEIGTH = 150;
-
-    private static int WIDTH = 800;
-
-    /** The User to edit */
+    /** The User to edit. */
     private final User editUser;
 
-    private ContentPanel editUserPanel;
-
-    public EditUserDialog(ViewContext context, User user)
+    public EditUserDialog(final ViewContext context, final User user)
     {
-        super(createLayoutDialogConfig(), createLayoutRegionConfig());
-        assert user != null;
+        super(context, context.getMessageResources().getEditUserDialogTitle(user.getUserCode()));
         this.editUser = user;
+        addContentPanel();
+    }
 
-        editUserPanel = new ContentPanel();
-        editUserPanel.setWidth("90%");
+    //
+    // AbstractLayoutDialog
+    //
+
+    protected final Widget createContentWidget()
+    {
         final EditUserWidget editUserWidget =
-                new EditUserWidget(context, context.getModel().getUser().isAdmin(), editUser);
-        editUserPanel.add(editUserWidget);
-        editUserPanel.setTitle(context.getMessageResources().getEditUserLabel());
-        this.getLayout().add(LayoutRegionConfig.CENTER, editUserPanel);
-        Button button = editUserWidget.getSubmitButton();
-        button.addButtonListener(new ButtonListenerAdapter()
-            {
-                public final void onClick(final Button but, final EventObject e)
-                {
-                    destroy();
-                }
-
-            });
-        editUserPanel.add(button);
-    }
-
-    private static LayoutDialogConfig createLayoutDialogConfig()
-    {
-        LayoutDialogConfig layoutDialogConfig = new LayoutDialogConfig();
-        layoutDialogConfig.setTitle("Edit User");
-        layoutDialogConfig.setModal(true);
-        layoutDialogConfig.setProxyDrag(true);
-        layoutDialogConfig.setWidth(WIDTH);
-        layoutDialogConfig.setHeight(HEIGTH);
-        return layoutDialogConfig;
-    }
-
-    private static final LayoutRegionConfig createLayoutRegionConfig()
-    {
-        LayoutRegionConfig layoutRegionConfig = new LayoutRegionConfig();
-        layoutRegionConfig.setAutoScroll(true);
-        return layoutRegionConfig;
+                new EditUserWidget(viewContext, viewContext.getModel().getUser().isAdmin(), editUser);
+        return editUserWidget;
     }
 }

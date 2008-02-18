@@ -20,72 +20,70 @@ import com.gwtext.client.widgets.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
+ * A <code>UserWidget</code> extension suitable for user editing.
+ * <p>
+ * This widget is used when the user edits his own profile or/and when the administrator edits registered users.
+ * </p>
+ * 
  * @author Basil Neff
  */
-public class EditUserWidget extends UserWidget
+public final class EditUserWidget extends UserWidget
 {
-    public EditUserWidget(final ViewContext context, final boolean allowPermanentUsers, User user)
+    public EditUserWidget(final ViewContext context, final boolean allowPermanentUsers, final User user)
     {
         super(context, allowPermanentUsers, user);
     }
 
-    public final void submitForm()
+    //
+    // UserWidget
+    //
+
+    final void submitForm()
     {
-        // Check if passwords are equal.
-        if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
+        if (arePasswordsEqual() == false)
         {
-            MessageBox
-                    .alert(messageResources.getMessageBoxErrorTitle(), messageResources.getPasswordMissmatchMessage());
             return;
         }
-
-        // Validate Fields
-        if (emailField.validate() && userCodeField.validate() && usernameField.validate())
+        if (isValid())
         {
-
-            User user = new User();
+            button.disable();
+            final User user = new User();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
-            if (this.allowPermanentUsers)
+            if (addStatusField)
             {
-                if (adminRadioButton.getValue())
-                {
-                    user.setAdmin(true);
-                    user.setPermanent(true);
-                } else if (permanentRadioButton.getValue())
-                {
-                    user.setAdmin(false);
-                    user.setPermanent(true);
-                } else
-                {
-                    user.setAdmin(false);
-                    user.setPermanent(false);
-                }
+                user.setAdmin(isAdminStatus());
+                user.setPermanent(isTemporaryStatus() == false);
             } else
             {
-                user.setAdmin(this.editUser.isAdmin());
-                user.setPermanent(this.editUser.isPermanent());
+                user.setAdmin(editUser.isAdmin());
+                user.setPermanent(editUser.isPermanent());
             }
-            String password = null;
-            if (passwordField.getText().equals("") == false)
-            {
-                password = passwordField.getValueAsString();
-            }
-
-            ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.updateUser(user, password, new UpdateUserAsyncCallBack());
-        } else
-        {
-            String title = messageResources.getMessageBoxWarningTitle();
-            MessageBox.alert(title, messageResources.getUserUpdateEmptyFieldsMessage());
+            final ICIFEXServiceAsync cifexService = context.getCifexService();
+            cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getText()),
+                    new UpdateUserAsyncCallBack());
         }
-
     }
+
+    //
+    // UserWidget
+    //
+
+    final String getSubmitButtonLabel()
+    {
+        return getMessageResources().getEditUserButtonLabel();
+    }
+
+    //
+    // Helper classes
+    //
 
     private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback
     {
@@ -95,13 +93,19 @@ public class EditUserWidget extends UserWidget
             super(context);
         }
 
+        //
+        // AbstractAsyncCallback
+        //
+
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
+            button.enable();
         }
 
         public final void onSuccess(final Object result)
         {
+            button.enable();
             final User user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
             if (user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false)
@@ -110,13 +114,9 @@ public class EditUserWidget extends UserWidget
                 user.setUserFullName(usernameField.getValueAsString());
                 context.getModel().setUser(user);
             }
-            context.getPageController().createAdminPage();
+            final IMessageResources messageResources = getMessageResources();
+            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
+                    .getEditUserSuccessfulMessage(userCodeField.getText()));
         }
     }
-
-    String getSubmitButtonLabel()
-    {
-        return messageResources.getEditUserButtonLabel();
-    }
-
 }

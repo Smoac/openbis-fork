@@ -70,8 +70,8 @@ public class LoginWidget extends Form
         passwordField = createPasswordField();
         add(passwordField);
 
-        // Do NOT use addButton(Button) here. This does seem to work correctly (while clearing RootPanel, we get an
-        // exception)
+        // Do NOT use addButton(Button) here.
+        // This does not seem to work correctly (while clearing RootPanel, we get an exception).
         button = addButton(messageResources.getLoginButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
@@ -87,7 +87,7 @@ public class LoginWidget extends Form
 
             });
         // Add a key listener for return key
-        getEl().addKeyListener(13, new KeyListener()
+        getEl().addKeyListener(EventObject.ENTER, new KeyListener()
             {
                 //
                 // KeyListener
