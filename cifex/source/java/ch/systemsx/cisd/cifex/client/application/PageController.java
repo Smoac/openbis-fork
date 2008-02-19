@@ -36,16 +36,6 @@ final class PageController implements IPageController, IHistoryController
     final void setViewContext(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
-        setPageDescriptions();
-    }
-
-    private final void setPageDescriptions()
-    {
-        final IMessageResources messageResources = viewContext.getMessageResources();
-        Page.ADMIN_PAGE.setDescription(messageResources.getAdminViewLinkLabel());
-        Page.MAIN_PAGE.setDescription(messageResources.getMainViewLinkLabel());
-        Page.EDIT_PROFILE.setDescription(messageResources.getEditUserLinkLabel());
-        Page.LOGIN_PAGE.setDescription(messageResources.getLogoutLinkLabel());
     }
 
     /**
@@ -69,6 +59,7 @@ final class PageController implements IPageController, IHistoryController
     {
         clearRootPanel();
         final LoginPage loginPage = new LoginPage(viewContext);
+        setCurrentPage(Page.LOGIN_PAGE);
         RootPanel.get().add(loginPage);
     }
 
@@ -76,6 +67,7 @@ final class PageController implements IPageController, IHistoryController
     {
         clearRootPanel();
         final MainPage mainPage = new MainPage(viewContext);
+        setCurrentPage(Page.MAIN_PAGE);
         RootPanel.get().add(mainPage);
     }
 
@@ -87,9 +79,11 @@ final class PageController implements IPageController, IHistoryController
         if (user.isAdmin())
         {
             mainPage = new AdminMainPage(viewContext);
+            setCurrentPage(Page.ADMIN_PAGE);
         } else
         {
             mainPage = new MainPage(viewContext);
+            setCurrentPage(Page.MAIN_PAGE);
         }
         RootPanel.get().add(mainPage);
     }
@@ -98,6 +92,7 @@ final class PageController implements IPageController, IHistoryController
     {
         clearRootPanel();
         final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
+        setCurrentPage(Page.EDIT_PROFILE);
         RootPanel.get().add(editUserPage);
     }
 

@@ -63,45 +63,8 @@ public interface IHistoryController
         public final static Page[] ALL_PAGES = new Page[]
             { MAIN_PAGE, ADMIN_PAGE, LOGIN_PAGE, EDIT_PROFILE };
 
-        /** The page description. */
-        private String description;
-
         private Page()
         {
-        }
-
-        public final String getDescription()
-        {
-            return description;
-        }
-
-        public final void setDescription(final String description)
-        {
-            this.description = description;
-        }
-
-        /** For given description returns the corresponding <code>Page</code>. */
-        public final static Page getPageForDescription(final String description)
-        {
-            assert description != null : "Unspecifed description.";
-            for (int i = 0; i < ALL_PAGES.length; i++)
-            {
-                final Page page = ALL_PAGES[i];
-                if (page.getDescription().equals(description))
-                {
-                    return page;
-                }
-            }
-            throw new IllegalArgumentException("No page found for description '" + description + "'.");
-        }
-
-        //
-        // Object
-        //
-
-        public final String toString()
-        {
-            return getDescription();
         }
     }
 }
