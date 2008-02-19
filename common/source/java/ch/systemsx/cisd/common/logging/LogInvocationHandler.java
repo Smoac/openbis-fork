@@ -33,7 +33,7 @@ public final class LogInvocationHandler implements InvocationHandler
 {
     private final Object object;
     private final String name;
-    private final Level logLevel;
+    private final Level defaultLogLevel;
     private final Class<?> classUsedToNameLogger;
 
     /**
@@ -48,7 +48,7 @@ public final class LogInvocationHandler implements InvocationHandler
     {
         this.object = object;
         this.name = name;
-        this.logLevel = logLevel;
+        this.defaultLogLevel = logLevel;
         this.classUsedToNameLogger = classUsedToNameLogger;
     }
 
@@ -73,6 +73,7 @@ public final class LogInvocationHandler implements InvocationHandler
             throw t;
         } finally
         {
+            final Level logLevel = getLogLevel(method);
             final Logger logger = createLogger(method);
             if (throwable != null || logger.isEnabledFor(logLevel))
             {
@@ -101,8 +102,23 @@ public final class LogInvocationHandler implements InvocationHandler
             }
         }
     }
-
-    private Logger createLogger(Method method)
+    
+    private Level getLogLevel(Method method)
+    {
+        final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
+        if (annotation == null)
+        {
+            return Level.DEBUG; 
+        } else if (annotation.logLevel().equals(LogLevel.UNDEFINED))
+        {
+            return defaultLogLevel;
+        } else
+        {
+            return Log4jSimpleLogger.toLog4jPriority(annotation.logLevel());
+        }
+    }
+    
+     private Logger createLogger(Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
         final LogCategory logCategory = (annotation == null) ? LogCategory.ACCESS : annotation.logCategory();
