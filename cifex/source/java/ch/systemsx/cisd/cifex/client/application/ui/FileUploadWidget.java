@@ -79,7 +79,7 @@ public final class FileUploadWidget extends Form
         final FormConfig formConfig = new FormConfig();
         formConfig.setWidth(TOTAL_WIDTH);
         formConfig.setLabelAlign(Position.LEFT);
-        formConfig.setButtonAlign(Position.RIGHT);
+        formConfig.setButtonAlign(Position.LEFT);
         formConfig.setLabelWidth(LABEL_WIDTH);
         formConfig.setFileUpload(true);
         formConfig.setUrl(Constants.FILE_UPLOAD_SERVLET_NAME);
@@ -107,6 +107,8 @@ public final class FileUploadWidget extends Form
         column(createRightColumnConfig());
         fieldset(context.getMessageResources().getCommentLabel());
         add(new TextArea(createCommentAreaConfig()));
+        end();
+        end();
 
         button = addButton(context.getMessageResources().getFileUploadButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
@@ -122,7 +124,6 @@ public final class FileUploadWidget extends Form
                 }
 
             });
-        end();
         render();
     }
 
