@@ -141,7 +141,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         // Do not transfer the hash value to the client (security).
         userDTO.setEncryptedPassword(null);
-        authenticationLog.info("Successful login of user " + userDTO);
+        if (authenticationLog.isInfoEnabled())
+        {
+            authenticationLog.info("Successful login of user " + userDTO);
+        }
         final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail() + ", session start:"
                 + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
@@ -153,7 +156,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final HttpSession session = getSession(false);
         if (session == null)
         {
-            throw new InvalidSessionException("You are not logged in. Please log in.");
+            throw new InvalidSessionException("You are not logged in or your session has expired. Please log in.");
         }
         return (UserDTO) session.getAttribute(SESSION_NAME);
     }
@@ -200,7 +203,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public final User tryLogin(final String userCode, final String password) throws UserFailureException,
             EnvironmentFailureException
     {
-        authenticationLog.info("Try to login user '" + userCode + "'.");
+        if (authenticationLog.isDebugEnabled())
+        {
+            authenticationLog.debug("Try to login user '" + userCode + "'.");
+        }
         final IUserManager userManager = domainModel.getUserManager();
         if (userManager.isDatabaseEmpty())
         {
@@ -221,6 +227,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
             if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
                     || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
             {
+                if (authenticationLog.isInfoEnabled())
+                {
+                    authenticationLog.info("Failed login attempt from user '" + userCode + "'.");
+                }
                 return null;
             }
         }
