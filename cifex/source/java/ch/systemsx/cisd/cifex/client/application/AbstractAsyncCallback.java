@@ -68,7 +68,7 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
             }
         } else
         {
-            String message = caught.getMessage();
+            final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
                 msg = messageResources.getExceptionWithoutMessage(GWT.getTypeName(caught));

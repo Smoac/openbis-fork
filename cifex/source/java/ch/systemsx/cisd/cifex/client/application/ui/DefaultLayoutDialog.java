@@ -29,39 +29,40 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 
 /**
- * An abstract <code>LayoutDialog</code> which incorporates a button in the south region.
+ * An default <code>LayoutDialog</code> extension which incorporates a button in the south region.
  * <p>
- * To finalize the construction of this <code>LayoutDialog</code> you must call {@link #addContentPanel()} in your
- * extension.
+ * To finalize the construction of this <code>LayoutDialog</code> you must call {@link #addContentPanel()}.
  * </p>
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractLayoutDialog extends LayoutDialog
+public class DefaultLayoutDialog extends LayoutDialog
 {
 
     private static final String DEFAULT_CLOSE_BUTTON_LABEL = "Close";
 
     private static final int MINIMUM_SIZE = 300;
 
-    protected static final int DEFAULT_WIDTH = 500;
+    public static final int DEFAULT_WIDTH = 500;
 
-    protected static final int DEFAULT_HEIGHT = 300;
+    public static final int DEFAULT_HEIGHT = 300;
 
     protected final ViewContext viewContext;
 
-    protected AbstractLayoutDialog(final ViewContext viewContext, final String title)
+    private ContentPanel contentPanel;
+
+    public DefaultLayoutDialog(final ViewContext viewContext, final String title)
     {
         this(viewContext, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    protected AbstractLayoutDialog(final ViewContext viewContext, final String title, final int width, final int height)
+    public DefaultLayoutDialog(final ViewContext viewContext, final String title, final int width, final int height)
     {
         this(viewContext, title, width, height, false, true);
     }
 
-    protected AbstractLayoutDialog(final ViewContext viewContext, final String title, final int width,
-            final int height, final boolean modal, final boolean closable)
+    public DefaultLayoutDialog(final ViewContext viewContext, final String title, final int width, final int height,
+            final boolean modal, final boolean closable)
     {
         super(createLayoutDialogConfig(title, width, height, modal, closable), createLayoutRegionConfig());
         this.viewContext = viewContext;
@@ -72,11 +73,27 @@ public abstract class AbstractLayoutDialog extends LayoutDialog
     }
 
     /** Calls this method in your extension to finalize the construction of this dialog. */
-    protected final void addContentPanel()
+    public final void addContentPanel()
     {
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.add(createContentWidget());
+        contentPanel = new ContentPanel();
+        final Widget contentWidget = createContentWidget();
+        if (contentWidget != null)
+        {
+            assert contentWidget instanceof ContentPanel == false : "Do not add a ContentPanel to the ContentPanel.";
+            contentPanel.add(contentWidget);
+        }
         getLayout().add(contentPanel);
+    }
+
+    /**
+     * Returns the {@link ContentPanel} of the center region.
+     * <p>
+     * Might return <code>null</code> if {@link #addContentPanel()} not already called.
+     * </p>
+     */
+    public final ContentPanel getContentPanel()
+    {
+        return contentPanel;
     }
 
     private final static LayoutRegionConfig createLayoutRegionConfig()
@@ -121,6 +138,14 @@ public abstract class AbstractLayoutDialog extends LayoutDialog
             });
     }
 
-    /** Creates the <code>Widget</code> that is going to be added in the center region. */
-    protected abstract Widget createContentWidget();
+    /**
+     * Creates the <code>Widget</code> that is going to be added in the center region.
+     * <p>
+     * Default implementation return <code>null</code>.
+     * </p>
+     */
+    protected Widget createContentWidget()
+    {
+        return null;
+    }
 }

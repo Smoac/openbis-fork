@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.ui.AbstractLayoutDialog;
+import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.ui.UserWidget;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  * 
  * @author Basil Neff
  */
-public final class EditUserDialog extends AbstractLayoutDialog
+public final class EditUserDialog extends DefaultLayoutDialog
 {
     /** The User to edit. */
     private final User editUser;

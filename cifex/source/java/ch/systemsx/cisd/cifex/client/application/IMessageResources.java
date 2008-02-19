@@ -302,6 +302,13 @@ public interface IMessageResources extends Messages
     public String getFooterContactAdministrator();
 
     /**
+     * Returns title of the disclaimer window dialog.
+     * 
+     * @gwt.key footer.disclaimer.dialog.title
+     */
+    public String getFooterDisclaimerDialogTitle();
+
+    /**
      * Returns disclaimer link label.
      * 
      * @gwt.key footer.disclaimer.link.label
