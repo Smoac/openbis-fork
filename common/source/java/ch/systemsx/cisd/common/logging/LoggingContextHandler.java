@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.apache.log4j.MDC;
 
+import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+
 
 
 /**

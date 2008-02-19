@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.logging;
+package ch.systemsx.cisd.common.server;
 
 /**
  * Provider of the remote host.
