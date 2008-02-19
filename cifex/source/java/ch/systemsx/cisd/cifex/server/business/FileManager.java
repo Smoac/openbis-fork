@@ -301,7 +301,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private File createFolderFor(final UserDTO user)
     {
-        final File folder = new File(businessContext.getFileStore(), user.getEmail());
+        final File folder = new File(businessContext.getFileStore(), user.getUserCode());
         if (folder.exists())
         {
             if (folder.isDirectory() == false)
