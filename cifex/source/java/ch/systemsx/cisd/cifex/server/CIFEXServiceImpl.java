@@ -51,7 +51,6 @@ import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
-import ch.systemsx.cisd.common.logging.IRemoteHostProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
@@ -105,18 +104,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
         this.externalAuthenticationService = externalAuthenticationService;
-        loggingContextHandler = new LoggingContextHandler(new IRemoteHostProvider()
-            {
-
-                //
-                // IRemoteHostProvider
-                //
-
-                public final String getRemoteHost()
-                {
-                    return requestContextProvider.getHttpServletRequest().getRemoteHost();
-                }
-            });
+        loggingContextHandler = new LoggingContextHandler(new RequestContextProviderAdapter(requestContextProvider));
         if (hasExternalAuthenticationService())
         {
             this.externalAuthenticationService.check();
