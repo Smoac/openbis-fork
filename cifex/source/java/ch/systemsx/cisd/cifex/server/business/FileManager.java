@@ -68,6 +68,8 @@ final class FileManager extends AbstractManager implements IFileManager
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
+    private static final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING, FileManager.class);
+
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
 
     FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
@@ -104,12 +106,12 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             if (file.delete())
             {
-                if (operationLog.isInfoEnabled())
+                if (trackingLog.isInfoEnabled())
                 {
-                    operationLog.info("File [" + file.getAbsolutePath() + "] deleted.");
+                    trackingLog.info("Expired File [" + file.getAbsolutePath() + "] deleted.");
                 }
             } else {
-                notificationLog.warn("File [" + file.getAbsolutePath() + "] can not be deleted.");
+                notificationLog.error("File [" + file.getAbsolutePath() + "] can not be deleted.");
             }
         } else
         {
@@ -175,7 +177,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final FileInformation getFileInformation(final long fileId) throws UserFailureException
+    public final FileInformation getFileInformation(final long fileId)
     {
         final FileDTO fileDTOOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
         if (fileDTOOrNull == null)

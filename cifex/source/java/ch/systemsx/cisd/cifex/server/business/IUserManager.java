@@ -22,6 +22,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
 import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * @author Franz-Josef Elmer
@@ -32,6 +33,7 @@ public interface IUserManager
     /**
      * Returns <code>true</code>, if there are not yet any users in the database.
      */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
     public boolean isDatabaseEmpty();
 
     /**
@@ -39,7 +41,20 @@ public interface IUserManager
      * 
      * @return <code>null</code> if a user with the given <var>code</var> is not found.
      */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
     public UserDTO tryFindUserByCode(String code);
+
+    /**
+     * Returns a list of all users.
+     */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    public List<UserDTO> listUsers();
+
+    /**
+     * Returns a list of users, which where registered by the given user.
+     */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    public List<UserDTO> listUsersRegisteredBy(UserDTO user);
 
     /**
      * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
@@ -47,13 +62,10 @@ public interface IUserManager
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void createUser(UserDTO user);
 
-    /**
-     * Returns a list of all users.
+    /** 
+     * Removes expired users from user base.
      */
-    public List<UserDTO> listUsers();
-
-    /** Removes expired users from user base */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    @LogAnnotation(logCategory = LogCategory.TRACKING, logLevel = LogLevel.DEBUG)
     public void deleteExpiredUsers();
 
     /**
@@ -70,9 +82,4 @@ public interface IUserManager
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void updateUser(UserDTO user, String encryptedPassword);
 
-    /**
-     * Returns a list of users, which where registered by the given user.
-     */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public List<UserDTO> listUsersRegisteredBy(UserDTO user);
 }

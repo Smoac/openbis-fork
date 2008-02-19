@@ -40,7 +40,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class UserManager extends AbstractManager implements IUserManager
 {
-    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
+
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
+
+    private static final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING, UserManager.class);
 
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
             final IBusinessContext businessContext)
@@ -93,9 +97,9 @@ class UserManager extends AbstractManager implements IUserManager
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
-        if (logger.isInfoEnabled() && expiredUsers.size() > 0)
+        if (operationLog.isInfoEnabled() && expiredUsers.size() > 0)
         {
-            logger.info("Found " + expiredUsers.size() + " expired users.");
+            operationLog.info("Found " + expiredUsers.size() + " expired users.");
         }
         RuntimeException ex_all = null;
         for (final UserDTO user : expiredUsers)
@@ -105,18 +109,18 @@ class UserManager extends AbstractManager implements IUserManager
                 final boolean success = userDAO.deleteUser(user.getID());
                 if (success)
                 {
-                    if (logger.isInfoEnabled())
+                    if (trackingLog.isInfoEnabled())
                     {
-                        logger.info("Expired user [" + getUserDescription(user) + "] removed from database.");
+                        trackingLog.info("Expired user [" + getUserDescription(user) + "] deleted from database.");
                     }
                     businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
                 } else
                 {
-                    logger.warn("Expired user [" + getUserDescription(user) + "] could not be found in the database.");
+                    operationLog.warn("Expired user [" + getUserDescription(user) + "] could not be found in the database.");
                 }
             } catch (final RuntimeException ex)
             {
-                logger.error("Error deleting user [" + getUserDescription(user) + "].", ex);
+                notificationLog.error("Error deleting user [" + getUserDescription(user) + "].", ex);
                 if (ex_all == null)
                 {
                     ex_all = ex;
@@ -142,22 +146,22 @@ class UserManager extends AbstractManager implements IUserManager
             final boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(userOrNull.getID());
             if (userSuccesfullyDeletedFromDatabase)
             {
-                if (logger.isInfoEnabled())
+                if (operationLog.isInfoEnabled())
                 {
-                    logger.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
+                    operationLog.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
                 }
                 businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(userOrNull);
             } else
             {
-                if (logger.isInfoEnabled())
+                if (operationLog.isInfoEnabled())
                 {
-                    logger.info("Could not delete User [" + getUserDescription(userOrNull) + "] from user database.");
+                    operationLog.info("Could not delete User [" + getUserDescription(userOrNull) + "] from user database.");
                 }
             }
-        } else if (logger.isInfoEnabled())
+        } else if (operationLog.isInfoEnabled())
         {
             final String msg = String.format("Could not delete user '%s' (user not found)", userCode);
-            logger.info(msg);
+            operationLog.info(msg);
             throw new UserFailureException(msg);
         }
     }

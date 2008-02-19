@@ -27,6 +27,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
 import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A manager that proxies and handles access to {@link FileDTO}.
@@ -41,28 +42,43 @@ public interface IFileManager
      * 
      * @return The file DTO, or <code>null</code>, if no file object exists in the database for this <var>fileId</var>.
      */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
     public FileInformation getFileInformation(final long fileId);
 
     /**
      * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to file
      * <var>fileDTO</var>.
      */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
     public boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO);
 
     /**
      * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file
      * <var>fileDTO</var>.
      */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
     public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO);
+
+    /** Returns all files */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    public List<FileDTO> listFiles();
+
+    /** Lists files for given <var>userId</var>. */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;
+
+    /** Lists files uploaded by user with given <var>userId</var>. */
+    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    public List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException;
 
     /**
      * Returns the content for the given <var>fileDTO</var>.
      * 
      * @return The file content.
-     * @throws UserFailureException if given <var>fileId</var> could not be found in the database or if current user
-     *             does not have access to the file.
+     * @throws IllegalStateException If the given <var>fileDTO</var> does not exist on the file system.
      */
-    public FileContent getFileContent(final FileDTO fileDTO) throws UserFailureException;
+    @LogAnnotation(logCategory = LogCategory.ACCESS)
+    public FileContent getFileContent(final FileDTO fileDTO) throws IllegalStateException;
 
     /**
      * Saves the data of the specified input stream which comes from a file with the specified name.
@@ -88,28 +104,20 @@ public interface IFileManager
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
             Collection<FileDTO> files, String comment);
 
-    /** Lists files for given <var>userId</var>. */
-    public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;
-
-    /** Lists files uploaded by user with given <var>userId</var>. */
-    public List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException;
+    /**
+     * Deletes file with given <code>fileId</code> from database and file system.
+     */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    public void deleteFile(final FileDTO fileDTO);
 
     /**
      * @throws UserFailureException indicating that <var>filename</var> does not exist and thus has not been saved.
      */
     public void throwExceptionOnFileDoesNotExist(final String fileName);
 
-    /** Deletes expired files from database and filesystem */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    /** Deletes expired files from database and file system. */
+    @LogAnnotation(logCategory = LogCategory.TRACKING, logLevel = LogLevel.DEBUG)
     public void deleteExpiredFiles();
-
-    /** Returns all files */
-    public List<FileDTO> listFiles();
-
-    /**
-     * Deletes file with given <code>fileId</code> from database and file system.
-     */
-    public void deleteFile(final FileDTO fileDTO);
 
     /**
      * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
@@ -117,6 +125,7 @@ public interface IFileManager
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void updateFileExpiration(final long fileId, final Date newExpirationDate);
 
 }
