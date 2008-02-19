@@ -178,7 +178,7 @@ public final class DomainModel implements IDomainModel
                 processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
         final Class<? extends DomainModel> clazz = getClass();
         final InvocationHandler invocationHandler =
-                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.DEBUG, clazz);
+                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.INFO, clazz);
         final Class<?>[] interfaces = manager.getClass().getInterfaces();
         return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
     }
