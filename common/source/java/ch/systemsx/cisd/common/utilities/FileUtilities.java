@@ -46,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * Some useful utility methods for files and directories.
@@ -398,7 +399,7 @@ public final class FileUtilities
                 {
                     if (loggerOrNull != null)
                     {
-                        loggerOrNull.log(ISimpleLogger.Level.INFO, String.format("Deleting file '%s'", file.getPath()));
+                        loggerOrNull.log(LogLevel.INFO, String.format("Deleting file '%s'", file.getPath()));
                     }
                     file.delete();
                 }
@@ -406,7 +407,7 @@ public final class FileUtilities
         }
         if (loggerOrNull != null)
         {
-            loggerOrNull.log(ISimpleLogger.Level.INFO, String.format("Deleting directory '%s'", path.getPath()));
+            loggerOrNull.log(LogLevel.INFO, String.format("Deleting directory '%s'", path.getPath()));
         }
         return path.delete();
     }
@@ -780,18 +781,18 @@ public final class FileUtilities
         {
             if (directory.isFile())
             {
-                logger.log(ISimpleLogger.Level.ERROR, String.format(
+                logger.log(LogLevel.ERROR, String.format(
                         "Failed to get listing of directory '%s' (path is file instead of directory).", directory));
             } else
             {
-                logger.log(ISimpleLogger.Level.ERROR, String.format(
+                logger.log(LogLevel.ERROR, String.format(
                         "Failed to get listing of directory '%s' (path not found).", directory));
             }
         } else
         {
             StringWriter exStackWriter = new StringWriter();
             exOrNull.printStackTrace(new PrintWriter(exStackWriter));
-            logger.log(ISimpleLogger.Level.ERROR, String.format(
+            logger.log(LogLevel.ERROR, String.format(
                     "Failed to get listing of directory '%s'. Exception: %s", directory, exStackWriter.toString()));
         }
     }

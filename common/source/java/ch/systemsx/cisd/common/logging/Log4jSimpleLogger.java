@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.logging;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
@@ -30,20 +31,24 @@ public class Log4jSimpleLogger implements ISimpleLogger
 
     private final Logger log4jLogger;
 
-    private static final Priority toLog4jPriority(Level level)
+    static final Level toLog4jPriority(LogLevel level)
     {
         switch (level)
         {
-            case ERROR:
-                return org.apache.log4j.Level.ERROR;
-            case WARN:
-                return org.apache.log4j.Level.WARN;
-            case INFO:
-                return org.apache.log4j.Level.INFO;
+            case OFF:
+                return org.apache.log4j.Level.OFF;
+            case TRACE:
+                return org.apache.log4j.Level.TRACE;
             case DEBUG:
                 return org.apache.log4j.Level.DEBUG;
+            case INFO:
+                return org.apache.log4j.Level.INFO;
+            case WARN:
+                return org.apache.log4j.Level.WARN;
+            case ERROR:
+                return org.apache.log4j.Level.ERROR;
             default:
-                throw new IllegalArgumentException("Unknown log level " + level);
+                throw new IllegalArgumentException("Illegal log level " + level);
         }
     }
 
@@ -52,7 +57,7 @@ public class Log4jSimpleLogger implements ISimpleLogger
      * 
      * @param log4jLogger The log4j logger to use.
      * @param log4jOverridePriorityOrNull If not <code>null</code>, use this log level instead of the one provided to
-     *            the {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.ISimpleLogger.Level, String)}.
+     *            the {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.LogLevel, String)}.
      */
     public Log4jSimpleLogger(Logger log4jLogger, Priority log4jOverridePriorityOrNull)
     {
@@ -70,7 +75,7 @@ public class Log4jSimpleLogger implements ISimpleLogger
         this(log4jLogger, null);
     }
 
-    public void log(Level level, String message)
+    public void log(LogLevel level, String message)
     {
         if (log4jOverridePriorityOrNull != null)
         {

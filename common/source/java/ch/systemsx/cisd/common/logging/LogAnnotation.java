@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
  * Log annotation for methods invoked by {@link LogInvocationHandler}.
  *
@@ -34,4 +33,5 @@ import java.lang.annotation.Target;
 public @interface LogAnnotation
 {
     public LogCategory logCategory() default LogCategory.ACCESS;
+    public LogLevel logLevel() default LogLevel.UNDEFINED;
 }

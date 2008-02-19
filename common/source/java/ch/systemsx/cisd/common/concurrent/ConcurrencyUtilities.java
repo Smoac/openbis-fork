@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.ISimpleLogger.Level;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * Concurrency related utility methods.
@@ -91,7 +91,7 @@ public final class ConcurrencyUtilities
             if (loggerOrNull != null)
             {
                 loggerOrNull
-                        .log(Level.DEBUG, String.format("%s took longer than %f s, cancelled.",
+                        .log(LogLevel.DEBUG, String.format("%s took longer than %f s, cancelled.",
                                 operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
                                 timeoutMillis / 1000f));
             }
@@ -101,7 +101,7 @@ public final class ConcurrencyUtilities
             future.cancel(true);
             if (loggerOrNull != null)
             {
-                loggerOrNull.log(Level.DEBUG, String.format("%s got interrupted.",
+                loggerOrNull.log(LogLevel.DEBUG, String.format("%s got interrupted.",
                         operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull));
             }
             return null;
@@ -110,7 +110,7 @@ public final class ConcurrencyUtilities
             final Throwable cause = ex.getCause();
             if (loggerOrNull != null)
             {
-                loggerOrNull.log(Level.ERROR, String.format("%s has caused an exception: %s",
+                loggerOrNull.log(LogLevel.ERROR, String.format("%s has caused an exception: %s",
                         operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull, cause.getClass()
                                 .getSimpleName(), cause.getMessage() != null ? cause.getMessage() : "<no message>"));
             }

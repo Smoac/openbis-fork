@@ -24,7 +24,7 @@ package ch.systemsx.cisd.common.logging;
 public class ConsoleLogger implements ISimpleLogger
 {
 
-    public void log(Level level, String message)
+    public void log(LogLevel level, String message)
     {
         System.out.println(level.toString() + ": " + message);
     }

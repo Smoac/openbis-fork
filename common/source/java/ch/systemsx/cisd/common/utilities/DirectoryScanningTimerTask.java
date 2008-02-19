@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A {@link TimerTask} that scans a source directory for entries that are accepted by some {@link FileFilter} and
@@ -304,7 +305,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
     {
         return new ISimpleLogger()
             {
-                public void log(ISimpleLogger.Level dummyLevel, String message)
+                public void log(LogLevel dummyLevel, String message)
                 {
                     if (category == LogCategory.NOTIFY)
                     {
