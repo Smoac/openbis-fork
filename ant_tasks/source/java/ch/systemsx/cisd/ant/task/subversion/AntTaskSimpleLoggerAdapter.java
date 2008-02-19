@@ -20,6 +20,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * An adapter of a ant task to an {@link ISimpleLogger}.
@@ -31,15 +32,23 @@ public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
 
     private final Task antTask;
 
-    private final static int toAntLogLevel(ISimpleLogger.Level level)
+    private final static int toAntLogLevel(LogLevel level)
     {
         switch (level)
         {
-            case ERROR: return Project.MSG_ERR;
-            case WARN: return Project.MSG_WARN;
-            case INFO: return Project.MSG_INFO;
-            case DEBUG: return Project.MSG_DEBUG;
-            default: throw new IllegalArgumentException("Unknonwn log level " + level);
+            case OFF: 
+                return Project.MSG_DEBUG;
+            case TRACE:
+                return Project.MSG_VERBOSE;
+            case DEBUG: 
+                return Project.MSG_DEBUG;
+            case INFO: 
+                return Project.MSG_INFO;
+            case WARN: 
+                return Project.MSG_WARN;
+            case ERROR: 
+                return Project.MSG_ERR;
+            default: throw new IllegalArgumentException("Illegal log level " + level);
         }
     }
 
@@ -48,7 +57,7 @@ public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
         this.antTask = antTask;
     }
 
-    public void log(ISimpleLogger.Level level, String message)
+    public void log(LogLevel level, String message)
     {
         antTask.log(message, toAntLogLevel(level));
     }
