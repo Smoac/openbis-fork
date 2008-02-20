@@ -3,9 +3,6 @@
 [annotation] = ${package}.annotation.*
 check sets [annotation]
 
-[config] = ${package}.config.*
-check sets [config]
-
 [converter] = ${package}.converter.*
 check sets [converter]
 
@@ -30,7 +27,7 @@ check sets [utilities]
 
 layer layer0 = [annotation] [exceptions] [logging] [test]
 layer layer1 = [utilities] 
-layer layer2 = [config] [db] [parser]
+layer layer2 = [db] [parser]
 
 check layeringOf layer0 layer1 layer2
 
