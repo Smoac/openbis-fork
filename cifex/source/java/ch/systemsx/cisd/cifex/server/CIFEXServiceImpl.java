@@ -275,7 +275,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
             if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
             {
                 displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
-            } else {
+            } else
+            {
                 displayName = firstName + " " + lastName;
             }
             final IUserManager userManager = domainModel.getUserManager();
@@ -297,12 +298,37 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 {
                     final String msg =
                             "User '"
-                                    + userOrEmail
+                                    + code
                                     + "' with email '"
                                     + email
-                                    + "' cannot be created because a user with this email already exists in the database.";
+                                    + "' cannot be created because a user with this code already exists in the database.";
                     operationLog.error(msg, ex);
                     throw new EnvironmentFailureException(msg);
+                }
+            } else
+            { // check whether name or email of the principal have changed, and update, if necessary
+                boolean changed = false;
+                if (StringUtils.equals(displayName, userDTO.getUserFullName()) == false)
+                {
+                    userDTO.setUserFullName(displayName);
+                    changed = true;
+                }
+                if (StringUtils.equals(email, userDTO.getEmail()) == false)
+                {
+                    userDTO.setEmail(email);
+                    changed = true;
+                }
+                if (changed)
+                {
+                    try
+                    {
+                        userManager.updateUser(userDTO, null);
+                    } catch (final DataIntegrityViolationException ex)
+                    {
+                        final String msg = "User '" + code + "' with email '" + email + "' cannot be updated.";
+                        operationLog.error(msg, ex);
+                        throw new EnvironmentFailureException(msg);
+                    }
                 }
             }
             return userDTO;
