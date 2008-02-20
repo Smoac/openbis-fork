@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -54,16 +53,6 @@ public final class UserHttpSessionHolder
         activeSessions = new ArrayList<HttpSession>();
     }
 
-    public final static void invalidateSession(final HttpSession httpSession)
-    {
-        for (final Enumeration<String> enumeration = httpSession.getAttributeNames(); enumeration.hasMoreElements();)
-        {
-            httpSession.removeAttribute(enumeration.nextElement());
-        }
-        // This will call back 'UserHttpSessionHolder.removeUserSession(HttpSession)' method.
-        httpSession.invalidate();
-    }
-
     public final synchronized void addUserSession(final HttpSession session)
     {
         activeSessions.add(session);
@@ -77,7 +66,8 @@ public final class UserHttpSessionHolder
             final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
             if (user != null && user.getID().longValue() == userDTO.getID().longValue())
             {
-                invalidateSession(httpSession);
+                // This unbinds all the attributes as well. So do not do clever cleaning here.
+                httpSession.invalidate();
                 if (operationLog.isInfoEnabled())
                 {
                     final String fullName = user.getUserFullName();

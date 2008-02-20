@@ -47,7 +47,6 @@ import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
-import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
@@ -384,7 +383,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             final UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
             loggingContextHandler.destroyContext(httpSession.getId());
-            UserHttpSessionHolder.invalidateSession(httpSession);
+            // This unbinds all the attributes as well. So do not do clever cleaning here.
+            httpSession.invalidate();
             if (authenticationLog.isInfoEnabled())
             {
                 authenticationLog.info("Logout of user " + user);
