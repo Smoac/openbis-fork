@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
@@ -48,9 +49,18 @@ public final class UserGridModel extends AbstractDataGridModel
 
     public static final String ACTION = "action";
 
-    public UserGridModel(final IMessageResources messageResources)
+    /**
+     * The currently logged-in user.
+     * <p>
+     * You typically call {@link Model#getUser()} to get him.
+     * </p>
+     */
+    private final User currentUser;
+
+    public UserGridModel(final IMessageResources messageResources, final User currentUser)
     {
         super(messageResources);
+        this.currentUser = currentUser;
     }
 
     private final ColumnConfig createActionColumnConfig()
@@ -75,7 +85,7 @@ public final class UserGridModel extends AbstractDataGridModel
     }
 
     /**
-     * Note that this column is not sortable.
+     * Note that this column is NOT sortable.
      */
     private final ColumnConfig createRegistratorColumnConfig()
     {
@@ -91,6 +101,41 @@ public final class UserGridModel extends AbstractDataGridModel
     private final ColumnConfig createFullNameColumnConfig()
     {
         return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
+    }
+
+    private final String getUserRoleDescription(final User user)
+    {
+        String stateField = "";
+        if (user.isAdmin())
+        {
+            stateField = messageResources.getAdminRoleName();
+        } else if (user.isPermanent())
+        {
+            stateField += messageResources.getPermanentRoleName() + " User";
+        } else
+        {
+            stateField +=
+                    messageResources.getTemporaryRoleName()
+                            + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
+        }
+        return stateField;
+    }
+
+    private final String listActionsForUser(final User user)
+    {
+        final String sep = " | ";
+        String actionLabel = DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
+        // Regular user cannot be renewed.
+        if (user.isPermanent() == false)
+        {
+            actionLabel += sep + DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID);
+        }
+        // An user can not delete itself.
+        if (user.equals(currentUser) == false)
+        {
+            actionLabel += sep + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(), Constants.DELETE_ID);
+        }
+        return actionLabel;
     }
 
     //
@@ -115,27 +160,12 @@ public final class UserGridModel extends AbstractDataGridModel
         for (int i = 0; i < data.length; i++)
         {
             final User user = (User) data[i];
-            String stateField = "";
-            if (user.isAdmin())
-            {
-                stateField = messageResources.getAdminRoleName();
-            } else if (user.isPermanent())
-            {
-                stateField += messageResources.getPermanentRoleName() + " User";
-            } else
-            {
-                stateField +=
-                        messageResources.getTemporaryRoleName()
-                                + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
-            }
-            final String actionLabel =
-                    DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID) + " | "
-                            + DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID) + " | "
-                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(), Constants.DELETE_ID);
+            final String stateField = getUserRoleDescription(user);
+            final String actions = listActionsForUser(user);
             final Object[] objects =
                     new Object[]
                         { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
-                                UserRenderer.createUserAnchor(user.getRegistrator()), actionLabel };
+                                UserRenderer.createUserAnchor(user.getRegistrator()), actions };
             list.add(objects);
         }
         return list;

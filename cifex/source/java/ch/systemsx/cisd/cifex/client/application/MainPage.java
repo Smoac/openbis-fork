@@ -189,7 +189,8 @@ final class MainPage extends AbstractMainPage
 
         private Widget createUserTable(final User[] users)
         {
-            final IDataGridModel gridModel = new UserGridModel(context.getMessageResources());
+            final IDataGridModel gridModel =
+                    new UserGridModel(context.getMessageResources(), context.getModel().getUser());
             final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel);
             // Delete user function
             userGrid.addGridCellListener(new UserActionGridCellListener(context));

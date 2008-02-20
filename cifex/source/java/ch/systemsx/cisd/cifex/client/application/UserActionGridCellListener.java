@@ -65,12 +65,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             // Delete user
             if (Constants.DELETE_ID.equals(targetId))
             {
-                if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
-                {
-                    MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
-                            .getUserDeleteHimself());
-                    return;
-                }
+                assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user can not delete himself.";
                 MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources
                         .getUserDeleteConfirmText(userDescription), new MessageBox.ConfirmCallback()
                     {
@@ -148,17 +143,11 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            if (((User) result).isPermanent() == false)
-            {
-                ((User) result).setExpirationDate(null);
-                viewContext.getCifexService().updateUser(((User) result), null,
-                        new UserGridRefresherCallback(viewContext, modelBasedGrid));
-
-            } else
-            {
-                MessageBox.alert(viewContext.getMessageResources().getMessageBoxErrorTitle(), viewContext
-                        .getMessageResources().getPermanentUserFailure());
-            }
+            final User user = (User) result;
+            assert user.isPermanent() == false : "Regular user can not be renewed.";
+            user.setExpirationDate(null);
+            viewContext.getCifexService().updateUser(user, null,
+                    new UserGridRefresherCallback(viewContext, modelBasedGrid));
         }
     }
 

@@ -463,13 +463,6 @@ public interface IMessageResources extends Messages
     public String getPermanentRoleName();
 
     /**
-     * Returns message that a permanent user cannot renewed.
-     * 
-     * @gwt.key userrenew.permanentuser.message
-     */
-    public String getPermanentUserFailure();
-
-    /**
      * Returns the recipient text area field label.
      * 
      * @gwt.key recipient.field.invalid.text
@@ -573,13 +566,6 @@ public interface IMessageResources extends Messages
      * @gwt.key user.delete.confirm.text
      */
     public String getUserDeleteConfirmText(final String name);
-
-    /**
-     * Returns the error message the user gets when it tries to delete himself.
-     * 
-     * @gwt.key user.delete.himself
-     */
-    public String getUserDeleteHimself();
 
     /**
      * Returns the title for user deletion.

@@ -155,4 +155,31 @@ public final class User implements IsSerializable
         this.userCode = userCode;
     }
 
+    //
+    // Object
+    //
+
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof User == false)
+        {
+            return false;
+        }
+        final User that = (User) obj;
+        return that.userCode.equals(userCode);
+    }
+
+    public final int hashCode()
+    {
+        return userCode.hashCode();
+    }
+
+    public final String toString()
+    {
+        return userCode;
+    }
 }
