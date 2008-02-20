@@ -61,9 +61,9 @@ public class EditUserWidget extends UserWidget
         }
         if (isValid())
         {
-            if (button != null)
+            if (buttonOrNull != null)
             {
-                button.disable();
+                buttonOrNull.disable();
             }
             final User user = new User();
             user.setEmail(emailField.getText());
@@ -108,17 +108,17 @@ public class EditUserWidget extends UserWidget
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
-            if (button != null)
+            if (buttonOrNull != null)
             {
-                button.enable();
+                buttonOrNull.enable();
             }
         }
 
         public final void onSuccess(final Object result)
         {
-            if (button != null)
+            if (buttonOrNull != null)
             {
-                button.enable();
+                buttonOrNull.enable();
             }
             final User user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.

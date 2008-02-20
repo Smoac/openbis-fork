@@ -67,10 +67,10 @@ public abstract class UserWidget extends Form
     /**
      * Button to submit the form.
      * <p>
-     * Note that this button can be <code>null</code> if {@link #withButton} has been set to <code>true</code>.
+     * Note that this button can be <code>null</code> if <code>withButton==false</code> in the constructor.
      * </p>
      */
-    protected Button button;
+    protected Button buttonOrNull;
 
     protected TextField emailField;
 
@@ -172,8 +172,8 @@ public abstract class UserWidget extends Form
         {
             return;
         }
-        button = addButton(getSubmitButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+        buttonOrNull = addButton(getSubmitButtonLabel());
+        buttonOrNull.addButtonListener(new ButtonListenerAdapter()
             {
 
                 //

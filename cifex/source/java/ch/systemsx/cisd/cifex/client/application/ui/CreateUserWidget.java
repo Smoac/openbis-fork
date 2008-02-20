@@ -51,9 +51,9 @@ public class CreateUserWidget extends UserWidget
         }
         if (isValid())
         {
-            if (button != null)
+            if (buttonOrNull != null)
             {
-                button.disable();
+                buttonOrNull.disable();
             }
             final User user = new User();
             user.setEmail(emailField.getText());
@@ -109,9 +109,9 @@ public class CreateUserWidget extends UserWidget
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
-            if (button != null)
+            if (buttonOrNull != null)
             {
-                button.enable();
+                buttonOrNull.enable();
             }
         }
 
