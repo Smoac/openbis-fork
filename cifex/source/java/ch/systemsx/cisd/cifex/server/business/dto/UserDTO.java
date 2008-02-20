@@ -120,9 +120,9 @@ public class UserDTO extends ID
         return userFullName;
     }
 
-    public final void setUserFullName(final String userID)
+    public final void setUserFullName(final String fullName)
     {
-        this.userFullName = userID;
+        this.userFullName = fullName;
     }
 
     public final Date getExpirationDate()
