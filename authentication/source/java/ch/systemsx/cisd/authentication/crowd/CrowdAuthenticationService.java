@@ -19,7 +19,6 @@ package ch.systemsx.cisd.authentication.crowd;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +36,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.authentication.crowd.CrowdSoapElements.SOAPAttribute;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -55,6 +53,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
+    private static final String EMAIL_PROPERTY_KEY = "mail";
+
+    private static final String LAST_NAME_PROPERTY_KEY = "sn";
+
+    private static final String FIRST_NAME_PROPERTY_KEY = "givenName";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
@@ -241,7 +245,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         try
         {
             xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
-            Map<SOAPAttribute, String> parseXmlResponse = parseXmlResponse(xmlResponse);
+            Map<String, String> parseXmlResponse = parseXmlResponse(xmlResponse);
             Principal principal = null;
             if (parseXmlResponse.size() >= 1)
             {
@@ -275,7 +279,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
      */
-    private final static Map<SOAPAttribute, String> parseXmlResponse(String xmlResponse)
+    private final static Map<String, String> parseXmlResponse(String xmlResponse)
             throws SAXException, IOException
     {
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
@@ -289,21 +293,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
     private final static Principal createPrincipal(String user,
-            Map<SOAPAttribute, String> soapAttributes)
+            Map<String, String> soapAttributes)
     {
-        String firstName = soapAttributes.get(SOAPAttribute.givenName);
-        String lastName = soapAttributes.get(SOAPAttribute.sn);
-        String email = soapAttributes.get(SOAPAttribute.mail);
-        Principal principal = new Principal(user, firstName, lastName, email);
-        principal.setProperty(SOAPAttribute.invalidPasswordAttempts.name(), Integer
-                .valueOf(soapAttributes.get(SOAPAttribute.invalidPasswordAttempts)));
-        principal.setProperty(SOAPAttribute.requiresPasswordChange.name(), Boolean
-                .valueOf(soapAttributes.get(SOAPAttribute.requiresPasswordChange)));
-        principal.setProperty(SOAPAttribute.lastAuthenticated.name(), new Date(Long
-                .valueOf(soapAttributes.get(SOAPAttribute.lastAuthenticated))));
-        principal.setProperty(SOAPAttribute.passwordLastChanged.name(), new Date(Long
-                .valueOf(soapAttributes.get(SOAPAttribute.passwordLastChanged))));
-        return principal;
+        final String firstName = soapAttributes.get(FIRST_NAME_PROPERTY_KEY);
+        final String lastName = soapAttributes.get(LAST_NAME_PROPERTY_KEY);
+        final String email = soapAttributes.get(EMAIL_PROPERTY_KEY);
+        return new Principal(user, firstName, lastName, email, soapAttributes);
     }
 
     /**
@@ -383,7 +378,6 @@ public class CrowdAuthenticationService implements IAuthenticationService
             return -1;
         }
         int index = matcher.start(1);
-        System.out.println(result+" "+index);
         return index;
     }
 }

@@ -24,18 +24,12 @@ package ch.systemsx.cisd.authentication.crowd;
 final class CrowdSoapElements
 {
 
-    /** Possible text node of <code>SOAPAttribute</code> <code>name</code> element. */
-    static enum SOAPAttribute
-    {
-        passwordLastChanged, lastAuthenticated, requiresPasswordChange, invalidPasswordAttempts, mail, sn, givenName;
-    }
-
     /** The <code>token</code> element. */
     static final String TOKEN = "token";
 
     /** The <code>out</code> element. */
     static final String OUT = "out";
-    
+
     /** The <code>SOAPAttribute</code> element. */
     final static String SOAP_ATTRIBUTE = "SOAPAttribute";
 

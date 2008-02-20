@@ -19,8 +19,6 @@ package ch.systemsx.cisd.authentication.crowd;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
-import java.util.Date;
-
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -210,10 +208,10 @@ public class CrowdAuthenticationServiceTest
         assertEquals("Justen", result.getFirstName());
         assertEquals("Stepka", result.getLastName());
         assertEquals("justen.stepka@atlassian.com", result.getEmail());
-        assertEquals(new Integer(0), result.getProperty("invalidPasswordAttempts"));
-        assertEquals(Boolean.FALSE, result.getProperty("requiresPasswordChange"));
-        assertEquals(new Date(1169440408520L), result.getProperty("lastAuthenticated"));
-        assertEquals(new Date(1168995491407L), result.getProperty("passwordLastChanged"));
+        assertEquals("0", result.getProperty("invalidPasswordAttempts"));
+        assertEquals("false", result.getProperty("requiresPasswordChange"));
+        assertEquals("1169440408520", result.getProperty("lastAuthenticated"));
+        assertEquals("1168995491407", result.getProperty("passwordLastChanged"));
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }

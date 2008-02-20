@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.authentication;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,17 +33,17 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class Principal
 {
     private final String userId;
-    
+
     private final String firstName;
 
     private final String lastName;
 
     private final String email;
 
-    private final Map<String, Object> properties;
+    private final Map<String, String> properties;
 
     /**
-     * Default and unique constructor which accepts mandatory parameters.
+     * Constructor which accepts mandatory parameters but no properties
      * 
      * @param userId Must not be <code>null</code>.
      * @param firstName can not be <code>null</code>.
@@ -53,16 +52,32 @@ public class Principal
      */
     public Principal(final String userId, final String firstName, final String lastName, final String email)
     {
+            this(userId, firstName, lastName, email, Collections.<String, String>emptyMap());
+    }
+    
+    /**
+     * Standard constructor which accepts mandatory parameters and properties.
+     * 
+     * @param userId Must not be <code>null</code>.
+     * @param firstName can not be <code>null</code>.
+     * @param lastName can not be <code>null</code>.
+     * @param email can not be <code>null</code>.
+     * @param properties can not be <code>null</code>.
+     */
+    public Principal(final String userId, final String firstName, final String lastName, final String email,
+            final Map<String, String> properties)
+    {
         assert userId != null;
         assert firstName != null;
         assert lastName != null;
         assert email != null;
-        
+        assert properties != null;
+
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.properties = new HashMap<String, Object>();
+        this.properties = properties;
     }
 
     /**
@@ -97,14 +112,11 @@ public class Principal
         return lastName;
     }
 
-    /** Binds given <var>property</var> to this <code>Principal</code>. */
-    public final void setProperty(String key, Object property)
-    {
-        properties.put(key, property);
-    }
-
-    /** Returns an <code>Object</code> property for given <var>key</var>. */
-    public final Object getProperty(String key)
+    /** 
+     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists for this 
+     * <var>key</var>. 
+     */
+    public final String getProperty(String key)
     {
         return properties.get(key);
     }

@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.authentication.crowd;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import ch.systemsx.cisd.authentication.crowd.CrowdSoapElements.SOAPAttribute;
 
 /**
  * Looks for <code>SOAPAttribute</code> elements in a XML file and tries to digest their 'name-values' children.
@@ -38,7 +36,7 @@ final class SOAPAttributeContentHandler extends DefaultHandler
 
     private static final String NULL = null;
 
-    private final Map<CrowdSoapElements.SOAPAttribute, String> soapAttributes;
+    private final Map<String, String> soapAttributes;
 
     /** A <code>SOAPAttribute</code> has two possible children: <code>name</code> and <code>values</code>. */
     private static enum Child
@@ -52,7 +50,7 @@ final class SOAPAttributeContentHandler extends DefaultHandler
     /** The current <code>SOAPAttribute</code> child. */
     private Child currentChild;
 
-    private SOAPAttribute soapAttribute;
+    private String soapAttributeName;
 
     //
     // DefaultHandler
@@ -60,11 +58,11 @@ final class SOAPAttributeContentHandler extends DefaultHandler
 
     SOAPAttributeContentHandler()
     {
-        soapAttributes = new EnumMap<CrowdSoapElements.SOAPAttribute, String>(CrowdSoapElements.SOAPAttribute.class);
+        soapAttributes = new HashMap<String, String>();
     }
 
-    /** Returns the digested 'name-values' children of <code>SOAPAttribute</code>. */
-    final Map<CrowdSoapElements.SOAPAttribute, String> getSoapAttributes()
+    /** Returns the digested 'name-values' children contained in the SOAP response. */
+    final Map<String, String> getSoapAttributes()
     {
         return soapAttributes;
     }
@@ -108,25 +106,17 @@ final class SOAPAttributeContentHandler extends DefaultHandler
     {
         if (inSoapAttribute)
         {
-            String string = String.valueOf(ch, start, length);
+            final String keyOrValue = String.valueOf(ch, start, length);
             if (currentChild == Child.soapAttributeName)
             {
-                SOAPAttribute name = null;
-                try
-                {
-                    name = CrowdSoapElements.SOAPAttribute.valueOf(string);
-                } catch (IllegalArgumentException ex)
-                {
-                    soapAttribute = null; // we skip unknown attributes
-                    return;
-                }
-                soapAttributes.put(name, NULL);
-                soapAttribute = name;
+                soapAttributeName = keyOrValue;
+                soapAttributes.put(soapAttributeName, NULL);
             } else if (currentChild == Child.soapAttributeValues)
             {
-                if (soapAttribute != null)
+                if (soapAttributeName != null)
                 {
-                    soapAttributes.put(soapAttribute, string);
+                    soapAttributes.put(soapAttributeName, keyOrValue);
+                    soapAttributeName = null;
                 }
             }
         }
