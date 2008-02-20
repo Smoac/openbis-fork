@@ -192,7 +192,7 @@ class UserManager extends AbstractManager implements IUserManager
         }
 
         // Password, renew it or leave it as it is
-        if (encryptedPassword != null && encryptedPassword.equals("") == false)
+        if (StringUtils.isNotBlank(encryptedPassword))
         {
             userToUpdate.setEncryptedPassword(encryptedPassword);
         } else
