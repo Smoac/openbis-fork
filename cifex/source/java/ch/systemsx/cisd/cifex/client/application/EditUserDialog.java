@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtext.client.core.EventObject;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
@@ -34,39 +38,58 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public final class EditUserDialog extends DefaultLayoutDialog
 {
-    /** The User to edit. */
-    private final User editUser;
-
-    private final ModelBasedGrid userGrid;
+    private final EditUserWidget editUserWidget;
 
     public EditUserDialog(final ViewContext context, final User user, final ModelBasedGrid userGrid)
     {
-        super(context, context.getMessageResources().getEditUserDialogTitle(user.getUserCode()),
-                UserWidget.TOTAL_WIDTH, 200);
-        this.editUser = user;
-        this.userGrid = userGrid;
+        super(context.getMessageResources(), context.getMessageResources().getEditUserDialogTitle(user.getUserCode()),
+                UserWidget.TOTAL_WIDTH, 180);
+        editUserWidget = new EditUserWidget(context, context.getModel().getUser().isAdmin(), user, false)
+            {
+
+                //
+                // EditUserWidget
+                //
+
+                protected final void finishEditing()
+                {
+                    new UserGridRefresherCallback(context, userGrid).onSuccess(null);
+                }
+            };
+        createUpdateButton();
         addContentPanel();
+    }
+
+    private final void createUpdateButton()
+    {
+        final Button button = addButton(editUserWidget.getSubmitButtonLabel());
+        button.addButtonListener(new ButtonListenerAdapter()
+            {
+
+                //
+                // ButtonListenerAdapter
+                //
+
+                public void onClick(final Button b, final EventObject e)
+                {
+                    editUserWidget.submitForm();
+                }
+            });
     }
 
     //
     // AbstractLayoutDialog
     //
 
+    protected final String getCloseButtonLabel()
+    {
+        return messageResources.getActionCancelLabel();
+    }
+
     protected final Widget createContentWidget()
     {
-        final EditUserWidget editUserWidget =
-                new EditUserWidget(viewContext, viewContext.getModel().getUser().isAdmin(), editUser)
-                    {
-
-                        //
-                        // EditUserWidget
-                        //
-
-                        protected final void finishEditing()
-                        {
-                            new UserGridRefresherCallback(context, userGrid).onSuccess(null);
-                        }
-                    };
-        return editUserWidget;
+        final VerticalPanel panel = AbstractMainPage.createVerticalPanelPart();
+        panel.add(editUserWidget);
+        return panel;
     }
 }

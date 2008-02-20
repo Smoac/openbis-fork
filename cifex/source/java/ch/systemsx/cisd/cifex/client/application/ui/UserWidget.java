@@ -64,6 +64,14 @@ public abstract class UserWidget extends Form
 
     protected final boolean addStatusField;
 
+    /**
+     * Button to submit the form.
+     * <p>
+     * Note that this button can be <code>null</code> if {@link #withButton} has been set to <code>true</code>.
+     * </p>
+     */
+    protected Button button;
+
     protected TextField emailField;
 
     protected TextField usernameField;
@@ -84,12 +92,17 @@ public abstract class UserWidget extends Form
      */
     protected ComboBox statusField;
 
-    /** Button to submit the form. */
-    protected Button button;
+    /**
+     * Whether a submit button should be added to this form.
+     * <p>
+     * If not, then we assume that you will provide one.
+     * </p>
+     */
+    private final boolean withButton;
 
     public UserWidget(final ViewContext context, final boolean addStatusField)
     {
-        this(context, addStatusField, null);
+        this(context, addStatusField, null, true);
     }
 
     /**
@@ -98,12 +111,13 @@ public abstract class UserWidget extends Form
      * The fields to the user are already filled out, which the user can change.
      * </p>
      */
-    public UserWidget(final ViewContext context, final boolean addStatus, final User user)
+    public UserWidget(final ViewContext context, final boolean addStatusField, final User user, final boolean withButton)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
         this.context = context;
-        this.addStatusField = addStatus;
+        this.addStatusField = addStatusField;
         this.editUser = user;
+        this.withButton = withButton;
         createCreateUserForm();
     }
 
@@ -154,6 +168,10 @@ public abstract class UserWidget extends Form
 
     private final void createButton()
     {
+        if (withButton == false)
+        {
+            return;
+        }
         button = addButton(getSubmitButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {

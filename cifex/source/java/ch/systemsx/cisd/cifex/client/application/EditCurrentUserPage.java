@@ -44,7 +44,7 @@ final class EditCurrentUserPage extends AbstractMainPage
         editUserPanel = createVerticalPanelPart();
         editUserPanel.add(createPartTitle(messageResources.getEditUserLabel()));
         final EditUserWidget editUserWidget =
-                new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser())
+                new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser(), true)
                     {
 
                         //

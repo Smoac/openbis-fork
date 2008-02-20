@@ -32,16 +32,28 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public class EditUserWidget extends UserWidget
 {
-    public EditUserWidget(final ViewContext context, final boolean allowPermanentUsers, final User user)
+    public EditUserWidget(final ViewContext context, final boolean addStatusField, final User user,
+            final boolean withButton)
     {
-        super(context, allowPermanentUsers, user);
+        super(context, addStatusField, user, withButton);
+    }
+
+    /**
+     * This method is called after the editing has been performed and was successful.
+     * <p>
+     * By default, this method does nothing.
+     * </p>
+     */
+    protected void finishEditing()
+    {
+
     }
 
     //
     // UserWidget
     //
 
-    final void submitForm()
+    public final void submitForm()
     {
         if (arePasswordsEqual() == false)
         {
@@ -49,7 +61,10 @@ public class EditUserWidget extends UserWidget
         }
         if (isValid())
         {
-            button.disable();
+            if (button != null)
+            {
+                button.disable();
+            }
             final User user = new User();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
@@ -69,18 +84,7 @@ public class EditUserWidget extends UserWidget
         }
     }
 
-    /**
-     * This method is called after the editing has been performed and was successful.
-     * <p>
-     * By default, this method does nothing.
-     * </p>
-     */
-    protected void finishEditing()
-    {
-
-    }
-
-    final String getSubmitButtonLabel()
+    public final String getSubmitButtonLabel()
     {
         return getMessageResources().getEditUserButtonLabel();
     }
@@ -104,12 +108,18 @@ public class EditUserWidget extends UserWidget
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
-            button.enable();
+            if (button != null)
+            {
+                button.enable();
+            }
         }
 
         public final void onSuccess(final Object result)
         {
-            button.enable();
+            if (button != null)
+            {
+                button.enable();
+            }
             final User user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
             if (user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false)

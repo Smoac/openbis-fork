@@ -151,7 +151,7 @@ final class FooterPanel extends HorizontalPanel
         public final void onResponseReceived(final Request request, final Response response)
         {
             final DefaultLayoutDialog layoutDialog =
-                    new DefaultLayoutDialog(viewContext, viewContext.getMessageResources()
+                    new DefaultLayoutDialog(viewContext.getMessageResources(), viewContext.getMessageResources()
                             .getFooterDisclaimerDialogTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
                             DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
             layoutDialog.addContentPanel();

@@ -26,7 +26,6 @@ import com.gwtext.client.widgets.layout.ContentPanel;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
 
 /**
  * An default <code>LayoutDialog</code> extension which incorporates a button in the south region.
@@ -38,34 +37,32 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
  */
 public class DefaultLayoutDialog extends LayoutDialog
 {
-
-    private static final String DEFAULT_CLOSE_BUTTON_LABEL = "Close";
-
     private static final int MINIMUM_SIZE = 300;
 
     public static final int DEFAULT_WIDTH = 500;
 
     public static final int DEFAULT_HEIGHT = 300;
 
-    protected final ViewContext viewContext;
-
     private ContentPanel contentPanel;
 
-    public DefaultLayoutDialog(final ViewContext viewContext, final String title)
+    protected final IMessageResources messageResources;
+
+    public DefaultLayoutDialog(final IMessageResources messageResources, final String title)
     {
-        this(viewContext, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        this(messageResources, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    public DefaultLayoutDialog(final ViewContext viewContext, final String title, final int width, final int height)
+    public DefaultLayoutDialog(final IMessageResources messageResources, final String title, final int width,
+            final int height)
     {
-        this(viewContext, title, width, height, false, true);
+        this(messageResources, title, width, height, false, true);
     }
 
-    public DefaultLayoutDialog(final ViewContext viewContext, final String title, final int width, final int height,
-            final boolean modal, final boolean closable)
+    public DefaultLayoutDialog(final IMessageResources messageResources, final String title, final int width,
+            final int height, final boolean modal, final boolean closable)
     {
         super(createLayoutDialogConfig(title, width, height, modal, closable), createLayoutRegionConfig());
-        this.viewContext = viewContext;
+        this.messageResources = messageResources;
         if (closable)
         {
             createCloseButton();
@@ -120,10 +117,7 @@ public class DefaultLayoutDialog extends LayoutDialog
 
     private final void createCloseButton()
     {
-        final IMessageResources messageResources = viewContext.getMessageResources();
-        final String buttonLabel =
-                messageResources == null ? DEFAULT_CLOSE_BUTTON_LABEL : messageResources.getDialogCloseButtonLabel();
-        final Button button = addButton(buttonLabel);
+        final Button button = addButton(getCloseButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
 
@@ -141,11 +135,22 @@ public class DefaultLayoutDialog extends LayoutDialog
     /**
      * Creates the <code>Widget</code> that is going to be added in the center region.
      * <p>
-     * Default implementation return <code>null</code>.
+     * Default implementation returns <code>null</code>.
      * </p>
      */
     protected Widget createContentWidget()
     {
         return null;
+    }
+
+    /**
+     * Returns the label of the close button.
+     * <p>
+     * Default implementation returns {@link IMessageResources#getDialogCloseButtonLabel()}.
+     * </p>
+     */
+    protected String getCloseButtonLabel()
+    {
+        return messageResources.getDialogCloseButtonLabel();
     }
 }

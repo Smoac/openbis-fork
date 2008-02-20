@@ -51,7 +51,7 @@ final class MainPage extends AbstractMainPage
     {
         if (maxRequestUploadSizeInMB < 0)
         {
-            return "-";
+            return Constants.TABLE_NULL_VALUE;
         } else
         {
             return maxRequestUploadSizeInMB + " MB";

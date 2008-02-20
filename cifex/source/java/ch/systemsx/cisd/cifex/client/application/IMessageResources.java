@@ -54,6 +54,13 @@ public interface IMessageResources extends Messages
     public String getActionRenewLabel();
 
     /**
+     * Returns the label for cancelling action.
+     * 
+     * @gwt.key action.cancel.label
+     */
+    public String getActionCancelLabel();
+
+    /**
      * Returns the label for creating new User
      * 
      * @gwt.key usercreation.label.admin
