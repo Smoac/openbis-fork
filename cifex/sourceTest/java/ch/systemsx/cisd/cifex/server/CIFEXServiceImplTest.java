@@ -369,11 +369,13 @@ public class CIFEXServiceImplTest
         final String password = "pswd";
         final String lastName = "Einstein";
         final String firstName = "Albert";
+        final String fullName = firstName + " " + lastName;
+        final String email = "user@users.org";
 
-        userDTO.setUserFullName("user");
-        userDTO.setEmail("user@users.org");
+        userDTO.setUserFullName(fullName);
+        userDTO.setEmail(email);
         userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
-        Principal principal = new Principal("ae", firstName, lastName, "my-email");
+        Principal principal = new Principal("ae", firstName, lastName, email);
         prepareForExternalAuthentication(userDTO.getUserFullName(), password, principal);
         prepareForFindUser(principal.getUserId(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -384,6 +386,82 @@ public class CIFEXServiceImplTest
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserFullName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSecondLoginWithExternalServiceWithNameChanged() throws Exception
+    {
+        final String code = "ae";
+        final String password = "pswd";
+        final String firstName = "Albert";
+        final String lastName = "Zweistein";
+        final String oldFullName = "Albert Einstein";
+        final String newFullName = firstName + " " + lastName;
+        final String email = "user@users.org";
+
+        final UserDTO oldUserDTO = new UserDTO();
+        oldUserDTO.setUserFullName(oldFullName);
+        oldUserDTO.setEmail(email);
+        oldUserDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, oldUserDTO);
+        newUserDTO.setUserFullName(newFullName);
+        final Principal principal = new Principal(code, firstName, lastName, email);
+        prepareForExternalAuthentication(oldUserDTO.getUserCode(), password, principal);
+        prepareForFindUser(principal.getUserId(), oldUserDTO);
+        context.checking(new Expectations()
+        {
+            {
+                one(userManager).updateUser(newUserDTO, null);
+            }
+        });
+        prepareForGettingUserFromHTTPSession(newUserDTO, true);
+
+        CIFEXServiceImpl service = createService(authenticationService);
+        service.setSessionExpirationPeriodInMinutes(1);
+        final User user = service.tryLogin(oldUserDTO.getUserCode(), password);
+        assertEquals(oldUserDTO.getEmail(), user.getEmail());
+        assertEquals(oldUserDTO.getUserFullName(), user.getUserFullName());
+        assertFalse(oldUserDTO.isAdmin());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSecondLoginWithExternalServiceWithEmailChanged() throws Exception
+    {
+        final String code = "ae";
+        final String password = "pswd";
+        final String firstName = "Albert";
+        final String lastName = "Einstein";
+        final String fullName = "Albert Einstein";
+        final String oldEmail = "user@users.org";
+        final String newEmail = "ae@users.org";
+
+        final UserDTO oldUserDTO = new UserDTO();
+        oldUserDTO.setUserFullName(fullName);
+        oldUserDTO.setEmail(oldEmail);
+        oldUserDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, oldUserDTO);
+        newUserDTO.setEmail(newEmail);
+        final Principal principal = new Principal(code, firstName, lastName, newEmail);
+        prepareForExternalAuthentication(oldUserDTO.getUserCode(), password, principal);
+        prepareForFindUser(principal.getUserId(), oldUserDTO);
+        context.checking(new Expectations()
+        {
+            {
+                one(userManager).updateUser(newUserDTO, null);
+            }
+        });
+        prepareForGettingUserFromHTTPSession(newUserDTO, true);
+
+        CIFEXServiceImpl service = createService(authenticationService);
+        service.setSessionExpirationPeriodInMinutes(1);
+        final User user = service.tryLogin(oldUserDTO.getUserCode(), password);
+        assertEquals(oldUserDTO.getEmail(), user.getEmail());
+        assertEquals(oldUserDTO.getUserFullName(), user.getUserFullName());
+        assertFalse(oldUserDTO.isAdmin());
 
         context.assertIsSatisfied();
     }
