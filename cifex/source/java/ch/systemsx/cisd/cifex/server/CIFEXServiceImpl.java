@@ -65,6 +65,11 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class CIFEXServiceImpl implements ICIFEXService
 {
+    /**
+     * The Crowd property for the display name.
+     */
+    private static final String DISPLAY_NAME_PROPERTY = "displayName";
+
     /** The attribute name under which the session could be found. */
     public static final String SESSION_NAME = "cifex-user";
 
@@ -264,13 +269,22 @@ public final class CIFEXServiceImpl implements ICIFEXService
             }
             final String code = principal.getUserId();
             final String email = principal.getEmail();
+            final String firstName = principal.getFirstName();
+            final String lastName = principal.getLastName();
+            final String displayName;
+            if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
+            {
+                displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
+            } else {
+                displayName = firstName + " " + lastName;
+            }
             final IUserManager userManager = domainModel.getUserManager();
             UserDTO userDTO = userManager.tryFindUserByCode(code);
             if (userDTO == null)
             {
                 userDTO = new UserDTO();
                 userDTO.setUserCode(code);
-                userDTO.setUserFullName(userOrEmail);
+                userDTO.setUserFullName(displayName);
                 userDTO.setEmail(email);
                 userDTO.setEncryptedPassword(null);
                 userDTO.setExternallyAuthenticated(true);
