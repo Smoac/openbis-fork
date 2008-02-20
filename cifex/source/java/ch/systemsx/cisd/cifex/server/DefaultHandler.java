@@ -30,7 +30,11 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 
 /**
- * A <i>CIFEX</i> specific <code>DefaultHandler</code> extension.
+ * A <i>CIFEX</i> specific <code>DefaultHandler</code> extension which patches the <i>Jetty</i> one.
+ * <p>
+ * You will not find any reference to this class as it has been included in the <code>jetty.jar</code> library. This
+ * class will be removed as soon as possible.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
