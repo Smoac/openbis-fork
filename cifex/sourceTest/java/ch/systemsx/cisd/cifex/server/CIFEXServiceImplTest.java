@@ -365,12 +365,15 @@ public class CIFEXServiceImplTest
     @Test
     public void testSecondLoginWithExternalService() throws Exception
     {
-        UserDTO userDTO = new UserDTO();
-        String password = "pswd";
+        final UserDTO userDTO = new UserDTO();
+        final String password = "pswd";
+        final String lastName = "Einstein";
+        final String firstName = "Albert";
+
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
         userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
-        Principal principal = new Principal("ae", "Albert", "Einstein", "my-email");
+        Principal principal = new Principal("ae", firstName, lastName, "my-email");
         prepareForExternalAuthentication(userDTO.getUserFullName(), password, principal);
         prepareForFindUser(principal.getUserId(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -388,15 +391,18 @@ public class CIFEXServiceImplTest
     @Test
     public void testFirstLoginWithExternalService() throws Exception
     {
-        String password = "pswd";
-        String userName = "ae";
-        String email = "ae@users.org";
-        Principal principal = new Principal(userName, "Albert", "Einstein", email);
+        final String password = "pswd";
+        final String userName = "ae";
+        final String lastName = "Einstein";
+        final String firstName = "Albert";
+        final String email = "ae@users.org";
+        
+        Principal principal = new Principal(userName, firstName, lastName, email);
         prepareForExternalAuthentication(userName, password, principal);
         prepareForFindUser(principal.getUserId(), null);
         final UserDTO userDTO = new UserDTO();
         userDTO.setUserCode(userName);
-        userDTO.setUserFullName(userName);
+        userDTO.setUserFullName(firstName + " " + lastName);
         userDTO.setEmail(email);
         userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
         userDTO.setPermanent(true);
@@ -414,7 +420,7 @@ public class CIFEXServiceImplTest
 
         CIFEXServiceImpl service = createService(authenticationService);
         service.setSessionExpirationPeriodInMinutes(1);
-        User user = service.tryLogin(userDTO.getUserFullName(), password);
+        User user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserFullName(), user.getUserFullName());
         assertFalse(userDTO.isAdmin());
