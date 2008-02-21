@@ -91,7 +91,7 @@ public class TabFileLoader<T>
         boolean previousLineHasColumnHeaders = false;
         while (lineIterator.hasNext())
         {
-            previousLineHasColumnHeaders = previousLine != null && PREFIX.equals(previousLine.getText());
+            previousLineHasColumnHeaders = (previousLine != null) && PREFIX.equals(previousLine.getText());
             previousLine = line;
             line = lineIterator.next();
             if (line.getText().startsWith(PREFIX) == false)
@@ -99,7 +99,8 @@ public class TabFileLoader<T>
                 break;
             }
         }
-        String headerLine = previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
+        @SuppressWarnings("null")
+        final String headerLine = previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
         
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
