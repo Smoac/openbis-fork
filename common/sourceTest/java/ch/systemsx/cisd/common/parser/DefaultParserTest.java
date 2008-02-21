@@ -54,7 +54,7 @@ public final class DefaultParserTest
     {
         final IParser<String[]> parser = new DefaultParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
-        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(2));
+        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(3));
         assertEquals(2, result.size());
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
@@ -81,7 +81,7 @@ public final class DefaultParserTest
         } catch (ParsingException ex)
         {
             assertEquals(
-                    "Creating an object with following tokens '[Charles, Darwin, Humboldt Ave. 1865, 4242 Somewhere]' failed.",
+                    "Creating an object with following tokens '[firstName, lastName, address, city]' failed.",
                     ex.getMessage());
             assertEquals(3, ex.getLineNumber());
         }
