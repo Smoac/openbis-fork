@@ -37,6 +37,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.SlowInputStream;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -110,7 +112,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     trackingLog.info("Expired File [" + file.getAbsolutePath() + "] deleted.");
                 }
-            } else {
+            } else
+            {
                 notificationLog.error("File [" + file.getAbsolutePath() + "] can not be deleted.");
             }
         } else
@@ -258,9 +261,9 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 outputStream = new FileOutputStream(file);
                 final CountingInputStream countingInputStream = new CountingInputStream(input);
-                inputStream = countingInputStream;
+                 inputStream = countingInputStream;
                 // Uncomment the following line if you want a more perceptible effect in the file upload feedback.
-                // inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
+                //inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
                 final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
@@ -386,7 +389,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     } catch (final EnvironmentFailureException ex)
                     {
                         if (notified == false)
-                        {                            
+                        {
                             // As we are sure that we get correct email addresses, this exception can only be related to
                             // the configuration and/or environment. So inform the administrator about the problem.
                             notificationLog.error("A problem has occurred while sending email.", ex);

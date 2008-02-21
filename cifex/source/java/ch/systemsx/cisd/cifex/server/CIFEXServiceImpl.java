@@ -591,16 +591,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         throw new InsufficientPrivilegesException("Insufficient privileges for " + describeUser(requestUser) + ".");
     }
 
-    public User tryFindUserByUserCode(final String userCode)
+    public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
+        privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
-
         final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(User.class, userDTO);
     }
 
-    public User[] listUsersRegisteredBy(final User user)
+    public User[] listUsersRegisteredBy(final User user) throws InvalidSessionException
     {
+        privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
 
         final List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));

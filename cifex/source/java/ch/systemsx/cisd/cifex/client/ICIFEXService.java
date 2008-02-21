@@ -69,11 +69,19 @@ public interface ICIFEXService extends RemoteService
      */
     public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
 
-    /** Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists. */
-    public User tryFindUserByUserCode(final String userCode);
+    /**
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
+     * 
+     * @throws InvalidSessionException
+     */
+    public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
 
-    /** Returns a list of users, which where registered by the given user. */
-    public User[] listUsersRegisteredBy(User user);
+    /**
+     * Returns a list of users, which where registered by the given user.
+     * 
+     * @throws InvalidSessionException
+     */
+    public User[] listUsersRegisteredBy(User user) throws InvalidSessionException;
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
@@ -122,7 +130,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Deletes file given by its <var>id</var>.
      * 
-     * @throws FileNotFoundException If the file defined by <var>id</var> could not be found. 
+     * @throws FileNotFoundException If the file defined by <var>id</var> could not be found.
      */
     public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException;
