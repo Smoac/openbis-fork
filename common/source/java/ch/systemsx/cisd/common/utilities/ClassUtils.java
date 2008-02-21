@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.annotation.Mandatory;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -46,10 +48,12 @@ public final class ClassUtils
      * <p>
      * Never returns <code>null</code> but could return an empty set.
      * </p>
+     * 
      * @param clazz The class to return the mandatory fields for.
-     * @param convertToLowerCase If <code>true</code>, all field names are converted to lower case in the set returned.
+     * @param convertToLowerCase If <code>true</code>, all field names are converted to lower case in the set
+     *            returned.
      */
-    public final static Set<String> getMandatoryFields(Class<?> clazz, boolean convertToLowerCase)
+    public final static Set<String> getMandatoryFields(final Class<?> clazz, final boolean convertToLowerCase)
     {
         final Set<String> set = new HashSet<String>();
         final List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
@@ -69,7 +73,7 @@ public final class ClassUtils
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
      */
-    private final static List<Field> getMandatoryFieldsList(Class<?> clazz)
+    private final static List<Field> getMandatoryFieldsList(final Class<?> clazz)
     {
         return getMandatoryFields(clazz, null);
     }
@@ -79,21 +83,21 @@ public final class ClassUtils
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
      */
-    private final static List<Field> getMandatoryFields(Class<?> clazz, List<Field> fields)
+    private final static List<Field> getMandatoryFields(final Class<?> clazz, final List<Field> fields)
     {
         List<Field> list = fields;
         if (list == null)
         {
             list = new ArrayList<Field>();
         }
-        for (Field field : clazz.getDeclaredFields())
+        for (final Field field : clazz.getDeclaredFields())
         {
             if (field.getAnnotation(Mandatory.class) != null)
             {
                 list.add(field);
             }
         }
-        Class<?> superclass = clazz.getSuperclass();
+        final Class<?> superclass = clazz.getSuperclass();
         if (superclass != null)
         {
             return getMandatoryFields(superclass, list);
@@ -128,19 +132,19 @@ public final class ClassUtils
      * @see StackTraceElement#getMethodName()
      * @return <code>null</code> if none could be found.
      */
-    public final static Method getMethodOnStack(int level)
+    public final static Method getMethodOnStack(final int level)
     {
-        StackTraceElement[] elements = new Throwable().getStackTrace();
+        final StackTraceElement[] elements = new Throwable().getStackTrace();
         if (elements.length <= level)
         {
             return null;
         }
-        StackTraceElement element = elements[level];
-        String methodName = element.getMethodName();
+        final StackTraceElement element = elements[level];
+        final String methodName = element.getMethodName();
         try
         {
-            Method[] methods = Class.forName(element.getClassName()).getMethods();
-            for (Method method : methods)
+            final Method[] methods = Class.forName(element.getClassName()).getMethods();
+            for (final Method method : methods)
             {
                 if (method.getName().equals(methodName))
                 {
@@ -148,7 +152,7 @@ public final class ClassUtils
                 }
             }
             // SecurityException, ClassNotFoundException
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
@@ -189,15 +193,15 @@ public final class ClassUtils
                         Arrays.asList(classes)));
             }
             return constructor.newInstance(argumentsOrNull);
-        } catch (ClassNotFoundException e)
+        } catch (final ClassNotFoundException e)
         {
-        } catch (InstantiationException ex)
+        } catch (final InstantiationException ex)
         {
-        } catch (IllegalAccessException ex)
+        } catch (final IllegalAccessException ex)
         {
-        } catch (InvocationTargetException ex)
+        } catch (final InvocationTargetException ex)
         {
-        } catch (NoSuchMethodException ex)
+        } catch (final NoSuchMethodException ex)
         {
         }
         throw new IllegalArgumentException(String.format("Cannot instantiate class '%s' with given arguments '%s'.",
@@ -244,7 +248,7 @@ public final class ClassUtils
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> toGenericType(Constructor<?> returned)
+    private static <T> Constructor<T> toGenericType(final Constructor<?> returned)
     {
         return (Constructor<T>) returned;
     }
@@ -256,4 +260,61 @@ public final class ClassUtils
         return (T) clazz.newInstance();
     }
 
+    /**
+     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new value <var>newValue</var>.
+     * <p>
+     * This is useful when you want to set a <code>private</code> field on which you do not have access. Note that
+     * this method should only be used in very special cases. You should consider it as a hack.
+     * </p>
+     */
+    public final static void setFieldValue(final Object object, final String fieldName, final Object newValue)
+            throws IllegalArgumentException
+    {
+        assert object != null : "Unspecified object.";
+        final Class<?> clazz = object.getClass();
+        try
+        {
+            final Field field = tryGetDeclaredField(clazz, fieldName);
+            if (field != null)
+            {
+                field.setAccessible(true);
+                field.set(object, newValue);
+                return;
+            }
+        } catch (final SecurityException ex)
+        {
+        } catch (final IllegalArgumentException ex)
+        {
+        } catch (final IllegalAccessException ex)
+        {
+        }
+        throw new IllegalArgumentException(String.format(
+                "Cannot set field '%s' of class '%s' to given new value '%s'.", fieldName, clazz.getSimpleName(),
+                newValue));
+    }
+
+    /**
+     * Gets declared field named <var>fieldName</var> in given class or superclass of it.
+     * 
+     * @return <code>null</code> if given <var>fieldName</var> could not be found.
+     */
+    private final static Field tryGetDeclaredField(final Class<?> c, final String fieldName)
+    {
+        assert c != null : "Unspecified class.";
+        assert StringUtils.isNotBlank(fieldName) : "Blank field name.";
+        Field field = null;
+        Class<?> clazz = c;
+        do
+        {
+            try
+            {
+                field = clazz.getDeclaredField(fieldName);
+            } catch (final SecurityException ex)
+            {
+            } catch (final NoSuchFieldException ex)
+            {
+            }
+        } while (field == null && (clazz = clazz.getSuperclass()) != null);
+        return field;
+    }
 }

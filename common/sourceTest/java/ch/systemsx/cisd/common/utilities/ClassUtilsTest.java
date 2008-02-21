@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
@@ -134,11 +135,58 @@ public final class ClassUtilsTest
         assertSame(list, ((MyClass) appendable).iterable);
     }
 
+    @Test
+    public final void testSetFieldValueWithExpectedThrowable()
+    {
+        final MyClass myClass = new MyClass((Iterable<String>) null);
+        try
+        {
+            ClassUtils.setFieldValue(myClass, "", null);
+            fail("Blank field name.");
+        } catch (final AssertionError error)
+        {
+        }
+        try
+        {
+            ClassUtils.setFieldValue(myClass, "doesNotExist", null);
+            fail("Field name 'doesNotExist' not found.");
+        } catch (final IllegalArgumentException ex)
+        {
+        }
+    }
+
+    @Test
+    public final void testSetFieldValue()
+    {
+        final MyClass myClass = new MyClass((Iterable<String>) null);
+        assertNull(myClass.iterable);
+        final List<String> list = new ArrayList<String>();
+        ClassUtils.setFieldValue(myClass, "iterable", list);
+        assertNotNull(myClass.iterable);
+        assertSame(list, myClass.iterable);
+        ClassUtils.setFieldValue(myClass, "iterable", null);
+        assertNull(myClass.iterable);
+    }
+
+    @Test
+    public final void testSetFieldValueWithSubclass()
+    {
+        final MyExtendedClass myExtendedClass = new MyExtendedClass((Iterable<String>) null);
+        assertNull(myExtendedClass.iterable);
+        final List<String> list = new ArrayList<String>();
+        ClassUtils.setFieldValue(myExtendedClass, "iterable", list);
+        assertNotNull(myExtendedClass.iterable);
+        assertSame(list, myExtendedClass.iterable);
+        final Object object = new Object();
+        ClassUtils.setFieldValue(myExtendedClass, "finalObject", object);
+        assertSame(object, myExtendedClass.finalObject);
+    }
+
     //
     // Helper Classes
     //
 
-    public final static class MyClass implements Appendable
+    public static class MyClass implements Appendable
     {
         Properties properties;
 
@@ -171,6 +219,23 @@ public final class ClassUtilsTest
         public Appendable append(CharSequence csq) throws IOException
         {
             return null;
+        }
+
+    }
+
+    public final static class MyExtendedClass extends MyClass
+    {
+
+        private final Object finalObject = null;
+
+        public MyExtendedClass(final Iterable<String> iterable)
+        {
+            super(iterable);
+        }
+
+        public MyExtendedClass(final Properties properties)
+        {
+            super(properties);
         }
 
     }
