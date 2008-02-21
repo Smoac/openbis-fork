@@ -29,11 +29,12 @@ import ch.systemsx.cisd.common.db.SQLStateUtils;
  * 
  * @author Franz-Josef Elmer
  */
-public class DBUtilities
+public final class DBUtilities
 {
 
     private DBUtilities()
     {
+        // Can not be instantiated.
     }
 
     /**
@@ -42,7 +43,7 @@ public class DBUtilities
      * This is database specific.
      * </p>
      */
-    public static boolean isDBNotExistException(DataAccessException ex)
+    public static boolean isDBNotExistException(final DataAccessException ex)
     {
         // 3D000: INVALID CATALOG NAME
         return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.getSqlState(ex));
@@ -54,13 +55,13 @@ public class DBUtilities
      * This is database specific.
      * </p>
      */
-    public static boolean isDuplicateObjectException(DataAccessException ex)
+    public static boolean isDuplicateObjectException(final DataAccessException ex)
     {
         // 42710 DUPLICATE OBJECT
         return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
     }
 
-    public static boolean isDuplicateDatabaseException(DataAccessException ex)
+    public static boolean isDuplicateDatabaseException(final DataAccessException ex)
     {
         // 42P04 DUPLICATE DATABASE
         return SQLStateUtils.isDuplicateDatabase(SQLStateUtils.getSqlState(ex));
@@ -71,11 +72,11 @@ public class DBUtilities
      * 
      * @return A list of SQL statements, one per list entry.
      */
-    public static List<String> splitSqlStatements(String sqlScript)
+    public final static List<String> splitSqlStatements(final String sqlScript)
     {
         final String[] lines = StringUtils.split(sqlScript, '\n');
         final List<String> statements = new ArrayList<String>(lines.length);
-        StringBuilder statement = new StringBuilder();
+        final StringBuilder statement = new StringBuilder();
         for (int i = 0; i < lines.length; ++i)
         {
             String line = lines[i];
@@ -101,7 +102,7 @@ public class DBUtilities
         return statements;
     }
 
-    private static void addToStatements(final List<String> statements, StringBuilder statement)
+    private final static void addToStatements(final List<String> statements, final StringBuilder statement)
     {
         final String statementStr =
                 statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)", ") $1").replaceAll("\\s+;",
