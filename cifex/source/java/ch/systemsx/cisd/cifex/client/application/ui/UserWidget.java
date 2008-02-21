@@ -64,7 +64,7 @@ public abstract class UserWidget extends Form
 
     protected final boolean addStatusField;
 
-    /**
+    /*
      * Button to submit the form.
      * <p>
      * Note that this button can be <code>null</code> if <code>withButton==false</code> in the constructor.
