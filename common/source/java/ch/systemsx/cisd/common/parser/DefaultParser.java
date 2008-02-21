@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-
 /**
- * A default <code>IReaderParser</code> implementation.
+ * A default {@link IParser} implementation.
  * <p>
  * The object type returned by this implementation is generic. This implementation defines a <code>ILineFilter</code>
  * that filters out comment and empty lines.
@@ -32,18 +29,24 @@ import org.apache.commons.io.LineIterator;
  * 
  * @author Christian Ribeaud
  */
-public class DefaultReaderParser<E> implements IReaderParser<E>
+public class DefaultParser<E> implements IParser<E>
 {
     private final ILineTokenizer lineTokenizer;
 
     private IParserObjectFactory<E> factory;
 
-    public DefaultReaderParser()
+    /**
+     * Creates an instance based on the {@link DefaultLineTokenizer}.
+     */
+    public DefaultParser()
     {
         this(new DefaultLineTokenizer());
     }
 
-    public DefaultReaderParser(final ILineTokenizer lineTokenizer)
+    /**
+     * Creates an instance for the specified line tokenizer.
+     */
+    public DefaultParser(final ILineTokenizer lineTokenizer)
     {
         this.lineTokenizer = lineTokenizer;
     }
@@ -61,7 +64,7 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
      * 
      * @param lineNumber line number.
      */
-    protected String[] parseLine(final int lineNumber, final String line)
+    private String[] parseLine(final int lineNumber, final String line)
     {
         return lineTokenizer.tokenize(line);
     }
@@ -70,35 +73,31 @@ public class DefaultReaderParser<E> implements IReaderParser<E>
     // Parser
     //
 
-    public final List<E> parse(final Reader reader)
-    {
-        return parse(reader, AlwaysAcceptLineFilter.INSTANCE);
-    }
-
-    public final List<E> parse(final Reader reader, final ILineFilter lineFilter) throws ParsingException
+    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter) throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
         {
             lineTokenizer.init();
-            final LineIterator lineIterator = IOUtils.lineIterator(reader);
-            for (int lineNumber = 0; lineIterator.hasNext(); lineNumber++)
+            while (lineIterator.hasNext())
             {
-                final String nextLine = lineIterator.nextLine();
-                if (lineFilter.acceptLine(nextLine, lineNumber))
+                Line line = lineIterator.next();
+                final String nextLine = line.getText();
+                int number = line.getNumber();
+                if (lineFilter.acceptLine(nextLine, number))
                 {
-                    final String[] tokens = parseLine(lineNumber, nextLine);
+                    final String[] tokens = parseLine(number, nextLine);
                     E object = null;
                     try
                     {
                         object = createObject(tokens);
                     } catch (final ParserException parserException)
                     {
-                        throw new ParsingException(parserException, tokens, lineNumber);
+                        throw new ParsingException(parserException, tokens, number);
                     } catch (final RuntimeException runtimeException)
                     {
                         // This should not happen but...
-                        throw new ParsingException(runtimeException, tokens, lineNumber);
+                        throw new ParsingException(runtimeException, tokens, number);
                     }
                     elements.add(object);
                 }

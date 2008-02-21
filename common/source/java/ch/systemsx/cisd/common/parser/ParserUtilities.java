@@ -42,24 +42,6 @@ public final class ParserUtilities
     }
 
     /**
-     * A small object that represents a line in a <code>File</code> context.
-     * 
-     * @author Christian Ribeaud
-     */
-    public final static class Line
-    {
-        public final String text;
-
-        public final int number;
-
-        Line(final int number, final String text)
-        {
-            this.number = number;
-            this.text = text;
-        }
-    }
-
-    /**
      * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
      * <p>
      * You should not call this method if given <var>file</var> does not exist.

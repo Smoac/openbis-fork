@@ -19,11 +19,16 @@ package ch.systemsx.cisd.common.parser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -36,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public class TabFileLoader<T>
 {
+    private static final String PREFIX = "#";
 
     private final IParserObjectFactoryFactory<T> factory;
 
@@ -58,23 +64,11 @@ public class TabFileLoader<T>
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
 
-        final DefaultReaderParser<T> parser = new DefaultReaderParser<T>();
-        final ParserUtilities.Line headerLine =
-                ParserUtilities.getFirstAcceptedLine(file, ExcludeEmptyAndCommentLineFilter.INSTANCE);
-        if (headerLine == null)
-        {
-            throw new IllegalArgumentException("No header line found in file '" + file.getAbsolutePath() + "'.");
-        }
-        final HeaderLineFilter lineFilter = new HeaderLineFilter(headerLine.number);
-        final String[] tokens = StringUtils.split(headerLine.text, "\t");
-        notUnique(tokens);
-        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
-        parser.setObjectFactory(factory.createFactory(propertyMapper));
         FileReader reader = null;
         try
         {
             reader = new FileReader(file);
-            return parser.parse(reader, lineFilter);
+            return load(reader);
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
@@ -86,6 +80,65 @@ public class TabFileLoader<T>
         {
             IOUtils.closeQuietly(reader);
         }
+    }
+    
+    
+    List<T> load(Reader reader)
+    {
+        Iterator<Line> lineIterator = createLineIterator(reader);
+        Line previousLine = null;
+        Line line = new Line(0, PREFIX);
+        boolean previousLineHasColumnHeaders = false;
+        while (lineIterator.hasNext())
+        {
+            previousLineHasColumnHeaders = previousLine != null && PREFIX.equals(previousLine.getText());
+            previousLine = line;
+            line = lineIterator.next();
+            if (line.getText().startsWith(PREFIX) == false)
+            {
+                break;
+            }
+        }
+        String headerLine = previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
+        
+        final DefaultParser<T> parser = new DefaultParser<T>();
+        final String[] tokens = StringUtils.split(headerLine, "\t");
+        notUnique(tokens);
+        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
+        parser.setObjectFactory(factory.createFactory(propertyMapper));
+        ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
+        List<T> result = new ArrayList<T>();
+        if (previousLineHasColumnHeaders)
+        {
+            result.addAll(parser.parse(Arrays.asList(line).iterator(), filter));
+        }
+        result.addAll(parser.parse(lineIterator, filter));
+        return result;
+    }
+
+    private Iterator<Line> createLineIterator(Reader reader)
+    {
+        final LineIterator lineIterator = IOUtils.lineIterator(reader);
+        Iterator<Line> iterator = new Iterator<Line>()
+            {
+                private int lineNumber;
+                public void remove()
+                {
+                    lineIterator.remove();
+                }
+
+                public Line next()
+                {
+                    return new Line(++lineNumber, lineIterator.nextLine());
+                }
+
+                public boolean hasNext()
+                {
+                    return lineIterator.hasNext();
+                }
+
+            };
+        return iterator;
     }
 
     /**

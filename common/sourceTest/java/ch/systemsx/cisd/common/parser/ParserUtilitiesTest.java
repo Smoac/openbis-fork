@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.parser.ParserUtilities.Line;
 
 /**
  * Test cases for corresponding {@link ParserUtilities} class.
@@ -90,8 +89,8 @@ public final class ParserUtilitiesTest
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         Line line = ParserUtilities.getFirstAcceptedLine(file, null);
-        assertEquals(StringUtils.EMPTY, line.text);
-        assertEquals(0, line.number);
+        assertEquals(StringUtils.EMPTY, line.getText());
+        assertEquals(0, line.getNumber());
         assert file.delete();
     }
 
@@ -103,8 +102,8 @@ public final class ParserUtilitiesTest
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         Line line = ParserUtilities.getFirstAcceptedLine(file, ExcludeEmptyAndCommentLineFilter.INSTANCE);
-        assertEquals("hello", line.text);
-        assertEquals(3, line.number);
+        assertEquals("hello", line.getText());
+        assertEquals(3, line.getNumber());
         assert file.delete();
     }
 }
