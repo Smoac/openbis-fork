@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
@@ -255,10 +255,10 @@ public class ParametersTest
                         "--quiet-period", Integer.toString(QUIET_PERIOD), "--treat-incoming-as-remote",
                         "--incoming-host", REMOTE_INCOMING_HOST, "--extra-copy-dir", EXTRA_COPY_DIR,
                         "--rsync-overwrite");
-        FileStore incomingStoreExpected = createIncomingStore(LOCAL_DATADIR, REMOTE_INCOMING_HOST, parameters);
-        FileStore incomingStore = getIncomingStore(parameters);
-        FileStore outgoingStoreExpected = createOutgoingStore(REMOTE_DATADIR, REMOTE_HOST, parameters);
-        FileStore outgoingStore = getOutgoingStore(parameters);
+        IFileStore incomingStoreExpected = createIncomingStore(LOCAL_DATADIR, REMOTE_INCOMING_HOST, parameters);
+        IFileStore incomingStore = getIncomingStore(parameters);
+        IFileStore outgoingStoreExpected = createOutgoingStore(REMOTE_DATADIR, REMOTE_HOST, parameters);
+        IFileStore outgoingStore = getOutgoingStore(parameters);
 
         assertEquals(incomingStoreExpected, incomingStore);
         assertEquals(LOCAL_TEMPDIR, parameters.getBufferDirectoryPath().getPath());
@@ -270,31 +270,31 @@ public class ParametersTest
         assertTrue(parameters.isRsyncOverwrite());
     }
 
-    private FileStore getIncomingStore(Parameters parameters)
+    private IFileStore getIncomingStore(Parameters parameters)
     {
         IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return parameters.getIncomingStore(factory);
     }
 
-    private FileStore getOutgoingStore(Parameters parameters)
+    private IFileStore getOutgoingStore(Parameters parameters)
     {
         IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return parameters.getOutgoingStore(factory);
     }
 
-    private static FileStore createIncomingStore(final String path, final String hostOrNull,
+    private static IFileStore createIncomingStore(final String path, final String hostOrNull,
             IFileSysParameters parameters)
     {
         return createStore(path, hostOrNull, Parameters.INCOMING_KIND_DESC, parameters);
     }
 
-    private static FileStore createOutgoingStore(final String path, final String hostOrNull,
+    private static IFileStore createOutgoingStore(final String path, final String hostOrNull,
             IFileSysParameters parameters)
     {
         return createStore(path, hostOrNull, Parameters.OUTGOING_KIND_DESC, parameters);
     }
 
-    private static FileStore createStore(final String path, final String hostOrNull, String kind,
+    private static IFileStore createStore(final String path, final String hostOrNull, String kind,
             IFileSysParameters parameters)
     {
         IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);

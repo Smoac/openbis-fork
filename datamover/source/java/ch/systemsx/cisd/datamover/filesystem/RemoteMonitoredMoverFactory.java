@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
@@ -35,7 +36,7 @@ public class RemoteMonitoredMoverFactory
      * @param destinationDirectory The directory to move paths to.
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
      */
-    public static final IStoreHandler create(FileStore sourceDirectory, FileStore destinationDirectory,
+    public static final IStoreHandler create(IFileStore sourceDirectory, FileStore destinationDirectory,
             ITimingParameters parameters)
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);

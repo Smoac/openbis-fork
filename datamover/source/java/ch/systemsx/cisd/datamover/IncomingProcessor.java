@@ -36,10 +36,11 @@ import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 
@@ -66,9 +67,11 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final LocalBufferDirs bufferDirs;
 
-    private final FileStore incomingStore;
+    private final IFileStore incomingStore;
 
     private final String prefixForIncoming;
+
+    private final QuietPeriodFileFilter quietPeriodFileFilter;
 
     public static final DataMoverProcess createMovingProcess(Parameters parameters, IFileSysOperationsFactory factory,
             LocalBufferDirs bufferDirs)
@@ -86,6 +89,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
+        this.quietPeriodFileFilter = new QuietPeriodFileFilter(incomingStore, parameters);
     }
 
     public TimerTask createRecoverableTimerTask()
@@ -150,7 +154,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         {
             return false;
         }
-        return new QuietPeriodFileFilter(incomingStore, parameters).accept(item);
+        return quietPeriodFileFilter.accept(item);
     }
 
     private IStoreHandler createIncomingMovingPathHandler()
@@ -159,7 +163,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 public void handle(StoreItem sourceItem)
                 {
-                    ExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
+                    IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
                     if (extendedFileStore == null)
                     {
                         moveFromRemoteIncoming(sourceItem);
@@ -171,7 +175,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             };
     }
 
-    private void moveFromLocalIncoming(ExtendedFileStore sourceStore, StoreItem sourceItem)
+    private void moveFromLocalIncoming(IExtendedFileStore sourceStore, StoreItem sourceItem)
     {
         sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
     }
@@ -215,13 +219,13 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(StoreItem sourceItem, FileStore sourceStore, File localDestDir)
+    private void moveFromRemoteToLocal(StoreItem sourceItem, IFileStore sourceStore, File localDestDir)
     {
         createRemotePathMover(sourceStore, FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(
                 sourceItem);
     }
 
-    private IStoreHandler createRemotePathMover(FileStore sourceDirectory, FileStore destinationDirectory)
+    private IStoreHandler createRemotePathMover(IFileStore sourceDirectory, FileStore destinationDirectory)
     {
         return RemoteMonitoredMoverFactory.create(sourceDirectory, destinationDirectory, parameters);
     }

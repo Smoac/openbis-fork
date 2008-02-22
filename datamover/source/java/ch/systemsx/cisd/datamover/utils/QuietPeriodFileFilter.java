@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.io.FileFilter;
 
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -34,7 +34,7 @@ public class QuietPeriodFileFilter
 
     private final long quietPeriodMillis;
 
-    private final FileStore store;
+    private final IFileStore store;
 
     /**
      * Creates a <var>QuietPeriodFileFilter</var>.
@@ -42,7 +42,7 @@ public class QuietPeriodFileFilter
      * @param store The store in which items reside
      * @param timingParameters The timing parameter object to get the quiet period from.
      */
-    public QuietPeriodFileFilter(FileStore store, ITimingParameters timingParameters)
+    public QuietPeriodFileFilter(IFileStore store, ITimingParameters timingParameters)
     {
         assert store != null;
         assert timingParameters != null;

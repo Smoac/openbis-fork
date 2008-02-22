@@ -25,9 +25,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -67,9 +67,9 @@ public final class RemotePathMover implements IStoreHandler
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RemotePathMover.class);
 
-    private final FileStore sourceDirectory;
+    private final IFileStore sourceDirectory;
 
-    private final FileStore destinationDirectory;
+    private final IFileStore destinationDirectory;
 
     private final IStoreCopier copier;
 
@@ -88,7 +88,7 @@ public final class RemotePathMover implements IStoreHandler
      * @param monitor The activity monitor to inform about actions.
      * @param timingParameters The timing parametes used for monitoring and reporting stall situations.
      */
-    public RemotePathMover(FileStore sourceDirectory, FileStore destinationDirectory, IStoreCopier copier,
+    public RemotePathMover(IFileStore sourceDirectory, IFileStore destinationDirectory, IStoreCopier copier,
             CopyActivityMonitor monitor, ITimingParameters timingParameters)
     {
         assert sourceDirectory != null;
@@ -257,9 +257,9 @@ public final class RemotePathMover implements IStoreHandler
         }
     }
 
-    private ExtendedFileStore getDeletionMarkerStore()
+    private IExtendedFileStore getDeletionMarkerStore()
     {
-        ExtendedFileStore fileStore = destinationDirectory.tryAsExtended();
+        IExtendedFileStore fileStore = destinationDirectory.tryAsExtended();
         if (fileStore == null)
         {
             fileStore = sourceDirectory.tryAsExtended();
@@ -272,7 +272,7 @@ public final class RemotePathMover implements IStoreHandler
     private boolean markAsFinished(StoreItem item)
     {
         StoreItem markerItem = MarkerFile.createCopyFinishedMarker(item);
-        ExtendedFileStore extendedFileStore = destinationDirectory.tryAsExtended();
+        IExtendedFileStore extendedFileStore = destinationDirectory.tryAsExtended();
         if (extendedFileStore != null)
         {
             // We create the marker directly inside the destination directory
@@ -286,7 +286,7 @@ public final class RemotePathMover implements IStoreHandler
         }
     }
 
-    private boolean markOnSourceLocalAndCopyToRemoteDestination(ExtendedFileStore sourceFileStore, StoreItem markerFile)
+    private boolean markOnSourceLocalAndCopyToRemoteDestination(IExtendedFileStore sourceFileStore, StoreItem markerFile)
     {
         try
         {
@@ -310,7 +310,7 @@ public final class RemotePathMover implements IStoreHandler
         }
     }
 
-    private static boolean createFileInside(ExtendedFileStore directory, StoreItem item)
+    private static boolean createFileInside(IExtendedFileStore directory, StoreItem item)
     {
         boolean success = directory.createNewFile(item);
         if (success == false)
@@ -325,7 +325,7 @@ public final class RemotePathMover implements IStoreHandler
         return getPath(sourceDirectory, item);
     }
 
-    private static String getPath(FileStore directory, StoreItem item)
+    private static String getPath(IFileStore directory, StoreItem item)
     {
         return item + " inside " + directory;
     }

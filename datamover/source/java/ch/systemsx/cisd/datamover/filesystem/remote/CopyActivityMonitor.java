@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -47,7 +47,7 @@ public class CopyActivityMonitor
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, CopyActivityMonitor.class);
 
-    private final FileStore destinationStore;
+    private final IFileStore destinationStore;
 
     private final long checkIntervallMillis;
 
@@ -77,7 +77,7 @@ public class CopyActivityMonitor
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(FileStore destinationStore, ITerminable copyProcess, ITimingParameters timingParameters)
+    public CopyActivityMonitor(IFileStore destinationStore, ITerminable copyProcess, ITimingParameters timingParameters)
     {
         assert destinationStore != null;
         assert copyProcess != null;
@@ -219,7 +219,7 @@ public class CopyActivityMonitor
             }
         }
 
-        private long lastChanged(FileStore store, StoreItem item, long lastLastChanged)
+        private long lastChanged(IFileStore store, StoreItem item, long lastLastChanged)
         {
             final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
             final Future<Long> lastChangedFuture =
@@ -242,7 +242,7 @@ public class CopyActivityMonitor
             return Math.max(0L, period - 1000L);
         }
 
-        private Callable<Long> createCheckerCallable(final FileStore store, final StoreItem item,
+        private Callable<Long> createCheckerCallable(final IFileStore store, final StoreItem item,
                 final long stopWhenYoungerThan)
         {
             return new Callable<Long>()

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 
 /**
@@ -43,12 +43,12 @@ public class SelfTest
         LogInitializer.init();
     }
 
-    private static void checkPathRecords(FileStore[] pathRecords)
+    private static void checkPathRecords(IFileStore[] pathRecords)
     {
         assert pathRecords != null;
 
         checkPathRecordsContainEachOther(pathRecords);
-        for (FileStore pathRecord : pathRecords)
+        for (IFileStore pathRecord : pathRecords)
         {
             String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible(TIMEOUT_MILLIS);
             if (errorMessage != null)
@@ -58,7 +58,7 @@ public class SelfTest
         }
     }
 
-    private static void checkPathRecordsContainEachOther(FileStore[] store) throws ConfigurationFailureException
+    private static void checkPathRecordsContainEachOther(IFileStore[] store) throws ConfigurationFailureException
     {
         for (int i = 1; i < store.length; ++i)
         {
@@ -78,7 +78,7 @@ public class SelfTest
      * considered "past", otherwise the exception will have more information on what went wrong. This method performs
      * failure logging of {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
-    public static void check(IPathCopier copier, FileStore... stores)
+    public static void check(IPathCopier copier, IFileStore... stores)
     {
         try
         {

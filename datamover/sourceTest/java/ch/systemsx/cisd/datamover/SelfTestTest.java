@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
@@ -50,11 +51,11 @@ public class SelfTestTest
 
     private static final File bufferDirectory = new File(workingDirectory, "local/buffer");
 
-    private static final FileStore bufferStore = createLocalStore(bufferDirectory, "buffer");
+    private static final IFileStore bufferStore = createLocalStore(bufferDirectory, "buffer");
 
     private static final File outgoingDirectory = new File(workingDirectory, "outgoing");
 
-    private static final FileStore outgoingStore = createLocalStore(outgoingDirectory, "outgoing");
+    private static final IFileStore outgoingStore = createLocalStore(outgoingDirectory, "outgoing");
 
     private static final IPathCopier mockCopier = createMockCopier();
 
@@ -146,7 +147,7 @@ public class SelfTestTest
     public void testContainingPaths()
     {
         final File illegalBufferDirectory = new File(incomingDirectory, "temp");
-        final FileStore illegalBufferStore = createLocalStore(illegalBufferDirectory, "buffer");
+        final IFileStore illegalBufferStore = createLocalStore(illegalBufferDirectory, "buffer");
         SelfTest.check(mockCopier, incomingStore, illegalBufferStore, outgoingStore);
     }
 

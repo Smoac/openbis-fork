@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
@@ -39,7 +40,7 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public ExtendedFileStore tryAsExtended()
+    public IExtendedFileStore tryAsExtended()
     {
         return null;
     }
@@ -74,6 +75,12 @@ public class FileStoreRemoteMounted extends FileStore
     public boolean exists(StoreItem item)
     {
         return localImpl.exists(item);
+    }
+
+    @Override
+    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    {
+        return localImpl.lastChanged(item, stopWhenFindYounger);
     }
 
     @Override

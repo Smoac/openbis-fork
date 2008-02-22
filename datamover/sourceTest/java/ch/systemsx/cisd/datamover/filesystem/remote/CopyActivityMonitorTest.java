@@ -33,6 +33,8 @@ import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
@@ -153,13 +155,13 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private FileStore asFileStore(File directory, final ILastChangedChecker checker)
+    private IFileStore asFileStore(File directory, final ILastChangedChecker checker)
     {
         IFileSysOperationsFactory factory = FileOperationsUtil.createTestFatory();
         return asFileStore(directory, checker, factory);
     }
 
-    private FileStore asFileStore(File directory, final ILastChangedChecker checker, IFileSysOperationsFactory factory)
+    private IFileStore asFileStore(File directory, final ILastChangedChecker checker, IFileSysOperationsFactory factory)
     {
         final FileStoreLocal localImpl = new FileStoreLocal(directory, "input-test", factory);
         return new FileStore(directory, null, false, "input-test", factory)
@@ -177,6 +179,12 @@ public class CopyActivityMonitorTest
                 }
 
                 @Override
+                public long lastChanged(StoreItem item, long stopWhenFindYounger)
+                {
+                    throw new UnsupportedOperationException("lastChanged");
+                }
+
+                @Override
                 public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
                 {
                     return checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
@@ -189,7 +197,7 @@ public class CopyActivityMonitorTest
                 }
 
                 @Override
-                public ExtendedFileStore tryAsExtended()
+                public IExtendedFileStore tryAsExtended()
                 {
                     return localImpl.tryAsExtended();
                 }

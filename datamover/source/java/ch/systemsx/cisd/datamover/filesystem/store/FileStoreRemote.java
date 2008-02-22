@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
@@ -36,7 +37,7 @@ public class FileStoreRemote extends FileStore
     }
 
     @Override
-    public ExtendedFileStore tryAsExtended()
+    public IExtendedFileStore tryAsExtended()
     {
         return null;
     }
@@ -59,6 +60,13 @@ public class FileStoreRemote extends FileStore
     {
         boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
+    }
+
+    @Override
+    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    {
+        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
+        return 0;
     }
 
     @Override

@@ -27,12 +27,12 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
- * A class to holds the information about a file store.
+ * The abstract super-class of classes that represent a file store.
  * 
  * @author Bernd Rinn
  * @author Tomasz Pylak
  */
-public abstract class FileStore
+public abstract class FileStore implements IFileStore
 {
     protected final File path;
 
@@ -122,10 +122,15 @@ public abstract class FileStore
         return remote;
     }
 
-    public boolean isParentDirectory(FileStore child)
+    public boolean isParentDirectory(IFileStore child)
     {
-        return StringUtils.equals(hostOrNull, child.hostOrNull)
-                && getCanonicalPath(child.path).startsWith(getCanonicalPath(path));
+        if (child instanceof FileStore == false)
+        {
+            return false;
+        }
+        final FileStore potentialChild = (FileStore) child;
+        return StringUtils.equals(hostOrNull, potentialChild.hostOrNull)
+                && getCanonicalPath(potentialChild.path).startsWith(getCanonicalPath(path));
     }
 
     private String getCanonicalPath(File file)
@@ -178,8 +183,20 @@ public abstract class FileStore
      * Returns the last time when there was a write access to <var>item</var>.
      * 
      * @param item The {@link StoreItem} to check.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or
+     *            directory is found that is younger than the time specified in this parameter. Supposed to be used when
+     *            one does not care about the absolutely youngest entry, but only, if there are entries that are "young
+     *            enough".
+     * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was last changed.
+     */
+    public abstract long lastChanged(StoreItem item, long stopWhenFindYounger);
+
+    /**
+     * Returns the last time when there was a write access to <var>item</var>.
+     * 
+     * @param item The {@link StoreItem} to check.
      * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file
-     *            or directory is found that is as young as or younger than
+     *            or directory is found that is younger than
      *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was last changed.
      */
@@ -203,9 +220,9 @@ public abstract class FileStore
     // which could be used in java.io.File constructor.
     public abstract String getLocationDescription(StoreItem item);
 
-    public abstract ExtendedFileStore tryAsExtended();
+    public abstract IExtendedFileStore tryAsExtended();
 
-    public static abstract class ExtendedFileStore extends FileStore
+    public static abstract class ExtendedFileStore extends FileStore implements IExtendedFileStore
     {
         protected ExtendedFileStore(File path, String hostOrNull, boolean remote, String kind,
                 IFileSysOperationsFactory factory)

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
@@ -143,7 +144,7 @@ public class DataMover
     {
         final FileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
-        final FileStore readyToMoveStore = FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
+        final IFileStore readyToMoveStore = FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
         final IStoreHandler remoteStoreMover = createRemotePathMover(readyToMoveStore, outgoingStore);
 
         final DirectoryScanningTimerTask outgoingMovingTask =
@@ -165,7 +166,7 @@ public class DataMover
             };
     }
 
-    private IStoreHandler createRemotePathMover(FileStore source, FileStore destination)
+    private IStoreHandler createRemotePathMover(IFileStore source, FileStore destination)
     {
         return RemoteMonitoredMoverFactory.create(source, destination, parameters);
     }

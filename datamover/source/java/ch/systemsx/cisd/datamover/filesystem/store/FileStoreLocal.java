@@ -29,6 +29,8 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -66,6 +68,12 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
+    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    {
+        return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
+    }
+    
+    @Override
     public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
     {
         return FileUtilities.lastChangedRelative(getChildFile(item), true, stopWhenFindYoungerRelative);
@@ -99,7 +107,7 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public ExtendedFileStore tryAsExtended()
+    public IExtendedFileStore tryAsExtended()
     {
         return this;
     }
@@ -168,7 +176,7 @@ public class FileStoreLocal extends ExtendedFileStore
      * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
      *         <var>destinationDirectory</var> resides requires deleting an existing file before it can be overwritten.
      */
-    protected boolean requiresDeletionBeforeCreation(FileStore destinationDirectory, final IStoreCopier simpleCopier)
+    protected boolean requiresDeletionBeforeCreation(IFileStore destinationDirectory, final IStoreCopier simpleCopier)
     {
         StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
@@ -192,7 +200,7 @@ public class FileStoreLocal extends ExtendedFileStore
         return requiresDeletion;
     }
 
-    private static void logFIleSystemNeedsOverwrite(FileStore destinationDirectory)
+    private static void logFIleSystemNeedsOverwrite(IFileStore destinationDirectory)
     {
         if (machineLog.isInfoEnabled())
         {
@@ -202,7 +210,7 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    private static void logCopierOverwriteState(FileStore destinationDirectory, boolean requiresDeletion)
+    private static void logCopierOverwriteState(IFileStore destinationDirectory, boolean requiresDeletion)
     {
         if (machineLog.isInfoEnabled())
         {
@@ -218,4 +226,5 @@ public class FileStoreLocal extends ExtendedFileStore
             }
         }
     }
+
 }
