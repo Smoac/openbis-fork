@@ -493,10 +493,10 @@ public final class FileUtilities
         {
             if (referenceIsRelative)
             {
-                return reference > 0 && currentLastChanged >= System.currentTimeMillis() - reference;
+                return reference > 0 && currentLastChanged > System.currentTimeMillis() - reference;
             } else
             {
-                return reference > 0 && currentLastChanged >= reference;
+                return reference > 0 && currentLastChanged > reference;
             }
         }
 
@@ -561,9 +561,9 @@ public final class FileUtilities
      *            considering what this parameter is good for, note that the mtime of a directory is changed when an
      *            entry in the directory changes.
      * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped when a file or
-     *            directory is found that is as young as or younger than the time specified in this parameter. Supposed
-     *            to be used when one does not care about the absolute youngest entry, but only, if there are entries
-     *            that are "young enough".
+     *            directory is found that is younger than the time specified in this parameter. Supposed to be used when
+     *            one does not care about the absolute youngest entry, but only, if there are entries that are "young
+     *            enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not exist or is not
      *             readable.
@@ -585,7 +585,7 @@ public final class FileUtilities
      *            considering what this parameter is good for, note that the mtime of a directory is changed when an
      *            entry in the directory changes.
      * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be stopped when a file
-     *            or directory is found that is as young as or younger than
+     *            or directory is found that is younger than
      *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be used when one
      *            does not care about the absolute youngest entry, but only, if there are entries that are "young
      *            enough".
@@ -785,15 +785,15 @@ public final class FileUtilities
                         "Failed to get listing of directory '%s' (path is file instead of directory).", directory));
             } else
             {
-                logger.log(LogLevel.ERROR, String.format(
-                        "Failed to get listing of directory '%s' (path not found).", directory));
+                logger.log(LogLevel.ERROR, String.format("Failed to get listing of directory '%s' (path not found).",
+                        directory));
             }
         } else
         {
             StringWriter exStackWriter = new StringWriter();
             exOrNull.printStackTrace(new PrintWriter(exStackWriter));
-            logger.log(LogLevel.ERROR, String.format(
-                    "Failed to get listing of directory '%s'. Exception: %s", directory, exStackWriter.toString()));
+            logger.log(LogLevel.ERROR, String.format("Failed to get listing of directory '%s'. Exception: %s",
+                    directory, exStackWriter.toString()));
         }
     }
 

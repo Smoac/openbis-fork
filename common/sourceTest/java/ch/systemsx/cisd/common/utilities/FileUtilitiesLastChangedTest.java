@@ -124,8 +124,8 @@ public class FileUtilitiesLastChangedTest
         dirA.setLastModified(1000L);
         assertEquals(3000L, FileUtilities.lastChanged(dirA, false, 0L));
         assertEquals(2000L, FileUtilities.lastChanged(dirA, true, 0L));
-        assertEquals(1000L, FileUtilities.lastChanged(dirA, false, 1000L));
-        assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 1000L));
+        assertEquals(1000L, FileUtilities.lastChanged(dirA, false, 999L));
+        assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 999L));
     }
     
     @Test
