@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.logging;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
@@ -38,11 +39,11 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     private final StringBuilder eventRecorder = new StringBuilder();
 
-    private final String messagePart;
+    private final Pattern regex;
 
-    private LogMonitoringAppender(String messagePart)
+    private LogMonitoringAppender(Pattern pattern)
     {
-        this.messagePart = messagePart;
+        this.regex = pattern;
     }
 
     private int logCount = 0;
@@ -55,7 +56,18 @@ public final class LogMonitoringAppender extends AppenderSkeleton
      */
     public static synchronized LogMonitoringAppender addAppender(LogCategory category, String messagePart)
     {
-        final LogMonitoringAppender appender = new LogMonitoringAppender(messagePart);
+        return addAppender(category, Pattern.compile(Pattern.quote(messagePart)));
+    }
+
+    /**
+     * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
+     * <code>category</code> and <code>clazz</code>.
+     * 
+     * @return The created appender.
+     */
+    public static synchronized LogMonitoringAppender addAppender(LogCategory category, Pattern regex)
+    {
+        final LogMonitoringAppender appender = new LogMonitoringAppender(regex);
         final String loggerName = category.name();
         Logger.getLogger(loggerName).addAppender(appender);
         appenderMap.put(appender, loggerName);
@@ -100,7 +112,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         {
             eventRecorder.append("event throwable: ").append(throwableStr).append('\n');
         }
-        if (eventMessage.contains(messagePart) || throwableStr.contains(messagePart))
+        if (regex.matcher(event.getMessage().toString()).find() || regex.matcher(getThrowableStr(event)).find())
         {
             ++logCount;
         }
@@ -120,19 +132,19 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     public void verifyLogHasNotHappened()
     {
-        assert logCount == 0 : "Log snippet '" + messagePart + "' has been unexpectedly found in log:\n"
+        assert logCount == 0 : "Regex '" + regex + "' has been unexpectedly found in log:\n"
                 + eventRecorder;
     }
 
     public void verifyLogHasHappened()
     {
-        assert logCount > 0 : "Log snippet '" + messagePart + "' has been missed in log:\n" + eventRecorder;
+        assert logCount > 0 : "Regex '" + regex + "' has been missed in log:\n" + eventRecorder;
     }
 
     public void verifyLogHappendNTimes(int n)
     {
         assert logCount == n : String.format(
-                "Log snippet '%s' should have found %d times, but has been found %d times.", messagePart, n,
+                "Log snippet '%s' should have found %d times, but has been found %d times.", regex, n,
                 logCount);
     }
 
