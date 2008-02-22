@@ -411,11 +411,11 @@ public class CIFEXServiceImplTest
         prepareForExternalAuthentication(oldUserDTO.getUserCode(), password, principal);
         prepareForFindUser(principal.getUserId(), oldUserDTO);
         context.checking(new Expectations()
-        {
             {
-                one(userManager).updateUser(newUserDTO, null);
-            }
-        });
+                {
+                    one(userManager).updateUser(newUserDTO, null);
+                }
+            });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
 
         CIFEXServiceImpl service = createService(authenticationService);
@@ -449,11 +449,11 @@ public class CIFEXServiceImplTest
         prepareForExternalAuthentication(oldUserDTO.getUserCode(), password, principal);
         prepareForFindUser(principal.getUserId(), oldUserDTO);
         context.checking(new Expectations()
-        {
             {
-                one(userManager).updateUser(newUserDTO, null);
-            }
-        });
+                {
+                    one(userManager).updateUser(newUserDTO, null);
+                }
+            });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
 
         CIFEXServiceImpl service = createService(authenticationService);
@@ -474,7 +474,7 @@ public class CIFEXServiceImplTest
         final String lastName = "Einstein";
         final String firstName = "Albert";
         final String email = "ae@users.org";
-        
+
         Principal principal = new Principal(userName, firstName, lastName, email);
         prepareForExternalAuthentication(userName, password, principal);
         prepareForFindUser(principal.getUserId(), null);
@@ -683,7 +683,7 @@ public class CIFEXServiceImplTest
                     if (currentUser.isAdmin() == false && currentUser.isPermanent()
                             && (currentUser.getUserCode().equals(userToUpdate.getUserCode()) == false))
                     {
-                        one(userManager).listUsersRegisteredBy(currentUser);
+                        one(userManager).listUsersRegisteredBy(currentUser.getUserCode());
                         if (currentUser.getUserCode().equals(userToUpdate.getRegistrator().getUserCode()))
                         {
                             ownedUsers.add(userToUpdate);

@@ -116,7 +116,8 @@ class UserManager extends AbstractManager implements IUserManager
                     businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
                 } else
                 {
-                    operationLog.warn("Expired user [" + getUserDescription(user) + "] could not be found in the database.");
+                    operationLog.warn("Expired user [" + getUserDescription(user)
+                            + "] could not be found in the database.");
                 }
             } catch (final RuntimeException ex)
             {
@@ -155,7 +156,8 @@ class UserManager extends AbstractManager implements IUserManager
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Could not delete User [" + getUserDescription(userOrNull) + "] from user database.");
+                    operationLog.info("Could not delete User [" + getUserDescription(userOrNull)
+                            + "] from user database.");
                 }
             }
         } else if (operationLog.isInfoEnabled())
@@ -205,12 +207,12 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final List<UserDTO> listUsersRegisteredBy(final UserDTO user)
+    public final List<UserDTO> listUsersRegisteredBy(final String userCode)
     {
-        assert user != null : "Unspecified user";
+        assert userCode != null : "Unspecified user";
 
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        return userDAO.listUsersRegisteredBy(user.getUserCode());
+        return userDAO.listUsersRegisteredBy(userCode);
     }
 
 }

@@ -572,7 +572,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             }
             return;
         }
-        final List<UserDTO> usersCreatedByRequestUser = userManager.listUsersRegisteredBy(requestUser);
+        final List<UserDTO> usersCreatedByRequestUser = userManager.listUsersRegisteredBy(requestUser.getUserCode());
 
         // Check if the current user is the owner of the user to update.
         for (UserDTO user : usersCreatedByRequestUser)
@@ -599,12 +599,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, userDTO);
     }
 
-    public User[] listUsersRegisteredBy(final User user) throws InvalidSessionException
+    public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
 
-        final List<UserDTO> users = userManager.listUsersRegisteredBy(BeanUtils.createBean(UserDTO.class, user));
+        final List<UserDTO> users = userManager.listUsersRegisteredBy(userCode);
 
         return BeanUtils.createBeanArray(User.class, users, null);
     }

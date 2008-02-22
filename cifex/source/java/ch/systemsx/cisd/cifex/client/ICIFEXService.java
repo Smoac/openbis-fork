@@ -81,7 +81,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws InvalidSessionException
      */
-    public User[] listUsersRegisteredBy(User user) throws InvalidSessionException;
+    public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
@@ -90,7 +90,7 @@ public interface ICIFEXService extends RemoteService
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final User user, final String password, final User registratorOrNull, String comment)
+    public void createUser(final User user, final String password, final User registratorOrNull, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
 

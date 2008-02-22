@@ -54,7 +54,7 @@ public interface IUserManager
      * Returns a list of users, which where registered by the given user.
      */
     @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
-    public List<UserDTO> listUsersRegisteredBy(UserDTO user);
+    public List<UserDTO> listUsersRegisteredBy(final String userCode);
 
     /**
      * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
