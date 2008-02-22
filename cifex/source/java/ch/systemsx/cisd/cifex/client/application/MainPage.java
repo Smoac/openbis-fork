@@ -97,7 +97,8 @@ final class MainPage extends AbstractMainPage
     private void createListCreatedUserPanel()
     {
         listCreatedUserPanel = createVerticalPanelPart();
-        context.getCifexService().listUsersRegisteredBy(context.getModel().getUser(), new CreatedUserAsyncCallback());
+        context.getCifexService().listUsersRegisteredBy(context.getModel().getUser().getUserCode(),
+                new CreatedUserAsyncCallback());
     }
 
     private void createListFilesGrid(final ContentPanel contentPanel, final boolean showDownload)

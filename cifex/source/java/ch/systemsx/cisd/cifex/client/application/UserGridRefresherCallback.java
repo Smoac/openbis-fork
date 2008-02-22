@@ -33,7 +33,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
             viewContext.getCifexService().listUsers(new ListUsersCallback());
         } else
         {
-            viewContext.getCifexService().listUsersRegisteredBy(viewContext.getModel().getUser(),
+            viewContext.getCifexService().listUsersRegisteredBy(viewContext.getModel().getUser().getUserCode(),
                     new ListUsersCallback());
         }
     }
