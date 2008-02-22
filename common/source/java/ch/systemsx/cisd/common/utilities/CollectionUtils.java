@@ -33,7 +33,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
      * <p>
      * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
      * {@link ToStringDefaultConverter} are used.
@@ -48,7 +48,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given <code>Collection</code> using ellipses.
+     * Abbreviates a given <code>Collection</code>.
      * <p>
      * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
      * {@link ToStringDefaultConverter} are used.
@@ -63,7 +63,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
      * <p>
      * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
      * </p>
@@ -77,7 +77,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given <code>Collection</code> using ellipses.
+     * Abbreviates a given <code>Collection</code>.
      * <p>
      * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
      * </p>
@@ -92,7 +92,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
      * <p>
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
      * </p>
@@ -106,7 +106,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given <code>Collection</code> using ellipses.
+     * Abbreviates a given <code>Collection</code>.
      * <p>
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
      * </p>
@@ -121,7 +121,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
      * <p>
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
@@ -136,7 +136,18 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given <code>Collection</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
+     * <p>
+     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used and all items is displayed.
+     * </p>
+     */
+    public final static <T> String abbreviate(final T[] objects, final IToStringConverter<? super T> converter)
+    {
+        return abbreviate(objects, -1, false, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+    }
+
+    /**
+     * Abbreviates a given <code>Collection</code>.
      * <p>
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
@@ -151,7 +162,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given array of <code>Object</code> using ellipses.
+     * Abbreviates a given array of <code>Object</code>.
      * 
      * <pre>
      * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, false) = &quot;[1, 2, 3, ...]&quot;
@@ -172,7 +183,7 @@ public final class CollectionUtils
     }
 
     /**
-     * Abbreviates a given <code>Collection</code> using ellipses.
+     * Abbreviates a given <code>Collection</code>.
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
