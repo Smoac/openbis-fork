@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jmock.Mockery;
 import org.jmock.api.Action;
 import org.jmock.internal.Cardinality;
@@ -164,8 +165,9 @@ public class SqlUnitTestRunnerTest
             fail("AssertionError expected");
         } catch (AssertionError e)
         {
+            final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script 'buildup.sql' of test case 'my test case' failed because of "
-                         + runtimeException + OSUtilities.LINE_SEPARATOR, e.getMessage());
+                         + runtimeException, message);
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                      + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
@@ -192,8 +194,10 @@ public class SqlUnitTestRunnerTest
             fail("AssertionError expected");
         } catch (AssertionError e)
         {
+            // Strip away stack trace
+            final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script '9=b.sql' of test case 'my test case' failed because of "
-                         + runtimeException + OSUtilities.LINE_SEPARATOR, e.getMessage());
+                         + runtimeException, message);
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                      + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
