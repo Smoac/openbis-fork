@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,10 +157,15 @@ public class SqlUnitTestRunner
         {
             if (result.isOK() == false)
             {
-                File testScript = result.getTestScript();
+                final File testScript = result.getTestScript();
+                final Throwable throwable = result.getThrowable();
                 builder.append("Script '").append(testScript.getName()).append("' of test case '");
                 builder.append(testScript.getParentFile().getName()).append("' failed because of ");
-                builder.append(result.getThrowable()).append(OSUtilities.LINE_SEPARATOR);
+                builder.append(throwable).append(OSUtilities.LINE_SEPARATOR);
+                final StringWriter stacktraceWriter = new StringWriter();
+                final PrintWriter pw = new PrintWriter(stacktraceWriter);
+                throwable.printStackTrace(pw);
+                builder.append(stacktraceWriter.toString()).append(OSUtilities.LINE_SEPARATOR);
             }
         }
         if (builder.length() > 0)
