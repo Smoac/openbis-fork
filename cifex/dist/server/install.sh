@@ -1,10 +1,12 @@
 #! /bin/bash
 
 usage() {
-	echo "Usage: $0 [--http-port <http port>] [--https-port <https port>] <server folder> [<service properties file> <log configuration file>]"
+	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <log configuration file>]"
 	exit 1
 }
 
+# Checks whether the number of arguments is smaller than one.
+# We at least need the server folder.
 check_arguments() {
 	if [ $# -lt 1 ]; then
 		usage
@@ -12,19 +14,11 @@ check_arguments() {
 }
 
 check_arguments $@
-JETTY_PORT=8080
-if [ $1 == "--http-port" ]; then
+JETTY_PORT=8443
+if [ $1 == "--port" ]; then
 	shift
 	check_arguments $@
 	JETTY_PORT=$1
-	shift
-fi
-check_arguments $@
-JETTY_SSL_PORT=8443
-if [ $1 == "--https-port" ]; then
-	shift
-	check_arguments $@
-	JETTY_SSL_PORT=$1
 	shift
 fi
 check_arguments $@
@@ -64,6 +58,11 @@ if [ ! -f $properties_file ]; then
 	exit 1
 fi
 
+# Check whether given log configuration file exists and is a regular file.
+if [ ! -f $logconf_file ]; then
+	echo Given log configuration file \'$logconf_file\' does not exist!
+	exit 1
+fi
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -108,10 +107,16 @@ JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
 echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
+# Here goes the path of the JVM in case you need to set it hard
+echo "JVM=\"java\"" >> "$JETTY_PROPERTIES"
+# The default memory of the JVM at start up.
+echo "VM_STARTUP_MEM=\"256M\"" >> "$JETTY_PROPERTIES"
+# The maximum memory for the JVM
+echo "VM_MAX_MEM=\"786M\"" >> "$JETTY_PROPERTIES"
 
 # Create a 'work' directory in jetty folder. Web applications will be unpacked there.
 mkdir -p "$jetty_folder"/work
 
 cd "$jetty_folder"
 echo Starting Jetty...
-./bin/startup.sh $3 $4
+./bin/startup.sh

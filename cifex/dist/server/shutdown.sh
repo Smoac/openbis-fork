@@ -11,4 +11,6 @@ fi
 source "$JETTY_BIN_DIR"/jetty.properties
 cd "$JETTY_BIN_DIR"/..
 
-java -DSTOP.PORT=$JETTY_STOP_PORT -DSTOP.KEY=$JETTY_STOP_KEY -jar start.jar --stop
+$JVM -DSTOP.PORT=$JETTY_STOP_PORT \
+     -DSTOP.KEY=$JETTY_STOP_KEY \
+     -jar start.jar --stop
