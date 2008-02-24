@@ -82,7 +82,7 @@ fi
 echo Unzipping Jetty...
 # Files are unzipped in $rel_jetty_folder
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
-cp -p "$installation_folder"/cifex-jetty*.xml "$jetty_folder"/etc
+cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
 cp -p "$installation_folder"/source-systemsx.ethz.ch.keystore "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
@@ -106,7 +106,6 @@ cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
 echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
-echo "JETTY_SSL_PORT=$JETTY_SSL_PORT" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 

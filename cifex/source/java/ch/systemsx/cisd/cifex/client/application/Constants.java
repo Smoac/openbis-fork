@@ -25,7 +25,7 @@ import com.google.gwt.core.client.GWT;
  */
 public final class Constants
 {
-    private static final String CONTEXT_PATH = "/cifex";
+    private static final String CONTEXT_PATH = isDeployed() ? "" : "/cifex";
 
     /** The <code>id</code> attribute value for renew action. */
     public static final String RENEW_ID = "renew";

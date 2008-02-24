@@ -108,7 +108,7 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 if (trackingLog.isInfoEnabled())
                 {
-                    trackingLog.info("Expired File [" + file.getAbsolutePath() + "] deleted.");
+                    trackingLog.info("File [" + file.getAbsolutePath() + "] deleted.");
                 }
             } else
             {
@@ -259,9 +259,9 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 outputStream = new FileOutputStream(file);
                 final CountingInputStream countingInputStream = new CountingInputStream(input);
-                 inputStream = countingInputStream;
+                inputStream = countingInputStream;
                 // Uncomment the following line if you want a more perceptible effect in the file upload feedback.
-                //inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
+                // inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
                 final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
