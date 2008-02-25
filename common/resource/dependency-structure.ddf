@@ -9,7 +9,6 @@ check sets [converter]
 [db] = ${package}.db.*
 check sets [db]
 
-
 [exceptions] = ${package}.exceptions.*
 check sets [exceptions]
 
