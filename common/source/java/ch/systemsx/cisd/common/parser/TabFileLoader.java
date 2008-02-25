@@ -35,7 +35,29 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>.
+ * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The following
+ * formats for the column headers are recognized.
+ * <ol><li>Column headers in first line:
+ *     <pre>
+ *     column1  column2 column2
+ *     </pre>
+ *     <li>Comment section:
+ *     <pre>
+ *     # 1. line of comment
+ *     # 2. line of comment
+ *     # ...
+ *     column1  column2 column2
+ *     </pre>
+ *     <li>Column headers at the end of the comment section:
+ *     <pre>
+ *     # 1. line of comment
+ *     # 2. line of comment
+ *     # ...
+ *     #
+ *     #column1  column2 column2
+ *     </pre>
+ *     
+ * </ol>
  * 
  * @author Franz-Josef Elmer
  */
@@ -85,9 +107,14 @@ public class TabFileLoader<T>
     
     List<T> load(Reader reader)
     {
+        List<T> result = new ArrayList<T>();
         Iterator<Line> lineIterator = createLineIterator(reader);
+        if (lineIterator.hasNext() == false)
+        {
+            return result;
+        }
         Line previousLine = null;
-        Line line = new Line(0, PREFIX);
+        Line line = null;
         boolean previousLineHasColumnHeaders = false;
         while (lineIterator.hasNext())
         {
@@ -108,7 +135,6 @@ public class TabFileLoader<T>
         final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
         ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
-        List<T> result = new ArrayList<T>();
         if (previousLineHasColumnHeaders)
         {
             result.addAll(parser.parse(Arrays.asList(line).iterator(), filter));

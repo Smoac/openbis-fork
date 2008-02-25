@@ -110,9 +110,15 @@ public class TabFileLoaderTest
     }
     
     @Test
-    public void testFirstLineHasHeadersWithHashSymbol()
+    public void testFirstLineWithHashSymbol()
     {
-        loadAndCheck("#");
+        loadAndCheck("#\n");
+    }
+    
+    @Test
+    public void testFirstLineWithHashSymbolAndSomething()
+    {
+        loadAndCheck("#blabla\n");
     }
     
     @Test
