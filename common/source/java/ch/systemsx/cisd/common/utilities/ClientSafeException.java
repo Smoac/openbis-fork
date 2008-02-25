@@ -68,7 +68,7 @@ public final class ClientSafeException extends RuntimeException
     /**
      * Whether given <var>exception</var> is client-safe or not.
      */
-    private final static boolean isClientSafe(final Exception exception)
+    final static boolean isClientSafe(final Exception exception)
     {
         assert exception != null : "Unspecified exception.";
         final String className = exception.getClass().getName();
