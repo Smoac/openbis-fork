@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
@@ -146,13 +147,7 @@ public final class ClassUtilsTest
         } catch (final AssertionError error)
         {
         }
-        try
-        {
-            ClassUtils.setFieldValue(myClass, "doesNotExist", null);
-            fail("Field name 'doesNotExist' not found.");
-        } catch (final IllegalArgumentException ex)
-        {
-        }
+        assertFalse(ClassUtils.setFieldValue(myClass, "doesNotExist", null));
     }
 
     @Test

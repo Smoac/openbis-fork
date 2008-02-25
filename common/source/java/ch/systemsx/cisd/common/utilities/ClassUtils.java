@@ -266,9 +266,10 @@ public final class ClassUtils
      * This is useful when you want to set a <code>private</code> field on which you do not have access. Note that
      * this method should only be used in very special cases. You should consider it as a hack.
      * </p>
+     * 
+     * @return a <code>true</code> if <code>fieldName</code> has been modified.
      */
-    public final static void setFieldValue(final Object object, final String fieldName, final Object newValue)
-            throws IllegalArgumentException
+    public final static boolean setFieldValue(final Object object, final String fieldName, final Object newValue)
     {
         assert object != null : "Unspecified object.";
         final Class<?> clazz = object.getClass();
@@ -279,7 +280,7 @@ public final class ClassUtils
             {
                 field.setAccessible(true);
                 field.set(object, newValue);
-                return;
+                return true;
             }
         } catch (final SecurityException ex)
         {
@@ -288,9 +289,7 @@ public final class ClassUtils
         } catch (final IllegalAccessException ex)
         {
         }
-        throw new IllegalArgumentException(String.format(
-                "Cannot set field '%s' of class '%s' to given new value '%s'.", fieldName, clazz.getSimpleName(),
-                newValue));
+        return false;
     }
 
     /**
