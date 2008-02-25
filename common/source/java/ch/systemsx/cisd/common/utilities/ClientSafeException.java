@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.utilities;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
  * A <code>RuntimeException</code> extension which is client safe, meaning that it does not contain any third-party
