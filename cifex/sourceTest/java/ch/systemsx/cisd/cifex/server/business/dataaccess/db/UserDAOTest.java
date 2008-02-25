@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
@@ -38,12 +39,11 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
     { "db", "user" })
 public final class UserDAOTest extends AbstractDAOTest
 {
+    private final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
 
-    final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
+    private final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
 
-    final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
-
-    final UserDTO testTemporaryUser =
+    private final UserDTO testTemporaryUser =
             createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser);
 
     final static String getTestUserName()
@@ -66,18 +66,21 @@ public final class UserDAOTest extends AbstractDAOTest
         assertNotNull(actualUser.getRegistrationDate());
     }
 
-    final static UserDTO createUser(boolean permanent, boolean admin, String code, String email, UserDTO registrator)
+    final static UserDTO createUser(final boolean permanent, final boolean admin, final String code,
+            final String email, final UserDTO registrator)
     {
-        UserDTO user = new UserDTO();
+        final UserDTO user = new UserDTO();
         user.setEmail(email);
         user.setUserCode(code);
         user.setUserFullName(getTestUserName());
         user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
-        if(registrator == null){
+        if (registrator == null)
+        {
             user.setRegistrator(new UserDTO());
-        }else{
+        } else
+        {
             user.setRegistrator(registrator);
         }
         user.setPermanent(permanent);
@@ -88,23 +91,32 @@ public final class UserDAOTest extends AbstractDAOTest
         return user;
     }
 
+    private final void assertEqualsUserRegisteredBy(final UserDTO expected, final UserDTO actual)
+    {
+        final UserDTO strippedDownExpected = BeanUtils.createBean(UserDTO.class, expected);
+        strippedDownExpected.getRegistrator().setRegistrator(null);
+        actual.setRegistrationDate(null);
+        actual.getRegistrator().setRegistrationDate(null);
+        actual.getRegistrator().setRegistrator(null);
+        actual.getRegistrator().setRegistrator(null);
+        assertEquals(strippedDownExpected, actual);
+    }
+
     @Test
     @Transactional
     public final void testCreateUser()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> listUsers = userDAO.listUsers();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> listUsers = userDAO.listUsers();
         try
         {
             // Try with <code>null</code>
             userDAO.createUser(null);
             AssertJUnit.fail("null user not detected");
-        } catch (AssertionError e)
+        } catch (final AssertionError e)
         {
             // Nothing to do here.
         }
-
-        // TODO 2008-01-22, Basil Neff: Test with fields, which are too long.
 
         assertEquals("ID is not null on the newly created user.", null, testAdminUser.getID());
         userDAO.createUser(testAdminUser);
@@ -122,9 +134,19 @@ public final class UserDAOTest extends AbstractDAOTest
     @Test(dependsOnMethods =
         { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
     @Transactional
+    public final void testCreateUserWithTooLong()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final UserDTO newUser = createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser);
+        userDAO.createUser(newUser);
+    }
+
+    @Test(dependsOnMethods =
+        { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
+    @Transactional
     public final void testCreateDuplicateUserID()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
         userDAO.createUser(testPermanentUser);
     }
 
@@ -133,22 +155,22 @@ public final class UserDAOTest extends AbstractDAOTest
     @Transactional
     public final void testTryFindUserByCode()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
         try
         {
             userDAO.tryFindUserByCode(null);
             fail("Email Adress is null");
-        } catch (AssertionError e)
+        } catch (final AssertionError e)
         {
             assertEquals("No code specified!", e.getMessage());
         }
 
         // Unknown Mail Address
-        UserDTO testUnknownUserFromDB = userDAO.tryFindUserByCode("unknown");
+        final UserDTO testUnknownUserFromDB = userDAO.tryFindUserByCode("unknown");
         assertEquals("Unknown user is not null", null, testUnknownUserFromDB);
 
         // Existing admin User
-        UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
+        final UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
         assert testAdminUserFromDB != null;
         assert testAdminUserFromDB.getID() != null;
         assert testAdminUserFromDB.getID() > 0;
@@ -156,7 +178,7 @@ public final class UserDAOTest extends AbstractDAOTest
         checkUser(testAdminUser, testAdminUserFromDB);
 
         // Existing Temporary User
-        UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        final UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         assert testTemporaryUserFromDB != null;
         assert testTemporaryUserFromDB.getID() != null;
         assert testTemporaryUserFromDB.getID() > 0;
@@ -169,19 +191,19 @@ public final class UserDAOTest extends AbstractDAOTest
     @Transactional
     public final void testUpdateUser()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
 
         // No change
         userDAO.updateUser(testAdminUser);
-        UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
+        final UserDTO testAdminUserFromDB = userDAO.tryFindUserByCode(testAdminUser.getUserCode());
         checkUser(testAdminUser, testAdminUserFromDB);
-           
+
         // Try Update Email
         testTemporaryUser.setEmail("updated@temporary.cifex");
         userDAO.updateUser(testTemporaryUser);
-        UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        final UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
-        
+
         // Try update Password
         testPermanentUser.setEncryptedPassword(StringUtilities.computeMD5Hash("NewPassword"));
         testPermanentUser.setAdmin(true);
@@ -190,7 +212,7 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.updateUser(testPermanentUser);
         UserDTO testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
         checkUser(testPermanentUser, testPermanentUserFromDB);
-        
+
         // Remove admin Permissions of permanent user
         testPermanentUser.setAdmin(false);
         userDAO.updateUser(testPermanentUser);
@@ -205,41 +227,32 @@ public final class UserDAOTest extends AbstractDAOTest
     @Transactional
     public final void testListUserRegisteredBy()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
 
-        List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+        final List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
         assertEquals(1, listUsersRegisteredByAdmin.size());
         assertEqualsUserRegisteredBy(testPermanentUser, listUsersRegisteredByAdmin.get(0));
 
-        List<UserDTO> listUsersRegisteredByPermanent = userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
+        final List<UserDTO> listUsersRegisteredByPermanent =
+                userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
         assertEquals(1, listUsersRegisteredByPermanent.size());
         assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
-        
-        List<UserDTO> listUsersRegisteredByTemporary = userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
+
+        final List<UserDTO> listUsersRegisteredByTemporary =
+                userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
         assertEquals(0, listUsersRegisteredByTemporary.size());
 
         setComplete();
     }
 
-    private void assertEqualsUserRegisteredBy(UserDTO expected, UserDTO actual)
-    {
-        final UserDTO strippedDownExpected = BeanUtils.createBean(UserDTO.class, expected);
-        strippedDownExpected.getRegistrator().setRegistrator(null);
-        actual.setRegistrationDate(null);
-        actual.getRegistrator().setRegistrationDate(null);
-        actual.getRegistrator().setRegistrator(null);
-        actual.getRegistrator().setRegistrator(null);
-        assertEquals(strippedDownExpected, actual);
-    }
-    
     @Test(dependsOnMethods =
         { "testListUserRegisteredBy" })
     @Transactional
     public final void testDeleteUser()
     {
-        IUserDAO userDAO = daoFactory.getUserDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
 
-        List<UserDTO> listUsers = userDAO.listUsers();
+        final List<UserDTO> listUsers = userDAO.listUsers();
 
         assertFalse(userDAO.deleteUser(new Long(-1)));
 

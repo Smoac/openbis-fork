@@ -50,7 +50,7 @@ class BusinessContext implements IBusinessContext
 
     private String systemVersion;
 
-    public final UserHttpSessionHolder getUserHttpSessionHolder()
+    public final IUserSessionInvalidator getUserSessionInvalidator()
     {
         return userHttpSessionHolder;
     }

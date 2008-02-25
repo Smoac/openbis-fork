@@ -57,11 +57,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     private IBusinessContext businessContext;
 
-    private UserHttpSessionHolder sessionHolder;
-
     private IUserBO userBO;
 
     private UserDTO userAlice;
+
+    private IUserSessionInvalidator userSessionInvalidator;
 
     @BeforeMethod
     public final void setUp()
@@ -72,7 +72,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         boFactory = context.mock(IBusinessObjectFactory.class);
         userBO = context.mock(IUserBO.class);
         businessContext = context.mock(IBusinessContext.class);
-        sessionHolder = new UserHttpSessionHolder();
+        userSessionInvalidator = context.mock(IUserSessionInvalidator.class);
         userManager = new UserManager(daoFactory, boFactory, businessContext);
 
     }
@@ -124,11 +124,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(expiredUsers));
                     exactly(numberOfExpiredUsers).of(userDAO).deleteUser(userAlice.getID());
                     will(returnValue(true));
-                    exactly(numberOfExpiredUsers).of(businessContext).getUserHttpSessionHolder();
-                    will(returnValue(sessionHolder));
-                    // TODO 2008-02-06, Izabela Adamczyk: check if invalidate(user) called
-                    // - IUserHttpSessionHolder necessary
-                    // one(sessionHolder).invalidateSessionWithUser(user);
+                    exactly(numberOfExpiredUsers).of(businessContext).getUserSessionInvalidator();
+                    will(returnValue(userSessionInvalidator));
+                    exactly(numberOfExpiredUsers).of(userSessionInvalidator).invalidateSessionWithUser(userAlice);
 
                 }
             });
@@ -247,11 +245,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     {
                         one(userDAO).deleteUser(user.getID());
                         will(returnValue(true));
-                        one(businessContext).getUserHttpSessionHolder();
-                        will(returnValue(sessionHolder));
-                        // TODO 2008-02-06, Izabela Adamczyk: check if invalidate(user) called
-                        // - IUserHttpSessionHolder necessary
-                        // one(sessionHolder).invalidateSessionWithUser(user);
+                        one(businessContext).getUserSessionInvalidator();
+                        will(returnValue(userSessionInvalidator));
+                        one(userSessionInvalidator).invalidateSessionWithUser(user);
                     }
 
                 }
@@ -261,7 +257,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Transactional
-    @Test(expectedExceptions=UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class)
     public void testDeleteUserUserNotFound()
     {
         final String userCode = "nonexistent";

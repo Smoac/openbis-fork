@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Christian Ribeaud
  */
-public final class UserHttpSessionHolder
+public final class UserHttpSessionHolder implements IUserSessionInvalidator
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserHttpSessionHolder.class);
 
@@ -57,6 +57,18 @@ public final class UserHttpSessionHolder
     {
         activeSessions.add(session);
     }
+
+    public final synchronized void removeUserSession(final HttpSession session)
+    {
+        if (isInvalidating == false)
+        {
+            activeSessions.remove(session);
+        }
+    }
+
+    //
+    // IUserSessionInvalidator
+    //
 
     public final synchronized void invalidateSessionWithUser(final UserDTO userDTO)
     {
@@ -80,11 +92,4 @@ public final class UserHttpSessionHolder
         isInvalidating = false;
     }
 
-    public final synchronized void removeUserSession(final HttpSession session)
-    {
-        if (isInvalidating == false)
-        {
-            activeSessions.remove(session);
-        }
-    }
 }

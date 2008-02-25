@@ -113,7 +113,7 @@ class UserManager extends AbstractManager implements IUserManager
                     {
                         trackingLog.info("Expired user [" + getUserDescription(user) + "] deleted from database.");
                     }
-                    businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(user);
+                    businessContext.getUserSessionInvalidator().invalidateSessionWithUser(user);
                 } else
                 {
                     operationLog.warn("Expired user [" + getUserDescription(user)
@@ -151,7 +151,7 @@ class UserManager extends AbstractManager implements IUserManager
                 {
                     operationLog.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
                 }
-                businessContext.getUserHttpSessionHolder().invalidateSessionWithUser(userOrNull);
+                businessContext.getUserSessionInvalidator().invalidateSessionWithUser(userOrNull);
             } else
             {
                 if (operationLog.isInfoEnabled())

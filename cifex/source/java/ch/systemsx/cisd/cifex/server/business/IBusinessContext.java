@@ -59,15 +59,15 @@ public interface IBusinessContext
     public PasswordGenerator getPasswordGenerator();
 
     /**
-     * Returns the user session holder.
+     * Returns the user session invalidator implementation.
      */
-    public UserHttpSessionHolder getUserHttpSessionHolder();
+    public IUserSessionInvalidator getUserSessionInvalidator();
 
     /**
      * Returns the administrator email.
      */
     public String getAdministratorEmail();
-    
+
     /** Returns the full version information of this server. */
     public String getSystemVersion();
 
