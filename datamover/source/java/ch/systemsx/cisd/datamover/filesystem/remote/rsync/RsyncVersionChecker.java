@@ -23,8 +23,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.utilities.ProcessResult;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
  * A class that helps checking an <code>rsync</code> binary for its version.

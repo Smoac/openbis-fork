@@ -24,9 +24,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileRenamingProcess;
+import ch.systemsx.cisd.common.process.FileRenamingProcess;
+import ch.systemsx.cisd.common.process.ProcessRunner;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.ProcessRunner;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 
 /**
