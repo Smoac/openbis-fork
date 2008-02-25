@@ -1,4 +1,3 @@
-# Example cell plate file
 Cell Plate	Dilution Plate
 3VCP1	3V-123
 3VCP2	3V-123
