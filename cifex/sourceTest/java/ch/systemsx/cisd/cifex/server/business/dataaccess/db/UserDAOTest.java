@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
@@ -132,7 +133,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods =
-        { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
+        { "testCreateUser" }, expectedExceptions = DataAccessException.class)
     @Transactional
     public final void testCreateUserWithTooLong()
     {
