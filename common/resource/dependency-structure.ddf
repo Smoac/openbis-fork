@@ -18,16 +18,20 @@ check sets [logging]
 [parser] = ${package}.parser.*
 check sets [parser]
 
+[process] = ${package}.process.*
+check sets [process]
+
 [test] = ${package}.test.*
 check sets [test]
 
-[utilities] = ${package}.utilities.*
+[utilities] = ${package}.utilities.* excluding ${package}.utilities.RecursiveHardLinkMaker
 check sets [utilities]
 
 layer layer0 = [annotation] [exceptions] [logging] [test]
-layer layer1 = [utilities] 
-layer layer2 = [db] [parser]
+layer layer1 = [utilities]
+layer layer2 = [process]
+layer layer3 = [db] [parser]
 
-check layeringOf layer0 layer1 layer2
+check layeringOf layer0 layer1 layer2 layer3
 
 check [parser] independentOf ${package}.exceptions.UserFailureException 

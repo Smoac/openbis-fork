@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
-import ch.systemsx.cisd.common.utilities.ProcessExecutionHelper;
 
 /**
  * An {@link ICompressionMethod} that performs in-place compression of a bulk of files by means of calling an external

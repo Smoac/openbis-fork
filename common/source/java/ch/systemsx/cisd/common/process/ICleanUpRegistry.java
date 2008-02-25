@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.process;
 
 /**
- * A role that calls a method which requires one or more clean-up steps that need to be run reliably at the end of the
- * method regardless of whether the method is finished normally or whether it exits with an exception.
- * 
+ * A role that allows to register a clean-up method that is called regardless of whether an exception occurs or not.
+ *
  * @author Bernd Rinn
  */
-public interface ICallableWithCleanUp<T>
+public interface ICleanUpRegistry
 {
 
-    /** Calls the method requiring clean-up. */
-    public T call(ICleanUpRegistry registry);
-
+    /**
+     * Register a clean-up to run when the main {@link Runnable} has been executed.
+     */
+    public void registerCleanUp(Runnable cleanUp);
+    
 }

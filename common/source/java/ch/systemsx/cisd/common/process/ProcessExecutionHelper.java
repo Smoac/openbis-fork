@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.process;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,6 +27,8 @@ import java.util.TimerTask;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Utility to execute a command from a command line and log all events.

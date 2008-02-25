@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.process;
 
 /**
  * A <code>Runnable</code> extension that describes a process.

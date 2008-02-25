@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.process;
 
 import java.io.File;
 import java.io.IOException;

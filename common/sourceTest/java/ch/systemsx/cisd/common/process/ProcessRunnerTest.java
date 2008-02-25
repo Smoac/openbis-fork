@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.process;
 
 import static org.testng.AssertJUnit.fail;
 
@@ -23,6 +23,9 @@ import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.process.IProcess;
+import ch.systemsx.cisd.common.process.ProcessRunner;
 
 /**
  * Test cases for the {@link ProcessRunner}.
