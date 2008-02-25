@@ -35,7 +35,7 @@ public final class CheckedExceptionTunnel extends RuntimeException
     {
         super(checkedException);
 
-        assert (checkedException instanceof RuntimeException) == false;
+        assert (checkedException != null && checkedException instanceof RuntimeException) == false;
     }
 
     /**
@@ -43,17 +43,17 @@ public final class CheckedExceptionTunnel extends RuntimeException
      * {@link RuntimeException}, itself is returned, otherwise a {@link CheckedExceptionTunnel} with <var>exception</var>
      * as checked exception argument.
      * 
-     * @param exceptionOrNull The exception to represent by the return value.
+     * @param exception The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>exception</var>.
      */
-    public final static RuntimeException wrapIfNecessary(final Exception exceptionOrNull)
+    public final static RuntimeException wrapIfNecessary(final Exception exception)
     {
-        if (exceptionOrNull instanceof RuntimeException)
+        if (exception instanceof RuntimeException)
         {
-            return (RuntimeException) exceptionOrNull;
+            return (RuntimeException) exception;
         } else
         {
-            return new CheckedExceptionTunnel(exceptionOrNull);
+            return new CheckedExceptionTunnel(exception);
         }
     }
 
@@ -61,15 +61,16 @@ public final class CheckedExceptionTunnel extends RuntimeException
      * Returns the original exception before being wrapped, if the exception has been wrapped, or <var>exception</var>
      * otherwise.
      */
-    public final static Exception unwrapIfNecessary(final Exception exceptionOrNull)
+    public final static Exception unwrapIfNecessary(final Exception exception)
     {
-        if (exceptionOrNull instanceof CheckedExceptionTunnel)
+        assert exception != null : "Exception not specified.";
+        if (exception instanceof CheckedExceptionTunnel)
         {
             // We are sur that the wrapped exception is an 'Exception'.
-            return (Exception) exceptionOrNull.getCause();
+            return (Exception) exception.getCause();
         } else
         {
-            return exceptionOrNull;
+            return exception;
         }
     }
 
