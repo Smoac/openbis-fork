@@ -16,38 +16,25 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.IndependentException;
 
 /**
- * A <code>RuntimeException</code> extension which is client safe, meaning that it does not contain any third-party
- * specific or proprietary <code>Exception</code> extension that the client does not know about and does not
- * understand.
- * <p>
- * Note that this class can only be instantiated via {@link #createClientSafeExceptionIfNeeded(Exception)}.
- * </p>
+ * Provides utilities for manipulating and examining <code>Throwable</code> objects.
  * 
  * @author Christian Ribeaud
  */
-public final class ClientSafeException extends RuntimeException
+public final class ExceptionUtils
 {
-
-    private static final long serialVersionUID = 1L;
-
     /**
-     * The class name of the root exception.
-     * <p>
-     * Can not be <code>null</code>.
-     * </p>
+     * The package names considered as client-safe.
      */
-    private final String rootClassName;
+    private static String[] CLIENT_SAFE_PACKAGE_NAMES =
+        { "java.lang", "ch.systemsx.cisd" };
 
-    private ClientSafeException(final Exception rootException)
+    ExceptionUtils()
     {
-        super(rootException.getMessage());
-        setStackTrace(rootException.getStackTrace());
-        rootClassName = rootException.getClass().getName();
+        // Can not be instantiated.
     }
 
     /**
@@ -56,12 +43,34 @@ public final class ClientSafeException extends RuntimeException
      */
     private final static Exception createClientSafeException(final Exception exception)
     {
-        if (isClientSafe(exception) == false)
+        final Exception rootException = CheckedExceptionTunnel.unwrapIfNecessary(exception);
+        if (isClientSafe(rootException) == false)
         {
-            return new ClientSafeException(exception);
+            return new IndependentException(rootException);
         } else
         {
-            return exception;
+            return rootException;
+        }
+    }
+
+    /** Recursively copies cause exception from <var>fromException</var> to <var>toException</var>. */
+    private final static void copyCauseException(final Exception fromException, final Exception toException)
+    {
+        assert fromException != null : "Unspecified 'from' Exception.";
+        assert toException != null : "Unspecified 'to' Exception.";
+        final Exception fromCauseException =
+                (Exception) org.apache.commons.lang.exception.ExceptionUtils.getCause(fromException);
+        if (fromCauseException != null && fromCauseException != fromException)
+        {
+            final Exception toCauseException = createClientSafeException(fromCauseException);
+            if (toException.getCause() != toCauseException)
+            {
+                if (ClassUtils.setFieldValue(toException, "cause", toCauseException) == false)
+                {
+                    org.apache.commons.lang.exception.ExceptionUtils.setCause(toException, toCauseException);
+                }
+            }
+            copyCauseException(fromCauseException, toCauseException);
         }
     }
 
@@ -72,25 +81,14 @@ public final class ClientSafeException extends RuntimeException
     {
         assert exception != null : "Unspecified exception.";
         final String className = exception.getClass().getName();
-        return className.startsWith("java.lang") || className.startsWith("ch.systemsx.cisd");
-    }
-
-    /** Recursively copies cause exception from <var>fromException</var> to <var>toException</var>. */
-    private final static void copyCauseException(final Exception fromException, final Exception toException)
-    {
-        assert fromException != null : "Unspecified 'from' Exception.";
-        assert toException != null : "Unspecified 'to' Exception.";
-        final Exception fromCauseException =
-                CheckedExceptionTunnel.unwrapIfNecessary((Exception) ExceptionUtils.getCause(fromException));
-        if (fromCauseException != null && fromCauseException != fromException)
+        for (final String packageName : CLIENT_SAFE_PACKAGE_NAMES)
         {
-            final Exception toCauseException = createClientSafeException(fromCauseException);
-            if (toException.getCause() != toCauseException)
+            if (className.startsWith(packageName))
             {
-                ClassUtils.setFieldValue(toException, "cause", toCauseException);
+                return true;
             }
-            copyCauseException(fromCauseException, toCauseException);
         }
+        return false;
     }
 
     /**
@@ -99,20 +97,9 @@ public final class ClientSafeException extends RuntimeException
     public final static Exception createClientSafeExceptionIfNeeded(final Exception exception)
     {
         assert exception != null : "Unspecified SQL Exception.";
-        final Exception rootException = createClientSafeException(exception);
-        copyCauseException(rootException, rootException);
-        return rootException;
+        final Exception clientSafeException = createClientSafeException(exception);
+        copyCauseException(exception, clientSafeException);
+        return clientSafeException;
     }
 
-    //
-    // RuntimeException
-    //
-
-    @Override
-    public final String toString()
-    {
-        final String s = rootClassName;
-        final String message = getMessage();
-        return (message != null) ? (s + ": " + message) : s;
-    }
 }
