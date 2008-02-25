@@ -43,18 +43,17 @@ public final class CheckedExceptionTunnel extends RuntimeException
      * {@link RuntimeException}, itself is returned, otherwise a {@link CheckedExceptionTunnel} with <var>exception</var>
      * as checked exception argument.
      * 
-     * @param exception The exception to represent by the return value.
+     * @param exceptionOrNull The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>exception</var>.
      */
-    public final static RuntimeException wrapIfNecessary(final Exception exception)
+    public final static RuntimeException wrapIfNecessary(final Exception exceptionOrNull)
     {
-        assert exception != null : "Unspecified exception.";
-        if (exception instanceof RuntimeException)
+        if (exceptionOrNull instanceof RuntimeException)
         {
-            return (RuntimeException) exception;
+            return (RuntimeException) exceptionOrNull;
         } else
         {
-            return new CheckedExceptionTunnel(exception);
+            return new CheckedExceptionTunnel(exceptionOrNull);
         }
     }
 
@@ -62,16 +61,15 @@ public final class CheckedExceptionTunnel extends RuntimeException
      * Returns the original exception before being wrapped, if the exception has been wrapped, or <var>exception</var>
      * otherwise.
      */
-    public final static Exception unwrapIfNecessary(final RuntimeException exception)
+    public final static Exception unwrapIfNecessary(final Exception exceptionOrNull)
     {
-        assert exception != null : "Unspecified exception.";
-        if (exception instanceof CheckedExceptionTunnel)
+        if (exceptionOrNull instanceof CheckedExceptionTunnel)
         {
             // We are sur that the wrapped exception is an 'Exception'.
-            return (Exception) exception.getCause();
+            return (Exception) exceptionOrNull.getCause();
         } else
         {
-            return exception;
+            return exceptionOrNull;
         }
     }
 
