@@ -31,7 +31,7 @@ public final class CheckedExceptionTunnel extends RuntimeException
      * 
      * @param checkedException The checked exception to tunnel.
      */
-    public CheckedExceptionTunnel(Exception checkedException)
+    public CheckedExceptionTunnel(final Exception checkedException)
     {
         super(checkedException);
 
@@ -40,20 +40,38 @@ public final class CheckedExceptionTunnel extends RuntimeException
 
     /**
      * Returns a {@link RuntimeException} from an <var>exception</var>. If <var>exception</var> is already a
-     * {@link RuntimeException}, itself is returned, otherwise a {@link CheckedExceptionTunnel} with 
-     * <var>exception</var> as checked exception argument.
+     * {@link RuntimeException}, itself is returned, otherwise a {@link CheckedExceptionTunnel} with <var>exception</var>
+     * as checked exception argument.
      * 
      * @param exception The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>exception</var>.
      */
-    public static RuntimeException wrapIfNecessary(Exception exception)
+    public final static RuntimeException wrapIfNecessary(final Exception exception)
     {
+        assert exception != null : "Unspecified exception.";
         if (exception instanceof RuntimeException)
         {
             return (RuntimeException) exception;
         } else
         {
             return new CheckedExceptionTunnel(exception);
+        }
+    }
+
+    /**
+     * Returns the original exception before being wrapped, if the exception has been wrapped, or <var>exception</var>
+     * otherwise.
+     */
+    public final static Exception unwrapIfNecessary(final RuntimeException exception)
+    {
+        assert exception != null : "Unspecified exception.";
+        if (exception instanceof CheckedExceptionTunnel)
+        {
+            // We are sur that the wrapped exception is an 'Exception'.
+            return (Exception) exception.getCause();
+        } else
+        {
+            return exception;
         }
     }
 
