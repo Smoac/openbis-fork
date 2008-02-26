@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
 
+import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.CollectionIO;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
