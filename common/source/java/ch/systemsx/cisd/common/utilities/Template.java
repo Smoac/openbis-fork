@@ -29,6 +29,7 @@ import java.util.Map;
  * String text = template.createText();
  * </pre>
  * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown.
+ * The method {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder name is unknown.
  * The method {@link #createText()} throws an exception if not all placeholders have been bound.
  * <p>
  * Since placeholder bindings change the state of an instance of this class there is method {@link #createFreshCopy()}
@@ -274,15 +275,30 @@ public class Template
      */
     public void bind(String placeholderName, String value)
     {
+        boolean successful = attemptToBind(placeholderName, value);
+        if (successful == false)
+        {
+            throw new IllegalArgumentException("Unknown variable '" + placeholderName + "'."); 
+        }
+    }
+
+    /**
+     * Attempts to bind the specified value to the specified placeholder name.
+     * 
+     * @return <code>true</code> if successful.
+     */
+    public boolean attemptToBind(String placeholderName, String value)
+    {
         assert placeholderName != null : "Unspecified placeholder name.";
         assert value != null : "Unspecified value for '" + placeholderName + "'";
         
         VariableToken variableToken = variableTokens.get(placeholderName);
         if (variableToken == null)
         {
-            throw new IllegalArgumentException("Unknown variable '" + placeholderName + "'."); 
+            return false;
         }
         variableToken.bind(value);
+        return true;
     }
     
     /**

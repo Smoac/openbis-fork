@@ -129,6 +129,15 @@ public class TemplateTest
     }
     
     @Test
+    public void testAttemptToBind()
+    {
+        Template template = new Template("${greeting} ${name}!");
+        assertEquals(true, template.attemptToBind("greeting", "Hi"));
+        assertEquals(false, template.attemptToBind("blabla", "blub"));
+        assertEquals("Hi ${name}!", template.createText(false));
+    }
+    
+    @Test
     public void testIncompleteBinding()
     {
         Template template = new Template("${greeting} ${name}!");
