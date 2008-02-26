@@ -23,12 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.AssertJUnit;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
@@ -40,11 +39,11 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
     { "db", "user" })
 public final class UserDAOTest extends AbstractDAOTest
 {
-    private final UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
+    final static UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
 
-    private final UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
+    final static UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
 
-    private final UserDTO testTemporaryUser =
+    final static UserDTO testTemporaryUser =
             createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser);
 
     final static String getTestUserName()
@@ -87,53 +86,58 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setPermanent(permanent);
         if (permanent == false)
         {
-            user.setExpirationDate(new Date(new Long("1222249782000").longValue()));
+            // Set temporary user expiration date to 0 (in the past).
+            user.setExpirationDate(new Date(0L));
         }
         return user;
     }
 
-    private final void assertEqualsUserRegisteredBy(final UserDTO expected, final UserDTO actual)
-    {
-        final UserDTO strippedDownExpected = BeanUtils.createBean(UserDTO.class, expected);
-        strippedDownExpected.getRegistrator().setRegistrator(null);
-        actual.setRegistrationDate(null);
-        actual.getRegistrator().setRegistrationDate(null);
-        actual.getRegistrator().setRegistrator(null);
-        actual.getRegistrator().setRegistrator(null);
-        assertEquals(strippedDownExpected, actual);
-    }
+    //
+    // 'create' group
+    //
 
-    @Test
+    @Test(groups = "user.create")
     @Transactional
-    public final void testCreateUser()
+    public final void testCreateUserRainyDay()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        final List<UserDTO> listUsers = userDAO.listUsers();
         try
         {
             // Try with <code>null</code>
             userDAO.createUser(null);
-            AssertJUnit.fail("null user not detected");
+            fail("Null user not allowed.");
         } catch (final AssertionError e)
         {
             // Nothing to do here.
         }
+    }
 
-        assertEquals("ID is not null on the newly created user.", null, testAdminUser.getID());
-        userDAO.createUser(testAdminUser);
+    @SuppressWarnings("unused")
+    @DataProvider(name = "userProvider")
+    private final static Object[][] getUser()
+    {
+        return new Object[][]
+            {
+                { testAdminUser },
+                { testPermanentUser },
+                { testTemporaryUser } };
+    }
+
+    @Test(dataProvider = "userProvider", groups = "user.create")
+    @Transactional
+    public final void testCreateUser(final UserDTO userDTO)
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> listUsers = userDAO.listUsers();
+        assertNull(userDTO.getID());
+        userDAO.createUser(userDTO);
+        assertNotNull(userDTO.getID());
         assertEquals(listUsers.size() + 1, userDAO.listUsers().size());
-
-        userDAO.createUser(testPermanentUser);
-        assertEquals(listUsers.size() + 2, userDAO.listUsers().size());
-
-        userDAO.createUser(testTemporaryUser);
-        assertEquals(listUsers.size() + 3, userDAO.listUsers().size());
-
         setComplete();
     }
 
-    @Test(dependsOnMethods =
-        { "testCreateUser" }, expectedExceptions = DataAccessException.class)
+    @Test(groups =
+        { "user.create" }, dependsOnMethods = "testCreateUser", expectedExceptions = DataAccessException.class)
     @Transactional
     public final void testCreateUserWithTooLong()
     {
@@ -142,8 +146,7 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.createUser(newUser);
     }
 
-    @Test(dependsOnMethods =
-        { "testCreateUser" }, expectedExceptions = DataIntegrityViolationException.class)
+    @Test(groups = "user.create", dependsOnMethods = "testCreateUser", expectedExceptions = DataIntegrityViolationException.class)
     @Transactional
     public final void testCreateDuplicateUserID()
     {
@@ -151,8 +154,12 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.createUser(testPermanentUser);
     }
 
-    @Test(dependsOnMethods =
-        { "testCreateDuplicateUserID" })
+    //
+    // 'read' group
+    //
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
     @Transactional
     public final void testTryFindUserByCode()
     {
@@ -187,8 +194,64 @@ public final class UserDAOTest extends AbstractDAOTest
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
     }
 
-    @Test(dependsOnMethods =
-        { "testTryFindUserByCode" })
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    @Transactional
+    public final void testListUserRegisteredBy()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+
+        final List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByAdmin.size());
+        UserDTO actual = listUsersRegisteredByAdmin.get(0);
+        assertEquals(testPermanentUser.getID(), actual.getID());
+
+        final List<UserDTO> listUsersRegisteredByPermanent =
+                userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
+        assertEquals(1, listUsersRegisteredByPermanent.size());
+        actual = listUsersRegisteredByPermanent.get(0);
+        assertEquals(testTemporaryUser.getID(), actual.getID());
+
+        final List<UserDTO> listUsersRegisteredByTemporary =
+                userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
+        assertEquals(0, listUsersRegisteredByTemporary.size());
+    }
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    @Transactional
+    public final void testGetNumberOfUsers()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        assertEquals(3, userDAO.getNumberOfUsers());
+    }
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    @Transactional
+    public final void testListExpiredUsers()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> expiredUsers = userDAO.listExpiredUsers();
+        assertEquals(1, expiredUsers.size());
+        assertEquals(testTemporaryUser.getID(), expiredUsers.get(0).getID());
+    }
+
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
+    @Transactional
+    public final void testListUsers()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        assertEquals(3, userDAO.listUsers().size());
+    }
+
+    //
+    // 'update' group
+    //
+
+    @Test(dependsOnGroups =
+        { "user.read" }, groups = "user.update")
     @Transactional
     public final void testUpdateUser()
     {
@@ -219,35 +282,15 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.updateUser(testPermanentUser);
         testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
         checkUser(testPermanentUser, testPermanentUserFromDB);
-
-        setComplete();
     }
 
-    @Test(dependsOnMethods =
-        { "testUpdateUser" })
-    @Transactional
-    public final void testListUserRegisteredBy()
-    {
-        final IUserDAO userDAO = daoFactory.getUserDAO();
+    //
+    // 'delete' group
+    //
 
-        final List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
-        assertEquals(1, listUsersRegisteredByAdmin.size());
-        assertEqualsUserRegisteredBy(testPermanentUser, listUsersRegisteredByAdmin.get(0));
-
-        final List<UserDTO> listUsersRegisteredByPermanent =
-                userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
-        assertEquals(1, listUsersRegisteredByPermanent.size());
-        assertEqualsUserRegisteredBy(testTemporaryUser, listUsersRegisteredByPermanent.get(0));
-
-        final List<UserDTO> listUsersRegisteredByTemporary =
-                userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
-        assertEquals(0, listUsersRegisteredByTemporary.size());
-
-        setComplete();
-    }
-
-    @Test(dependsOnMethods =
-        { "testListUserRegisteredBy" })
+    @Test(dependsOnGroups =
+        { "user.update" }, groups =
+        { "user.delete" })
     @Transactional
     public final void testDeleteUser()
     {

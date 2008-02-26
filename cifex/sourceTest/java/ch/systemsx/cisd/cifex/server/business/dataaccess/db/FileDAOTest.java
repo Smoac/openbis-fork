@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -34,27 +35,16 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  * 
  * @author Izabela Adamczyk
  */
-
-// TODO 2008-02-08, Basil Neff: Add dependencies of the test and set the transaction complete (setComplete()) at the end
-// of the test. Otherwise the state of the DB is always roled back after the test and you have to create new Files. This
-// is how it is done in UserDAOTest.
 @Test(groups =
-    { "db", "file" })
+    { "db", "file" }, dependsOnGroups = "user")
 public final class FileDAOTest extends AbstractDAOTest
 {
     private static final Long NOT_SET = null;
-
-    private final UserDTO permanentUser = UserDAOTest.createUser(true, true, "user", "someuser@systemsx.ch", null);
 
     private final UserDTO getSampleUserFromDB()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         List<UserDTO> listUsers = userDAO.listUsers();
-        if (listUsers.size() == 0)
-        {
-            userDAO.createUser(permanentUser);
-            listUsers = userDAO.listUsers();
-        }
         assertTrue(listUsers.size() > 0);
         return listUsers.get(0);
     }
@@ -87,7 +77,7 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     /** Test if the file is equal. */
-    private void assertEqual(final FileDTO expected, final FileDTO actual)
+    private final void assertEqual(final FileDTO expected, final FileDTO actual)
     {
         assertEquals(expected.getID(), actual.getID());
         assertEquals(expected.getName(), actual.getName());
@@ -101,7 +91,8 @@ public final class FileDAOTest extends AbstractDAOTest
      * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date created from
      * <code>expirationTime</code>. If expirationTime is NOT_SET then default time is used.
      */
-    private void createFileWithExpirationTimeAndNumber(final Long expirationTime, final IFileDAO fileDAO, final int i)
+    private final void createFileWithExpirationTimeAndNumber(final Long expirationTime, final IFileDAO fileDAO,
+            final int i)
     {
         final FileDTO sampleFile = createSampleFile();
         sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
@@ -113,45 +104,29 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(i, fileDAO.listFiles().size());
     }
 
+    //
+    // 'create' group
+    //
+
     @Transactional
-    @Test
+    @Test(groups = "file.create")
     public final void testCreateFileFailNonExistingOwner()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final UserDTO userDTO = new UserDTO();
         userDTO.setID(new Long(-1));
         final FileDTO file1 = createSampleFile(userDTO);
-        boolean exceptionThrown = false;
         try
         {
             fileDAO.createFile(file1);
-        } catch (final Exception e)
+            fail("DataIntegrityViolationException thrown.");
+        } catch (final DataIntegrityViolationException e)
         {
-            exceptionThrown = true;
-        } finally
-        {
-            assertTrue(exceptionThrown);
         }
     }
 
     @Transactional
-    @Test
-    public final void testAddSharingUsers()
-    {
-        final IFileDAO fileDAO = daoFactory.getFileDAO();
-        final FileDTO file1 = createSampleFile();
-        fileDAO.createFile(file1);
-        final Long fileId = file1.getID();
-        assertNotNull(fileId);
-        fileDAO.createSharingLink(fileId, getSampleUserFromDB().getID());
-        final FileDTO file = fileDAO.tryGetFile(fileId);
-        assertNotNull(file);
-        final List<UserDTO> users = file.getSharingUsers();
-        assertEquals(1, users.size());
-    }
-
-    @Transactional
-    @Test
+    @Test(groups = "file.create")
     public final void testCreateFile()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
@@ -172,43 +147,28 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     @Transactional
-    @Test(dependsOnMethods =
-        { "testTryGetFile" })
-    public final void testUpdateFile()
+    @Test(groups = "file.create")
+    public final void testAddSharingUsers()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
-        final FileDTO sampleFile = createSampleFile();
-        fileDAO.createFile(sampleFile);
-
-        assertNotNull(sampleFile.getID());
-        assertEquals(1, fileDAO.listFiles().size());
-
-        final Date newExpirationDate = DateUtils.addMinutes(new Date(), 42);
-        final String newName = "AppendNewName_" + sampleFile.getName();
-        sampleFile.setExpirationDate(newExpirationDate);
-        sampleFile.setName(newName);
-        fileDAO.updateFile(sampleFile);
-
-        assertEquals(1, fileDAO.listFiles().size());
-        final FileDTO file = fileDAO.listFiles().get(0);
-
-        assertEqual(sampleFile, file);
+        final FileDTO file1 = createSampleFile();
+        fileDAO.createFile(file1);
+        final Long fileId = file1.getID();
+        assertNotNull(fileId);
+        fileDAO.createSharingLink(fileId, getSampleUserFromDB().getID());
+        final FileDTO file = fileDAO.tryGetFile(fileId);
+        assertNotNull(file);
+        final List<UserDTO> users = file.getSharingUsers();
+        assertEquals(1, users.size());
     }
 
-    @Transactional
-    @Test
-    public final void testDeleteFile()
-    {
-        final FileDTO sampleFile = createSampleFile();
-        final IFileDAO fileDAO = daoFactory.getFileDAO();
-        fileDAO.createFile(sampleFile);
-        assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
-        fileDAO.deleteFile(sampleFile.getID());
-        assertNull(fileDAO.tryGetFile(sampleFile.getID()));
-    }
+    //
+    // 'read' group
+    //
 
     @Transactional
-    @Test
+    @Test(dependsOnGroups =
+        { "file.create" }, groups = "file.read")
     public final void testTryGetFile()
     {
         // Get existing file
@@ -223,7 +183,8 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     @Transactional
-    @Test
+    @Test(dependsOnGroups =
+        { "file.create" }, groups = "file.read")
     public final void testListFiles()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
@@ -239,7 +200,8 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     @Transactional
-    @Test
+    @Test(dependsOnGroups =
+        { "file.create" }, groups = "file.read")
     public final void testListDownloadFilesForNonexistentUser()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
@@ -248,7 +210,8 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     @Transactional
-    @Test
+    @Test(dependsOnGroups =
+        { "file.create" }, groups = "file.read")
     public final void testListDownloadFiles()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
@@ -279,7 +242,8 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     @Transactional
-    @Test
+    @Test(dependsOnGroups =
+        { "file.create" }, groups = "file.read")
     public final void testGetExpiredFiles()
     {
         final Date date = new Date();
@@ -296,5 +260,49 @@ public final class FileDAOTest extends AbstractDAOTest
         createFileWithExpirationTimeAndNumber(future, fileDAO, numberOfExpiredFiles + 1);
         assertEquals(numberOfExpiredFiles, fileDAO.getExpiredFiles().size());
 
+    }
+
+    //
+    // 'update' group
+    //
+
+    @Transactional
+    @Test(dependsOnGroups =
+        { "file.read" }, groups = "file.update")
+    public final void testUpdateFile()
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO sampleFile = createSampleFile();
+        fileDAO.createFile(sampleFile);
+
+        assertNotNull(sampleFile.getID());
+        assertEquals(1, fileDAO.listFiles().size());
+
+        final Date newExpirationDate = DateUtils.addMinutes(new Date(), 42);
+        final String newName = "AppendNewName_" + sampleFile.getName();
+        sampleFile.setExpirationDate(newExpirationDate);
+        sampleFile.setName(newName);
+        fileDAO.updateFile(sampleFile);
+
+        assertEquals(1, fileDAO.listFiles().size());
+        final FileDTO file = fileDAO.listFiles().get(0);
+
+        assertEqual(sampleFile, file);
+    }
+
+    //
+    // 'delete' group
+    //
+
+    @Transactional
+    @Test(groups = "file.delete", dependsOnGroups = "file.update")
+    public final void testDeleteFile()
+    {
+        final FileDTO sampleFile = createSampleFile();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        fileDAO.createFile(sampleFile);
+        assertNotNull(fileDAO.tryGetFile(sampleFile.getID()));
+        fileDAO.deleteFile(sampleFile.getID());
+        assertNull(fileDAO.tryGetFile(sampleFile.getID()));
     }
 }
