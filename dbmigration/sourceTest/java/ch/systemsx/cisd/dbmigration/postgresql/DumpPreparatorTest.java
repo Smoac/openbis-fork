@@ -110,23 +110,22 @@ public class DumpPreparatorTest
     public void test() throws IOException
     {
         StringReader reader = new StringReader(EXAMPLE);
-        DumpPreparator.createUploadFiles(reader, TEST_FOLDER);
-        
         File folder = new File(TEST_FOLDER, "011");
+        folder.mkdir();
         assertEquals(true, folder.exists());
+        DumpPreparator.createUploadFiles(reader, folder);
+
         assertEquals(true, folder.isDirectory());
-        assertEquals("SET standard_conforming_strings = off;\n\n", 
-                     FileUtilities.loadToString(new File(folder, "schema-011.sql")));
-        assertEquals("1\tVARCHAR\tVariable length character\n" 
-                     + "2\tINTEGER\tInteger\n" 
-                     + "3\tREAL\tReal number, i.e. an inexact, variable-precision numeric type\n", 
-                     FileUtilities.loadToString(new File(folder, "002=data_types.tsv")));
+        assertEquals("SET standard_conforming_strings = off;\n\n", FileUtilities.loadToString(new File(folder,
+                "schema-011.sql")));
+        assertEquals("1\tVARCHAR\tVariable length character\n" + "2\tINTEGER\tInteger\n"
+                + "3\tREAL\tReal number, i.e. an inexact, variable-precision numeric type\n", FileUtilities
+                .loadToString(new File(folder, "002=data_types.tsv")));
         assertEquals("011\tsource/sql/postgresql/010/schema-010.sql\tSUCCESS 2007-11-22 08:46:04.25\n"
-                     + "010\tsource/sql/postgresql/010/data-010.sql\tSUCCESS 2007-11-22 08:46:04.53\n", 
-                     FileUtilities.loadToString(new File(folder, "004=database_version_logs.tsv")));
-        assertEquals("ALTER TABLE ONLY data\n" 
-                     + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n\n", 
-                     FileUtilities.loadToString(new File(folder, "finish-011.sql")));
+                + "010\tsource/sql/postgresql/010/data-010.sql\tSUCCESS 2007-11-22 08:46:04.53\n", FileUtilities
+                .loadToString(new File(folder, "004=database_version_logs.tsv")));
+        assertEquals("ALTER TABLE ONLY data\n" + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n\n", FileUtilities
+                .loadToString(new File(folder, "finish-011.sql")));
         assertEquals(4, folder.listFiles().length);
     }
 }
