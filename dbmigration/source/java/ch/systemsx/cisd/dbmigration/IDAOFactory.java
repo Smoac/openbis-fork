@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2007-12-03, Tomasz Pylak: Rename to IMigrationDAOFactory to avoid name confusion
 public interface IDAOFactory
 {
     /**
