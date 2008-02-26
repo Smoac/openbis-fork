@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;

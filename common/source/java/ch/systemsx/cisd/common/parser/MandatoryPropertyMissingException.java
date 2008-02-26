@@ -19,8 +19,8 @@ package ch.systemsx.cisd.common.parser;
 import java.util.Collections;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.utilities.CollectionStyle;
-import ch.systemsx.cisd.common.utilities.CollectionUtils;
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 
 /**
  * A <code>ParserException</code> extension which signalizes missing of a mandatory property.

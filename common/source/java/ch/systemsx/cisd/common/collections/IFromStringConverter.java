@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 /**
  * This converter represents a role that can convert a <var>String</var> to some other <var>Object</var>.

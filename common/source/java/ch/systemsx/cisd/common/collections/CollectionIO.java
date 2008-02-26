@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * I/O operations for collections. Allows to read and write collections of {@link String}s and other objects from and

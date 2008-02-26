@@ -12,6 +12,9 @@ check sets [db]
 [exceptions] = ${package}.exceptions.*
 check sets [exceptions]
 
+[collections] = ${package}.collections.*
+check sets [collections]
+
 [logging] = ${package}.logging.*
 check sets [logging]
 
@@ -24,14 +27,14 @@ check sets [process]
 [test] = ${package}.test.*
 check sets [test]
 
-[utilities] = ${package}.utilities.* excluding ${package}.utilities.RecursiveHardLinkMaker
-check sets [utilities]
+# TODO 2008-02-26, Christian Ribeaud: include 'utilities' set into layering.
+# [utilities] = ${package}.utilities.*
+# check sets [utilities]
 
 layer layer0 = [annotation] [exceptions] [logging] [test]
-layer layer1 = [utilities]
-layer layer2 = [process]
-layer layer3 = [db] [parser]
+layer layer1 = [process] [collections]
+layer layer2 = [db] [parser]
 
-check layeringOf layer0 layer1 layer2 layer3
+check layeringOf layer0 layer1 layer2
 
 check [parser] independentOf ${package}.exceptions.UserFailureException 

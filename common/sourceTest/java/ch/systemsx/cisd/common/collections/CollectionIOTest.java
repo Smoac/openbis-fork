@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -34,6 +34,9 @@ import java.util.Set;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.collections.IFromStringConverter;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**

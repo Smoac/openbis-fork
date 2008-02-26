@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+
 
 /**
  * Some convenience methods/utilities around {@link Collection}.

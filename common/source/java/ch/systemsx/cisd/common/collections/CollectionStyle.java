@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 /**
  * Controls <code>Collection</code> string representation for {@link CollectionUtils}.

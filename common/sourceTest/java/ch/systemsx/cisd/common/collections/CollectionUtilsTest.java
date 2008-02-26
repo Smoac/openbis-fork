@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
@@ -23,6 +23,8 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Test cases for the {@link CollectionUtils} class.

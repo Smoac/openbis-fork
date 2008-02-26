@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.collections;
 
 /**
- * The identity {@link IFromStringConverter} for {@link String}s, which returns the value itself as the converted
- * value. This class is a singleton.
+ * The default converter: uses {@link Object#toString()} for conversion.
  * 
  * @author Bernd Rinn
  */
-public final class FromStringIdentityConverter implements IFromStringConverter<String>
+public final class ToStringDefaultConverter implements IToStringConverter<Object>
 {
 
-    private static final FromStringIdentityConverter instance = new FromStringIdentityConverter();
+    private final static ToStringDefaultConverter instance = new ToStringDefaultConverter();
 
-    private FromStringIdentityConverter()
+    private ToStringDefaultConverter()
     {
         // This is a singleton.
     }
 
-    public String fromString(String value)
+    public String toString(Object value)
     {
-        return value;
+        return value.toString();
     }
 
     /**
-     * @return The instance of the {@link FromStringIdentityConverter}.
+     * @return The instance of the {@link ToStringDefaultConverter}.
      */
-    public static FromStringIdentityConverter getInstance()
+    public static ToStringDefaultConverter getInstance()
     {
         return instance;
     }
