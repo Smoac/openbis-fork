@@ -109,6 +109,15 @@
     </modificationset>
   </project>
   
+  <project name="hdf5">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
   <project name="bds">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
