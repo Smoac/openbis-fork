@@ -28,8 +28,8 @@ import ch.systemsx.cisd.bds.ReferenceType;
 import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.common.utilities.CollectionIO;
-import ch.systemsx.cisd.common.utilities.IToStringConverter;
+import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
 
 /**
  * A <code>IDataStructureHandler</code> implementation for the <code>standard_original_mapping</code> file.

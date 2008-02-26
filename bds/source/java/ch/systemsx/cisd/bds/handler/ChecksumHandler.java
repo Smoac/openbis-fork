@@ -33,10 +33,10 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.collections.IFromStringConverter;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.CollectionIO;
-import ch.systemsx.cisd.common.utilities.IFromStringConverter;
-import ch.systemsx.cisd.common.utilities.IToStringConverter;
 
 /**
  * A <code>IDataStructureHandler</code> implementation for the <code>md5sum</code> directory.
