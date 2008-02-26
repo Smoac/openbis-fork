@@ -91,7 +91,7 @@ public final class ExceptionUtils
         return false;
     }
 
-    /**
+    /*
      * Analyzes given <var>exception</var> and makes it independent to packages outside the ones specified in
      * {@link #ACCEPTED_DEPENDENCIES_PACKAGE_NAMES}.
      */
