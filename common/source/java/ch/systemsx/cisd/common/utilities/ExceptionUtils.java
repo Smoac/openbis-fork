@@ -27,9 +27,9 @@ import ch.systemsx.cisd.common.exceptions.IndependentException;
 public final class ExceptionUtils
 {
     /**
-     * The package names considered as client-safe.
+     * Accepted packages for dependencies.
      */
-    private static String[] CLIENT_SAFE_PACKAGE_NAMES =
+    private static String[] ACCEPTED_DEPENDENCIES_PACKAGE_NAMES =
         { "java.lang", "ch.systemsx.cisd" };
 
     ExceptionUtils()
@@ -38,13 +38,13 @@ public final class ExceptionUtils
     }
 
     /**
-     * Creates a new <code>ClientSafeException</code> from given <var>exception</var> only if it is needed ({@link #isClientSafe(Exception)}
+     * Creates a new {@link IndependentException} from given <var>exception</var> only if it is needed ({@link #isIndependent(Exception)}
      * returns <code>false</code>). Otherwise returns given <var>exception</var>.
      */
-    private final static Exception createClientSafeException(final Exception exception)
+    private final static Exception createIndependentException(final Exception exception)
     {
         final Exception rootException = CheckedExceptionTunnel.unwrapIfNecessary(exception);
-        if (isClientSafe(rootException) == false)
+        if (isIndependent(rootException) == false)
         {
             return new IndependentException(rootException);
         } else
@@ -62,7 +62,7 @@ public final class ExceptionUtils
                 (Exception) org.apache.commons.lang.exception.ExceptionUtils.getCause(fromException);
         if (fromCauseException != null && fromCauseException != fromException)
         {
-            final Exception toCauseException = createClientSafeException(fromCauseException);
+            final Exception toCauseException = createIndependentException(fromCauseException);
             if (toException.getCause() != toCauseException)
             {
                 if (ClassUtils.setFieldValue(toException, "cause", toCauseException) == false)
@@ -77,11 +77,11 @@ public final class ExceptionUtils
     /**
      * Whether given <var>exception</var> is client-safe or not.
      */
-    final static boolean isClientSafe(final Exception exception)
+    final static boolean isIndependent(final Exception exception)
     {
         assert exception != null : "Unspecified exception.";
         final String className = exception.getClass().getName();
-        for (final String packageName : CLIENT_SAFE_PACKAGE_NAMES)
+        for (final String packageName : ACCEPTED_DEPENDENCIES_PACKAGE_NAMES)
         {
             if (className.startsWith(packageName))
             {
@@ -92,12 +92,13 @@ public final class ExceptionUtils
     }
 
     /**
-     * Analyzes given <var>exception</var> and makes it client-safe.
+     * Analyzes given <var>exception</var> and makes it independent to packages outside the ones specified in
+     * {@link #ACCEPTED_DEPENDENCIES_PACKAGE_NAMES}.
      */
-    public final static Exception createClientSafeExceptionIfNeeded(final Exception exception)
+    public final static Exception createIndependentExceptionIfNeeded(final Exception exception)
     {
         assert exception != null : "Unspecified SQL Exception.";
-        final Exception clientSafeException = createClientSafeException(exception);
+        final Exception clientSafeException = createIndependentException(exception);
         copyCauseException(exception, clientSafeException);
         return clientSafeException;
     }
