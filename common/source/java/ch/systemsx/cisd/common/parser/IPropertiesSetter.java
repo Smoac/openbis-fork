@@ -23,8 +23,11 @@ package ch.systemsx.cisd.common.parser;
  */
 public interface IPropertiesSetter<T>
 {
-    void setProperty(String name, String valueOrNull);
+    /**
+     * Sets the property specified by <code>name</code> to the specified value.
+     */
+    void setProperty(String name, String value);
 
-    /** returns constructed object, called after setting properties values */
+    /** Creates an object of type <code>T</code>. Will be called after setting properties values. */
     T getConstructedObject();
 }
