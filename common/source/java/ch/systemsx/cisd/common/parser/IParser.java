@@ -32,9 +32,11 @@ public interface IParser<E>
      * Parses the lines delivered by the specified iterator and creating elements of type <code>E</code>.
      * 
      * @param lineFilter A filter lines have to pass in order to be parsed.
+     * @param headerLength number of columns in the header
      * @return a <code>List</code> of elements.
      */
-    public List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter) throws ParsingException;
+    public List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final long headerLength)
+            throws ParsingException;
 
     /**
      * Sets the <code>IParserObjectFactory</code>.

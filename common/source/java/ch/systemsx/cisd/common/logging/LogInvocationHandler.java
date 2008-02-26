@@ -26,19 +26,22 @@ import org.apache.log4j.Logger;
 
 /**
  * Invocation handler used to log invocations.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public final class LogInvocationHandler implements InvocationHandler
 {
     private final Object object;
+
     private final String name;
+
     private final Level defaultLogLevel;
+
     private final Class<?> classUsedToNameLogger;
 
     /**
      * Creates a new instance.
-     *
+     * 
      * @param object Object whose invocations should be logged.
      * @param name Meaningful name of <code>object</code>. Will be used in the log message.
      * @param logLevel The log level to use for normal (successful) events.
@@ -102,13 +105,13 @@ public final class LogInvocationHandler implements InvocationHandler
             }
         }
     }
-    
+
     private Level getLogLevel(Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
         if (annotation == null)
         {
-            return Level.DEBUG; 
+            return Level.DEBUG;
         } else if (annotation.logLevel().equals(LogLevel.UNDEFINED))
         {
             return defaultLogLevel;
@@ -117,11 +120,11 @@ public final class LogInvocationHandler implements InvocationHandler
             return Log4jSimpleLogger.toLog4jPriority(annotation.logLevel());
         }
     }
-    
-     private Logger createLogger(Method method)
+
+    private Logger createLogger(Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
-        final LogCategory logCategory = (annotation == null) ? LogCategory.ACCESS : annotation.logCategory();
+        final LogCategory logCategory = (annotation == null) ? LogCategory.OPERATION : annotation.logCategory();
         return LogFactory.getLogger(logCategory, classUsedToNameLogger);
     }
 }

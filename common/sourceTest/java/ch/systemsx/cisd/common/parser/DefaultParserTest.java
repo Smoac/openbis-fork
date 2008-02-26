@@ -31,17 +31,19 @@ import org.testng.annotations.Test;
  */
 public final class DefaultParserTest
 {
-    private final static List<String> text 
-            = Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                            "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
-                            "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
+    private final static List<String> text =
+            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
+                    "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
+                    "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
+
+    private final static long HEADER_LENGTH = 4;
 
     @Test
     public final void testParseWithoutFactoryAndHeader()
     {
         final IParser<String[]> parser = new DefaultParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
-        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter());
+        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
         assertEquals(result.get(1)[1], "Darwin");
@@ -54,7 +56,7 @@ public final class DefaultParserTest
     {
         final IParser<String[]> parser = new DefaultParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
-        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(3));
+        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH);
         assertEquals(2, result.size());
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
@@ -77,31 +79,33 @@ public final class DefaultParserTest
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         try
         {
-            parser.parse(createLineIterator(), new HeaderLineFilter(2));
+            parser.parse(createLineIterator(), new HeaderLineFilter(2), HEADER_LENGTH);
         } catch (ParsingException ex)
         {
-            assertEquals(
-                    "Creating an object with following tokens '[firstName, lastName, address, city]' failed.",
-                    ex.getMessage());
+            assertEquals("Creating an object with following tokens '[firstName, lastName, address, city]' failed.", ex
+                    .getMessage());
             assertEquals(3, ex.getLineNumber());
         }
     }
-    
+
     private Iterator<Line> createLineIterator()
     {
         return new Iterator<Line>()
             {
                 private Iterator<String> iterator = text.iterator();
+
                 private int lineNumber;
+
                 public void remove()
                 {
                     throw new UnsupportedOperationException();
                 }
+
                 public Line next()
                 {
                     return new Line(++lineNumber, iterator.next());
                 }
-        
+
                 public boolean hasNext()
                 {
                     return iterator.hasNext();

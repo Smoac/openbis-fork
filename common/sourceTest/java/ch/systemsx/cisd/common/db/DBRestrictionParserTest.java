@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.db;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,8 +36,9 @@ import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Test cases for the @{link DBREstrictionParser}.
+ * Test cases for the
  * 
+ * @{link DBREstrictionParser}.
  * @author Bernd Rinn
  */
 public class DBRestrictionParserTest
@@ -65,9 +68,8 @@ public class DBRestrictionParserTest
     {
         String invalidDomainStatement = "create domain bla for varchar(0)";
         final List<String> domainScript =
-                Arrays.asList("create table sometable", "create domain user_id as varchar(15)",
-                        invalidDomainStatement, "create domain code as varchar(8)",
-                        "create domain description_80 as varchar(81)");
+                Arrays.asList("create table sometable", "create domain user_id as varchar(15)", invalidDomainStatement,
+                        "create domain code as varchar(8)", "create domain description_80 as varchar(81)");
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "line \"" + invalidDomainStatement
                         + "\" starts like a domain definition, but key word 'AS' is missing.");
@@ -89,9 +91,8 @@ public class DBRestrictionParserTest
     @Test
     public void testDefaultKeywordInDomain()
     {
-        final List<String> domainScript =
-            Arrays.asList("create domain vc22 as varchar(22) default 'nothing special'");
-        
+        final List<String> domainScript = Arrays.asList("create domain vc22 as varchar(22) default 'nothing special'");
+
         final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
@@ -104,13 +105,12 @@ public class DBRestrictionParserTest
             LogMonitoringAppender.removeAppender(appender);
         }
     }
-    
+
     @Test
     public void testDoublePrecisionInDomain()
     {
-        final List<String> domainScript =
-            Arrays.asList("create domain dp as double precision");
-        
+        final List<String> domainScript = Arrays.asList("create domain dp as double precision");
+
         final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
@@ -122,13 +122,12 @@ public class DBRestrictionParserTest
             LogMonitoringAppender.removeAppender(appender);
         }
     }
-    
+
     @Test
     public void testDoublePrecisionAndDefaultInDomain()
     {
-        final List<String> domainScript =
-            Arrays.asList("create domain dp as double precision default 3.14159");
-        
+        final List<String> domainScript = Arrays.asList("create domain dp as double precision default 3.14159");
+
         final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
@@ -140,7 +139,7 @@ public class DBRestrictionParserTest
             LogMonitoringAppender.removeAppender(appender);
         }
     }
-    
+
     @Test
     public void testColumnLengths()
     {

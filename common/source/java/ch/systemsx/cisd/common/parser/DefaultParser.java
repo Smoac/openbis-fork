@@ -73,7 +73,8 @@ public class DefaultParser<E> implements IParser<E>
     // Parser
     //
 
-    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter) throws ParsingException
+    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final long headerLength)
+            throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)
@@ -90,6 +91,12 @@ public class DefaultParser<E> implements IParser<E>
                     E object = null;
                     try
                     {
+                        if (tokens.length > headerLength)
+                        {
+                            throw new RuntimeException(String.format(
+                                    "Line <%s> has more columns (%s) than the header (%s)", number, String
+                                            .valueOf(tokens.length), String.valueOf(headerLength)));
+                        }
                         object = createObject(tokens);
                     } catch (final ParserException parserException)
                     {

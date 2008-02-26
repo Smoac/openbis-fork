@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * Log annotation for methods invoked by {@link LogInvocationHandler}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,6 +32,7 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface LogAnnotation
 {
-    public LogCategory logCategory() default LogCategory.ACCESS;
+    public LogCategory logCategory() default LogCategory.OPERATION;
+
     public LogLevel logLevel() default LogLevel.UNDEFINED;
 }

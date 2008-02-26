@@ -41,6 +41,20 @@ public final class LogFactory
     }
 
     /**
+     * @return The logger name for the given {@link LogCategory}. Needs to be used for admin logs (i.e.
+     *         {@link LogCategory#isAdminLog()} needs to return <code>true</code>). It will contain the name of the
+     *         <var>category</var>.
+     */
+    public static String getLoggerName(LogCategory category)
+    {
+        if (category.isAdminLog() == false)
+        {
+            throw new IllegalArgumentException("Only admin logs are allowed here, but we got " + category + ".");
+        }
+        return category.name() ;
+    }
+
+    /**
      * @return The logger for the given {@link LogCategory} and {@link Class}. The name of the logger will contain the
      *         name of the <var>category</var>, followed by the canonical name of <var>clazz</var>.
      */
@@ -48,4 +62,15 @@ public final class LogFactory
     {
         return Logger.getLogger(getLoggerName(category, clazz));
     }
+
+    /**
+     * @return The logger for the given {@link LogCategory}. Needs to be an admin log (i.e.
+     *         {@link LogCategory#isAdminLog()} needs to return <code>true</code>). The name of the logger will
+     *         contain the name of the <var>category</var>.
+     */
+    public static Logger getLogger(LogCategory category)
+    {
+        return Logger.getLogger(getLoggerName(category));
+    }
+
 }

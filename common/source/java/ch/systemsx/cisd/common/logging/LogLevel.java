@@ -1,11 +1,11 @@
 package ch.systemsx.cisd.common.logging;
 
-/** 
+/**
  * A simple form of log levels.
  * 
- *  @author Bernd RInn
+ * @author Bernd Rinn
  */
 public enum LogLevel
 {
-    UNDEFINED, OFF, TRACE, DEBUG, INFO, WARN, ERROR
+    UNDEFINED, OFF, TRACE, DEBUG, INFO, WARN, ERROR;
 }

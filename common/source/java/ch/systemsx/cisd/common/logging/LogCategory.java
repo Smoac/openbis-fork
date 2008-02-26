@@ -25,9 +25,9 @@ public enum LogCategory
 {
 
     /** Log category for data (read) access events. */
-    ACCESS,
+    ACCESS(true),
     /** Log category for authentication and authorization events. */
-    AUTH,
+    AUTH(true),
     /** Log category for log events related to the machine's state (low-level). */
     MACHINE,
     /**
@@ -41,6 +41,23 @@ public enum LogCategory
     /** Log category for (normal) operational events. */
     OPERATION,
     /** Log category for data manipulation events (write access). */
-    TRACKING
+    TRACKING(true);
+
+    final boolean adminLog;
+
+    private LogCategory(boolean adminLog)
+    {
+        this.adminLog = adminLog;
+    }
+
+    private LogCategory()
+    {
+        this(false);
+    }
+
+    public boolean isAdminLog()
+    {
+        return adminLog;
+    }
 
 }

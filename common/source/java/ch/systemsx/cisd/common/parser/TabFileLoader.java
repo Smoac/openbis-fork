@@ -35,28 +35,34 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The following
- * formats for the column headers are recognized.
- * <ol><li>Column headers in first line:
- *     <pre>
+ * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The following formats for
+ * the column headers are recognized.
+ * <ol>
+ * <li>Column headers in first line:
+ * 
+ * <pre>
  *     column1  column2 column2
- *     </pre>
- *     <li>Comment section:
- *     <pre>
+ * </pre>
+ * 
+ * <li>Comment section:
+ * 
+ * <pre>
  *     # 1. line of comment
  *     # 2. line of comment
  *     # ...
  *     column1  column2 column2
- *     </pre>
- *     <li>Column headers at the end of the comment section:
- *     <pre>
+ * </pre>
+ * 
+ * <li>Column headers at the end of the comment section:
+ * 
+ * <pre>
  *     # 1. line of comment
  *     # 2. line of comment
  *     # ...
  *     #
  *     #column1  column2 column2
- *     </pre>
- *     
+ * </pre>
+ * 
  * </ol>
  * 
  * @author Franz-Josef Elmer
@@ -103,8 +109,7 @@ public class TabFileLoader<T>
             IOUtils.closeQuietly(reader);
         }
     }
-    
-    
+
     List<T> load(Reader reader)
     {
         List<T> result = new ArrayList<T>();
@@ -128,18 +133,19 @@ public class TabFileLoader<T>
         }
         @SuppressWarnings("null")
         final String headerLine = previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
-        
+
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
+        final long headerLength = tokens.length;
         notUnique(tokens);
         final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
         ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         if (previousLineHasColumnHeaders)
         {
-            result.addAll(parser.parse(Arrays.asList(line).iterator(), filter));
+            result.addAll(parser.parse(Arrays.asList(line).iterator(), filter, headerLength));
         }
-        result.addAll(parser.parse(lineIterator, filter));
+        result.addAll(parser.parse(lineIterator, filter, headerLength));
         return result;
     }
 
@@ -149,6 +155,7 @@ public class TabFileLoader<T>
         Iterator<Line> iterator = new Iterator<Line>()
             {
                 private int lineNumber;
+
                 public void remove()
                 {
                     lineIterator.remove();
