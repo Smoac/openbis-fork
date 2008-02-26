@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.CollectionIO;
+import ch.systemsx.cisd.common.collections.CollectionIO;
 
 /**
  * Helper for files and directories manipulations.
