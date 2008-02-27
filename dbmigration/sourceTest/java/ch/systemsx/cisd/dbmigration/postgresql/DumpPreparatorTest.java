@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  */
 public class DumpPreparatorTest
 {
-    private static final File TEST_FOLDER = new File("targets");
+    private static final File TEST_FOLDER = new File("targets/unit-test-wd/dump-preparator");
     
     private static final String EXAMPLE = "--\n" + 
             "-- PostgreSQL database dump\n" + 
@@ -109,9 +109,10 @@ public class DumpPreparatorTest
     @Test
     public void test() throws IOException
     {
+        FileUtilities.deleteRecursively(TEST_FOLDER);
         StringReader reader = new StringReader(EXAMPLE);
         File folder = new File(TEST_FOLDER, "011");
-        folder.mkdir();
+        folder.mkdirs();
         assertEquals(true, folder.exists());
         DumpPreparator.createUploadFiles(reader, folder);
 
