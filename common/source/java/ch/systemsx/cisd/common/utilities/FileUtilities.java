@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -263,7 +264,13 @@ public final class FileUtilities
         {
             return null;
         }
-        return new BufferedReader(new FileReader(new File(url.getFile())));
+        try
+        {
+            return new BufferedReader(new FileReader(new File(url.toURI())));
+        } catch (URISyntaxException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
     }
 
     private static String readString(BufferedReader reader) throws IOException
