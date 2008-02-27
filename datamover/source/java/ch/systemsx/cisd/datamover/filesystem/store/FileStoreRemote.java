@@ -29,6 +29,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 /**
  * @author Tomasz Pylak on Oct 9, 2007
  */
+// TODO 2007-10-09, Tomasz Pylak: Ssh tunneling mode should be implemented here. This class is a dummy implementation.
+// Methods with NOTE should be written.
 public class FileStoreRemote extends FileStore
 {
     public FileStoreRemote(File path, String host, String kind, IFileSysOperationsFactory factory)
@@ -45,7 +47,7 @@ public class FileStoreRemote extends FileStore
     @Override
     public Status delete(StoreItem item)
     {
-        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
+        // NOTE: implement this
         return Status.OK;
     }
 
@@ -65,21 +67,21 @@ public class FileStoreRemote extends FileStore
     @Override
     public long lastChanged(StoreItem item, long stopWhenFindYounger)
     {
-        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
+        // NOTE: implement this
         return 0;
     }
 
     @Override
     public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
     {
-        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode
+        // NOTE: implement this
         return 0;
     }
 
     @Override
     public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode. E.g. check if directory exists
+        // NOTE: implement this
         return null;
     }
 
@@ -99,7 +101,7 @@ public class FileStoreRemote extends FileStore
     @Override
     public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
     {
-        // TODO 2007-10-09, Tomasz Pylak: implement ssh tunneling mode.
+        // NOTE: implement this
         return null;
     }
 }
