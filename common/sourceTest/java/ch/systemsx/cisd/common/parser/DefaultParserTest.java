@@ -36,7 +36,7 @@ public final class DefaultParserTest
                     "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
                     "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
 
-    private final static long HEADER_LENGTH = 4;
+    private final static int HEADER_LENGTH = 4;
 
     @Test
     public final void testParseWithoutFactoryAndHeader()
@@ -80,7 +80,7 @@ public final class DefaultParserTest
         try
         {
             parser.parse(createLineIterator(), new HeaderLineFilter(2), HEADER_LENGTH);
-        } catch (ParsingException ex)
+        } catch (final ParsingException ex)
         {
             assertEquals("Creating an object with following tokens '[firstName, lastName, address, city]' failed.", ex
                     .getMessage());
@@ -92,7 +92,7 @@ public final class DefaultParserTest
     {
         return new Iterator<Line>()
             {
-                private Iterator<String> iterator = text.iterator();
+                private final Iterator<String> iterator = text.iterator();
 
                 private int lineNumber;
 

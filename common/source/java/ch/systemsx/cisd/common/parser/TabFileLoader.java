@@ -97,7 +97,7 @@ public class TabFileLoader<T>
         {
             reader = new FileReader(file);
             return load(reader);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
         } catch (final ParsingException ex)
@@ -110,10 +110,10 @@ public class TabFileLoader<T>
         }
     }
 
-    List<T> load(Reader reader)
+    List<T> load(final Reader reader)
     {
-        List<T> result = new ArrayList<T>();
-        Iterator<Line> lineIterator = createLineIterator(reader);
+        final List<T> result = new ArrayList<T>();
+        final Iterator<Line> lineIterator = createLineIterator(reader);
         if (lineIterator.hasNext() == false)
         {
             return result;
@@ -136,11 +136,11 @@ public class TabFileLoader<T>
 
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
-        final long headerLength = tokens.length;
+        final int headerLength = tokens.length;
         notUnique(tokens);
         final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
-        ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
+        final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         if (previousLineHasColumnHeaders)
         {
             result.addAll(parser.parse(Arrays.asList(line).iterator(), filter, headerLength));
@@ -149,10 +149,10 @@ public class TabFileLoader<T>
         return result;
     }
 
-    private Iterator<Line> createLineIterator(Reader reader)
+    private Iterator<Line> createLineIterator(final Reader reader)
     {
         final LineIterator lineIterator = IOUtils.lineIterator(reader);
-        Iterator<Line> iterator = new Iterator<Line>()
+        final Iterator<Line> iterator = new Iterator<Line>()
             {
                 private int lineNumber;
 

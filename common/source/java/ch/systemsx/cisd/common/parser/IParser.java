@@ -35,7 +35,7 @@ public interface IParser<E>
      * @param headerLength number of columns in the header
      * @return a <code>List</code> of elements.
      */
-    public List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final long headerLength)
+    public List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final int headerLength)
             throws ParsingException;
 
     /**

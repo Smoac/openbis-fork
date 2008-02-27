@@ -73,7 +73,7 @@ public class DefaultParser<E> implements IParser<E>
     // Parser
     //
 
-    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final long headerLength)
+    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final int headerLength)
             throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
@@ -83,7 +83,7 @@ public class DefaultParser<E> implements IParser<E>
             while (lineIterator.hasNext())
             {
                 Line line = lineIterator.next();
-                final String nextLine = line.getText();
+                String nextLine = line.getText();
                 int number = line.getNumber();
                 if (lineFilter.acceptLine(nextLine, number))
                 {
@@ -91,11 +91,23 @@ public class DefaultParser<E> implements IParser<E>
                     E object = null;
                     try
                     {
-                        if (tokens.length > headerLength)
+                        if (tokens.length != headerLength)
                         {
+                            String moreLessStr = tokens.length > headerLength ? "more" : "less";
+                            StringBuilder lineStructure = new StringBuilder();
+                            for (int i = 0; i < tokens.length; i++)
+                            {
+                                lineStructure.append(tokens[i]);
+                                if (i + 1 < tokens.length)
+                                {
+                                    lineStructure.append(" <TAB> ");
+                                }
+                            }
+                            lineStructure.append(" <END_OF_LINE>");
                             throw new RuntimeException(String.format(
-                                    "Line <%s> has more columns (%s) than the header (%s)", number, String
-                                            .valueOf(tokens.length), String.valueOf(headerLength)));
+                                    "Line <%s> has %s columns (%s) than the header (%s):\n%s", number, moreLessStr,
+                                    String.valueOf(tokens.length), String.valueOf(headerLength), lineStructure
+                                            .toString()));
                         }
                         object = createObject(tokens);
                     } catch (final ParserException parserException)
