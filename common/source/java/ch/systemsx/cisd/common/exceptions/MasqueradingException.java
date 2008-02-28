@@ -26,7 +26,7 @@ package ch.systemsx.cisd.common.exceptions;
  * 
  * @author Christian Ribeaud
  */
-public final class IndependentException extends RuntimeException
+public final class MasqueradingException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public final class IndependentException extends RuntimeException
      */
     private final String rootExceptionClassName;
 
-    public IndependentException(final Exception rootException)
+    public MasqueradingException(final Exception rootException)
     {
         super(rootException.getMessage());
         setStackTrace(rootException.getStackTrace());

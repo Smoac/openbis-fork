@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.IndependentException;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 
 /**
  * Provides utilities for manipulating and examining <code>Throwable</code> objects.
@@ -29,7 +29,7 @@ public final class ExceptionUtils
     /**
      * Accepted packages for dependencies.
      */
-    private static String[] ACCEPTED_DEPENDENCIES_PACKAGE_NAMES =
+    public final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
         { "java.lang", "ch.systemsx.cisd" };
 
     ExceptionUtils()
@@ -38,15 +38,15 @@ public final class ExceptionUtils
     }
 
     /**
-     * Creates a new {@link IndependentException} from given <var>exception</var> only if it is needed ({@link #isIndependent(Exception)}
-     * returns <code>false</code>). Otherwise returns given <var>exception</var>.
+     * Creates a new {@link MasqueradingException} from given <var>exception</var> only if it is needed ({@link #isCandidateForMasquerading(Exception)}
+     * returns <code>true</code>). Otherwise returns given <var>exception</var>.
      */
-    private final static Exception createIndependentException(final Exception exception)
+    private final static Exception createMasqueradingException(final Exception exception)
     {
         final Exception rootException = CheckedExceptionTunnel.unwrapIfNecessary(exception);
-        if (isIndependent(rootException) == false)
+        if (isCandidateForMasquerading(rootException))
         {
-            return new IndependentException(rootException);
+            return new MasqueradingException(rootException);
         } else
         {
             return rootException;
@@ -62,7 +62,7 @@ public final class ExceptionUtils
                 (Exception) org.apache.commons.lang.exception.ExceptionUtils.getCause(fromException);
         if (fromCauseException != null && fromCauseException != fromException)
         {
-            final Exception toCauseException = createIndependentException(fromCauseException);
+            final Exception toCauseException = createMasqueradingException(fromCauseException);
             if (toException.getCause() != toCauseException)
             {
                 if (ClassUtils.setFieldValue(toException, "cause", toCauseException) == false)
@@ -75,30 +75,30 @@ public final class ExceptionUtils
     }
 
     /**
-     * Whether given <var>exception</var> is client-safe or not.
+     * Whether given <var>exception</var> is a candidate for masquerading or not.
      */
-    final static boolean isIndependent(final Exception exception)
+    final static boolean isCandidateForMasquerading(final Exception exception)
     {
         assert exception != null : "Unspecified exception.";
         final String className = exception.getClass().getName();
-        for (final String packageName : ACCEPTED_DEPENDENCIES_PACKAGE_NAMES)
+        for (final String packageName : ACCEPTED_PACKAGE_NAME_DEPENDENCIES)
         {
             if (className.startsWith(packageName))
             {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
-    /*
+    /**
      * Analyzes given <var>exception</var> and makes it independent to packages outside the ones specified in
-     * {@link #ACCEPTED_DEPENDENCIES_PACKAGE_NAMES}.
+     * {@link #ACCEPTED_PACKAGE_NAME_DEPENDENCIES}.
      */
-    public final static Exception createIndependentExceptionIfNeeded(final Exception exception)
+    public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception)
     {
         assert exception != null : "Unspecified SQL Exception.";
-        final Exception clientSafeException = createIndependentException(exception);
+        final Exception clientSafeException = createMasqueradingException(exception);
         copyCauseException(exception, clientSafeException);
         return clientSafeException;
     }

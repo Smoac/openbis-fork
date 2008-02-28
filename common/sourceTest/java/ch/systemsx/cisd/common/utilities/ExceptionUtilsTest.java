@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.IndependentException;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -50,7 +50,7 @@ public final class ExceptionUtilsTest
         } else
         {
             assertNotSame(clientSafeException, rootException);
-            assertTrue(clientSafeException instanceof IndependentException);
+            assertTrue(clientSafeException instanceof MasqueradingException);
         }
         assertEquals(message, clientSafeException.getMessage());
         assertTrue(Arrays.equals(rootException.getStackTrace(), clientSafeException.getStackTrace()));
@@ -65,7 +65,7 @@ public final class ExceptionUtilsTest
     {
         try
         {
-            ExceptionUtils.createIndependentExceptionIfNeeded(null);
+            ExceptionUtils.createMasqueradingExceptionIfNeeded(null);
             fail("Null exception not allowed.");
         } catch (final AssertionError ex)
         {
@@ -78,7 +78,7 @@ public final class ExceptionUtilsTest
     {
         final String message = "Oooops!";
         final UserFailureException exception = new UserFailureException(message);
-        final Exception clientSafeException = ExceptionUtils.createIndependentExceptionIfNeeded(exception);
+        final Exception clientSafeException = ExceptionUtils.createMasqueradingExceptionIfNeeded(exception);
         checkReturnedClientSafeException(message, exception, clientSafeException, true);
     }
 
@@ -87,7 +87,7 @@ public final class ExceptionUtilsTest
     {
         final String message = "Oooops!";
         final Exception exception = new SAXException(message);
-        final Exception clientSafeException = ExceptionUtils.createIndependentExceptionIfNeeded(exception);
+        final Exception clientSafeException = ExceptionUtils.createMasqueradingExceptionIfNeeded(exception);
         checkReturnedClientSafeException(message, exception, clientSafeException, false);
     }
 
@@ -102,7 +102,7 @@ public final class ExceptionUtilsTest
         final UnsupportedOperationException unsupportedOperationException =
                 new UnsupportedOperationException(unsupportedOperationText, runtimeException);
         final Exception clientSafeException =
-                ExceptionUtils.createIndependentExceptionIfNeeded(unsupportedOperationException);
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(unsupportedOperationException);
         checkReturnedClientSafeException(unsupportedOperationText, unsupportedOperationException, clientSafeException,
                 true);
         checkReturnedClientSafeException(runtimeText, runtimeException, (Exception) clientSafeException.getCause(),
@@ -120,7 +120,7 @@ public final class ExceptionUtilsTest
         final RuntimeException runtimeException = new RuntimeException(runtimeText, saxException);
         final String digestExceptionText = "Wishiiiii!";
         final DigestException digestException = new DigestException(digestExceptionText, runtimeException);
-        final Exception clientSafeException = ExceptionUtils.createIndependentExceptionIfNeeded(digestException);
+        final Exception clientSafeException = ExceptionUtils.createMasqueradingExceptionIfNeeded(digestException);
         checkReturnedClientSafeException(digestExceptionText, digestException, clientSafeException, false);
         checkReturnedClientSafeException(runtimeText, runtimeException, (Exception) clientSafeException.getCause(),
                 true);
@@ -134,13 +134,13 @@ public final class ExceptionUtilsTest
         final String text = "Oooops!";
         final IOException ioException = new IOException(text);
         final RuntimeException checkedExceptionTunnel = CheckedExceptionTunnel.wrapIfNecessary(ioException);
-        final Exception clientSafeException = ExceptionUtils.createIndependentExceptionIfNeeded(checkedExceptionTunnel);
+        final Exception clientSafeException = ExceptionUtils.createMasqueradingExceptionIfNeeded(checkedExceptionTunnel);
         assertNotSame(clientSafeException, checkedExceptionTunnel);
         assertNotSame(clientSafeException, ioException);
-        assertTrue(clientSafeException instanceof IndependentException);
+        assertTrue(clientSafeException instanceof MasqueradingException);
         final Throwable cause = clientSafeException.getCause();
-        assertTrue(cause instanceof IndependentException);
-        assertEquals(IOException.class.getName(), ((IndependentException) clientSafeException)
+        assertTrue(cause instanceof MasqueradingException);
+        assertEquals(IOException.class.getName(), ((MasqueradingException) clientSafeException)
                 .getRootExceptionClassName());
         assertEquals(text, cause.getMessage());
     }
