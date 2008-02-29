@@ -338,8 +338,13 @@ public class RsyncCopier implements IPathCopier
         }
         if (machineLog.isInfoEnabled())
         {
-            machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s", rsyncExecutable, rsyncVersion
-                    .getVersionString(), (isOverwriteMode() ? "overwrite" : "append")));
+            machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s", rsyncExecutable,
+                    rsyncVersion.getVersionString(), (isOverwriteMode() ? "overwrite" : "append")));
+        }
+        if (rsyncVersion.isRsyncPreReleaseVersion())
+        {
+            machineLog.warn(String.format("The rsync executable '%s' is a pre-release version. It is not recommended " 
+                    + "to use such a version in a production environment.", rsyncExecutable));
         }
     }
 

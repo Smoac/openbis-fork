@@ -64,12 +64,19 @@ final class RsyncVersionChecker
          */
         private final int rsyncPatchVersion;
 
-        private RsyncVersion(String rsyncVersion, int rsyncMajorVersion, int rsyncMinorVersion, int rsyncPatchVersion)
+        /**
+         * Returns <code>true</code>, if the version is a pre-release version of <code>rsync</code>.
+         */
+        private final boolean rsyncPreReleaseVersion;
+
+        private RsyncVersion(String rsyncVersion, int rsyncMajorVersion, int rsyncMinorVersion, int rsyncPatchVersion,
+                boolean rsyncPreReleaseVersion)
         {
             this.rsyncVersion = rsyncVersion;
             this.rsyncMajorVersion = rsyncMajorVersion;
             this.rsyncMinorVersion = rsyncMinorVersion;
             this.rsyncPatchVersion = rsyncPatchVersion;
+            this.rsyncPreReleaseVersion = rsyncPreReleaseVersion;
         }
 
         /**
@@ -104,6 +111,14 @@ final class RsyncVersionChecker
             return rsyncPatchVersion;
         }
         
+        /**
+         * @return <code>true</code>, if this version is a pre-release version.
+         */
+        public boolean isRsyncPreReleaseVersion()
+        {
+            return rsyncPreReleaseVersion;
+        }
+
         /**
          * @return <code>true</code>, if this version is newer or as new the minimal version specified. 
          */
@@ -155,9 +170,26 @@ final class RsyncVersionChecker
         }
         final int rsyncMajorVersion = Integer.parseInt(rsyncVersionParts[0]);
         final int rsyncMinorVersion = Integer.parseInt(rsyncVersionParts[1]);
-        final int rsyncPatchVersion = Integer.parseInt(rsyncVersionParts[2]);
+        int rsyncPatchVersion;
+        boolean preReleaseVersion = false;
+        try
+        {
+            rsyncPatchVersion = Integer.parseInt(rsyncVersionParts[2]);
+        } catch (NumberFormatException ex)
+        {
+            final int preIdx = rsyncVersionParts[2].indexOf("pre");
+            if (preIdx >= 0)
+            {
+                rsyncPatchVersion = Integer.parseInt(rsyncVersionParts[2].substring(0, preIdx));
+                preReleaseVersion = true;
+            } else
+            {
+                throw ex;
+            }
+        }
 
-        return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion, rsyncPatchVersion);
+        return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion, rsyncPatchVersion,
+                preReleaseVersion);
     }
 
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)
