@@ -17,20 +17,28 @@
 package ch.systemsx.cisd.common.annotation;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a field (typically a JavaBean field) as being 'mandatory'.
+ * Marks a field that will be set via the parser.
+ * <p>
+ * By default, each property annotated with <code>BeanProperty</code> is mandatory.
+ * </p>
  * 
+ * @see ch.systemsx.cisd.common.parser
  * @author Christian Ribeaud
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Inherited
-public @interface Mandatory
+public @interface BeanProperty
 {
-
+    /**
+     * Whether this bean property is optional or not.
+     * <p>
+     * Default is <code>false</code>.
+     * </p>
+     */
+    public boolean optional() default false;
 }

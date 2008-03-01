@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -59,11 +63,26 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
-        mandatoryFields = ClassUtils.getMandatoryFields(beanClass, true);
+        mandatoryFields = createMandatoryFields(beanClass);
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
         converterPool = createConverterPool();
         this.beanClass = beanClass;
+    }
+
+    private final static Set<String> createMandatoryFields(final Class<?> beanClass)
+    {
+        final List<Field> annotatedFields = ClassUtils.getAnnotatedFieldList(beanClass, BeanProperty.class);
+        final Set<String> mandatoryFields = new HashSet<String>();
+        for (final Field field : annotatedFields)
+        {
+            final BeanProperty annotation = field.getAnnotation(BeanProperty.class);
+            if (annotation.optional() == false)
+            {
+                mandatoryFields.add(field.getName().toLowerCase());
+            }
+        }
+        return mandatoryFields;
     }
 
     private final static ConverterPool createConverterPool()

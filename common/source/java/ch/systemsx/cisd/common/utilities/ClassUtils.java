@@ -22,13 +22,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.annotation.Mandatory;
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -44,47 +42,23 @@ public final class ClassUtils
     }
 
     /**
-     * For given <code>Class</code> returns a set of field names that are annotated with {@link Mandatory}.
-     * <p>
-     * Never returns <code>null</code> but could return an empty set.
-     * </p>
-     * 
-     * @param clazz The class to return the mandatory fields for.
-     * @param convertToLowerCase If <code>true</code>, all field names are converted to lower case in the set
-     *            returned.
+     * For given <code>Class</code> returns a list of fields that are annotated with given <var>annotationClass</var>.
      */
-    public final static Set<String> getMandatoryFields(final Class<?> clazz, final boolean convertToLowerCase)
+    public final static List<Field> getAnnotatedFieldList(final Class<?> clazz, final Class<?> annotationClass)
     {
-        final Set<String> set = new HashSet<String>();
-        final List<Field> fields = ClassUtils.getMandatoryFieldsList(clazz);
-        for (final Field field : fields)
-        {
-            if (convertToLowerCase)
-            {
-                set.add(field.getName().toLowerCase());
-            } else
-            {
-                set.add(field.getName());
-            }
-        }
-        return set;
+        return getAnnotatedFieldList(clazz, annotationClass, null);
     }
 
     /**
-     * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
-     */
-    private final static List<Field> getMandatoryFieldsList(final Class<?> clazz)
-    {
-        return getMandatoryFields(clazz, null);
-    }
-
-    /**
-     * For given <code>Class</code> returns a list of fields that are annotated with {@link Mandatory}.
+     * For given <code>Class</code> returns a list of fields that are annotated with {@link BeanProperty}.
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
      */
-    private final static List<Field> getMandatoryFields(final Class<?> clazz, final List<Field> fields)
+    private final static List<Field> getAnnotatedFieldList(final Class<?> clazz, final Class<?> annotationClass,
+            final List<Field> fields)
     {
+        assert clazz != null : "Unspecified class.";
+        assert annotationClass != null && annotationClass.isAnnotation() : "Unspecified or not an annotation class.";
         List<Field> list = fields;
         if (list == null)
         {
@@ -92,7 +66,7 @@ public final class ClassUtils
         }
         for (final Field field : clazz.getDeclaredFields())
         {
-            if (field.getAnnotation(Mandatory.class) != null)
+            if (field.getAnnotation(BeanProperty.class) != null)
             {
                 list.add(field);
             }
@@ -100,7 +74,7 @@ public final class ClassUtils
         final Class<?> superclass = clazz.getSuperclass();
         if (superclass != null)
         {
-            return getMandatoryFields(superclass, list);
+            return getAnnotatedFieldList(superclass, annotationClass, list);
         }
         return list;
     }

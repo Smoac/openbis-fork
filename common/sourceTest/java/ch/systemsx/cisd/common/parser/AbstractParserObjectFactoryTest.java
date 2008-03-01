@@ -22,7 +22,7 @@ import static org.testng.AssertJUnit.fail;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.annotation.Mandatory;
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
  * Test cases for corresponding {@link AbstractParserObjectFactory} class.
@@ -150,7 +150,7 @@ public final class AbstractParserObjectFactoryTest
 
     public final static class Bean
     {
-        @Mandatory
+        @BeanProperty
         private String nAme;
 
         private String description;
