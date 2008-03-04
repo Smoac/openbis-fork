@@ -1,0 +1,98 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.common.parser;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.common.utilities.StringUtilities;
+
+/**
+ * A default <code>IPropertyMapper</code> implementation.
+ * 
+ * @author Christian Ribeaud
+ */
+public class DefaultPropertyMapper implements IPropertyMapper
+{
+    final Map<String, IPropertyModel> propertyModels;
+
+    public DefaultPropertyMapper(final String[] properties) throws IllegalArgumentException
+    {
+        assert properties != null : "Unspecified properties";
+        propertyModels = new LinkedHashMap<String, IPropertyModel>(properties.length);
+        tokensToMap(properties);
+
+    }
+
+    private final void tokensToMap(final String[] properties) throws IllegalArgumentException
+    {
+        final int len = properties.length;
+        for (int i = 0; i < len; i++)
+        {
+            final String token = properties[i];
+            if (StringUtils.isBlank(token))
+            {
+                throw new IllegalArgumentException(String.format("%s token of %s is blank.", StringUtilities
+                        .getOrdinal(i), Arrays.asList(properties)));
+            }
+            addPropertyModel(token, createPropertyModel(i, token));
+        }
+    }
+
+    protected final void addPropertyModel(final String token, final IPropertyModel propertyModel)
+    {
+        propertyModels.put(token, propertyModel);
+    }
+
+    protected final void checkPropertyName(final String propertyName) throws IllegalArgumentException
+    {
+        if (propertyModels.containsKey(propertyName) == false)
+        {
+            throw new IllegalArgumentException(String.format("Given property name '%s' does not exist.", propertyName));
+        }
+    }
+
+    protected IPropertyModel createPropertyModel(final int index, final String token)
+    {
+        return new MappedProperty(index, token);
+    }
+
+    //
+    // IPropertyMapper
+    //
+
+    public boolean containsPropertyName(final String propertyName)
+    {
+        return propertyModels.containsKey(propertyName);
+    }
+
+    public Set<String> getAllPropertyNames()
+    {
+        return new TreeSet<String>(propertyModels.keySet());
+    }
+
+    public IPropertyModel getPropertyModel(final String propertyName) throws IllegalArgumentException
+    {
+        checkPropertyName(propertyName);
+        return propertyModels.get(propertyName);
+    }
+}

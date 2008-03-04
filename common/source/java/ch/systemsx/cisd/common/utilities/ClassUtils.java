@@ -157,7 +157,7 @@ public final class ClassUtils
                     + superClazz.getName() + "'.";
             if (argumentsOrNull == null)
             {
-                return createInstance(clazz);
+                return cast(clazz.newInstance());
             }
             final Class<?>[] classes = getClasses(argumentsOrNull);
             final Constructor<T> constructor = getConstructor(clazz, classes);
@@ -180,6 +180,12 @@ public final class ClassUtils
         }
         throw new IllegalArgumentException(String.format("Cannot instantiate class '%s' with given arguments '%s'.",
                 className, Arrays.asList(argumentsOrNull)));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T cast(final Object newInstance)
+    {
+        return (T) newInstance;
     }
 
     private final static Class<?>[] getClasses(final Object... initargs)
@@ -227,11 +233,45 @@ public final class ClassUtils
         return (Constructor<T>) returned;
     }
 
-    @SuppressWarnings("unchecked")
-    private final static <T> T createInstance(final Class<?> clazz) throws InstantiationException,
-            IllegalAccessException
+    /**
+     * Creates a new instance of given <var>clazz</var> and get rid of any checked exception.
+     * <p>
+     * Wraps any checked exception in a {@link CheckedExceptionTunnel}.
+     * </p>
+     */
+    public final static <T> T createInstance(final Class<T> clazz)
     {
-        return (T) clazz.newInstance();
+        try
+        {
+            return clazz.newInstance();
+        } catch (InstantiationException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (IllegalAccessException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    /**
+     * Invokes given <var>method</var> and get rid of any checked exception.
+     * <p>
+     * Wraps any checked exception in a {@link CheckedExceptionTunnel}.
+     * </p>
+     */
+    public final static void invokeMethod(final Method method, final Object obj, final Object... args)
+    {
+        try
+        {
+            method.invoke(obj, args);
+        } catch (IllegalAccessException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        } catch (InvocationTargetException ex)
+        {
+            // We are interested in the cause exception.
+            throw CheckedExceptionTunnel.wrapIfNecessary((Exception) ex.getCause());
+        }
     }
 
     /**

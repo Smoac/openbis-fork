@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a field that will be set via the parser.
+ * Marks a field in a <i>Java</i> bean class that should be considered by the parser.
  * <p>
  * By default, each property annotated with <code>BeanProperty</code> is mandatory.
  * </p>

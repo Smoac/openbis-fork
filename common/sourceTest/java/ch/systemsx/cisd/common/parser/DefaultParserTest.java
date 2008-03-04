@@ -70,6 +70,7 @@ public final class DefaultParserTest
                 //
                 // DefaultReaderParser
                 //
+
                 @Override
                 protected String[] createObject(String[] tokens)
                 {

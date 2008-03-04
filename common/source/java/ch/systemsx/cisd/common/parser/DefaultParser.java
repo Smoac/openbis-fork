@@ -64,7 +64,7 @@ public class DefaultParser<E> implements IParser<E>
      * 
      * @param lineNumber line number.
      */
-    private String[] parseLine(final int lineNumber, final String line)
+    private final String[] parseLine(final int lineNumber, final String line)
     {
         return lineTokenizer.tokenize(line);
     }
@@ -91,6 +91,8 @@ public class DefaultParser<E> implements IParser<E>
                     E object = null;
                     try
                     {
+                        // TODO 2008-03-03, Christian Ribeaud: put this in its own exception (ParserException or
+                        // ParsingException extension).
                         if (tokens.length != headerLength)
                         {
                             String moreLessStr = tokens.length > headerLength ? "more" : "less";

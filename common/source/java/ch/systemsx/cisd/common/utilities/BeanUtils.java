@@ -709,14 +709,14 @@ public final class BeanUtils
         {
             return null;
         }
-        final boolean isAccessible = getter.isAccessible(); 
+        final boolean isAccessible = getter.isAccessible();
         if (isAccessible == false)
         {
             getter.setAccessible(true);
         }
         try
         {
-            final Object oldBean = getter.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY); 
+            final Object oldBean = getter.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
             return oldBean;
         } finally
         {
@@ -811,7 +811,7 @@ public final class BeanUtils
     {
         try
         {
-            Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
+            final Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
             final List<PropertyDescriptor> descriptors =
                     new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
                             .getPropertyDescriptors()));
@@ -822,8 +822,8 @@ public final class BeanUtils
                 // write method.
                 if (descriptor.getWriteMethod() != null)
                 {
-                    // Put the descriptor name in lower case.
-                    map.put(descriptor.getName().toLowerCase(), descriptor);
+                    // Put the descriptor name.
+                    map.put(descriptor.getName(), descriptor);
                 }
             }
             return map;

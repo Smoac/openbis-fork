@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.Set;
+
 /**
  * A <code>IPropertyMapper</code> extension that allows you to define an alias for a given property name.
  * 
@@ -24,8 +26,9 @@ package ch.systemsx.cisd.common.parser;
 public interface IAliasPropertyMapper extends IPropertyMapper
 {
     /**
-     * Sets an alias for given <var>propertyName</var>. It does not check whether there effectively is a property
-     * called <code>propertyName</code> in this mapper.
+     * Sets an alias for given <var>propertyName</var>. Note that it does not check whether a property with the name
+     * <var>propertyName</var> could be found because, for optional properties, this is not sure that we will find them
+     * in the header.
      * <p>
      * Only one alias for a given property name can be specified and it should not be possible to set the same alias for
      * two different properties.
@@ -38,15 +41,20 @@ public interface IAliasPropertyMapper extends IPropertyMapper
      * @param aliasName can not be <code>null</code>. The is the property name found in the bean.
      * @param propertyName can not be <code>null</code>. This is the property name found in the parsed file.
      */
-    public void setAlias(final String aliasName, final String propertyName) throws IllegalArgumentException;
+    public void setAliasForPropertyName(final String aliasName, final String propertyName)
+            throws IllegalArgumentException;
 
     /**
-     * Returns the alias that has been specified for given <var>propertyName</var>.
-     * <p>
-     * Typically returns given <code>propertyName</code> if no alias has been specified.
-     * </p>
+     * Returns the property name (in parsed file) that has been specified for given alias (<i>Bean</i> properties).
      * 
-     * @throws IllegalArgumentException if given <code>propertyName</code> does not exist.
+     * @throws IllegalArgumentException if given <var>alias</var> does not exist.
      */
-    public String tryGetPropertyName(final String alias) throws IllegalArgumentException;
+    public String getPropertyNameForAlias(final String alias) throws IllegalArgumentException;
+
+    /**
+     * Returns all aliases that have been set.
+     * 
+     * @return never <code>null</code> but could return an empty set.
+     */
+    public Set<String> getAllAliases();
 }

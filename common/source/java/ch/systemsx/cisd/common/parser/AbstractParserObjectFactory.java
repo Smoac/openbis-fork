@@ -17,19 +17,14 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
@@ -44,45 +39,30 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** The <code>IPropertyMapper</code> implementation. */
     private final IPropertyMapper propertyMapper;
 
+    /** The pool of {@link Converter}s. */
+    private final ConverterPool converterPool;
+
     /**
      * A <code>Map</code> of <code>PropertyDescriptor</code>s for typed <code>Object</code>, keyed by their name ({@link PropertyDescriptor#getName()}).
      */
     private final Map<String, PropertyDescriptor> propertyDescriptors;
 
-    /** The set of mandatory field names. */
-    private final Set<String> mandatoryFields;
-
-    /** The pool of {@link Converter}s. */
-    private final ConverterPool converterPool;
-
     /** The class of object bean we are going to create here. */
     private final Class<E> beanClass;
+
+    /** Analyzes specified <code>beanClass</code> for its mandatory resp. optional properties. */
+    private final BeanAnalyzer<E> beanAnalyzer;
 
     protected AbstractParserObjectFactory(final Class<E> beanClass, final IAliasPropertyMapper propertyMapper)
     {
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
         propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
-        mandatoryFields = createMandatoryFields(beanClass);
+        beanAnalyzer = new BeanAnalyzer<E>(beanClass);
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
         converterPool = createConverterPool();
         this.beanClass = beanClass;
-    }
-
-    private final static Set<String> createMandatoryFields(final Class<?> beanClass)
-    {
-        final List<Field> annotatedFields = ClassUtils.getAnnotatedFieldList(beanClass, BeanProperty.class);
-        final Set<String> mandatoryFields = new HashSet<String>();
-        for (final Field field : annotatedFields)
-        {
-            final BeanProperty annotation = field.getAnnotation(BeanProperty.class);
-            if (annotation.optional() == false)
-            {
-                mandatoryFields.add(field.getName().toLowerCase());
-            }
-        }
-        return mandatoryFields;
     }
 
     private final static ConverterPool createConverterPool()
@@ -113,16 +93,21 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     /** For given property name returns corresponding <code>IPropertyModel</code>. */
-    private final IPropertyModel getPropertyModel(final String name)
+    private final IPropertyModel tryGetPropertyModel(final String name)
     {
-        return propertyMapper.getProperty(name);
+        if (propertyMapper.containsPropertyName(name))
+        {
+            return propertyMapper.getPropertyModel(name);
+        }
+        return null;
     }
 
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
      * This method tries to find properties declared in given <code>IPropertyMapper</code> that are not in
-     * {@link #propertyDescriptors}.
+     * {@link #propertyDescriptors} (throws a <code>UnmatchedPropertiesException</code>) or mandatory fields that
+     * could not be found in {@link #propertyDescriptors} (throws a <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
     private final void checkPropertyMapper(final Class<E> clazz, final IAliasPropertyMapper propMapper)
@@ -137,44 +122,40 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             if (propertyNames.contains(fieldName))
             {
                 propertyNames.remove(fieldName);
-            } else if (isMandatory(fieldName))
+            } else if (beanAnalyzer.isMandatory(fieldName))
             {
                 missingProperties.add(fieldName);
             }
         }
+        final Set<String> mandatoryPropertyNames = getPropertyNames(beanAnalyzer.getMandatoryProperties(), propMapper);
         if (missingProperties.size() > 0)
         {
-            throw new MandatoryPropertyMissingException(getPropertyNames(mandatoryFields, propMapper),
-                    getPropertyNames(missingProperties, propMapper));
+            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, getPropertyNames(missingProperties,
+                    propMapper));
         }
         if (propertyNames.size() > 0)
         {
-            throw new UnmatchedPropertiesException(clazz, allPropertyNames, fieldNames, propertyNames);
+            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames, getPropertyNames(
+                    beanAnalyzer.getOptionalProperties(), propMapper), propertyNames);
         }
     }
 
-    private final static Set<String> getPropertyNames(final Set<String> beanNames,
+    private final static Set<String> getPropertyNames(final Set<String> beanProperties,
             final IAliasPropertyMapper propertyMapper)
     {
-        final Set<String> propertyNames = new LinkedHashSet<String>(beanNames.size());
-        for (final String beanName : beanNames)
+        final Set<String> aliases = propertyMapper.getAllAliases();
+        final Set<String> propertyNames = new TreeSet<String>();
+        for (final String beanProperty : beanProperties)
         {
-            final String propertyName = propertyMapper.tryGetPropertyName(beanName);
-            if (propertyName == null)
+            if (aliases.contains(beanProperty))
             {
-                propertyNames.add(beanName);
+                propertyNames.add(propertyMapper.getPropertyNameForAlias(beanProperty));
             } else
             {
-                propertyNames.add(propertyName);
+                propertyNames.add(beanProperty);
             }
         }
         return propertyNames;
-    }
-
-    /** Whether given field name is mandatory. */
-    private final boolean isMandatory(final String fieldName)
-    {
-        return mandatoryFields.contains(fieldName);
     }
 
     private final String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
@@ -193,32 +174,20 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
 
     public E createObject(final String[] lineTokens) throws ParserException
     {
-        try
+        final E object = ClassUtils.createInstance(beanClass);
+        for (final PropertyDescriptor descriptor : propertyDescriptors.values())
         {
-            final E object = beanClass.newInstance();
-            for (final PropertyDescriptor descriptor : propertyDescriptors.values())
+            final Method writeMethod = descriptor.getWriteMethod();
+            final IPropertyModel propertyModel = tryGetPropertyModel(descriptor.getName());
+            // They could have some optional descriptors that are not found in the file header.
+            // Just ignore them.
+            if (propertyModel != null)
             {
-                final Method writeMethod = descriptor.getWriteMethod();
-                final IPropertyModel propertyModel = getPropertyModel(descriptor.getName());
-                // They could have some optional descriptors that are not in the property model.
-                // Just ignore them.
-                if (propertyModel != null)
-                {
-                    final String propertyValue = getPropertyValue(lineTokens, propertyModel);
-                    writeMethod.invoke(object, convert(propertyValue, writeMethod.getParameterTypes()[0]));
-                }
+                final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+                ClassUtils
+                        .invokeMethod(writeMethod, object, convert(propertyValue, writeMethod.getParameterTypes()[0]));
             }
-            return object;
-        } catch (IllegalAccessException ex)
-        {
-            throw new CheckedExceptionTunnel(ex);
-        } catch (InvocationTargetException ex)
-        {
-            // We are interested in the cause exception.
-            throw CheckedExceptionTunnel.wrapIfNecessary((Exception) ex.getCause());
-        } catch (InstantiationException ex)
-        {
-            throw new CheckedExceptionTunnel(ex);
         }
+        return object;
     }
 }

@@ -138,7 +138,7 @@ public class TabFileLoader<T>
         final String[] tokens = StringUtils.split(headerLine, "\t");
         final int headerLength = tokens.length;
         notUnique(tokens);
-        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(tokens);
+        final IAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(tokens);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         if (previousLineHasColumnHeaders)

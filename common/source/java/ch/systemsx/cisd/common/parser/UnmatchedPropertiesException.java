@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -27,7 +26,7 @@ import java.util.Set;
 public final class UnmatchedPropertiesException extends ParserException
 {
 
-    static final String MESSAGE_FORMAT = "The following header columns are not part of '%s': %s";
+    static final String MESSAGE_FORMAT = "Following header columns are not part of '%s': %s";
 
     private static final long serialVersionUID = 1L;
 
@@ -37,21 +36,29 @@ public final class UnmatchedPropertiesException extends ParserException
     /** The property names found in the parsed file. */
     private final Set<String> allPropertyNames;
 
-    /** The property names found in the bean. */
-    private final Set<String> descriptorNames;
+    /** The mandatory property names found in the bean. */
+    private final Set<String> mandatoryNames;
 
-    /** The difference of {@link #allPropertyNames} minus {@link #descriptorNames}. */
+    /** The optional property names found in the bean. */
+    private final Set<String> optionalNames;
+
+    /**
+     * The property names of {@link #allPropertyNames} that can neither be found in {@link #mandatoryNames} nor in
+     * {@link #optionalNames}.
+     */
     private final Set<String> propertyNames;
 
     UnmatchedPropertiesException(final Class<?> beanClass, final Set<String> allPropertyNames,
-            final Set<String> descriptorNames, final Set<String> propertyNames)
+            final Set<String> mandatoryNames, final Set<String> optionalNames, final Set<String> propertyNames)
     {
         super(createMessage(beanClass, propertyNames));
         assert allPropertyNames != null : "All property names can not be null.";
-        assert descriptorNames != null : "Descriptor names can not be null.";
+        assert mandatoryNames != null : "Mandatory names can not be null.";
+        assert optionalNames != null : "Optional names can not be null.";
         this.beanClass = beanClass;
         this.allPropertyNames = allPropertyNames;
-        this.descriptorNames = descriptorNames;
+        this.mandatoryNames = mandatoryNames;
+        this.optionalNames = optionalNames;
         this.propertyNames = propertyNames;
     }
 
@@ -74,14 +81,19 @@ public final class UnmatchedPropertiesException extends ParserException
         return allPropertyNames;
     }
 
-    public final Set<String> getDescriptorNames()
-    {
-        return Collections.unmodifiableSet(descriptorNames);
-    }
-
     public final Set<String> getPropertyNames()
     {
         return propertyNames;
+    }
+
+    public final Set<String> getMandatoryNames()
+    {
+        return mandatoryNames;
+    }
+
+    public final Set<String> getOptionalNames()
+    {
+        return optionalNames;
     }
 
 }

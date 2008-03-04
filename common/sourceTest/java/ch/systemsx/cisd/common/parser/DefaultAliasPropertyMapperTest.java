@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +26,17 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for corresponding {@link HeaderFilePropertyMapper} class.
+ * Test cases for corresponding {@link DefaultAliasPropertyMapper} class.
  * 
  * @author Christian Ribeaud
  */
-public final class HeaderFilePropertyMapperTest
+public final class DefaultAliasPropertyMapperTest
 {
 
     @Test(expectedExceptions = AssertionError.class)
     public final void testNullHeaders()
     {
-        new HeaderFilePropertyMapper(null);
+        new DefaultAliasPropertyMapper(null);
     }
 
     @Test
@@ -44,7 +46,7 @@ public final class HeaderFilePropertyMapperTest
             { "firstName", "lastName", "address", null };
         try
         {
-            new HeaderFilePropertyMapper(headers);
+            new DefaultAliasPropertyMapper(headers);
             fail("No blank value is allowed.");
         } catch (IllegalArgumentException ex)
         {
@@ -55,26 +57,32 @@ public final class HeaderFilePropertyMapperTest
     @Test
     public final void testGetProperty()
     {
-        IPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[0]);
-        assertNull(propertyMapper.getProperty("shouldBeNull"));
+        IPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[0]);
+        try
+        {
+            assertNull(propertyMapper.getPropertyModel("shouldBeNull"));
+            fail("Given property name 'shouldBeNull' does not exist.");
+        } catch (final IllegalArgumentException ex)
+        {
+        }
         final String[] headers =
             { "firstName", "lastName", "address" };
-        propertyMapper = new HeaderFilePropertyMapper(headers);
-        assertTrue(propertyMapper.getProperty("firstName").getColumn() == 0);
-        assertTrue(propertyMapper.getProperty("address").getColumn() == 2);
+        propertyMapper = new DefaultAliasPropertyMapper(headers);
+        assertTrue(propertyMapper.getPropertyModel("firstName").getColumn() == 0);
+        assertTrue(propertyMapper.getPropertyModel("address").getColumn() == 2);
     }
 
     @Test
     public final void testCasePropertyMapper()
     {
-        HeaderFilePropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
+        DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
             { "Code", "Description", "RegistrationTimestamp" });
         List<String> properties = new ArrayList<String>(propertyMapper.getAllPropertyNames());
-        assertTrue(properties.indexOf("Code") < 0);
-        assertTrue(properties.indexOf("code") > -1);
-        assertTrue(properties.indexOf("Description") < 0);
-        assertTrue(properties.indexOf("description") > -1);
-        assertTrue(properties.indexOf("RegistrationTimestamp") < 0);
-        assertTrue(properties.indexOf("registrationtimestamp") > -1);
+        assertTrue(properties.indexOf("Code") > -1);
+        assertTrue(properties.indexOf("code") < 0);
+        assertTrue(properties.indexOf("Description") > -1);
+        assertTrue(properties.indexOf("description") < 0);
+        assertTrue(properties.indexOf("RegistrationTimestamp") > -1);
+        assertTrue(properties.indexOf("registrationtimestamp") < 0);
     }
 }

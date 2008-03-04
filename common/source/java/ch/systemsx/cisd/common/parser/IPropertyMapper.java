@@ -28,12 +28,10 @@ public interface IPropertyMapper
 
     /**
      * Returns an <code>IPropertyModel</code> for a given property name.
-     * <p>
-     * This get operation is case-insensitive, meaning that <code>NAME</code> will return the same model than
-     * <code>Name</code>.
-     * </p>
+     * 
+     * @throws IllegalArgumentException if given <var>propertyName</var> does not exist.
      */
-    public IPropertyModel getProperty(final String propertyName);
+    public IPropertyModel getPropertyModel(final String propertyName) throws IllegalArgumentException;
 
     /**
      * Returns a set of all property names.
@@ -42,5 +40,8 @@ public interface IPropertyMapper
      * </p>
      */
     public Set<String> getAllPropertyNames();
+
+    /** Whether there is a property with given <var>propertyName</var>. */
+    public boolean containsPropertyName(final String propertyName);
 
 }

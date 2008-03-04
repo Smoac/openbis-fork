@@ -34,8 +34,8 @@ public final class AbstractParserObjectFactoryTest
 
     private final static IAliasPropertyMapper createPropertyMapper()
     {
-        return new HeaderFilePropertyMapper(new String[]
-            { "Name", "Description", "Number" });
+        return new DefaultAliasPropertyMapper(new String[]
+            { "name", "description", "number" });
     }
 
     private final static String[] createDefaultLineTokens()
@@ -46,7 +46,7 @@ public final class AbstractParserObjectFactoryTest
 
     private final void checkBean(Bean bean)
     {
-        assertEquals("Bean Name", bean.nAme);
+        assertEquals("Bean Name", bean.name);
         assertEquals("Bean Description", bean.description);
         assertEquals(1, bean.number);
     }
@@ -60,22 +60,22 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testPropertyMapperWithNoExperimentProperties()
     {
-        final IAliasPropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
-            { "Name", "Description", "IsNotIn" });
+        final IAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
+            { "name", "description", "IsNotIn" });
         try
         {
             new BeanFactory(Bean.class, propertyMapper);
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (UnmatchedPropertiesException ex)
         {
-            assertEquals(String.format(UnmatchedPropertiesException.MESSAGE_FORMAT, "Bean", "isnotin"), ex.getMessage());
+            assertEquals(String.format(UnmatchedPropertiesException.MESSAGE_FORMAT, "Bean", "IsNotIn"), ex.getMessage());
         }
     }
 
     @Test
     public final void testMandatoryFields()
     {
-        HeaderFilePropertyMapper propertyMapper = new HeaderFilePropertyMapper(new String[]
+        DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
             { "description" });
         try
         {
@@ -151,20 +151,20 @@ public final class AbstractParserObjectFactoryTest
     public final static class Bean
     {
         @BeanProperty
-        private String nAme;
+        private String name;
 
         private String description;
 
         private int number;
 
-        public final String getNAme()
+        public final String getName()
         {
-            return nAme;
+            return name;
         }
 
-        public final void setNAme(String name)
+        public final void setName(String name)
         {
-            this.nAme = name;
+            this.name = name;
         }
 
         public final int getNumber()
