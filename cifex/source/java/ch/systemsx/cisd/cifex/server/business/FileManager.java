@@ -144,7 +144,7 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             operationLog.info("Found " + expiredFiles.size() + " expired files.");
         }
-        RuntimeException ex_all = null;
+        RuntimeException firstExecptionOrNull = null;
         for (final FileDTO file : expiredFiles)
         {
             try
@@ -164,16 +164,16 @@ final class FileManager extends AbstractManager implements IFileManager
             } catch (RuntimeException ex)
             {
                 operationLog.error("Error deleting file '" + file.getPath() + "'.", ex);
-                if (ex_all == null)
+                if (firstExecptionOrNull == null)
                 {
-                    ex_all = ex;
+                    firstExecptionOrNull = ex;
                 }
             }
         }
         // Rethrow exception, if any
-        if (ex_all != null)
+        if (firstExecptionOrNull != null)
         {
-            throw ex_all;
+            throw firstExecptionOrNull;
         }
     }
 

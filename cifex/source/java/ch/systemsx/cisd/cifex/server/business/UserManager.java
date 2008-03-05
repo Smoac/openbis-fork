@@ -101,7 +101,7 @@ class UserManager extends AbstractManager implements IUserManager
         {
             operationLog.info("Found " + expiredUsers.size() + " expired users.");
         }
-        RuntimeException ex_all = null;
+        RuntimeException firstExceptionOrNull = null;
         for (final UserDTO user : expiredUsers)
         {
             try
@@ -122,16 +122,16 @@ class UserManager extends AbstractManager implements IUserManager
             } catch (final RuntimeException ex)
             {
                 notificationLog.error("Error deleting user [" + getUserDescription(user) + "].", ex);
-                if (ex_all == null)
+                if (firstExceptionOrNull == null)
                 {
-                    ex_all = ex;
+                    firstExceptionOrNull = ex;
                 }
             }
         }
         // Rethrow exception, if any
-        if (ex_all != null)
+        if (firstExceptionOrNull != null)
         {
-            throw ex_all;
+            throw firstExceptionOrNull;
         }
     }
 
