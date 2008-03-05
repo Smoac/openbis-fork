@@ -52,7 +52,8 @@ public class HeaderLineFilterTest
             if (headerLine == i)
             {
                 assert filter.acceptLine("text", i) == false : "Line " + i + " (header line: " + headerLine + ")";
-            } else {
+            } else
+            {
                 assert filter.acceptLine("text", i) : "Line " + i + " (header line: " + headerLine + ")";
             }
         }

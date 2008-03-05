@@ -45,7 +45,8 @@ public class ModifiedShortPrefixToStringStyle extends ToStringStyle
      * <p>Ensure <code>Singleton</ode> after serialization.</p>
      * @return the singleton
      */
-    private Object readResolve() {
+    private Object readResolve()
+    {
         return MODIFIED_SHORT_PREFIX_STYLE;
     }
 

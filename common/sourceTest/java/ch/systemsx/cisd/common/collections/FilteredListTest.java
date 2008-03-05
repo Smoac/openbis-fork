@@ -136,7 +136,8 @@ public final class FilteredListTest
     }
     
     @Test
-    public final void testSubList() {
+    public final void testSubList()
+    {
         List<String> list = createList();
         List<String> subList = list.subList(0, 2);
         assertEquals(2, subList.size());

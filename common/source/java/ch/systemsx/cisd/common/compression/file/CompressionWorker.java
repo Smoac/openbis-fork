@@ -94,7 +94,8 @@ class CompressionWorker implements Runnable
             }
             Status status = null;
             int count = 0;
-            do {
+            do
+            {
                 try
                 {
                     status = compressor.compress(fileToCompressOrNull);
