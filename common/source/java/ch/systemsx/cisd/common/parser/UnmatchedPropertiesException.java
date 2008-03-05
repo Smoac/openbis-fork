@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -48,7 +49,7 @@ public final class UnmatchedPropertiesException extends ParserException
      */
     private final Set<String> propertyNames;
 
-    UnmatchedPropertiesException(final Class<?> beanClass, final Set<String> allPropertyNames,
+    public UnmatchedPropertiesException(final Class<?> beanClass, final Set<String> allPropertyNames,
             final Set<String> mandatoryNames, final Set<String> optionalNames, final Set<String> propertyNames)
     {
         super(createMessage(beanClass, propertyNames));
@@ -78,22 +79,22 @@ public final class UnmatchedPropertiesException extends ParserException
 
     public final Set<String> getAllPropertyNames()
     {
-        return allPropertyNames;
+        return Collections.unmodifiableSet(allPropertyNames);
     }
 
     public final Set<String> getPropertyNames()
     {
-        return propertyNames;
+        return Collections.unmodifiableSet(propertyNames);
     }
 
     public final Set<String> getMandatoryNames()
     {
-        return mandatoryNames;
+        return Collections.unmodifiableSet(mandatoryNames);
     }
 
     public final Set<String> getOptionalNames()
     {
-        return optionalNames;
+        return Collections.unmodifiableSet(optionalNames);
     }
 
 }

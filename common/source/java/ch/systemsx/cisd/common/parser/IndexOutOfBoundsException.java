@@ -32,16 +32,17 @@ public final class IndexOutOfBoundsException extends ParserException
 
     private final String[] lineTokens;
 
-    IndexOutOfBoundsException(final int column, final String[] lineTokens)
+    public IndexOutOfBoundsException(final int index, final String[] lineTokens)
     {
-        super(createMessage(column, lineTokens));
-        this.column = column;
+        super(createMessage(index, lineTokens));
+        this.column = index;
         this.lineTokens = lineTokens;
     }
 
     private final static String createMessage(final int index, final String[] lineTokens)
     {
         assert lineTokens != null : "Line tokens can not be null.";
+        assert index >= lineTokens.length : "Index must be out of range (otherwise no reason to call this exception).";
         return String.format(MESSAGE_FORMAT, index, lineTokens.length);
     }
 

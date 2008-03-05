@@ -24,56 +24,80 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 /**
+ * Test cases for corresponding {@link TabFileLoader} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class TabFileLoaderTest
+public final class TabFileLoaderTest
 {
     public static final class ABC
     {
         private String a;
+
         private String b;
+
         private String c;
+
         public final String getA()
         {
             return a;
         }
+
         public final void setA(String a)
         {
             this.a = a;
         }
+
         public final String getB()
         {
             return b;
         }
+
         public final void setB(String b)
         {
             this.b = b;
         }
+
         public final String getC()
         {
             return c;
         }
+
         public final void setC(String c)
         {
             this.c = c;
         }
+
+        //
+        // Object
+        //
+
         @Override
         public String toString()
         {
             return a + b + c;
         }
-        
+
     }
-    
-    private static final class ABCFactoryFactory implements IParserObjectFactoryFactory<ABC>
+
+    public static final class ABCFactoryFactory implements IParserObjectFactoryFactory<ABC>
     {
-        public IParserObjectFactory<ABC> createFactory(IAliasPropertyMapper propertyMapper) throws ParserException
+
+        //
+        // IParserObjectFactoryFactory
+        //
+
+        public final IParserObjectFactory<ABC> createFactory(final IAliasPropertyMapper propertyMapper)
+                throws ParserException
         {
             return new IParserObjectFactory<ABC>()
                 {
-                    public ABC createObject(String[] lineTokens) throws ParserException
+
+                    //
+                    // IParserObjectFactory
+                    //
+
+                    public final ABC createObject(final String[] lineTokens) throws ParserException
                     {
                         ABC abc = new ABC();
                         abc.setA(lineTokens[0]);
@@ -84,22 +108,22 @@ public class TabFileLoaderTest
                 };
         }
     }
-    
+
     @Test
     public void testEmptyInput()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         List<ABC> list = loader.load(new StringReader(""));
-        
+
         assertEquals(0, list.size());
     }
-    
+
     @Test
     public void testFirstLineHasHeadersWithoutHashSymbolButNoRows()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         List<ABC> list = loader.load(new StringReader("A\tB\tC\n"));
-        
+
         assertEquals(list.toString(), 0, list.size());
     }
 
@@ -108,39 +132,39 @@ public class TabFileLoaderTest
     {
         loadAndCheck("");
     }
-    
+
     @Test
     public void testFirstLineWithHashSymbol()
     {
         loadAndCheck("#\n");
     }
-    
+
     @Test
     public void testFirstLineWithHashSymbolAndSomething()
     {
         loadAndCheck("#blabla\n");
     }
-    
+
     @Test
     public void testFirstLineHasMarkerAndSecondLineHasHeadersWithHashSymbol()
     {
         loadAndCheck("#\n#");
     }
-    
+
     @Test
     public void testFirstTwoLinesWithHashAndSomething()
     {
         loadAndCheck("#blabla\n" + "#blubub\n");
     }
-    
+
     private void loadAndCheck(String preamble)
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         List<ABC> list = loader.load(new StringReader(preamble + "A\tB\tC\n" + "a1\tb1\tc1\n" + "a2\tb2\tc2\n"));
-        
+
         assertEquals(list.toString(), 2, list.size());
         assertEquals("a1b1c1", list.get(0).toString());
         assertEquals("a2b2c2", list.get(1).toString());
     }
-    
+
 }

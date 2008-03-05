@@ -40,9 +40,11 @@ public final class MandatoryPropertyMissingException extends ParserException
     /** The fields that are mandatory. */
     private final Set<String> mandatoryFields;
 
-    MandatoryPropertyMissingException(final Set<String> mandatoryFields, final Set<String> missingMandatoryProperties)
+    public MandatoryPropertyMissingException(final Set<String> mandatoryFields,
+            final Set<String> missingMandatoryProperties)
     {
         super(createMessage(missingMandatoryProperties));
+        assert mandatoryFields != null && mandatoryFields.size() > 0 : "Unspecified mandatory fields.";
         this.mandatoryFields = mandatoryFields;
         this.missingMandatoryProperties = missingMandatoryProperties;
     }
@@ -50,6 +52,7 @@ public final class MandatoryPropertyMissingException extends ParserException
     private final static String createMessage(final Set<String> missingMandatoryProperties)
     {
         assert missingMandatoryProperties != null : "Missing mandatory properties can not be null.";
+        assert missingMandatoryProperties.size() > 0 : "No reason to throw this exception.";
         return String.format(MESSAGE_FORMAT, toString(missingMandatoryProperties));
     }
 
@@ -60,7 +63,7 @@ public final class MandatoryPropertyMissingException extends ParserException
 
     public final Set<String> getMissingMandatoryProperties()
     {
-        return missingMandatoryProperties;
+        return Collections.unmodifiableSet(missingMandatoryProperties);
     }
 
     public final Set<String> getMandatoryFields()
