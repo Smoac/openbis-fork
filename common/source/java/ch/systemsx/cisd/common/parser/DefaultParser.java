@@ -82,42 +82,28 @@ public class DefaultParser<E> implements IParser<E>
             lineTokenizer.init();
             while (lineIterator.hasNext())
             {
-                Line line = lineIterator.next();
-                String nextLine = line.getText();
-                int number = line.getNumber();
+                final Line line = lineIterator.next();
+                final String nextLine = line.getText();
+                final int number = line.getNumber();
                 if (lineFilter.acceptLine(nextLine, number))
                 {
                     final String[] tokens = parseLine(number, nextLine);
                     E object = null;
                     try
                     {
-                        // TODO 2008-03-03, Christian Ribeaud: put this in its own exception (ParserException or
-                        // ParsingException extension).
                         if (tokens.length != headerLength)
                         {
-                            String moreLessStr = tokens.length > headerLength ? "more" : "less";
-                            StringBuilder lineStructure = new StringBuilder();
-                            for (int i = 0; i < tokens.length; i++)
-                            {
-                                lineStructure.append(tokens[i]);
-                                if (i + 1 < tokens.length)
-                                {
-                                    lineStructure.append(" <TAB> ");
-                                }
-                            }
-                            lineStructure.append(" <END_OF_LINE>");
-                            throw new RuntimeException(String.format(
-                                    "Line <%s> has %s columns (%s) than the header (%s):\n%s", number, moreLessStr,
-                                    String.valueOf(tokens.length), String.valueOf(headerLength), lineStructure
-                                            .toString()));
+                            throw new ColumnSizeMismatchException(tokens, number, headerLength);
                         }
                         object = createObject(tokens);
                     } catch (final ParserException parserException)
                     {
                         throw new ParsingException(parserException, tokens, number);
+                    } catch (final ParsingException parsingException)
+                    {
+                        throw parsingException;
                     } catch (final RuntimeException runtimeException)
                     {
-                        // This should not happen but...
                         throw new ParsingException(runtimeException, tokens, number);
                     }
                     elements.add(object);

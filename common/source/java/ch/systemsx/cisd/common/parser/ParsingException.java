@@ -21,11 +21,11 @@ import java.util.Arrays;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
- * Signals that an error has been reached unexpectedly while parsing.
+ * Signals that an error has been unexpectedly reached while parsing.
  * 
  * @author Christian Ribeaud
  */
-public final class ParsingException extends HighLevelException
+public class ParsingException extends HighLevelException
 {
 
     static final String MESSAGE_FORMAT = "Creating an object with following tokens '%s' failed.";
@@ -36,7 +36,12 @@ public final class ParsingException extends HighLevelException
 
     private final String[] tokens;
 
-    ParsingException(final RuntimeException cause, final String[] tokens, final int lineNumber)
+    public ParsingException(final String[] tokens, final int lineNumber)
+    {
+        this(null, tokens, lineNumber);
+    }
+
+    public ParsingException(final RuntimeException cause, final String[] tokens, final int lineNumber)
     {
         super(createMessage(tokens), cause);
         this.lineNumber = lineNumber;
@@ -62,7 +67,7 @@ public final class ParsingException extends HighLevelException
         return tokens;
     }
 
-    public final RuntimeException getRuntimeException()
+    public final RuntimeException getCauseRuntimeException()
     {
         return (RuntimeException) getCause();
     }

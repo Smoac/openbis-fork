@@ -38,11 +38,17 @@ public final class DefaultParserTest
 
     private final static int HEADER_LENGTH = 4;
 
-    @Test
-    public final void testParseWithoutFactoryAndHeader()
+    private final static IParser<String[]> createParser()
     {
         final IParser<String[]> parser = new DefaultParser<String[]>();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
+        return parser;
+    }
+
+    @Test
+    public final void testParseWithoutFactoryAndHeader()
+    {
+        final IParser<String[]> parser = createParser();
         final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
@@ -54,12 +60,26 @@ public final class DefaultParserTest
     @Test
     public final void testParseWithoutFactoryWithLineFilter()
     {
-        final IParser<String[]> parser = new DefaultParser<String[]>();
-        parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
+        final IParser<String[]> parser = createParser();
         final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH);
         assertEquals(2, result.size());
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
+    }
+
+    @Test
+    public final void testParseWithColumnSizeMismatching()
+    {
+        final IParser<String[]> parser = createParser();
+        try
+        {
+            parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH + 1);
+        } catch (final ColumnSizeMismatchException ex)
+        {
+            assertEquals("Line <4> has less columns (4) than the header (5):\n  "
+                    + "Charles <TAB> Darwin <TAB> Humboldt Ave. 1865 <TAB> 4242 Somewhere <END_OF_LINE>", ex
+                    .getMessage());
+        }
     }
 
     @Test
@@ -72,7 +92,7 @@ public final class DefaultParserTest
                 //
 
                 @Override
-                protected String[] createObject(String[] tokens)
+                protected final String[] createObject(final String[] tokens)
                 {
                     throw new ArrayIndexOutOfBoundsException();
                 }
