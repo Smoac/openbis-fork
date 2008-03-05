@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-
 /**
  * Some convenience methods/utilities around {@link Collection}.
  * 
@@ -89,7 +88,22 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final CollectionStyle style)
     {
-        return abbreviate(collection, maxLength, true, ToStringDefaultConverter.getInstance(), style);
+        return abbreviate(collection, maxLength, ToStringDefaultConverter.getInstance(), style);
+    }
+
+    /**
+     * Abbreviates a given <code>Collection</code>.
+     * <p>
+     * By default it shows the number of items left.
+     * </p>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
+     *            displayed.
+     */
+    public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
+            final IToStringConverter<? super T> converter, final CollectionStyle style)
+    {
+        return abbreviate(collection, maxLength, true, converter, style);
     }
 
     /**

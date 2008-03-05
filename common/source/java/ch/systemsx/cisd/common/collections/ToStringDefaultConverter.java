@@ -31,17 +31,21 @@ public final class ToStringDefaultConverter implements IToStringConverter<Object
         // This is a singleton.
     }
 
-    public String toString(Object value)
-    {
-        return value.toString();
-    }
-
     /**
      * @return The instance of the {@link ToStringDefaultConverter}.
      */
-    public static ToStringDefaultConverter getInstance()
+    public final static ToStringDefaultConverter getInstance()
     {
         return instance;
+    }
+
+    //
+    // IToStringConverter
+    //
+
+    public final String toString(final Object value)
+    {
+        return value.toString();
     }
 
 }
