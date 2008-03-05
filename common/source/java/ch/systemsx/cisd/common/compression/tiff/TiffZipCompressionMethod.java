@@ -42,10 +42,10 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
 
     private static String getImageMagickVersion(String convertExecutableToCheck)
     {
-        final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
+        final long timeToWaitForCompletionMillis = 2 * 1000L;
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(convertExecutableToCheck, "--version"),
-                        TIME_TO_WAIT_FOR_COMPLETION, operationLog, machineLog);
+                        timeToWaitForCompletionMillis, operationLog, machineLog);
         result.log();
         final String versionString = extractImageMagickVersion(result.getProcessOutput().get(0));
         return versionString;
