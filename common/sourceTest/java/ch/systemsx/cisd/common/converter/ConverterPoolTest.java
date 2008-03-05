@@ -29,7 +29,7 @@ import static org.testng.AssertJUnit.*;
 public final class ConverterPoolTest
 {
 
-    private static char NULL;
+    private static final char NULL = '\0';
 
     @Test
     public final void testRegisterConverter()
