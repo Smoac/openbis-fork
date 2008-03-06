@@ -29,17 +29,15 @@ import java.util.Set;
 public class StandardSequenceNameMapper implements ISequenceNameMapper
 {
     private final Set<String> tablesWithoutSequencers;
-    
+
     private final Map<String, String> nonstandardMapping;
-    
+
     /**
      * Creates an instance with no standard mapping and no tables without sequencers.
-     *
-     *
      */
     public StandardSequenceNameMapper()
     {
-        this(Collections.<String, String>emptyMap(), Collections.<String>emptySet());
+        this(Collections.<String, String> emptyMap(), Collections.<String> emptySet());
     }
 
     /**
@@ -56,7 +54,7 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     // ISequenceNameMapper
     //
 
-    public final String getSequencerForTable(String tableName)
+    public final String getSequencerForTable(final String tableName)
     {
         final String tableNameInLowerCase = tableName.toLowerCase();
         if (tablesWithoutSequencers.contains(tableNameInLowerCase))
