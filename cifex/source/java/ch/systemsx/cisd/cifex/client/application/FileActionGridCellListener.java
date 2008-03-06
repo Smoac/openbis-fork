@@ -82,6 +82,9 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     // Helper classes
     //
 
+    /**
+     * An {@link AsyncCallback} that updates the list of files after a file has been deleted. 
+     */
     private final class DeleteFileAsyncCallback extends AbstractAsyncCallback
     {
         private final ModelBasedGrid modelBasedGrid;
@@ -120,6 +123,9 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         }
     }
 
+    /**
+     * An {@link AsyncCallback} that updates the list of files after a file has been updated. 
+     */
     private final class UpdateFileAsyncCallback extends AbstractAsyncCallback
     {
         private final ModelBasedGrid modelBasedGrid;

@@ -141,6 +141,9 @@ final class FooterPanel extends HorizontalPanel
     // Helper classes
     //
 
+    /**
+     * A {@link RequestCallback} that shows a legal disclaimer on success.
+     */
     private final class DisclaimerRequestCallback implements RequestCallback
     {
 
