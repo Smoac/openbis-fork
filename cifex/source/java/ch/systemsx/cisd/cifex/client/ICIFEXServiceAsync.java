@@ -60,7 +60,7 @@ public interface ICIFEXServiceAsync extends RemoteService
     /** Returns a list of users, which where registered by the given user. */
     public void listUsersRegisteredBy(final String userCode, final AsyncCallback callback);
 
-    /** Get the user by the userCode */
+    /** Gets the user by the userCode. */
     public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
 
     /**
