@@ -33,6 +33,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
  * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The following formats for

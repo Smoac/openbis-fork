@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+
 /**
  * A default {@link IParser} implementation.
  * <p>

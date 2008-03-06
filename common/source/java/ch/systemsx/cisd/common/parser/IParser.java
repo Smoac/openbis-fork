@@ -19,6 +19,8 @@ package ch.systemsx.cisd.common.parser;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+
 /**
  * <code>IReaderParser</code> is able to parse a given text lines and to return a list of objects of type
  * <code>E</code>.

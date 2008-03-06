@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.common.parser;
+package ch.systemsx.cisd.common.parser.filter;
 
 /**
  * A default line filter that accepts any line.

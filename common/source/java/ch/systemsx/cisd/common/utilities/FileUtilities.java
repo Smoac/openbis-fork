@@ -48,6 +48,8 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
  * Some useful utility methods for files and directories.
@@ -178,15 +180,30 @@ public final class FileUtilities
      * @return The content of the file line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public static List<String> loadToStringList(File file) throws CheckedExceptionTunnel
+    public final static List<String> loadToStringList(final File file) throws CheckedExceptionTunnel
     {
-        assert file != null;
+        return loadToStringList(file, null);
+    }
+
+    /**
+     * Loads a text file line by line to a {@link List} of {@link String}s.
+     * 
+     * @param file the file that should be loaded. This method asserts that given <code>File</code> is not
+     *            <code>null</code>.
+     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be <code>null</code>.
+     * @return The content of the file line by line.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
+     */
+    public final static List<String> loadToStringList(final File file, final ILineFilter lineFilterOrNull)
+            throws CheckedExceptionTunnel
+    {
+        assert file != null : "Unspecified file.";
 
         FileReader fileReader = null;
         try
         {
             fileReader = new FileReader(file);
-            return readStringList(new BufferedReader(fileReader));
+            return readStringList(new BufferedReader(fileReader), lineFilterOrNull);
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
@@ -215,8 +232,8 @@ public final class FileUtilities
         BufferedReader reader = null;
         try
         {
-            reader = getBufferedReader(clazz, resource);
-            return readString(reader);
+            reader = tryGetBufferedReader(clazz, resource);
+            return reader == null ? null : readString(reader);
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
@@ -230,23 +247,43 @@ public final class FileUtilities
      * Loads a text file line by line to a {@link List} of {@link String}s.
      * <p>
      * A non-existent resource will result in a return value of <code>null</code>.
+     * </p>
      * 
      * @param clazz Class for which <code>getResource()</code> will be invoked.
-     * @param resource Absolute path of the resource (will be the argument of <code>getResource()</code>).
+     * @param resource absolute path of the resource (will be the argument of <code>getResource()</code>).
      * @return The content of the resource line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public static List<String> loadToStringList(final Class<?> clazz, final String resource)
+    public final static List<String> loadToStringList(final Class<?> clazz, final String resource)
             throws CheckedExceptionTunnel
     {
+        return loadToStringList(clazz, resource, null);
+    }
+
+    /**
+     * Loads a text file line by line to a {@link List} of {@link String}s.
+     * <p>
+     * A non-existent resource will result in a return value of <code>null</code>.
+     * </p>
+     * 
+     * @param clazz Class for which <code>getResource()</code> will be invoked.
+     * @param resource absolute path of the resource (will be the argument of <code>getResource()</code>).
+     * @param lineFilterOrNull a line filter if you are not interested in all lines. May be <code>null</code>.
+     * @return The content of the resource line by line or <code>null</code> if given <var>resource</var> can not be
+     *         found.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
+     */
+    public final static List<String> loadToStringList(final Class<?> clazz, final String resource,
+            final ILineFilter lineFilterOrNull) throws CheckedExceptionTunnel
+    {
         assert clazz != null : "Given class can not be null.";
-        assert resource != null && resource.length() > 0 : "Given resource can not be null.";
+        assert StringUtils.isNotEmpty(resource) : "Given resource can not be empty.";
 
         BufferedReader reader = null;
         try
         {
-            reader = getBufferedReader(clazz, resource);
-            return readStringList(reader);
+            reader = tryGetBufferedReader(clazz, resource);
+            return reader == null ? null : readStringList(reader, lineFilterOrNull);
         } catch (IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
@@ -256,7 +293,7 @@ public final class FileUtilities
         }
     }
 
-    private final static BufferedReader getBufferedReader(final Class<?> clazz, final String resource)
+    private final static BufferedReader tryGetBufferedReader(final Class<?> clazz, final String resource)
             throws FileNotFoundException
     {
         final URL url = clazz.getResource(resource);
@@ -273,13 +310,9 @@ public final class FileUtilities
         }
     }
 
-    private static String readString(BufferedReader reader) throws IOException
+    private static String readString(final BufferedReader reader) throws IOException
     {
-        if (reader == null)
-        {
-            return null;
-        }
-
+        assert reader != null : "Unspecified BufferedReader.";
         final StringBuilder builder = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null)
@@ -289,18 +322,26 @@ public final class FileUtilities
         return builder.toString();
     }
 
-    private static List<String> readStringList(BufferedReader reader) throws IOException
+    private final static List<String> readStringList(final BufferedReader reader, final ILineFilter lineFilterOrNull)
+            throws IOException
     {
-        if (reader == null)
+        assert reader != null : "Unspecified BufferedReader.";
+        final ILineFilter lineFilter;
+        if (lineFilterOrNull == null)
         {
-            return null;
+            lineFilter = AlwaysAcceptLineFilter.INSTANCE;
+        } else
+        {
+            lineFilter = lineFilterOrNull;
         }
-
         final List<String> list = new ArrayList<String>();
         String line;
-        while ((line = reader.readLine()) != null)
+        for (int lineNumber = 0; (line = reader.readLine()) != null; lineNumber++)
         {
-            list.add(line);
+            if (lineFilter.acceptLine(line, lineNumber))
+            {
+                list.add(line);
+            }
         }
         return list;
     }

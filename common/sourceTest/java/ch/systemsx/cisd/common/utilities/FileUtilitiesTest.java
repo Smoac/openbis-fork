@@ -40,6 +40,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 
 /**
  * Test cases for the {@link FileUtilities}.
@@ -212,6 +213,32 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
 
         final List<String> text = FileUtilities.loadToStringList(file);
         assert file.delete();
+        assertEquals(Arrays.asList("Hello", "World!"), text);
+    }
+
+    @Test
+    public final void testLoadToStringListFileWithLineFilter() throws Exception
+    {
+        final File file = new File(workingDirectory, "test.txt");
+        final FileWriter writer = new FileWriter(file);
+        try
+        {
+            writer.write("\nHello\nWorld!\n\n");
+        } finally
+        {
+            writer.close();
+        }
+        // With no line filter.
+        List<String> text = FileUtilities.loadToStringList(file);
+        assertEquals(4, text.size());
+        assertEquals(Arrays.asList("", "Hello", "World!", ""), text);
+        // With null line filter.
+        text = FileUtilities.loadToStringList(file, null);
+        assertEquals(4, text.size());
+        assertEquals(Arrays.asList("", "Hello", "World!", ""), text);
+        // With a correct line filter.
+        text = FileUtilities.loadToStringList(file, ExcludeEmptyAndCommentLineFilter.INSTANCE);
+        assertEquals(2, text.size());
         assertEquals(Arrays.asList("Hello", "World!"), text);
     }
 

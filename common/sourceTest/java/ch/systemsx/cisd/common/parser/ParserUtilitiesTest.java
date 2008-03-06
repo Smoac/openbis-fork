@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 
 /**
  * Test cases for corresponding {@link ParserUtilities} class.

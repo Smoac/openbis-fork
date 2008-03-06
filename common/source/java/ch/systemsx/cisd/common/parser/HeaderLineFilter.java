@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.common.parser;
 
+import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
+import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+
 /**
  * A <code>ILineFilter</code> implementation that extends {@link ExcludeEmptyAndCommentLineFilter} by
  * excluding the header line (if <code>&gt; 1</code>) as well.

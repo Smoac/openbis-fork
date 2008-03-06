@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.parser;
+package ch.systemsx.cisd.common.parser.filter;
 
 /**
  * A line filter for <code>ReaderParser</code>.
