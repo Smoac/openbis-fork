@@ -81,7 +81,7 @@ final class AdminMainPage extends AbstractMainPage
     //
 
     /**
-     * An {@link com.google.gwt.user.client.AsyncCallback} that creates a table with all users on success. 
+     * An {@link com.google.gwt.user.client.rpc.AsyncCallback} that creates a table with all users on success.
      */
     private final class UserAsyncCallback extends AbstractAsyncCallback
     {
@@ -113,7 +113,7 @@ final class AdminMainPage extends AbstractMainPage
     }
 
     /**
-     * An {@link com.google.gwt.user.client.AsyncCallback} that creates a table with all files on success. 
+     * An {@link com.google.gwt.user.client.rpc.AsyncCallback} that creates a table with all files on success.
      */
     private final class FileAdminAsyncCallback extends AbstractAsyncCallback
     {
