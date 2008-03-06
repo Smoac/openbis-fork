@@ -250,15 +250,17 @@ public class Template
     public Template createFreshCopy()
     {
         LinkedHashMap<String, VariableToken> map = new LinkedHashMap<String, VariableToken>();
+        for (VariableToken variableToken : variableTokens.values())
+        {
+            String variableName = variableToken.getVariableName();
+            map.put(variableName, new VariableToken(variableName));
+        }
         ArrayList<IToken> list = new ArrayList<IToken>();
         for (IToken token : tokens)
         {
             if (token instanceof VariableToken)
             {
-                String variableName = ((VariableToken) token).getVariableName();
-                VariableToken variableToken = new VariableToken(variableName);
-                map.put(variableName, variableToken);
-                list.add(variableToken);
+                list.add(map.get(((VariableToken) token).getVariableName()));
             } else
             {
                 list.add(token);

@@ -165,16 +165,24 @@ public class TemplateTest
     @Test
     public void testCreateFreshCopy()
     {
-        Template template = new Template("hello ${name}!");
+        Template template = new Template("hello ${name}.${name}!");
         Template template1 = template.createFreshCopy();
+        try
+        {
+            template1.createText();
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException e)
+        {
+            assertEquals("The following variables are not bound: name ", e.getMessage());
+        }
         template1.bind("name", "world");
-        assertEquals("hello world!", template1.createText());
-        assertEquals("hello ${name}!", template.createText(false));
+        assertEquals("hello world.world!", template1.createText());
+        assertEquals("hello ${name}.${name}!", template.createText(false));
         
         Template template2 = template.createFreshCopy();
         template2.bind("name", "universe");
-        assertEquals("hello universe!", template2.createText());
-        assertEquals("hello world!", template1.createText());
-        assertEquals("hello ${name}!", template.createText(false));
+        assertEquals("hello universe.universe!", template2.createText());
+        assertEquals("hello world.world!", template1.createText());
+        assertEquals("hello ${name}.${name}!", template.createText(false));
     }
 }
