@@ -62,7 +62,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
     /**
      * Creates an instance for the specified data source and sequence mapper.
      */
-    public H2MassUploader(DataSource dataSource, ISequenceNameMapper sequenceNameMapper) throws SQLException
+    public H2MassUploader(final DataSource dataSource, final ISequenceNameMapper sequenceNameMapper)
+            throws SQLException
     {
         this.sequenceNameMapper = sequenceNameMapper;
         setDataSource(dataSource);
@@ -76,7 +77,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
 
         final BitSet isBinaryColumn;
 
-        MassUploadRecord(File massUploadFile, String tableName, BitSet isBinaryColumn)
+        MassUploadRecord(final File massUploadFile, final String tableName, final BitSet isBinaryColumn)
         {
             this.massUploadFile = massUploadFile;
             this.tableName = tableName;
@@ -84,7 +85,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         }
     }
 
-    public void performMassUpload(File[] massUploadFiles)
+    public final void performMassUpload(final File[] massUploadFiles)
     {
         String task = "Get database metadata";
         try
@@ -93,14 +94,15 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
             final DatabaseMetaData dbMetaData = getConnection().getMetaData();
             try
             {
-                for (File massUploadFile : massUploadFiles)
+                for (final File massUploadFile : massUploadFiles)
                 {
                     final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
                     assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
                     final String tableNameWithExtension = splitName[1];
-                    boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
+                    final boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
                     assert tsvFileType : "Not a " + TSV.getFileType() + " file: " + massUploadFile.getName();
-                    final String tableName = tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
+                    final String tableName =
+                            tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
                     final BitSet isBinaryColumn = findBinaryColumns(dbMetaData, tableName);
                     massUploadRecords.add(new MassUploadRecord(massUploadFile, tableName, isBinaryColumn));
                 }
@@ -109,21 +111,21 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                 task = "Close connection";
                 dbMetaData.getConnection().close();
             }
-            for (MassUploadRecord record : massUploadRecords)
+            for (final MassUploadRecord record : massUploadRecords)
             {
                 performMassUpload(record);
             }
-            for (MassUploadRecord record : massUploadRecords)
+            for (final MassUploadRecord record : massUploadRecords)
             {
                 fixSequence(record.tableName);
             }
-        } catch (SQLException ex)
+        } catch (final SQLException ex)
         {
             throw new UncategorizedSQLException(task, "UNKNOWN", ex);
         }
     }
 
-    private void performMassUpload(final MassUploadRecord record)
+    private final void performMassUpload(final MassUploadRecord record)
     {
         try
         {
@@ -152,7 +154,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                         return numberOfRows;
                     }
 
-                    public void setValues(PreparedStatement ps, int rowNo) throws SQLException
+                    public void setValues(final PreparedStatement ps, final int rowNo) throws SQLException
                     {
                         for (int colNo = 0; colNo < numberOfColumns; ++colNo)
                         {
@@ -160,7 +162,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                         }
                     }
 
-                    private Object tryGetValue(int rowNo, int colNo)
+                    private Object tryGetValue(final int rowNo, final int colNo)
                     {
                         final String stringValueOrNull = rows.get(rowNo)[colNo];
                         if (stringValueOrNull == null)
@@ -176,13 +178,14 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                         }
                     }
                 });
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private BitSet findBinaryColumns(final DatabaseMetaData dbMetaData, final String tableName) throws SQLException
+    private final BitSet findBinaryColumns(final DatabaseMetaData dbMetaData, final String tableName)
+            throws SQLException
     {
         final BitSet binary = new BitSet();
         final ResultSet rs = dbMetaData.getColumns(null, null, tableName.toUpperCase(), "%");
@@ -197,7 +200,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         return binary;
     }
 
-    private List<String[]> readTSVFile(File tsvFile) throws IOException
+    private final List<String[]> readTSVFile(final File tsvFile) throws IOException
     {
         final List<String[]> result = new ArrayList<String[]>();
         final BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.openInputStream(tsvFile)));
@@ -239,7 +242,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         return result;
     }
 
-    private void fixSequence(String tableName)
+    private final void fixSequence(final String tableName)
     {
         final String sequenceName = sequenceNameMapper.getSequencerForTable(tableName);
         if (sequenceName == null)
@@ -250,11 +253,14 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         {
             final long maxId = getSimpleJdbcTemplate().queryForLong(String.format("select max(id) from %s", tableName));
             final long newSequenceValue = maxId + 1;
-            operationLog.info("Updating sequence " + sequenceName + " for table " + tableName + " to value "
-                    + newSequenceValue);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName + " to value "
+                        + newSequenceValue);
+            }
             getJdbcTemplate().execute(
                     String.format("alter sequence %s restart with %d", sequenceName, newSequenceValue));
-        } catch (DataAccessException ex)
+        } catch (final DataAccessException ex)
         {
             operationLog.error("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
                     + "'.", ex);

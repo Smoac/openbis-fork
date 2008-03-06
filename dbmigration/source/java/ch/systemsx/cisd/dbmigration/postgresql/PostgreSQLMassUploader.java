@@ -63,14 +63,15 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
     /**
      * Creates an instance for the specified data source and sequence mapper.
      */
-    public PostgreSQLMassUploader(DataSource dataSource, ISequenceNameMapper sequenceNameMapper) throws SQLException
+    public PostgreSQLMassUploader(final DataSource dataSource, final ISequenceNameMapper sequenceNameMapper)
+            throws SQLException
     {
         this.dataSource = dataSource;
         this.sequenceNameMapper = sequenceNameMapper;
         setDataSource(dataSource);
     }
 
-    private CopyManager getCopyManager() throws SQLException, NoSuchFieldException, IllegalAccessException
+    private final CopyManager getCopyManager() throws SQLException, NoSuchFieldException, IllegalAccessException
     {
         if (copyManager == null)
         {
@@ -79,28 +80,28 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         return copyManager;
     }
 
-    public void performMassUpload(File[] massUploadFiles)
+    public final void performMassUpload(final File[] massUploadFiles)
     {
-        Set<String> tables = new LinkedHashSet<String>();
-        for (File file : massUploadFiles)
+        final Set<String> tables = new LinkedHashSet<String>();
+        for (final File file : massUploadFiles)
         {
             performMassUpload(file, tables);
         }
-        for (String name : tables)
+        for (final String name : tables)
         {
             fixSequence(name);
         }
     }
 
-    private void performMassUpload(File massUploadFile, Set<String> tables)
+    private final void performMassUpload(final File massUploadFile, final Set<String> tables)
     {
         try
         {
             final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
             assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
             final String tableNameWithExtension = splitName[1];
-            boolean csvFileType = CSV.isOfType(tableNameWithExtension);
-            boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
+            final boolean csvFileType = CSV.isOfType(tableNameWithExtension);
+            final boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
             assert tsvFileType || csvFileType : "Non of expected file types [" + TSV.getFileType() + ", "
                     + CSV.getFileType() + "]: " + massUploadFile.getName();
             final String tableName = tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
@@ -123,13 +124,13 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             {
                 IOUtils.closeQuietly(is);
             }
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private void fixSequence(String tableName)
+    private final void fixSequence(final String tableName)
     {
         final String sequenceName = sequenceNameMapper.getSequencerForTable(tableName);
         if (sequenceName == null)
@@ -138,21 +139,28 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         }
         try
         {
-            getSimpleJdbcTemplate().queryForLong(
-                    String.format("select setval('%s', max(id)) from %s", sequenceName, tableName));
-        } catch (DataAccessException ex)
+            // The result returned by setval is just the value of its second argument.
+            final long newSequenceValue =
+                    getSimpleJdbcTemplate().queryForLong(
+                            String.format("select setval('%s', max(id)) from %s", sequenceName, tableName));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName + " to value "
+                        + newSequenceValue);
+            }
+        } catch (final DataAccessException ex)
         {
             operationLog.error("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
                     + "'.", ex);
         }
     }
 
-    private PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException
+    private final PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException
     {
         return getPGConnection(dataSource.getConnection());
     }
 
-    private PGConnection getPGConnection(Connection conn) throws SQLException, NoSuchFieldException,
+    private final PGConnection getPGConnection(final Connection conn) throws SQLException, NoSuchFieldException,
             IllegalAccessException
     {
         if (conn instanceof PGConnection)
@@ -163,7 +171,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         {
             operationLog.debug("Found connection of type '" + conn.getClass().getCanonicalName() + "'.");
         }
-        Field delegateField = getField(conn.getClass(), "_conn");
+        final Field delegateField = getField(conn.getClass(), "_conn");
         if (delegateField == null)
         {
             throw new RuntimeException("No PostgreSQL driver found - cannot perform mass upload.");
@@ -172,7 +180,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         return getPGConnection((Connection) delegateField.get(conn));
     }
 
-    private static Field getField(Class<?> clazz, String fieldName)
+    private final static Field getField(final Class<?> clazz, final String fieldName)
     {
         assert fieldName != null;
         if (clazz == null)
@@ -180,7 +188,7 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             return null;
         }
 
-        for (Field field : clazz.getDeclaredFields())
+        for (final Field field : clazz.getDeclaredFields())
         {
             if (fieldName.equals(field.getName()))
             {
