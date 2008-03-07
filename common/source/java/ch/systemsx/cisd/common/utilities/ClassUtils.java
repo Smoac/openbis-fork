@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +45,8 @@ public final class ClassUtils
     /**
      * For given <code>Class</code> returns a list of fields that are annotated with given <var>annotationClass</var>.
      */
-    public final static List<Field> getAnnotatedFieldList(final Class<?> clazz, final Class<?> annotationClass)
+    public final static List<Field> getAnnotatedFieldList(final Class<?> clazz,
+            final Class<? extends Annotation> annotationClass)
     {
         return getAnnotatedFieldList(clazz, annotationClass, null);
     }
@@ -54,11 +56,11 @@ public final class ClassUtils
      * 
      * @param fields if <code>null</code>, then a new <code>List</code> is created.
      */
-    private final static List<Field> getAnnotatedFieldList(final Class<?> clazz, final Class<?> annotationClass,
-            final List<Field> fields)
+    private final static List<Field> getAnnotatedFieldList(final Class<?> clazz,
+            final Class<? extends Annotation> annotationClass, final List<Field> fields)
     {
         assert clazz != null : "Unspecified class.";
-        assert annotationClass != null && annotationClass.isAnnotation() : "Unspecified or not an annotation class.";
+        assert annotationClass != null : "Unspecified or not an annotation class.";
         List<Field> list = fields;
         if (list == null)
         {
@@ -66,7 +68,7 @@ public final class ClassUtils
         }
         for (final Field field : clazz.getDeclaredFields())
         {
-            if (field.getAnnotation(BeanProperty.class) != null)
+            if (field.getAnnotation(annotationClass) != null)
             {
                 list.add(field);
             }

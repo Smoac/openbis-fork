@@ -59,13 +59,13 @@ public final class ClassUtilsTest
 
         public final String getMethodName()
         {
-            StackTraceElement[] elements = new Throwable().getStackTrace();
+            final StackTraceElement[] elements = new Throwable().getStackTrace();
             return elements[0].getMethodName();
         }
 
-        public final String getMethodName(Object one, Object two)
+        public final String getMethodName(final Object one, final Object two)
         {
-            StackTraceElement[] elements = new Throwable().getStackTrace();
+            final StackTraceElement[] elements = new Throwable().getStackTrace();
             return elements[0].getMethodName();
         }
     }
@@ -89,7 +89,7 @@ public final class ClassUtilsTest
     @Test
     public void testCreateWithDefaultConstructor()
     {
-        CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), (Object[]) null);
+        final CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), (Object[]) null);
         assertTrue(cs instanceof StringBuffer);
         assertEquals(0, cs.length());
     }
@@ -97,8 +97,8 @@ public final class ClassUtilsTest
     @Test
     public void testCreateWithPropertiesConstructor()
     {
-        Properties properties = new Properties();
-        Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
+        final Properties properties = new Properties();
+        final Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
         assertTrue(appendable instanceof MyClass);
         assertSame(properties, ((MyClass) appendable).properties);
     }
@@ -110,7 +110,7 @@ public final class ClassUtilsTest
         {
             ClassUtils.create(Float.class, Integer.class.getName(), (Object[]) null);
             fail("AssertionError expected.");
-        } catch (AssertionError e)
+        } catch (final AssertionError e)
         {
             assertEquals("Class 'java.lang.Integer' does not implements/extends 'java.lang.Float'.", e.getMessage());
         }
@@ -123,7 +123,7 @@ public final class ClassUtilsTest
         {
             ClassUtils.create(Float.class, CharSequence.class.getName(), (Object[]) null);
             fail("AssertionError expected.");
-        } catch (AssertionError e)
+        } catch (final AssertionError e)
         {
             assertEquals("Interface 'java.lang.CharSequence' can not be instanciated as it is an interface.", e
                     .getMessage());
@@ -183,13 +183,6 @@ public final class ClassUtilsTest
     @Test
     public final void testGetAnnotatedFieldList()
     {
-        try
-        {
-            ClassUtils.getAnnotatedFieldList(A.class, String.class);
-            fail("Not an annotation class.");
-        } catch (final AssertionError e)
-        {
-        }
         List<Field> fields = ClassUtils.getAnnotatedFieldList(A.class, BeanProperty.class);
         assertEquals(1, fields.size());
         fields = ClassUtils.getAnnotatedFieldList(B.class, BeanProperty.class);
@@ -220,17 +213,17 @@ public final class ClassUtilsTest
         // Appendable
         //
 
-        public Appendable append(char c) throws IOException
+        public Appendable append(final char c) throws IOException
         {
             return null;
         }
 
-        public Appendable append(CharSequence csq, int start, int end) throws IOException
+        public Appendable append(final CharSequence csq, final int start, final int end) throws IOException
         {
             return null;
         }
 
-        public Appendable append(CharSequence csq) throws IOException
+        public Appendable append(final CharSequence csq) throws IOException
         {
             return null;
         }
