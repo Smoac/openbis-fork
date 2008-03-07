@@ -20,10 +20,14 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A <code>HttpSessionListener</code> implementation which registers the active user sessions in a <i>Spring</i>
@@ -57,8 +61,15 @@ public final class UserHttpSessionListener implements HttpSessionListener
 
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
+        final Logger operationLog = LogFactory.getLogger(LogCategory.AUTH, UserHttpSessionListener.class);
         final HttpSession session = sessionEvent.getSession();
         final UserHttpSessionHolder sessionHolder = getUserHttpSessionHolder(session);
+        if (session != null && operationLog.isInfoEnabled())
+        {
+            final UserDTO user = (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
+            String userCode = user != null ? user.getUserCode() : "";
+            operationLog.info("Close session '" + session.getId() + "' of user '" + userCode + "'.");
+        }
         sessionHolder.removeUserSession(session);
     }
 }
