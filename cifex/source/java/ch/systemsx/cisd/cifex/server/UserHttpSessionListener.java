@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class UserHttpSessionListener implements HttpSessionListener
 {
+    private static final Logger authLog = LogFactory.getLogger(LogCategory.AUTH, UserHttpSessionListener.class);
 
     private final static UserHttpSessionHolder getUserHttpSessionHolder(final HttpSession session)
     {
@@ -61,14 +62,13 @@ public final class UserHttpSessionListener implements HttpSessionListener
 
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
-        final Logger operationLog = LogFactory.getLogger(LogCategory.AUTH, UserHttpSessionListener.class);
         final HttpSession session = sessionEvent.getSession();
         final UserHttpSessionHolder sessionHolder = getUserHttpSessionHolder(session);
-        if (session != null && operationLog.isInfoEnabled())
+        if (session != null && authLog.isInfoEnabled())
         {
             final UserDTO user = (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-            String userCode = user != null ? user.getUserCode() : "";
-            operationLog.info("Close session '" + session.getId() + "' of user '" + userCode + "'.");
+            String userCode = (user != null) ? user.getUserCode() : "";
+            authLog.info("Close session '" + session.getId() + "' of user '" + userCode + "'.");
         }
         sessionHolder.removeUserSession(session);
     }
