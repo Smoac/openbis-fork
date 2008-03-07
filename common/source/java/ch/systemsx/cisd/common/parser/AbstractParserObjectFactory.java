@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -25,7 +24,6 @@ import java.util.TreeSet;
 
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
@@ -42,11 +40,6 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** The pool of {@link Converter}s. */
     private final ConverterPool converterPool;
 
-    /**
-     * A <code>Map</code> of <code>PropertyDescriptor</code>s for typed <code>Object</code>, keyed by their name ({@link PropertyDescriptor#getName()}).
-     */
-    private final Map<String, PropertyDescriptor> propertyDescriptors;
-
     /** The class of object bean we are going to create here. */
     private final Class<E> beanClass;
 
@@ -57,7 +50,6 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     {
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
-        propertyDescriptors = BeanUtils.getPropertyDescriptors(beanClass);
         beanAnalyzer = new BeanAnalyzer<E>(beanClass);
         checkPropertyMapper(beanClass, propertyMapper);
         this.propertyMapper = propertyMapper;
@@ -105,9 +97,9 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
-     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are not in
-     * {@link #propertyDescriptors} (throws a <code>UnmatchedPropertiesException</code>) or mandatory fields that
-     * could not be found in {@link #propertyDescriptors} (throws a <code>MandatoryPropertyMissingException</code>).
+     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are not in labels in
+     * annotated write methods (throws a <code>UnmatchedPropertiesException</code>) or mandatory fields that could
+     * not be found in the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
     private final void checkPropertyMapper(final Class<E> clazz, final IAliasPropertyMapper propMapper)
@@ -116,7 +108,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
         final Set<String> propertyNames = new LinkedHashSet<String>(allPropertyNames);
         final Set<String> missingProperties = new LinkedHashSet<String>();
-        final Set<String> fieldNames = propertyDescriptors.keySet();
+        final Set<String> fieldNames = beanAnalyzer.getLabelToWriteMethods().keySet();
         for (final String fieldName : fieldNames)
         {
             if (propertyNames.contains(fieldName))
@@ -175,10 +167,10 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     public E createObject(final String[] lineTokens) throws ParserException
     {
         final E object = ClassUtils.createInstance(beanClass);
-        for (final PropertyDescriptor descriptor : propertyDescriptors.values())
+        for (final Map.Entry<String, Method> entry : beanAnalyzer.getLabelToWriteMethods().entrySet())
         {
-            final Method writeMethod = descriptor.getWriteMethod();
-            final IPropertyModel propertyModel = tryGetPropertyModel(descriptor.getName());
+            final Method writeMethod = entry.getValue();
+            final IPropertyModel propertyModel = tryGetPropertyModel(entry.getKey());
             // They could have some optional descriptors that are not found in the file header.
             // Just ignore them.
             if (propertyModel != null)

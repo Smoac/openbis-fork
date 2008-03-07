@@ -25,14 +25,11 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
  * Test cases for the {@link ClassUtils} class.
@@ -180,15 +177,6 @@ public final class ClassUtilsTest
         assertSame(object, myExtendedClass.finalObject);
     }
 
-    @Test
-    public final void testGetAnnotatedFieldList()
-    {
-        List<Field> fields = ClassUtils.getAnnotatedFieldList(A.class, BeanProperty.class);
-        assertEquals(1, fields.size());
-        fields = ClassUtils.getAnnotatedFieldList(B.class, BeanProperty.class);
-        assertEquals(2, fields.size());
-    }
-
     //
     // Helper Classes
     //
@@ -245,25 +233,5 @@ public final class ClassUtilsTest
             super(properties);
         }
 
-    }
-
-    private static class A
-    {
-
-        @BeanProperty
-        Object a;
-
-        Object b;
-
-    }
-
-    private final static class B extends A
-    {
-
-        @SuppressWarnings("hiding")
-        @BeanProperty
-        Object a;
-
-        Object c;
     }
 }

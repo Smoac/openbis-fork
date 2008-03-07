@@ -44,7 +44,7 @@ public final class AbstractParserObjectFactoryTest
             { "Bean Name", "Bean Description", "1" };
     }
 
-    private final void checkBean(Bean bean)
+    private final void checkBean(final Bean bean)
     {
         assertEquals("Bean Name", bean.name);
         assertEquals("Bean Description", bean.description);
@@ -66,7 +66,7 @@ public final class AbstractParserObjectFactoryTest
         {
             new BeanFactory(Bean.class, propertyMapper);
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
-        } catch (UnmatchedPropertiesException ex)
+        } catch (final UnmatchedPropertiesException ex)
         {
             assertEquals("Following header columns are not part of 'Bean': IsNotIn", ex.getMessage());
         }
@@ -75,16 +75,16 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testMandatoryFields()
     {
-        DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
+        final DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
             { "description" });
         try
         {
-            BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
-            String[] lineTokens = new String[]
+            final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+            final String[] lineTokens = new String[]
                 { "1. experiment" };
             beanFactory.createObject(lineTokens);
             fail("Field/Property name 'name' is mandatory.");
-        } catch (MandatoryPropertyMissingException ex)
+        } catch (final MandatoryPropertyMissingException ex)
         {
             assertEquals(String.format(MandatoryPropertyMissingException.MESSAGE_FORMAT, "name"), ex.getMessage());
         }
@@ -94,9 +94,9 @@ public final class AbstractParserObjectFactoryTest
     public final void testTooManyDataColumns()
     {
         final IAliasPropertyMapper propertyMapper = createPropertyMapper();
-        BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
-        String[] lineTokens = (String[]) ArrayUtils.add(createDefaultLineTokens(), "notUsed");
-        Bean bean = beanFactory.createObject(lineTokens);
+        final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+        final String[] lineTokens = (String[]) ArrayUtils.add(createDefaultLineTokens(), "notUsed");
+        final Bean bean = beanFactory.createObject(lineTokens);
         checkBean(bean);
     }
 
@@ -104,15 +104,15 @@ public final class AbstractParserObjectFactoryTest
     public final void testNotEnoughDataColumns()
     {
         final IAliasPropertyMapper propertyMapper = createPropertyMapper();
-        BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
-        String[] defaultTokens = createDefaultLineTokens();
-        String[] lineTokens = (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
-        String msg = String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
+        final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+        final String[] defaultTokens = createDefaultLineTokens();
+        final String[] lineTokens = (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
+        final String msg = String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
         try
         {
             beanFactory.createObject(lineTokens);
             fail(msg);
-        } catch (IndexOutOfBoundsException ex)
+        } catch (final IndexOutOfBoundsException ex)
         {
             assertEquals(msg, ex.getMessage());
         }
@@ -122,12 +122,12 @@ public final class AbstractParserObjectFactoryTest
     public final void testRegisterConverterWithNull()
     {
         final IAliasPropertyMapper propertyMapper = createPropertyMapper();
-        BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+        final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         try
         {
             beanFactory.registerConverter(null, null);
             fail("Null type is not allowed.");
-        } catch (AssertionError ex)
+        } catch (final AssertionError ex)
         {
             // Nothing to do here.
         }
@@ -150,7 +150,6 @@ public final class AbstractParserObjectFactoryTest
 
     public final static class Bean
     {
-        @BeanProperty
         private String name;
 
         private String description;
@@ -162,7 +161,8 @@ public final class AbstractParserObjectFactoryTest
             return name;
         }
 
-        public final void setName(String name)
+        @BeanProperty(label = "name")
+        public final void setName(final String name)
         {
             this.name = name;
         }
@@ -172,7 +172,8 @@ public final class AbstractParserObjectFactoryTest
             return number;
         }
 
-        public final void setNumber(int number)
+        @BeanProperty(label = "number", optional = true)
+        public final void setNumber(final int number)
         {
             this.number = number;
         }
@@ -182,7 +183,8 @@ public final class AbstractParserObjectFactoryTest
             return description;
         }
 
-        public final void setDescription(String description)
+        @BeanProperty(label = "description", optional = true)
+        public final void setDescription(final String description)
         {
             this.description = description;
         }

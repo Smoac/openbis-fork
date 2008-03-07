@@ -16,18 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -40,45 +36,6 @@ public final class ClassUtils
     private ClassUtils()
     {
         // Can not be instantiated.
-    }
-
-    /**
-     * For given <code>Class</code> returns a list of fields that are annotated with given <var>annotationClass</var>.
-     */
-    public final static List<Field> getAnnotatedFieldList(final Class<?> clazz,
-            final Class<? extends Annotation> annotationClass)
-    {
-        return getAnnotatedFieldList(clazz, annotationClass, null);
-    }
-
-    /**
-     * For given <code>Class</code> returns a list of fields that are annotated with {@link BeanProperty}.
-     * 
-     * @param fields if <code>null</code>, then a new <code>List</code> is created.
-     */
-    private final static List<Field> getAnnotatedFieldList(final Class<?> clazz,
-            final Class<? extends Annotation> annotationClass, final List<Field> fields)
-    {
-        assert clazz != null : "Unspecified class.";
-        assert annotationClass != null : "Unspecified or not an annotation class.";
-        List<Field> list = fields;
-        if (list == null)
-        {
-            list = new ArrayList<Field>();
-        }
-        for (final Field field : clazz.getDeclaredFields())
-        {
-            if (field.getAnnotation(annotationClass) != null)
-            {
-                list.add(field);
-            }
-        }
-        final Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null)
-        {
-            return getAnnotatedFieldList(superclass, annotationClass, list);
-        }
-        return list;
     }
 
     /**

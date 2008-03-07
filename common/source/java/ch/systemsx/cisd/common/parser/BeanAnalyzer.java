@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.AnnotationUtils;
 
 /**
  * A <i>Bean</i> class analyzer.
@@ -42,6 +46,8 @@ final class BeanAnalyzer<T>
 
     private final Set<String> optionalProperties = new TreeSet<String>();
 
+    private final Map<String, Method> labelToWriteMethods = new HashMap<String, Method>();
+
     BeanAnalyzer(final Class<T> beanClass)
     {
         this.beanClass = beanClass;
@@ -50,21 +56,35 @@ final class BeanAnalyzer<T>
 
     private final void fillProperties()
     {
-        final List<Field> annotatedFields = ClassUtils.getAnnotatedFieldList(beanClass, BeanProperty.class);
-        for (final Field field : annotatedFields)
+        final List<Method> annotatedMethods = AnnotationUtils.getAnnotatedMethodList(beanClass, BeanProperty.class);
+        for (final Method method : annotatedMethods)
         {
-            final BeanProperty annotation = field.getAnnotation(BeanProperty.class);
-            final String fieldName = field.getName();
+            checkMethod(method);
+            final BeanProperty annotation = method.getAnnotation(BeanProperty.class);
+            final String label = annotation.label();
+            assert StringUtils.isNotEmpty(label) : String.format(
+                    "BeanProperty annotation's label is not specified for method '%s'", method.getName());
+            labelToWriteMethods.put(label, method);
             final boolean optional = annotation.optional();
-            checkUnique(fieldName, optional);
+            checkUnique(label, optional);
             if (optional)
             {
-                optionalProperties.add(fieldName);
+                optionalProperties.add(label);
             } else
             {
-                mandatoryProperties.add(fieldName);
+                mandatoryProperties.add(label);
             }
         }
+    }
+
+    private final static void checkMethod(final Method method)
+    {
+        final Class<?> returnType = method.getReturnType();
+        assert returnType.equals(Void.TYPE) : String.format("Return value of method '%s' must be void.", method
+                .getName());
+        final Class<?>[] parameterTypes = method.getParameterTypes();
+        assert parameterTypes.length == 1 : String.format("Annotated method '%s' must only accept one parameter.",
+                method.getName());
     }
 
     private final void checkUnique(final String fieldName, final boolean optional)
@@ -98,5 +118,15 @@ final class BeanAnalyzer<T>
     final Set<String> getOptionalProperties()
     {
         return Collections.unmodifiableSet(optionalProperties);
+    }
+
+    /**
+     * Returns the mapping between static labels and methods.
+     * 
+     * @return never <code>null</code> but could return an empty unmodifiable <code>Map</code>.
+     */
+    final Map<String, Method> getLabelToWriteMethods()
+    {
+        return Collections.unmodifiableMap(labelToWriteMethods);
     }
 }

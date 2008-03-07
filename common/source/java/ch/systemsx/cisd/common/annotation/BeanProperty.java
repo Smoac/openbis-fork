@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a field in a <i>Java</i> bean class that should be considered by the parser.
+ * Marks a setter method in a <i>Java</i> bean class that should be considered by the parser.
  * <p>
  * By default, each property annotated with <code>BeanProperty</code> is mandatory.
  * </p>
@@ -31,13 +31,13 @@ import java.lang.annotation.Target;
  * @author Christian Ribeaud
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 public @interface BeanProperty
 {
     /**
      * Whether this bean property is optional or not.
      * <p>
-     * Default is <code>false</code> meaning that any field annotated with this is mandatory.
+     * Default is <code>false</code> meaning that any field set by annotated method is mandatory.
      * </p>
      */
     public boolean optional() default false;
@@ -45,7 +45,7 @@ public @interface BeanProperty
     /**
      * Static label (or alias) for this annotated field.
      * <p>
-     * This <b>must</b> be specified as the parser prefers to work with the label than with the field name.
+     * This <b>must</b> not be empty (as the parser works with labelled methods).
      * </p>
      */
     public String label() default "";
