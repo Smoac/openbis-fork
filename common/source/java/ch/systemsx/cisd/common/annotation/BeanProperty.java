@@ -37,8 +37,16 @@ public @interface BeanProperty
     /**
      * Whether this bean property is optional or not.
      * <p>
-     * Default is <code>false</code>.
+     * Default is <code>false</code> meaning that any field annotated with this is mandatory.
      * </p>
      */
     public boolean optional() default false;
+
+    /**
+     * Static label (or alias) for this annotated field.
+     * <p>
+     * This <b>must</b> be specified as the parser prefers to work with the label than with the field name.
+     * </p>
+     */
+    public String label() default "";
 }
