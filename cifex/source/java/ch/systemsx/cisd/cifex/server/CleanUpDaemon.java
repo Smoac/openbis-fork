@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class CleanUpDaemon extends TimerTask
 {
-    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
 
     private final Stopwatch timer = new Stopwatch();
 
@@ -62,15 +62,20 @@ public final class CleanUpDaemon extends TimerTask
     @Override
     public final void run()
     {
-        timer.start();
-        deleteExpiredUsers();
-        deleteExpiredFiles();
-        timer.stop();
-        if (logger.isDebugEnabled())
+        try
         {
-            logger.debug("Cleaning time: " + timer.getTimeElapsed() + " ms");
+            timer.start();
+            deleteExpiredUsers();
+            deleteExpiredFiles();
+            timer.stop();
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Cleaning time: " + timer.getTimeElapsed() + " ms");
+            }
+        } catch (Throwable th)
+        {
+            operationLog.error("Unexpected exception or error, thread is still running.", th);
         }
-
     }
 
     //
