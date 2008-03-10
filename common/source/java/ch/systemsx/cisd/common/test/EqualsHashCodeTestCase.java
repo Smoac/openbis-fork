@@ -1,8 +1,8 @@
 /*
- * The JUnit-addons Software License, Version 1.0
- *     (based on the Apache Software License, Version 1.1)
+ * Copyright 2002-2003 Vladimir R. Bossicard.  All rights reserved.
  *
- * Copyright (c) 2002-2003 Vladimir R. Bossicard.  All rights reserved.
+ * Licensed under the JUnit-addons Software License, Version 1.0
+ *     (based on the Apache Software License, Version 1.1)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
