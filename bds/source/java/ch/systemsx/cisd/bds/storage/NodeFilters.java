@@ -87,23 +87,28 @@ public final class NodeFilters
         public final boolean accept(final INode node)
         {
             assert node != null : "Given node can not be null.";
-            String name = node.getName();
-            if (ignoreCase)
+            final String nameWithRightCase = toRightCase(node.getName());
+            for (final String suffix : suffixes)
             {
-                name = name.toLowerCase();
-            }
-            for (String suffix : suffixes)
-            {
-                if (ignoreCase)
-                {
-                    suffix = suffix.toLowerCase();
-                }
-                if (name.endsWith(suffix))
+                final String suffixWithRightCase = toRightCase(suffix);
+                if (nameWithRightCase.endsWith(suffixWithRightCase))
                 {
                     return true;
                 }
             }
             return false;
         }
+
+        private final String toRightCase(String s)
+        {
+            if (ignoreCase)
+            {
+                return s.toLowerCase(); 
+            } else
+            {
+                return s;
+            }
+        }
     }
+    
 }

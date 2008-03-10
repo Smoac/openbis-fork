@@ -21,15 +21,15 @@ package ch.systemsx.cisd.bds;
  *
  * @author Franz-Josef Elmer
  */
-public final class UnknownFormat1_0 extends Format
+public final class UnknownFormatV1_0 extends Format
 {
     public static final String FORMAT_CODE = "UNKNOWN";
     /**
      * The one and only one instance.
      */
-    public static final Format UNKNOWN_1_0 = new UnknownFormat1_0();
+    public static final Format UNKNOWN_1_0 = new UnknownFormatV1_0();
 
-    private UnknownFormat1_0()
+    private UnknownFormatV1_0()
     {
         super(FORMAT_CODE, new Version(1, 0), null);
     }

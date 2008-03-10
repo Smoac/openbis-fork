@@ -35,7 +35,7 @@ import ch.systemsx.cisd.bds.storage.INode;
 
 /**
  * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is associated with
- * {@link HCSImageFormat1_0}.
+ * {@link HCSImageFormatV1_0}.
  * 
  * @author Christian Ribeaud
  */
@@ -55,7 +55,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     private final boolean containsOriginalData()
     {
-        return (Boolean) getFormatParameters().getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
+        return (Boolean) getFormatParameters().getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
     }
 
     private final Geometry getWellGeometry()
@@ -105,7 +105,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     final static String createWellFileName(final Location wellLocation)
     {
         assert wellLocation != null : "Well location can not be null.";
-        return ROW + wellLocation.y + "_" + COLUMN + wellLocation.x + ".tiff";
+        return ROW + wellLocation.getY() + "_" + COLUMN + wellLocation.getX() + ".tiff";
     }
 
     private final IDirectory getStandardDataDirectory() throws DataStructureException
@@ -120,12 +120,12 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     private final static String getPlateColumnDir(final Location plateLocation)
     {
-        return COLUMN + plateLocation.x;
+        return COLUMN + plateLocation.getX();
     }
 
     private final static String getPlateRowDirName(final Location plateLocation)
     {
-        return ROW + plateLocation.y;
+        return ROW + plateLocation.getY();
     }
 
     private final static String getChannelName(final int channel)
@@ -235,7 +235,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     public final Format getFormat()
     {
-        return HCSImageFormat1_0.HCS_IMAGE_1_0;
+        return HCSImageFormatV1_0.HCS_IMAGE_1_0;
     }
 
     @Override

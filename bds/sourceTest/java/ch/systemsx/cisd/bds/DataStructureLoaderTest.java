@@ -42,7 +42,7 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
         DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         ExperimentRegistrator experimentRegistrator = new ExperimentRegistrator("john", "doe", "j@doe");

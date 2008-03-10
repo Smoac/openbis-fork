@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
  * 
  * @author Franz-Josef Elmer
  */
-public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
+public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
 {
     private static void assertPartOfString(String part, String string)
     {
@@ -81,10 +81,10 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     public void testGetFormattedData()
     {
         dataStructure.create();
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         IFormattedData formattedData = dataStructure.getFormattedData();
         assertTrue(formattedData instanceof NoFormattedData);
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formattedData.getFormat());
+        assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, formattedData.getFormat());
     }
 
     @Test
@@ -261,7 +261,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         try
         {
             dataStructure.close();
@@ -277,7 +277,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
         try
@@ -295,7 +295,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
         try
@@ -313,7 +313,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
         dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
@@ -332,7 +332,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
         dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
@@ -352,7 +352,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
-        dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
+        dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         ExperimentRegistratorDate experimentRegistratorDate = new ExperimentRegistratorDate(new Date(4711L * 4711000L));
@@ -394,9 +394,8 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
         IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, ChecksumHandler.CHECKSUM_DIRECTORY);
-        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n" + 
-        		"d41d8cd98f00b204e9800998ecf8427e  origFile1\n" + 
-        		"d41d8cd98f00b204e9800998ecf8427e  origFile2\n", Utilities.getString(checksumDir,
+        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n" + "d41d8cd98f00b204e9800998ecf8427e  origFile1\n"
+                + "d41d8cd98f00b204e9800998ecf8427e  origFile2\n", Utilities.getString(checksumDir,
                 DataStructureV1_0.DIR_ORIGINAL));
     }
 
@@ -409,7 +408,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private void checkFormattedData(IFormattedData formattedData)
     {
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, formattedData.getFormat());
+        assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, formattedData.getFormat());
         IFormatParameters formatParameters = formattedData.getFormatParameters();
         Iterator<FormatParameter> iterator = formatParameters.iterator();
         assertTrue(iterator.hasNext());
@@ -445,7 +444,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testOpenVersion1_1()
+    public void testOpenVersionV1_1()
     {
         createExampleDataStructure();
         storage.mount();
@@ -456,7 +455,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testOpenVersion2_0()
+    public void testOpenVersionV2_0()
     {
         createExampleDataStructure();
         storage.mount();
@@ -475,26 +474,26 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testOpenWithUnknownFormat1_1()
+    public void testOpenWithUnknownFormatV1_1()
     {
         createExampleDataStructure();
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
+        assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
     @Test
-    public void testOpenWithUnknownFormat2_0()
+    public void testOpenWithUnknownFormatV2_0()
     {
         createExampleDataStructure();
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         try
@@ -517,7 +516,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         new Format("another format", new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
         dataStructure.open();
-        assertEquals(UnknownFormat1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
+        assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
     private final void createExampleDataStructure()
@@ -534,7 +533,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
         originalDataDir.addKeyValuePair("file1", "This is my first file.");
         IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormat1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);

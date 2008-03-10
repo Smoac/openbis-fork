@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
-import ch.systemsx.cisd.bds.hcs.HCSImageFormat1_0;
+import ch.systemsx.cisd.bds.hcs.HCSImageFormatV1_0;
 import ch.systemsx.cisd.bds.hcs.HCSImageFormattedData;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
@@ -36,8 +36,8 @@ public final class FormattedDataFactory
 
     static
     {
-        register(UnknownFormat1_0.UNKNOWN_1_0, NoFormattedData.class);
-        register(HCSImageFormat1_0.HCS_IMAGE_1_0, HCSImageFormattedData.class);
+        register(UnknownFormatV1_0.UNKNOWN_1_0, NoFormattedData.class);
+        register(HCSImageFormatV1_0.HCS_IMAGE_1_0, HCSImageFormattedData.class);
     }
 
     private FormattedDataFactory()

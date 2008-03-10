@@ -38,7 +38,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 public class HCSImageAnnotations implements IAnnotations
 {
     private static final Set<Format> FORMATS =
-            Collections.unmodifiableSet(new HashSet<Format>(Arrays.asList(HCSImageFormat1_0.HCS_IMAGE_1_0)));
+            Collections.unmodifiableSet(new HashSet<Format>(Arrays.asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
     
     private String deviceID;
     

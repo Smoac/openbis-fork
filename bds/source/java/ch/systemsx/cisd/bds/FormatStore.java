@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
-import ch.systemsx.cisd.bds.hcs.HCSImageFormat1_0;
+import ch.systemsx.cisd.bds.hcs.HCSImageFormatV1_0;
 
 /**
  * A store of all active formats.
@@ -40,8 +40,8 @@ public final class FormatStore
     private final static Map<String, Format> createFormats()
     {
         final Map<String, Format> map = new HashMap<String, Format>();
-        map.put(getKey(UnknownFormat1_0.UNKNOWN_1_0), UnknownFormat1_0.UNKNOWN_1_0);
-        map.put(getKey(HCSImageFormat1_0.HCS_IMAGE_1_0), HCSImageFormat1_0.HCS_IMAGE_1_0);
+        map.put(getKey(UnknownFormatV1_0.UNKNOWN_1_0), UnknownFormatV1_0.UNKNOWN_1_0);
+        map.put(getKey(HCSImageFormatV1_0.HCS_IMAGE_1_0), HCSImageFormatV1_0.HCS_IMAGE_1_0);
         return map;
     }
 

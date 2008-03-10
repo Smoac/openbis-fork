@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
-import ch.systemsx.cisd.bds.DataStructureV1_0Test;
+import ch.systemsx.cisd.bds.DataStructureTestV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
  * 
  * @author Christian Ribeaud
  */
-public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
+public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
 {
     private FileStorage storage;
 
@@ -60,9 +60,9 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private final void setFormatAndFormatParameters()
     {
-        dataStructure.setFormat(HCSImageFormat1_0.HCS_IMAGE_1_0);
-        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormat1_0.DEVICE_ID, "M1"));
-        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
+        dataStructure.setFormat(HCSImageFormatV1_0.HCS_IMAGE_1_0);
+        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.DEVICE_ID, "M1"));
+        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
         dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS, createChannelList()));
         dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, new PlateGeometry(2, 3)));
         dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY, new WellGeometry(7, 5)));
@@ -85,7 +85,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     public void testGetFormattedData()
     {
         dataStructure.create();
-        final Format format = HCSImageFormat1_0.HCS_IMAGE_1_0;
+        final Format format = HCSImageFormatV1_0.HCS_IMAGE_1_0;
         try
         {
             dataStructure.getFormattedData();
@@ -105,7 +105,7 @@ public final class HCSDataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         // Creating...
         dataStructure.create();
-        DataStructureV1_0Test.createExampleDataStructure(storage);
+        DataStructureTestV1_0.createExampleDataStructure(storage);
         setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...

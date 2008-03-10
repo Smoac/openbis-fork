@@ -30,12 +30,12 @@ public final class Location
     /**
      * The <i>x</i> (or <i>column</i>) coordinate.
      */
-    public final int x;
+    private final int x;
 
     /**
      * The <i>y</i> (or <i>row</i>) coordinate.
      */
-    public final int y;
+    private final int y;
 
     public Location(final int x, final int y)
     {
@@ -126,5 +126,21 @@ public final class Location
     public final String toString()
     {
         return "[x=" + x + ",y=" + y + "]";
+    }
+
+    /**
+     * Returns the <i>x</i> (or <i>column</i>) coordinate.
+     */
+    public int getX()
+    {
+        return x;
+    }
+
+    /**
+     * Returns the <i>y</i> (or <i>row</i>) coordinate.
+     */
+    public int getY()
+    {
+        return y;
     }
 }

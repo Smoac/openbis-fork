@@ -82,7 +82,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         directory = context.mock(IDirectory.class);
         formatParameters = context.mock(IFormatParameters.class);
-        final Format format = HCSImageFormat1_0.HCS_IMAGE_1_0;
+        final Format format = HCSImageFormatV1_0.HCS_IMAGE_1_0;
         context.checking(new Expectations()
             {
                 {
@@ -188,7 +188,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testGetFormat()
     {
-        assertEquals(HCSImageFormat1_0.HCS_IMAGE_1_0, formattedData.getFormat());
+        assertEquals(HCSImageFormatV1_0.HCS_IMAGE_1_0, formattedData.getFormat());
         context.assertIsSatisfied();
     }
 
@@ -208,7 +208,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
                     will(returnValue(originalNode));
 
-                    one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
+                    one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
                     will(returnValue(Boolean.TRUE));
                 }
             });
@@ -217,8 +217,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                         WELL_LOCATION);
         final String standardFileName = "row2_column1.tiff";
         assertNotNull(nodePath);
-        assertTrue(nodePath.node instanceof ILink);
-        assertEquals(standardFileName, nodePath.node.getName());
+        assertTrue(nodePath.getNode() instanceof ILink);
+        assertEquals(standardFileName, nodePath.getNode().getName());
         // Look at the standard leaf directory if the node is there as well.
         final INode standardFile = standardLeafDirectory.tryGetNode(standardFileName);
         assertNotNull(standardFile);
@@ -242,7 +242,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
                     will(returnValue(standardNode));
 
-                    one(formatParameters).getValue(HCSImageFormat1_0.CONTAINS_ORIGINAL_DATA);
+                    one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
                     will(returnValue(Boolean.FALSE));
                 }
             });
@@ -251,8 +251,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                         WELL_LOCATION);
         final String standardFileName = "row2_column1.tiff";
         assertNotNull(nodePath);
-        assertTrue(nodePath.node instanceof IFile);
-        assertEquals(standardFileName, nodePath.node.getName());
+        assertTrue(nodePath.getNode() instanceof IFile);
+        assertEquals(standardFileName, nodePath.getNode().getName());
         // Look at the standard leaf directory if the node is there as well.
         final INode standardFile = standardLeafDirectory.tryGetNode(standardFileName);
         assertNotNull(standardFile);

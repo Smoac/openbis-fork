@@ -28,7 +28,7 @@ import ch.systemsx.cisd.bds.Version;
  * 
  * @author Christian Ribeaud
  */
-public final class HCSImageFormat1_0 extends Format
+public final class HCSImageFormatV1_0 extends Format
 {
 
     public static final String FORMAT_CODE = "HCS_IMAGE";
@@ -56,9 +56,9 @@ public final class HCSImageFormat1_0 extends Format
     /**
      * The one and only one instance.
      */
-    public static final Format HCS_IMAGE_1_0 = new HCSImageFormat1_0();
+    public static final Format HCS_IMAGE_1_0 = new HCSImageFormatV1_0();
 
-    private HCSImageFormat1_0()
+    private HCSImageFormatV1_0()
     {
         super(FORMAT_CODE, new Version(1, 0), null);
     }

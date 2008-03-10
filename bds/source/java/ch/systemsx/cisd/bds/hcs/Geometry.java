@@ -130,7 +130,7 @@ public class Geometry implements IStorable
     public final boolean contains(final Location location)
     {
         assert location != null : "Given location can not be null.";
-        return location.x <= getColumns() && location.y <= getRows();
+        return location.getX() <= getColumns() && location.getY() <= getRows();
     }
 
     /**

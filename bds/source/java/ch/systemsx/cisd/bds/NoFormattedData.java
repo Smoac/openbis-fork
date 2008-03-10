@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 /**
- * Most simplest implementation of {@link IFormattedData}. It is associated with {@link UnknownFormat1_0}.
+ * Most simplest implementation of {@link IFormattedData}. It is associated with {@link UnknownFormatV1_0}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -25,7 +25,7 @@ public final class NoFormattedData extends AbstractFormattedData
 {
     /**
      * Creates a new instance for the specified context. The format has to be backward-compatible with
-     * {@link UnknownFormat1_0}. The format parameters are ignored.
+     * {@link UnknownFormatV1_0}. The format parameters are ignored.
      */
     public NoFormattedData(final FormattedDataContext context)
     {
@@ -37,11 +37,11 @@ public final class NoFormattedData extends AbstractFormattedData
     //
 
     /**
-     * Returns {@link UnknownFormat1_0#UNKNOWN_1_0}.
+     * Returns {@link UnknownFormatV1_0#UNKNOWN_1_0}.
      */
     public final Format getFormat()
     {
-        return UnknownFormat1_0.UNKNOWN_1_0;
+        return UnknownFormatV1_0.UNKNOWN_1_0;
     }
 
 }

@@ -61,9 +61,9 @@ public interface IHCSImageFormattedData extends IFormattedData
 
     public final static class NodePath
     {
-        public final INode node;
+        private final INode node;
 
-        public final String path;
+        private final String path;
 
         public NodePath(final INode node, final String path)
         {
@@ -71,6 +71,16 @@ public interface IHCSImageFormattedData extends IFormattedData
             assert path != null : "Given path could not be null.";
             this.node = node;
             this.path = path;
+        }
+
+        public INode getNode()
+        {
+            return node;
+        }
+
+        public String getPath()
+        {
+            return path;
         }
     }
 }
