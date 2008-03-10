@@ -147,18 +147,18 @@ public class DBScriptFormatter
 
     private static void printInitialComment(PrintWriter out, String sqlScript)
     {
-        for (String scriptLine : StringUtils.split(sqlScript, '\n'))
+        for (final String scriptLine : StringUtils.split(sqlScript, '\n'))
         {
-            scriptLine = scriptLine.trim();
-            if (scriptLine.length() > 0 && scriptLine.startsWith(COMMENT) == false)
+            final String trimmedScriptLine = scriptLine.trim();
+            if (trimmedScriptLine.length() > 0 && trimmedScriptLine.startsWith(COMMENT) == false)
             {
                 break;
             }
-            if (scriptLine.substring(COMMENT.length()).trim().toUpperCase().startsWith("CREATING"))
+            if (trimmedScriptLine.substring(COMMENT.length()).trim().toUpperCase().startsWith("CREATING"))
             {
                 continue;
             }
-            out.println(scriptLine);
+            out.println(trimmedScriptLine);
         }
     }
 
@@ -189,13 +189,13 @@ public class DBScriptFormatter
     private static Map<StatementClass, List<String>> createStatementMap(List<String> sqlStatements)
     {
         final Map<StatementClass, List<String>> map = new HashMap<StatementClass, List<String>>();
-        for (String sqlStatement : sqlStatements)
+        for (final String sqlStatement : sqlStatements)
         {
-            sqlStatement = sqlStatement.toUpperCase();
+            final String upperCaseSqlStatement = sqlStatement.toUpperCase();
 
             for (StatementClass statementClass : StatementClass.values())
             {
-                if (addIfAppropriate(sqlStatement, statementClass, map))
+                if (addIfAppropriate(upperCaseSqlStatement, statementClass, map))
                 {
                     break;
                 }
