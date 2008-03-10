@@ -313,7 +313,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         try
         {
             String directoryName = FilenameUtils.getPathNoEndSeparator(path);
-            if (directoryName != "")
+            if (directoryName.equals("") == false)
             {
                 File directory = new File(fileStore, directoryName);
                 directory.mkdirs();
