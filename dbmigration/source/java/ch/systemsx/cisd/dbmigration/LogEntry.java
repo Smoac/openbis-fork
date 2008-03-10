@@ -26,7 +26,10 @@ import java.util.Date;
 public class LogEntry
 {
     /** Run status of an entry. */
-    public enum RunStatus {START, SUCCESS, FAILED, UNKNOWN}
+    public enum RunStatus
+    {
+        START, SUCCESS, FAILED, UNKNOWN
+    }
     
     private String version;
     private String moduleName;

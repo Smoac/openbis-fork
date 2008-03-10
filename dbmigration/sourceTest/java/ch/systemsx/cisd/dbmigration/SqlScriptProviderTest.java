@@ -144,7 +144,7 @@ public class SqlScriptProviderTest
 
     // Note: we make it dependent on testGetSchemaScript(), because we delete the specific schema script 
     // in this test case and thus testGetSchemaScript() would fail if run after this test case.
-    @Test(dependsOnMethods="testGetSchemaScript")
+    @Test(dependsOnMethods = "testGetSchemaScript")
     public void testGetGenericSchemaScript()
     {
         final File specificSchemaScript = new File(createSpecificSchemaFolder(), "schema-" + VERSION + ".sql");

@@ -138,7 +138,7 @@ public class SqlScriptExecutorTest
         private static final long serialVersionUID = 1L;
     }
     
-    @Test(expectedExceptions=MyError.class)
+    @Test(expectedExceptions = MyError.class)
     public void testLoggingScriptThrowsException()
     {
         final Mockery context = new Mockery();
