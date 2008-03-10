@@ -50,7 +50,7 @@ public class RealCrowdAuthenticationTest
     private static final String NAME_OF_TEST_USER = "test";
     private static final String PASSWORD_OF_TEST_USER = null; // FIX!
 
-    @Test(groups="broken")
+    @Test(groups = "broken")
     public void testCrowdTestAccount()
     {
         final IAuthenticationService as =
