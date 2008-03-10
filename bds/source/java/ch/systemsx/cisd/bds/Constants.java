@@ -27,7 +27,8 @@ public final class Constants
     /** The only accepted path separator (system independent). */
     public final static char PATH_SEPARATOR = '/';
 
-    private Constants() {
+    private Constants()
+    {
         // Can not be instantiated.
     }
 }
