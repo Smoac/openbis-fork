@@ -58,16 +58,16 @@ public final class FileUtils
     {
         final String displaySize;
 
-        double result = (double) size / ONE_GB;
-        if (result > 1)
+        final double sizeAsDouble = size;
+        if (size >= ONE_GB)
         {
-            displaySize = FORMATTER.format(result) + " GB";
-        } else if ((result = (double) size / ONE_MB) > 1)
+            displaySize = FORMATTER.format(sizeAsDouble / ONE_GB) + " GB";
+        } else if (size >= ONE_MB)
         {
-            displaySize = FORMATTER.format(result) + " MB";
-        } else if ((result = (double) size / ONE_KB) > 1)
+            displaySize = FORMATTER.format(sizeAsDouble / ONE_MB) + " MB";
+        } else if (size >= ONE_KB)
         {
-            displaySize = FORMATTER.format(result) + " KB";
+            displaySize = FORMATTER.format(sizeAsDouble / ONE_KB) + " KB";
         } else
         {
             displaySize = FORMATTER.format(size) + " bytes";

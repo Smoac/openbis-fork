@@ -64,10 +64,10 @@ final class FooterPanel extends HorizontalPanel
         final String applicationDescription = messageResources.getFooterApplicationDescription();
         final String contactAdministrator = createContactAdministrator(configuration, messageResources);
         final String version = createVersionDiv(configuration);
+        disclaimerLink = createDisclaimerLink(messageResources);
         final HTML html =
                 new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version + SEPARATOR
-                        + contactAdministrator + SEPARATOR
-                        + DOM.toString((disclaimerLink = createDisclaimerLink(messageResources))))
+                        + contactAdministrator + SEPARATOR + DOM.toString(disclaimerLink))
                     {
 
                         //
