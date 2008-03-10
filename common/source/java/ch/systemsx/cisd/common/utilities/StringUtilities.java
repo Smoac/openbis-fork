@@ -183,7 +183,7 @@ public final class StringUtilities
      */
     public final static String getOrdinal(final int number)
     {
-        assert number > -1 : "Given number must be >= 0.";
+        assert number >= 0 : "Given number must be >= 0.";
         int modulo = number % 100;
         if (modulo < 11 || modulo > 13)
         {
@@ -196,6 +196,8 @@ public final class StringUtilities
                     return number + "nd";
                 case 3:
                     return number + "rd";
+                default:
+                    // No special treatment needed, "th" appended below.
             }
         }
         return number + "th";

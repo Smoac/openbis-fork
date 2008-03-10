@@ -286,7 +286,8 @@ public final class ClassUtils
             } catch (final NoSuchFieldException ex)
             {
             }
-        } while (field == null && (clazz = clazz.getSuperclass()) != null);
+            clazz = clazz.getSuperclass();
+        } while (field == null && clazz != null);
         return field;
     }
 }

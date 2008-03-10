@@ -37,34 +37,31 @@ public final class NotImplementedException extends RuntimeException
     private static final long serialVersionUID = 1L;
 
     /** The error message for this exception. */
-    private String message;
+    private final String message;
 
     public NotImplementedException()
     {
         super();
         final StackTraceExtractor extractor = new StackTraceExtractor(this);
-        setMessage(String.format(MESSAGE_TEMPLATE, extractor.getMethodName(), extractor.getSimpleClassName()));
+        this.message = String.format(MESSAGE_TEMPLATE, extractor.getMethodName(), extractor.getSimpleClassName());
     }
 
     public NotImplementedException(final String message)
     {
         super(message);
+        this.message = null;
     }
 
     public NotImplementedException(final Throwable cause)
     {
         super(cause);
+        this.message = null;
     }
 
     public NotImplementedException(String message, Throwable cause)
     {
         super(message, cause);
-    }
-
-    /** Sets the error message for this exception. */
-    public final void setMessage(final String message)
-    {
-        this.message = message;
+        this.message = null;
     }
 
     //

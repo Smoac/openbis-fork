@@ -227,7 +227,8 @@ public class Template
         
         TokenBuilder tokenBuilder = new TokenBuilder(variableTokens, tokens);
         State state = State.PLAIN;
-        for (int i = 0, n = template.length(); i < n; i++)
+        final int n = template.length();
+        for (int i = 0; i < n; i++)
         {
             state = state.next(template.charAt(i), tokenBuilder);
         }

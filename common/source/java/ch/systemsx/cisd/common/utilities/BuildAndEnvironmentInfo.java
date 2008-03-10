@@ -199,9 +199,10 @@ public final class BuildAndEnvironmentInfo
     @Override
     public final String toString()
     {
-        StringBuilder builder = new StringBuilder();
-        List<String> environmentInfo = getEnvironmentInfo();
-        for (int i = 0, n = environmentInfo.size(); i < n; i++)
+        final StringBuilder builder = new StringBuilder();
+        final List<String> environmentInfo = getEnvironmentInfo();
+        final int n = environmentInfo.size();
+        for (int i = 0; i < n; i++)
         {
             builder.append(environmentInfo.get(i));
             if (i < n - 1)

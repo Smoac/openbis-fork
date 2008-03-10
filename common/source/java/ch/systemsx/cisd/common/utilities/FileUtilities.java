@@ -335,8 +335,8 @@ public final class FileUtilities
             lineFilter = lineFilterOrNull;
         }
         final List<String> list = new ArrayList<String>();
-        String line;
-        for (int lineNumber = 0; (line = reader.readLine()) != null; lineNumber++)
+        String line = reader.readLine();
+        for (int lineNumber = 0; line != null; ++lineNumber, line = reader.readLine())
         {
             if (lineFilter.acceptLine(line, lineNumber))
             {

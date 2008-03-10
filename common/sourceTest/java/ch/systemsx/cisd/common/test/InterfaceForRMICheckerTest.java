@@ -31,7 +31,9 @@ import org.testng.annotations.Test;
  */
 public class InterfaceForRMICheckerTest
 {
-    public static class NonSerializableClass {}
+    public static class NonSerializableClass
+    {
+    }
     
     @Test
     public void testRMIReadyInterface()
@@ -103,12 +105,17 @@ public class InterfaceForRMICheckerTest
         private static NonSerializableClass non;
         private int n;
         private transient NonSerializableClass transientNon;
-        public List<String> list;
+        private List<String> list;
         
         @Override
         public String toString()
         {
             return non.toString() + n + transientNon;
+        }
+
+        public List<String> getList()
+        {
+            return list;
         }
     }
     
@@ -124,12 +131,17 @@ public class InterfaceForRMICheckerTest
         private static NonSerializableClass non;
         private int n;
         private transient NonSerializableClass transientNon;
-        public List<String> list;
+        private List<String> list;
         
         @Override
         public String toString()
         {
             return non.toString() + n + transientNon;
+        }
+
+        public List<String> getList()
+        {
+            return list;
         }
     }
     

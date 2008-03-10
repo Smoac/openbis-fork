@@ -28,8 +28,7 @@ public class SystemExit implements IExitHandler
     /** The one and only one instance. */
     public static final IExitHandler SYSTEM_EXIT = new SystemExit();
 
-    // @Private
-    public static boolean throwException;
+    private static boolean throwException;
 
     private SystemExit()
     {
@@ -42,6 +41,12 @@ public class SystemExit implements IExitHandler
             throw new RuntimeException(String.format(EXIT_MESSAGE, exitCode));
         }
         System.exit(exitCode);
+    }
+
+    // @Private
+    public static void setThrowException(boolean throwException)
+    {
+        SystemExit.throwException = throwException;
     }
 
 }

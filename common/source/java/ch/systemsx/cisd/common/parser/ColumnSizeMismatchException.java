@@ -28,13 +28,14 @@ public final class ColumnSizeMismatchException extends ParsingException
 
     private final int headerLength;
 
-    private String message;
+    private final String message;
 
     public ColumnSizeMismatchException(final String[] tokens, final int lineNumber, final int headerLength)
     {
         super(tokens, lineNumber);
         assert tokens.length != headerLength : "Tokens length and header length must be different (otherwise no reason to throw this exception).";
         this.headerLength = headerLength;
+        this.message = createMessage();
     }
 
     private final String createMessage()
@@ -67,10 +68,6 @@ public final class ColumnSizeMismatchException extends ParsingException
     @Override
     public final String getMessage()
     {
-        if (message == null)
-        {
-            message = createMessage();
-        }
         return message;
     }
 }
