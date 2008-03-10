@@ -190,7 +190,7 @@ public class QuietPeriodFileFilter
     private void cleanUpVanishedPaths(long now)
     {
         final Iterator<Map.Entry<StoreItem, PathCheckRecord>> iter = pathMap.entrySet().iterator();
-        while(iter.hasNext())
+        while (iter.hasNext())
         {
             final Map.Entry<StoreItem, PathCheckRecord> entry = iter.next();
             final long timeSinceLastCheckMillis = now - entry.getValue().getTimeChecked();
