@@ -51,7 +51,7 @@ public final class LogFactory
         {
             throw new IllegalArgumentException("Only admin logs are allowed here, but we got " + category + ".");
         }
-        return category.name() ;
+        return category.name();
     }
 
     /**

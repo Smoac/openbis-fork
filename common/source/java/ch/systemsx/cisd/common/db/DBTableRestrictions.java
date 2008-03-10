@@ -38,7 +38,7 @@ public class DBTableRestrictions
     public int getLength(String columnName)
     {
         final Integer columnLength = columnLengthMap.get(columnName);
-        assert columnLength != null : "Illegal column '" + columnName +"'.";
+        assert columnLength != null : "Illegal column '" + columnName + "'.";
         return columnLength;
     }
 
