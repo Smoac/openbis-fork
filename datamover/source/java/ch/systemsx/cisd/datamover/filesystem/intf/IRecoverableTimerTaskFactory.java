@@ -1,6 +1,3 @@
-package ch.systemsx.cisd.datamover.filesystem.intf;
-import java.util.TimerTask;
-
 /*
  * Copyright 2007 ETH Zuerich, CISD
  *
@@ -16,6 +13,10 @@ import java.util.TimerTask;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package ch.systemsx.cisd.datamover.filesystem.intf;
+
+import java.util.TimerTask;
 
 /**
  * A factory for creating {@link TimerTask}s that, when run, perform a recovery operation on the data mover.
