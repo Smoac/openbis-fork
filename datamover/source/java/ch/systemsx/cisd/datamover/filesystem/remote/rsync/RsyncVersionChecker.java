@@ -194,10 +194,10 @@ final class RsyncVersionChecker
 
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)
     {
-        final long TIME_TO_WAIT_FOR_COMPLETION = 2 * 1000;
+        final long timeToWaitForCompletion = 2 * 1000;
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
-                        TIME_TO_WAIT_FOR_COMPLETION, operationLog, machineLog);
+                        timeToWaitForCompletion, operationLog, machineLog);
         result.log();
         final List<String> processOutput = result.getProcessOutput();
         if (processOutput.size() == 0)

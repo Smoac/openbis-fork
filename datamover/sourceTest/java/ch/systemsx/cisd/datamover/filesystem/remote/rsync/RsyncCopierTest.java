@@ -184,21 +184,21 @@ public class RsyncCopierTest
             {
                 public void run()
                 {
-                    final long SLEEP_MILLIS = 20;
-                    final int MAX_COUNT = 50;
-                    boolean OK = false;
+                    final long sleepMillis = 20;
+                    final int maxCount = 50;
+                    boolean ok = false;
                     int count = 0;
-                    while (OK == false && count < MAX_COUNT)
+                    while (ok == false && count < maxCount)
                     {
                         ++count;
                         try
                         {
-                            Thread.sleep(SLEEP_MILLIS);
+                            Thread.sleep(sleepMillis);
                         } catch (InterruptedException e)
                         {
                             // Can't happen.
                         }
-                        OK = copier.terminate();
+                        ok = copier.terminate();
                     }
                 }
             })).start();

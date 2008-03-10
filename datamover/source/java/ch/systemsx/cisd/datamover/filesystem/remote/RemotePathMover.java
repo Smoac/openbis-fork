@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -86,19 +88,24 @@ public final class RemotePathMover implements IStoreHandler
      * @param destinationDirectory The directory to move paths to.
      * @param copier Copies items from source to destination
      * @param monitor The activity monitor to inform about actions.
-     * @param timingParameters The timing parametes used for monitoring and reporting stall situations.
+     * @param timingParameters The timing parameters used for monitoring and reporting stall situations.
+     * 
+     * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(IFileStore sourceDirectory, IFileStore destinationDirectory, IStoreCopier copier,
-            CopyActivityMonitor monitor, ITimingParameters timingParameters)
+            CopyActivityMonitor monitor, ITimingParameters timingParameters) throws ConfigurationFailureException
     {
         assert sourceDirectory != null;
         assert destinationDirectory != null;
         assert monitor != null;
         assert timingParameters != null;
-        String errorMsg;
-        assert (errorMsg = destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS)) == null : errorMsg;
         assert sourceDirectory.tryAsExtended() != null || destinationDirectory.tryAsExtended() != null;
 
+        final String errorMsg = destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS);
+        if (StringUtils.isNotBlank(errorMsg))
+        {
+            throw new ConfigurationFailureException(errorMsg);
+        }
         this.sourceDirectory = sourceDirectory;
         this.destinationDirectory = destinationDirectory;
         this.copier = copier;

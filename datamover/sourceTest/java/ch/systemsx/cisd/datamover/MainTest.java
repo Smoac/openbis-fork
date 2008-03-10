@@ -99,15 +99,15 @@ public class MainTest
 
         private static final String MANUAL_INTERV_DIR = "manual-intervention";
 
-        public File incoming;
+        private final File incoming;
 
-        public File outgoing;
+        private final File outgoing;
 
-        public File buffer;
+        private final File buffer;
 
-        public File extraCopy;
+        private final File extraCopy;
 
-        public File manualIntervDir;
+        private final File manualIntervDir;
 
         public ExternalDirs(File workingDirectory) throws IOException
         {
