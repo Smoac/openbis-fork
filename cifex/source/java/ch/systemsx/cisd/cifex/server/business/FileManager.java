@@ -336,12 +336,13 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean notified = false;
         for (final String email : emailsOfUsers)
         {
-            Set<UserDTO> users = existingUsers.tryGet(email);
+            final String lowerCaseEmail = email.toLowerCase(); 
+            Set<UserDTO> users = existingUsers.tryGet(lowerCaseEmail);
             String password = null;
             if (users == null) // Try to create user.
             {
                 password = passwordGenerator.generatePassword(10);
-                final UserDTO user = tryCreateUser(requestUser, email, password);
+                final UserDTO user = tryCreateUser(requestUser, lowerCaseEmail, password);
                 if (user != null)
                 {
                     existingUsers.add(user);
@@ -350,7 +351,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     // Email address is invalid because user does not exist and requestUser is not allowed to create new
                     // users.
-                    invalidEmailAdresses.add(email);
+                    invalidEmailAdresses.add(lowerCaseEmail);
                 }
             }
             if (users != null)
@@ -368,7 +369,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 for (final UserDTO user : users)
                 {
                     final EMailBuilderForUploadedFiles builder =
-                            new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
+                            new EMailBuilderForUploadedFiles(mailClient, requestUser, lowerCaseEmail);
                     builder.setURL(url);
                     builder.setPassword(password);
                     builder.setUserCode(user.getUserCode());

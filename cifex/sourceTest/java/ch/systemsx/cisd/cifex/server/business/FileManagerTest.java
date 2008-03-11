@@ -28,9 +28,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -43,12 +46,14 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * Test cases for corresponding {@link FileManager} class.
@@ -63,6 +68,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     private IDAOFactory daoFactory;
 
     private IFileDAO fileDAO;
+
+    private IUserDAO userDAO;
 
     private IMailClient mailClient;
 
@@ -83,11 +90,20 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         imageFile = cerateSampleFileDTO(1L, userAlice, "image.jpg", "image");
         daoFactory = context.mock(IDAOFactory.class);
         fileDAO = context.mock(IFileDAO.class);
+        userDAO = context.mock(IUserDAO.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
         BusinessContext businessContext = new BusinessContext();
         businessContext.setFileRetention(5);
         businessContext.setFileStore(fileStore);
+        businessContext.setPasswordGenerator(new PasswordGenerator()
+        {
+            @Override
+            public String generatePassword(int length)
+            {
+                return "newpasswd";
+            }
+        });
         mailClient = context.mock(IMailClient.class);
         businessContext.setMailClient(mailClient);
         fileManager = new FileManager(daoFactory, boFactory, businessContext);
@@ -147,7 +163,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertTrue(fileManager.isAllowedDeletion(user, file));
         assertTrue(fileManager.isAllowedAccess(user, file));
     }
-    
+
     @Test
     public void testAdminIsAllowedAccessAndDeletion()
     {
@@ -160,7 +176,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertTrue(fileManager.isAllowedDeletion(admin, file));
         assertTrue(fileManager.isAllowedAccess(admin, file));
     }
-    
+
     @Test
     public void testSharingUserIsAllowedAccessButNotDeletion()
     {
@@ -173,7 +189,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
         assertTrue(fileManager.isAllowedAccess(sharingUser, file));
     }
-    
+
     @Test
     public void testNonInvolvedUserIsNotAllowedAccessAndDeletion()
     {
@@ -185,7 +201,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
         assertFalse(fileManager.isAllowedAccess(sharingUser, file));
     }
-    
+
     @Test(dependsOnMethods =
         { "testSaveFile", "testGetFile" })
     public void testDeleteFile()
@@ -205,6 +221,112 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             });
         fileManager.deleteFile(imageFile);
         assertFalse(realFile.exists());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testShareFileWithExistingUser()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long receivingUserId = 43;
+        final String receivingUserCode = "receivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setPermanent(true);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfUserToShareWith = "receiving.user@organization.edu";
+        final UserDTO receivingUser = new UserDTO();
+        receivingUser.setID(receivingUserId);
+        receivingUser.setUserCode(receivingUserCode);
+        receivingUser.setEmail(emailOfUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    one(mailClient).sendMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId, receivingUserCode))),
+                            with(equal(new String[]
+                                { emailOfUserToShareWith })));
+                }
+            });
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, Collections.singleton(emailOfUserToShareWith), Collections
+                        .singleton(file), comment);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testShareFileWithExistingUserButDifferentCapitalization()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long receivingUserId = 43;
+        final String receivingUserCode = "receivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setPermanent(true);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfUserToShareWith = "Receiving.User@organization.edu";
+        final String emailOfReceivingUser = "receiving.user@ORGANIZATION.EDU";
+        final String emailOfReceivingUserLowerCase = emailOfReceivingUser.toLowerCase();
+        final UserDTO receivingUser = new UserDTO();
+        receivingUser.setID(receivingUserId);
+        receivingUser.setUserCode(receivingUserCode);
+        receivingUser.setEmail(emailOfReceivingUser);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    one(mailClient).sendMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId, receivingUserCode))),
+                            with(equal(new String[]
+                                { emailOfReceivingUserLowerCase })));
+                }
+            });
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, Collections.singleton(emailOfUserToShareWith), Collections
+                        .singleton(file), comment);
+        assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
 

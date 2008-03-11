@@ -92,7 +92,7 @@ public class UserDTO extends ID
 
     public final void setEmail(final String email)
     {
-        this.email = email;
+        this.email = email.toLowerCase();
     }
 
     public final String getEncryptedPassword()
