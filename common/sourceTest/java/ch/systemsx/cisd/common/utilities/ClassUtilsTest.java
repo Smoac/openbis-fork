@@ -26,6 +26,8 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,6 +40,29 @@ import org.testng.annotations.Test;
  */
 public final class ClassUtilsTest
 {
+    private static interface IA {}
+    private static interface IExtendingIA extends IA {}
+    private static interface IB {}
+    private static class A {} 
+    private static class ExtendingA extends A implements IExtendingIA {}
+    private static class ExtendingExtendingA extends ExtendingA implements IB, IA {}
+    
+    @Test
+    public void testGatherAllCastableClassesAndInterfacesFor()
+    {
+        ExtendingExtendingA object = new ExtendingExtendingA();
+        Collection<Class<?>> classes = ClassUtils.gatherAllCastableClassesAndInterfacesFor(object);
+        Iterator<Class<?>> iterator = classes.iterator();
+        assertSame(ExtendingExtendingA.class, iterator.next());
+        assertSame(ExtendingA.class, iterator.next());
+        assertSame(A.class, iterator.next());
+        assertSame(Object.class, iterator.next());
+        assertSame(IExtendingIA.class, iterator.next());
+        assertSame(IA.class, iterator.next());
+        assertSame(IB.class, iterator.next());
+        
+        assertEquals(false, iterator.hasNext());
+    }
 
     /**
      * Test method for {@link ch.systemsx.cisd.common.utilities.ClassUtils#getCurrentMethod()}.

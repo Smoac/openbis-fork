@@ -21,6 +21,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -36,6 +39,33 @@ public final class ClassUtils
     private ClassUtils()
     {
         // Can not be instantiated.
+    }
+    
+    /**
+     * Gathers all classes and interfaces the specified object can be casted to.
+     */
+    public static Collection<Class<?>> gatherAllCastableClassesAndInterfacesFor(Object object)
+    {
+        assert object != null;
+        
+        Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+        gather(classes, object.getClass());
+        return classes;
+    }
+
+    private static void gather(Set<Class<?>> classes, Class<?> clazz)
+    {
+        classes.add(clazz);
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null)
+        {
+            gather(classes, superclass);
+        }
+        Class<?>[] interfaces = clazz.getInterfaces();
+        for (Class<?> interfaze : interfaces)
+        {
+            gather(classes, interfaze);
+        }
     }
 
     /**
