@@ -99,13 +99,15 @@ public class CIFEXServiceImplTest
     public void testIsAuthenticated() throws InvalidSessionException
     {
         final UserDTO userDTO = new UserDTO();
+        final String code = "userCode";
         final String email = "Email";
+        userDTO.setUserCode(code);
         userDTO.setEmail(email);
         prepareForGettingUserFromHTTPSession(userDTO, false);
 
         ICIFEXService service = createService(null);
-        assertEquals(userDTO.getEmail(), service.getCurrentUser().getEmail());
-        assertEquals(userDTO.getEmail(), email);
+        assertEquals(code, service.getCurrentUser().getUserCode());
+        assertEquals(email.toLowerCase(), userDTO.getEmail());
         context.assertIsSatisfied();
     }
 
