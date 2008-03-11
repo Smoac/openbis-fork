@@ -130,9 +130,9 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     }
 
     /**
-     * Gets the row set for the specified key or <code>null</code> if not found.
-     * 
-     * @return the set is ordered by the order of addition or <code>null</code>.
+     * Gets the row set for the specified <var>key</var>.
+     *
+     * @return The set, given in the order of addition, or <code>null</code> if the <var>key</var> is not found.
      */
     public final Set<E> tryGet(final K key)
     {
