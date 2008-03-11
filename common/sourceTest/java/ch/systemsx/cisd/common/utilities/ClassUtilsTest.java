@@ -40,13 +40,30 @@ import org.testng.annotations.Test;
  */
 public final class ClassUtilsTest
 {
-    private static interface IA {}
-    private static interface IExtendingIA extends IA {}
-    private static interface IB {}
-    private static class A {} 
-    private static class ExtendingA extends A implements IExtendingIA {}
-    private static class ExtendingExtendingA extends ExtendingA implements IB, IA {}
-    
+    private static interface IA
+    {
+    }
+
+    private static interface IExtendingIA extends IA
+    {
+    }
+
+    private static interface IB
+    {
+    }
+
+    private static class A
+    {
+    }
+
+    private static class ExtendingA extends A implements IExtendingIA
+    {
+    }
+
+    private static class ExtendingExtendingA extends ExtendingA implements IB, IA
+    {
+    }
+
     @Test
     public void testGatherAllCastableClassesAndInterfacesFor()
     {
@@ -60,7 +77,7 @@ public final class ClassUtilsTest
         assertSame(IExtendingIA.class, iterator.next());
         assertSame(IA.class, iterator.next());
         assertSame(IB.class, iterator.next());
-        
+
         assertEquals(false, iterator.hasNext());
     }
 
