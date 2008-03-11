@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -121,6 +123,17 @@ public class TableMap<K, E> implements Iterable<E>
     public final E tryGet(final K key)
     {
         return map.get(key);
+    }
+
+    /**
+     * Returns a collection view of the values contained in the internal map.
+     * <p>
+     * The returned collection is unmodifiable.
+     * </p>
+     */
+    public final Collection<E> values()
+    {
+        return Collections.unmodifiableCollection(map.values());
     }
 
     /**
