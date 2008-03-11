@@ -955,8 +955,13 @@ public final class BeanUtilsTest
         assertEquals(msg, b2.getI(), b1.getI());
         assertEquals(msg, b2.getS(), b1.getS());
     }
+    
+    private static interface IFoo
+    {
+        public String getFoo();
+    }
 
-    public static class FooBean
+    public static class FooBean implements IFoo
     {
         private String foo;
 
@@ -999,6 +1004,22 @@ public final class BeanUtilsTest
                     return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
                 }
             });
+        assertEquals("some to Foo", toFooBean.getBar());
+    }
+    
+    @Test
+    public void testConverterWithArgumentOfInterfaceType()
+    {
+        final FooBean tofuBean = new FooBean();
+        tofuBean.setFoo("some tofu");
+        final BarBean toFooBean = BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
+        {
+            @SuppressWarnings("unused")
+            public String convertToBar(IFoo foo)
+            {
+                return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
+            }
+        });
         assertEquals("some to Foo", toFooBean.getBar());
     }
 }

@@ -129,9 +129,15 @@ public final class BeanUtils
      * Marker interface for converter classes. The real method are determined via reflection. A converter needs to match
      * both the source and the destination bean. If the destination bean has a setter <code>setFoo(FooClass foo)</code>
      * and the converter has a method <code>FooClass convertToFoo(SourceBeanClass sourceBean)</code>, then this will
-     * be called instead of any getter of the <var>sourceBean</var>. Note that if there is a matching method
-     * <code>convertToFoo()</code>, it needs to have an appropriate return type or else an
-     * {@link IllegalArgumentException} will be thrown.
+     * be called instead of any getter of the <var>sourceBean</var>.
+     * <p>
+     * Note:
+     * <ul>
+     * <li>The declared <code>SourceBeanClass</code> in the converter method can also be a superclass of
+     * <code>sourceBean</code>or an interface implemented by <code>sourceBean</code>
+     * <li>If there is a matching method <code>convertToFoo()</code>, it needs to have an appropriate return type or
+     * else an {@link IllegalArgumentException} will be thrown.
+     * </ul>
      */
     public interface Converter
     {
@@ -731,20 +737,23 @@ public final class BeanUtils
     {
         if (converter != NULL_CONVERTER)
         {
-            try
+            String methodName = "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
+            Class<? extends Converter> converterClasss = converter.getClass();
+            Collection<Class<?>> classes = ClassUtils.gatherAllCastableClassesAndInterfacesFor(sourceBean);
+            for (Class<?> clazz : classes)
             {
-                String methodName = "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
-                Class<? extends Converter> converterClasss = converter.getClass();
-                final Method converterMethod = converterClasss.getMethod(methodName, new Class[]
-                    { sourceBean.getClass() });
-                if (converterMethod.isAccessible() == false)
+                try
                 {
-                    converterMethod.setAccessible(true);
+                    final Method converterMethod = converterClasss.getMethod(methodName, new Class[] { clazz });
+                    if (converterMethod.isAccessible() == false)
+                    {
+                        converterMethod.setAccessible(true);
+                    }
+                    return converterMethod;
+                } catch (NoSuchMethodException e)
+                {
+                    // Nothing to do here - there just isn't any converter method for this setter.
                 }
-                return converterMethod;
-            } catch (NoSuchMethodException ex)
-            {
-                // Nothing to do here - there just isn't any converter method for this setter.
             }
         }
         return null;
