@@ -18,11 +18,13 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.core.Ext;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.LayoutDialog;
 import com.gwtext.client.widgets.LayoutDialogConfig;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.ContentPanel;
+import com.gwtext.client.widgets.layout.ContentPanelConfig;
 import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -37,8 +39,6 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
  */
 public class DefaultLayoutDialog extends LayoutDialog
 {
-    private static final int MINIMUM_SIZE = 300;
-
     public static final int DEFAULT_WIDTH = 500;
 
     public static final int DEFAULT_HEIGHT = 300;
@@ -72,7 +72,8 @@ public class DefaultLayoutDialog extends LayoutDialog
     /** Calls this method in your extension to finalize the construction of this dialog. */
     public final void addContentPanel()
     {
-        contentPanel = new ContentPanel();
+        contentPanel = new ContentPanel(Ext.generateId(), createContentPanelConfig());
+
         final Widget contentWidget = createContentWidget();
         if (contentWidget != null)
         {
@@ -80,6 +81,14 @@ public class DefaultLayoutDialog extends LayoutDialog
             contentPanel.add(contentWidget);
         }
         getLayout().add(contentPanel);
+    }
+
+    private final static ContentPanelConfig createContentPanelConfig()
+    {
+        final ContentPanelConfig contentPanelConfig = new ContentPanelConfig();
+        contentPanelConfig.setFitToFrame(true);
+        contentPanelConfig.setAutoScroll(true);
+        return contentPanelConfig;
     }
 
     /**
@@ -110,8 +119,6 @@ public class DefaultLayoutDialog extends LayoutDialog
         config.setClosable(closable);
         config.setShadow(true);
         config.setFixedCenter(true);
-        config.setMinHeight(MINIMUM_SIZE);
-        config.setMinWidth(MINIMUM_SIZE);
         return config;
     }
 
