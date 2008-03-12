@@ -1,18 +1,3 @@
-package ch.systemsx.cisd.ant.task.subversion;
-
-import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.FEATURE_BRANCH;
-import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_BRANCH;
-import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_TAG;
-import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.TRUNK;
-import static org.testng.AssertJUnit.assertEquals;
-
-import java.util.Arrays;
-
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.ant.common.StringUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /*
  * Copyright 2007 ETH Zuerich, CISD
  *
@@ -28,6 +13,21 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package ch.systemsx.cisd.ant.task.subversion;
+
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.FEATURE_BRANCH;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_BRANCH;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_TAG;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.TRUNK;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.Arrays;
+
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.ant.common.StringUtils;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for {@link SVNRepositoryProjectContext}.
