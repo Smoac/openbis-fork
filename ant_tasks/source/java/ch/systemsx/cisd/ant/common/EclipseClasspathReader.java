@@ -57,7 +57,8 @@ public class EclipseClasspathReader
         }
         NodeList children = root.getChildNodes();
         List<Element> elements = new ArrayList<Element>();
-        for (int i = 0, n = children.getLength(); i < n; i++)
+        final int numberOfChildren = children.getLength();
+        for (int i = 0; i < numberOfChildren; i++)
         {
             Node item = children.item(i);
             if (item instanceof Element)
@@ -65,8 +66,9 @@ public class EclipseClasspathReader
                 elements.add((Element) item);
             }
         }
-        List<EclipseClasspathEntry> entries = new ArrayList<EclipseClasspathEntry>();
-        for (int i = 0, n = elements.size(); i < n; i++)
+        final List<EclipseClasspathEntry> entries = new ArrayList<EclipseClasspathEntry>();
+        final int numberOfElements = elements.size();
+        for (int i = 0; i < numberOfElements; i++)
         {
             Element element = elements.get(i);
             try

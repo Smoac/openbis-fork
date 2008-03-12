@@ -113,7 +113,7 @@ class SVNUtilities
         StreamReaderGobbler(final InputStream stream) throws InterruptedException
         {
             waitForReadingFinishedSemaphore.acquire();
-            new Thread()
+            final Thread t = new Thread()
                 {
                     @Override
                     public void run()
@@ -134,7 +134,8 @@ class SVNUtilities
                             waitForReadingFinishedSemaphore.release();
                         }
                     }
-                }.start();
+                };
+            t.start();
         }
 
         List<String> getLines() throws InterruptedException
