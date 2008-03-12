@@ -3,7 +3,7 @@
     <local-check-config name="CISD Checks" location="/build_resources/checkstyle/cisd_checkstyle.xml" type="project" description="">
         <additional-data name="protect-config-file" value="false"/>
     </local-check-config>
-    <fileset name="all" enabled="true" check-config-name="CISD Checks" local="false">
+    <fileset name="all" enabled="true" check-config-name="CISD Checks" local="true">
         <file-match-pattern match-pattern=".+ch/systemsx/cisd.+" include-pattern="true"/>
     </fileset>
 </fileset-config>
