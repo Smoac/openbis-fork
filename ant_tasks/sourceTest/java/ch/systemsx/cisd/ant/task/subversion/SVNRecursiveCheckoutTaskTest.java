@@ -283,7 +283,8 @@ public class SVNRecursiveCheckoutTaskTest
         }
     }
     
-    @Test(expectedExceptions={BuildException.class})
+    @Test(expectedExceptions =
+        { BuildException.class })
     public void testSetInvalidRevision()
     {
         SVNRecursiveCheckoutTask task = new SVNRecursiveCheckoutTask();

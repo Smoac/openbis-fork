@@ -27,39 +27,42 @@ import org.apache.tools.ant.taskdefs.Property;
 import ch.systemsx.cisd.ant.task.subversion.SVNItemStatus.StatusFlag;
 
 /**
- * 
- *
  * @author felmer
  */
 public class GatherRevisionAndVersionTask extends Property
 {
     static final String TRUNK_VERSION = "SNAPSHOT";
+
     private String versionProperty;
+
     private String revisionProperty;
+
     private String cleanProperty;
+
     private boolean failOnDirty;
+
     private boolean failOnInconsistency;
-    
+
     public void setFailOnDirty(boolean failOnDirty)
     {
         this.failOnDirty = failOnDirty;
     }
-    
+
     public void setFailOnInconsistency(boolean failOnInconsistentRevisions)
     {
         this.failOnInconsistency = failOnInconsistentRevisions;
     }
-    
+
     public void setRevision(String revisionProperty)
     {
         this.revisionProperty = revisionProperty;
     }
-    
+
     public void setVersion(String versionProperty)
     {
         this.versionProperty = versionProperty;
     }
-    
+
     public void setClean(String cleanProperty)
     {
         this.cleanProperty = cleanProperty;
@@ -120,7 +123,7 @@ public class GatherRevisionAndVersionTask extends Property
     {
         return new SVNActions(new AntTaskSimpleLoggerAdapter(this));
     }
-    
+
     /**
      * <em>Can be overwritten in unit tests.</em>
      */
@@ -129,7 +132,7 @@ public class GatherRevisionAndVersionTask extends Property
     {
         return new SVNWCProjectPathProvider(baseDir);
     }
-    
+
     /**
      * <em>Can be overwritten in unit tests.</em>
      */
@@ -144,8 +147,6 @@ public class GatherRevisionAndVersionTask extends Property
         final ISVNProjectPathProvider pathProvider = createPathProvider(getProject().getBaseDir());
         return new SVNDependentProjectsCollector(pathProvider, actions).collectDependentProjectsFromClasspath();
     }
-
-    
 
     private void setRevisionProperty(int maxLastChangedRevision)
     {
@@ -171,12 +172,12 @@ public class GatherRevisionAndVersionTask extends Property
     {
         if (cleanProperty != null)
         {
-            addProperty(cleanProperty,  dirtyProjects.length() == 0 ? "clean": "dirty");
+            addProperty(cleanProperty, dirtyProjects.length() == 0 ? "clean" : "dirty");
         }
     }
 
-    private void checkFailure(HashSet<String> versions, StringBuilder projectRevisions, StringBuilder dirtyProjects, 
-                              int minRevision, int maxRevision, int lastChangedRevision)
+    private void checkFailure(HashSet<String> versions, StringBuilder projectRevisions, StringBuilder dirtyProjects,
+            int minRevision, int maxRevision, int lastChangedRevision)
     {
         if (failOnInconsistency && maxRevision != minRevision)
         {
@@ -193,30 +194,29 @@ public class GatherRevisionAndVersionTask extends Property
         }
         if (maxRevision < lastChangedRevision)
         {
-            throw new BuildException("Maximum revision < last changed revision: " + maxRevision + " < " 
-                                     + lastChangedRevision);
+            throw new BuildException("Maximum revision < last changed revision: " + maxRevision + " < "
+                    + lastChangedRevision);
         }
     }
 
     private void addVersion(HashSet<String> versions, SVNInfoRecord info)
     {
-      String repositoryURL = info.getRepositoryUrl();
-      if (repositoryURL.endsWith("/trunk"))
-      {
-        versions.add(TRUNK_VERSION);
-      } else
-      {
-        int endIndex = repositoryURL.lastIndexOf('/');
-        if (endIndex >= 0)
+        String repositoryURL = info.getRepositoryUrl();
+        if (repositoryURL.endsWith("/trunk"))
         {
-          int startIndex = repositoryURL.lastIndexOf('/', endIndex - 1);
-          if (startIndex >= 0)
-          {
-            versions.add(repositoryURL.substring(startIndex + 1, endIndex));
-          }
+            versions.add(TRUNK_VERSION);
+        } else
+        {
+            int endIndex = repositoryURL.lastIndexOf('/');
+            if (endIndex >= 0)
+            {
+                int startIndex = repositoryURL.lastIndexOf('/', endIndex - 1);
+                if (startIndex >= 0)
+                {
+                    versions.add(repositoryURL.substring(startIndex + 1, endIndex));
+                }
+            }
         }
-      }
     }
-    
-    
+
 }

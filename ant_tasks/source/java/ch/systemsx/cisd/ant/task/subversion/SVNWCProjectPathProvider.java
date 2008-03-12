@@ -84,7 +84,8 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         if ('/' == File.separatorChar)
         {
             return entityPath.replace('\\', '/');
-        } else {
+        } else
+        {
             return entityPath.replace('/', '\\');
         }
     }
