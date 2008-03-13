@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class DefaultPropertyMapper implements IPropertyMapper
 {
-    final Map<String, IPropertyModel> propertyModels;
+    private final Map<String, IPropertyModel> propertyModels;
 
     public DefaultPropertyMapper(final String[] properties) throws IllegalArgumentException
     {
@@ -54,26 +54,9 @@ public class DefaultPropertyMapper implements IPropertyMapper
                 throw new IllegalArgumentException(String.format("%s token of %s is blank.", StringUtilities
                         .getOrdinal(i), Arrays.asList(properties)));
             }
-            addPropertyModel(token, createPropertyModel(i, token));
+            String tokenInLowerCase = token.toLowerCase();
+            propertyModels.put(tokenInLowerCase, new MappedProperty(i, tokenInLowerCase));
         }
-    }
-
-    protected final void addPropertyModel(final String token, final IPropertyModel propertyModel)
-    {
-        propertyModels.put(token, propertyModel);
-    }
-
-    protected final void checkPropertyName(final String propertyName) throws IllegalArgumentException
-    {
-        if (propertyModels.containsKey(propertyName) == false)
-        {
-            throw new IllegalArgumentException(String.format("Given property name '%s' does not exist.", propertyName));
-        }
-    }
-
-    protected IPropertyModel createPropertyModel(final int index, final String token)
-    {
-        return new MappedProperty(index, token);
     }
 
     //
@@ -82,7 +65,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
 
     public boolean containsPropertyName(final String propertyName)
     {
-        return propertyModels.containsKey(propertyName);
+        return propertyModels.containsKey(propertyName.toLowerCase());
     }
 
     public Set<String> getAllPropertyNames()
@@ -92,7 +75,10 @@ public class DefaultPropertyMapper implements IPropertyMapper
 
     public IPropertyModel getPropertyModel(final String propertyName) throws IllegalArgumentException
     {
-        checkPropertyName(propertyName);
-        return propertyModels.get(propertyName);
+        if (containsPropertyName(propertyName) == false)
+        {
+            throw new IllegalArgumentException(String.format("Given property name '%s' does not exist.", propertyName));
+        }
+        return propertyModels.get(propertyName.toLowerCase());
     }
 }

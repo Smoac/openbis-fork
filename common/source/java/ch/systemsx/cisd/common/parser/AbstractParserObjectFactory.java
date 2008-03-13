@@ -111,9 +111,10 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         final Set<String> fieldNames = beanAnalyzer.getLabelToWriteMethods().keySet();
         for (final String fieldName : fieldNames)
         {
-            if (propertyNames.contains(fieldName))
+            String fieldNameInLowerCase = fieldName.toLowerCase();
+            if (propertyNames.contains(fieldNameInLowerCase))
             {
-                propertyNames.remove(fieldName);
+                propertyNames.remove(fieldNameInLowerCase);
             } else if (beanAnalyzer.isMandatory(fieldName))
             {
                 missingProperties.add(fieldName);
@@ -127,8 +128,9 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
         if (propertyNames.size() > 0)
         {
-            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames, getPropertyNames(
-                    beanAnalyzer.getOptionalProperties(), propMapper), propertyNames);
+            Set<String> names = getPropertyNames(beanAnalyzer.getOptionalProperties(), propMapper);
+            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames, names,
+                    propertyNames);
         }
     }
 
@@ -139,7 +141,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         final Set<String> propertyNames = new TreeSet<String>();
         for (final String beanProperty : beanProperties)
         {
-            if (aliases.contains(beanProperty))
+            if (aliases.contains(beanProperty.toLowerCase()))
             {
                 propertyNames.add(propertyMapper.getPropertyNameForAlias(beanProperty));
             } else
