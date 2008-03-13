@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>.
@@ -134,6 +135,17 @@ public class TableMap<K, E> implements Iterable<E>
     public final Collection<E> values()
     {
         return Collections.unmodifiableCollection(map.values());
+    }
+
+    /**
+     * Returns a set view of the keys contained in the internal map.
+     * <p>
+     * The returned set is unmodifiable.
+     * </p>
+     */
+    public final Set<K> keySet()
+    {
+        return Collections.unmodifiableSet(map.keySet());
     }
 
     /**
