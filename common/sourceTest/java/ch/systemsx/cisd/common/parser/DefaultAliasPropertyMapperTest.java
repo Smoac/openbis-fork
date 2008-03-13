@@ -78,11 +78,11 @@ public final class DefaultAliasPropertyMapperTest
         DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
             { "Code", "Description", "RegistrationTimestamp" });
         List<String> properties = new ArrayList<String>(propertyMapper.getAllPropertyNames());
-        assertTrue(properties.indexOf("Code") > -1);
-        assertTrue(properties.indexOf("code") < 0);
-        assertTrue(properties.indexOf("Description") > -1);
-        assertTrue(properties.indexOf("description") < 0);
-        assertTrue(properties.indexOf("RegistrationTimestamp") > -1);
-        assertTrue(properties.indexOf("registrationtimestamp") < 0);
+        assertTrue(properties.indexOf("code") > -1);
+        assertTrue(properties.indexOf("Code") < 0);
+        assertTrue(properties.indexOf("description") > -1);
+        assertTrue(properties.indexOf("Description") < 0);
+        assertTrue(properties.indexOf("registrationtimestamp") > -1);
+        assertTrue(properties.indexOf("RegistrationTimestamp") < 0);
     }
 }
