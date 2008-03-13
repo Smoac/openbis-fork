@@ -74,9 +74,9 @@ public final class ClassUtilsTest
         assertSame(ExtendingA.class, iterator.next());
         assertSame(A.class, iterator.next());
         assertSame(Object.class, iterator.next());
-        assertSame(IExtendingIA.class, iterator.next());
-        assertSame(IA.class, iterator.next());
         assertSame(IB.class, iterator.next());
+        assertSame(IA.class, iterator.next());
+        assertSame(IExtendingIA.class, iterator.next());
 
         assertEquals(false, iterator.hasNext());
     }

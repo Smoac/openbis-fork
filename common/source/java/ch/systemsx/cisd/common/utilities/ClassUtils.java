@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,32 +41,33 @@ public final class ClassUtils
     {
         // Can not be instantiated.
     }
-    
+
     /**
      * Gathers all classes and interfaces the specified object can be casted to.
      */
-    public static Collection<Class<?>> gatherAllCastableClassesAndInterfacesFor(Object object)
+    public final static Collection<Class<?>> gatherAllCastableClassesAndInterfacesFor(final Object object)
     {
-        assert object != null;
-        
-        Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-        gather(classes, object.getClass());
+        assert object != null : "Unspecified object";
+
+        final Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+        classes.add(object.getClass());
+        classes.addAll(getAllSuperclasses(object));
+        classes.addAll(getAllInterfaces(object));
         return classes;
     }
 
-    private static void gather(Set<Class<?>> classes, Class<?> clazz)
+    @SuppressWarnings("unchecked")
+    private final static List<Class<?>> getAllInterfaces(final Object object)
     {
-        classes.add(clazz);
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null)
-        {
-            gather(classes, superclass);
-        }
-        Class<?>[] interfaces = clazz.getInterfaces();
-        for (Class<?> interfaze : interfaces)
-        {
-            gather(classes, interfaze);
-        }
+        assert object != null : "Unspecified object";
+        return org.apache.commons.lang.ClassUtils.getAllInterfaces(object.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    private final static List<Class<?>> getAllSuperclasses(final Object object)
+    {
+        assert object != null : "Unspecified object";
+        return org.apache.commons.lang.ClassUtils.getAllSuperclasses(object.getClass());
     }
 
     /**
@@ -233,10 +235,10 @@ public final class ClassUtils
         try
         {
             return clazz.newInstance();
-        } catch (InstantiationException ex)
+        } catch (final InstantiationException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (IllegalAccessException ex)
+        } catch (final IllegalAccessException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
@@ -253,10 +255,10 @@ public final class ClassUtils
         try
         {
             method.invoke(obj, args);
-        } catch (IllegalAccessException ex)
+        } catch (final IllegalAccessException ex)
         {
             throw new CheckedExceptionTunnel(ex);
-        } catch (InvocationTargetException ex)
+        } catch (final InvocationTargetException ex)
         {
             // We are interested in the cause exception.
             throw CheckedExceptionTunnel.wrapIfNecessary((Exception) ex.getCause());
