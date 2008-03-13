@@ -167,7 +167,7 @@ public class SqlUnitTestRunnerTest
         {
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script 'buildup.sql' of test case 'my test case' failed because of "
-                         + runtimeException, message);
+                         + runtimeException, message.trim());
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                      + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
@@ -197,7 +197,7 @@ public class SqlUnitTestRunnerTest
             // Strip away stack trace
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script '9=b.sql' of test case 'my test case' failed because of "
-                         + runtimeException, message);
+                         + runtimeException, message.trim());
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                      + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
