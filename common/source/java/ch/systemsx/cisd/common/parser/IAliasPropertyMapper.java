@@ -23,6 +23,7 @@ import java.util.Set;
  * 
  * @author Christian Ribeaud
  */
+//TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field aliases)
 public interface IAliasPropertyMapper extends IPropertyMapper
 {
     /**
