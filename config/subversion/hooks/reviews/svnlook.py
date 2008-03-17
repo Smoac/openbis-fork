@@ -11,6 +11,7 @@ class SvnLook:
     self.repository = repository
     self.revisionOrTransaction = revisionOrTransaction
     self.isTransaction = isTransaction
+    self._status = 0
 
   def _svnlook(self, command, args=None, revarg=None):
     """Handles all communication with svn repository
@@ -24,7 +25,7 @@ class SvnLook:
       command += " " + revarg
     else:
       if self.isTransaction:
-        command += " -t"
+        command += " -t "
       else:
         command += " -r "
       command += self.revisionOrTransaction
@@ -32,22 +33,40 @@ class SvnLook:
     if args != None:
       command += " " + args
     proc = Popen4(command)
-    proc.wait()
-    return proc.fromchild.read()
+    output = proc.fromchild.read()
+    self._status = proc.wait()
+    if self._status != 0:
+      output = "Process '%s' exited with an error condition, output was:\n%s" % (command, output)
+    return output
 
 
-  def getChangedFiles(self):
-    """Lists all supported files that were changed in this revision"""
-    output = self._svnlook("changed")
-    output = output.split("\n");
+  def getStatus(self):
+    return self._status
+
+
+  def getRawChangedFiles(self):
+    """Returns the raw output of 'svnlook changed'."""
+    return self._svnlook("changed")
+
+
+  def processChangedFiles(self, rawChangedFiles):
+    """Produces a list of all files changed in this revision from the output of getRawChangedFiles()."""
+    output = rawChangedFiles.split("\n");
     result = []
     reg = re.compile("\s+");    
     for line in output:
       if len(line) > 0 and \
           line[len(line)-1] != '/':
         l = reg.split(line)
-        result.append(l[1])
-    return self._filterUnsupportedFiles(result)
+        if len(l) == 2:
+          result.append(l)
+    return result
+    
+
+  def getChangedFiles(self):
+    """Lists all supported files that were changed in this revision"""
+    return self.processChangedFiles(self.getRawChangedFiles())
+
   
   def readFileForVersion(self, file, version=None):
     """Returns content of a given file for a particular revision (or the standard revision)"""
@@ -56,11 +75,3 @@ class SvnLook:
     else:
       return self._svnlook("cat", file)
 
-  def _filterUnsupportedFiles(self, files):
-    sup_files = []
-    supported_files =  \
-        re.compile('^\S*(html|xml|php|js|css|py|txt|c|cc|cpp|ini|cf|conf|java|jsp|tmpl|readme|properties)$')
-    for file in files:
-      if supported_files.match(file.lower()):
-        sup_files.append(file)
-    return sup_files
