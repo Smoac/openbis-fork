@@ -112,7 +112,10 @@ public class TabFileLoader<T>
         }
     }
 
-    final List<T> load(final Reader reader)
+    /**
+     * Loads data from the specified reader.
+     */
+    public final List<T> load(final Reader reader)
     {
         final List<T> result = new ArrayList<T>();
         final Iterator<Line> lineIterator = createLineIterator(reader);
