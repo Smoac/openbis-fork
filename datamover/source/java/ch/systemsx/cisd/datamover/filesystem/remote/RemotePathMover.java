@@ -146,6 +146,8 @@ public final class RemotePathMover implements IStoreHandler
                             .format(START_COPYING_PATH_TEMPLATE, getSrcPath(item), destinationDirectory));
                 }
             }
+            // TODO 2008-03-17, Bernd Rinn: There needs to be a limit for how often we take this exit without sending
+            // a notification email.
             if (checkTargetAvailable() == false)
             {
                 return;
