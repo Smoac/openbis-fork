@@ -5,5 +5,5 @@ register-master-plate testdata/MP002-1.txt code2
 register-dilution-plates testdata/exampleDilutionPlates.txt
 register-control-layout testdata/register-experiments/CL-3V.txt
 register-cell-plates testdata/exampleCellPlates.txt -c CL-3V
-register-experiments testdata/register-experiments/example3VExperiments.txt
+register-experiments SIRNAHCS testdata/register-experiments/example3VExperiments.txt
 logout

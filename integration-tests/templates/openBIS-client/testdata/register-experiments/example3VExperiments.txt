@@ -1,2 +1,2 @@
-code	description	studyObjectCode	studyObjectTypeCode	experimentTypeCode	projectCode	cellPlates	processingInstructions
-EXP1	A simple experiment	SV40	VIRUS	SIRNAHCS	NEMO	> cellPlates.txt	> processing-instructions.txt
+code	description	studyObjectCode	studyObjectTypeCode	projectCode	cellPlates	processingInstructions
+EXP1	A simple experiment	SV40	VIRUS	NEMO	> cellPlates.txt	> processing-instructions.txt
