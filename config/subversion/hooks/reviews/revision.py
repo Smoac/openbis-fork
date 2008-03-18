@@ -42,7 +42,7 @@ class Revision:
  
   def getDiffsForAllFiles(self):
     """Returns html diff tables for all files present in a given revision"""
-    files = self.svnlook.getChangedFiles()
+    files = self.getChangedFiles()
     result = ""
     for (change, file) in files:
       result += "\n<h2>" + file + "</h2>\n";
@@ -79,7 +79,7 @@ class Revision:
   
   def getTextForAllFiles(self):
     """Returns content of all files in revision"""
-    files = self.svnlook.getChangedFiles()
+    files = self.getChangedFiles()
     result = ""
     for (change, file) in files:
       result += self._formatTextHeader(file)
@@ -118,7 +118,7 @@ class Revision:
   def _filterUnsupportedFiles(self, files):
     sup_files = []
     supported_files =  \
-        re.compile('^\S*(html|xml|php|js|css|py|txt|c|cc|cpp|ini|cf|conf|java|jsp|tmpl|readme|properties)$')
+        re.compile('^\S*(html|xml|php|js|css|py|txt|c|cc|cpp|ini|cf|conf|java||sql|jsp|tmpl|readme|properties)$')
     for (change, file) in files:
       if supported_files.match(file.lower()):
         sup_files.append((change, file))
