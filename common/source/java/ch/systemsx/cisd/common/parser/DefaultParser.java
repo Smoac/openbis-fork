@@ -106,6 +106,10 @@ public class DefaultParser<E> implements IParser<E>
                         throw parsingException;
                     } catch (final RuntimeException runtimeException)
                     {
+                        // TODO 2008-02-18, Tomasz Pylak: we loose stack trace here. To be consulted with Christian.
+                        // I think that we should not catch RuntimeException at all - they are programming errors. We
+                        // could have catching such exceptions in one place at the very top level (like client
+                        // application).
                         throw new ParsingException(runtimeException, tokens, number);
                     }
                     elements.add(object);
