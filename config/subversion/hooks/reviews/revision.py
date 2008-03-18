@@ -51,7 +51,7 @@ class Revision:
 
 
   def getChangedFiles(self):
-    return self._filterUnsupportedFiles(self.svnlook.processChangedFiles(_getRawChangedFiles()))
+    return self._filterUnsupportedFiles(self.svnlook.processChangedFiles(self._getRawChangedFiles()))
 
 
   def getAuthor(self):
@@ -118,7 +118,7 @@ class Revision:
   def _filterUnsupportedFiles(self, files):
     sup_files = []
     supported_files =  \
-        re.compile('^\S*(html|xml|php|js|css|py|txt|c|cc|cpp|ini|cf|conf|java||sql|jsp|tmpl|readme|properties)$')
+        re.compile('^\S*(html|xml|php|js|css|py|txt|c|cc|cpp|ini|cf|conf|java|sql|jsp|tmpl|readme|properties)$')
     for (change, file) in files:
       if supported_files.match(file.lower()):
         sup_files.append((change, file))
