@@ -56,10 +56,22 @@ public final class CIFEXContextLoaderListener extends ContextLoaderListener
     @Override
     public final void contextInitialized(final ServletContextEvent event)
     {
+        registerDefaultUncaughtExceptionHandler();
         LogInitializer.init();
         // Must be call after having initialized the log as it uses itself an operation log.
         printBuildAndEnvironmentInfo();
         super.contextInitialized(event);
+    }
+    
+    private void registerDefaultUncaughtExceptionHandler()
+    {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+        {
+            public void uncaughtException(Thread thread, Throwable th)
+            {
+                operationLog.error(String.format("An unexpected error occured in thread [%s].", thread.getName()), th);
+            }
+        });
     }
 
 }
