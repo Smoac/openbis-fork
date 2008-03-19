@@ -49,7 +49,8 @@ public class EnvironmentFailureException extends HighLevelException
     /**
      * Creates an {@link EnvironmentFailureException} using a {@link java.util.Formatter}.
      */
-    public static EnvironmentFailureException fromTemplate(Throwable cause, String messageTemplate, Object... args)
+    public static EnvironmentFailureException fromTemplate(Throwable cause, String messageTemplate,
+            Object... args)
     {
         return new EnvironmentFailureException(String.format(messageTemplate, args), cause);
     }

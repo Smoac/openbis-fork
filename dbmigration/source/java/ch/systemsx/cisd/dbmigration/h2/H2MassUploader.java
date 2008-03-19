@@ -55,7 +55,8 @@ import ch.systemsx.cisd.dbmigration.IMassUploader;
  */
 public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploader
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, H2MassUploader.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, H2MassUploader.class);
 
     private final ISequenceNameMapper sequenceNameMapper;
 
@@ -77,7 +78,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
 
         final BitSet isBinaryColumn;
 
-        MassUploadRecord(final File massUploadFile, final String tableName, final BitSet isBinaryColumn)
+        MassUploadRecord(final File massUploadFile, final String tableName,
+                final BitSet isBinaryColumn)
         {
             this.massUploadFile = massUploadFile;
             this.tableName = tableName;
@@ -90,21 +92,26 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         String task = "Get database metadata";
         try
         {
-            final List<MassUploadRecord> massUploadRecords = new ArrayList<MassUploadRecord>(massUploadFiles.length);
+            final List<MassUploadRecord> massUploadRecords =
+                    new ArrayList<MassUploadRecord>(massUploadFiles.length);
             final DatabaseMetaData dbMetaData = getConnection().getMetaData();
             try
             {
                 for (final File massUploadFile : massUploadFiles)
                 {
                     final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
-                    assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
+                    assert splitName.length == 2 : "Missing '=' in name of file '"
+                            + massUploadFile.getName() + "'.";
                     final String tableNameWithExtension = splitName[1];
                     final boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
-                    assert tsvFileType : "Not a " + TSV.getFileType() + " file: " + massUploadFile.getName();
+                    assert tsvFileType : "Not a " + TSV.getFileType() + " file: "
+                            + massUploadFile.getName();
                     final String tableName =
-                            tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
+                            tableNameWithExtension.substring(0, tableNameWithExtension
+                                    .lastIndexOf('.'));
                     final BitSet isBinaryColumn = findBinaryColumns(dbMetaData, tableName);
-                    massUploadRecords.add(new MassUploadRecord(massUploadFile, tableName, isBinaryColumn));
+                    massUploadRecords.add(new MassUploadRecord(massUploadFile, tableName,
+                            isBinaryColumn));
                 }
             } finally
             {
@@ -131,8 +138,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         {
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Perform mass upload of file '" + record.massUploadFile + "' to table '"
-                        + record.tableName + "'.");
+                operationLog.info("Perform mass upload of file '" + record.massUploadFile
+                        + "' to table '" + record.tableName + "'.");
             }
             final List<String[]> rows = readTSVFile(record.massUploadFile);
             final int numberOfRows = rows.size();
@@ -154,7 +161,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                         return numberOfRows;
                     }
 
-                    public void setValues(final PreparedStatement ps, final int rowNo) throws SQLException
+                    public void setValues(final PreparedStatement ps, final int rowNo)
+                            throws SQLException
                     {
                         for (int colNo = 0; colNo < numberOfColumns; ++colNo)
                         {
@@ -203,7 +211,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
     private final List<String[]> readTSVFile(final File tsvFile) throws IOException
     {
         final List<String[]> result = new ArrayList<String[]>();
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.openInputStream(tsvFile)));
+        final BufferedReader reader =
+                new BufferedReader(new InputStreamReader(FileUtils.openInputStream(tsvFile)));
         try
         {
             String line = reader.readLine();
@@ -219,8 +228,8 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
                     }
                     if (numberOfColumns != cols.length)
                     {
-                        throw new IllegalArgumentException("line '" + line + "', cols found: " + cols.length
-                                + ", cols expected: " + numberOfColumns);
+                        throw new IllegalArgumentException("line '" + line + "', cols found: "
+                                + cols.length + ", cols expected: " + numberOfColumns);
                     }
                     for (int i = 0; i < cols.length; ++i)
                     {
@@ -251,19 +260,22 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         }
         try
         {
-            final long maxId = getSimpleJdbcTemplate().queryForLong(String.format("select max(id) from %s", tableName));
+            final long maxId =
+                    getSimpleJdbcTemplate().queryForLong(
+                            String.format("select max(id) from %s", tableName));
             final long newSequenceValue = maxId + 1;
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName + " to value "
-                        + newSequenceValue);
+                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName
+                        + " to value " + newSequenceValue);
             }
             getJdbcTemplate().execute(
-                    String.format("alter sequence %s restart with %d", sequenceName, newSequenceValue));
+                    String.format("alter sequence %s restart with %d", sequenceName,
+                            newSequenceValue));
         } catch (final DataAccessException ex)
         {
-            operationLog.error("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
-                    + "'.", ex);
+            operationLog.error("Failed to set new value for sequence '" + sequenceName
+                    + "' of table '" + tableName + "'.", ex);
         }
     }
 }

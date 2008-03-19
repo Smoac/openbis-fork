@@ -45,7 +45,8 @@ public interface IParserObjectFactory<E>
                     // IParserObjectFactory
                     //
 
-                    public final String[] createObject(final String[] lineTokens) throws ParserException
+                    public final String[] createObject(final String[] lineTokens)
+                            throws ParserException
                     {
                         return lineTokens;
                     }

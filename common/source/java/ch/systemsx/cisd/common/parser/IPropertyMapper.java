@@ -31,7 +31,8 @@ public interface IPropertyMapper
      * 
      * @throws IllegalArgumentException if given <var>propertyName</var> does not exist.
      */
-    public IPropertyModel getPropertyModel(final String propertyName) throws IllegalArgumentException;
+    public IPropertyModel getPropertyModel(final String propertyName)
+            throws IllegalArgumentException;
 
     /**
      * Returns a set of all property names.

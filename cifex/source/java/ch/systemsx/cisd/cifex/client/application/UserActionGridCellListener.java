@@ -63,7 +63,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
     // GridCellListenerAdapter
     //
 
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex, final EventObject e)
+    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex,
+            final EventObject e)
     {
         final IMessageResources messageResources = viewContext.getMessageResources();
         final ModelBasedGrid userGrid = (ModelBasedGrid) grid;
@@ -83,22 +84,26 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             {
                 assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user can not delete himself.";
                 MessageBox.confirm(messageResources.getUserDeleteTitle(), messageResources
-                        .getUserDeleteConfirmText(userDescription), new MessageBox.ConfirmCallback()
-                    {
-
-                        //
-                        // ConfirmCallback
-                        //
-
-                        public final void execute(final String btnID)
-                        {
-                            if (btnID.equals("yes"))
+                        .getUserDeleteConfirmText(userDescription),
+                        new MessageBox.ConfirmCallback()
                             {
-                                viewContext.getCifexService().deleteUser(userCode,
-                                        new UserGridRefresherCallback(viewContext, userGrid));
-                            }
-                        }
-                    });
+
+                                //
+                                // ConfirmCallback
+                                //
+
+                                public final void execute(final String btnID)
+                                {
+                                    if (btnID.equals("yes"))
+                                    {
+                                        viewContext.getCifexService()
+                                                .deleteUser(
+                                                        userCode,
+                                                        new UserGridRefresherCallback(viewContext,
+                                                                userGrid));
+                                    }
+                                }
+                            });
             } else if (Constants.EDIT_ID.equals(targetId))
             {
                 if (userCode.equals(viewContext.getModel().getUser().getUserCode()))

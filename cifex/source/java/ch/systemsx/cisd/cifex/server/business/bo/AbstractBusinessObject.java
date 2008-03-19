@@ -20,13 +20,12 @@ import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractBusinessObject
 {
     protected final IDAOFactory daoFactory;
+
     protected final IBusinessContext businessContext;
 
     AbstractBusinessObject(IDAOFactory daoFactory, IBusinessContext businessContext)

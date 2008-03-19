@@ -24,8 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 
 /**
- * 
- *
  * @author felmer
  */
 public class FileBaseEclipseClasspathLocation implements IEclipseClasspathLocation
@@ -37,7 +35,7 @@ public class FileBaseEclipseClasspathLocation implements IEclipseClasspathLocati
         assert classpathFile != null;
         this.classpathFile = classpathFile;
     }
-    
+
     public String getDisplayableLocation()
     {
         return classpathFile.getPath();

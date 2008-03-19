@@ -19,10 +19,9 @@ package ch.systemsx.cisd.dbmigration;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 
-
 /**
  * Interface for a Data Access Object for the database version log.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDatabaseVersionLogDAO extends ISqlScriptExecutionLogger
@@ -31,17 +30,17 @@ public interface IDatabaseVersionLogDAO extends ISqlScriptExecutionLogger
      * Returns <code>true</code> if the database instance with database version log can be connected.
      */
     public boolean canConnectToDatabase();
-    
+
     /**
      * Creates the table DATABASE_VERSION_LOG by using the specified script.
      */
     public void createTable(Script script);
-    
+
     /**
      * Returns the last log entry found.
      * 
      * @return <code>null</code> if log is empty.
      */
     public LogEntry getLastEntry();
-    
+
 }

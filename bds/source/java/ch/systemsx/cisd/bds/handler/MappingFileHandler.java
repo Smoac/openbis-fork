@@ -89,7 +89,8 @@ public final class MappingFileHandler implements IDataStructureHandler
         assert reference != null : "Unspecified reference.";
         if (references.contains(reference))
         {
-            throw new DataStructureException("There is already a reference for file '" + reference + "'.");
+            throw new DataStructureException("There is already a reference for file '" + reference
+                    + "'.");
         }
         references.add(reference);
     }
@@ -104,17 +105,18 @@ public final class MappingFileHandler implements IDataStructureHandler
             int i1 = referenceDefinition.indexOf('\t');
             if (i1 < 0)
             {
-                throw new DataStructureException("Error in standard-original mapping line " + (i + 1)
-                        + ": missing first tab character: " + referenceDefinition);
+                throw new DataStructureException("Error in standard-original mapping line "
+                        + (i + 1) + ": missing first tab character: " + referenceDefinition);
             }
             String path = referenceDefinition.substring(0, i1);
             int i2 = referenceDefinition.indexOf('\t', i1 + 1);
             if (i2 < 0)
             {
-                throw new DataStructureException("Error in standard-original mapping line " + (i + 1)
-                        + ": missing second tab character: " + referenceDefinition);
+                throw new DataStructureException("Error in standard-original mapping line "
+                        + (i + 1) + ": missing second tab character: " + referenceDefinition);
             }
-            final ReferenceType type = ReferenceType.resolveByShortName(referenceDefinition.substring(i1 + 1, i2));
+            final ReferenceType type =
+                    ReferenceType.resolveByShortName(referenceDefinition.substring(i1 + 1, i2));
             references.add(new Reference(path, referenceDefinition.substring(i2 + 1), type));
         }
     }
@@ -143,7 +145,8 @@ public final class MappingFileHandler implements IDataStructureHandler
             final String originalPath = reference.getOriginalPath();
             if (originalPathRoot.tryGetNode(originalPath) == null)
             {
-                throw new DataStructureException(String.format(errMsg, originalPath, originalPathRoot));
+                throw new DataStructureException(String.format(errMsg, originalPath,
+                        originalPathRoot));
             }
         }
     }

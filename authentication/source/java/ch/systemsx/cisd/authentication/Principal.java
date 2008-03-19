@@ -50,11 +50,12 @@ public class Principal
      * @param lastName can not be <code>null</code>.
      * @param email can not be <code>null</code>.
      */
-    public Principal(final String userId, final String firstName, final String lastName, final String email)
+    public Principal(final String userId, final String firstName, final String lastName,
+            final String email)
     {
-            this(userId, firstName, lastName, email, Collections.<String, String>emptyMap());
+        this(userId, firstName, lastName, email, Collections.<String, String> emptyMap());
     }
-    
+
     /**
      * Standard constructor which accepts mandatory parameters and properties.
      * 
@@ -64,8 +65,8 @@ public class Principal
      * @param email can not be <code>null</code>.
      * @param properties can not be <code>null</code>.
      */
-    public Principal(final String userId, final String firstName, final String lastName, final String email,
-            final Map<String, String> properties)
+    public Principal(final String userId, final String firstName, final String lastName,
+            final String email, final Map<String, String> properties)
     {
         assert userId != null;
         assert firstName != null;
@@ -112,9 +113,8 @@ public class Principal
         return lastName;
     }
 
-    /** 
-     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists for this 
-     * <var>key</var>. 
+    /**
+     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists for this <var>key</var>.
      */
     public final String getProperty(String key)
     {

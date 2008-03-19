@@ -30,7 +30,8 @@ public final class ColumnSizeMismatchException extends ParsingException
 
     private final String message;
 
-    public ColumnSizeMismatchException(final String[] tokens, final int lineNumber, final int headerLength)
+    public ColumnSizeMismatchException(final String[] tokens, final int lineNumber,
+            final int headerLength)
     {
         super(tokens, lineNumber);
         assert tokens.length != headerLength : "Tokens length and header length must be different (otherwise no reason to throw this exception).";
@@ -52,8 +53,9 @@ public final class ColumnSizeMismatchException extends ParsingException
             }
         }
         lineStructure.append(" <END_OF_LINE>");
-        return String.format("Line <%s> has %s columns (%s) than the header (%s):\n  %s", getLineNumber(), moreLessStr,
-                String.valueOf(tokens.length), String.valueOf(headerLength), lineStructure.toString());
+        return String.format("Line <%s> has %s columns (%s) than the header (%s):\n  %s",
+                getLineNumber(), moreLessStr, String.valueOf(tokens.length), String
+                        .valueOf(headerLength), lineStructure.toString());
     }
 
     private final static String getMoreOrLessString(final String[] tokens, final int headerLength)

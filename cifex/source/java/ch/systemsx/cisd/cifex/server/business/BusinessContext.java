@@ -52,7 +52,7 @@ class BusinessContext implements IBusinessContext
     private String administratorEmail;
 
     private String systemVersion;
-    
+
     public final IUserSessionInvalidator getUserSessionInvalidator()
     {
         return userHttpSessionHolder;

@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 
- *
  * @author felmer
  */
 public class RecursiveProjectTraverser
@@ -31,8 +29,9 @@ public class RecursiveProjectTraverser
     {
         traverse(projectHandler, new HashSet<EclipseClasspathEntry>());
     }
-    
-    private static void traverse(IProjectHandler projectHandler, Set<EclipseClasspathEntry> visitedEntries)
+
+    private static void traverse(IProjectHandler projectHandler,
+            Set<EclipseClasspathEntry> visitedEntries)
     {
         projectHandler.handleOnEntering();
         IEclipseClasspathLocation loc = projectHandler.createLocation();
@@ -50,6 +49,6 @@ public class RecursiveProjectTraverser
             }
         }
         projectHandler.handleOnLeaving();
-        
+
     }
 }

@@ -54,12 +54,14 @@ public final class ExceptionUtils
     }
 
     /** Recursively copies cause exception from <var>fromException</var> to <var>toException</var>. */
-    private final static void copyCauseException(final Exception fromException, final Exception toException)
+    private final static void copyCauseException(final Exception fromException,
+            final Exception toException)
     {
         assert fromException != null : "Unspecified 'from' Exception.";
         assert toException != null : "Unspecified 'to' Exception.";
         final Exception fromCauseException =
-                (Exception) org.apache.commons.lang.exception.ExceptionUtils.getCause(fromException);
+                (Exception) org.apache.commons.lang.exception.ExceptionUtils
+                        .getCause(fromException);
         if (fromCauseException != null && fromCauseException != fromException)
         {
             final Exception toCauseException = createMasqueradingException(fromCauseException);
@@ -67,7 +69,8 @@ public final class ExceptionUtils
             {
                 if (ClassUtils.setFieldValue(toException, "cause", toCauseException) == false)
                 {
-                    org.apache.commons.lang.exception.ExceptionUtils.setCause(toException, toCauseException);
+                    org.apache.commons.lang.exception.ExceptionUtils.setCause(toException,
+                            toCauseException);
                 }
             }
             copyCauseException(fromCauseException, toCauseException);

@@ -32,15 +32,15 @@ public final class SQLCommandTokenizer
     private final String sqlScript;
 
     private int index = 0;
-    
+
     private Mode mode = Mode.SCANNING;
 
     private boolean newLine = true;
-    
+
     private boolean newWord = false;
-    
+
     private Character previous = '\0';
-    
+
     private Character current;
 
     public SQLCommandTokenizer(String sqlScript)
@@ -154,7 +154,7 @@ public final class SQLCommandTokenizer
             return;
         }
     }
-    
+
     private void scanConstant(StringBuilder builder)
     {
         do
@@ -168,10 +168,10 @@ public final class SQLCommandTokenizer
         } while (current != '\'' || previous == '\\');
         mode = Mode.SCANNING;
     }
-    
+
     private void scanWhitespaces()
     {
-        while (Character.isWhitespace(next())) 
+        while (Character.isWhitespace(next()))
         {
             if (current == '\n')
             {
@@ -184,7 +184,7 @@ public final class SQLCommandTokenizer
         }
         mode = Mode.SCANNING;
     }
-    
+
     private void skipLine()
     {
         do
@@ -196,5 +196,5 @@ public final class SQLCommandTokenizer
             --index;
         }
     }
-    
+
 }

@@ -62,16 +62,17 @@ public final class CIFEXContextLoaderListener extends ContextLoaderListener
         printBuildAndEnvironmentInfo();
         super.contextInitialized(event);
     }
-    
+
     private void registerDefaultUncaughtExceptionHandler()
     {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
-        {
-            public void uncaughtException(Thread thread, Throwable th)
             {
-                operationLog.error(String.format("An unexpected error occured in thread [%s].", thread.getName()), th);
-            }
-        });
+                public void uncaughtException(Thread thread, Throwable th)
+                {
+                    operationLog.error(String.format("An unexpected error occured in thread [%s].",
+                            thread.getName()), th);
+                }
+            });
     }
 
 }

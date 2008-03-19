@@ -62,10 +62,11 @@ final class MainPage extends AbstractMainPage
     {
         final boolean isPermanent = context.getModel().getUser().isPermanent();
         final String maxRequestUploadSizeTest =
-                getMaxRequestUploadSizeText(context.getModel().getConfiguration().getMaxUploadRequestSizeInMB());
-        return new HTML(isPermanent ? context.getMessageResources().getUploadFilesHelpPermanentUser(
-                maxRequestUploadSizeTest) : context.getMessageResources().getUploadFilesHelpTemporaryUser(
-                maxRequestUploadSizeTest));
+                getMaxRequestUploadSizeText(context.getModel().getConfiguration()
+                        .getMaxUploadRequestSizeInMB());
+        return new HTML(isPermanent ? context.getMessageResources()
+                .getUploadFilesHelpPermanentUser(maxRequestUploadSizeTest) : context
+                .getMessageResources().getUploadFilesHelpTemporaryUser(maxRequestUploadSizeTest));
     }
 
     //
@@ -103,7 +104,8 @@ final class MainPage extends AbstractMainPage
 
     private void createListFilesGrid(final ContentPanel contentPanel, final boolean showDownload)
     {
-        final FileAsyncCallback callback = new FileAsyncCallback(context, contentPanel, showDownload);
+        final FileAsyncCallback callback =
+                new FileAsyncCallback(context, contentPanel, showDownload);
         if (showDownload)
         {
             context.getCifexService().listDownloadFiles(callback);
@@ -126,15 +128,18 @@ final class MainPage extends AbstractMainPage
 
         private boolean showDownloaded;
 
-        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel, final boolean showDownload)
+        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel,
+                final boolean showDownload)
         {
             super(context);
             if (showDownload)
             {
-                titleWidget = createPartTitle(context.getMessageResources().getDownloadFilesPartTitle());
+                titleWidget =
+                        createPartTitle(context.getMessageResources().getDownloadFilesPartTitle());
             } else
             {
-                titleWidget = createPartTitle(context.getMessageResources().getUploadedFilesPartTitle());
+                titleWidget =
+                        createPartTitle(context.getMessageResources().getUploadedFilesPartTitle());
             }
 
             this.contentPanel = contentPanel;
@@ -169,8 +174,8 @@ final class MainPage extends AbstractMainPage
             } else
             {
                 final HTML html = new HTML();
-                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty() : messageResources
-                        .getUploadedFilesEmpty());
+                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty()
+                        : messageResources.getUploadedFilesEmpty());
                 widget = html;
             }
             final VerticalPanel verticalPanel = createVerticalPanelPart();
@@ -192,7 +197,8 @@ final class MainPage extends AbstractMainPage
         {
             final IDataGridModel gridModel =
                     new UserGridModel(context.getMessageResources(), context.getModel().getUser());
-            final Grid userGrid = new ModelBasedGrid(context.getMessageResources(), users, gridModel);
+            final Grid userGrid =
+                    new ModelBasedGrid(context.getMessageResources(), users, gridModel);
             // Delete user function
             userGrid.addGridCellListener(new UserActionGridCellListener(context));
             return userGrid;
@@ -206,7 +212,8 @@ final class MainPage extends AbstractMainPage
         {
             if (((User[]) result).length > 0)
             {
-                listCreatedUserPanel.add(createPartTitle(context.getMessageResources().getOwnUserTitle()));
+                listCreatedUserPanel.add(createPartTitle(context.getMessageResources()
+                        .getOwnUserTitle()));
                 listCreatedUserPanel.add(createUserTable((User[]) result));
             }
         }

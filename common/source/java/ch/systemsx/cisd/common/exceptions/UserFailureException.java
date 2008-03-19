@@ -49,7 +49,8 @@ public class UserFailureException extends HighLevelException
     /**
      * Creates an {@link UserFailureException} using a {@link java.util.Formatter}.
      */
-    public static UserFailureException fromTemplate(Throwable cause, String messageTemplate, Object... args)
+    public static UserFailureException fromTemplate(Throwable cause, String messageTemplate,
+            Object... args)
     {
         return new UserFailureException(String.format(messageTemplate, args), cause);
     }

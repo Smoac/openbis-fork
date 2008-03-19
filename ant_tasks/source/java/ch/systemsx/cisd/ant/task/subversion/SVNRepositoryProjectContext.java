@@ -30,10 +30,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 class SVNRepositoryProjectContext
 {
     /** A pattern that release branches must match. */
-    private static final Pattern releaseBranchPattern = Pattern.compile(SVNUtilities.RELEASE_BRANCH_PATTERN_STRING);
+    private static final Pattern releaseBranchPattern =
+            Pattern.compile(SVNUtilities.RELEASE_BRANCH_PATTERN_STRING);
 
     /** A pattern that release tags must match. */
-    private static final Pattern releaseTagPattern = Pattern.compile(SVNUtilities.RELEASE_TAG_PATTERN_STRING);
+    private static final Pattern releaseTagPattern =
+            Pattern.compile(SVNUtilities.RELEASE_TAG_PATTERN_STRING);
 
     /** The root of the repository url, including the protocol. */
     private String repositoryRoot = SVNUtilities.DEFAULT_REPOSITORY_ROOT;
@@ -135,7 +137,7 @@ class SVNRepositoryProjectContext
         this.versionType = SVNProjectVersionType.TRUNK;
         this.version = SVNUtilities.DEFAULT_VERSION;
     }
-    
+
     /**
      * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_BRANCH} and the version to
      * <var>branchName</var>.
@@ -148,7 +150,8 @@ class SVNRepositoryProjectContext
 
         if (false == isReleaseBranch(branchName))
         {
-            throw new UserFailureException("Branch name '" + branchName + "' does not match the pattern.");
+            throw new UserFailureException("Branch name '" + branchName
+                    + "' does not match the pattern.");
         }
         this.versionType = SVNProjectVersionType.RELEASE_BRANCH;
         this.version = branchName;
@@ -178,7 +181,8 @@ class SVNRepositoryProjectContext
         }
         if (version.indexOf('/') >= 0)
         {
-            throw new UserFailureException("Branch name '" + branchName + "' contains illegal charachter '/'.");
+            throw new UserFailureException("Branch name '" + branchName
+                    + "' contains illegal charachter '/'.");
         }
         this.versionType = SVNProjectVersionType.FEATURE_BRANCH;
         this.version = branchName;
@@ -265,15 +269,15 @@ class SVNRepositoryProjectContext
             case TRUNK:
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup()), "/");
             case RELEASE_BRANCH:
-                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                "branches/release", getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "branches/release", getVersion()), "/");
             case RELEASE_TAG:
                 final String branchName = SVNUtilities.getBranchForTag(getVersion());
-                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                "tags/release", branchName, getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "tags/release", branchName, getVersion()), "/");
             case FEATURE_BRANCH:
-                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(), getProjectName(),
-                "branches/feature", getVersion()), "/");
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "branches/feature", getVersion()), "/");
             default:
                 throw new AssertionError("Unknown version type '" + versionType + "'.");
         }
@@ -302,17 +306,18 @@ class SVNRepositoryProjectContext
                     }
                     if (subProjectName.indexOf('/') >= 0 || subProjectName.indexOf('\\') >= 0)
                     {
-                        throw UserFailureException.fromTemplate("Sub-project '%s' contains invalid characters.",
-                                subProjectName);
+                        throw UserFailureException.fromTemplate(
+                                "Sub-project '%s' contains invalid characters.", subProjectName);
                     }
 
                     if (SVNProjectVersionType.TRUNK == versionType)
                     {
                         return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName,
-                        SVNUtilities.DEFAULT_VERSION), "/");
+                                SVNUtilities.DEFAULT_VERSION), "/");
                     } else
                     {
-                        return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName), "/");
+                        return StringUtils.join(Arrays.asList(getRepositoryUrl(), subProjectName),
+                                "/");
                     }
                 }
 
@@ -321,7 +326,8 @@ class SVNRepositoryProjectContext
                     return getPath(SVNRepositoryProjectContext.this.getProjectName());
                 }
 
-                public String getPath(String subProjectName, String entityPath) throws UserFailureException
+                public String getPath(String subProjectName, String entityPath)
+                        throws UserFailureException
                 {
                     assert subProjectName != null;
                     assert entityPath != null;

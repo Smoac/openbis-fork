@@ -72,8 +72,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
             user.setPermanent(rs.getBoolean("is_permanent"));
-            user.setRegistrationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("registration_timestamp")));
-            user.setExpirationDate(DBUtils.tryToTranslateTimestampToDate(rs.getTimestamp("expiration_timestamp")));
+            user.setRegistrationDate(DBUtils.tryToTranslateTimestampToDate(rs
+                    .getTimestamp("registration_timestamp")));
+            user.setExpirationDate(DBUtils.tryToTranslateTimestampToDate(rs
+                    .getTimestamp("expiration_timestamp")));
             registrator.setID(rs.getLong("user_id_registrator"));
             user.setRegistrator(registrator);
             return user;
@@ -116,9 +118,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
-                template.query(
-                        "select * from users where user_id_registrator = (select id from users where user_id=?)",
-                        new UserRowMapper(), userCode);
+                template
+                        .query(
+                                "select * from users where user_id_registrator = (select id from users where user_id=?)",
+                                new UserRowMapper(), userCode);
 
         for (UserDTO user : list)
         {
@@ -154,10 +157,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template.update("insert into users (id, user_id, email, full_name, encrypted_password, "
                 + "is_externally_authenticated, is_admin,"
-                + "is_permanent, user_id_registrator, expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?)", id,
-                user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getEncryptedPassword(), user
-                        .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
-                        .getExpirationDate());
+                + "is_permanent, user_id_registrator, expiration_timestamp) "
+                + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
+                .getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
+                user.isAdmin(), user.isPermanent(), registratorIdOrNull, user.getExpirationDate());
 
         user.setID(id);
     }
@@ -196,7 +199,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             UserDTO user =
-                    template.queryForObject("select * from users where user_id = ?", new UserRowMapper(), userCode);
+                    template.queryForObject("select * from users where user_id = ?",
+                            new UserRowMapper(), userCode);
             return user;
         } catch (final EmptyResultDataAccessException e)
         {
@@ -215,7 +219,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
-                template.query("select * from users where expiration_timestamp < now() ", new UserRowMapper());
+                template.query("select * from users where expiration_timestamp < now() ",
+                        new UserRowMapper());
         return list;
     }
 
@@ -226,8 +231,9 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         template.update("update users set email = ?, user_id = ?, full_name = ?, "
                 + "encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
-                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(), user
-                .getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(), user.isAdmin(), user
-                .isPermanent(), user.getExpirationDate(), user.getID());
+                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user
+                .getUserCode(), user.getUserFullName(), user.getEncryptedPassword(), user
+                .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
+                .getExpirationDate(), user.getID());
     }
 }

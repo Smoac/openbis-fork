@@ -19,13 +19,11 @@ package ch.systemsx.cisd.ant.common;
 import org.w3c.dom.Document;
 
 /**
- * 
- *
  * @author felmer
  */
 public interface IEclipseClasspathLocation
 {
     public Document getDocument();
-    
+
     public String getDisplayableLocation();
 }

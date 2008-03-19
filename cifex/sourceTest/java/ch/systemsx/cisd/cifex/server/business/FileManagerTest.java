@@ -97,13 +97,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         businessContext.setFileRetention(5);
         businessContext.setFileStore(fileStore);
         businessContext.setPasswordGenerator(new PasswordGenerator()
-        {
-            @Override
-            public String generatePassword(int length)
             {
-                return "newpasswd";
-            }
-        });
+                @Override
+                public String generatePassword(int length)
+                {
+                    return "newpasswd";
+                }
+            });
         businessContext.setUserActionLog(new DummyUserActionLog());
         mailClient = context.mock(IMailClient.class);
         businessContext.setMailClient(mailClient);
@@ -265,14 +265,14 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId, receivingUserCode))),
-                            with(equal(new String[]
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                            receivingUserCode))), with(equal(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections.singleton(emailOfUserToShareWith), Collections
-                        .singleton(file), comment);
+                fileManager.shareFilesWith(url, requestUser, Collections
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -319,14 +319,14 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
-                                    + String.format("/index.html?fileId=%d&user=%s", fileId, receivingUserCode))),
-                            with(equal(new String[]
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                            receivingUserCode))), with(equal(new String[]
                                 { emailOfReceivingUserLowerCase })));
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections.singleton(emailOfUserToShareWith), Collections
-                        .singleton(file), comment);
+                fileManager.shareFilesWith(url, requestUser, Collections
+                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -398,7 +398,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         {
             filePathIfFileNotExisted = createRealFile(filePath);
             assertTrue(filePathIfFileNotExisted.exists());
-            expectedFilePath = FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
+            expectedFilePath =
+                    FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
             assertFalse(expectedFilePath.compareTo(filePathIfFileNotExisted) == 0);
 
         } else
@@ -417,7 +418,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         FileDTO createdFileDTO =
-                fileManager.saveFile(user, imageFile.getName(), imageFile.getContentType(), inputStream);
+                fileManager.saveFile(user, imageFile.getName(), imageFile.getContentType(),
+                        inputStream);
         File createdFile = new File(fileStore, createdFileDTO.getPath());
         assertTrue(createdFile.exists());
         assertEquals(createdFile.getPath(), expectedFilePath.getPath());
@@ -466,7 +468,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         return user;
     }
 
-    final static private FileDTO cerateSampleFileDTO(long id, UserDTO owner, String fileName, String contentType)
+    final static private FileDTO cerateSampleFileDTO(long id, UserDTO owner, String fileName,
+            String contentType)
     {
         FileDTO fileDTO = new FileDTO(owner.getID());
         fileDTO.setID(id);

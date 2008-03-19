@@ -27,8 +27,6 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class MailClientTest extends AbstractFileSystemTestCase
@@ -39,18 +37,19 @@ public class MailClientTest extends AbstractFileSystemTestCase
         String path = workingDirectory.getPath() + "/emails";
         File emailFolder = new File(path);
         assert emailFolder.exists() == false;
-        
+
         MailClient mailClient = new MailClient("sender", "file://" + path);
         mailClient.sendMessage("some message", "Hello world\nHow are you today?", "a@b.c", "d@e.f");
-        
+
         assert emailFolder.exists();
         assert emailFolder.isDirectory();
         File[] files = emailFolder.listFiles();
         assertEquals(1, files.length);
         assertEquals("email", files[0].getName());
-        assertEquals("Subj: some message\n" + "From: sender\n" + "To:   a@b.c, d@e.f\n" + "Content:\n"
-                + "Hello world\nHow are you today?\n", FileUtilities.loadToString(files[0]));
-        
+        assertEquals("Subj: some message\n" + "From: sender\n" + "To:   a@b.c, d@e.f\n"
+                + "Content:\n" + "Hello world\nHow are you today?\n", FileUtilities
+                .loadToString(files[0]));
+
         // second mail
         mailClient.sendMessage("Greetings", "Hello world!");
         files = emailFolder.listFiles();

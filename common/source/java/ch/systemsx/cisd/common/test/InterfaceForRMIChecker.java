@@ -26,24 +26,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Helper class for checking an interface or a class to be ready for RMI. 
- *
+ * Helper class for checking an interface or a class to be ready for RMI.
+ * 
  * @author Franz-Josef Elmer
  */
 public class InterfaceForRMIChecker
 {
     /**
-     * Asserts that the specified interface is ready for RMI. That is, for all methods
-     * the parameter types and the return type is {@link Serializable}.
+     * Asserts that the specified interface is ready for RMI. That is, for all methods the parameter types and the
+     * return type is {@link Serializable}.
      * 
-     * @throws AssertionError if <code>interfaze</code> is not an interface or a parameter type or
-     *          a return value is not serializable.
+     * @throws AssertionError if <code>interfaze</code> is not an interface or a parameter type or a return value is
+     *             not serializable.
      */
     public static void assertInterfaceForRMI(Class<?> interfaze)
     {
         assert interfaze != null : "Unspecified interface.";
         assert interfaze.isInterface() : "Not an interface " + interfaze;
-        
+
         Set<Class<?>> visitedClasses = new HashSet<Class<?>>();
         Method[] methods = interfaze.getMethods();
         for (Method method : methods)
@@ -51,7 +51,7 @@ public class InterfaceForRMIChecker
             assertMethodForRMI(method, visitedClasses);
         }
     }
-    
+
     private static void assertMethodForRMI(Method method, Set<Class<?>> visitedClasses)
     {
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -65,19 +65,20 @@ public class InterfaceForRMIChecker
             assertSerializable(returnType, visitedClasses, true);
         }
     }
-    
+
     /**
      * Asserts that the specified class is serializable.
      * 
-     * @throws AssertionError if <code>clazz</code> is not serializable or a non-transient non-static
-     *          attribute isn't serializable.
+     * @throws AssertionError if <code>clazz</code> is not serializable or a non-transient non-static attribute isn't
+     *             serializable.
      */
     public static void assertSerializable(Class<?> clazz)
     {
         assertSerializable(clazz, new HashSet<Class<?>>(), true);
     }
 
-    private static void assertSerializable(Class<?> clazz, Set<Class<?>> visitedClasses, boolean checkImplementsSerializable)
+    private static void assertSerializable(Class<?> clazz, Set<Class<?>> visitedClasses,
+            boolean checkImplementsSerializable)
     {
         assert clazz != null : "Unspecified class.";
         if (clazz.isPrimitive() || visitedClasses.contains(clazz))
@@ -92,7 +93,8 @@ public class InterfaceForRMIChecker
         {
             if (checkImplementsSerializable)
             {
-                assert Serializable.class.isAssignableFrom(clazz) : clazz + " does not implements java.io.Serializable";
+                assert Serializable.class.isAssignableFrom(clazz) : clazz
+                        + " does not implements java.io.Serializable";
             }
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields)

@@ -48,15 +48,17 @@ public final class ExposablePropertyPaceholderConfigurer extends PropertyPlaceho
     //
 
     @Override
-    protected final void processProperties(final ConfigurableListableBeanFactory beanFactoryToProcess,
-            final Properties props) throws BeansException
+    protected final void processProperties(
+            final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
+            throws BeansException
     {
         super.processProperties(beanFactoryToProcess, props);
         resolvedProps = new HashMap<String, String>();
         for (final Object key : props.keySet())
         {
             final String keyStr = key.toString();
-            resolvedProps.put(keyStr, parseStringValue(props.getProperty(keyStr), props, new HashSet()));
+            resolvedProps.put(keyStr, parseStringValue(props.getProperty(keyStr), props,
+                    new HashSet()));
         }
     }
 

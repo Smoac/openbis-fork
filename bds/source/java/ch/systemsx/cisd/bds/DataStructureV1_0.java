@@ -32,7 +32,7 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 public class DataStructureV1_0 extends AbstractDataStructure
 {
     public static final String DIR_METADATA = "metadata";
-    
+
     public static final String DIR_ANNOTATIONS = "annotations";
 
     public static final String DIR_PARAMETERS = "parameters";
@@ -65,10 +65,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
 
     private final void registerHandlers()
     {
-        mappingFileHandler = new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
+        mappingFileHandler =
+                new MappingFileHandler(getMetaDataDirectory(), getStandardData(), getOriginalData());
         registerHandler(mappingFileHandler);
-        registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY),
-                getOriginalData()));
+        registerHandler(new ChecksumHandler(getMetaDataDirectory().makeDirectory(
+                ChecksumHandler.CHECKSUM_DIRECTORY), getOriginalData()));
     }
 
     /**
@@ -106,7 +107,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_ANNOTATIONS);
     }
-    
+
     private IDirectory getParametersDirectory()
     {
         assertOpenOrCreated();
@@ -124,10 +125,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assertOpenOrCreated();
         if (format == null)
         {
-            throw new DataStructureException("Couldn't create formatted data because of unspecified format.");
+            throw new DataStructureException(
+                    "Couldn't create formatted data because of unspecified format.");
         }
-        return FormattedDataFactory.createFormattedData(getDataDirectory(), format, UnknownFormatV1_0.UNKNOWN_1_0,
-                formatParameters);
+        return FormattedDataFactory.createFormattedData(getDataDirectory(), format,
+                UnknownFormatV1_0.UNKNOWN_1_0, formatParameters);
     }
 
     /**
@@ -151,7 +153,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         assert formatParameter != null : "Unspecified format parameter.";
         formatParameters.addParameter(formatParameter);
     }
-    
+
     public void setAnnotations(IAnnotations annotations)
     {
         this.annotations = annotations;

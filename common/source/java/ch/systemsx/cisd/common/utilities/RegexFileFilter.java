@@ -96,7 +96,8 @@ public class RegexFileFilter implements FileFilter
                 return false;
             }
             final PathPattern that = (PathPattern) obj;
-            return this.type.equals(that.type) && this.pattern.pattern().equals(that.pattern.pattern());
+            return this.type.equals(that.type)
+                    && this.pattern.pattern().equals(that.pattern.pattern());
         }
 
         @Override

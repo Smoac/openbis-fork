@@ -43,7 +43,9 @@ public final class NotImplementedException extends RuntimeException
     {
         super();
         final StackTraceExtractor extractor = new StackTraceExtractor(this);
-        this.message = String.format(MESSAGE_TEMPLATE, extractor.getMethodName(), extractor.getSimpleClassName());
+        this.message =
+                String.format(MESSAGE_TEMPLATE, extractor.getMethodName(), extractor
+                        .getSimpleClassName());
     }
 
     public NotImplementedException(final String message)

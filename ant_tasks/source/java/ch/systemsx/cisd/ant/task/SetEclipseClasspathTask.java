@@ -64,10 +64,11 @@ public class SetEclipseClasspathTask extends Property
         }
         addProperty(propertyName, builder.toString());
     }
-    
+
     private final class ProjectHandler extends DummyProjectHandler
     {
         private final Set<File> files;
+
         private final File projectBaseDir;
 
         ProjectHandler(Set<File> files, File projectBaseDir)
@@ -75,7 +76,7 @@ public class SetEclipseClasspathTask extends Property
             this.files = files;
             this.projectBaseDir = projectBaseDir;
         }
-        
+
         @Override
         public void handleEntry(EclipseClasspathEntry entry)
         {
@@ -84,7 +85,7 @@ public class SetEclipseClasspathTask extends Property
             if (entry.getKind().equals(EclipseClasspathEntry.LIB_KIND))
             {
                 files.add(classpathElement);
-            }        
+            }
         }
 
         @Override
@@ -102,7 +103,8 @@ public class SetEclipseClasspathTask extends Property
         @Override
         public IEclipseClasspathLocation createLocation()
         {
-            File eclipseClasspathFile = new File(projectBaseDir, EclipseClasspathReader.CLASSPATH_FILE);
+            File eclipseClasspathFile =
+                    new File(projectBaseDir, EclipseClasspathReader.CLASSPATH_FILE);
             if (eclipseClasspathFile.exists())
             {
                 return new FileBaseEclipseClasspathLocation(eclipseClasspathFile);

@@ -60,12 +60,13 @@ public interface IUserActionLog
     public void logUploadFile(String filename, boolean success);
 
     public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
-            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses, boolean success);
-    
+            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
+            boolean success);
+
     public void logDeleteFile(FileDTO file, boolean success);
 
     public void logExpireFile(FileDTO file, boolean success);
-    
+
     public void logRenewFile(FileDTO file, boolean success);
 
     public void logDownloadFile(FileDTO file, boolean success);

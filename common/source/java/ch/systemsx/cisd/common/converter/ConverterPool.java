@@ -95,7 +95,8 @@ public final class ConverterPool
         {
             return (T) Boolean.valueOf(value);
         }
-        throw new IllegalArgumentException("No converter for type '" + type.getCanonicalName() + "'.");
+        throw new IllegalArgumentException("No converter for type '" + type.getCanonicalName()
+                + "'.");
     }
 
     /**

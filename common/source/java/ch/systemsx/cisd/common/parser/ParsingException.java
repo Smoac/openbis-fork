@@ -41,7 +41,8 @@ public class ParsingException extends HighLevelException
         this(null, tokens, lineNumber);
     }
 
-    public ParsingException(final RuntimeException cause, final String[] tokens, final int lineNumber)
+    public ParsingException(final RuntimeException cause, final String[] tokens,
+            final int lineNumber)
     {
         super(createMessage(tokens), cause);
         this.lineNumber = lineNumber;

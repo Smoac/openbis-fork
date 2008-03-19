@@ -128,7 +128,8 @@ public class TabFileLoader<T>
         boolean previousLineHasColumnHeaders = false;
         while (lineIterator.hasNext())
         {
-            previousLineHasColumnHeaders = (previousLine != null) && PREFIX.equals(previousLine.getText());
+            previousLineHasColumnHeaders =
+                    (previousLine != null) && PREFIX.equals(previousLine.getText());
             previousLine = line;
             line = lineIterator.next();
             if (line.getText().startsWith(PREFIX) == false)
@@ -137,7 +138,8 @@ public class TabFileLoader<T>
             }
         }
         @SuppressWarnings("null")
-        final String headerLine = previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
+        final String headerLine =
+                previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
 
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
@@ -209,7 +211,8 @@ public class TabFileLoader<T>
         {
             if (unique.add(token.toLowerCase()) == false)
             {
-                throw new IllegalArgumentException(String.format("Duplicated column name '%s'.", token));
+                throw new IllegalArgumentException(String.format("Duplicated column name '%s'.",
+                        token));
             }
         }
     }

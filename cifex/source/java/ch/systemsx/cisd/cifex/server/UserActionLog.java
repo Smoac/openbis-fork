@@ -59,7 +59,8 @@ public final class UserActionLog implements IUserActionLog
 
     private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
 
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
+    private static final SimpleDateFormat dateTimeFormat =
+            new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
 
     private final IRequestContextProvider requestContextProvider;
 
@@ -84,7 +85,8 @@ public final class UserActionLog implements IUserActionLog
         if (authenticationLog.isInfoEnabled())
         {
             final String logMessage =
-                    String.format("{USER: %s, HOST: %s} login: FAILED", userCode, remoteHostProvider.getRemoteHost());
+                    String.format("{USER: %s, HOST: %s} login: FAILED", userCode,
+                            remoteHostProvider.getRemoteHost());
             authenticationLog.info(logMessage);
         }
     }
@@ -104,11 +106,12 @@ public final class UserActionLog implements IUserActionLog
         {
             final long now = System.currentTimeMillis();
             final boolean timedOut =
-                    (now - httpSession.getLastAccessedTime()) / 1000.0 >= httpSession.getMaxInactiveInterval();
+                    (now - httpSession.getLastAccessedTime()) / 1000.0 >= httpSession
+                            .getMaxInactiveInterval();
             final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
             final String logoutMsg =
-                    String.format("{USER: %s, SESSION: %s} logout%s", user.getUserCode(), httpSession.getId(),
-                            timedOut ? " (session timeout)" : "");
+                    String.format("{USER: %s, SESSION: %s} logout%s", user.getUserCode(),
+                            httpSession.getId(), timedOut ? " (session timeout)" : "");
             authenticationLog.info(logoutMsg);
         }
     }
@@ -122,7 +125,8 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("create_user '%s': %s", getUserDescription(user), getSuccessString(success)));
+                    + String.format("create_user '%s': %s", getUserDescription(user),
+                            getSuccessString(success)));
         }
     }
 
@@ -200,8 +204,9 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             final String whatChanged = getMessageWhatChanged(oldUser, newUser);
-            trackingLog.info(String.format(getUserHostSessionDescription() + "update_user '%s' [%s]: %s",
-                    getUserDescription(newUser), whatChanged, getSuccessString(success)));
+            trackingLog.info(String.format(getUserHostSessionDescription()
+                    + "update_user '%s' [%s]: %s", getUserDescription(newUser), whatChanged,
+                    getSuccessString(success)));
         }
     }
 
@@ -210,7 +215,8 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("delete_user '%s': %s", getUserDescription(user), getSuccessString(success)));
+                    + String.format("delete_user '%s': %s", getUserDescription(user),
+                            getSuccessString(success)));
         }
     }
 
@@ -218,8 +224,8 @@ public final class UserActionLog implements IUserActionLog
     {
         if (trackingLog.isInfoEnabled())
         {
-            trackingLog.info(String.format("{SYSTEM} delete_user '%s': %s", getUserDescription(user),
-                    getSuccessString(success)));
+            trackingLog.info(String.format("{SYSTEM} delete_user '%s': %s",
+                    getUserDescription(user), getSuccessString(success)));
         }
     }
 
@@ -228,11 +234,12 @@ public final class UserActionLog implements IUserActionLog
         final HttpSession httpSession = getHttpSession();
         if (httpSession == null)
         {
-            return String.format(USER_HOST_SESSION_TEMPLATE, "UNKNOWN", remoteHostProvider.getRemoteHost(), "UNKNOWN");
+            return String.format(USER_HOST_SESSION_TEMPLATE, "UNKNOWN", remoteHostProvider
+                    .getRemoteHost(), "UNKNOWN");
         }
         final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-        return String.format(USER_HOST_SESSION_TEMPLATE, user.getUserCode(), remoteHostProvider.getRemoteHost(),
-                httpSession.getId());
+        return String.format(USER_HOST_SESSION_TEMPLATE, user.getUserCode(), remoteHostProvider
+                .getRemoteHost(), httpSession.getId());
     }
 
     private HttpSession getHttpSession()
@@ -282,24 +289,26 @@ public final class UserActionLog implements IUserActionLog
     }
 
     public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
-            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses, boolean success)
+            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
+            boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
             final String invalidEmailDesc =
-                    (invalidEmailAddresses.size() > 0) ? " [invalid: " + getStringDescription(invalidEmailAddresses)
-                            + "]" : "";
+                    (invalidEmailAddresses.size() > 0) ? " [invalid: "
+                            + getStringDescription(invalidEmailAddresses) + "]" : "";
             if (success)
             {
                 trackingLog.info(getUserHostSessionDescription()
                         + String.format("share_files %s with %s: %s%s", getFileDescriptions(files),
-                                getUserDescription(usersToShareWith), getSuccessString(success), invalidEmailDesc));
+                                getUserDescription(usersToShareWith), getSuccessString(success),
+                                invalidEmailDesc));
             } else
             {
                 trackingLog.info(getUserHostSessionDescription()
                         + String.format("share_files %s with %s: %s", getFileDescriptions(files),
-                                getStringDescription(emailsOfUsersToShareWith), getSuccessString(success),
-                                invalidEmailDesc));
+                                getStringDescription(emailsOfUsersToShareWith),
+                                getSuccessString(success), invalidEmailDesc));
             }
         }
     }
@@ -330,7 +339,7 @@ public final class UserActionLog implements IUserActionLog
     private String getFileDescription(FileDTO file)
     {
         assert file != null;
-        
+
         final UserDTO registratorOrNull = file.getRegisterer();
         if (registratorOrNull != null)
         {
@@ -379,7 +388,8 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("delete_file '%s': %s", getFileDescription(file), getSuccessString(success)));
+                    + String.format("delete_file '%s': %s", getFileDescription(file),
+                            getSuccessString(success)));
         }
     }
 
@@ -387,8 +397,8 @@ public final class UserActionLog implements IUserActionLog
     {
         if (trackingLog.isInfoEnabled())
         {
-            trackingLog.info(String.format("{SYSTEM} delete_file '%s': %s", getFileDescription(file),
-                    getSuccessString(success)));
+            trackingLog.info(String.format("{SYSTEM} delete_file '%s': %s",
+                    getFileDescription(file), getSuccessString(success)));
         }
     }
 
@@ -397,8 +407,8 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("renew_file '%s' until %s: %s", getFileDescription(file), dateTimeFormat
-                            .format(file.getExpirationDate()), success));
+                    + String.format("renew_file '%s' until %s: %s", getFileDescription(file),
+                            dateTimeFormat.format(file.getExpirationDate()), success));
         }
     }
 

@@ -70,8 +70,9 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 }
                 if (fileManager.isAllowedAccess(requestUser, fileInfo.getFileDTO()) == false)
                 {
-                    throw UserFailureException.fromTemplate("User '%s' does not have access to file '%s'.", requestUser
-                            .getUserCode(), fileInfo.getFileDTO().getPath());
+                    throw UserFailureException.fromTemplate(
+                            "User '%s' does not have access to file '%s'.", requestUser
+                                    .getUserCode(), fileInfo.getFileDTO().getPath());
                 }
                 final FileContent fileOutput = fileManager.getFileContent(fileInfo.getFileDTO());
                 final Long size = fileOutput.getBasicFile().getSize();
@@ -87,13 +88,15 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
                 IOUtils.copy(inputStream, outputStream);
             } catch (final NumberFormatException ex)
             {
-                throw new ServletException(String.format("Given file id '%s' is not a number.", fileIdParameter), ex);
+                throw new ServletException(String.format("Given file id '%s' is not a number.",
+                        fileIdParameter), ex);
             } catch (final InvalidSessionException ex)
             {
                 throw new ServletException(ex.getMessage(), ex);
             } catch (final UserFailureException ex)
             {
-                operationLog.error(String.format("Problem while accessing file id '%s'.", fileIdParameter), ex);
+                operationLog.error(String.format("Problem while accessing file id '%s'.",
+                        fileIdParameter), ex);
                 throw new ServletException(ex.getMessage(), ex);
             } finally
             {

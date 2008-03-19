@@ -50,8 +50,8 @@ public final class HCSImageFormatV1_0 extends Format
      */
     private final static String[] FORMAT_PARAMETERS =
             new String[]
-                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, ChannelList.NUMBER_OF_CHANNELS,
-                        CONTAINS_ORIGINAL_DATA };
+                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY,
+                        ChannelList.NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
 
     /**
      * The one and only one instance.

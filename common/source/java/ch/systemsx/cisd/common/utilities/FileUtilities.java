@@ -91,8 +91,8 @@ public final class FileUtilities
      *            be transfered to <code>destinationFile</code>.
      * @throws EnvironmentFailureException if a {@link IOException} occured.
      */
-    public static void copyFileTo(File sourceFile, File destinationFile, boolean preservesLastModifiedDate)
-            throws CheckedExceptionTunnel
+    public static void copyFileTo(File sourceFile, File destinationFile,
+            boolean preservesLastModifiedDate) throws CheckedExceptionTunnel
     {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
@@ -103,8 +103,8 @@ public final class FileUtilities
             IOUtils.copy(inputStream, outputStream);
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '" + destinationFile
-                    + "'.", ex);
+            throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '"
+                    + destinationFile + "'.", ex);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
@@ -116,8 +116,8 @@ public final class FileUtilities
             boolean successful = destinationFile.setLastModified(sourceFile.lastModified());
             if (successful == false)
             {
-                throw new EnvironmentFailureException("Couldn't copy last modified date of file '" + sourceFile
-                        + "' to '" + destinationFile + "' for some unknown reason.");
+                throw new EnvironmentFailureException("Couldn't copy last modified date of file '"
+                        + sourceFile + "' to '" + destinationFile + "' for some unknown reason.");
             }
         }
     }
@@ -180,7 +180,8 @@ public final class FileUtilities
      * @return The content of the file line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public final static List<String> loadToStringList(final File file) throws CheckedExceptionTunnel
+    public final static List<String> loadToStringList(final File file)
+            throws CheckedExceptionTunnel
     {
         return loadToStringList(file, null);
     }
@@ -194,8 +195,8 @@ public final class FileUtilities
      * @return The content of the file line by line.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does not exist.
      */
-    public final static List<String> loadToStringList(final File file, final ILineFilter lineFilterOrNull)
-            throws CheckedExceptionTunnel
+    public final static List<String> loadToStringList(final File file,
+            final ILineFilter lineFilterOrNull) throws CheckedExceptionTunnel
     {
         assert file != null : "Unspecified file.";
 
@@ -224,7 +225,8 @@ public final class FileUtilities
      * @return The content of the resource, or <code>null</code> if the specified resource does not exist.
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}
      */
-    public static String loadToString(final Class<?> clazz, final String resource) throws CheckedExceptionTunnel
+    public static String loadToString(final Class<?> clazz, final String resource)
+            throws CheckedExceptionTunnel
     {
         assert clazz != null : "Given class can not be null.";
         assert resource != null && resource.length() > 0 : "Given resource can not be null.";
@@ -293,8 +295,8 @@ public final class FileUtilities
         }
     }
 
-    private final static BufferedReader tryGetBufferedReader(final Class<?> clazz, final String resource)
-            throws FileNotFoundException
+    private final static BufferedReader tryGetBufferedReader(final Class<?> clazz,
+            final String resource) throws FileNotFoundException
     {
         final URL url = clazz.getResource(resource);
         if (url == null)
@@ -322,8 +324,8 @@ public final class FileUtilities
         return builder.toString();
     }
 
-    private final static List<String> readStringList(final BufferedReader reader, final ILineFilter lineFilterOrNull)
-            throws IOException
+    private final static List<String> readStringList(final BufferedReader reader,
+            final ILineFilter lineFilterOrNull) throws IOException
     {
         assert reader != null : "Unspecified BufferedReader.";
         final ILineFilter lineFilter;
@@ -375,13 +377,14 @@ public final class FileUtilities
         final String msg = checkPathFullyAccessible(directory, kindOfDirectory, "directory");
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory, but is a file.", directory.getPath(),
-                    kindOfDirectory);
+            return String.format("Path '%s' is supposed to be a %s directory, but is a file.",
+                    directory.getPath(), kindOfDirectory);
         }
         return msg;
     }
 
-    private static String checkPathFullyAccessible(File path, String kindOfPath, String directoryOrFile)
+    private static String checkPathFullyAccessible(File path, String kindOfPath,
+            String directoryOrFile)
     {
         assert path != null;
         assert kindOfPath != null;
@@ -391,18 +394,18 @@ public final class FileUtilities
         {
             if (path.exists() == false)
             {
-                return String.format("%s %s '%s' does not exist.", StringUtilities.capitalize(kindOfPath),
-                        directoryOrFile, path.getPath());
+                return String.format("%s %s '%s' does not exist.", StringUtilities
+                        .capitalize(kindOfPath), directoryOrFile, path.getPath());
             } else
             {
-                return String.format("%s %s '%s' is not readable.", StringUtilities.capitalize(kindOfPath),
-                        directoryOrFile, path.getPath());
+                return String.format("%s %s '%s' is not readable.", StringUtilities
+                        .capitalize(kindOfPath), directoryOrFile, path.getPath());
             }
         }
         if (path.canWrite() == false)
         {
-            return String.format("%s directory '%s' is not writable.", StringUtilities.capitalize(kindOfPath), path
-                    .getPath());
+            return String.format("%s directory '%s' is not writable.", StringUtilities
+                    .capitalize(kindOfPath), path.getPath());
         }
         return null;
     }
@@ -447,7 +450,8 @@ public final class FileUtilities
                 {
                     if (loggerOrNull != null)
                     {
-                        loggerOrNull.log(LogLevel.INFO, String.format("Deleting file '%s'", file.getPath()));
+                        loggerOrNull.log(LogLevel.INFO, String.format("Deleting file '%s'", file
+                                .getPath()));
                     }
                     file.delete();
                 }
@@ -455,7 +459,8 @@ public final class FileUtilities
         }
         if (loggerOrNull != null)
         {
-            loggerOrNull.log(LogLevel.INFO, String.format("Deleting directory '%s'", path.getPath()));
+            loggerOrNull.log(LogLevel.INFO, String
+                    .format("Deleting directory '%s'", path.getPath()));
         }
         return path.delete();
     }
@@ -504,7 +509,8 @@ public final class FileUtilities
 
         private boolean terminated;
 
-        LastChangedWorker(File root, boolean subDirectoriesOnly, long reference, boolean referenceIsRelative)
+        LastChangedWorker(File root, boolean subDirectoriesOnly, long reference,
+                boolean referenceIsRelative)
         {
             assert root != null;
 
@@ -526,8 +532,8 @@ public final class FileUtilities
 
             if (path.canRead() == false)
             {
-                throw new CheckedExceptionTunnel(new IOException(String.format("Path '%s' cannot be read.", path
-                        .getPath())));
+                throw new CheckedExceptionTunnel(new IOException(String.format(
+                        "Path '%s' cannot be read.", path.getPath())));
             }
             final long lastModified = path.lastModified();
             lastChanged = Math.max(lastModified, lastChanged);
@@ -565,7 +571,8 @@ public final class FileUtilities
                 }
                 if (Thread.interrupted())
                 {
-                    throw new CheckedExceptionTunnel(new InterruptedException("lastChanged() interrupted"));
+                    throw new CheckedExceptionTunnel(new InterruptedException(
+                            "lastChanged() interrupted"));
                 }
                 traverse(entry);
             }
@@ -620,7 +627,8 @@ public final class FileUtilities
      */
     public static long lastChanged(File path, boolean subDirectoriesOnly, long stopWhenFindYounger)
     {
-        return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYounger, false)).getLastChanged();
+        return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYounger, false))
+                .getLastChanged();
     }
 
     /**
@@ -643,9 +651,11 @@ public final class FileUtilities
      * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the method runs in gets
      *             interrupted.
      */
-    public static long lastChangedRelative(File path, boolean subDirectoriesOnly, long stopWhenFindYoungerRelative)
+    public static long lastChangedRelative(File path, boolean subDirectoriesOnly,
+            long stopWhenFindYoungerRelative)
     {
-        return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYoungerRelative, true)).getLastChanged();
+        return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYoungerRelative, true))
+                .getLastChanged();
     }
 
     /**
@@ -703,7 +713,8 @@ public final class FileUtilities
      * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
      *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
-    public final static File createNextNumberedFile(File path, Pattern regexOrNull, String defaultFileNameOrNull)
+    public final static File createNextNumberedFile(File path, Pattern regexOrNull,
+            String defaultFileNameOrNull)
     {
         assert path != null;
         if (path.exists() == false)
@@ -716,7 +727,8 @@ public final class FileUtilities
             pattern = ONE_OR_MORE_DIGITS;
         } else
         {
-            assert regexOrNull.pattern().indexOf("(\\d+)") > -1 || regexOrNull.pattern().indexOf("([0-9]+)") > -1;
+            assert regexOrNull.pattern().indexOf("(\\d+)") > -1
+                    || regexOrNull.pattern().indexOf("([0-9]+)") > -1;
             pattern = regexOrNull;
         }
 
@@ -733,7 +745,8 @@ public final class FileUtilities
             {
                 fileName = pathName + "1";
             }
-            return createNextNumberedFile(new File(path.getParent(), fileName), pattern, defaultFileNameOrNull);
+            return createNextNumberedFile(new File(path.getParent(), fileName), pattern,
+                    defaultFileNameOrNull);
         }
         StringBuilder builder = new StringBuilder();
         int nextStart = 0;
@@ -823,25 +836,32 @@ public final class FileUtilities
         Arrays.sort(files, FileComparator.BY_LAST_MODIFIED);
     }
 
-    private static void logFailureInDirectoryListing(RuntimeException exOrNull, File directory, ISimpleLogger logger)
+    private static void logFailureInDirectoryListing(RuntimeException exOrNull, File directory,
+            ISimpleLogger logger)
     {
         if (exOrNull == null)
         {
             if (directory.isFile())
             {
-                logger.log(LogLevel.ERROR, String.format(
-                        "Failed to get listing of directory '%s' (path is file instead of directory).", directory));
+                logger
+                        .log(
+                                LogLevel.ERROR,
+                                String
+                                        .format(
+                                                "Failed to get listing of directory '%s' (path is file instead of directory).",
+                                                directory));
             } else
             {
-                logger.log(LogLevel.ERROR, String.format("Failed to get listing of directory '%s' (path not found).",
-                        directory));
+                logger.log(LogLevel.ERROR, String.format(
+                        "Failed to get listing of directory '%s' (path not found).", directory));
             }
         } else
         {
             StringWriter exStackWriter = new StringWriter();
             exOrNull.printStackTrace(new PrintWriter(exStackWriter));
-            logger.log(LogLevel.ERROR, String.format("Failed to get listing of directory '%s'. Exception: %s",
-                    directory, exStackWriter.toString()));
+            logger.log(LogLevel.ERROR, String.format(
+                    "Failed to get listing of directory '%s'. Exception: %s", directory,
+                    exStackWriter.toString()));
         }
     }
 
@@ -892,7 +912,8 @@ public final class FileUtilities
      * @param postfix The postfix to use for the temporary name.
      * @return The name of the temporary file, or <code>null</code>, if the resource could not be copied.
      */
-    public final static String tryCopyResourceToTempFile(String resource, String prefix, String postfix)
+    public final static String tryCopyResourceToTempFile(String resource, String prefix,
+            String postfix)
     {
         try
         {
@@ -916,8 +937,8 @@ public final class FileUtilities
         final File[] fileList = directory.listFiles();
         if (fileList == null)
         {
-            throw EnvironmentFailureException.fromTemplate("Failed to get listing of directory '%s'", directory
-                    .getAbsolutePath());
+            throw EnvironmentFailureException.fromTemplate(
+                    "Failed to get listing of directory '%s'", directory.getAbsolutePath());
         }
         return fileList;
     }

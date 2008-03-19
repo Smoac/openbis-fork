@@ -47,7 +47,8 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 public class CollectionIOTest
 {
 
-    private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File workingDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     @BeforeSuite
     public void init()
@@ -129,13 +130,14 @@ public class CollectionIOTest
         assert ps.checkError() == false;
         final String resultingString = new String(os.toByteArray());
         final String lineSeparator = System.getProperty("line.separator");
-        assert resultingString.equals(String.format("One%1$sTwo%1$sThree%1$sStill open%1$s", lineSeparator));
+        assert resultingString.equals(String.format("One%1$sTwo%1$sThree%1$sStill open%1$s",
+                lineSeparator));
         assert CollectionIO.writeIterable(ps, Arrays.asList("yellow"));
         assert ps.checkError() == false;
         ps.println("Still open");
         final String resultingString2 = new String(os.toByteArray());
-        assert resultingString2.equals(String.format("One%1$sTwo%1$sThree%1$sStill open%1$syellow%1$sStill open%1$s",
-                lineSeparator));
+        assert resultingString2.equals(String.format(
+                "One%1$sTwo%1$sThree%1$sStill open%1$syellow%1$sStill open%1$s", lineSeparator));
     }
 
     @Test

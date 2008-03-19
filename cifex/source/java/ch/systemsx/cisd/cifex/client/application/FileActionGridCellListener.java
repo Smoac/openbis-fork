@@ -50,7 +50,8 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     // GridCellListenerAdapter
     //
 
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colindex, final EventObject e)
+    public final void onCellClick(final Grid grid, final int rowIndex, final int colindex,
+            final EventObject e)
     {
         final Record record = grid.getStore().getAt(rowIndex);
         final int id = record.getAsInteger(AbstractFileGridModel.ID);
@@ -99,7 +100,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     //
 
     /**
-     * An {@link AsyncCallback} that updates the list of files after a file has been deleted. 
+     * An {@link AsyncCallback} that updates the list of files after a file has been deleted.
      */
     private final class DeleteFileAsyncCallback extends AbstractAsyncCallback
     {
@@ -140,7 +141,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     }
 
     /**
-     * An {@link AsyncCallback} that updates the list of files after a file has been updated. 
+     * An {@link AsyncCallback} that updates the list of files after a file has been updated.
      */
     private final class UpdateFileAsyncCallback extends AbstractAsyncCallback
     {

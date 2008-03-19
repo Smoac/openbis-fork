@@ -52,11 +52,14 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
                     + "alter database %1$s set default_with_oids = off;";
 
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
-        "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
-                + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
-                + "module_code bytea, run_exception bytea);";
+            "create table "
+                    + DatabaseVersionLogDAO.DB_VERSION_LOG
+                    + " (db_version varchar(4) not null, "
+                    + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
+                    + "module_code bytea, run_exception bytea);";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
 
     private final ISqlScriptExecutor scriptExecutor;
 
@@ -78,8 +81,8 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
-    public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
-            String owner, String databaseName, String databaseURL)
+    public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
+            IMassUploader massUploader, String owner, String databaseName, String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
@@ -145,15 +148,19 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
 
     private void createEmptyDatabase()
     {
-        operationLog.info("Try to create empty database '" + databaseName + "' with owner '" + owner + "'.");
+        operationLog.info("Try to create empty database '" + databaseName + "' with owner '"
+                + owner + "'.");
         try
         {
-            getJdbcTemplate().execute(String.format(CREATE_DATABASE_SQL_TEMPLATE, databaseName, owner));
+            getJdbcTemplate().execute(
+                    String.format(CREATE_DATABASE_SQL_TEMPLATE, databaseName, owner));
         } catch (RuntimeException ex)
         {
-            if (ex instanceof DataAccessException && DBUtilities.isDuplicateDatabaseException((DataAccessException) ex))
+            if (ex instanceof DataAccessException
+                    && DBUtilities.isDuplicateDatabaseException((DataAccessException) ex))
             {
-                operationLog.warn("Cannot create database '" + databaseName + "' since it already exists.");
+                operationLog.warn("Cannot create database '" + databaseName
+                        + "' since it already exists.");
             } else
             {
                 operationLog.error("Failed to create database '" + databaseName + "'.", ex);
@@ -198,7 +205,8 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
             operationLog.error(message);
             throw new ConfigurationFailureException(message);
         }
-        final Script script = new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
+        final Script script =
+                new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
         return script;
     }
 
@@ -209,13 +217,15 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Searching for mass upload files in directory '" + dumpFolder.getAbsolutePath() + "'.");
+            operationLog.debug("Searching for mass upload files in directory '"
+                    + dumpFolder.getAbsolutePath() + "'.");
         }
         String[] csvFiles = dumpFolder.list(new FilenameFilter()
             {
                 public boolean accept(File dir, String name)
                 {
-                    return MassUploadFileType.CSV.isOfType(name) || MassUploadFileType.TSV.isOfType(name);
+                    return MassUploadFileType.CSV.isOfType(name)
+                            || MassUploadFileType.TSV.isOfType(name);
                 }
             });
         if (csvFiles == null)

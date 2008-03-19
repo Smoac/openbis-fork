@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.io;
 
 /**
  * Interface for classes able to print some text line by line.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ILinePrinter

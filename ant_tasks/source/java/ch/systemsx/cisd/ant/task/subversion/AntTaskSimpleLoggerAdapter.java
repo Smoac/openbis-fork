@@ -36,19 +36,20 @@ public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
     {
         switch (level)
         {
-            case OFF: 
+            case OFF:
                 return Project.MSG_DEBUG;
             case TRACE:
                 return Project.MSG_VERBOSE;
-            case DEBUG: 
+            case DEBUG:
                 return Project.MSG_DEBUG;
-            case INFO: 
+            case INFO:
                 return Project.MSG_INFO;
-            case WARN: 
+            case WARN:
                 return Project.MSG_WARN;
-            case ERROR: 
+            case ERROR:
                 return Project.MSG_ERR;
-            default: throw new IllegalArgumentException("Illegal log level " + level);
+            default:
+                throw new IllegalArgumentException("Illegal log level " + level);
         }
     }
 

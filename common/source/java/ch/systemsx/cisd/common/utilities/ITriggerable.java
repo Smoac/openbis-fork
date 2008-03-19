@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * A role that allows to trigger some operation.  
- *
+ * A role that allows to trigger some operation.
+ * 
  * @author Bernd Rinn
  */
 public interface ITriggerable
@@ -28,5 +28,5 @@ public interface ITriggerable
      * The trigger.
      */
     public void trigger();
-    
+
 }

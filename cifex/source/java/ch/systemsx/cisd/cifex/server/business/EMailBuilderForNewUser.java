@@ -31,7 +31,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 public class EMailBuilderForNewUser extends AbstractEMailBuilder
 {
     private static final MessageFormat EXPIRATION_TEMPLATE =
-            new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE + ". Please access your account now!");
+            new MessageFormat("\n\nThis login account expires " + DATE_TEMPLATE
+                    + ". Please access your account now!");
 
     private final UserDTO newUser;
 
@@ -78,12 +79,14 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     @Override
     protected String createSubject()
     {
-        return getShortRegistratorDescription() + " has requested a " + createTypeAdjective() + " account for you";
+        return getShortRegistratorDescription() + " has requested a " + createTypeAdjective()
+                + " account for you";
     }
 
     private String createTypeAdjective()
     {
-        return newUser.isAdmin() ? "administrative" : (newUser.isPermanent() ? "permanent" : "temporary");
+        return newUser.isAdmin() ? "administrative" : (newUser.isPermanent() ? "permanent"
+                : "temporary");
     }
 
 }

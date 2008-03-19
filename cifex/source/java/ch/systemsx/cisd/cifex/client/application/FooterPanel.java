@@ -62,12 +62,14 @@ final class FooterPanel extends HorizontalPanel
         final IMessageResources messageResources = context.getMessageResources();
         final String poweredBy = messageResources.getFooterPoweredBy();
         final String applicationDescription = messageResources.getFooterApplicationDescription();
-        final String contactAdministrator = createContactAdministrator(configuration, messageResources);
+        final String contactAdministrator =
+                createContactAdministrator(configuration, messageResources);
         final String version = createVersionDiv(configuration);
         disclaimerLink = createDisclaimerLink(messageResources);
         final HTML html =
-                new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version + SEPARATOR
-                        + contactAdministrator + SEPARATOR + DOM.toString(disclaimerLink))
+                new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version
+                        + SEPARATOR + contactAdministrator + SEPARATOR
+                        + DOM.toString(disclaimerLink))
                     {
 
                         //
@@ -85,8 +87,8 @@ final class FooterPanel extends HorizontalPanel
                                 {
                                     try
                                     {
-                                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
-                                                new DisclaimerRequestCallback());
+                                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html")
+                                                .sendRequest(null, new DisclaimerRequestCallback());
                                     } catch (final RequestException ex)
                                     {
                                         showErrorMessage(ex);
@@ -154,9 +156,10 @@ final class FooterPanel extends HorizontalPanel
         public final void onResponseReceived(final Request request, final Response response)
         {
             final DefaultLayoutDialog layoutDialog =
-                    new DefaultLayoutDialog(viewContext.getMessageResources(), viewContext.getMessageResources()
-                            .getFooterDisclaimerDialogTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
-                            DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
+                    new DefaultLayoutDialog(viewContext.getMessageResources(), viewContext
+                            .getMessageResources().getFooterDisclaimerDialogTitle(),
+                            DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
+                            true, true);
             layoutDialog.addContentPanel();
             layoutDialog.show();
             layoutDialog.getContentPanel().setContent(response.getText(), true);

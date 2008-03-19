@@ -69,7 +69,8 @@ public class SQLCommandTokenizerTest
     @Test
     public void testWhitespaces()
     {
-        final SQLCommandTokenizer cmdTokenizer = new SQLCommandTokenizer(" A ; \n b   B;\t  c\tC\n ");
+        final SQLCommandTokenizer cmdTokenizer =
+                new SQLCommandTokenizer(" A ; \n b   B;\t  c\tC\n ");
         assertEquals("a", cmdTokenizer.getNextCommand());
         assertEquals("b b", cmdTokenizer.getNextCommand());
         assertEquals("c c", cmdTokenizer.getNextCommand());
@@ -101,7 +102,8 @@ public class SQLCommandTokenizerTest
     @Test
     public void testConstants()
     {
-        final SQLCommandTokenizer cmdTokenizer = new SQLCommandTokenizer("A 'A  \\'B\tc';\nb;\ncC;");
+        final SQLCommandTokenizer cmdTokenizer =
+                new SQLCommandTokenizer("A 'A  \\'B\tc';\nb;\ncC;");
         assertEquals("a 'A  \\'B\tc'", cmdTokenizer.getNextCommand());
         assertEquals("b", cmdTokenizer.getNextCommand());
         assertEquals("cc", cmdTokenizer.getNextCommand());

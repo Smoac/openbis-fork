@@ -18,17 +18,17 @@ package ch.systemsx.cisd.common.utilities;
 
 /**
  * A pure monitor for us in <code>synchronized()</code> clauses.
- *
+ * 
  * @author Bernd Rinn
  */
 public final class SynchronizationMonitor
 {
-    
+
     private SynchronizationMonitor()
     {
         // Use create() to call this.
     }
-    
+
     /**
      * Creates a new {@link SynchronizationMonitor}.
      */

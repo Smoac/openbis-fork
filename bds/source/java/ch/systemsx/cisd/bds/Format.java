@@ -214,7 +214,8 @@ public class Format implements IStorable
     @Override
     public int hashCode()
     {
-        return (code.hashCode() * 37 + version.hashCode()) * 37 + (variant == null ? 0 : variant.hashCode());
+        return (code.hashCode() * 37 + version.hashCode()) * 37
+                + (variant == null ? 0 : variant.hashCode());
     }
 
     @Override

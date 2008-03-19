@@ -19,8 +19,8 @@ package ch.systemsx.cisd.ant.task.subversion;
 /**
  * A role that performs an <code>info</code> query on a subversion working copy.
  * <p>
- * This query works on a subversion working copy. 
- *
+ * This query works on a subversion working copy.
+ * 
  * @author Bernd Rinn
  */
 interface ISVNInfo

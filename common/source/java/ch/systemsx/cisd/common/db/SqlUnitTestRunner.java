@@ -32,34 +32,37 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
- * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual tests.
- * The runner executes all test scripts found in the specified test scripts folder. The folder should have the
- * following structure
+ * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual tests. The runner
+ * executes all test scripts found in the specified test scripts folder. The folder should have the following structure
+ * 
  * <pre>
- *   &lt;<i>test script folder</i>&gt;
- *      &lt;<i>1. test case</i>&gt;
+ *   &lt;&lt;i&gt;test script folder&lt;/i&gt;&gt;
+ *      &lt;&lt;i&gt;1. test case&lt;/i&gt;&gt;
  *         buildup.sql
- *         1=&lt;<i>first test</i>&gt;.sql
- *         2=&lt;<i>second test</i>&gt;.sql
+ *         1=&lt;&lt;i&gt;first test&lt;/i&gt;&gt;.sql
+ *         2=&lt;&lt;i&gt;second test&lt;/i&gt;&gt;.sql
  *         ...
  *         teardown.sql
- *      &lt;<i>2. test case</i>&gt;
+ *      &lt;&lt;i&gt;2. test case&lt;/i&gt;&gt;
  *         ...
  *      ...
  * </pre>
- * Folder starting with '.' or <code>migration</code> are ignored.
- * The test cases are executed in lexicographical order of their name. For each test case <code>buildup.sql</code>
- * will be executed first. The test scripts follow the naming schema
+ * 
+ * Folder starting with '.' or <code>migration</code> are ignored. The test cases are executed in lexicographical
+ * order of their name. For each test case <code>buildup.sql</code> will be executed first. The test scripts follow
+ * the naming schema
+ * 
  * <pre>
- *   &lt;<i>decimal number</i>&gt;=&lt;<i>test name</i>&gt;.sql
+ *   &lt;&lt;i&gt;decimal number&lt;/i&gt;&gt;=&lt;&lt;i&gt;test name&lt;/i&gt;&gt;.sql
  * </pre>
- * They are executed in ascending order of their numbers. Finally <code>teardown.sql</code> is executed. 
- * If execution of <code>buildup.sql</code> failed all test scripts and the tear down script are skipped.
- * Note that <code>buildup.sql</code> and <code>teardown.sql</code> are optional.
+ * 
+ * They are executed in ascending order of their numbers. Finally <code>teardown.sql</code> is executed. If execution
+ * of <code>buildup.sql</code> failed all test scripts and the tear down script are skipped. Note that
+ * <code>buildup.sql</code> and <code>teardown.sql</code> are optional.
  * <p>
- * A script fails if its execution throws an exception. Its innermost cause (usually a {@link SQLException}) will
- * be recorded together with the name of the test case and the script. All failed scripts will be recorded.
- * <p> 
+ * A script fails if its execution throws an exception. Its innermost cause (usually a {@link SQLException}) will be
+ * recorded together with the name of the test case and the script. All failed scripts will be recorded.
+ * <p>
  * The runner throws an {@link AssertionError} if at least one script failed.
  * 
  * @author Franz-Josef Elmer
@@ -72,14 +75,16 @@ public class SqlUnitTestRunner
     private static final class TestResult
     {
         private final boolean ok;
+
         private final Throwable throwable;
+
         private final File testScript;
-        
+
         public TestResult(File testScript)
         {
             this(testScript, true, null);
         }
-        
+
         public TestResult(File testScript, Throwable throwable)
         {
             this(testScript, false, throwable);
@@ -91,7 +96,7 @@ public class SqlUnitTestRunner
             this.ok = ok;
             this.throwable = throwable;
         }
-        
+
         public final File getTestScript()
         {
             return testScript;
@@ -107,13 +112,14 @@ public class SqlUnitTestRunner
             return throwable;
         }
     }
-    
+
     private final ISqlScriptExecutor executor;
+
     private final PrintWriter writer;
-    
+
     /**
      * Creates an instance for the specified SQL script executor and writer.
-     *
+     * 
      * @param executor SQL script executor.
      * @param writer Writer used to monitor running progress by printing test and test case names.
      */
@@ -121,7 +127,7 @@ public class SqlUnitTestRunner
     {
         assert executor != null : "Undefined SQL script executor.";
         assert writer != null : "Undefined writer.";
-        
+
         this.executor = executor;
         this.writer = writer;
     }
@@ -172,7 +178,7 @@ public class SqlUnitTestRunner
         {
             throw new AssertionError(builder.toString());
         }
-       
+
     }
 
     private void runTestCase(File testCaseFolder, List<TestResult> results)
@@ -219,13 +225,14 @@ public class SqlUnitTestRunner
             });
         return testScripts;
     }
-    
+
     private TestResult runScript(File scriptFile)
     {
         writer.println("     execute script " + scriptFile.getName());
         try
         {
-            executor.execute(new Script(scriptFile.getName(), FileUtilities.loadToString(scriptFile)), true, null);
+            executor.execute(new Script(scriptFile.getName(), FileUtilities
+                    .loadToString(scriptFile)), true, null);
             return new TestResult(scriptFile);
         } catch (Throwable t)
         {

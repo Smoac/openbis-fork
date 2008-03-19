@@ -32,7 +32,7 @@ public interface ILineTokenizer
      * </p>
      */
     public void init();
-    
+
     /** Splits given <code>line</code> into an array of tokens. */
     public String[] tokenize(String line);
 

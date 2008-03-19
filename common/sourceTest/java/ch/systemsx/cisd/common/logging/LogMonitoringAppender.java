@@ -35,7 +35,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 public final class LogMonitoringAppender extends AppenderSkeleton
 {
 
-    private static Map<LogMonitoringAppender, String> appenderMap = new HashMap<LogMonitoringAppender, String>();
+    private static Map<LogMonitoringAppender, String> appenderMap =
+            new HashMap<LogMonitoringAppender, String>();
 
     private final StringBuilder eventRecorder = new StringBuilder();
 
@@ -54,7 +55,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
      * 
      * @return The created appender.
      */
-    public static synchronized LogMonitoringAppender addAppender(LogCategory category, String messagePart)
+    public static synchronized LogMonitoringAppender addAppender(LogCategory category,
+            String messagePart)
     {
         return addAppender(category, Pattern.compile(Pattern.quote(messagePart)));
     }
@@ -112,7 +114,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         {
             eventRecorder.append("event throwable: ").append(throwableStr).append('\n');
         }
-        if (regex.matcher(event.getMessage().toString()).find() || regex.matcher(getThrowableStr(event)).find())
+        if (regex.matcher(event.getMessage().toString()).find()
+                || regex.matcher(getThrowableStr(event)).find())
         {
             ++logCount;
         }
@@ -144,8 +147,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     public void verifyLogHappendNTimes(int n)
     {
         assert logCount == n : String.format(
-                "Log snippet '%s' should have found %d times, but has been found %d times.", regex, n,
-                logCount);
+                "Log snippet '%s' should have found %d times, but has been found %d times.", regex,
+                n, logCount);
     }
 
     public void reset()

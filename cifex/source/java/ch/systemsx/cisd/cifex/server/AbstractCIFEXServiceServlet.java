@@ -70,10 +70,12 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
 
     private final void initServiceServlet()
     {
-        final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+        final BeanFactory context =
+                WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
         domainModel = (IDomainModel) context.getBean(DOMAIN_MODEL_BEAN_NAME);
         final ExposablePropertyPaceholderConfigurer configurer =
-                (ExposablePropertyPaceholderConfigurer) context.getBean(PROPERTY_CONFIGURER_BEAN_NAME);
+                (ExposablePropertyPaceholderConfigurer) context
+                        .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
         serviceProperties = configurer.getResolvedProps();
         postInitialization();
     }
@@ -88,25 +90,29 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     {
     }
 
-    protected final UserDTO getUserDTO(final HttpServletRequest request) throws InvalidSessionException
+    protected final UserDTO getUserDTO(final HttpServletRequest request)
+            throws InvalidSessionException
     {
         final HttpSession session = request.getSession(false);
         if (session == null)
         {
-            throw new InvalidSessionException("You are not logged in or your session expired. Please log in.");
+            throw new InvalidSessionException(
+                    "You are not logged in or your session expired. Please log in.");
         }
         return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
     }
 
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    public void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
     {
         try
         {
             super.service(request, response);
         } catch (Throwable th)
         {
-            operationLog.error("Error processing request for method '" + request.getMethod() + "'.", th);
+            operationLog.error(
+                    "Error processing request for method '" + request.getMethod() + "'.", th);
             if (th instanceof Error)
             {
                 throw (Error) th;
@@ -132,7 +138,8 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp. JSON response which
     // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
     // formConfig.setReader(reader)).
-    protected final void sendErrorMessage(final HttpServletResponse response, final String message) throws IOException
+    protected final void sendErrorMessage(final HttpServletResponse response, final String message)
+            throws IOException
     {
         assert message != null : "Given msg can not be null.";
         response.setContentType("text/plain");
@@ -152,8 +159,10 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         } else
         {
             message =
-                    String.format("The request could not be processed because an unknown problem [%s] occurred.",
-                            exception.getClass().getSimpleName());
+                    String
+                            .format(
+                                    "The request could not be processed because an unknown problem [%s] occurred.",
+                                    exception.getClass().getSimpleName());
         }
         return message;
     }
@@ -172,12 +181,13 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
             initServiceServlet();
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format("'%s' successfully initialized.", getClass().getName()));
+                operationLog.info(String.format("'%s' successfully initialized.", getClass()
+                        .getName()));
             }
         } catch (final Exception ex)
         {
-            notificationLog
-                    .fatal("Failure during '" + servletConfig.getServletName() + "' servlet initialization.", ex);
+            notificationLog.fatal("Failure during '" + servletConfig.getServletName()
+                    + "' servlet initialization.", ex);
             throw new ServletException(ex);
         }
     }

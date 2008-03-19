@@ -43,23 +43,26 @@ class CompressionWorker implements Runnable
     static final String COMPRESSING_MSG_TEMPLATE = "Compressing '%s'.";
 
     // @Private
-    static final String EXCEPTION_COMPRESSING_MSG_TEMPLATE = "Exceptional condition when trying to compress '%s'.";
-    
+    static final String EXCEPTION_COMPRESSING_MSG_TEMPLATE =
+            "Exceptional condition when trying to compress '%s'.";
+
     // @Private
     static final String INTERRPTED_MSG = "Thread has been interrupted - exiting worker.";
 
     // @Private
     static final String EXITING_MSG = "No more files to compress - exiting worker.";
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CompressionWorker.class);
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CompressionWorker.class);
 
     private final Queue<File> workerQueue;
-    
+
     private final Collection<FailureRecord> failures;
 
     private final ICompressionMethod compressor;
 
-    CompressionWorker(Queue<File> incommingQueue, Collection<FailureRecord> failures, ICompressionMethod compressor)
+    CompressionWorker(Queue<File> incommingQueue, Collection<FailureRecord> failures,
+            ICompressionMethod compressor)
     {
         assert incommingQueue != null;
         assert failures != null;
@@ -101,12 +104,14 @@ class CompressionWorker implements Runnable
                     status = compressor.compress(fileToCompressOrNull);
                 } catch (Throwable th)
                 {
-                    operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE, fileToCompressOrNull), th);
+                    operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE,
+                            fileToCompressOrNull), th);
                     failures.add(new FailureRecord(fileToCompressOrNull, th));
                     status = null;
                     break;
                 }
-            } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag()) && ++count < MAX_RETRY_OF_FAILED_COMPRESSIONS);
+            } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag())
+                    && ++count < MAX_RETRY_OF_FAILED_COMPRESSIONS);
             if (status != null && Status.OK.equals(status) == false)
             {
                 failures.add(new FailureRecord(fileToCompressOrNull, status));

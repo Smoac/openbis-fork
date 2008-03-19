@@ -42,17 +42,21 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 public class Main
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Main.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, Main.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, Main.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, Main.class);
 
-    private static final UncaughtExceptionHandler loggingExceptionHandler = new UncaughtExceptionHandler()
-        {
-            public void uncaughtException(Thread t, Throwable e)
-            {
-                notificationLog.error("An exception has occurred [thread: '" + t.getName() + "'].", e);
-            }
-        };
+    private static final UncaughtExceptionHandler loggingExceptionHandler =
+            new UncaughtExceptionHandler()
+                {
+                    public void uncaughtException(Thread t, Throwable e)
+                    {
+                        notificationLog.error("An exception has occurred [thread: '" + t.getName()
+                                + "'].", e);
+                    }
+                };
 
     private static final Runnable loggingShutdownHook = new Runnable()
         {
@@ -97,28 +101,30 @@ public class Main
             FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
             stores.add(parameters.getIncomingStore(factory));
             FileStore buferStore =
-                    FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(), Parameters.BUFFER_KIND_DESC,
-                            factory);
+                    FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(),
+                            Parameters.BUFFER_KIND_DESC, factory);
             stores.add(buferStore);
             stores.add(parameters.getOutgoingStore(factory));
             if (parameters.tryGetManualInterventionDir() != null)
             {
                 FileStore dummyStore =
-                        FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(), "manual intervention",
-                                factory);
+                        FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(),
+                                "manual intervention", factory);
                 stores.add(dummyStore);
             }
             if (parameters.tryGetExtraCopyDir() != null)
             {
                 FileStore dummyStore =
-                        FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy", factory);
+                        FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy",
+                                factory);
                 stores.add(dummyStore);
             }
             IPathCopier copyProcess = factory.getCopier(false);
             SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
         } catch (HighLevelException e)
         {
-            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e.getMessage());
+            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
+                    .getMessage());
             System.exit(1);
         } catch (RuntimeException e)
         {

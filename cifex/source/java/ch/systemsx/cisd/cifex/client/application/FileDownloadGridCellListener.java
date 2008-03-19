@@ -41,7 +41,8 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
     // GridCellListenerAdapter
     //
 
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex, final EventObject e)
+    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex,
+            final EventObject e)
     {
         final String dataIndex = grid.getColumnModel().getDataIndex(colIndex);
         if (dataIndex.equals(AbstractFileGridModel.NAME))

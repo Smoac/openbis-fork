@@ -45,8 +45,8 @@ public final class DateRenderer implements Renderer
     // Renderer
     //
 
-    public final String render(final Object value, final CellMetadata cellMetadata, final Record record,
-            final int rowIndex, final int colNum, final Store store)
+    public final String render(final Object value, final CellMetadata cellMetadata,
+            final Record record, final int rowIndex, final int colNum, final Store store)
     {
         if (value == null)
         {

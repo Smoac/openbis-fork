@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i>
  * server, then authenticates the user.
@@ -63,21 +64,26 @@ public class CrowdAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
     /** The template to authenticate the application. */
-    //@Private
+    // @Private
     static final MessageFormat AUTHENTICATE_APPL =
-            new MessageFormat("<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
-                    + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
-                    + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + " <soap:Body>\n"
-                    + "   <authenticateApplication xmlns=\"urn:SecurityServer\">\n" + "     <in0>\n"
-                    + "       <credential xmlns=\"http://authentication.integration.crowd.atlassian.com\">\n"
-                    + "         <credential>{1}</credential>\n" + "       </credential>\n"
-                    + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</name>\n"
-                    + "       <validationFactors xmlns=\"http://authentication.integration.crowd.atlassian.com\" "
-                    + "                          xsi:nil=\"true\" />\n" + "     </in0>\n"
-                    + "   </authenticateApplication>\n" + " </soap:Body>\n" + "</soap:Envelope>\n");
+            new MessageFormat(
+                    "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
+                            + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" "
+                            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                            + " <soap:Body>\n"
+                            + "   <authenticateApplication xmlns=\"urn:SecurityServer\">\n"
+                            + "     <in0>\n"
+                            + "       <credential xmlns=\"http://authentication.integration.crowd.atlassian.com\">\n"
+                            + "         <credential>{1}</credential>\n"
+                            + "       </credential>\n"
+                            + "       <name xmlns=\"http://authentication.integration.crowd.atlassian.com\">{0}</name>\n"
+                            + "       <validationFactors xmlns=\"http://authentication.integration.crowd.atlassian.com\" "
+                            + "                          xsi:nil=\"true\" />\n" + "     </in0>\n"
+                            + "   </authenticateApplication>\n" + " </soap:Body>\n"
+                            + "</soap:Envelope>\n");
 
     /** The template to authenticate the user. */
-    //@Private
+    // @Private
     static final MessageFormat AUTHENTICATE_USER =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -100,7 +106,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "</soap:Envelope>\n");
 
     /** The template to find a principal by token or by name. */
-    //@Private
+    // @Private
     static final MessageFormat FIND_PRINCIPAL_BY_NAME =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
@@ -112,8 +118,9 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "           </in0>\n"
                             + "           <in1>{2}</in1>\n"
                             + "       </findPrincipalByName>\n"
-                            + "   </soap:Body>\n" + "</soap:Envelope>\n");
-   
+                            + "   </soap:Body>\n"
+                            + "</soap:Envelope>\n");
+
     private static IRequestExecutor createExecutor()
     {
         return new IRequestExecutor()
@@ -129,7 +136,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     {
                         HttpClient client = new HttpClient();
                         PostMethod post = new PostMethod(serviceUrl);
-                        StringRequestEntity entity = new StringRequestEntity(message, "application/soap+xml", "utf-8");
+                        StringRequestEntity entity =
+                                new StringRequestEntity(message, "application/soap+xml", "utf-8");
                         post.setRequestEntity(entity);
                         String response = null;
                         try
@@ -149,7 +157,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
             };
     }
-    
+
     private final String url;
 
     private final String application;
@@ -158,10 +166,11 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final IRequestExecutor requestExecutor;
 
-    public CrowdAuthenticationService(String host, int port, String application, String applicationPassword)
+    public CrowdAuthenticationService(String host, int port, String application,
+            String applicationPassword)
     {
-        this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application, applicationPassword,
-                createExecutor());
+        this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application,
+                applicationPassword, createExecutor());
     }
 
     public CrowdAuthenticationService(String url, String application, String applicationPassword,
@@ -174,8 +183,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         if (operationLog.isDebugEnabled())
         {
             final String msg =
-                    "A new CrowdAuthenticationService instance has been created for [" + "url=" + url
-                            + ", application=" + application + "]";
+                    "A new CrowdAuthenticationService instance has been created for [" + "url="
+                            + url + ", application=" + application + "]";
             operationLog.debug(msg);
         }
     }
@@ -191,8 +200,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
             String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
             if (pickElementContent(response, CrowdSoapElements.TOKEN) == null)
             {
-                throw new EnvironmentFailureException("Application '" + application + "' couldn't be authenticated: "
-                        + response);
+                throw new EnvironmentFailureException("Application '" + application
+                        + "' couldn't be authenticated: " + response);
             }
         } catch (EnvironmentFailureException ex)
         {
@@ -209,8 +218,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     public final String authenticateApplication()
     {
         final String applicationToken =
-                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.TOKEN, AUTHENTICATE_APPL, application,
-                        applicationPassword));
+                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.TOKEN, AUTHENTICATE_APPL,
+                        application, applicationPassword));
         if (applicationToken == null)
         {
             operationLog.error("CROWD: application '" + application + "' failed to authenticate.");
@@ -218,7 +227,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         {
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("CROWD: application '" + application + "' successfully authenticated.");
+                operationLog.debug("CROWD: application '" + application
+                        + "' successfully authenticated.");
             }
         }
         return applicationToken;
@@ -228,12 +238,15 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         assert applicationToken != null;
         assert user != null;
-        
-        final String userToken = StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.OUT, AUTHENTICATE_USER, 
-                                                               application, applicationToken, user, password));
+
+        final String userToken =
+                StringEscapeUtils.unescapeXml(execute(CrowdSoapElements.OUT, AUTHENTICATE_USER,
+                        application, applicationToken, user, password));
         if (operationLog.isInfoEnabled())
         {
-            final String msg = "CROWD: authentication of user '" + user + "', application '" + application + "': ";
+            final String msg =
+                    "CROWD: authentication of user '" + user + "', application '" + application
+                            + "': ";
             operationLog.info(msg + (userToken == null ? "FAILED." : "SUCCESS."));
         }
         return userToken != null;
@@ -254,13 +267,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug("No SOAPAttribute element could be found in the SOAP XML response.");
+                    operationLog
+                            .debug("No SOAPAttribute element could be found in the SOAP XML response.");
                 }
             }
             if (principal == null)
             {
-                throw new EnvironmentFailureException("CROWD: Principal information for user '" + user
-                        + "' could not be obtained.");
+                throw new EnvironmentFailureException("CROWD: Principal information for user '"
+                        + user + "' could not be obtained.");
             }
             return principal;
         } catch (EnvironmentFailureException ex)
@@ -292,8 +306,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
-    private final static Principal createPrincipal(String user,
-            Map<String, String> soapAttributes)
+    private final static Principal createPrincipal(String user, Map<String, String> soapAttributes)
     {
         final String firstName = soapAttributes.get(FIRST_NAME_PROPERTY_KEY);
         final String lastName = soapAttributes.get(LAST_NAME_PROPERTY_KEY);
@@ -335,8 +348,9 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         if (xmlString == null)
         {
-            operationLog.error("Response of web service is invalid (null). We were looking for element '" + element
-                    + "'.");
+            operationLog
+                    .error("Response of web service is invalid (null). We were looking for element '"
+                            + element + "'.");
             return null;
         }
 
@@ -353,14 +367,16 @@ public class CrowdAuthenticationService implements IAuthenticationService
         index = xmlString.indexOf(">", index);
         if (index < 0)
         {
-            operationLog.error("Element '" + element + "' seems to be present but XML is invalid: '"
+            operationLog.error("Element '" + element
+                    + "' seems to be present but XML is invalid: '"
                     + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }
         int endIndex = getIndex(xmlString, "</", element + ">", index);
         if (endIndex < 0)
         {
-            operationLog.error("Start tag of element '" + element + "' is present but end tag is missing: '"
+            operationLog.error("Start tag of element '" + element
+                    + "' is present but end tag is missing: '"
                     + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }

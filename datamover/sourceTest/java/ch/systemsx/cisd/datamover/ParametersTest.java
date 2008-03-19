@@ -103,7 +103,8 @@ public class ParametersTest
     {
         final String localDataDir = ".." + File.separator + "test_it_data";
         final Parameters parameters = parse("--incoming-dir", localDataDir);
-        assertEquals(createIncomingStore(localDataDir, null, parameters), getIncomingStore(parameters));
+        assertEquals(createIncomingStore(localDataDir, null, parameters),
+                getIncomingStore(parameters));
     }
 
     @Test
@@ -125,7 +126,8 @@ public class ParametersTest
     public void testDefaultCheckIntervalInternal() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL_INTERNAL, parameters.getCheckIntervalInternalMillis());
+        assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL_INTERNAL, parameters
+                .getCheckIntervalInternalMillis());
     }
 
     @Test
@@ -147,14 +149,16 @@ public class ParametersTest
     public void testDefaultMaximalNumberOfRetries() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(Parameters.DEFAULT_MAXIMAL_NUMBER_OF_RETRIES, parameters.getMaximalNumberOfRetries());
+        assertEquals(Parameters.DEFAULT_MAXIMAL_NUMBER_OF_RETRIES, parameters
+                .getMaximalNumberOfRetries());
     }
 
     @Test
     public void testDefaultInactivityPeriod() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(1000 * Parameters.DEFAULT_INACTIVITY_PERIOD, parameters.getInactivityPeriodMillis());
+        assertEquals(1000 * Parameters.DEFAULT_INACTIVITY_PERIOD, parameters
+                .getInactivityPeriodMillis());
     }
 
     @Test
@@ -183,7 +187,8 @@ public class ParametersTest
     public void testSetCheckIntervalInternalLong() throws Exception
     {
         final int checkInterval = 1;
-        final Parameters parameters = parse("--check-interval-internal", Integer.toString(checkInterval));
+        final Parameters parameters =
+                parse("--check-interval-internal", Integer.toString(checkInterval));
         assertEquals(1000 * checkInterval, parameters.getCheckIntervalInternalMillis());
     }
 
@@ -231,10 +236,13 @@ public class ParametersTest
         final String localTempDir = "l" + File.separator + "tmp";
         final String remoteDataDir = "rrr";
         final Parameters parameters =
-                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir, "--outgoing-dir", remoteDataDir);
-        assertEquals(createIncomingStore(localDataDir, null, parameters), getIncomingStore(parameters));
+                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir,
+                        "--outgoing-dir", remoteDataDir);
+        assertEquals(createIncomingStore(localDataDir, null, parameters),
+                getIncomingStore(parameters));
         assertEquals(localTempDir, parameters.getBufferDirectoryPath().getPath());
-        assertEquals(createOutgoingStore(remoteDataDir, null, parameters), getOutgoingStore(parameters));
+        assertEquals(createOutgoingStore(remoteDataDir, null, parameters),
+                getOutgoingStore(parameters));
     }
 
     @Test
@@ -250,14 +258,17 @@ public class ParametersTest
         final String extraCopyDir = "xxx";
 
         final Parameters parameters =
-                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir, "--outgoing-dir", remoteDataDir,
-                        "--outgoing-host", remoteHost, "--check-interval", Integer.toString(checkIntervall),
-                        "--quiet-period", Integer.toString(quietPeriod), "--treat-incoming-as-remote",
+                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir,
+                        "--outgoing-dir", remoteDataDir, "--outgoing-host", remoteHost,
+                        "--check-interval", Integer.toString(checkIntervall), "--quiet-period",
+                        Integer.toString(quietPeriod), "--treat-incoming-as-remote",
                         "--incoming-host", remoteIncomingHost, "--extra-copy-dir", extraCopyDir,
                         "--rsync-overwrite");
-        IFileStore incomingStoreExpected = createIncomingStore(localDataDir, remoteIncomingHost, parameters);
+        IFileStore incomingStoreExpected =
+                createIncomingStore(localDataDir, remoteIncomingHost, parameters);
         IFileStore incomingStore = getIncomingStore(parameters);
-        IFileStore outgoingStoreExpected = createOutgoingStore(remoteDataDir, remoteHost, parameters);
+        IFileStore outgoingStoreExpected =
+                createOutgoingStore(remoteDataDir, remoteHost, parameters);
         IFileStore outgoingStore = getOutgoingStore(parameters);
 
         assertEquals(incomingStoreExpected, incomingStore);

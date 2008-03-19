@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.bds.exception;
 
-
 /**
  * Exception thrown by manipulations of BDS data structures which can not be classified as {@link StorageException}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStructureException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
-    
+
     /**
-     *  Creates an instance with the specified message.
+     * Creates an instance with the specified message.
      */
     public DataStructureException(String message)
     {

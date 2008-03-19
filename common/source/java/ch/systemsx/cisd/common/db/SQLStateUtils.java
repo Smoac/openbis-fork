@@ -41,7 +41,7 @@ public final class SQLStateUtils
 
     /** SQL State. */
     public static final String DUPLICATE_OBJECT = "42710";
-    
+
     /** SQL State. */
     public static final String DUPLICATE_DATABASE = "42P04";
 

@@ -52,7 +52,8 @@ public class TableMapNonUniqueKeyTest
     public void testIterationUniqueKey()
     {
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0"), integerExtractor);
+                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0"),
+                        integerExtractor);
         Iterator<String> it = tableMap.iterator();
         assertEquals("1", it.next());
         assertEquals("7", it.next());
@@ -63,7 +64,8 @@ public class TableMapNonUniqueKeyTest
     @Test(expectedExceptions = TableMapNonUniqueKey.UniqueValueViolationException.class)
     public void testIterationDuplicateValuesStrategyError()
     {
-        new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0", "0", "1"), integerExtractor);
+        new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0", "0", "1"),
+                integerExtractor);
     }
 
     @Test
@@ -72,14 +74,15 @@ public class TableMapNonUniqueKeyTest
         final String null1 = new String(Integer.toString(0));
         final String null2 = new String(Integer.toString(0));
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", null1, null2, "1"), integerExtractor,
+                new TableMapNonUniqueKey<Integer, String>(Arrays
+                        .asList("1", "7", null1, null2, "1"), integerExtractor,
                         TableMapNonUniqueKey.UniqueValueViolationStrategy.KEEP_LAST);
         Iterator<String> it = tableMap.iterator();
         assertEquals("1", it.next());
         assertEquals("7", it.next());
         final String null3 = it.next();
-        System.out.println(System.identityHashCode(null1) + ":" + System.identityHashCode(null2) + ":"
-                + System.identityHashCode(null3));
+        System.out.println(System.identityHashCode(null1) + ":" + System.identityHashCode(null2)
+                + ":" + System.identityHashCode(null3));
         assertEquals(System.identityHashCode(null2), System.identityHashCode(null3));
         assertFalse(it.hasNext());
     }
@@ -90,14 +93,15 @@ public class TableMapNonUniqueKeyTest
         final String null1 = new String(Integer.toString(0));
         final String null2 = new String(Integer.toString(0));
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", null1, null2, "1"), integerExtractor,
+                new TableMapNonUniqueKey<Integer, String>(Arrays
+                        .asList("1", "7", null1, null2, "1"), integerExtractor,
                         TableMapNonUniqueKey.UniqueValueViolationStrategy.KEEP_FIRST);
         Iterator<String> it = tableMap.iterator();
         assertEquals("1", it.next());
         assertEquals("7", it.next());
         final String null3 = it.next();
-        System.out.println(System.identityHashCode(null1) + ":" + System.identityHashCode(null2) + ":"
-                + System.identityHashCode(null3));
+        System.out.println(System.identityHashCode(null1) + ":" + System.identityHashCode(null2)
+                + ":" + System.identityHashCode(null3));
         assertEquals(System.identityHashCode(null1), System.identityHashCode(null3));
         assertFalse(it.hasNext());
     }
@@ -106,7 +110,8 @@ public class TableMapNonUniqueKeyTest
     public void testIterationDuplicateKey()
     {
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0", "x:0", "x:1"), integerExtractor);
+                new TableMapNonUniqueKey<Integer, String>(Arrays
+                        .asList("1", "7", "0", "x:0", "x:1"), integerExtractor);
         Iterator<String> it = tableMap.iterator();
         assertEquals("1", it.next());
         assertEquals("x:1", it.next());
@@ -120,7 +125,8 @@ public class TableMapNonUniqueKeyTest
     public void testTryGet()
     {
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0"), integerExtractor);
+                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("1", "7", "0"),
+                        integerExtractor);
         assertNull(tableMap.tryGet(10));
         assertEquals(Collections.singleton("0"), tableMap.tryGet(0));
         assertEquals(Collections.singleton("1"), tableMap.tryGet(1));
@@ -131,12 +137,13 @@ public class TableMapNonUniqueKeyTest
     public void testTryGetNonUnique()
     {
         final TableMapNonUniqueKey<Integer, String> tableMap =
-                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("a:42", "7", "b:42", "0", "b:7", "c:42"),
-                        integerExtractor);
+                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("a:42", "7", "b:42", "0",
+                        "b:7", "c:42"), integerExtractor);
         assertNull(tableMap.tryGet(10));
         assertEquals(Collections.singleton("0"), tableMap.tryGet(0));
         assertEquals(new HashSet<String>(Arrays.asList("7", "b:7")), tableMap.tryGet(7));
-        assertEquals(new HashSet<String>(Arrays.asList("a:42", "b:42", "c:42")), tableMap.tryGet(42));
+        assertEquals(new HashSet<String>(Arrays.asList("a:42", "b:42", "c:42")), tableMap
+                .tryGet(42));
     }
 
 }

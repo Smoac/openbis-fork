@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.logging;
 
 /**
  * A {@link ISimpleLogger} that logs to {@link System#out} (for debugging purposes).
- *
+ * 
  * @author Bernd Rinn
  */
 public class ConsoleLogger implements ISimpleLogger

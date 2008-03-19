@@ -22,7 +22,7 @@ import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for {@link SVNUtilities}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class SVNUtilitiesTest
@@ -36,7 +36,7 @@ public class SVNUtilitiesTest
         final String normalizedHTTPUrl = "http://home/cisd/repos/test/trunk";
         assertEquals(normalizedHTTPUrl, SVNUtilities.normalizeUrl(normalizedHTTPUrl));
     }
-    
+
     @Test
     public void testNormalizeUrlOnNonNormalizedURls()
     {
@@ -47,7 +47,7 @@ public class SVNUtilitiesTest
         final String normalizedHTTPUrl = "http://home/cisd/repos/test/trunk";
         assertEquals(normalizedHTTPUrl, SVNUtilities.normalizeUrl(nonNormalizedHTTPUrl));
     }
-    
+
     @Test
     public void testNormalizeUrlOnNonNormalizedProtocolUrl()
     {
@@ -67,7 +67,7 @@ public class SVNUtilitiesTest
         final String normalizedSVNSSHUrl = "svn+ssh://home/cisd/repos/test/trunk";
         assertEquals(normalizedSVNSSHUrl, SVNUtilities.normalizeUrl(nonNormalizedSVNSSHUrl));
     }
-    
+
     @Test
     public void testGetParent()
     {
@@ -75,7 +75,7 @@ public class SVNUtilitiesTest
         final String url = parentUrl + "/trunk";
         assertEquals(parentUrl, SVNUtilities.getParent(url));
     }
-    
+
     @Test
     public void testGetParentNonNormalized()
     {
@@ -83,7 +83,7 @@ public class SVNUtilitiesTest
         final String url = parentUrl + "//trunk/";
         assertEquals(parentUrl, SVNUtilities.getParent(url));
     }
-    
+
     @Test
     public void testGetTopLevelDirectory()
     {
@@ -91,7 +91,7 @@ public class SVNUtilitiesTest
         assertEquals("one", SVNUtilities.getTopLevelDirectory("/one/"));
         assertEquals("one", SVNUtilities.getTopLevelDirectory("/one"));
     }
-    
+
     @Test
     public void testGetBranchForTag()
     {

@@ -43,7 +43,8 @@ public abstract class ThresholdProgressListener implements ProgressListener
     }
 
     /** Gets called each time the threshold is crossed. */
-    protected abstract void hasProgressed(final long bytesRead, final long contentLength, final int items);
+    protected abstract void hasProgressed(final long bytesRead, final long contentLength,
+            final int items);
 
     //
     // ProgressListener

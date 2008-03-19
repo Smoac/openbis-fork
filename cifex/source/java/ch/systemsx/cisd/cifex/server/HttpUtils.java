@@ -19,8 +19,6 @@ package ch.systemsx.cisd.cifex.server;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class HttpUtils
@@ -43,5 +41,5 @@ public class HttpUtils
     private HttpUtils()
     {
     }
-    
+
 }

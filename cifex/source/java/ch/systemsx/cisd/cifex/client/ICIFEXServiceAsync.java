@@ -67,8 +67,8 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
      * <code>null</code>, it will be interpreted as the user who creates the new user.
      */
-    public void createUser(final User user, final String password, final User registratorOrNull, final String comment,
-            final AsyncCallback callback);
+    public void createUser(final User user, final String password, final User registratorOrNull,
+            final String comment, final AsyncCallback callback);
 
     /** Update the fields of the user in the database. */
     public void updateUser(final User user, final String password, final AsyncCallback callback);
@@ -103,7 +103,8 @@ public interface ICIFEXServiceAsync extends RemoteService
      * 
      * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
      */
-    public void registerFilenamesForUpload(final String[] filenamesForUpload, final AsyncCallback callback);
+    public void registerFilenamesForUpload(final String[] filenamesForUpload,
+            final AsyncCallback callback);
 
     /**
      * Get file upload feedback.
@@ -120,6 +121,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * @param newExpirationDate The new Expiration date, can only used from an admin. <code>null</code> if the default
      *            expiration date should be used.
      */
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate, final AsyncCallback callback);
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate,
+            final AsyncCallback callback);
 
 }

@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- *  Interface which capsulates the behaviour of a system exit. 
- *
+ * Interface which capsulates the behaviour of a system exit.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IExitHandler

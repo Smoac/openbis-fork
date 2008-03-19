@@ -59,7 +59,8 @@ public final class FileTest extends AbstractFileSystemTestCase
         java.io.File subdir = new java.io.File(workingDirectory, "subdir");
         subdir.mkdir();
         stringFile.extractTo(subdir);
-        assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir, stringFile.getName())));
+        assertEquals("Hello\nworld!\n", FileUtilities.loadToString(new java.io.File(subdir,
+                stringFile.getName())));
     }
 
     @Test
@@ -73,7 +74,8 @@ public final class FileTest extends AbstractFileSystemTestCase
         file.moveTo(workingDirectory);
 
         assertEquals(false, directory.iterator().hasNext());
-        assertEquals("property 1", FileUtilities.loadToString(new java.io.File(workingDirectory, "p1")).trim());
+        assertEquals("property 1", FileUtilities.loadToString(
+                new java.io.File(workingDirectory, "p1")).trim());
     }
 
     @Test

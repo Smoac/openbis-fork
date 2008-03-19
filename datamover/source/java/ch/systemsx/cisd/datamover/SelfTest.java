@@ -36,7 +36,8 @@ public class SelfTest
 {
     private static final long TIMEOUT_MILLIS = 3000L;
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
     static
     {
@@ -58,7 +59,8 @@ public class SelfTest
         }
     }
 
-    private static void checkPathRecordsContainEachOther(IFileStore[] store) throws ConfigurationFailureException
+    private static void checkPathRecordsContainEachOther(IFileStore[] store)
+            throws ConfigurationFailureException
     {
         for (int i = 1; i < store.length; ++i)
         {
@@ -66,8 +68,8 @@ public class SelfTest
             {
                 if (store[i].isParentDirectory(store[j]) || store[j].isParentDirectory(store[i]))
                 {
-                    throw ConfigurationFailureException.fromTemplate("Directory '%s' and '%s' contain each other",
-                            store[i], store[j]);
+                    throw ConfigurationFailureException.fromTemplate(
+                            "Directory '%s' and '%s' contain each other", store[i], store[j]);
                 }
             }
         }
@@ -91,13 +93,13 @@ public class SelfTest
             }
         } catch (HighLevelException e)
         {
-            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e
-                    .getMessage()));
+            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass()
+                    .getSimpleName(), e.getMessage()));
             throw e;
         } catch (RuntimeException e)
         {
-            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass().getSimpleName(), e
-                    .getMessage()), e);
+            operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass()
+                    .getSimpleName(), e.getMessage()), e);
             throw e;
         }
     }

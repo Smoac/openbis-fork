@@ -41,7 +41,8 @@ public final class UserDAOTest extends AbstractDAOTest
 {
     final static UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
 
-    final static UserDTO testPermanentUser = createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
+    final static UserDTO testPermanentUser =
+            createUser(true, true, "user", "someuser@systemsx.ch", testAdminUser);
 
     final static UserDTO testTemporaryUser =
             createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser);
@@ -56,7 +57,8 @@ public final class UserDAOTest extends AbstractDAOTest
         assertNotNull(actualUser.getID());
         assertTrue(actualUser.getID() > 0);
         assertEquals(expectedUser.isAdmin(), actualUser.isAdmin());
-        assertEquals(expectedUser.isExternallyAuthenticated(), actualUser.isExternallyAuthenticated());
+        assertEquals(expectedUser.isExternallyAuthenticated(), actualUser
+                .isExternallyAuthenticated());
         assertEquals(expectedUser.isPermanent(), actualUser.isPermanent());
         assertEquals(expectedUser.getEmail(), actualUser.getEmail());
         assertEquals(expectedUser.getEncryptedPassword(), actualUser.getEncryptedPassword());
@@ -66,8 +68,8 @@ public final class UserDAOTest extends AbstractDAOTest
         assertNotNull(actualUser.getRegistrationDate());
     }
 
-    final static UserDTO createUser(final boolean permanent, final boolean admin, final String code,
-            final String email, final UserDTO registrator)
+    final static UserDTO createUser(final boolean permanent, final boolean admin,
+            final String code, final String email, final UserDTO registrator)
     {
         final UserDTO user = new UserDTO();
         user.setEmail(email);
@@ -142,7 +144,8 @@ public final class UserDAOTest extends AbstractDAOTest
     public final void testCreateUserWithTooLong()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        final UserDTO newUser = createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser);
+        final UserDTO newUser =
+                createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser);
         userDAO.createUser(newUser);
     }
 
@@ -186,7 +189,8 @@ public final class UserDAOTest extends AbstractDAOTest
         checkUser(testAdminUser, testAdminUserFromDB);
 
         // Existing Temporary User
-        final UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        final UserDTO testTemporaryUserFromDB =
+                userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         assert testTemporaryUserFromDB != null;
         assert testTemporaryUserFromDB.getID() != null;
         assert testTemporaryUserFromDB.getID() > 0;
@@ -201,7 +205,8 @@ public final class UserDAOTest extends AbstractDAOTest
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
 
-        final List<UserDTO> listUsersRegisteredByAdmin = userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+        final List<UserDTO> listUsersRegisteredByAdmin =
+                userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
         assertEquals(1, listUsersRegisteredByAdmin.size());
         UserDTO actual = listUsersRegisteredByAdmin.get(0);
         assertEquals(testPermanentUser.getID(), actual.getID());
@@ -265,7 +270,8 @@ public final class UserDAOTest extends AbstractDAOTest
         // Try Update Email
         testTemporaryUser.setEmail("updated@temporary.cifex");
         userDAO.updateUser(testTemporaryUser);
-        final UserDTO testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        final UserDTO testTemporaryUserFromDB =
+                userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
 
         // Try update Password
@@ -274,7 +280,8 @@ public final class UserDAOTest extends AbstractDAOTest
         testPermanentUser.setExternallyAuthenticated(false);
         testPermanentUser.setUserFullName("User Full Name");
         userDAO.updateUser(testPermanentUser);
-        UserDTO testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
+        UserDTO testPermanentUserFromDB =
+                userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
         checkUser(testPermanentUser, testPermanentUserFromDB);
 
         // Remove admin Permissions of permanent user

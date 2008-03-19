@@ -49,7 +49,8 @@ public final class LogFactory
     {
         if (category.isAdminLog() == false)
         {
-            throw new IllegalArgumentException("Only admin logs are allowed here, but we got " + category + ".");
+            throw new IllegalArgumentException("Only admin logs are allowed here, but we got "
+                    + category + ".");
         }
         return category.name();
     }

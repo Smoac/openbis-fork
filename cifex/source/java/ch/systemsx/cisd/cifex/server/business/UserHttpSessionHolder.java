@@ -39,7 +39,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class UserHttpSessionHolder implements IUserSessionInvalidator
 {
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserHttpSessionHolder.class);
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, UserHttpSessionHolder.class);
 
     public final static String USER_SESSION_HOLDER_BEAN_NAME = "user-session-holder";
 
@@ -83,9 +84,11 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
                 if (operationLog.isInfoEnabled())
                 {
                     final String fullName = user.getUserFullName();
-                    String description = StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
+                    String description =
+                            StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
                     description += " <" + user.getEmail() + ">";
-                    operationLog.info("Currently logged in user [" + description + "] has been logged out.");
+                    operationLog.info("Currently logged in user [" + description
+                            + "] has been logged out.");
                 }
             }
         }

@@ -24,8 +24,6 @@ import ch.systemsx.cisd.ant.task.subversion.SVNInfoRecord.Updater;
 import ch.systemsx.cisd.ant.task.subversion.SVNUtilities.ProcessInfo;
 
 /**
- * 
- *
  * @author felmer
  */
 class SVNInfoRecordExtractor
@@ -34,7 +32,7 @@ class SVNInfoRecordExtractor
     {
         public void handle(SVNInfoRecord record, String value);
     }
-    
+
     private static abstract class FirstValueHandler implements ValueHandler
     {
         private boolean first = true;
@@ -47,10 +45,10 @@ class SVNInfoRecordExtractor
                 first = false;
             }
         }
-        
+
         protected abstract void update(Updater updater, String value);
     }
-    
+
     private static final class PathHandler extends FirstValueHandler
     {
         @Override
@@ -59,7 +57,7 @@ class SVNInfoRecordExtractor
             updater.setWorkingCopyPath(value);
         }
     }
-    
+
     private static final class RepositoryUrlHandler extends FirstValueHandler
     {
         @Override
@@ -68,7 +66,7 @@ class SVNInfoRecordExtractor
             updater.setRepositoryUrl(value);
         }
     }
-    
+
     private static final class RepositoryRootHandler extends FirstValueHandler
     {
         @Override
@@ -77,7 +75,7 @@ class SVNInfoRecordExtractor
             updater.setRepositoryRootUrl(value);
         }
     }
-    
+
     private static final class RepositoryUUIDHandler extends FirstValueHandler
     {
         @Override
@@ -86,7 +84,7 @@ class SVNInfoRecordExtractor
             updater.setRepositoryUUID(value);
         }
     }
-    
+
     private static final class ScheduleHandler extends FirstValueHandler
     {
         @Override
@@ -95,7 +93,7 @@ class SVNInfoRecordExtractor
             updater.setSchedule(value);
         }
     }
-    
+
     private static final class LastChangedAuthorHandler extends FirstValueHandler
     {
         @Override
@@ -104,7 +102,7 @@ class SVNInfoRecordExtractor
             updater.setLastChangedAuthor(value);
         }
     }
-    
+
     private static final class LastChangedDateHandler extends FirstValueHandler
     {
         @Override
@@ -113,7 +111,7 @@ class SVNInfoRecordExtractor
             updater.setLastChangedDate(value);
         }
     }
-    
+
     private static final class NodeKindHandler extends FirstValueHandler
     {
         @Override
@@ -127,11 +125,12 @@ class SVNInfoRecordExtractor
                 updater.setNodeKind(NodeKind.FILE);
             } else
             {
-                throw SVNException.fromTemplate("Subversion reports invalid node kind '%s'.", value);
+                throw SVNException
+                        .fromTemplate("Subversion reports invalid node kind '%s'.", value);
             }
         }
     }
-    
+
     private static final class RevisionHandler implements ValueHandler
     {
         public void handle(SVNInfoRecord record, String value)
@@ -142,7 +141,8 @@ class SVNInfoRecordExtractor
                 updater.setRevision(Math.max(record.getRevision(), Integer.parseInt(value)));
             } catch (NumberFormatException ex)
             {
-                throw SVNException.fromTemplate("Subversion reports invalid revision number '%s'.", value);
+                throw SVNException.fromTemplate("Subversion reports invalid revision number '%s'.",
+                        value);
             }
         }
     }
@@ -154,10 +154,12 @@ class SVNInfoRecordExtractor
             try
             {
                 Updater updater = record.getUpdater();
-                updater.setLastChangedRevision(Math.max(record.getLastChangedRevision(), Integer.parseInt(value)));
+                updater.setLastChangedRevision(Math.max(record.getLastChangedRevision(), Integer
+                        .parseInt(value)));
             } catch (NumberFormatException ex)
             {
-                throw SVNException.fromTemplate("Subversion reports invalid last changed revision number '%s'.", value);
+                throw SVNException.fromTemplate(
+                        "Subversion reports invalid last changed revision number '%s'.", value);
             }
         }
     }
@@ -178,7 +180,7 @@ class SVNInfoRecordExtractor
         valueHandlerMap.put("Last Changed Rev", new LastChangedRevisionHandler());
         valueHandlerMap.put("Last Changed Date", new LastChangedDateHandler());
     }
-    
+
     void fillInfoRecord(final SVNInfoRecord record, final ProcessInfo subversionProcessInfo)
     {
         for (String line : subversionProcessInfo.getLines())
@@ -194,6 +196,5 @@ class SVNInfoRecordExtractor
             }
         }
     }
-
 
 }

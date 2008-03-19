@@ -34,7 +34,7 @@ public class EclipseClasspathReader
 {
     /** Name of the Eclipse classpath file. */
     public static final String CLASSPATH_FILE = ".classpath";
-    
+
     private static final String CLASSPATH = "classpath";
 
     private static final String PATH_ATTRIBUTE = "path";
@@ -46,14 +46,15 @@ public class EclipseClasspathReader
     /**
      * Reads from the specified Eclipse classpath file all classpathentry elements.
      */
-    public static List<EclipseClasspathEntry> readClasspathEntries(IEclipseClasspathLocation location)
+    public static List<EclipseClasspathEntry> readClasspathEntries(
+            IEclipseClasspathLocation location)
     {
         String displayableLocation = location.getDisplayableLocation();
         Node root = location.getDocument().getChildNodes().item(0);
         if (CLASSPATH.equalsIgnoreCase(root.getNodeName()) == false)
         {
-            throw new IllegalArgumentException("Root element of '" + displayableLocation + "' is not '" + CLASSPATH
-                    + "'.");
+            throw new IllegalArgumentException("Root element of '" + displayableLocation
+                    + "' is not '" + CLASSPATH + "'.");
         }
         NodeList children = root.getChildNodes();
         List<Element> elements = new ArrayList<Element>();
@@ -85,8 +86,8 @@ public class EclipseClasspathReader
 
             } catch (Exception e)
             {
-                throw new IllegalArgumentException((i + 1) + ". element of '" + displayableLocation + "': "
-                        + e.getMessage(), e);
+                throw new IllegalArgumentException((i + 1) + ". element of '" + displayableLocation
+                        + "': " + e.getMessage(), e);
             }
         }
         return entries;

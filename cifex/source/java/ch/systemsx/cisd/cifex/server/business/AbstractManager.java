@@ -19,19 +19,21 @@ package ch.systemsx.cisd.cifex.server.business;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 
-
 /**
  * Abstract super class of all Managers.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 abstract class AbstractManager
 {
     protected final IDAOFactory daoFactory;
+
     protected final IBusinessObjectFactory boFactory;
+
     protected final IBusinessContext businessContext;
 
-    AbstractManager(final IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
+    AbstractManager(final IDAOFactory daoFactory, IBusinessObjectFactory boFactory,
+            IBusinessContext businessContext)
     {
         this.boFactory = boFactory;
         this.businessContext = businessContext;

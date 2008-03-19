@@ -36,9 +36,11 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
  */
 final class RetryingPathRemover implements IPathRemover
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
 
     private final int maxRetriesOnFailure;
 
@@ -50,7 +52,8 @@ final class RetryingPathRemover implements IPathRemover
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
-    private final static Status STATUS_FAILED_DELETION = new Status(StatusFlag.FATAL_ERROR, "Failed to remove path.");
+    private final static Status STATUS_FAILED_DELETION =
+            new Status(StatusFlag.FATAL_ERROR, "Failed to remove path.");
 
     public Status remove(File path)
     {
@@ -72,11 +75,13 @@ final class RetryingPathRemover implements IPathRemover
             {
                 if (path.exists() == false)
                 {
-                    operationLog.warn(String.format("Path '%s' doesn't exist, so it can't be removed.", path));
+                    operationLog.warn(String.format(
+                            "Path '%s' doesn't exist, so it can't be removed.", path));
                     break;
                 }
                 ++failures;
-                operationLog.warn(String.format("Removing path '%s' failed (attempt %d).", path, failures));
+                operationLog.warn(String.format("Removing path '%s' failed (attempt %d).", path,
+                        failures));
                 if (failures >= maxRetriesOnFailure)
                 {
                     break;

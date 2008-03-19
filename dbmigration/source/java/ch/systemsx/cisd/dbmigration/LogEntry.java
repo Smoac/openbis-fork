@@ -20,7 +20,7 @@ import java.util.Date;
 
 /**
  * Log entry of DATABASE_VERSION_LOG.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class LogEntry
@@ -30,14 +30,19 @@ public class LogEntry
     {
         START, SUCCESS, FAILED, UNKNOWN
     }
-    
+
     private String version;
+
     private String moduleName;
+
     private RunStatus runStatus;
+
     private Date runStatusTimestamp;
+
     private String moduleCode;
+
     private String runException;
-    
+
     /**
      * Returns moduleCode.
      * 
@@ -47,7 +52,7 @@ public class LogEntry
     {
         return moduleCode;
     }
-    
+
     /**
      * Sets moduleCode.
      * 
@@ -57,7 +62,7 @@ public class LogEntry
     {
         this.moduleCode = moduleCode;
     }
-    
+
     /**
      * Returns moduleName.
      * 
@@ -67,7 +72,7 @@ public class LogEntry
     {
         return moduleName;
     }
-    
+
     /**
      * Sets moduleName.
      * 
@@ -77,7 +82,7 @@ public class LogEntry
     {
         this.moduleName = moduleName;
     }
-    
+
     /**
      * Returns runException.
      * 
@@ -87,7 +92,7 @@ public class LogEntry
     {
         return runException;
     }
-    
+
     /**
      * Sets runException.
      * 
@@ -97,7 +102,7 @@ public class LogEntry
     {
         this.runException = runException;
     }
-    
+
     /**
      * Returns runStatus.
      * 
@@ -107,7 +112,7 @@ public class LogEntry
     {
         return runStatus;
     }
-    
+
     /**
      * Sets runStatus based its string representation. If the argument does not match one of the valid constants.
      * {@link RunStatus#UNKNOWN} will be used.
@@ -120,7 +125,7 @@ public class LogEntry
             runStatus = RunStatus.UNKNOWN;
         }
     }
-    
+
     /**
      * Sets runStatus.
      * 
@@ -130,7 +135,7 @@ public class LogEntry
     {
         this.runStatus = runStatus;
     }
-    
+
     /**
      * Returns runStatusTimestamp.
      * 
@@ -140,7 +145,7 @@ public class LogEntry
     {
         return runStatusTimestamp;
     }
-    
+
     /**
      * Sets runStatusTimestamp.
      * 
@@ -150,7 +155,7 @@ public class LogEntry
     {
         this.runStatusTimestamp = runStatusTimestamp;
     }
-    
+
     /**
      * Returns version.
      * 
@@ -160,7 +165,7 @@ public class LogEntry
     {
         return version;
     }
-    
+
     /**
      * Sets version.
      * 
@@ -176,13 +181,13 @@ public class LogEntry
     {
         StringBuilder builder = new StringBuilder();
         builder.append("Version:").append(version).append(", Module:").append(moduleName);
-        builder.append(", Run status:").append(runStatus).append(", Time stamp:").append(runStatusTimestamp);
+        builder.append(", Run status:").append(runStatus).append(", Time stamp:").append(
+                runStatusTimestamp);
         if (runStatus == RunStatus.FAILED && runException != null)
         {
             builder.append(", Exception:").append(runException);
         }
         return builder.toString();
     }
-    
-    
+
 }

@@ -38,9 +38,11 @@ public abstract class FileWatcher extends TimerTask
 
     static final String HAS_CHANGED_FORMAT = "Watched file '%s' has changed.";
 
-    static final String PERMISSION_EXCEPTION_FORMAT = "Was not allowed to check existence of file '%s'.";
+    static final String PERMISSION_EXCEPTION_FORMAT =
+            "Was not allowed to check existence of file '%s'.";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileWatcher.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileWatcher.class);
 
     /** The default <code>FileWatcherState</code> implementation used. */
     private static final IFileWatcherState DEFAULT_FILE_WATCHER_STATE = new LastModifiedState();

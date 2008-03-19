@@ -108,6 +108,7 @@ class SVNUtilities
     private static final class StreamReaderGobbler
     {
         private final Semaphore waitForReadingFinishedSemaphore = new Semaphore(1);
+
         private final List<String> lines = new ArrayList<String>();
 
         StreamReaderGobbler(final InputStream stream) throws InterruptedException
@@ -120,7 +121,8 @@ class SVNUtilities
                     {
                         try
                         {
-                            final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                            final BufferedReader reader =
+                                    new BufferedReader(new InputStreamReader(stream));
                             String line;
                             while ((line = reader.readLine()) != null)
                             {
@@ -128,7 +130,8 @@ class SVNUtilities
                             }
                         } catch (IOException ex)
                         {
-                            throw new EnvironmentFailureException("Couldn't gobble stream content", ex);
+                            throw new EnvironmentFailureException("Couldn't gobble stream content",
+                                    ex);
                         } finally
                         {
                             waitForReadingFinishedSemaphore.release();
@@ -247,17 +250,19 @@ class SVNUtilities
         }
         if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0)
         {
-            throw new UserFailureException(typeOfName + " name '" + name + "' contains illegal character.");
+            throw new UserFailureException(typeOfName + " name '" + name
+                    + "' contains illegal character.");
         }
     }
 
-    static ProcessInfo subversionCommand(ISimpleLogger logger, final String command, final String... args)
+    static ProcessInfo subversionCommand(ISimpleLogger logger, final String command,
+            final String... args)
     {
         return subversionCommand(logger, true, command, args);
     }
 
-    static ProcessInfo subversionCommand(ISimpleLogger logger, final boolean redirectErrorStream, final String command,
-            final String... args)
+    static ProcessInfo subversionCommand(ISimpleLogger logger, final boolean redirectErrorStream,
+            final String command, final String... args)
     {
         final File svnExecutable = OSUtilities.findExecutable("svn");
         if (svnExecutable == null)
@@ -276,8 +281,10 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            StreamReaderGobbler inputStreamGobbler = new StreamReaderGobbler(process.getInputStream());
-            StreamReaderGobbler errorStreamGobbler = new StreamReaderGobbler(process.getErrorStream());
+            StreamReaderGobbler inputStreamGobbler =
+                    new StreamReaderGobbler(process.getInputStream());
+            StreamReaderGobbler errorStreamGobbler =
+                    new StreamReaderGobbler(process.getErrorStream());
             final int exitValue = process.waitFor();
             List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
@@ -287,7 +294,8 @@ class SVNUtilities
                 {
                     SVNUtilities.logSvnOutput(logger, errorStreamGobbler.getLines());
                 }
-                throw SVNException.fromTemplate("Error while executing '%s' (exitValue=%d)", commandString, exitValue);
+                throw SVNException.fromTemplate("Error while executing '%s' (exitValue=%d)",
+                        commandString, exitValue);
             }
             return new ProcessInfo(commandString, lines, exitValue);
         } catch (IOException ex)
@@ -295,7 +303,8 @@ class SVNUtilities
             throw SVNException.fromTemplate(ex, "Error while executing '%s'", commandString);
         } catch (InterruptedException ex)
         {
-            throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'", commandString);
+            throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'",
+                    commandString);
         }
     }
 
@@ -303,8 +312,9 @@ class SVNUtilities
     {
         return (null != OSUtilities.findExecutable("svnmucc"));
     }
-    
-    static ProcessInfo subversionMuccCommand(ISimpleLogger logger, String logMessage, final String... args)
+
+    static ProcessInfo subversionMuccCommand(ISimpleLogger logger, String logMessage,
+            final String... args)
     {
         final File svnExecutable = OSUtilities.findExecutable("svnmucc");
         if (svnExecutable == null)
@@ -323,13 +333,15 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            StreamReaderGobbler inputStreamGobbler = new StreamReaderGobbler(process.getInputStream());
+            StreamReaderGobbler inputStreamGobbler =
+                    new StreamReaderGobbler(process.getInputStream());
             final int exitValue = process.waitFor();
             List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
             {
                 SVNUtilities.logSvnOutput(logger, inputStreamGobbler.getLines());
-                throw SVNException.fromTemplate("Error while executing '%s' (exitValue=%d)", commandString, exitValue);
+                throw SVNException.fromTemplate("Error while executing '%s' (exitValue=%d)",
+                        commandString, exitValue);
             }
             return new ProcessInfo(commandString, lines, exitValue);
         } catch (IOException ex)
@@ -337,7 +349,8 @@ class SVNUtilities
             throw SVNException.fromTemplate(ex, "Error while executing '%s'", commandString);
         } catch (InterruptedException ex)
         {
-            throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'", commandString);
+            throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'",
+                    commandString);
         }
     }
 
@@ -362,7 +375,8 @@ class SVNUtilities
 
     static String getFirstTagForBranch(String branchName)
     {
-        final Matcher branchMatcher = Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
+        final Matcher branchMatcher =
+                Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
         boolean matches = branchMatcher.matches();
         assert matches;
         return String.format("%s.%s.0", branchMatcher.group(1), branchMatcher.group(2));

@@ -68,15 +68,17 @@ public final class AbstractParserObjectFactoryTest
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (final UnmatchedPropertiesException ex)
         {
-            assertEquals("Following header columns are not part of 'Bean': isnotin", ex.getMessage());
+            assertEquals("Following header columns are not part of 'Bean': isnotin", ex
+                    .getMessage());
         }
     }
 
     @Test
     public final void testMandatoryFields()
     {
-        final DefaultAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
-            { "description" });
+        final DefaultAliasPropertyMapper propertyMapper =
+                new DefaultAliasPropertyMapper(new String[]
+                    { "description" });
         try
         {
             final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
@@ -86,7 +88,8 @@ public final class AbstractParserObjectFactoryTest
             fail("Field/Property name 'name' is mandatory.");
         } catch (final MandatoryPropertyMissingException ex)
         {
-            assertEquals(String.format(MandatoryPropertyMissingException.MESSAGE_FORMAT, "name"), ex.getMessage());
+            assertEquals(String.format(MandatoryPropertyMissingException.MESSAGE_FORMAT, "name"),
+                    ex.getMessage());
         }
     }
 
@@ -106,8 +109,10 @@ public final class AbstractParserObjectFactoryTest
         final IAliasPropertyMapper propertyMapper = createPropertyMapper();
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] defaultTokens = createDefaultLineTokens();
-        final String[] lineTokens = (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
-        final String msg = String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
+        final String[] lineTokens =
+                (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
+        final String msg =
+                String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
         try
         {
             beanFactory.createObject(lineTokens);

@@ -25,14 +25,12 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class UserBO extends AbstractBusinessObject implements IUserBO
 {
     private UserDTO userDTO;
-    
+
     private boolean dataChanged;
 
     UserBO(IDAOFactory daoFactory, IBusinessContext businessContext)
@@ -48,7 +46,8 @@ class UserBO extends AbstractBusinessObject implements IUserBO
 
         if (user.isPermanent() == false)
         {
-            user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+            user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                    .getUserRetention()));
         }
         this.userDTO = user;
         dataChanged = true;

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.bds;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 
-
 /**
  * Common interface of all data structures. Implementations of this interface provide methods to manipulate a data
  * structure. These methods are specific for the version of the data structure. For each version there is a concrete
@@ -36,7 +35,7 @@ public interface IDataStructure extends IHasVersion
      * Creates a new empty data structure.
      */
     public void create();
-    
+
     /**
      * Opens an existing data structure and validates it.
      * 

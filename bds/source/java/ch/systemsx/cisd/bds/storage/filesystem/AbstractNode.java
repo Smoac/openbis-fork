@@ -30,8 +30,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 abstract class AbstractNode implements INode
 {
-    protected final static File moveFileToDirectory(final File source, final File directory, final String nameOrNull)
-            throws EnvironmentFailureException
+    protected final static File moveFileToDirectory(final File source, final File directory,
+            final String nameOrNull) throws EnvironmentFailureException
     {
         assert source != null;
         assert directory != null && directory.isDirectory();
@@ -49,8 +49,9 @@ abstract class AbstractNode implements INode
             final boolean successful = source.renameTo(destination);
             if (successful == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't not move file '%s' to directory '%s'.", source
-                        .getAbsolutePath(), directory.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate(
+                        "Couldn't not move file '%s' to directory '%s'.", source.getAbsolutePath(),
+                        directory.getAbsolutePath());
             }
         }
         return destination;
@@ -72,7 +73,8 @@ abstract class AbstractNode implements INode
         }
         if (file.exists() == false)
         {
-            throw new StorageException(String.format("Non existing file '%s'.", file.getAbsolutePath()));
+            throw new StorageException(String.format("Non existing file '%s'.", file
+                    .getAbsolutePath()));
         }
     }
 

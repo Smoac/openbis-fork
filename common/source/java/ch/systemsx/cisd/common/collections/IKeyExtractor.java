@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.collections;
 
 /**
  * Interface defining the role of a key extractor.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IKeyExtractor<K, E>

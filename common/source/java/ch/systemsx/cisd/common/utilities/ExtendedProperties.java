@@ -76,7 +76,8 @@ public final class ExtendedProperties extends Properties
      * @param prefix string, each property key should start with.
      * @param dropPrefix If <code>true</code> the prefix will be removed from the key.
      */
-    public static ExtendedProperties getSubset(Properties properties, String prefix, boolean dropPrefix)
+    public static ExtendedProperties getSubset(Properties properties, String prefix,
+            boolean dropPrefix)
     {
         return ExtendedProperties.createWith(properties).getSubset(prefix, dropPrefix);
     }
@@ -205,6 +206,7 @@ public final class ExtendedProperties extends Properties
     @Override
     public final String toString()
     {
-        return StringUtils.replace(super.toString(), PROPERTY_SEPARATOR, SystemUtils.LINE_SEPARATOR);
+        return StringUtils
+                .replace(super.toString(), PROPERTY_SEPARATOR, SystemUtils.LINE_SEPARATOR);
     }
 }

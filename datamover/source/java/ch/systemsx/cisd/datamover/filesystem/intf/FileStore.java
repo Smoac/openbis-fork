@@ -44,7 +44,8 @@ public abstract class FileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(File path, String hostOrNull, boolean remote, String kind, IFileSysOperationsFactory factory)
+    protected FileStore(File path, String hostOrNull, boolean remote, String kind,
+            IFileSysOperationsFactory factory)
     {
         assert path != null;
         assert kind != null;
@@ -144,8 +145,8 @@ public abstract class FileStore implements IFileStore
             return file.getCanonicalPath() + File.separator;
         } catch (IOException e)
         {
-            throw EnvironmentFailureException.fromTemplate(e, "Cannot determine canonical form of path '%s'", file
-                    .getPath());
+            throw EnvironmentFailureException.fromTemplate(e,
+                    "Cannot determine canonical form of path '%s'", file.getPath());
         }
     }
 
@@ -156,8 +157,9 @@ public abstract class FileStore implements IFileStore
         {
             FileStore fileStore = (FileStore) obj;
             boolean sameHost =
-                    (hostOrNull == null ? fileStore.hostOrNull == null : fileStore.hostOrNull != null
-                            && hostOrNull.equals(fileStore.hostOrNull));
+                    (hostOrNull == null ? fileStore.hostOrNull == null
+                            : fileStore.hostOrNull != null
+                                    && hostOrNull.equals(fileStore.hostOrNull));
             return sameHost && kind.equals(fileStore.kind) && path.equals(fileStore.path);
         } else
         {
@@ -232,6 +234,7 @@ public abstract class FileStore implements IFileStore
 
         public abstract boolean createNewFile(StoreItem item);
 
-        public abstract File tryMoveLocal(StoreItem sourceItem, File destinationDir, String newFilePrefix);
+        public abstract File tryMoveLocal(StoreItem sourceItem, File destinationDir,
+                String newFilePrefix);
     }
 }

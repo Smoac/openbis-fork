@@ -71,7 +71,8 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static <T> String abbreviate(final T[] objects, final int maxLength, final CollectionStyle style)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength,
+            final CollectionStyle style)
     {
         return abbreviate(objects, maxLength, true, ToStringDefaultConverter.getInstance(), style);
     }
@@ -103,7 +104,8 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final IToStringConverter<? super T> converter)
     {
-        return abbreviate(collection, maxLength, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(collection, maxLength, converter,
+                CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
 
     /**
@@ -130,7 +132,8 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength,
+            final boolean showLeft)
     {
         return abbreviate(objects, maxLength, showLeft, ToStringDefaultConverter.getInstance());
     }
@@ -159,10 +162,11 @@ public final class CollectionUtils
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
      *            displayed.
      */
-    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
-            final IToStringConverter<? super T> converter)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength,
+            final boolean showLeft, final IToStringConverter<? super T> converter)
     {
-        return abbreviate(objects, maxLength, showLeft, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(objects, maxLength, showLeft, converter,
+                CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
 
     /**
@@ -171,7 +175,8 @@ public final class CollectionUtils
      * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used and all items is displayed.
      * </p>
      */
-    public final static <T> String abbreviate(final T[] objects, final IToStringConverter<? super T> converter)
+    public final static <T> String abbreviate(final T[] objects,
+            final IToStringConverter<? super T> converter)
     {
         return abbreviate(objects, -1, false, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
@@ -188,7 +193,8 @@ public final class CollectionUtils
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
-        return abbreviate(collection, maxLength, showLeft, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(collection, maxLength, showLeft, converter,
+                CollectionStyle.DEFAULT_COLLECTION_STYLE);
     }
 
     /**
@@ -205,8 +211,9 @@ public final class CollectionUtils
      *            relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
-    public final static <T> String abbreviate(final T[] objects, final int maxLength, final boolean showLeft,
-            final IToStringConverter<? super T> converter, final CollectionStyle style)
+    public final static <T> String abbreviate(final T[] objects, final int maxLength,
+            final boolean showLeft, final IToStringConverter<? super T> converter,
+            final CollectionStyle style)
     {
         assert objects != null : "Given objects can not be null.";
         return abbreviate(Arrays.asList(objects), maxLength, showLeft, converter, style);
@@ -222,7 +229,8 @@ public final class CollectionUtils
      * @param style the style that should be applied to the output.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
-            final boolean showLeft, final IToStringConverter<? super T> converter, final CollectionStyle style)
+            final boolean showLeft, final IToStringConverter<? super T> converter,
+            final CollectionStyle style)
     {
         assert collection != null : "Given collection can not be null.";
         assert converter != null : "Given converter can not be null.";

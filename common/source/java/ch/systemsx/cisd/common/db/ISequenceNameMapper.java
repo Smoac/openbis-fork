@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.db;
 
 /**
  * Interface for mapping a table to its corresponding sequence.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ISequenceNameMapper

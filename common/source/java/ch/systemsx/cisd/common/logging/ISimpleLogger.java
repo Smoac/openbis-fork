@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.logging;
 
 /**
  * A role that represents a simple logger (may be an ant task or a log4j logger}.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ISimpleLogger
@@ -26,5 +26,5 @@ public interface ISimpleLogger
 
     /** Log <var>message</var> at log <var>level</var> out to some log file or display. */
     public void log(LogLevel level, String message);
-    
+
 }

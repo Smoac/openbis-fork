@@ -56,7 +56,7 @@ public class GatherRevisionAndVersionTaskTest
     //
     // Mocks and helper classes
     //
-    
+
     private static final class MockPathProvider implements ISVNProjectPathProvider
     {
         private final SVNProject project;
@@ -65,48 +65,49 @@ public class GatherRevisionAndVersionTaskTest
         {
             this.project = project;
         }
-        
+
         public boolean isRepositoryPath()
         {
             throw new UnsupportedOperationException();
         }
-        
+
         public String getRevision()
         {
             throw new UnsupportedOperationException();
         }
-        
+
         public String getProjectName()
         {
             return project.getName();
         }
-        
+
         public String getPath(String subProjectName, String entityPath) throws UserFailureException
         {
             throw new UnsupportedOperationException();
         }
-        
+
         public String getPath(String subProjectName) throws UserFailureException
         {
             return subProjectName;
         }
-        
+
         public String getPath()
         {
             return getProjectName();
         }
     }
-    
+
     private static final class MockSVN implements ISVNActions
     {
-        private final Map<String, List<SVNItemStatus>> statusMap = new HashMap<String, List<SVNItemStatus>>();
+        private final Map<String, List<SVNItemStatus>> statusMap =
+                new HashMap<String, List<SVNItemStatus>>();
 
         private final Map<String, SVNInfoRecord> infoMap = new HashMap<String, SVNInfoRecord>();
 
         private final Map<String, List<String>> listMap = new HashMap<String, List<String>>();
 
         private final Map<String, String> contentMap = new HashMap<String, String>();
-        
+
         SVNInfoRecord register(String path)
         {
             System.out.println("REGISTER - " + path);
@@ -148,8 +149,8 @@ public class GatherRevisionAndVersionTaskTest
             return infoRecord;
         }
 
-        public void copy(String sourcePath, String sourceRevision, String destinationPath, String logMessage)
-                throws SVNException
+        public void copy(String sourcePath, String sourceRevision, String destinationPath,
+                String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call copy");
         }
@@ -186,8 +187,8 @@ public class GatherRevisionAndVersionTaskTest
         }
     }
 
-    private GatherRevisionAndVersionTask createTask(final MockSVN mockSvn, final SVNProject svnProject, 
-                                                    final String reposURL)
+    private GatherRevisionAndVersionTask createTask(final MockSVN mockSvn,
+            final SVNProject svnProject, final String reposURL)
     {
         GatherRevisionAndVersionTask task = new GatherRevisionAndVersionTask()
             {
@@ -259,7 +260,8 @@ public class GatherRevisionAndVersionTaskTest
             registerProject(svn, projectBaseDir, revision, lastChangedRevision);
         }
 
-        private void registerProject(MockSVN svn, String projectBaseDir, int revision, int lastChangedRevision)
+        private void registerProject(MockSVN svn, String projectBaseDir, int revision,
+                int lastChangedRevision)
         {
             SVNInfoRecord info = svn.register(".." + File.separator + name);
             Updater updater = info.getUpdater();
@@ -280,15 +282,19 @@ public class GatherRevisionAndVersionTaskTest
     {
         svn = new MockSVN();
         project1 = new SVNProject("project1").addFiles("helloWorld.txt");
-        project1.addClasspathFile("<classpath>\n" + "<classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                + "<classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
-                + "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                + "<classpathentry kind=\"src\" path=\"/common\"/>\n" + "</classpath>\n");
+        project1
+                .addClasspathFile("<classpath>\n"
+                        + "<classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                        + "<classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
+                        + "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                        + "<classpathentry kind=\"src\" path=\"/common\"/>\n" + "</classpath>\n");
         libraries = new SVNProject("libraries").addFiles("lib1.jar");
         common = new SVNProject("common").addFiles("build.xml");
-        common.addClasspathFile("<classpath>\n" + "<classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                + "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                + "</classpath>\n");
+        common
+                .addClasspathFile("<classpath>\n"
+                        + "<classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                        + "<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                        + "</classpath>\n");
         buildResources = new SVNProject("build_resources");
 
     }
@@ -314,7 +320,8 @@ public class GatherRevisionAndVersionTaskTest
         libraries.registerAsTrunk(svn, 10, 6);
         common.registerAsTrunk(svn, 11, 7);
         buildResources.registerAsTrunk(svn, 10, 5);
-        svn.register(".").getUpdater().setRepositoryUrl(BASE_REPOSITORY_URL + "/" + project1.getName() + "/trunk");
+        svn.register(".").getUpdater().setRepositoryUrl(
+                BASE_REPOSITORY_URL + "/" + project1.getName() + "/trunk");
 
         GatherRevisionAndVersionTask task = createTask(svn, project1, BASE_REPOSITORY_URL);
         task.setRevision("myRevision");
@@ -323,7 +330,8 @@ public class GatherRevisionAndVersionTaskTest
         task.execute();
 
         assertEquals("7", task.getProject().getProperty("myRevision"));
-        assertEquals(GatherRevisionAndVersionTask.TRUNK_VERSION, task.getProject().getProperty("myVersion"));
+        assertEquals(GatherRevisionAndVersionTask.TRUNK_VERSION, task.getProject().getProperty(
+                "myVersion"));
     }
 
     @Test
@@ -335,9 +343,11 @@ public class GatherRevisionAndVersionTaskTest
         libraries.registerVersion(svn, version, 10, 6);
         common.registerVersion(svn, version, 11, 7);
         buildResources.registerVersion(svn, version, 10, 5);
-        svn.register(".").getUpdater().setRepositoryUrl(BASE_REPOSITORY_URL + "/" + version + "/" + project1.getName());
+        svn.register(".").getUpdater().setRepositoryUrl(
+                BASE_REPOSITORY_URL + "/" + version + "/" + project1.getName());
 
-        GatherRevisionAndVersionTask task = createTask(svn, project1, BASE_REPOSITORY_URL + "/" + version);
+        GatherRevisionAndVersionTask task =
+                createTask(svn, project1, BASE_REPOSITORY_URL + "/" + version);
         task.setRevision("myRevision");
         task.setVersion("myVersion");
 

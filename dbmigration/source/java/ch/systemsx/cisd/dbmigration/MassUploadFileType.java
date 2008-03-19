@@ -17,21 +17,21 @@
 package ch.systemsx.cisd.dbmigration;
 
 /**
- *  File type enumeration. 
- *
+ * File type enumeration.
+ * 
  * @author Franz-Josef Elmer
  */
 public enum MassUploadFileType
 {
     CSV(".csv"), TSV(".tsv");
-    
+
     private final String fileType;
 
     private MassUploadFileType(String fileType)
     {
         this.fileType = fileType;
     }
-    
+
     /**
      * Returns the file type string including the '.'.
      */
@@ -41,7 +41,7 @@ public enum MassUploadFileType
     }
 
     /**
-     * Returns <code>true</code> if the specify file is of this type.  
+     * Returns <code>true</code> if the specify file is of this type.
      */
     public boolean isOfType(String fileName)
     {

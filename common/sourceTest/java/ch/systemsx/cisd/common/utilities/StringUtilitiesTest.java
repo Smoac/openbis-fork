@@ -54,10 +54,11 @@ public class StringUtilitiesTest
     {
         final List<String> list = Arrays.asList("one", "two", "three");
         assertEquals("one two three", StringUtilities.concatenateWithSpace(list));
-        final String brokenDownInLines = String.format("one%1$stwo%1$sthree", System.getProperty("line.separator"));
+        final String brokenDownInLines =
+                String.format("one%1$stwo%1$sthree", System.getProperty("line.separator"));
         assertEquals(brokenDownInLines, StringUtilities.concatenateWithNewLine(list));
     }
-    
+
     @Test
     public void testComputeMD5Hash()
     {

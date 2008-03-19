@@ -20,7 +20,7 @@ import java.util.Random;
 
 /**
  * Generator for human pronounceable passwords
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PasswordGenerator
@@ -41,7 +41,7 @@ public class PasswordGenerator
                 return "0123456789";
             }
         },
-        
+
         CONSONANT()
         {
             @Override
@@ -55,9 +55,9 @@ public class PasswordGenerator
             {
                 return "bdcfghjklmnpqrstvwxzBCDFGHJKLMNPQRSTVWXZ";
             }
-            
+
         },
-        
+
         VOWEL()
         {
             @Override
@@ -72,23 +72,23 @@ public class PasswordGenerator
                 return "aeiouyAEIOUY";
             }
         };
-        
+
         State nextState(Random random)
         {
             return this;
         }
-        
+
         void appendCharacterTo(StringBuilder builder, Random random)
         {
             String characters = getCharacters();
             builder.append(characters.charAt(random.nextInt(characters.length())));
         }
-        
+
         abstract String getCharacters();
     }
-    
+
     private final Random random;
-    
+
     /**
      * Creates an instance based on the default constructor of {@link Random}.
      */
@@ -105,7 +105,7 @@ public class PasswordGenerator
         assert random != null : "Unspecified random number generator.";
         this.random = random;
     }
-    
+
     /**
      * Creates a password of specified length.
      */

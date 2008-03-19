@@ -26,5 +26,6 @@ public interface IParserObjectFactoryFactory<T>
     /**
      * Creates a new factory for the specified property mapper.
      */
-    public IParserObjectFactory<T> createFactory(final IAliasPropertyMapper propertyMapper) throws ParserException;
+    public IParserObjectFactory<T> createFactory(final IAliasPropertyMapper propertyMapper)
+            throws ParserException;
 }

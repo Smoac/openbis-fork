@@ -55,9 +55,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 {
     private static final String CIFEX_SERVICE_BEAN_NAME = "cifex-service";
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceServlet.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceServlet.class);
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceServlet.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceServlet.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -66,7 +68,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     private final void initService(final ServletContext servletContext)
     {
-        final BeanFactory context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        final BeanFactory context =
+                WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         cifexServiceDelegate = (ICIFEXService) context.getBean(CIFEX_SERVICE_BEAN_NAME);
     }
 
@@ -106,8 +109,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
-    public final User tryLogin(final String user, final String password) throws UserFailureException,
-            EnvironmentFailureException
+    public final User tryLogin(final String user, final String password)
+            throws UserFailureException, EnvironmentFailureException
     {
         return cifexServiceDelegate.tryLogin(user, password);
     }
@@ -137,28 +140,29 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void createUser(final User user, final String password, final User registratorOrNull, final String comment)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
-            InsufficientPrivilegesException
+    public void createUser(final User user, final String password, final User registratorOrNull,
+            final String comment) throws EnvironmentFailureException, UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException
     {
         cifexServiceDelegate.createUser(user, password, registratorOrNull, comment);
 
     }
 
-    public void deleteUser(final String code) throws InvalidSessionException, InsufficientPrivilegesException,
-            UserNotFoundException
+    public void deleteUser(final String code) throws InvalidSessionException,
+            InsufficientPrivilegesException, UserNotFoundException
     {
         cifexServiceDelegate.deleteUser(code);
 
     }
 
-    public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
-            FileNotFoundException
+    public void deleteFile(final long id) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException
     {
         cifexServiceDelegate.deleteFile(id);
     }
 
-    public void registerFilenamesForUpload(String[] filenamesForUpload) throws InvalidSessionException
+    public void registerFilenamesForUpload(String[] filenamesForUpload)
+            throws InvalidSessionException
     {
         cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
     }
@@ -181,7 +185,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             initService(config.getServletContext());
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format("'%s' successfully initialized.", getClass().getName()));
+                operationLog.info(String.format("'%s' successfully initialized.", getClass()
+                        .getName()));
             }
         } catch (final Exception ex)
         {
@@ -206,8 +211,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
 
-    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
-            InsufficientPrivilegesException
+    public void updateFileExpiration(final long id, final Date newExpirationDate)
+            throws InvalidSessionException, InsufficientPrivilegesException
     {
         cifexServiceDelegate.updateFileExpiration(id, newExpirationDate);
     }

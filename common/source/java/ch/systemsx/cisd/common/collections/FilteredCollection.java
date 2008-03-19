@@ -70,7 +70,8 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected final static <E> Collection<E> filterCollection(Collection<? extends E> collection, Validator<E> validator)
+    protected final static <E> Collection<E> filterCollection(Collection<? extends E> collection,
+            Validator<E> validator)
     {
         if (collection == null)
         {

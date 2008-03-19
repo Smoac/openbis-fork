@@ -86,8 +86,8 @@ public class TableMapTest
     public void testUniqueKeyViolationKeepFirst()
     {
         final TableMap<Integer, String> tableMap =
-                new TableMap<Integer, String>(Arrays.asList("a:1", "7", "0", "b:1"), integerExtractor,
-                        UniqueKeyViolationStrategy.KEEP_FIRST);
+                new TableMap<Integer, String>(Arrays.asList("a:1", "7", "0", "b:1"),
+                        integerExtractor, UniqueKeyViolationStrategy.KEEP_FIRST);
         assertNull(tableMap.tryGet(10));
         assertEquals("0", tableMap.tryGet(0));
         assertEquals("a:1", tableMap.tryGet(1));
@@ -98,8 +98,8 @@ public class TableMapTest
     public void testUniqueKeyViolationKeepLast()
     {
         final TableMap<Integer, String> tableMap =
-                new TableMap<Integer, String>(Arrays.asList("a:1", "7", "0", "b:1"), integerExtractor,
-                        UniqueKeyViolationStrategy.KEEP_LAST);
+                new TableMap<Integer, String>(Arrays.asList("a:1", "7", "0", "b:1"),
+                        integerExtractor, UniqueKeyViolationStrategy.KEEP_LAST);
         assertNull(tableMap.tryGet(10));
         assertEquals("0", tableMap.tryGet(0));
         assertEquals("b:1", tableMap.tryGet(1));

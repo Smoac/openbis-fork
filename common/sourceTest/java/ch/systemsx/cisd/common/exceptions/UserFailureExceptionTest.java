@@ -37,19 +37,25 @@ public final class UserFailureExceptionTest
     @Test
     public final void testFromTemplateStringObjectArray()
     {
-        UserFailureException exception = UserFailureException.fromTemplate("This is a %s exception to see how it works.", "dummy");
+        UserFailureException exception =
+                UserFailureException.fromTemplate("This is a %s exception to see how it works.",
+                        "dummy");
         assertEquals("This is a dummy exception to see how it works.", exception.getMessage());
         // With not enough arguments.
         try
         {
-            exception = UserFailureException.fromTemplate("This is a %s exception to see how it works.");
+            exception =
+                    UserFailureException
+                            .fromTemplate("This is a %s exception to see how it works.");
             fail("MissingFormatArgumentException must be thrown.");
         } catch (MissingFormatArgumentException e)
         {
             // Does nothing here.
         }
         // With more arguments than needed.
-        exception = UserFailureException.fromTemplate("This is a %s exception to see how it works.", "dummy", "more dummy");
+        exception =
+                UserFailureException.fromTemplate("This is a %s exception to see how it works.",
+                        "dummy", "more dummy");
         assertEquals("This is a dummy exception to see how it works.", exception.getMessage());
         exception = UserFailureException.fromTemplate("This is an exception to see how it works.");
         // No format needed.

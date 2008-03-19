@@ -86,7 +86,8 @@ public class QuietPeriodFileFilterTest
     public void testGetTimeFormat()
     {
         assertEquals("%0$tY-%0$tm-%0$td %0$tH:%0$tM:%0$tS", QuietPeriodFileFilter.getTimeFormat(0));
-        assertEquals("%17$tY-%17$tm-%17$td %17$tH:%17$tM:%17$tS", QuietPeriodFileFilter.getTimeFormat(17));
+        assertEquals("%17$tY-%17$tm-%17$td %17$tH:%17$tM:%17$tS", QuietPeriodFileFilter
+                .getTimeFormat(17));
     }
 
     @Test
@@ -96,7 +97,8 @@ public class QuietPeriodFileFilterTest
                 "Last modification time of path 'bla' jumped back: check at 1970-01-01 01:00:01 -> "
                         + "last modification time 1970-01-01 01:00:50, check at later time 1970-01-01 01:00:10 -> "
                         + "last modification time 1970-01-01 01:00:30 (which is 20000 ms younger)";
-        assertEquals(expected, QuietPeriodFileFilter.getClockProblemLogMessage("bla", 1000L, 50000L, 10000L, 30000L));
+        assertEquals(expected, QuietPeriodFileFilter.getClockProblemLogMessage("bla", 1000L,
+                50000L, 10000L, 30000L));
     }
 
     @Test
@@ -268,7 +270,8 @@ public class QuietPeriodFileFilterTest
                     // calls to get the required number of calls for clean up
                     allowing(timeProvider).getCurrentTimeMillis();
                     will(returnValue(nowMillis2));
-                    allowing(fileStore).lastChanged(with(same(ITEM)), with(greaterThanOrEqualTo(0L)));
+                    allowing(fileStore).lastChanged(with(same(ITEM)),
+                            with(greaterThanOrEqualTo(0L)));
                     will(returnValue(pathLastChangedMillis2));
                 }
             });

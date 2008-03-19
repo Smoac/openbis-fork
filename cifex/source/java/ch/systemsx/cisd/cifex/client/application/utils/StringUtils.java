@@ -25,7 +25,8 @@ public final class StringUtils
 {
 
     /** A regular expression that match email addresses. */
-    public static final String EMAIL_REGEX = "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
+    public static final String EMAIL_REGEX =
+            "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
 
     public static final String EMPTY_STRING = "";
 
@@ -62,7 +63,7 @@ public final class StringUtils
      * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      */
     public final native static boolean matches(final String regExp, final String value) /*-{
-       var re = new RegExp(regExp);
-       return value.search(re) > -1;
-    }-*/;
+          var re = new RegExp(regExp);
+          return value.search(re) > -1;
+       }-*/;
 }

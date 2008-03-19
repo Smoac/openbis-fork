@@ -71,7 +71,8 @@ public final class Channel implements IStorable
             return Integer.parseInt(name.substring(CHANNEL.length()));
         } catch (NumberFormatException ex)
         {
-            throw new DataStructureException(String.format("Could not parse the channel number in '%s'", name), ex);
+            throw new DataStructureException(String.format(
+                    "Could not parse the channel number in '%s'", name), ex);
         }
     }
 

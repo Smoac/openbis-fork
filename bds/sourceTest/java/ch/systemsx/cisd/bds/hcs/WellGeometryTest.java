@@ -84,7 +84,8 @@ public final class WellGeometryTest extends AbstractFileSystemTestCase
     {
         testSaveTo();
         final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
-        final IDirectory geoDir = Utilities.getOrCreateSubDirectory(dir, WellGeometry.WELL_GEOMETRY);
+        final IDirectory geoDir =
+                Utilities.getOrCreateSubDirectory(dir, WellGeometry.WELL_GEOMETRY);
         final Geometry loaded = WellGeometry.loadFrom(geoDir);
         assertNotNull(loaded);
         assertTrue(loaded.getRows() == 2);

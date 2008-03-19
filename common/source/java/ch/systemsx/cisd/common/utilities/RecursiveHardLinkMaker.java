@@ -41,17 +41,20 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RecursiveHardLinkMaker.class);
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RecursiveHardLinkMaker.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RecursiveHardLinkMaker.class);
 
     private final String linkExecPath;
 
     private final RetryingOperationTimeout singleFileLinkTimeout;
 
-    private RecursiveHardLinkMaker(final String linkExecPath, RetryingOperationTimeout singleFileLinkTimeoutOrNull)
+    private RecursiveHardLinkMaker(final String linkExecPath,
+            RetryingOperationTimeout singleFileLinkTimeoutOrNull)
     {
         this.linkExecPath = linkExecPath;
         this.singleFileLinkTimeout =
-                singleFileLinkTimeoutOrNull != null ? singleFileLinkTimeoutOrNull : createNoTimeout();
+                singleFileLinkTimeoutOrNull != null ? singleFileLinkTimeoutOrNull
+                        : createNoTimeout();
     }
 
     private RetryingOperationTimeout createNoTimeout()
@@ -106,11 +109,13 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
      * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing the copy of a single
      *            file. Specify 0 to wait till the first operation completes.
      */
-    public static final IPathImmutableCopier tryCreateRetrying(final long millisToWaitForCompletion,
-            final int maxRetryOnFailure, final long millisToSleepOnFailure)
+    public static final IPathImmutableCopier tryCreateRetrying(
+            final long millisToWaitForCompletion, final int maxRetryOnFailure,
+            final long millisToSleepOnFailure)
     {
         RetryingOperationTimeout timeout =
-                new RetryingOperationTimeout(millisToWaitForCompletion, maxRetryOnFailure, millisToSleepOnFailure);
+                new RetryingOperationTimeout(millisToWaitForCompletion, maxRetryOnFailure,
+                        millisToSleepOnFailure);
         return tryCreate(timeout);
     }
 
@@ -120,7 +125,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return tryCreate(null);
     }
 
-    private static final IPathImmutableCopier tryCreate(RetryingOperationTimeout singleFileLinkTimeoutOrNull)
+    private static final IPathImmutableCopier tryCreate(
+            RetryingOperationTimeout singleFileLinkTimeoutOrNull)
     {
         final File lnExec = OSUtilities.findExecutable(HARD_LINK_EXEC);
         if (lnExec == null)
@@ -137,7 +143,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
      * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>
      */
-    public final File tryCopy(final File path, final File destinationDirectory, final String nameOrNull)
+    public final File tryCopy(final File path, final File destinationDirectory,
+            final String nameOrNull)
     {
         assert path != null : "Given path can not be null.";
         assert destinationDirectory != null && destinationDirectory.isDirectory() : "Given destination directory can not be null and must be a directory.";
@@ -145,19 +152,21 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         final File destFile = new File(destinationDirectory, destName);
         if (destFile.exists())
         {
-            operationLog.error(String.format("File '%s' already exists in given destination directory '%s'", destName,
+            operationLog.error(String.format(
+                    "File '%s' already exists in given destination directory '%s'", destName,
                     destinationDirectory));
             return null;
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path.getPath(),
-                    destinationDirectory.getPath()));
+            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path
+                    .getPath(), destinationDirectory.getPath()));
         }
         return tryMakeCopy(path, destinationDirectory, nameOrNull);
     }
 
-    private final File tryMakeCopy(final File resource, final File destinationDirectory, final String nameOrNull)
+    private final File tryMakeCopy(final File resource, final File destinationDirectory,
+            final String nameOrNull)
     {
         if (resource.isFile())
         {
@@ -185,11 +194,12 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
             {
                 if (resource.exists() == false)
                 {
-                    operationLog.error(String.format("Path '%s' vanished during processing.", resource));
+                    operationLog.error(String.format("Path '%s' vanished during processing.",
+                            resource));
                 } else
                 {
-                    operationLog.error(String.format("Found path '%s' that is neither a file nor a directory.",
-                            resource));
+                    operationLog.error(String.format(
+                            "Found path '%s' that is neither a file nor a directory.", resource));
                 }
             }
             return dir;
@@ -204,12 +214,13 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         {
             if (dir.isDirectory())
             {
-                machineLog.error(String.format("Directory %s already exists in %s", name, destDir.getAbsolutePath()));
+                machineLog.error(String.format("Directory %s already exists in %s", name, destDir
+                        .getAbsolutePath()));
                 ok = true;
             } else
             {
-                machineLog.error(String.format("Could not create directory %s inside %s.", name, destDir
-                        .getAbsolutePath()));
+                machineLog.error(String.format("Could not create directory %s inside %s.", name,
+                        destDir.getAbsolutePath()));
                 if (dir.isFile())
                 {
                     machineLog.error("There is a file with a same name.");
@@ -219,7 +230,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return ok ? dir : null;
     }
 
-    private final File tryCreateHardLinkIn(final File file, final File destDir, final String nameOrNull)
+    private final File tryCreateHardLinkIn(final File file, final File destDir,
+            final String nameOrNull)
     {
         assert file.isFile() : String.format("Given file '%s' must be a file and is not.", file);
         final File destFile = new File(destDir, nameOrNull == null ? file.getName() : nameOrNull);
@@ -228,13 +240,13 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
             {
                 public boolean run()
                 {
-                    return ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout.getMillisToWaitForCompletion(),
-                            operationLog, machineLog);
+                    return ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout
+                            .getMillisToWaitForCompletion(), operationLog, machineLog);
                 }
             };
         boolean ok =
-                runRepeatableProcess(processTask, singleFileLinkTimeout.getMaxRetryOnFailure(), singleFileLinkTimeout
-                        .getMillisToSleepOnFailure());
+                runRepeatableProcess(processTask, singleFileLinkTimeout.getMaxRetryOnFailure(),
+                        singleFileLinkTimeout.getMillisToSleepOnFailure());
         return ok ? destFile : null;
     }
 
@@ -252,8 +264,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         boolean run(); // returns true if operation succeeded
     }
 
-    private static boolean runRepeatableProcess(final IProcessTask task, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure)
+    private static boolean runRepeatableProcess(final IProcessTask task,
+            final int maxRetryOnFailure, final long millisToSleepOnFailure)
     {
         IProcess process = new IProcess()
             {

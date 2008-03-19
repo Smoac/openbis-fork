@@ -48,11 +48,12 @@ public final class BeanUtilsTest
 
     @SuppressWarnings("null")
     @Test
-    public final void testGetPropertyDescriptors() throws IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException
+    public final void testGetPropertyDescriptors() throws IllegalArgumentException,
+            IllegalAccessException, InvocationTargetException
     {
         List<PropertyDescriptor> descriptors =
-                new ArrayList<PropertyDescriptor>(BeanUtils.getPropertyDescriptors(FooBean.class).values());
+                new ArrayList<PropertyDescriptor>(BeanUtils.getPropertyDescriptors(FooBean.class)
+                        .values());
         assertEquals(1, descriptors.size());
         PropertyDescriptor outerDescriptor = null;
         // Play with property 'description'
@@ -587,7 +588,8 @@ public final class BeanUtilsTest
         final String[] array = new String[]
             { "hot", "warm", "cool", "icy" };
         aWrapper.setArray(array);
-        final CollectionWrapper1 colWrapper = BeanUtils.createBean(CollectionWrapper1.class, aWrapper);
+        final CollectionWrapper1 colWrapper =
+                BeanUtils.createBean(CollectionWrapper1.class, aWrapper);
         List<String> list = colWrapper.getArray();
         assertNotNull(list);
         assertEquals(array.length, list.size());
@@ -604,7 +606,8 @@ public final class BeanUtilsTest
         final List<String> list = new ArrayList<String>(Arrays.asList(new String[]
             { "hot", "warm", "cool", "icy" }));
         colWrapper.setArray(list);
-        final CollectionWrapper1 colWrapper2 = BeanUtils.createBean(CollectionWrapper1.class, colWrapper);
+        final CollectionWrapper1 colWrapper2 =
+                BeanUtils.createBean(CollectionWrapper1.class, colWrapper);
         List<String> list2 = colWrapper2.getArray();
         assertNotNull(list2);
         assertEquals(list.size(), list2.size());
@@ -768,7 +771,8 @@ public final class BeanUtilsTest
         final Bean1a[] arrayb1 = new Bean1a[]
             { b1a, b1b };
         b1Array.setBeanArray(arrayb1);
-        final BeanWithBeanCollection2 b2Collection = BeanUtils.createBean(BeanWithBeanCollection2.class, b1Array);
+        final BeanWithBeanCollection2 b2Collection =
+                BeanUtils.createBean(BeanWithBeanCollection2.class, b1Array);
         final Collection<Bean2a> colb2 = b2Collection.getBeanArray();
         assertNotNull(colb2);
         assertEquals(arrayb1.length, colb2.size());
@@ -792,7 +796,8 @@ public final class BeanUtilsTest
         final Bean2a[] arrayb2 = new Bean2a[]
             { b2a, b2b };
         b2Array.setBeanArray(arrayb2);
-        final BeanWithBeanCollection1 b1Collection = BeanUtils.createBean(BeanWithBeanCollection1.class, b2Array);
+        final BeanWithBeanCollection1 b1Collection =
+                BeanUtils.createBean(BeanWithBeanCollection1.class, b2Array);
         final Collection<Bean1a> colb1 = b1Collection.getBeanArray();
         assertNotNull(colb1);
         assertEquals(arrayb2.length, colb1.size());
@@ -822,7 +827,8 @@ public final class BeanUtilsTest
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
-        final BeanWithBeanArray2 b2Array = BeanUtils.createBean(BeanWithBeanArray2.class, b1Collection);
+        final BeanWithBeanArray2 b2Array =
+                BeanUtils.createBean(BeanWithBeanArray2.class, b1Collection);
         final Bean2a[] arrayb2 = b2Array.getBeanArray();
         assertNotNull(arrayb2);
         assertEquals(colb1.size(), arrayb2.length);
@@ -859,7 +865,8 @@ public final class BeanUtilsTest
         assertBeanArraysAreEqual(arrayb1, arrayb2);
     }
 
-    private final static void assertBeanArraysAreEqual(final Bean1a[] arrayb1, final Bean2a[] arrayb2)
+    private final static void assertBeanArraysAreEqual(final Bean1a[] arrayb1,
+            final Bean2a[] arrayb2)
     {
         assertEquals(arrayb1.length, arrayb2.length);
         for (int i = 0; i < arrayb1.length; ++i)
@@ -877,7 +884,8 @@ public final class BeanUtilsTest
         final Collection<Bean1a> colb1 = new LinkedHashSet<Bean1a>(Arrays.asList(new Bean1a[]
             { b1a, b1b }));
         b1Collection.setBeanArray(colb1);
-        final BeanWithBeanCollection2 b2Collection = BeanUtils.createBean(BeanWithBeanCollection2.class, b1Collection);
+        final BeanWithBeanCollection2 b2Collection =
+                BeanUtils.createBean(BeanWithBeanCollection2.class, b1Collection);
         final Collection<Bean2a> colb2 = b2Collection.getBeanArray();
         assertNotNull(colb2);
         assertBeanCollectionsAreEqual(colb1, colb2);
@@ -955,7 +963,7 @@ public final class BeanUtilsTest
         assertEquals(msg, b2.getI(), b1.getI());
         assertEquals(msg, b2.getS(), b1.getS());
     }
-    
+
     private static interface IFoo
     {
         public String getFoo();
@@ -996,30 +1004,32 @@ public final class BeanUtilsTest
     {
         final FooBean tofuBean = new FooBean();
         tofuBean.setFoo("some tofu");
-        final BarBean toFooBean = BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
-            {
-                @SuppressWarnings("unused")
-                public String convertToBar(FooBean foo)
-                {
-                    return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
-                }
-            });
+        final BarBean toFooBean =
+                BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
+                    {
+                        @SuppressWarnings("unused")
+                        public String convertToBar(FooBean foo)
+                        {
+                            return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
+                        }
+                    });
         assertEquals("some to Foo", toFooBean.getBar());
     }
-    
+
     @Test
     public void testConverterWithArgumentOfInterfaceType()
     {
         final FooBean tofuBean = new FooBean();
         tofuBean.setFoo("some tofu");
-        final BarBean toFooBean = BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
-        {
-            @SuppressWarnings("unused")
-            public String convertToBar(IFoo foo)
-            {
-                return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
-            }
-        });
+        final BarBean toFooBean =
+                BeanUtils.createBean(BarBean.class, tofuBean, new BeanUtils.Converter()
+                    {
+                        @SuppressWarnings("unused")
+                        public String convertToBar(IFoo foo)
+                        {
+                            return StringUtils.replace(foo.getFoo(), "tofu", "to Foo");
+                        }
+                    });
         assertEquals("some to Foo", toFooBean.getBar());
     }
 }

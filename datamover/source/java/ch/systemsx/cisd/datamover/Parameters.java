@@ -53,9 +53,11 @@ public class Parameters implements ITimingParameters, IFileSysParameters
 {
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
 
     /**
      * The name of the <code>rsync</code> executable to use for copy operations.
@@ -266,7 +268,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
     void printVersion(boolean exit)
     {
-        System.err.println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        System.err
+                .println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         if (exit)
         {
             System.exit(0);
@@ -277,7 +280,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             + "sent out).")
     void sendTestNotification(boolean exit)
     {
-        notificationLog.info("This is a test notification given due to specifying the --test-notify option.");
+        notificationLog
+                .info("This is a test notification given due to specifying the --test-notify option.");
         if (exit)
         {
             System.exit(0);
@@ -347,8 +351,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private static FileStore createStore(File directory, String kind, String hostOrNull, boolean isRemote,
-            IFileSysOperationsFactory factory)
+    private static FileStore createStore(File directory, String kind, String hostOrNull,
+            boolean isRemote, IFileSysOperationsFactory factory)
     {
         if (hostOrNull != null)
         {
@@ -413,7 +417,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 Integer.parseInt(serviceProperties.getProperty("inactivity-period", Integer
                         .toString(DEFAULT_INACTIVITY_PERIOD))) * 1000;
         quietPeriodMillis =
-                Integer.parseInt(serviceProperties.getProperty("quiet-period", Integer.toString(DEFAULT_QUIET_PERIOD))) * 1000;
+                Integer.parseInt(serviceProperties.getProperty("quiet-period", Integer
+                        .toString(DEFAULT_QUIET_PERIOD))) * 1000;
         intervalToWaitAfterFailureMillis =
                 Integer.parseInt(serviceProperties.getProperty("failure-interval", Integer
                         .toString(DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES))) * 1000;
@@ -421,8 +426,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 Integer.parseInt(serviceProperties.getProperty("max-retries", Integer
                         .toString(DEFAULT_MAXIMAL_NUMBER_OF_RETRIES)));
         treatIncomingAsRemote =
-                Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote", Boolean
-                        .toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
+                Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote",
+                        Boolean.toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
         prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "").trim();
         if (serviceProperties.getProperty("incoming-dir") != null)
         {
@@ -435,7 +440,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
         if (serviceProperties.getProperty("manual-intervention-dir") != null)
         {
-            manualInterventionDirectoryOrNull = new File(serviceProperties.getProperty("manual-intervention-dir").trim());
+            manualInterventionDirectoryOrNull =
+                    new File(serviceProperties.getProperty("manual-intervention-dir").trim());
         }
         if (serviceProperties.getProperty("outgoing-dir") != null)
         {
@@ -452,7 +458,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
         if (serviceProperties.getProperty("manual-intervention-regex") != null)
         {
-            manualInterventionRegex = Pattern.compile(serviceProperties.getProperty("manual-intervention-regex"));
+            manualInterventionRegex =
+                    Pattern.compile(serviceProperties.getProperty("manual-intervention-regex"));
         }
     }
 
@@ -477,7 +484,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             }
         } catch (Exception ex)
         {
-            final String msg = "Could not load the service properties from resource '" + SERVICE_PROPERTIES_FILE + "'.";
+            final String msg =
+                    "Could not load the service properties from resource '"
+                            + SERVICE_PROPERTIES_FILE + "'.";
             operationLog.warn(msg, ex);
             throw new ConfigurationFailureException(msg, ex);
         }
@@ -573,7 +582,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      */
     public FileStore getIncomingStore(IFileSysOperationsFactory factory)
     {
-        return createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost, treatIncomingAsRemote, factory);
+        return createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
+                treatIncomingAsRemote, factory);
     }
 
     /**
@@ -647,45 +657,56 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Incoming directory: '%s'.", incomingDirectory.getAbsolutePath()));
+            operationLog.info(String.format("Incoming directory: '%s'.", incomingDirectory
+                    .getAbsolutePath()));
             if (null != incomingHost)
             {
                 operationLog.info(String.format("Incoming host: '%s'.", incomingHost));
             }
-            operationLog.info(String.format("Is incoming directory remote: %b.", treatIncomingAsRemote));
-            operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory.getAbsolutePath()));
-            operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory.getAbsolutePath()));
+            operationLog.info(String.format("Is incoming directory remote: %b.",
+                    treatIncomingAsRemote));
+            operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory
+                    .getAbsolutePath()));
+            operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory
+                    .getAbsolutePath()));
             if (null != outgoingHost)
             {
                 operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
             }
             if (null != tryGetManualInterventionDir())
             {
-                operationLog.info(String.format("Manual interventions directory: '%s'.", tryGetManualInterventionDir()
-                        .getAbsolutePath()));
+                operationLog.info(String.format("Manual interventions directory: '%s'.",
+                        tryGetManualInterventionDir().getAbsolutePath()));
             }
             if (null != extraCopyDirectory)
             {
-                operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory.getAbsolutePath()));
+                operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
+                        .getAbsolutePath()));
             }
-            operationLog.info(String.format("Check intervall (external): %d s.", getCheckIntervalMillis() / 1000));
+            operationLog.info(String.format("Check intervall (external): %d s.",
+                    getCheckIntervalMillis() / 1000));
             operationLog.info(String.format("Check intervall (internal): %d s.",
                     getCheckIntervalInternalMillis() / 1000));
             operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));
-            operationLog.info(String.format("Inactivity (stall) period: %d s.", getInactivityPeriodMillis() / 1000));
+            operationLog.info(String.format("Inactivity (stall) period: %d s.",
+                    getInactivityPeriodMillis() / 1000));
             operationLog.info(String.format("Intervall to wait after failure: %d s.",
                     getIntervalToWaitAfterFailure() / 1000));
-            operationLog.info(String.format("Maximum number of retries: %d.", getMaximalNumberOfRetries()));
+            operationLog.info(String.format("Maximum number of retries: %d.",
+                    getMaximalNumberOfRetries()));
             if (tryGetCleansingRegex() != null)
             {
-                operationLog.info(String.format("Regular expression used for cleansing before moving: '%s'",
+                operationLog.info(String.format(
+                        "Regular expression used for cleansing before moving: '%s'",
                         tryGetCleansingRegex().pattern()));
             }
             if (tryGetManualInterventionRegex() != null)
             {
-                operationLog.info(String.format(
-                        "Regular expression used for deciding whether a path needs manual intervention: '%s'",
-                        tryGetManualInterventionRegex().pattern()));
+                operationLog
+                        .info(String
+                                .format(
+                                        "Regular expression used for deciding whether a path needs manual intervention: '%s'",
+                                        tryGetManualInterventionRegex().pattern()));
             }
         }
     }

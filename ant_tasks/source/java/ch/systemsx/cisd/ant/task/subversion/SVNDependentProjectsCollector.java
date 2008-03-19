@@ -72,7 +72,7 @@ class SVNDependentProjectsCollector
         private final Set<String> projects;
 
         private final String projectPath;
-        
+
         private final Set<String> locationsAlreadyVisited;
 
         ProjectHandler(Set<String> projects, String projectPath)
@@ -90,7 +90,8 @@ class SVNDependentProjectsCollector
         @Override
         public IEclipseClasspathLocation createLocation()
         {
-            final String displayableLocation = projectPath + "/" + EclipseClasspathReader.CLASSPATH_FILE;
+            final String displayableLocation =
+                    projectPath + "/" + EclipseClasspathReader.CLASSPATH_FILE;
             if (locationsAlreadyVisited.contains(displayableLocation))
             {
                 return null;
@@ -100,7 +101,7 @@ class SVNDependentProjectsCollector
             {
                 final String eclipseClasspath = actions.cat(displayableLocation);
                 // This is one of the possibilities what can happen if there is no .classpath file.
-                if (eclipseClasspath.length() == 0) 
+                if (eclipseClasspath.length() == 0)
                 {
                     return null;
                 }
@@ -125,7 +126,8 @@ class SVNDependentProjectsCollector
         public IProjectHandler createHandler(EclipseClasspathEntry entry)
         {
             final String projectName = SVNUtilities.getTopLevelDirectory(entry.getPath());
-            return new ProjectHandler(projects, pathProvider.getPath(projectName), locationsAlreadyVisited);
+            return new ProjectHandler(projects, pathProvider.getPath(projectName),
+                    locationsAlreadyVisited);
         }
 
     }

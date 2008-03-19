@@ -63,7 +63,8 @@ public class RecursiveJar extends Jar
                     throw new BuildException("Base directory of fileset has to be a relative one.");
                 }
                 String subdir = path.substring(basePath.length());
-                File subprojectDir = new File(new File(baseDir.getParentFile(), subProject), subdir);
+                File subprojectDir =
+                        new File(new File(baseDir.getParentFile(), subProject), subdir);
                 if (subprojectDir.exists())
                 {
                     log("scan " + subprojectDir, Project.MSG_DEBUG);
@@ -124,8 +125,8 @@ public class RecursiveJar extends Jar
                     subprojectsAlreadySeen.add(subproject);
                     jar.addFilesetPlain(new RelatedSubprojectFileSet(fileSet, subproject));
                     File subprojectDir = new File(subprojectsParent, subproject);
-                    new SubprojectFileSetAppender(jar, fileSet, subprojectsParent, subprojectsAlreadySeen)
-                            .execute(subprojectDir);
+                    new SubprojectFileSetAppender(jar, fileSet, subprojectsParent,
+                            subprojectsAlreadySeen).execute(subprojectDir);
                 }
             }
         }
@@ -142,7 +143,8 @@ public class RecursiveJar extends Jar
     {
         addFilesetPlain(set);
         File subprojectsParent = getProject().getBaseDir().getParentFile();
-        SubprojectFileSetAppender appender = new SubprojectFileSetAppender(this, set, subprojectsParent);
+        SubprojectFileSetAppender appender =
+                new SubprojectFileSetAppender(this, set, subprojectsParent);
         appender.executeFor(this);
     }
 

@@ -21,6 +21,7 @@ package ch.systemsx.cisd.ant.task.subversion;
  * 
  * @author Bernd Rinn
  */
-interface ISVNActions extends ISVNCat, ISVNList, ISVNMkDir, ISVNCopy, ISVNInfo, ISVNStatus, ISVNMucc
+interface ISVNActions extends ISVNCat, ISVNList, ISVNMkDir, ISVNCopy, ISVNInfo, ISVNStatus,
+        ISVNMucc
 {
 }

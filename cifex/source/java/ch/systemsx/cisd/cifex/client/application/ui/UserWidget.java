@@ -65,10 +65,8 @@ public abstract class UserWidget extends Form
     protected final boolean addStatusField;
 
     /*
-     * Button to submit the form.
-     * <p>
-     * Note that this button can be <code>null</code> if <code>withButton==false</code> in the constructor.
-     * </p>
+     * Button to submit the form. <p> Note that this button can be <code>null</code> if <code>withButton==false</code>
+     * in the constructor. </p>
      */
     protected Button buttonOrNull;
 
@@ -111,7 +109,8 @@ public abstract class UserWidget extends Form
      * The fields to the user are already filled out, which the user can change.
      * </p>
      */
-    public UserWidget(final ViewContext context, final boolean addStatusField, final User user, final boolean withButton)
+    public UserWidget(final ViewContext context, final boolean addStatusField, final User user,
+            final boolean withButton)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());
         this.context = context;

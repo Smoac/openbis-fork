@@ -84,7 +84,8 @@ public class DataMover
         return new DataMover(parameters, factory, localBufferDirs).start();
     }
 
-    private DataMover(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
+    private DataMover(Parameters parameters, IFileSysOperationsFactory factory,
+            LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.factory = factory;
@@ -101,7 +102,8 @@ public class DataMover
         localProcessor.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
                 .getCheckIntervalInternalMillis());
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
-        return createCompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor, incomingProcess);
+        return createCompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor,
+                incomingProcess);
     }
 
     private ITerminable startupRecoveryProcess(final DataMoverProcess localProcessor,
@@ -120,7 +122,8 @@ public class DataMover
         final TriggeringTimerTask recoveryingTimerTask =
                 new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable);
         final Timer recoveryTimer = new Timer("Recovery");
-        recoveryTimer.schedule(recoveryingTimerTask, 0, parameters.getCheckIntervalInternalMillis());
+        recoveryTimer
+                .schedule(recoveryingTimerTask, 0, parameters.getCheckIntervalInternalMillis());
         return TimerHelper.asTerminable(recoveryTimer);
     }
 
@@ -132,11 +135,11 @@ public class DataMover
     private DataMoverProcess createLocalProcessor()
     {
         final LocalProcessor localProcessor =
-                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs.getReadyToMoveDir(),
-                        bufferDirs.getTempDir(), factory);
+                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
+                        .getReadyToMoveDir(), bufferDirs.getTempDir(), factory);
         final DirectoryScanningTimerTask localProcessingTask =
-                new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(), FileUtilities.ACCEPT_ALL_FILTER,
-                        localProcessor);
+                new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(),
+                        FileUtilities.ACCEPT_ALL_FILTER, localProcessor);
         return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
     }
 
@@ -144,8 +147,10 @@ public class DataMover
     {
         final FileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
-        final IFileStore readyToMoveStore = FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
-        final IStoreHandler remoteStoreMover = createRemotePathMover(readyToMoveStore, outgoingStore);
+        final IFileStore readyToMoveStore =
+                FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
+        final IStoreHandler remoteStoreMover =
+                createRemotePathMover(readyToMoveStore, outgoingStore);
 
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(readyToMoveDir, FileUtilities.ACCEPT_ALL_FILTER,
@@ -153,7 +158,8 @@ public class DataMover
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is a
+    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work with IStoreHandler. This is
+    // a
     // quick hack.
     private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
     {

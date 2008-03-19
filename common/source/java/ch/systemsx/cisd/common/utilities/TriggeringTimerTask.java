@@ -32,9 +32,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class TriggeringTimerTask extends TimerTask
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TriggeringTimerTask.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, TriggeringTimerTask.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, TriggeringTimerTask.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, TriggeringTimerTask.class);
 
     private final ITriggerable triggerable;
 
@@ -62,7 +64,8 @@ public class TriggeringTimerTask extends TimerTask
      *            action available.
      * @param monitor The monitor to synchronize on.
      */
-    public TriggeringTimerTask(File triggerFile, ITriggerable triggerable, SynchronizationMonitor monitor)
+    public TriggeringTimerTask(File triggerFile, ITriggerable triggerable,
+            SynchronizationMonitor monitor)
     {
         assert triggerFile != null;
         assert triggerable != null;
@@ -79,7 +82,7 @@ public class TriggeringTimerTask extends TimerTask
     @Override
     public synchronized void run()
     {
-        synchronized(monitor)
+        synchronized (monitor)
         {
             try
             {
@@ -101,7 +104,8 @@ public class TriggeringTimerTask extends TimerTask
         {
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format("File '%s' found - triggering.", triggerFile.getAbsolutePath()));
+                operationLog.info(String.format("File '%s' found - triggering.", triggerFile
+                        .getAbsolutePath()));
             }
             triggerable.trigger();
         }

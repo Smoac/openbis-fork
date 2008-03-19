@@ -31,6 +31,7 @@ public interface IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public void sendMessage(String subject, String content, String... recipients) throws EnvironmentFailureException;
+    public void sendMessage(String subject, String content, String... recipients)
+            throws EnvironmentFailureException;
 
 }

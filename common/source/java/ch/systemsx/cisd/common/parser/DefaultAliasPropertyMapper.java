@@ -27,7 +27,8 @@ import java.util.TreeSet;
  * @author Christian Ribeaud
  */
 // TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field aliases)
-public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements IAliasPropertyMapper
+public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
+        IAliasPropertyMapper
 {
     private final Map<String, String> aliasToPropertyMappings;
 
@@ -44,15 +45,15 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
         final String alias = tryGetAliasForProperty(propertyName);
         if (alias != null)
         {
-            throw new IllegalArgumentException("Following property name '" + propertyName + "' has already alias '"
-                    + alias + "' registered.");
+            throw new IllegalArgumentException("Following property name '" + propertyName
+                    + "' has already alias '" + alias + "' registered.");
         }
         // No alias for two different properties.
         final String property = aliasToPropertyMappings.get(aliasName);
         if (aliasToPropertyMappings.containsKey(aliasName))
         {
-            throw new IllegalArgumentException("Alias name '" + aliasName + "' already specified for property '"
-                    + property + "'.");
+            throw new IllegalArgumentException("Alias name '" + aliasName
+                    + "' already specified for property '" + property + "'.");
         }
     }
 
@@ -147,7 +148,8 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
     }
 
     @Override
-    public final IPropertyModel getPropertyModel(final String propertyName) throws IllegalArgumentException
+    public final IPropertyModel getPropertyModel(final String propertyName)
+            throws IllegalArgumentException
     {
         return super.getPropertyModel(getRealPropertyName(propertyName));
     }

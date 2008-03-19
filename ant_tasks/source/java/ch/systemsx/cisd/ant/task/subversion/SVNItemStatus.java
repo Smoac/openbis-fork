@@ -26,24 +26,15 @@ import java.util.Map;
  */
 class SVNItemStatus
 {
-    
+
     /** The possible status an item can have. */
     public enum StatusFlag
     {
-        UPTODATE(' '),
-        ADDED('A'),
-        DELETED('D'),
-        MODIFIED('M'), 
-        REPLACED('R'), 
-        CONFLICTED('C'), 
-        EXTERNALSRELATED('X'), 
-        IGNORED('I'), 
-        UNVERSIONED('?'), 
-        MISSING('!'),
-        TYPECHANGED('~');
-     
+        UPTODATE(' '), ADDED('A'), DELETED('D'), MODIFIED('M'), REPLACED('R'), CONFLICTED('C'),
+        EXTERNALSRELATED('X'), IGNORED('I'), UNVERSIONED('?'), MISSING('!'), TYPECHANGED('~');
+
         private final char statusCharacter;
-        
+
         StatusFlag(char statusCharacter)
         {
             this.statusCharacter = statusCharacter;
@@ -53,9 +44,9 @@ class SVNItemStatus
         {
             return statusCharacter;
         }
-        
+
     }
-    
+
     private static Map<Character, StatusFlag> characterToStatusMap;
 
     private static void ensureCharacterStatusMap()
@@ -69,7 +60,7 @@ class SVNItemStatus
             }
         }
     }
-    
+
     private static final Map<Character, StatusFlag> getCharacterToStatusMap()
     {
         ensureCharacterStatusMap();
@@ -84,10 +75,10 @@ class SVNItemStatus
     {
         assert path != null;
         ensureCharacterStatusMap();
-        
+
         this.flag = getCharacterToStatusMap().get(statusCharacter);
         this.path = path;
-        
+
         assert flag != null;
     }
 

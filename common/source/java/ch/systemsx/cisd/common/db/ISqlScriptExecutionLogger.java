@@ -20,16 +20,16 @@ import ch.systemsx.cisd.common.Script;
 
 /**
  * Interface for logging of SQL script executions.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ISqlScriptExecutionLogger
 {
 
     public void logStart(final Script moduleScript);
-    
+
     public void logSuccess(final Script moduleScript);
-    
+
     public void logFailure(final Script moduleScript, Throwable runException);
 
 }

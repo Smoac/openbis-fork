@@ -52,8 +52,8 @@ class SVNCheckout implements ISVNCheckout
         assert SVNUtilities.HEAD_REVISION.equals(revision) || Integer.parseInt(revision) >= 0;
 
         final String workingCopyPath = new File(directoryToCheckout, projectName).getAbsolutePath();
-        SVNUtilities.subversionCommand(logger, "checkout", "--revision", revision, String.format("%s@%s", url,
-                revision), workingCopyPath);
+        SVNUtilities.subversionCommand(logger, "checkout", "--revision", revision, String.format(
+                "%s@%s", url, revision), workingCopyPath);
     }
 
     public String getDirectoryToCheckout()

@@ -44,13 +44,15 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
  */
 public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactory
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
 
     private static final Logger manualInterventionLog = Logger.getLogger("MANUAL_INTERVENTION");
 
     private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
     private final Parameters parameters;
 
@@ -84,8 +86,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         this.mover = factory.getMover();
     }
 
-    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir, File bufferDir,
-            IFileSysOperationsFactory factory)
+    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir,
+            File bufferDir, IFileSysOperationsFactory factory)
     {
         final LocalProcessor handlerAndRecoverable =
                 new LocalProcessor(parameters, inputDir, outputDir, bufferDir, factory);
@@ -167,11 +169,13 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             extraTmpCopy = new File(tempDir, path.getName());
             if (extraTmpCopy.exists())
             {
-                operationLog.warn(String.format("Half-finished extra copy directory '%s' exists - removing it.",
+                operationLog.warn(String.format(
+                        "Half-finished extra copy directory '%s' exists - removing it.",
                         extraTmpCopy.getAbsolutePath()));
                 if (FileUtilities.deleteRecursively(extraTmpCopy) == false)
                 {
-                    notificationLog.error(String.format("Removal of half-finished extra copy directory '%s' failed.",
+                    notificationLog.error(String.format(
+                            "Removal of half-finished extra copy directory '%s' failed.",
                             extraTmpCopy.getAbsolutePath()));
                     return;
                 }
@@ -187,8 +191,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         final File movedFile = mover.tryMove(path, outputDir);
         if (movedFile == null)
         {
-            notificationLog.error(String
-                    .format("Moving '%s' to '%s' for final moving process failed.", path, outputDir));
+            notificationLog.error(String.format(
+                    "Moving '%s' to '%s' for final moving process failed.", path, outputDir));
             return;
         }
 
@@ -198,7 +202,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
             if (extraCopy == null)
             {
-                notificationLog.error(String.format("Moving temporary extra copy '%s' to destination '%s' failed.",
+                notificationLog.error(String.format(
+                        "Moving temporary extra copy '%s' to destination '%s' failed.",
                         extraTmpCopy, extraCopyDirOrNull));
             }
         }
@@ -238,8 +243,10 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             cleansingFilter.add(PathType.FILE, cleansingRegex);
         }
         final ISimpleLogger logger =
-                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG) : null;
-        final boolean pathDeleted = FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
+                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG)
+                        : null;
+        final boolean pathDeleted =
+                FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
         return pathDeleted;
     }
 
@@ -282,13 +289,15 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
             operationLog.info(String.format("%s on %s", description, path.getPath()));
         }
     }
-    
+
     private static void logManualIntervention(File path, boolean needsManualIntervention)
     {
         if (manualInterventionLog.isInfoEnabled())
         {
-            manualInterventionLog.info(String.format("%s %s [created: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS]",
-                    needsManualIntervention ? "ATTENTION" : "DEFAULT", path.getAbsolutePath(), path.lastModified()));
+            manualInterventionLog.info(String.format(
+                    "%s %s [created: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS]",
+                    needsManualIntervention ? "ATTENTION" : "DEFAULT", path.getAbsolutePath(), path
+                            .lastModified()));
         }
     }
 

@@ -33,25 +33,29 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class DBMigrationEngine
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     /**
      * Creates or migrates a database specified in the context for/to the specified version.
      * 
      * @return the SQL script provider.
      */
-    public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(DatabaseConfigurationContext context,
-            String databaseVersion)
+    public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
+            DatabaseConfigurationContext context, String databaseVersion)
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
 
-        final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory = context.createDAOFactory();
+        final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory =
+                context.createDAOFactory();
         final String scriptFolder = context.getScriptFolder();
         String databaseEngineCode = context.getDatabaseEngineCode();
-        final ISqlScriptProvider sqlScriptProvider = new SqlScriptProvider(scriptFolder, databaseEngineCode);
+        final ISqlScriptProvider sqlScriptProvider =
+                new SqlScriptProvider(scriptFolder, databaseEngineCode);
         final DBMigrationEngine migrationEngine =
-                new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context.isCreateFromScratch());
+                new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context
+                        .isCreateFromScratch());
         migrationEngine.migrateTo(databaseVersion);
         return sqlScriptProvider;
     }
@@ -71,7 +75,8 @@ public class DBMigrationEngine
      * 
      * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
      */
-    public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider, boolean shouldCreateFromScratch)
+    public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider,
+            boolean shouldCreateFromScratch)
     {
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
@@ -121,8 +126,8 @@ public class DBMigrationEngine
                 final String databaseName = adminDAO.getDatabaseName();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Trying to migrate database '" + databaseName + "' from version "
-                            + databaseVersion + " to " + version + ".");
+                    operationLog.info("Trying to migrate database '" + databaseName
+                            + "' from version " + databaseVersion + " to " + version + ".");
                 }
             }
             migrate(databaseVersion, version);
@@ -131,8 +136,9 @@ public class DBMigrationEngine
                 final String databaseName = adminDAO.getDatabaseName();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Database '" + databaseName + "' successfully migrated from version "
-                            + databaseVersion + " to " + version + ".");
+                    operationLog.info("Database '" + databaseName
+                            + "' successfully migrated from version " + databaseVersion + " to "
+                            + version + ".");
                 }
             }
         } else
@@ -161,7 +167,9 @@ public class DBMigrationEngine
         }
         if (entry.getRunStatus() != LogEntry.RunStatus.SUCCESS)
         {
-            String message = "Inconsistent database: Last creation/migration didn't succeed. Last log entry: " + entry;
+            String message =
+                    "Inconsistent database: Last creation/migration didn't succeed. Last log entry: "
+                            + entry;
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
@@ -182,7 +190,8 @@ public class DBMigrationEngine
         if (operationLog.isInfoEnabled())
         {
             String databaseName = adminDAO.getDatabaseName();
-            operationLog.info("Database '" + databaseName + "' version " + version + " has been successfully created.");
+            operationLog.info("Database '" + databaseName + "' version " + version
+                    + " has been successfully created.");
         }
     }
 
@@ -232,8 +241,8 @@ public class DBMigrationEngine
             {
                 final String databaseName = adminDAO.getDatabaseName();
                 final String message =
-                        "Cannot migrate database '" + databaseName + "' from version " + version + " to " + nextVersion
-                                + " because of missing migration script.";
+                        "Cannot migrate database '" + databaseName + "' from version " + version
+                                + " to " + nextVersion + " because of missing migration script.";
                 operationLog.error(message);
                 throw new EnvironmentFailureException(message);
             }
@@ -241,8 +250,8 @@ public class DBMigrationEngine
             scriptExecutor.execute(migrationScript, true, logDAO);
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Successfully migrated from version " + version + " to " + nextVersion + " in "
-                        + (System.currentTimeMillis() - time) + " msec");
+                operationLog.info("Successfully migrated from version " + version + " to "
+                        + nextVersion + " in " + (System.currentTimeMillis() - time) + " msec");
             }
             version = nextVersion;
         } while (version.equals(toVersion) == false);

@@ -17,7 +17,6 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 
-
 /**
  * A role that provides access to the roles which perform file system operations.
  * 

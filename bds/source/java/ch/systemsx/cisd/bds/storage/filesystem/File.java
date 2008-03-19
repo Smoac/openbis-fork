@@ -54,7 +54,8 @@ final class File extends AbstractNode implements IFile
             return IOUtils.toByteArray(inputStream);
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't get data from file " + nodeFile.getAbsolutePath(), ex);
+            throw new EnvironmentFailureException("Couldn't get data from file "
+                    + nodeFile.getAbsolutePath(), ex);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
@@ -68,7 +69,8 @@ final class File extends AbstractNode implements IFile
             return new FileInputStream(nodeFile);
         } catch (FileNotFoundException ex)
         {
-            throw new EnvironmentFailureException("Couldn't open input stream for file " + nodeFile.getAbsolutePath());
+            throw new EnvironmentFailureException("Couldn't open input stream for file "
+                    + nodeFile.getAbsolutePath());
         }
     }
 
@@ -90,8 +92,9 @@ final class File extends AbstractNode implements IFile
             FileUtils.copyFileToDirectory(nodeFile, directory);
         } catch (IOException ex)
         {
-            throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
-                    nodeFile.getAbsolutePath(), directory.getAbsolutePath());
+            throw EnvironmentFailureException.fromTemplate(ex,
+                    "Couldn't not copy file '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
+                    directory.getAbsolutePath());
         }
     }
 

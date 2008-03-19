@@ -32,7 +32,8 @@ public final class ExperimentRegistratorDate implements IStorable
 {
     static final String FILE_NAME = "experiment_registration_date";
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+    private static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
     static ExperimentRegistratorDate loadFrom(IDirectory directory)
     {

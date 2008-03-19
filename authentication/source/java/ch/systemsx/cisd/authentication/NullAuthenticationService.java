@@ -20,8 +20,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- *  An implementation of {@link IAuthenticationService} which supports as a <code>null</code> object.
- *
+ * An implementation of {@link IAuthenticationService} which supports as a <code>null</code> object.
+ * 
  * @author Franz-Josef Elmer
  */
 public class NullAuthenticationService implements IAuthenticationService

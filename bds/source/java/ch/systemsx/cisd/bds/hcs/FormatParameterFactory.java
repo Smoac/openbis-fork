@@ -99,6 +99,7 @@ public final class FormatParameterFactory implements IFormatParameterFactory
         {
             return new FormatParameter(name, Boolean.valueOf(value));
         }
-        return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name, value);
+        return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name,
+                value);
     }
 }

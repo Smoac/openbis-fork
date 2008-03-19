@@ -86,7 +86,8 @@ abstract class AbstractMainPage extends BorderLayout
 
     AbstractMainPage(ViewContext context)
     {
-        super("100%", "100%", createNorthRegion(), createSouthRegion(), null, null, createCenterRegion());
+        super("100%", "100%", createNorthRegion(), createSouthRegion(), null, null,
+                createCenterRegion());
         this.context = context;
         this.messageResources = context.getMessageResources();
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
@@ -157,12 +158,13 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final ToolbarButton createLogoutButton()
     {
-        final ToolbarButton logoutButton = new ToolbarButton(messageResources.getLogoutLinkLabel(), new ButtonConfig()
-            {
-                {
-                    setTooltip(messageResources.getLogoutLinkTooltip());
-                }
-            });
+        final ToolbarButton logoutButton =
+                new ToolbarButton(messageResources.getLogoutLinkLabel(), new ButtonConfig()
+                    {
+                        {
+                            setTooltip(messageResources.getLogoutLinkTooltip());
+                        }
+                    });
         logoutButton.addButtonListener(new ButtonListenerAdapter()
             {
 

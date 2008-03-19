@@ -180,7 +180,8 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
             {
                 public boolean accept(File pathname)
                 {
-                    return pathname.getName().equals("file1a") || pathname.getName().equals("file3");
+                    return pathname.getName().equals("file1a")
+                            || pathname.getName().equals("file3");
                 }
             }, null);
         checkDirectories(true);

@@ -45,8 +45,8 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * <p>
  * Just instantiate this class and use {@link #sendMessage(String, String, String[])} to send the email via SMTP.
  * </p>
- * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but it is
- * stored in a file in the directory specified by the relative path following this prefix.
+ * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but it is stored in a
+ * file in the directory specified by the relative path following this prefix.
  * 
  * @author Christian Ribeaud
  */
@@ -58,7 +58,8 @@ public final class MailClient extends Authenticator implements IMailClient
     /** This system property is not supported by the <i>JavaMail API</i> */
     public final static String MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
 
     private final String smtpUsername;
 
@@ -77,10 +78,12 @@ public final class MailClient extends Authenticator implements IMailClient
     {
         this(properties.getProperty(JavaMailProperties.MAIL_FROM), properties
                 .getProperty(JavaMailProperties.MAIL_SMTP_HOST), properties
-                .getProperty(JavaMailProperties.MAIL_SMTP_USER), properties.getProperty(MAIL_SMTP_PASSWORD));
+                .getProperty(JavaMailProperties.MAIL_SMTP_USER), properties
+                .getProperty(MAIL_SMTP_PASSWORD));
     }
 
-    public MailClient(final String from, final String smtpHost, final String smtpUsername, final String smtpPassword)
+    public MailClient(final String from, final String smtpHost, final String smtpUsername,
+            final String smtpPassword)
     {
         assert from != null;
         assert smtpHost != null;
@@ -113,8 +116,8 @@ public final class MailClient extends Authenticator implements IMailClient
         {
             properties.put(JavaMailProperties.MAIL_SMTP_AUTH, Boolean.TRUE.toString());
         }
-        properties.put(JavaMailProperties.MAIL_DEBUG, operationLog.isDebugEnabled() ? Boolean.TRUE.toString()
-                : Boolean.FALSE.toString());
+        properties.put(JavaMailProperties.MAIL_DEBUG, operationLog.isDebugEnabled() ? Boolean.TRUE
+                .toString() : Boolean.FALSE.toString());
         properties.put(JavaMailProperties.MAIL_TRANSPORT_PROTOCOL, "smtp");
         return properties;
     }
@@ -124,9 +127,11 @@ public final class MailClient extends Authenticator implements IMailClient
         Properties properties = createProperties();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Creating mail session with following properties '" + properties + "'.");
+            operationLog.debug("Creating mail session with following properties '" + properties
+                    + "'.");
         }
-        boolean mailSmtpAuth = Boolean.parseBoolean(properties.getProperty(JavaMailProperties.MAIL_SMTP_AUTH));
+        boolean mailSmtpAuth =
+                Boolean.parseBoolean(properties.getProperty(JavaMailProperties.MAIL_SMTP_AUTH));
         Session session = Session.getInstance(properties, mailSmtpAuth ? this : null);
         session.setDebug(operationLog.isDebugEnabled());
         return session;
@@ -154,7 +159,8 @@ public final class MailClient extends Authenticator implements IMailClient
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Sending message from '" + from + "' to recipients '" + Arrays.asList(recipients) + "'");
+            operationLog.info("Sending message from '" + from + "' to recipients '"
+                    + Arrays.asList(recipients) + "'");
         }
         int len = recipients.length;
         InternetAddress[] internetAddresses = new InternetAddress[len];
@@ -172,8 +178,8 @@ public final class MailClient extends Authenticator implements IMailClient
             send(msg);
         } catch (MessagingException ex)
         {
-            throw new EnvironmentFailureException("Sending e-mail with subject '" + subject + "' to recipients "
-                    + Arrays.asList(recipients) + " failed. Reason: " + ex, ex);
+            throw new EnvironmentFailureException("Sending e-mail with subject '" + subject
+                    + "' to recipients " + Arrays.asList(recipients) + " failed. Reason: " + ex, ex);
         }
     }
 
@@ -186,8 +192,9 @@ public final class MailClient extends Authenticator implements IMailClient
             {
                 if (emailFolder.isDirectory() == false)
                 {
-                    throw new EnvironmentFailureException("There exists already a file but not a folder with path '"
-                            + emailFolder.getAbsolutePath() + "'.");
+                    throw new EnvironmentFailureException(
+                            "There exists already a file but not a folder with path '"
+                                    + emailFolder.getAbsolutePath() + "'.");
                 }
             } else
             {
@@ -217,7 +224,7 @@ public final class MailClient extends Authenticator implements IMailClient
             Transport.send(msg);
         }
     }
-    
+
     private String renderAddresses(Address[] addresses)
     {
         StringBuilder builder = new StringBuilder();

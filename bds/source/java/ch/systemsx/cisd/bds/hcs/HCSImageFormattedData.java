@@ -39,7 +39,8 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Christian Ribeaud
  */
-public final class HCSImageFormattedData extends AbstractFormattedData implements IHCSImageFormattedData
+public final class HCSImageFormattedData extends AbstractFormattedData implements
+        IHCSImageFormattedData
 {
 
     /** The <i>column</i> (or <i>x</i>) coordinate. */
@@ -82,8 +83,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     {
         if (geometry.contains(location) == false)
         {
-            throw new IllegalArgumentException(String.format("Given geometry '%s' does not contain location '%s'",
-                    geometry, location));
+            throw new IllegalArgumentException(String.format(
+                    "Given geometry '%s' does not contain location '%s'", geometry, location));
         }
 
     }
@@ -92,12 +93,14 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     {
         if (channel < 1)
         {
-            throw new IndexOutOfBoundsException(String.format("Channel index must start at 1 (given value is %d).", channel));
+            throw new IndexOutOfBoundsException(String.format(
+                    "Channel index must start at 1 (given value is %d).", channel));
         }
         final int channelCount = getChannelCount();
         if (channel > channelCount)
         {
-            throw new IndexOutOfBoundsException(String.format("Channel index %d exceeds the number of channels %d", channel, channelCount));
+            throw new IndexOutOfBoundsException(String.format(
+                    "Channel index %d exceeds the number of channels %d", channel, channelCount));
         }
     }
 
@@ -133,7 +136,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return Channel.CHANNEL + channel;
     }
 
-    private void checkCoordinates(final int channel, final Location plateLocation, final Location wellLocation)
+    private void checkCoordinates(final int channel, final Location plateLocation,
+            final Location wellLocation)
     {
         checkChannel(channel);
         assert plateLocation != null : "Plate location can not be null.";
@@ -155,7 +159,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         if (imageRootNode == null)
         {
             throw new DataStructureException(String.format(
-                    "No image root directory named '%s' could be found in the original directory.", imageRootDirName));
+                    "No image root directory named '%s' could be found in the original directory.",
+                    imageRootDirName));
         }
         assert imageRootNode instanceof IDirectory : "Image root node must be a directory.";
         return (IDirectory) imageRootNode;
@@ -165,15 +170,19 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     // IHCSFormattedData
     //
 
-    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation, final Location wellLocation)
+    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation,
+            final Location wellLocation)
     {
         checkCoordinates(channel, plateLocation, wellLocation);
         try
         {
             final IDirectory standardDir = getStandardDataDirectory();
-            final IDirectory channelDir = Utilities.getSubDirectory(standardDir, getChannelName(channel));
-            final IDirectory plateRowDir = Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
-            final IDirectory plateColumnDir = Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
+            final IDirectory channelDir =
+                    Utilities.getSubDirectory(standardDir, getChannelName(channel));
+            final IDirectory plateRowDir =
+                    Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+            final IDirectory plateColumnDir =
+                    Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
             return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
         } catch (final DataStructureException e)
         {
@@ -181,21 +190,26 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
     }
 
-    public final NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath,
-            final int channel, final Location plateLocation, final Location wellLocation) throws DataStructureException
+    public final NodePath addStandardNode(final File imageRootDirectory,
+            final String imageRelativePath, final int channel, final Location plateLocation,
+            final Location wellLocation) throws DataStructureException
     {
         assert imageRootDirectory != null : "Given image root directory can not be null.";
         assert imageRelativePath != null : "Given image relative path can not be null.";
         INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
         if (node != null)
         {
-            throw new DataStructureException(String.format(
-                    "A node already exists at channel %d, plate location '%s' and well location '%s'.", channel,
-                    plateLocation, wellLocation));
+            throw new DataStructureException(
+                    String
+                            .format(
+                                    "A node already exists at channel %d, plate location '%s' and well location '%s'.",
+                                    channel, plateLocation, wellLocation));
         }
         final IDirectory standardDir = getStandardDataDirectory();
-        final IDirectory channelDir = Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
-        final IDirectory plateRowDir = Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+        final IDirectory channelDir =
+                Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
+        final IDirectory plateRowDir =
+                Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
         final IDirectory plateColumnDir =
                 Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
         final String wellFileName = createWellFileName(wellLocation);
@@ -206,13 +220,16 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
             if (imageNode == null)
             {
                 throw new DataStructureException(String.format(
-                        "No image node with path '%s' could be found in the original directory.", imageRelativePath));
+                        "No image node with path '%s' could be found in the original directory.",
+                        imageRelativePath));
             }
             node = plateColumnDir.tryAddLink(wellFileName, imageNode);
         } else
         {
             // Copies the file. So we are able to undo the operation.
-            node = plateColumnDir.addFile(new File(imageRootDirectory, imageRelativePath), wellFileName, false);
+            node =
+                    plateColumnDir.addFile(new File(imageRootDirectory, imageRelativePath),
+                            wellFileName, false);
         }
         if (node == null)
         {
@@ -224,8 +241,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =
-                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName() + sep
-                        + wellFileName;
+                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName()
+                        + sep + wellFileName;
         return new NodePath(node, standardNodePath);
     }
 
@@ -254,7 +271,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         if (notPresent.isEmpty() == false)
         {
             throw new DataStructureException(String.format(
-                    "Following format parameters '%s' could not be found in the structure.", notPresent));
+                    "Following format parameters '%s' could not be found in the structure.",
+                    notPresent));
         }
 
     }

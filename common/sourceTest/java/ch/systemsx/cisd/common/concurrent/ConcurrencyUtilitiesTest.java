@@ -33,14 +33,15 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Test cases for {@link ConcurrencyUtilities}. 
- *
+ * Test cases for {@link ConcurrencyUtilities}.
+ * 
  * @author Bernd Rinn
  */
 public class ConcurrencyUtilitiesTest
 {
 
     private final static String name = "This is the pool name";
+
     private ThreadPoolExecutor eservice;
 
     @BeforeClass
@@ -49,19 +50,19 @@ public class ConcurrencyUtilitiesTest
         LogInitializer.init();
         eservice = (ThreadPoolExecutor) ConcurrencyUtilities.newNamedPool(name, 1, 2);
     }
-    
+
     @Test
     public void testNewNamedPool() throws Throwable
     {
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(2, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new Runnable()
-        {
-            public void run()
             {
-                assertEquals(name + " 1", Thread.currentThread().getName());
-            }
-        });
+                public void run()
+                {
+                    assertEquals(name + " 1", Thread.currentThread().getName());
+                }
+            });
         try
         {
             future.get(200L, TimeUnit.MILLISECONDS);
@@ -70,25 +71,24 @@ public class ConcurrencyUtilitiesTest
             throw ex.getCause();
         }
     }
-    
-    
+
     @Test
     public void testTryGetFutureTimeout()
     {
         final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
                 {
-                    public String call() throws Exception
+                    try
                     {
-                        try
-                        {
-                            Thread.sleep(200L);
-                        } catch (InterruptedException ex)
-                        {
-                            throw new CheckedExceptionTunnel(ex);
-                        }
-                        return null;
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
                     }
-                });
+                    return null;
+                }
+            });
         final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 20L);
         assertNull(shouldBeNull);
         assertTrue(future.isDone());
@@ -99,27 +99,28 @@ public class ConcurrencyUtilitiesTest
     {
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
-                {
-                    public String call() throws Exception
-                    {
-                        try
-                        {
-                            Thread.sleep(200L);
-                        } catch (InterruptedException ex)
-                        {
-                            throw new CheckedExceptionTunnel(ex);
-                        }
-                        return null;
-                    }
-                });
-        final Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run()
             {
-                thread.interrupt();
-            }
-        }, 20L);
+                public String call() throws Exception
+                {
+                    try
+                    {
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
+                    return null;
+                }
+            });
+        final Timer t = new Timer();
+        t.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    thread.interrupt();
+                }
+            }, 20L);
         final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 200L);
         t.cancel();
         assertNull(shouldBeNull);
@@ -131,17 +132,17 @@ public class ConcurrencyUtilitiesTest
     {
         private static final long serialVersionUID = 1L;
     }
-    
+
     @Test
     public void testTryGetFutureException()
     {
         final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
                 {
-                    public String call() throws Exception
-                    {
-                        throw new TaggedException(); 
-                    }
-                });
+                    throw new TaggedException();
+                }
+            });
         try
         {
             ConcurrencyUtilities.tryGetResult(future, 100L);

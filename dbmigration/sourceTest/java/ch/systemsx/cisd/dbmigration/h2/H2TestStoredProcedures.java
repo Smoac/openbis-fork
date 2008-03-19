@@ -35,7 +35,8 @@ public class H2TestStoredProcedures
     {
         if (actual != expected)
         {
-            throw new SQLException(String.format("%s: expected:%d, but actual: %d", message, expected, actual));
+            throw new SQLException(String.format("%s: expected:%d, but actual: %d", message,
+                    expected, actual));
         }
         return 0;
     }
@@ -46,12 +47,13 @@ public class H2TestStoredProcedures
      * 
      * @return 0.
      */
-    public static int assertMinimum(String message, long minExpected, long actual) throws SQLException
+    public static int assertMinimum(String message, long minExpected, long actual)
+            throws SQLException
     {
         if (actual < minExpected)
         {
-            throw new SQLException(String.format("%s: Minimum expected:%d, but actual: %d", message, minExpected,
-                    actual));
+            throw new SQLException(String.format("%s: Minimum expected:%d, but actual: %d",
+                    message, minExpected, actual));
         }
         return 0;
     }

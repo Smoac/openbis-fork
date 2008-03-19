@@ -50,14 +50,16 @@ public class DumpPreparator
 {
     private static final Set<String> FILTERED_SCHEMA_LINES =
             new LinkedHashSet<String>(Arrays.asList("SET client_encoding = 'UTF8';",
-                    "COMMENT ON SCHEMA public IS 'Standard public schema';", "CREATE PROCEDURAL LANGUAGE plpgsql;"));
+                    "COMMENT ON SCHEMA public IS 'Standard public schema';",
+                    "CREATE PROCEDURAL LANGUAGE plpgsql;"));
 
     public static void main(String[] args) throws IOException
     {
         if (args.length < 1)
         {
-            System.out.println("Usage: java ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator "
-                    + "<main folder> [<dump file>]");
+            System.out
+                    .println("Usage: java ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator "
+                            + "<main folder> [<dump file>]");
             System.exit(1);
         }
         File destination = new File(args[0]);
@@ -104,7 +106,8 @@ public class DumpPreparator
         BufferedReader reader = new BufferedReader(dumpReader);
         String line;
         State state = State.SCHEMA;
-        UploadFileManager uploadFileManager = new UploadFileManager(destinationFolder, FILTERED_SCHEMA_LINES);
+        UploadFileManager uploadFileManager =
+                new UploadFileManager(destinationFolder, FILTERED_SCHEMA_LINES);
         while ((line = reader.readLine()) != null)
         {
             if (line.length() != 0 && line.startsWith("--") == false)
@@ -141,7 +144,8 @@ public class DumpPreparator
                     manager.createUploadFile(matcher.group(1));
                 } else
                 {
-                    throw new IllegalArgumentException("Couldn't extract table name from the following line: " + line);
+                    throw new IllegalArgumentException(
+                            "Couldn't extract table name from the following line: " + line);
                 }
                 return IN_COPY;
             }
@@ -236,7 +240,8 @@ public class DumpPreparator
         {
             if (currentTable == null)
             {
-                throw new IllegalStateException("No table created to add the following line: " + line);
+                throw new IllegalStateException("No table created to add the following line: "
+                        + line);
             }
             if (line.startsWith("\\."))
             {
@@ -250,7 +255,8 @@ public class DumpPreparator
         {
             String databaseVersion = getDatabaseVersion();
             File folder = createDestinationFolder();
-            writeTo(folder, "schema-" + databaseVersion + ".sql", Arrays.asList(schemaScript.toString()));
+            writeTo(folder, "schema-" + databaseVersion + ".sql", Arrays.asList(schemaScript
+                    .toString()));
             for (Table table : tables.values())
             {
                 List<String> rows = table.getRows();
@@ -259,7 +265,8 @@ public class DumpPreparator
                     writeTo(folder, table.getUploadFileName(), rows);
                 }
             }
-            writeTo(folder, "finish-" + databaseVersion + ".sql", Arrays.asList(finishScript.toString()));
+            writeTo(folder, "finish-" + databaseVersion + ".sql", Arrays.asList(finishScript
+                    .toString()));
         }
 
         private void writeTo(File folder, String fileName, List<String> lines) throws IOException
@@ -307,20 +314,21 @@ public class DumpPreparator
                     {
                         if (file.delete() == false)
                         {
-                            throw new IllegalStateException("Couldn't delete file '" + file.getAbsolutePath()
-                                    + "' for some unknown reasons.");
+                            throw new IllegalStateException("Couldn't delete file '"
+                                    + file.getAbsolutePath() + "' for some unknown reasons.");
                         }
                     }
                 } else
                 {
-                    throw new IllegalStateException("Is not a directory: " + folder.getAbsolutePath());
+                    throw new IllegalStateException("Is not a directory: "
+                            + folder.getAbsolutePath());
                 }
             } else
             {
                 if (folder.mkdirs() == false)
                 {
-                    throw new IllegalStateException("Couldn't create folder '" + folder.getAbsolutePath()
-                            + "' for some unknown reason.");
+                    throw new IllegalStateException("Couldn't create folder '"
+                            + folder.getAbsolutePath() + "' for some unknown reason.");
                 }
             }
             return folder;
@@ -340,7 +348,8 @@ public class DumpPreparator
                 Matcher matcher = VERSION_PATTERN.matcher(row);
                 if (matcher.matches() == false)
                 {
-                    throw new IllegalArgumentException("Row does not start with a version number: " + row);
+                    throw new IllegalArgumentException("Row does not start with a version number: "
+                            + row);
                 }
                 String v = matcher.group(1);
                 if (v.compareTo(result) > 0)

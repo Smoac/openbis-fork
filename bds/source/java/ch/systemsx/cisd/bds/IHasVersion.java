@@ -18,7 +18,7 @@ package ch.systemsx.cisd.bds;
 
 /**
  * Role to be having a {@link Version}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IHasVersion

@@ -36,7 +36,8 @@ public class ViewContext
     private final Model model;
 
     ViewContext(final IPageController pageController, final IHistoryController historyController,
-            final ICIFEXServiceAsync cifexService, final Model model, final IMessageResources messageResources)
+            final ICIFEXServiceAsync cifexService, final Model model,
+            final IMessageResources messageResources)
     {
         this.pageController = pageController;
         this.historyController = historyController;

@@ -83,8 +83,8 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     {
         if (hasExceptionOccurred())
         {
-            throw new RuntimeException(String.format("An exception occurred in thread %s.", getThreadName()),
-                    getThrowable());
+            throw new RuntimeException(String.format("An exception occurred in thread %s.",
+                    getThreadName()), getThrowable());
         }
     }
 

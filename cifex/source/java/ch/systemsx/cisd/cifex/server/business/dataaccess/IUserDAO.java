@@ -63,7 +63,7 @@ public interface IUserDAO
      * @return The list of users that have been registered by the user with given <var>userCode</var>.
      */
     public List<UserDTO> listUsersRegisteredBy(String userCode);
-    
+
     /**
      * Deletes the user with the given <code>userId</code> from the database.
      * 
@@ -74,7 +74,7 @@ public interface IUserDAO
 
     /** Returns a list of expired users. */
     public List<UserDTO> listExpiredUsers();
-    
+
     /** Update the fields of the given user. */
     public void updateUser(UserDTO user);
 }

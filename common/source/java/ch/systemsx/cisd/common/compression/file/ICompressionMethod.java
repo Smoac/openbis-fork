@@ -32,7 +32,7 @@ public interface ICompressionMethod extends FileFilter
 
     /**
      * Compress the <var>fileToCompress</var>
-     *  
+     * 
      * @return {@link Status#OK} if the operation was successful, a status indicating the kind of problem otherwise.
      */
     public Status compress(File fileToCompress);

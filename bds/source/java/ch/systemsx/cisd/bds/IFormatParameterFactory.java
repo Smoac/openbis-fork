@@ -28,28 +28,31 @@ import ch.systemsx.cisd.bds.storage.INode;
 public interface IFormatParameterFactory
 {
 
-    public final static IFormatParameterFactory DEFAULT_FORMAT_PARAMETER_FACTORY = new IFormatParameterFactory()
-        {
-
-            //
-            // IFormatParameterFactory
-            //
-
-            public final FormatParameter createFormatParameter(final INode node)
-            {
-                if (node instanceof IFile)
+    public final static IFormatParameterFactory DEFAULT_FORMAT_PARAMETER_FACTORY =
+            new IFormatParameterFactory()
                 {
-                    final IFile file = (IFile) node;
-                    return new FormatParameter(file.getName(), file.getStringContent().trim());
-                }
-                return null;
-            }
 
-            public final FormatParameter createFormatParameter(final String name, final String value)
-            {
-                return new FormatParameter(name, value);
-            }
-        };
+                    //
+                    // IFormatParameterFactory
+                    //
+
+                    public final FormatParameter createFormatParameter(final INode node)
+                    {
+                        if (node instanceof IFile)
+                        {
+                            final IFile file = (IFile) node;
+                            return new FormatParameter(file.getName(), file.getStringContent()
+                                    .trim());
+                        }
+                        return null;
+                    }
+
+                    public final FormatParameter createFormatParameter(final String name,
+                            final String value)
+                    {
+                        return new FormatParameter(name, value);
+                    }
+                };
 
     /**
      * Creates a <code>FormatParameter</code> from given <var>node</var>.

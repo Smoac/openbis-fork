@@ -122,7 +122,8 @@ public class EditUserWidget extends UserWidget
             }
             final User user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
-            if (user.getUserCode().equals(userCodeField.getText()) && user.isExternallyAuthenticated() == false)
+            if (user.getUserCode().equals(userCodeField.getText())
+                    && user.isExternallyAuthenticated() == false)
             {
                 user.setEmail(emailField.getText());
                 user.setUserFullName(usernameField.getValueAsString());

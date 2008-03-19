@@ -59,10 +59,12 @@ public final class CIFEXEntryPoint implements EntryPoint
 
     private final ViewContext createViewContext(final ICIFEXServiceAsync cifexService)
     {
-        final IMessageResources messageResources = (IMessageResources) GWT.create(IMessageResources.class);
+        final IMessageResources messageResources =
+                (IMessageResources) GWT.create(IMessageResources.class);
         final PageController pageController = new PageController();
         final ViewContext viewContext =
-                new ViewContext(pageController, pageController, cifexService, new Model(), messageResources);
+                new ViewContext(pageController, pageController, cifexService, new Model(),
+                        messageResources);
         pageController.setViewContext(viewContext);
         return viewContext;
     }
@@ -101,7 +103,8 @@ public final class CIFEXEntryPoint implements EntryPoint
 
                             public final void onSuccess(final Object res)
                             {
-                                final IPageController pageController = viewContext.getPageController();
+                                final IPageController pageController =
+                                        viewContext.getPageController();
                                 if (res != null)
                                 {
                                     final Model model = viewContext.getModel();

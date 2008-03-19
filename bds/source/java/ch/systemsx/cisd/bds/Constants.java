@@ -18,7 +18,7 @@ package ch.systemsx.cisd.bds;
 
 /**
  * Some constants used inside the <i>BDS</i> library
- *
+ * 
  * @author Christian Ribeaud
  */
 public final class Constants

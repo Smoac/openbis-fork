@@ -75,7 +75,8 @@ public class ExperimentIdentifier implements IStorable
     /**
      * Returns the group code;
      */
-    // TODO 2007-12-03, Tomasz Pylak review: should not we use the term organization as everywhere else instead of group?
+    // TODO 2007-12-03, Tomasz Pylak review: should not we use the term organization as everywhere else instead of
+    // group?
     public final String getGroupCode()
     {
         return groupCode;
@@ -131,13 +132,15 @@ public class ExperimentIdentifier implements IStorable
     @Override
     public int hashCode()
     {
-        return (groupCode.hashCode() * 37 + projectCode.hashCode()) * 37 + experimentCode.hashCode();
+        return (groupCode.hashCode() * 37 + projectCode.hashCode()) * 37
+                + experimentCode.hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode + "]";
+        return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode
+                + "]";
     }
 
 }

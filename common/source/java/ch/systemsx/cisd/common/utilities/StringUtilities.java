@@ -39,31 +39,38 @@ public final class StringUtilities
 
     private static final String[] STRINGS =
             new String[]
-                { "phalanx", "nightmare", "concierge", "asbestos", "cody", "hermit", "nbc", "couplet", "dice",
-                        "thumbnail", "finley", "figure", "exclamation", "whoosh", "punish", "servitor", "portend",
-                        "boulevard", "bacterial", "dilate", "emboss", "birmingham", "illustrate", "pomona", "truk",
-                        "bursitis", "trustworthy", "harriman", "schenectady", "obligate", "oceania", "knew",
-                        "quickstep", "woo", "strickland", "sadie", "malabar", "posit", "breadfruit", "grandfather",
-                        "vishnu", "vacuous", "melpomene", "assam", "blaine", "taskmaster", "polymeric", "hector",
-                        "counterrevolution", "compassionate", "linkage", "distant", "vet", "shako", "eagan",
-                        "neutronium", "stony", "lie", "hoydenish", "dial", "hecate", "pinch", "olin", "piglet",
-                        "basswood", "yawn", "ouzo", "scrupulosity", "bestiary", "subpoena", "nudge", "baton", "thing",
-                        "hallmark", "bossy", "preferential", "bambi", "narwhal", "brighten", "omnipotent", "forsake",
-                        "flapping", "orthodoxy", "upcome", "teaspoonful", "wabash", "lipid", "enjoin", "shoshone",
-                        "wartime", "gatekeeper", "litigate", "siderite", "sadden", "visage", "boogie", "scald",
-                        "equate", "tragic", "ordinary", "wick", "gigawatt", "desultory", "bambi", "aureomycin", "car",
-                        "especial", "rescue", "protector", "burnett", "constant", "heroes", "filmstrip", "homeown",
-                        "verdant", "governor", "cornwall", "predisposition", "sedan", "resemblant", "satellite",
-                        "committeemen", "given", "narragansett", "switzer", "clockwatcher", "sweeten", "monologist",
-                        "execrate", "gila", "lad", "mahayanist", "solicitation", "linemen", "reading", "hoard",
-                        "phyla", "carcinoma", "glycol", "polymer", "hangmen", "dualism", "betrayal", "corpsman",
-                        "stint", "hannah", "balsam", "granola", "charitable", "osborn", "party", "laboratory",
-                        "norwich", "laxative", "collude", "rockefeller", "crack", "lamarck", "purposeful",
-                        "neuroanotomy", "araby", "crucible", "oratorical", "dramaturgy", "kitty", "pit", "ephesus",
-                        "bum", "amuse", "clogging", "joker", "fobbing", "extent", "colossal", "macromolecule",
-                        "choppy", "tennessee", "primrose", "glassine", "vampire", "chap", "precursor", "incorrigible",
-                        "slither", "interrogate", "spectral", "debut", "creche", "pyrolysis", "homicidal", "sonnet",
-                        "gin", "science", "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
+                { "phalanx", "nightmare", "concierge", "asbestos", "cody", "hermit", "nbc",
+                        "couplet", "dice", "thumbnail", "finley", "figure", "exclamation",
+                        "whoosh", "punish", "servitor", "portend", "boulevard", "bacterial",
+                        "dilate", "emboss", "birmingham", "illustrate", "pomona", "truk",
+                        "bursitis", "trustworthy", "harriman", "schenectady", "obligate",
+                        "oceania", "knew", "quickstep", "woo", "strickland", "sadie", "malabar",
+                        "posit", "breadfruit", "grandfather", "vishnu", "vacuous", "melpomene",
+                        "assam", "blaine", "taskmaster", "polymeric", "hector",
+                        "counterrevolution", "compassionate", "linkage", "distant", "vet", "shako",
+                        "eagan", "neutronium", "stony", "lie", "hoydenish", "dial", "hecate",
+                        "pinch", "olin", "piglet", "basswood", "yawn", "ouzo", "scrupulosity",
+                        "bestiary", "subpoena", "nudge", "baton", "thing", "hallmark", "bossy",
+                        "preferential", "bambi", "narwhal", "brighten", "omnipotent", "forsake",
+                        "flapping", "orthodoxy", "upcome", "teaspoonful", "wabash", "lipid",
+                        "enjoin", "shoshone", "wartime", "gatekeeper", "litigate", "siderite",
+                        "sadden", "visage", "boogie", "scald", "equate", "tragic", "ordinary",
+                        "wick", "gigawatt", "desultory", "bambi", "aureomycin", "car", "especial",
+                        "rescue", "protector", "burnett", "constant", "heroes", "filmstrip",
+                        "homeown", "verdant", "governor", "cornwall", "predisposition", "sedan",
+                        "resemblant", "satellite", "committeemen", "given", "narragansett",
+                        "switzer", "clockwatcher", "sweeten", "monologist", "execrate", "gila",
+                        "lad", "mahayanist", "solicitation", "linemen", "reading", "hoard",
+                        "phyla", "carcinoma", "glycol", "polymer", "hangmen", "dualism",
+                        "betrayal", "corpsman", "stint", "hannah", "balsam", "granola",
+                        "charitable", "osborn", "party", "laboratory", "norwich", "laxative",
+                        "collude", "rockefeller", "crack", "lamarck", "purposeful", "neuroanotomy",
+                        "araby", "crucible", "oratorical", "dramaturgy", "kitty", "pit", "ephesus",
+                        "bum", "amuse", "clogging", "joker", "fobbing", "extent", "colossal",
+                        "macromolecule", "choppy", "tennessee", "primrose", "glassine", "vampire",
+                        "chap", "precursor", "incorrigible", "slither", "interrogate", "spectral",
+                        "debut", "creche", "pyrolysis", "homicidal", "sonnet", "gin", "science",
+                        "magma", "metaphor", "cobble", "dyer", "narrate", "goody", "optometric" };
 
     private final static Pattern pattern = Pattern.compile("([a-zA-Z]+)([0-9]+)");
 
@@ -71,7 +78,7 @@ public final class StringUtilities
     {
         // This class can not be instantiated.
     }
-    
+
     /**
      * Computes the MD5 hash value of <var>string</var>.
      * 
@@ -80,14 +87,14 @@ public final class StringUtilities
     public static String computeMD5Hash(String string)
     {
         assert string != null : "Unspecified string.";
-        
+
         try
         {
             MessageDigest algorithm = MessageDigest.getInstance("MD5");
             algorithm.reset();
             algorithm.update(string.getBytes("utf8"));
             byte messageDigest[] = algorithm.digest();
-            
+
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < messageDigest.length; i++)
             {

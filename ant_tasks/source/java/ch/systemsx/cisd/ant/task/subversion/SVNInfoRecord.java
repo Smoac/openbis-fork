@@ -28,19 +28,28 @@ class SVNInfoRecord
     {
         FILE, DIRECTORY
     }
-    
+
     /** The writing part of the interface. */
     interface Updater
     {
         public void setWorkingCopyPath(String workingCopyPath);
+
         public void setRepositoryUrl(String repositoryUrl);
+
         public void setRepositoryRootUrl(String repositoryRootUrl);
+
         public void setRepositoryUUID(String repositoryUUID);
+
         public void setRevision(int revision);
+
         public void setNodeKind(NodeKind nodeKind);
+
         public void setSchedule(String schedule);
+
         public void setLastChangedAuthor(String lastChangedAuthor);
+
         public void setLastChangedRevision(int lastChangedRevision);
+
         public void setLastChangedDate(String lastChangedDate);
     }
 
@@ -60,65 +69,65 @@ class SVNInfoRecord
 
     private String lastChangedAuthor;
 
-    private  int lastChangedRevision;
+    private int lastChangedRevision;
 
     private String lastChangedDate;
 
     private Updater updater = new Updater()
-                {
-                    
-                    public void setLastChangedAuthor(String lastChangedAuthor)
-                    {
-                        SVNInfoRecord.this.lastChangedAuthor = lastChangedAuthor;
-                    }
-            
-                    public void setLastChangedRevision(int lastChangedRevision)
-                    {
-                        SVNInfoRecord.this.lastChangedRevision = lastChangedRevision;
-                    }
-            
-                    public void setLastChangedDate(String lastChangedDate)
-                    {
-                        SVNInfoRecord.this.lastChangedDate = lastChangedDate;
-                    }
-            
-                    public void setNodeKind(NodeKind nodeKind)
-                    {
-                        SVNInfoRecord.this.nodeKind = nodeKind;
-                    }
-            
-                    public void setRepositoryRootUrl(String repositoryRootUrl)
-                    {
-                        SVNInfoRecord.this.repositoryRootUrl = repositoryRootUrl;
-                    }
-            
-                    public void setRepositoryUUID(String repositoryUUID)
-                    {
-                        SVNInfoRecord.this.repositoryUUID = repositoryUUID;
-                    }
-            
-                    public void setRepositoryUrl(String repositoryUrl)
-                    {
-                        SVNInfoRecord.this.repositoryUrl = repositoryUrl;
-                    }
-            
-                    public void setRevision(int revision)
-                    {
-                        SVNInfoRecord.this.revision = revision;
-                    }
-            
-                    public void setSchedule(String schedule)
-                    {
-                        SVNInfoRecord.this.schedule = schedule;
-                    }
-            
-                    public void setWorkingCopyPath(String workingCopyPath)
-                    {
-                        SVNInfoRecord.this.workingCopyPath = workingCopyPath;
-                    }
-                    
-                };
-    
+        {
+
+            public void setLastChangedAuthor(String lastChangedAuthor)
+            {
+                SVNInfoRecord.this.lastChangedAuthor = lastChangedAuthor;
+            }
+
+            public void setLastChangedRevision(int lastChangedRevision)
+            {
+                SVNInfoRecord.this.lastChangedRevision = lastChangedRevision;
+            }
+
+            public void setLastChangedDate(String lastChangedDate)
+            {
+                SVNInfoRecord.this.lastChangedDate = lastChangedDate;
+            }
+
+            public void setNodeKind(NodeKind nodeKind)
+            {
+                SVNInfoRecord.this.nodeKind = nodeKind;
+            }
+
+            public void setRepositoryRootUrl(String repositoryRootUrl)
+            {
+                SVNInfoRecord.this.repositoryRootUrl = repositoryRootUrl;
+            }
+
+            public void setRepositoryUUID(String repositoryUUID)
+            {
+                SVNInfoRecord.this.repositoryUUID = repositoryUUID;
+            }
+
+            public void setRepositoryUrl(String repositoryUrl)
+            {
+                SVNInfoRecord.this.repositoryUrl = repositoryUrl;
+            }
+
+            public void setRevision(int revision)
+            {
+                SVNInfoRecord.this.revision = revision;
+            }
+
+            public void setSchedule(String schedule)
+            {
+                SVNInfoRecord.this.schedule = schedule;
+            }
+
+            public void setWorkingCopyPath(String workingCopyPath)
+            {
+                SVNInfoRecord.this.workingCopyPath = workingCopyPath;
+            }
+
+        };
+
     public String getLastChangedAuthor()
     {
         return lastChangedAuthor;

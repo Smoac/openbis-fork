@@ -63,15 +63,16 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
     /**
      * Creates an instance for the specified data source and sequence mapper.
      */
-    public PostgreSQLMassUploader(final DataSource dataSource, final ISequenceNameMapper sequenceNameMapper)
-            throws SQLException
+    public PostgreSQLMassUploader(final DataSource dataSource,
+            final ISequenceNameMapper sequenceNameMapper) throws SQLException
     {
         this.dataSource = dataSource;
         this.sequenceNameMapper = sequenceNameMapper;
         setDataSource(dataSource);
     }
 
-    private final CopyManager getCopyManager() throws SQLException, NoSuchFieldException, IllegalAccessException
+    private final CopyManager getCopyManager() throws SQLException, NoSuchFieldException,
+            IllegalAccessException
     {
         if (copyManager == null)
         {
@@ -98,16 +99,19 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         try
         {
             final String[] splitName = StringUtils.split(massUploadFile.getName(), "=");
-            assert splitName.length == 2 : "Missing '=' in name of file '" + massUploadFile.getName() + "'.";
+            assert splitName.length == 2 : "Missing '=' in name of file '"
+                    + massUploadFile.getName() + "'.";
             final String tableNameWithExtension = splitName[1];
             final boolean csvFileType = CSV.isOfType(tableNameWithExtension);
             final boolean tsvFileType = TSV.isOfType(tableNameWithExtension);
-            assert tsvFileType || csvFileType : "Non of expected file types [" + TSV.getFileType() + ", "
-                    + CSV.getFileType() + "]: " + massUploadFile.getName();
-            final String tableName = tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
+            assert tsvFileType || csvFileType : "Non of expected file types [" + TSV.getFileType()
+                    + ", " + CSV.getFileType() + "]: " + massUploadFile.getName();
+            final String tableName =
+                    tableNameWithExtension.substring(0, tableNameWithExtension.lastIndexOf('.'));
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Perform mass upload of file '" + massUploadFile + "' to table '" + tableName + "'.");
+                operationLog.info("Perform mass upload of file '" + massUploadFile + "' to table '"
+                        + tableName + "'.");
             }
             final InputStream is = new FileInputStream(massUploadFile);
             try
@@ -117,7 +121,8 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
                     getCopyManager().copyIn(tableName, is);
                 } else
                 {
-                    getCopyManager().copyInQuery("COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
+                    getCopyManager().copyInQuery(
+                            "COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
                     tables.add(tableName);
                 }
             } finally
@@ -142,26 +147,28 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
             // The result returned by setval is just the value of its second argument.
             final long newSequenceValue =
                     getSimpleJdbcTemplate().queryForLong(
-                            String.format("select setval('%s', max(id)) from %s", sequenceName, tableName));
+                            String.format("select setval('%s', max(id)) from %s", sequenceName,
+                                    tableName));
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName + " to value "
-                        + newSequenceValue);
+                operationLog.info("Updating sequence " + sequenceName + " for table " + tableName
+                        + " to value " + newSequenceValue);
             }
         } catch (final DataAccessException ex)
         {
-            operationLog.error("Failed to set new value for sequence '" + sequenceName + "' of table '" + tableName
-                    + "'.", ex);
+            operationLog.error("Failed to set new value for sequence '" + sequenceName
+                    + "' of table '" + tableName + "'.", ex);
         }
     }
 
-    private final PGConnection getPGConnection() throws SQLException, NoSuchFieldException, IllegalAccessException
+    private final PGConnection getPGConnection() throws SQLException, NoSuchFieldException,
+            IllegalAccessException
     {
         return getPGConnection(dataSource.getConnection());
     }
 
-    private final PGConnection getPGConnection(final Connection conn) throws SQLException, NoSuchFieldException,
-            IllegalAccessException
+    private final PGConnection getPGConnection(final Connection conn) throws SQLException,
+            NoSuchFieldException, IllegalAccessException
     {
         if (conn instanceof PGConnection)
         {
@@ -169,7 +176,8 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         }
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Found connection of type '" + conn.getClass().getCanonicalName() + "'.");
+            operationLog.debug("Found connection of type '" + conn.getClass().getCanonicalName()
+                    + "'.");
         }
         final Field delegateField = getField(conn.getClass(), "_conn");
         if (delegateField == null)

@@ -50,52 +50,49 @@ public class DBScriptFormatter
 
     private static enum StatementClass
     {
-        CREATE_DOMAIN("Creating domains", "CREATE DOMAIN "), 
-        CREATE_TABLE("Creating tables", "CREATE TABLE "),
-        CREATE_SEQUENCE("Creating sequences", "CREATE SEQUENCE ",
+        CREATE_DOMAIN("Creating domains", "CREATE DOMAIN "), CREATE_TABLE("Creating tables",
+                "CREATE TABLE "), CREATE_SEQUENCE("Creating sequences", "CREATE SEQUENCE ",
                 new ILineProcessor()
                     {
                         public String process(String line)
                         {
-                            return StringUtils.replace(line, " NO MAXVALUE NO MINVALUE NO CYCLE", "");
+                            return StringUtils.replace(line, " NO MAXVALUE NO MINVALUE NO CYCLE",
+                                    "");
                         }
-                    }), 
-        PRIMARY_KEY_CONSTRAINTS("Creating primary key constraints", new ILineMatcher()
-        {
-            public boolean match(String line)
-            {
-                return Pattern.matches("ALTER TABLE .+ PRIMARY KEY.+", line);
-            }
-        }, null), 
-        UNIQUE_CONSTRAINTS("Creating unique constraints", new ILineMatcher()
-        {
-            public boolean match(String line)
-            {
-                return Pattern.matches("ALTER TABLE .+ UNIQUE.+", line);
-            }
-        }, null), 
-        FOREIGN_KEY_CONSTRAINTS("Creating foreign key constraints", new ILineMatcher()
-        {
-            public boolean match(String line)
-            {
-                return Pattern.matches("ALTER TABLE .+ FOREIGN KEY.+", line);
-            }
-        }, null), 
-        CHECK_CONSTRAINTS("Creating check constraints", new ILineMatcher()
-        {
-            public boolean match(String line)
-            {
-                return Pattern.matches("ALTER TABLE .+ CHECK.+", line);
-            }
-        }, null), 
-        CREATE_INDEX("Creating indices", "CREATE INDEX "), 
-        MISC("Miscellaneous", new ILineMatcher()
+                    }), PRIMARY_KEY_CONSTRAINTS("Creating primary key constraints",
+                new ILineMatcher()
+                    {
+                        public boolean match(String line)
+                        {
+                            return Pattern.matches("ALTER TABLE .+ PRIMARY KEY.+", line);
+                        }
+                    }, null), UNIQUE_CONSTRAINTS("Creating unique constraints", new ILineMatcher()
             {
                 public boolean match(String line)
                 {
-                    return true;
+                    return Pattern.matches("ALTER TABLE .+ UNIQUE.+", line);
                 }
-            }, null);
+            }, null), FOREIGN_KEY_CONSTRAINTS("Creating foreign key constraints",
+                new ILineMatcher()
+                    {
+                        public boolean match(String line)
+                        {
+                            return Pattern.matches("ALTER TABLE .+ FOREIGN KEY.+", line);
+                        }
+                    }, null), CHECK_CONSTRAINTS("Creating check constraints", new ILineMatcher()
+            {
+                public boolean match(String line)
+                {
+                    return Pattern.matches("ALTER TABLE .+ CHECK.+", line);
+                }
+            }, null), CREATE_INDEX("Creating indices", "CREATE INDEX "), MISC("Miscellaneous",
+                new ILineMatcher()
+                    {
+                        public boolean match(String line)
+                        {
+                            return true;
+                        }
+                    }, null);
 
         private ILineMatcher matcher;
 
@@ -108,7 +105,8 @@ public class DBScriptFormatter
             this(comment, prefix, null);
         }
 
-        StatementClass(final String comment, final String prefix, final ILineProcessor processorOrNull)
+        StatementClass(final String comment, final String prefix,
+                final ILineProcessor processorOrNull)
         {
             this(comment, new ILineMatcher()
                 {
@@ -116,11 +114,11 @@ public class DBScriptFormatter
                     {
                         return line.startsWith(prefix);
                     }
-                }, 
-                processorOrNull);
+                }, processorOrNull);
         }
 
-        StatementClass(final String comment, final ILineMatcher matcher, final ILineProcessor processorOrNull)
+        StatementClass(final String comment, final ILineMatcher matcher,
+                final ILineProcessor processorOrNull)
         {
             this.comment = comment;
             this.matcher = matcher;
@@ -131,7 +129,7 @@ public class DBScriptFormatter
         {
             return comment;
         }
-        
+
         public boolean matches(String statement)
         {
             return matcher.match(statement);
@@ -154,7 +152,8 @@ public class DBScriptFormatter
             {
                 break;
             }
-            if (trimmedScriptLine.substring(COMMENT.length()).trim().toUpperCase().startsWith("CREATING"))
+            if (trimmedScriptLine.substring(COMMENT.length()).trim().toUpperCase().startsWith(
+                    "CREATING"))
             {
                 continue;
             }
@@ -162,7 +161,8 @@ public class DBScriptFormatter
         }
     }
 
-    private static List<String> getOrCreateList(Map<StatementClass, List<String>> map, StatementClass key)
+    private static List<String> getOrCreateList(Map<StatementClass, List<String>> map,
+            StatementClass key)
     {
         List<String> list = map.get(key);
         if (list == null)
@@ -216,7 +216,8 @@ public class DBScriptFormatter
             System.exit(1);
         }
 
-        final PrintWriter out = new PrintWriter(new FileOutputStream(new File(args[0] + ".formatted")));
+        final PrintWriter out =
+                new PrintWriter(new FileOutputStream(new File(args[0] + ".formatted")));
 
         final String sqlScript = FileUtilities.loadToString(new File(args[0]));
         final List<String> sqlStatements = DBUtilities.splitSqlStatements(sqlScript);

@@ -41,9 +41,11 @@ import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 public class RegexFileFilterTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "RegexFileFilterTestTest");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "RegexFileFilterTestTest");
 
     @BeforeClass
     public void init()
@@ -69,7 +71,8 @@ public class RegexFileFilterTest
         createFile("baa");
         createFile("bba");
         createDirectory("bab");
-        Set<File> actual = new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter())));
+        Set<File> actual =
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter())));
         assert actual.isEmpty();
     }
 
@@ -82,17 +85,20 @@ public class RegexFileFilterTest
         final File f4 = createFile("bba");
         createDirectory("bab");
         Set<File> actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.FILE, "a.+"))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.FILE, "a.+"))));
         Set<File> expected = new HashSet<File>(Arrays.asList(f1, f2));
         assertEquals(expected, actual);
 
         actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.FILE, ".a."))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.FILE, ".a."))));
         expected = new HashSet<File>(Arrays.asList(f1, f3));
         assertEquals(expected, actual);
 
         actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.FILE, ".+a"))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.FILE, ".+a"))));
         expected = new HashSet<File>(Arrays.asList(f1, f2, f3, f4));
         assertEquals(expected, actual);
     }
@@ -106,20 +112,20 @@ public class RegexFileFilterTest
         final File d4 = createDirectory("bba");
         createFile("bab");
         Set<File> actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.DIRECTORY,
-                        "a.+"))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.DIRECTORY, "a.+"))));
         Set<File> expected = new HashSet<File>(Arrays.asList(d1, d2));
         assertEquals(expected, actual);
 
         actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.DIRECTORY,
-                        ".a."))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.DIRECTORY, ".a."))));
         expected = new HashSet<File>(Arrays.asList(d1, d3));
         assertEquals(expected, actual);
 
         actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.DIRECTORY,
-                        ".+a"))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.DIRECTORY, ".+a"))));
         expected = new HashSet<File>(Arrays.asList(d1, d2, d3, d4));
         assertEquals(expected, actual);
     }
@@ -133,15 +139,20 @@ public class RegexFileFilterTest
         final File d4 = createDirectory("bba");
         final File f5 = createFile("bab");
         Set<File> actual =
-                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.ALL, "a.+"))));
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.ALL, "a.+"))));
         Set<File> expected = new HashSet<File>(Arrays.asList(f1, d2));
         assertEquals(expected, actual);
 
-        actual = new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.ALL, ".a."))));
+        actual =
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.ALL, ".a."))));
         expected = new HashSet<File>(Arrays.asList(f1, f3, f5));
         assertEquals(expected, actual);
 
-        actual = new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(PathType.ALL, ".+a"))));
+        actual =
+                new HashSet<File>(Arrays.asList(workingDirectory.listFiles(new RegexFileFilter(
+                        PathType.ALL, ".+a"))));
         expected = new HashSet<File>(Arrays.asList(f1, d2, f3, d4));
         assertEquals(expected, actual);
     }

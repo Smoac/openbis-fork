@@ -34,7 +34,8 @@ interface ISVNCheckout
      * @param revision The revision in the repository to check out.
      * @throws SVNException If there is a problem with performing the <code>checkout</code> command.
      */
-    public void checkout(String repositoryUrl, String projectName, String revision) throws SVNException;
+    public void checkout(String repositoryUrl, String projectName, String revision)
+            throws SVNException;
 
     /**
      * @return The directory where working copies are created by {@link #checkout(String,String,String)}.

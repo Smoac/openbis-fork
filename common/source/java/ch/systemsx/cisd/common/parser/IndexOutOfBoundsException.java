@@ -24,7 +24,8 @@ package ch.systemsx.cisd.common.parser;
 public final class IndexOutOfBoundsException extends ParserException
 {
 
-    static final String MESSAGE_FORMAT = "Not enough tokens are available (index: %d, available: %d)";
+    static final String MESSAGE_FORMAT =
+            "Not enough tokens are available (index: %d, available: %d)";
 
     private static final long serialVersionUID = 1L;
 

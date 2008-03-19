@@ -31,19 +31,18 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class HCSImageAnnotations implements IAnnotations
 {
     private static final Set<Format> FORMATS =
-            Collections.unmodifiableSet(new HashSet<Format>(Arrays.asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
-    
+            Collections.unmodifiableSet(new HashSet<Format>(Arrays
+                    .asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
+
     private String deviceID;
-    
+
     private List<Channel> channels = new ArrayList<Channel>();
-    
+
     public void addChannels(Iterable<Channel> channelIterable)
     {
         for (Channel channel : channelIterable)
@@ -51,12 +50,12 @@ public class HCSImageAnnotations implements IAnnotations
             addChannel(channel);
         }
     }
-    
+
     public void addChannel(Channel channel)
     {
         channels.add(channel);
     }
-    
+
     public List<Channel> getChannels()
     {
         return Collections.unmodifiableList(channels);
@@ -77,8 +76,8 @@ public class HCSImageAnnotations implements IAnnotations
         Format format = formattedData.getFormat();
         if (FORMATS.contains(format) == false)
         {
-            throw new DataStructureException("One of the following formats expected instead of '" + format + "': "
-                    + FORMATS);
+            throw new DataStructureException("One of the following formats expected instead of '"
+                    + format + "': " + FORMATS);
         }
         // TODO 2008-01-15, Franz-Josef Elmer also checks number of channels
     }

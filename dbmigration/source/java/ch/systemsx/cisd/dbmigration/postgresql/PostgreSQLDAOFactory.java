@@ -61,8 +61,9 @@ public class PostgreSQLDAOFactory implements IDAOFactory
             throw new CheckedExceptionTunnel(ex);
         }
         databaseDAO =
-                new PostgreSQLAdminDAO(context.getAdminDataSource(), sqlScriptExecutor, massUploader, context
-                        .getOwner(), context.getDatabaseName(), context.getDatabaseURL());
+                new PostgreSQLAdminDAO(context.getAdminDataSource(), sqlScriptExecutor,
+                        massUploader, context.getOwner(), context.getDatabaseName(), context
+                                .getDatabaseURL());
     }
 
     public IDatabaseAdminDAO getDatabaseDAO()

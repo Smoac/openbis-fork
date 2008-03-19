@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common;
 
 /**
  * Constants common to more than one CISD project.
- *
+ * 
  * @author Bernd Rinn
  */
 public class Constants
@@ -26,11 +26,12 @@ public class Constants
 
     /** String that indicates a marker file */
     public static final String MARKER_PREFIX = ".MARKER_";
-    
+
     /** The prefix of marker files that indicate that the processing of some path is finished. */
     public static final String IS_FINISHED_PREFIX = MARKER_PREFIX + "is_finished_";
 
     /** The prefix of marker files that indicate that the processing of some path is finished. */
-    public static final String DELETION_IN_PROGRESS_PREFIX = MARKER_PREFIX + "deletion_in_progress_";
+    public static final String DELETION_IN_PROGRESS_PREFIX =
+            MARKER_PREFIX + "deletion_in_progress_";
 
 }

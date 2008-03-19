@@ -100,10 +100,11 @@ public class ProcessExecutionHelper
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
      */
-    public static boolean runAndLog(List<String> cmd, long millisToWaitForCompletion, Logger operationLog,
-            Logger machineLog)
+    public static boolean runAndLog(List<String> cmd, long millisToWaitForCompletion,
+            Logger operationLog, Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(cmd, millisToWaitForCompletion);
+        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(cmd,
+                millisToWaitForCompletion);
     }
 
     /**
@@ -116,10 +117,11 @@ public class ProcessExecutionHelper
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return The process result.
      */
-    public static ProcessResult run(List<String> cmd, long millisToWaitForCompletion, Logger operationLog,
-            Logger machineLog)
+    public static ProcessResult run(List<String> cmd, long millisToWaitForCompletion,
+            Logger operationLog, Logger machineLog)
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).run(cmd, millisToWaitForCompletion);
+        return new ProcessExecutionHelper(operationLog, machineLog).run(cmd,
+                millisToWaitForCompletion);
     }
 
     /**
@@ -148,7 +150,8 @@ public class ProcessExecutionHelper
         {
             return processOutput;
         }
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(processOrNull.getInputStream()));
+        final BufferedReader reader =
+                new BufferedReader(new InputStreamReader(processOrNull.getInputStream()));
         try
         {
             String ln;
@@ -158,7 +161,8 @@ public class ProcessExecutionHelper
             }
         } catch (IOException e)
         {
-            machineLog.warn(String.format("IOException when reading stdout, msg='%s'.", e.getMessage()));
+            machineLog.warn(String.format("IOException when reading stdout, msg='%s'.", e
+                    .getMessage()));
         } finally
         {
             IOUtils.closeQuietly(reader);
@@ -231,7 +235,8 @@ public class ProcessExecutionHelper
         boolean isInterrupted = false;
         try
         {
-            watchDogOrNull = tryCreateWatchDog(processStatus, millisoWaitForCompletion, commandLine.get(0));
+            watchDogOrNull =
+                    tryCreateWatchDog(processStatus, millisoWaitForCompletion, commandLine.get(0));
             final Process process;
             try
             {
@@ -279,7 +284,8 @@ public class ProcessExecutionHelper
         return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
     }
 
-    private ProcessResult createResult(List<String> commandLine, final Process processOrNull, boolean isInterrupted)
+    private ProcessResult createResult(List<String> commandLine, final Process processOrNull,
+            boolean isInterrupted)
     {
         if (processOrNull == null)
         {
@@ -288,7 +294,8 @@ public class ProcessExecutionHelper
         {
             if (isInterrupted)
             {
-                return ProcessResult.createWaitingInterrupted(processOrNull, commandLine, operationLog, machineLog);
+                return ProcessResult.createWaitingInterrupted(processOrNull, commandLine,
+                        operationLog, machineLog);
             } else
             {
                 return ProcessResult.create(processOrNull, commandLine, operationLog, machineLog);
@@ -296,22 +303,24 @@ public class ProcessExecutionHelper
         }
     }
 
-    private void logInterruption(final String commandLine, ProcessStatus terminationStatus, InterruptedException ex)
+    private void logInterruption(final String commandLine, ProcessStatus terminationStatus,
+            InterruptedException ex)
     {
         if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the watchDog
         {
             machineLog.error(String.format("Execution of %s interrupted", commandLine), ex);
         } else
         {
-            operationLog.warn(String.format("Execution of %s interrupted after timeout", commandLine));
+            operationLog.warn(String.format("Execution of %s interrupted after timeout",
+                    commandLine));
         }
     }
 
     /*
      * isTerminated is passed by reference. Access to it should be synchronized on process variable
      */
-    private Timer tryCreateWatchDog(final ProcessStatus processStatus, final long millisToWaitForCompletion,
-            final String commandForLog)
+    private Timer tryCreateWatchDog(final ProcessStatus processStatus,
+            final long millisToWaitForCompletion, final String commandForLog)
     {
         final Timer watchDogOrNull;
         if (millisToWaitForCompletion > 0L)
@@ -323,7 +332,8 @@ public class ProcessExecutionHelper
                     @Override
                     public void run()
                     {
-                        operationLog.warn(String.format("Destroy process since it didn't finish in %d milli seconds",
+                        operationLog.warn(String.format(
+                                "Destroy process since it didn't finish in %d milli seconds",
                                 millisToWaitForCompletion));
                         Process process = processStatus.tryGetProcess();
                         if (process != null)
@@ -338,7 +348,8 @@ public class ProcessExecutionHelper
                             {
                                 processStatus.setInterruptedAfterTimeout();
                                 operationLog.info(String.format(
-                                        "Interrupting waiting for the process %s by the watchDog", commandForLog));
+                                        "Interrupting waiting for the process %s by the watchDog",
+                                        commandForLog));
                                 // stop waiting for the process. We want to prevent situations when the child process,
                                 // which is an external program, gets stuck during the start or cannot be destroyed. It
                                 // would cause the whole system to hang and we do not want that.
@@ -373,8 +384,8 @@ public class ProcessExecutionHelper
         return result.isOK();
     }
 
-    public static void logProcessExecution(String commandName, int exitValue, List<String> processOutput,
-            Logger operationLog, Logger machineLog)
+    public static void logProcessExecution(String commandName, int exitValue,
+            List<String> processOutput, Logger operationLog, Logger machineLog)
     {
         if (exitValue != EXIT_VALUE_OK)
         {
@@ -387,7 +398,8 @@ public class ProcessExecutionHelper
         }
     }
 
-    private static void logProcessExitValue(final Level logLevel, Logger operationLog, String commandName, int exitValue)
+    private static void logProcessExitValue(final Level logLevel, Logger operationLog,
+            String commandName, int exitValue)
     {
         assert logLevel != null;
         assert operationLog != null;
@@ -398,13 +410,13 @@ public class ProcessExecutionHelper
             operationLog.log(logLevel, String.format("[%s] process was destroyed.", commandName));
         } else
         {
-            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", commandName,
-                    exitValue));
+            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.",
+                    commandName, exitValue));
         }
     }
 
-    private static void logProcessOutput(final Level logLevel, Logger machineLog, String commandName,
-            List<String> processOutputLines)
+    private static void logProcessOutput(final Level logLevel, Logger machineLog,
+            String commandName, List<String> processOutputLines)
     {
         assert logLevel != null;
         assert machineLog != null;

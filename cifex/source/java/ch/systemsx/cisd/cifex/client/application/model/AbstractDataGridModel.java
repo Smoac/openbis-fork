@@ -34,14 +34,16 @@ public abstract class AbstractDataGridModel implements IDataGridModel
         this.messageResources = messageResources;
     }
 
-    protected final ColumnConfig createSortableColumnConfig(final String code, final String title, final int width)
+    protected final ColumnConfig createSortableColumnConfig(final String code, final String title,
+            final int width)
     {
         final ColumnConfig columnConfig = createColumnConfig(code, title, width);
         columnConfig.setSortable(true);
         return columnConfig;
     }
 
-    protected final ColumnConfig createColumnConfig(final String code, final String title, final int width)
+    protected final ColumnConfig createColumnConfig(final String code, final String title,
+            final int width)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setDataIndex(code);

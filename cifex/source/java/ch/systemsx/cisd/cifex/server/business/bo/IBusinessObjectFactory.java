@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.cifex.server.business.bo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IBusinessObjectFactory

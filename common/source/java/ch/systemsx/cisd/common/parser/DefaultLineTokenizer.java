@@ -52,7 +52,8 @@ public class DefaultLineTokenizer implements ILineTokenizer
     private final Map<PropertyKey, String> properties;
 
     /** The default <code>StrMatcher</code> for each <code>PropertyKey</code>. */
-    private final static Map<PropertyKey, StrMatcher> defaultStrMatchers = createDefaultStrMatchers();
+    private final static Map<PropertyKey, StrMatcher> defaultStrMatchers =
+            createDefaultStrMatchers();
 
     /**
      * Original value is <code>null</code>.
@@ -69,7 +70,8 @@ public class DefaultLineTokenizer implements ILineTokenizer
 
     private static final Map<PropertyKey, StrMatcher> createDefaultStrMatchers()
     {
-        EnumMap<PropertyKey, StrMatcher> map = new EnumMap<PropertyKey, StrMatcher>(PropertyKey.class);
+        EnumMap<PropertyKey, StrMatcher> map =
+                new EnumMap<PropertyKey, StrMatcher>(PropertyKey.class);
         map.put(PropertyKey.SEPARATOR_CHARS, StrMatcher.tabMatcher());
         map.put(PropertyKey.QUOTE_CHARS, StrMatcher.noneMatcher());
         map.put(PropertyKey.TRIMMER_CHARS, StrMatcher.trimMatcher());

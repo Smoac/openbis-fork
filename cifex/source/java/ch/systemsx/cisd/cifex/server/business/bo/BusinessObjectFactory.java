@@ -20,13 +20,12 @@ import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class BusinessObjectFactory implements IBusinessObjectFactory
 {
     private final IDAOFactory daoFactory;
+
     private final IBusinessContext businessContext;
 
     /**
@@ -38,7 +37,7 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         this.daoFactory = daoFactory;
         this.businessContext = businessContext;
     }
-    
+
     public IUserBO createUserBO()
     {
         return new UserBO(daoFactory, businessContext);

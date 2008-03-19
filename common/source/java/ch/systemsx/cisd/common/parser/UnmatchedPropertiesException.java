@@ -49,8 +49,9 @@ public final class UnmatchedPropertiesException extends ParserException
      */
     private final Set<String> propertyNames;
 
-    public UnmatchedPropertiesException(final Class<?> beanClass, final Set<String> allPropertyNames,
-            final Set<String> mandatoryNames, final Set<String> optionalNames, final Set<String> propertyNames)
+    public UnmatchedPropertiesException(final Class<?> beanClass,
+            final Set<String> allPropertyNames, final Set<String> mandatoryNames,
+            final Set<String> optionalNames, final Set<String> propertyNames)
     {
         super(createMessage(beanClass, propertyNames));
         assert allPropertyNames != null : "All property names can not be null.";
@@ -63,13 +64,14 @@ public final class UnmatchedPropertiesException extends ParserException
         this.propertyNames = propertyNames;
     }
 
-    private final static String createMessage(final Class<?> beanClass, final Set<String> propertyNames)
+    private final static String createMessage(final Class<?> beanClass,
+            final Set<String> propertyNames)
     {
         assert beanClass != null : "Bean class can not be null.";
         assert propertyNames != null : "Property names can not be null.";
         assert propertyNames.size() > 0 : "There is no reason to throw this exception.";
-        return String.format(MESSAGE_FORMAT, beanClass.getSimpleName(), MandatoryPropertyMissingException
-                .toString((propertyNames)));
+        return String.format(MESSAGE_FORMAT, beanClass.getSimpleName(),
+                MandatoryPropertyMissingException.toString((propertyNames)));
     }
 
     public final Class<?> getBeanClass()

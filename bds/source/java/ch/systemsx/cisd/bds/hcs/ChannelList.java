@@ -49,7 +49,8 @@ public final class ChannelList implements IStorable, Iterable<Channel>
         assert channels != null && channels.size() > 0 : "At least one channel must be specified.";
         if (new HashSet<Channel>(channels).size() != channels.size())
         {
-            throw new DataStructureException(String.format("Some duplicate channels in '%s'.", channels));
+            throw new DataStructureException(String.format("Some duplicate channels in '%s'.",
+                    channels));
         }
         this.channels = channels;
     }

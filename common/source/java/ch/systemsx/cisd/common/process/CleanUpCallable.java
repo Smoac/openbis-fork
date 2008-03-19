@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.process;
 
-
 /**
  * A class that implements the logic of cleaning up a resource even in case of an exception but re-throws an exception
  * of the clean up procedure only when the main procedure didn't throw one. <code>CleanUpRunner</code>s can be

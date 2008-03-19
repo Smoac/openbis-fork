@@ -90,9 +90,9 @@ public interface ICIFEXService extends RemoteService
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final User user, final String password, final User registratorOrNull, final String comment)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
-            InsufficientPrivilegesException;
+    public void createUser(final User user, final String password, final User registratorOrNull,
+            final String comment) throws EnvironmentFailureException, UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException;
 
     /** Update the fields of the user in the database. */
     public void updateUser(final User user, final String password) throws InvalidSessionException,
@@ -103,8 +103,8 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws UserNotFoundException if the user with the given <var>userCode</var> was not found.
      */
-    public void deleteUser(final String userCode) throws InvalidSessionException, InsufficientPrivilegesException,
-            UserNotFoundException;
+    public void deleteUser(final String userCode) throws InvalidSessionException,
+            InsufficientPrivilegesException, UserNotFoundException;
 
     /**
      * List the files that have been uploaded for the currently logged in user.
@@ -132,15 +132,16 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws FileNotFoundException If the file defined by <var>id</var> could not be found.
      */
-    public void deleteFile(final long id) throws InvalidSessionException, InsufficientPrivilegesException,
-            FileNotFoundException;
+    public void deleteFile(final long id) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException;
 
     /**
      * Registers the file names for the next upload request in the session.
      * 
      * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
      */
-    public void registerFilenamesForUpload(final String[] filenamesForUpload) throws InvalidSessionException;
+    public void registerFilenamesForUpload(final String[] filenamesForUpload)
+            throws InvalidSessionException;
 
     /**
      * Gets current file upload feedback.
@@ -156,7 +157,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
-    public void updateFileExpiration(final long id, final Date newExpirationDate) throws InvalidSessionException,
-            InsufficientPrivilegesException;
+    public void updateFileExpiration(final long id, final Date newExpirationDate)
+            throws InvalidSessionException, InsufficientPrivilegesException;
 
 }

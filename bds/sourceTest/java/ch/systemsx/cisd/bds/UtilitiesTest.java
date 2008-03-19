@@ -97,7 +97,8 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         dir2.mkdir();
         createFile(dir1, "file2");
         createFile(dir2, "file3");
-        final List<String> nodes = Utilities.listNodes(NodeFactory.createDirectoryNode(workingDirectory), null);
+        final List<String> nodes =
+                Utilities.listNodes(NodeFactory.createDirectoryNode(workingDirectory), null);
         assertEquals(3, nodes.size());
         Collections.sort(nodes);
         assertEquals("dir1/file2", nodes.get(0));

@@ -40,7 +40,8 @@ public class DBRestrictionParser
 {
     private static final String CREATE_DOMAIN_PREFIX = "create domain ";
 
-    private static final Pattern VARCHAR_PATTERN = Pattern.compile("(varchar|character varying)\\(([0-9]+)\\).*");
+    private static final Pattern VARCHAR_PATTERN =
+            Pattern.compile("(varchar|character varying)\\(([0-9]+)\\).*");
 
     /** The prefix each <code>create table</code> statement starts with. */
     private static final String CREATE_TABLE_PREFIX = "create table ";
@@ -50,18 +51,21 @@ public class DBRestrictionParser
 
     private static final Pattern NOT_NULL_TABLE_PATTERN =
             Pattern.compile("\\w+ ((default .+ not null)|(not null)|(not null .+ default.+))");
-    
+
     /** The prefix each <code>alter table</code> statement starts with (to add a constraint). */
     private static final String ALTER_TABLE_PREFIX = "alter table ";
 
     private static final Pattern CHECK_CONSTRAINT_PATTERN =
-            Pattern.compile(ALTER_TABLE_PREFIX
-                    + "([a-z,0-9,_]+) add constraint [a-z,0-9,_]+ check \\(([a-z,0-9,_]+) in \\((.+)\\)\\)");
+            Pattern
+                    .compile(ALTER_TABLE_PREFIX
+                            + "([a-z,0-9,_]+) add constraint [a-z,0-9,_]+ check \\(([a-z,0-9,_]+) in \\((.+)\\)\\)");
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBRestrictionParser.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DBRestrictionParser.class);
 
     // @Private
-    final Map<String, DBTableRestrictions> tableRestrictionMap = new HashMap<String, DBTableRestrictions>();
+    final Map<String, DBTableRestrictions> tableRestrictionMap =
+            new HashMap<String, DBTableRestrictions>();
 
     public DBRestrictionParser(String ddlScript)
     {
@@ -135,8 +139,8 @@ public class DBRestrictionParser
         }
     }
 
-    private void parseColumnDefinition(String columnDefinition, final String tableName, Map<String, Integer> domains)
-            throws NumberFormatException
+    private void parseColumnDefinition(String columnDefinition, final String tableName,
+            Map<String, Integer> domains) throws NumberFormatException
     {
         if (columnDefinition.startsWith("constraint "))
         {
@@ -145,7 +149,8 @@ public class DBRestrictionParser
         int indexOfFirstSpace = columnDefinition.indexOf(' ');
         if (indexOfFirstSpace < 0)
         {
-            operationLog.warn("Invalid column definition \"" + columnDefinition + "\" for table " + tableName);
+            operationLog.warn("Invalid column definition \"" + columnDefinition + "\" for table "
+                    + tableName);
             return;
         }
         String columnName = columnDefinition.substring(0, indexOfFirstSpace).trim();
@@ -157,8 +162,8 @@ public class DBRestrictionParser
         final Matcher varCharMatcher = VARCHAR_PATTERN.matcher(typeDefinition);
         if (varCharMatcher.matches())
         {
-            getTableRestrictions(tableName).columnLengthMap.put(columnName, Integer.parseInt(varCharMatcher
-                    .group(2)));
+            getTableRestrictions(tableName).columnLengthMap.put(columnName, Integer
+                    .parseInt(varCharMatcher.group(2)));
         } else
         {
             final Integer domainLength = domains.get(StringUtils.split(typeDefinition, ' ')[0]);
@@ -167,7 +172,7 @@ public class DBRestrictionParser
                 getTableRestrictions(tableName).columnLengthMap.put(columnName, domainLength);
             }
         }
-        
+
         if (NOT_NULL_TABLE_PATTERN.matcher(typeDefinition).matches())
         {
             getTableRestrictions(tableName).notNullSet.add(columnName);
@@ -188,15 +193,17 @@ public class DBRestrictionParser
                 final Set<String> alternativeSet = new HashSet<String>();
                 for (String alternative : alternatives)
                 {
-                    if (alternative.charAt(0) != '\'' || alternative.charAt(alternative.length() - 1) != '\'')
+                    if (alternative.charAt(0) != '\''
+                            || alternative.charAt(alternative.length() - 1) != '\'')
                     {
-                        operationLog.warn("Invalid alternatives definition \"" + alternative + "\" for column "
-                                + columnName + " of table " + tableName);
+                        operationLog.warn("Invalid alternatives definition \"" + alternative
+                                + "\" for column " + columnName + " of table " + tableName);
                         continue;
                     }
                     alternativeSet.add(alternative.substring(1, alternative.length() - 1));
                 }
-                getTableRestrictions(tableName).checkedConstraintsMap.put(columnName, alternativeSet);
+                getTableRestrictions(tableName).checkedConstraintsMap.put(columnName,
+                        alternativeSet);
             }
         }
     }
@@ -220,5 +227,5 @@ public class DBRestrictionParser
     {
         return Collections.unmodifiableMap(tableRestrictionMap);
     }
-    
+
 }

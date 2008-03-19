@@ -42,10 +42,11 @@ public final class ModelBasedGrid extends Grid
 
     private final IDataGridModel model;
 
-    public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects, final IDataGridModel model)
+    public ModelBasedGrid(final IMessageResources messageResources, final Object[] objects,
+            final IDataGridModel model)
     {
-        super(Ext.generateId(), null, getHeight(objects), createStore(objects, model), createColumnModel(
-                messageResources, model), createGridConfig());
+        super(Ext.generateId(), null, getHeight(objects), createStore(objects, model),
+                createColumnModel(messageResources, model), createGridConfig());
         this.model = model;
         // To turn off the row selection.
         getSelectionModel().lock();
@@ -59,7 +60,8 @@ public final class ModelBasedGrid extends Grid
         return "170px";
     }
 
-    private final static DataProxy createDataProxy(final Object[] objects, final IDataGridModel newModel)
+    private final static DataProxy createDataProxy(final Object[] objects,
+            final IDataGridModel newModel)
     {
         return new MemoryProxy((Object[][]) newModel.getData(objects).toArray(OBJECT_ARRAY_ARRAY));
     }
@@ -68,14 +70,16 @@ public final class ModelBasedGrid extends Grid
     private final static Store createStore(final Object[] objects, final IDataGridModel model)
     {
         final DataProxy memoryProxy = createDataProxy(objects, model);
-        final RecordDef recordDef = new RecordDef((FieldDef[]) model.getFieldDefs().toArray(new FieldDef[0]));
+        final RecordDef recordDef =
+                new RecordDef((FieldDef[]) model.getFieldDefs().toArray(new FieldDef[0]));
         return new Store(memoryProxy, new ArrayReader(recordDef));
     }
 
     private final static ColumnModel createColumnModel(final IMessageResources messageResources,
             final IDataGridModel model)
     {
-        return new ColumnModel((ColumnConfig[]) model.getColumnConfigs().toArray(new ColumnConfig[0]));
+        return new ColumnModel((ColumnConfig[]) model.getColumnConfigs().toArray(
+                new ColumnConfig[0]));
     }
 
     private final static GridConfig createGridConfig()

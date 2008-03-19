@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.db;
 
 /**
  * Implementation of {@link ISequencerHandler} for Oracle.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class OracleSequencerHandler implements ISequencerHandler

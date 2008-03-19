@@ -45,7 +45,8 @@ public final class ClassUtils
     /**
      * Gathers all classes and interfaces the specified object can be casted to.
      */
-    public final static Collection<Class<?>> gatherAllCastableClassesAndInterfacesFor(final Object object)
+    public final static Collection<Class<?>> gatherAllCastableClassesAndInterfacesFor(
+            final Object object)
     {
         assert object != null : "Unspecified object";
 
@@ -134,7 +135,8 @@ public final class ClassUtils
      *            <code>null</code> arguments but rather as <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
-    public static <T> T create(final Class<T> superClazz, final String className, final Object... argumentsOrNull)
+    public static <T> T create(final Class<T> superClazz, final String className,
+            final Object... argumentsOrNull)
     {
         assert superClazz != null : "Missing super class";
         assert className != null : "Missing class name";
@@ -144,8 +146,8 @@ public final class ClassUtils
             final Class<?> clazz = Class.forName(className);
             assert clazz.isInterface() == false : "Interface '" + clazz.getName()
                     + "' can not be instanciated as it is an interface.";
-            assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName() + "' does not implements/extends '"
-                    + superClazz.getName() + "'.";
+            assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName()
+                    + "' does not implements/extends '" + superClazz.getName() + "'.";
             if (argumentsOrNull == null)
             {
                 return cast(clazz.newInstance());
@@ -154,8 +156,8 @@ public final class ClassUtils
             final Constructor<T> constructor = getConstructor(clazz, classes);
             if (constructor == null)
             {
-                throw new IllegalArgumentException(String.format("No constructor could be found for classes '%s'.",
-                        Arrays.asList(classes)));
+                throw new IllegalArgumentException(String.format(
+                        "No constructor could be found for classes '%s'.", Arrays.asList(classes)));
             }
             return constructor.newInstance(argumentsOrNull);
         } catch (final ClassNotFoundException e)
@@ -169,8 +171,9 @@ public final class ClassUtils
         } catch (final NoSuchMethodException ex)
         {
         }
-        throw new IllegalArgumentException(String.format("Cannot instantiate class '%s' with given arguments '%s'.",
-                className, Arrays.asList(argumentsOrNull)));
+        throw new IllegalArgumentException(String.format(
+                "Cannot instantiate class '%s' with given arguments '%s'.", className, Arrays
+                        .asList(argumentsOrNull)));
     }
 
     @SuppressWarnings("unchecked")
@@ -190,8 +193,8 @@ public final class ClassUtils
         return classes;
     }
 
-    private final static <T> Constructor<T> getConstructor(final Class<?> clazz, final Class<?>[] classes)
-            throws NoSuchMethodException
+    private final static <T> Constructor<T> getConstructor(final Class<?> clazz,
+            final Class<?>[] classes) throws NoSuchMethodException
     {
         final Constructor<?>[] constructors = clazz.getConstructors();
         Constructor<?> returned = null;
@@ -250,7 +253,8 @@ public final class ClassUtils
      * Wraps any checked exception in a {@link CheckedExceptionTunnel}.
      * </p>
      */
-    public final static void invokeMethod(final Method method, final Object obj, final Object... args)
+    public final static void invokeMethod(final Method method, final Object obj,
+            final Object... args)
     {
         try
         {
@@ -274,7 +278,8 @@ public final class ClassUtils
      * 
      * @return a <code>true</code> if <code>fieldName</code> has been modified.
      */
-    public final static boolean setFieldValue(final Object object, final String fieldName, final Object newValue)
+    public final static boolean setFieldValue(final Object object, final String fieldName,
+            final Object newValue)
     {
         assert object != null : "Unspecified object.";
         final Class<?> clazz = object.getClass();

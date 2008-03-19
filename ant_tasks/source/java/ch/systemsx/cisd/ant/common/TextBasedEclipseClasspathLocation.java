@@ -24,13 +24,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 
 /**
- * 
- *
  * @author felmer
  */
 public class TextBasedEclipseClasspathLocation implements IEclipseClasspathLocation
 {
     private final String text;
+
     private final String displayableLocation;
 
     public TextBasedEclipseClasspathLocation(String text, String displayableLocation)
@@ -39,7 +38,7 @@ public class TextBasedEclipseClasspathLocation implements IEclipseClasspathLocat
         this.text = text;
         this.displayableLocation = displayableLocation == null ? "UNKNOWN" : displayableLocation;
     }
-    
+
     public String getDisplayableLocation()
     {
         return displayableLocation;

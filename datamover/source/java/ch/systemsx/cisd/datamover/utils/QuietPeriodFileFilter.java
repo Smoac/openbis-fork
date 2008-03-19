@@ -51,9 +51,11 @@ public class QuietPeriodFileFilter
 
     private static final String TIME_FORMAT_TEMPLATE = "%#$tY-%#$tm-%#$td %#$tH:%#$tM:%#$tS";
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, QuietPeriodFileFilter.class);
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, QuietPeriodFileFilter.class);
 
-    private final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, QuietPeriodFileFilter.class);
+    private final static Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, QuietPeriodFileFilter.class);
 
     private final long quietPeriodMillis;
 
@@ -205,12 +207,13 @@ public class QuietPeriodFileFilter
     }
 
     // @Private
-    static String getClockProblemLogMessage(final String pathname, final long oldCheck, final long oldLastChanged,
-            final long newCheck, final long newLastChanged)
+    static String getClockProblemLogMessage(final String pathname, final long oldCheck,
+            final long oldLastChanged, final long newCheck, final long newLastChanged)
     {
-        return String.format("Last modification time of path '%1$s' jumped back: check at " + getTimeFormat(2)
-                + " -> last modification time " + getTimeFormat(3) + ", check at later time " + getTimeFormat(4)
-                + " -> last modification time " + getTimeFormat(5) + " (which is %6$d ms younger)", pathname, oldCheck,
+        return String.format("Last modification time of path '%1$s' jumped back: check at "
+                + getTimeFormat(2) + " -> last modification time " + getTimeFormat(3)
+                + ", check at later time " + getTimeFormat(4) + " -> last modification time "
+                + getTimeFormat(5) + " (which is %6$d ms younger)", pathname, oldCheck,
                 oldLastChanged, newCheck, newLastChanged, (oldLastChanged - newLastChanged));
     }
 

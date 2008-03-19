@@ -36,9 +36,11 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
  */
 class RetryingPathMover implements IPathMover
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
 
     private final int maxRetriesOnFailure;
 
@@ -63,18 +65,22 @@ class RetryingPathMover implements IPathMover
         assert prefixTemplate != null;
         assert sourcePath != null;
 
-        final String destinationPath = createDestinationPath(sourcePath, null, destinationDirectory, prefixTemplate);
+        final String destinationPath =
+                createDestinationPath(sourcePath, null, destinationDirectory, prefixTemplate);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Moving path '%s' to '%s'", sourcePath.getPath(), destinationPath));
+            operationLog.info(String.format("Moving path '%s' to '%s'", sourcePath.getPath(),
+                    destinationPath));
         }
         File destFile = new File(destinationPath);
         final FileRenamingProcess process =
-                new FileRenamingProcess(maxRetriesOnFailure, millisToSleepOnFailure, sourcePath, destFile);
+                new FileRenamingProcess(maxRetriesOnFailure, millisToSleepOnFailure, sourcePath,
+                        destFile);
         new ProcessRunner(process);
         if (process.isRenamed() == false)
         {
-            notificationLog.error(String.format("Moving path '%s' to directory '%s' failed, giving up.", sourcePath,
+            notificationLog.error(String.format(
+                    "Moving path '%s' to directory '%s' failed, giving up.", sourcePath,
                     destinationDirectory));
             return null;
         } else
@@ -102,14 +108,14 @@ class RetryingPathMover implements IPathMover
 
         } else
         {
-            return destinationDirectory.getAbsolutePath() + File.separator + createPrefix(prefixTemplate)
-                    + sourcePath.getName();
+            return destinationDirectory.getAbsolutePath() + File.separator
+                    + createPrefix(prefixTemplate) + sourcePath.getName();
         }
     }
 
     private static String createPrefix(String prefixTemplate)
     {
-        return StringUtils.replace(prefixTemplate, "%t", DateFormatUtils.format(System.currentTimeMillis(),
-                "yyyyMMddHHmmss"));
+        return StringUtils.replace(prefixTemplate, "%t", DateFormatUtils.format(System
+                .currentTimeMillis(), "yyyyMMddHHmmss"));
     }
 }

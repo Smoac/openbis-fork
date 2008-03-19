@@ -46,7 +46,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** Analyzes specified <code>beanClass</code> for its mandatory resp. optional properties. */
     private final BeanAnalyzer<E> beanAnalyzer;
 
-    protected AbstractParserObjectFactory(final Class<E> beanClass, final IAliasPropertyMapper propertyMapper)
+    protected AbstractParserObjectFactory(final Class<E> beanClass,
+            final IAliasPropertyMapper propertyMapper)
     {
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
@@ -102,8 +103,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * not be found in the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
-    private final void checkPropertyMapper(final Class<E> clazz, final IAliasPropertyMapper propMapper)
-            throws ParserException
+    private final void checkPropertyMapper(final Class<E> clazz,
+            final IAliasPropertyMapper propMapper) throws ParserException
     {
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
         final Set<String> propertyNames = new LinkedHashSet<String>(allPropertyNames);
@@ -120,17 +121,18 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
                 missingProperties.add(fieldName);
             }
         }
-        final Set<String> mandatoryPropertyNames = getPropertyNames(beanAnalyzer.getMandatoryProperties(), propMapper);
+        final Set<String> mandatoryPropertyNames =
+                getPropertyNames(beanAnalyzer.getMandatoryProperties(), propMapper);
         if (missingProperties.size() > 0)
         {
-            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, getPropertyNames(missingProperties,
-                    propMapper));
+            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, getPropertyNames(
+                    missingProperties, propMapper));
         }
         if (propertyNames.size() > 0)
         {
             Set<String> names = getPropertyNames(beanAnalyzer.getOptionalProperties(), propMapper);
-            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames, names,
-                    propertyNames);
+            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames,
+                    names, propertyNames);
         }
     }
 
@@ -152,7 +154,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         return propertyNames;
     }
 
-    private final String getPropertyValue(final String[] lineTokens, final IPropertyModel propertyModel)
+    private final String getPropertyValue(final String[] lineTokens,
+            final IPropertyModel propertyModel)
     {
         final int column = propertyModel.getColumn();
         if (column >= lineTokens.length)
@@ -169,7 +172,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     public E createObject(final String[] lineTokens) throws ParserException
     {
         final E object = ClassUtils.createInstance(beanClass);
-        for (final Map.Entry<String, Method> entry : beanAnalyzer.getLabelToWriteMethods().entrySet())
+        for (final Map.Entry<String, Method> entry : beanAnalyzer.getLabelToWriteMethods()
+                .entrySet())
         {
             final Method writeMethod = entry.getValue();
             final IPropertyModel propertyModel = tryGetPropertyModel(entry.getKey());
@@ -178,8 +182,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             if (propertyModel != null)
             {
                 final String propertyValue = getPropertyValue(lineTokens, propertyModel);
-                ClassUtils
-                        .invokeMethod(writeMethod, object, convert(propertyValue, writeMethod.getParameterTypes()[0]));
+                ClassUtils.invokeMethod(writeMethod, object, convert(propertyValue, writeMethod
+                        .getParameterTypes()[0]));
             }
         }
         return object;

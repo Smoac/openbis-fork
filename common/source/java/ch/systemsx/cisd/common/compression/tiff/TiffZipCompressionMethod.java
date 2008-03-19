@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-
 import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -75,10 +74,11 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
         assert fileToCompress.isFile();
         assert inProgressFile != null;
         assert inProgressFile.exists() == false;
-    
+
         final List<String> parameters =
-                Arrays.asList(convertExecutable.getAbsolutePath(), fileToCompress.getAbsolutePath(), "-compress",
-                        "Zip", inProgressFile.getAbsolutePath());
+                Arrays.asList(convertExecutable.getAbsolutePath(),
+                        fileToCompress.getAbsolutePath(), "-compress", "Zip", inProgressFile
+                                .getAbsolutePath());
         return parameters;
     }
 
@@ -87,15 +87,17 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
     {
         return Arrays.asList(".tif", ".tiff");
     }
-    
+
     @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         if (convertExecutable == null)
         {
-            throw new ConfigurationFailureException("Cannot find executable of the convert utility.");
+            throw new ConfigurationFailureException(
+                    "Cannot find executable of the convert utility.");
         }
-        final String imageMagickVersionOrNull = getImageMagickVersion(convertExecutable.getAbsolutePath());
+        final String imageMagickVersionOrNull =
+                getImageMagickVersion(convertExecutable.getAbsolutePath());
         if (imageMagickVersionOrNull == null)
         {
             throw new ConfigurationFailureException("Invalid convert utility");
@@ -110,12 +112,13 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
         if (imageMagickMajorVersion < 6 || imageMagickMinorVersion < 2)
         {
             throw ConfigurationFailureException.fromTemplate(
-                    "Convert utility is too old (expected: v6.2 or newer, found: v%s)", imageMagickVersionOrNull);
+                    "Convert utility is too old (expected: v6.2 or newer, found: v%s)",
+                    imageMagickVersionOrNull);
         }
         if (machineLog.isInfoEnabled())
         {
-            machineLog.info(String.format("Using convert executable '%s', ImageMagick version %s", convertExecutable,
-                    imageMagickVersionOrNull));
+            machineLog.info(String.format("Using convert executable '%s', ImageMagick version %s",
+                    convertExecutable, imageMagickVersionOrNull));
         }
     }
 

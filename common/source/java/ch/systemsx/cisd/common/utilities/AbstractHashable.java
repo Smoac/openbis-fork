@@ -23,7 +23,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  * If you want your class to behave correctly when used in {@link Map}s or {@link Set}s, you can do this by:
  * <ol>
@@ -55,6 +54,7 @@ public abstract class AbstractHashable
     @Override
     public final String toString()
     {
-        return ToStringBuilder.reflectionToString(this, ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
 }

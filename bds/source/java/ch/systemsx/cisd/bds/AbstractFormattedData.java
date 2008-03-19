@@ -53,14 +53,15 @@ public abstract class AbstractFormattedData implements IFormattedData
         final String formatCode = getFormat().getCode();
         if (format.getCode().equals(formatCode) == false)
         {
-            throw new DataStructureException(String.format("Format codes do not match: '%s' versus '%s'.", format
-                    .getCode(), formatCode));
+            throw new DataStructureException(String.format(
+                    "Format codes do not match: '%s' versus '%s'.", format.getCode(), formatCode));
         }
         final Version formatVersion = getFormat().getVersion();
         if (format.getVersion().isBackwardsCompatibleWith(formatVersion) == false)
         {
             throw new DataStructureException(String.format(
-                    "Version '%s' is not backwards compatible with version '%s'.", format.getVersion(), formatVersion));
+                    "Version '%s' is not backwards compatible with version '%s'.", format
+                            .getVersion(), formatVersion));
         }
     }
 

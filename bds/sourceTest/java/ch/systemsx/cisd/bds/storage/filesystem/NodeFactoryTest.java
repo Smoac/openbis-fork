@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Test cases for corresponding {@link NodeFactory} class.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class NodeFactoryTest extends AbstractFileSystemTestCase
@@ -43,7 +43,7 @@ public class NodeFactoryTest extends AbstractFileSystemTestCase
         assertTrue(node instanceof IFile);
         assertEquals("text.txt", node.getName());
     }
-    
+
     @Test
     public void testCreateDirectoryNode()
     {

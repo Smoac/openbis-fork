@@ -35,7 +35,7 @@ interface ISVNCopy
      * @param logMessage The log message to set in the revision properties.
      * @throws SVNException If there is a problem with performing the <code>copy</code> command.
      */
-    public void copy(String sourcePathOrUrl, String sourceRevision, String destinationPathOrUrl, String logMessage)
-            throws SVNException;
+    public void copy(String sourcePathOrUrl, String sourceRevision, String destinationPathOrUrl,
+            String logMessage) throws SVNException;
 
 }

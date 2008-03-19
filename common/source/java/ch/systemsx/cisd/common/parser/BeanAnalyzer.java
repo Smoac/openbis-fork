@@ -56,14 +56,16 @@ final class BeanAnalyzer<T>
 
     private final void fillProperties()
     {
-        final List<Method> annotatedMethods = AnnotationUtils.getAnnotatedMethodList(beanClass, BeanProperty.class);
+        final List<Method> annotatedMethods =
+                AnnotationUtils.getAnnotatedMethodList(beanClass, BeanProperty.class);
         for (final Method method : annotatedMethods)
         {
             checkMethod(method);
             final BeanProperty annotation = method.getAnnotation(BeanProperty.class);
             final String label = annotation.label();
             assert StringUtils.isNotEmpty(label) : String.format(
-                    "BeanProperty annotation's label is not specified for method '%s'", method.getName());
+                    "BeanProperty annotation's label is not specified for method '%s'", method
+                            .getName());
             labelToWriteMethods.put(label, method);
             final boolean optional = annotation.optional();
             checkUnique(label, optional);
@@ -80,18 +82,19 @@ final class BeanAnalyzer<T>
     private final static void checkMethod(final Method method)
     {
         final Class<?> returnType = method.getReturnType();
-        assert returnType.equals(Void.TYPE) : String.format("Return value of method '%s' must be void.", method
-                .getName());
+        assert returnType.equals(Void.TYPE) : String.format(
+                "Return value of method '%s' must be void.", method.getName());
         final Class<?>[] parameterTypes = method.getParameterTypes();
-        assert parameterTypes.length == 1 : String.format("Annotated method '%s' must only accept one parameter.",
-                method.getName());
+        assert parameterTypes.length == 1 : String.format(
+                "Annotated method '%s' must only accept one parameter.", method.getName());
     }
 
     private final void checkUnique(final String fieldName, final boolean optional)
     {
-        assert optionalProperties.contains(fieldName) == false && mandatoryProperties.contains(fieldName) == false : String
-                .format("%s bean property '%s' already found and must be unique.", optional ? "Optional" : "Mandatory",
-                        fieldName);
+        assert optionalProperties.contains(fieldName) == false
+                && mandatoryProperties.contains(fieldName) == false : String.format(
+                "%s bean property '%s' already found and must be unique.", optional ? "Optional"
+                        : "Mandatory", fieldName);
     }
 
     /** Whether given <code>property</code> is mandatory. */

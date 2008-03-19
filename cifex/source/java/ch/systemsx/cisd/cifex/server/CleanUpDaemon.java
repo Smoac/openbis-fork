@@ -34,7 +34,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class CleanUpDaemon extends TimerTask
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CleanUpDaemon.class);
 
     private final Stopwatch timer = new Stopwatch();
 

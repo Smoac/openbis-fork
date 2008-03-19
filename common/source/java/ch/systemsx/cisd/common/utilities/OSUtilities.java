@@ -69,7 +69,7 @@ public class OSUtilities
     {
         return System.getProperty("os.arch") + "-" + System.getProperty("os.name");
     }
-    
+
     /**
      * @return The name of user that runs this program.
      */
@@ -98,7 +98,8 @@ public class OSUtilities
      */
     public static Set<String> getOSPath()
     {
-        final String[] pathEntries = System.getenv("PATH").split(Pattern.quote(System.getProperty("path.separator")));
+        final String[] pathEntries =
+                System.getenv("PATH").split(Pattern.quote(System.getProperty("path.separator")));
         return new LinkedHashSet<String>(Arrays.asList(pathEntries));
     }
 
@@ -172,7 +173,8 @@ public class OSUtilities
      */
     public static File findExecutable(String executableName, Set<String> pathSet)
     {
-        final String executableNameWithExtension = addWindowsExecutableExtensionIfNecessary(executableName);
+        final String executableNameWithExtension =
+                addWindowsExecutableExtensionIfNecessary(executableName);
         for (String dir : pathSet)
         {
             final File fileToCheck = new File(dir, executableNameWithExtension);
@@ -189,7 +191,8 @@ public class OSUtilities
      */
     public static boolean executableExists(String executableName)
     {
-        return (new File(OSUtilities.addWindowsExecutableExtensionIfNecessary(executableName))).exists();
+        return (new File(OSUtilities.addWindowsExecutableExtensionIfNecessary(executableName)))
+                .exists();
     }
 
     /**
@@ -197,7 +200,8 @@ public class OSUtilities
      */
     public static boolean executableExists(File executable)
     {
-        return (new File(OSUtilities.addWindowsExecutableExtensionIfNecessary(executable.getPath()))).exists();
+        return (new File(OSUtilities.addWindowsExecutableExtensionIfNecessary(executable.getPath())))
+                .exists();
     }
 
     private static String addWindowsExecutableExtensionIfNecessary(String executableName)

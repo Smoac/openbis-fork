@@ -236,7 +236,8 @@ public class DatabaseConfigurationContext implements DisposableBean
         if (adminDataSource == null)
         {
             adminDataSource =
-                    dataSourceFactory.createDataSource(getDriver(), getAdminURL(), getAdminUser(), getAdminPassword());
+                    dataSourceFactory.createDataSource(getDriver(), getAdminURL(), getAdminUser(),
+                            getAdminPassword());
         }
         return adminDataSource;
     }
@@ -471,7 +472,8 @@ public class DatabaseConfigurationContext implements DisposableBean
      * @param databaseEngineCode New value.
      * @throws ConfigurationFailureException If there is no such database engine.
      */
-    public final void setDatabaseEngineCode(String databaseEngineCode) throws ConfigurationFailureException
+    public final void setDatabaseEngineCode(String databaseEngineCode)
+            throws ConfigurationFailureException
     {
         this.databaseEngine = DatabaseEngine.getEngineForCode(databaseEngineCode);
     }

@@ -41,14 +41,14 @@ public final class ValidatorUtilsTest
         {
             // Nothing to do here.
         }
-        
+
         s = "hello";
         String regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("hello", regEx);
         Pattern pattern = Pattern.compile(regEx);
         assertEquals(false, pattern.matcher("heelo").matches());
         assertEquals(true, pattern.matcher("hello").matches());
-        
+
         s = "he?lo";
         regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("he.lo", regEx);
@@ -56,7 +56,7 @@ public final class ValidatorUtilsTest
         assertEquals(true, pattern.matcher("heelo").matches());
         assertEquals(false, pattern.matcher("helllo").matches());
         assertEquals(false, pattern.matcher("xhello").matches());
-    
+
         s = "he?l";
         regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("he.l", regEx);
@@ -65,7 +65,7 @@ public final class ValidatorUtilsTest
         assertEquals(true, pattern.matcher("heul").matches());
         assertEquals(false, pattern.matcher("hello").matches());
         assertEquals(false, pattern.matcher("helloo").matches());
-        
+
         s = "he*o";
         regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("he.*o", regEx);
@@ -74,11 +74,11 @@ public final class ValidatorUtilsTest
         assertEquals(true, pattern.matcher("helllllllllllllllo").matches());
         assertEquals(true, pattern.matcher("helloo").matches());
         assertEquals(false, pattern.matcher("chelloo").matches());
-        
+
         s = "h?l*o";
         regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("h.l.*o", regEx);
-        
+
         s = "h\\*ll*o";
         regEx = ValidatorUtils.convertToRegEx(s);
         assertEquals("h\\*ll.*o", regEx);

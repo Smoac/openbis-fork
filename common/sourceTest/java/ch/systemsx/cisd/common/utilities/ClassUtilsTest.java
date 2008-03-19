@@ -89,8 +89,8 @@ public final class ClassUtilsTest
     {
         assertEquals("testGetCurrentMethod", ClassUtils.getCurrentMethod().getName());
         // Border cases
-        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(new Object(),
-                new Object()));
+        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(
+                new Object(), new Object()));
     }
 
     private final static class SameMethodName
@@ -128,7 +128,9 @@ public final class ClassUtilsTest
     @Test
     public void testCreateWithDefaultConstructor()
     {
-        final CharSequence cs = ClassUtils.create(CharSequence.class, StringBuffer.class.getName(), (Object[]) null);
+        final CharSequence cs =
+                ClassUtils
+                        .create(CharSequence.class, StringBuffer.class.getName(), (Object[]) null);
         assertTrue(cs instanceof StringBuffer);
         assertEquals(0, cs.length());
     }
@@ -137,7 +139,8 @@ public final class ClassUtilsTest
     public void testCreateWithPropertiesConstructor()
     {
         final Properties properties = new Properties();
-        final Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
+        final Appendable appendable =
+                ClassUtils.create(Appendable.class, MyClass.class.getName(), properties);
         assertTrue(appendable instanceof MyClass);
         assertSame(properties, ((MyClass) appendable).properties);
     }
@@ -151,7 +154,9 @@ public final class ClassUtilsTest
             fail("AssertionError expected.");
         } catch (final AssertionError e)
         {
-            assertEquals("Class 'java.lang.Integer' does not implements/extends 'java.lang.Float'.", e.getMessage());
+            assertEquals(
+                    "Class 'java.lang.Integer' does not implements/extends 'java.lang.Float'.", e
+                            .getMessage());
         }
     }
 
@@ -164,8 +169,9 @@ public final class ClassUtilsTest
             fail("AssertionError expected.");
         } catch (final AssertionError e)
         {
-            assertEquals("Interface 'java.lang.CharSequence' can not be instanciated as it is an interface.", e
-                    .getMessage());
+            assertEquals(
+                    "Interface 'java.lang.CharSequence' can not be instanciated as it is an interface.",
+                    e.getMessage());
         }
     }
 
@@ -174,7 +180,8 @@ public final class ClassUtilsTest
     {
         final List<String> list = new ArrayList<String>();
         list.add("Hello");
-        final Appendable appendable = ClassUtils.create(Appendable.class, MyClass.class.getName(), list);
+        final Appendable appendable =
+                ClassUtils.create(Appendable.class, MyClass.class.getName(), list);
         assertSame(list, ((MyClass) appendable).iterable);
     }
 
@@ -248,7 +255,8 @@ public final class ClassUtilsTest
             return null;
         }
 
-        public Appendable append(final CharSequence csq, final int start, final int end) throws IOException
+        public Appendable append(final CharSequence csq, final int start, final int end)
+                throws IOException
         {
             return null;
         }

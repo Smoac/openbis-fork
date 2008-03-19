@@ -41,7 +41,8 @@ import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
  */
 public class RecursiveHardLinkMakerTest
 {
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory =
             new File(unitTestRootDirectory, RecursiveHardLinkMakerTest.class.getSimpleName());
@@ -74,7 +75,8 @@ public class RecursiveHardLinkMakerTest
         final File file = new File(directory, name);
         file.createNewFile();
         assert file.isFile();
-        CollectionIO.writeIterable(file, Arrays.asList("test line 1", "test line 2", "test line 3"));
+        CollectionIO
+                .writeIterable(file, Arrays.asList("test line 1", "test line 2", "test line 3"));
         file.deleteOnExit();
         return file;
     }

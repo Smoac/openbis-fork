@@ -22,8 +22,6 @@ import static org.testng.AssertJUnit.fail;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TemplateTest
@@ -33,13 +31,13 @@ public class TemplateTest
     {
         assertEquals("", new Template("").createText());
     }
-    
+
     @Test
     public void testWithoutPlaceholders()
     {
         assertEquals("hello", new Template("hello").createText());
     }
-    
+
     @Test
     public void testWithOnePlaceholder()
     {
@@ -47,7 +45,7 @@ public class TemplateTest
         template.bind("name", "world");
         assertEquals("hello world!", template.createText());
     }
-    
+
     @Test
     public void testWithTwiceTheSamePlaceholder()
     {
@@ -55,7 +53,7 @@ public class TemplateTest
         template.bind("name", "world");
         assertEquals("hello worldworld", template.createText());
     }
-    
+
     @Test
     public void testWithTwoPlaceholders()
     {
@@ -64,14 +62,14 @@ public class TemplateTest
         template.bind("name2", "Albert Einstein");
         assertEquals("hello world, do you know Albert Einstein?", template.createText());
     }
-    
+
     @Test
     public void testWithEscaping()
     {
         Template template = new Template("hello $${name}. I have 25$.");
         assertEquals("hello ${name}. I have 25$.", template.createText());
     }
-    
+
     @Test
     public void testNamelessPlaceholderInTemplate()
     {
@@ -84,7 +82,7 @@ public class TemplateTest
             assertEquals("Nameless placeholder ${} found.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testUnfinishedPlaceholderInTemplate()
     {
@@ -113,7 +111,7 @@ public class TemplateTest
             assertEquals("Incomplete placeholder detected at the end.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testBindUnknownPlaceholder()
     {
@@ -127,7 +125,7 @@ public class TemplateTest
             assertEquals("Unknown variable 'blabla'.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testAttemptToBind()
     {
@@ -136,7 +134,7 @@ public class TemplateTest
         assertEquals(false, template.attemptToBind("blabla", "blub"));
         assertEquals("Hi ${name}!", template.createText(false));
     }
-    
+
     @Test
     public void testIncompleteBinding()
     {
@@ -149,7 +147,7 @@ public class TemplateTest
         {
             assertEquals("The following variables are not bound: greeting name ", e.getMessage());
         }
-        
+
         template.bind("greeting", "hello");
         assertEquals("hello ${name}!", template.createText(false));
         try
@@ -161,7 +159,7 @@ public class TemplateTest
             assertEquals("The following variables are not bound: name ", e.getMessage());
         }
     }
-    
+
     @Test
     public void testCreateFreshCopy()
     {
@@ -178,7 +176,7 @@ public class TemplateTest
         template1.bind("name", "world");
         assertEquals("hello world.world!", template1.createText());
         assertEquals("hello ${name}.${name}!", template.createText(false));
-        
+
         Template template2 = template.createFreshCopy();
         template2.bind("name", "universe");
         assertEquals("hello universe.universe!", template2.createText());

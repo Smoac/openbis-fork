@@ -24,13 +24,13 @@ import ch.systemsx.cisd.bds.storage.IStorage;
 
 /**
  * Implementation of {@link IStorage} based on the file system.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class FileStorage implements IStorage
 {
     private final Directory root;
-    
+
     private boolean mounted;
 
     /**
@@ -42,7 +42,7 @@ public class FileStorage implements IStorage
     {
         root = new Directory(folder);
     }
-    
+
     public IDirectory getRoot()
     {
         if (mounted == false)

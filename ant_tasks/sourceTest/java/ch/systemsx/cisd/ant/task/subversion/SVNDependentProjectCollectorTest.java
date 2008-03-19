@@ -41,9 +41,11 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class SVNDependentProjectCollectorTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "SVNDependentProjectCollector");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "SVNDependentProjectCollector");
 
     @BeforeClass
     public void init()
@@ -71,7 +73,8 @@ public class SVNDependentProjectCollectorTest
 
         final Map<String, String> pathMap;
 
-        public MockSVNRepositoryActions(final Map<String, List<String>> listMap, final Map<String, String> pathMap)
+        public MockSVNRepositoryActions(final Map<String, List<String>> listMap,
+                final Map<String, String> pathMap)
         {
             super();
             this.listMap = listMap;
@@ -98,8 +101,8 @@ public class SVNDependentProjectCollectorTest
             throw new AssertionError("Unexpected call mkdir()");
         }
 
-        public void copy(String sourcePath, String sourceRevision, String destinationPath, String logMessage)
-                throws SVNException
+        public void copy(String sourcePath, String sourceRevision, String destinationPath,
+                String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call copy()");
         }
@@ -125,11 +128,13 @@ public class SVNDependentProjectCollectorTest
         }
     }
 
-    private SVNDependentProjectsCollector createCollector(final ISVNProjectPathProvider pathProvider,
-            final Map<String, List<String>> listMap, final Map<String, String> catMap)
+    private SVNDependentProjectsCollector createCollector(
+            final ISVNProjectPathProvider pathProvider, final Map<String, List<String>> listMap,
+            final Map<String, String> catMap)
     {
         final SVNDependentProjectsCollector collector =
-                new SVNDependentProjectsCollector(pathProvider, new MockSVNRepositoryActions(listMap, catMap));
+                new SVNDependentProjectsCollector(pathProvider, new MockSVNRepositoryActions(
+                        listMap, catMap));
         return collector;
     }
 
@@ -148,26 +153,39 @@ public class SVNDependentProjectCollectorTest
         final Map<String, List<String>> listMap = new HashMap<String, List<String>>();
         listMap.put("http://host/repos/group/libraries/trunk", Arrays.asList("something"));
         listMap.put("http://host/repos/group/proj1/trunk", Arrays.asList(".classpath"));
-        listMap.put("http://host/repos/group/proj2/trunk", Arrays.asList("something/", ".classpath"));
-        listMap.put("http://host/repos/group/proj3/trunk", Arrays.asList("something/", "nothing there"));
+        listMap.put("http://host/repos/group/proj2/trunk", Arrays
+                .asList("something/", ".classpath"));
+        listMap.put("http://host/repos/group/proj3/trunk", Arrays.asList("something/",
+                "nothing there"));
         final Map<String, String> catMap = new HashMap<String, String>();
-        catMap.put("http://host/repos/group/proj1/trunk/.classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<classpath>\n" + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
-                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                + "   <classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
-                + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
-                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj2\"/>\n"
-                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n" + "");
-        catMap.put("http://host/repos/group/proj2/trunk/.classpath", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<classpath>\n" + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
-                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj3\"/>\n"
-                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n" + "");
+        catMap
+                .put(
+                        "http://host/repos/group/proj1/trunk/.classpath",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                + "<classpath>\n"
+                                + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
+                                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                                + "   <classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
+                                + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
+                                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj2\"/>\n"
+                                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                                + "</classpath>\n" + "");
+        catMap
+                .put(
+                        "http://host/repos/group/proj2/trunk/.classpath",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                + "<classpath>\n"
+                                + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
+                                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj3\"/>\n"
+                                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                                + "</classpath>\n" + "");
         SVNDependentProjectsCollector collector = createCollector(pathProvider, listMap, catMap);
         final Set<String> projectsExpected =
-                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "libraries", "build_resources"));
+                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "libraries",
+                        "build_resources"));
         final Set<String> projectsFound = collector.collectDependentProjectsFromClasspath();
         assertEquals(projectsExpected, projectsFound);
     }
@@ -182,34 +200,43 @@ public class SVNDependentProjectCollectorTest
         context.setProjectName("proj1");
         final ISVNProjectPathProvider pathProvider = context.getPathProvider();
         final Map<String, List<String>> listMap = new HashMap<String, List<String>>();
-        listMap.put("http://host/repos/group/proj1/branches/feature/branch/libraries", Arrays.asList("something"));
-        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj1", Arrays.asList(".classpath"));
-        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj2", Arrays.asList("something/",
-                ".classpath"));
-        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj3", Arrays.asList("something/",
-                "nothing there"));
+        listMap.put("http://host/repos/group/proj1/branches/feature/branch/libraries", Arrays
+                .asList("something"));
+        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj1", Arrays
+                .asList(".classpath"));
+        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj2", Arrays.asList(
+                "something/", ".classpath"));
+        listMap.put("http://host/repos/group/proj1/branches/feature/branch/proj3", Arrays.asList(
+                "something/", "nothing there"));
         final Map<String, String> catMap = new HashMap<String, String>();
-        catMap.put("http://host/repos/group/proj1/branches/feature/branch/proj1/.classpath",
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<classpath>\n"
-                        + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
-                        + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                        + "   <classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
-                        + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
-                        + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                        + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj2\"/>\n"
-                        + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n"
-                        + "");
-        catMap.put("http://host/repos/group/proj1/branches/feature/branch/proj2/.classpath",
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<classpath>\n"
-                        + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
-                        + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
-                        + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
-                        + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj3\"/>\n"
-                        + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n"
-                        + "");
+        catMap
+                .put(
+                        "http://host/repos/group/proj1/branches/feature/branch/proj1/.classpath",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                + "<classpath>\n"
+                                + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
+                                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                                + "   <classpathentry kind=\"lib\" path=\"/libraries/activation/activation.jar\"/>\n"
+                                + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
+                                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj2\"/>\n"
+                                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                                + "</classpath>\n" + "");
+        catMap
+                .put(
+                        "http://host/repos/group/proj1/branches/feature/branch/proj2/.classpath",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                                + "<classpath>\n"
+                                + "        <classpathentry kind=\"src\" path=\"sourceTest/java\"/>\n"
+                                + "        <classpathentry kind=\"src\" path=\"source/java\"/>\n"
+                                + "        <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n"
+                                + "        <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/proj3\"/>\n"
+                                + "        <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                                + "</classpath>\n" + "");
         SVNDependentProjectsCollector collector = createCollector(pathProvider, listMap, catMap);
         final Set<String> projectsExpected =
-                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "build_resources", "libraries"));
+                new HashSet<String>(Arrays.asList("proj1", "proj2", "proj3", "build_resources",
+                        "libraries"));
         final Set<String> projectsFound = collector.collectDependentProjectsFromClasspath();
         assertEquals(projectsExpected, projectsFound);
     }

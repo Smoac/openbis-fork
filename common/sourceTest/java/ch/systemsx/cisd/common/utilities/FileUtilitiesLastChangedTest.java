@@ -38,22 +38,26 @@ import static org.testng.AssertJUnit.*;
 public class FileUtilitiesLastChangedTest
 {
 
-    private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File workingDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     @DataProvider(name = "testLastChanged")
     public Object[][] getDirectories()
     {
         return new Object[][]
             {
-                        { ".fsLastChangedCheckerTestDirectory", ".fsLastChangedCheckerTestDirectory" },
+                        { ".fsLastChangedCheckerTestDirectory",
+                                ".fsLastChangedCheckerTestDirectory" },
                         { ".fsLastChangedCheckerTestDirectory",
                                 ".fsLastChangedCheckerTestDirectory" + File.separator + "1" },
-                        { ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1" + File.separator + 2 },
                         {
                                 ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1" + File.separator + 2
-                                        + File.separator + 3 } };
+                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
+                                        + File.separator + 2 },
+                        {
+                                ".fsLastChangedCheckerTestDirectory",
+                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
+                                        + File.separator + 2 + File.separator + 3 } };
     }
 
     private void restALittleBit()
@@ -83,20 +87,21 @@ public class FileUtilitiesLastChangedTest
         testDir.deleteOnExit();
         if (testDir.exists() && testDir.isDirectory() == false)
         {
-            throw EnvironmentFailureException.fromTemplate("Directory '%s' exists and is not a directory.", testDir
-                    .getPath());
+            throw EnvironmentFailureException.fromTemplate(
+                    "Directory '%s' exists and is not a directory.", testDir.getPath());
         }
         final File createDir = new File(workingDirectory, dirToCreate);
         if (createDir.exists() && FileUtilities.deleteRecursively(createDir) == false)
         {
-            throw EnvironmentFailureException.fromTemplate("Directory '%s' exists and cannot be deleted.", createDir
-                    .getPath());
+            throw EnvironmentFailureException.fromTemplate(
+                    "Directory '%s' exists and cannot be deleted.", createDir.getPath());
         }
         createDir.deleteOnExit();
         final long now = System.currentTimeMillis();
         if (createDir.mkdir() == false)
         {
-            throw new EnvironmentFailureException("Can't make directory " + createDir.getPath() + ".");
+            throw new EnvironmentFailureException("Can't make directory " + createDir.getPath()
+                    + ".");
         }
         final long lastChanged = FileUtilities.lastChanged(testDir);
         final long diff = Math.abs(lastChanged - now);
@@ -127,7 +132,7 @@ public class FileUtilitiesLastChangedTest
         assertEquals(1000L, FileUtilities.lastChanged(dirA, false, 999L));
         assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 999L));
     }
-    
+
     @Test
     public void testLastChangedRelative() throws IOException
     {
@@ -142,9 +147,11 @@ public class FileUtilitiesLastChangedTest
         final long fakedModTime2 = now - 30000L;
         fileB.setLastModified(fakedModTime1);
         dirA.setLastModified(fakedModTime2);
-        final long diff1 = Math.abs(fakedModTime2 - FileUtilities.lastChangedRelative(dirA, false, 31000L));
+        final long diff1 =
+                Math.abs(fakedModTime2 - FileUtilities.lastChangedRelative(dirA, false, 31000L));
         assertTrue("Difference to big: " + diff1 + " ms", diff1 < 1000L);
-        final long diff2 = Math.abs(fakedModTime1 - FileUtilities.lastChangedRelative(dirA, false, 11000L));
+        final long diff2 =
+                Math.abs(fakedModTime1 - FileUtilities.lastChangedRelative(dirA, false, 11000L));
         assertTrue("Difference to big: " + diff2 + " ms", diff2 < 1000L);
     }
 

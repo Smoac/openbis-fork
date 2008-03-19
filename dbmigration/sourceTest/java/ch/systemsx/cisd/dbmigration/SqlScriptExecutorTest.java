@@ -43,13 +43,14 @@ public class SqlScriptExecutorTest
     private class TestSqlScriptExecutor extends SqlScriptExecutor
     {
         private final List<String> executions;
-        
+
         private final Error th;
 
         public TestSqlScriptExecutor(boolean singleStepMode)
         {
             this(null, singleStepMode);
         }
+
         public TestSqlScriptExecutor(Error th, boolean singleStepMode)
         {
             super(new DelegatingDataSource(), singleStepMode);
@@ -90,7 +91,8 @@ public class SqlScriptExecutorTest
         scriptExecutor.execute(simpleScript1, true, null);
         scriptExecutor.execute(simpleScript2, true, null);
         assertEquals(2, scriptExecutor.getExecutions().size());
-        assertEquals(Arrays.asList(simpleScriptContent1, simpleScriptContent2), scriptExecutor.getExecutions());
+        assertEquals(Arrays.asList(simpleScriptContent1, simpleScriptContent2), scriptExecutor
+                .getExecutions());
     }
 
     @Test
@@ -104,8 +106,8 @@ public class SqlScriptExecutorTest
         scriptExecutor.execute(simpleScript1, true, null);
         scriptExecutor.execute(simpleScript2, true, null);
         assertEquals(3, scriptExecutor.getExecutions().size());
-        assertEquals(Arrays.asList("statement1;", "statement2;", "statement3.1 statement3.2;"), scriptExecutor
-                .getExecutions());
+        assertEquals(Arrays.asList("statement1;", "statement2;", "statement3.1 statement3.2;"),
+                scriptExecutor.getExecutions());
     }
 
     @Test
@@ -119,13 +121,13 @@ public class SqlScriptExecutorTest
             final Script simpleScript = new Script("script1", simpleScriptContent, "VERSION");
             final ISqlScriptExecutionLogger logger = context.mock(ISqlScriptExecutionLogger.class);
             context.checking(new Expectations()
-            {
                 {
-                    one(logger).logStart(simpleScript);
-                    one(logger).logSuccess(simpleScript);
-                }
-                
-            });
+                    {
+                        one(logger).logStart(simpleScript);
+                        one(logger).logSuccess(simpleScript);
+                    }
+
+                });
             scriptExecutor.execute(simpleScript, true, logger);
         } finally
         {
@@ -137,7 +139,7 @@ public class SqlScriptExecutorTest
     {
         private static final long serialVersionUID = 1L;
     }
-    
+
     @Test(expectedExceptions = MyError.class)
     public void testLoggingScriptThrowsException()
     {
@@ -150,13 +152,13 @@ public class SqlScriptExecutorTest
             final Script simpleScript = new Script("script1", simpleScriptContent, "VERSION");
             final ISqlScriptExecutionLogger logger = context.mock(ISqlScriptExecutionLogger.class);
             context.checking(new Expectations()
-            {
                 {
-                    one(logger).logStart(simpleScript);
-                    one(logger).logFailure(simpleScript, error);
-                }
-                
-            });
+                    {
+                        one(logger).logStart(simpleScript);
+                        one(logger).logFailure(simpleScript, error);
+                    }
+
+                });
             scriptExecutor.execute(simpleScript, true, logger);
         } finally
         {

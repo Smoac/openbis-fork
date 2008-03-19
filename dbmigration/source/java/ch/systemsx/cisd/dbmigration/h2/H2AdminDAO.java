@@ -51,20 +51,23 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     private static final String DROP_ALL_OBJECTS_SQL = "drop all objects;";
 
     private static final String SQL_FILE_TYPE = ".sql";
-    
+
     private static final Pattern dbDirPartPattern = Pattern.compile(".*:file:(.*?)/.*");
 
     private static final String CREATE_TABLE_DATABASE_VERSION_LOGS_SQL =
-            "create table " + DatabaseVersionLogDAO.DB_VERSION_LOG + " (db_version varchar(4) not null, "
+            "create table "
+                    + DatabaseVersionLogDAO.DB_VERSION_LOG
+                    + " (db_version varchar(4) not null, "
                     + "module_name varchar(250), run_status varchar(10), run_status_timestamp timestamp, "
                     + "module_code bytea, run_exception bytea);";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, H2AdminDAO.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, H2AdminDAO.class);
 
     private final String databaseName;
-    
+
     private final String databaseDir;
-    
+
     private final String databaseURL;
 
     private final ISqlScriptExecutor scriptExecutor;
@@ -80,8 +83,8 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
      * @param databaseName Name of the database.
      * @param databaseURL URL of the database.
      */
-    public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor, IMassUploader massUploader,
-            String databaseName, String databaseURL)
+    public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
+            IMassUploader massUploader, String databaseName, String databaseURL)
     {
         this.scriptExecutor = scriptExecutor;
         this.massUploader = massUploader;
@@ -165,7 +168,8 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
             operationLog.error(message);
             throw new ConfigurationFailureException(message);
         }
-        final Script script = new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
+        final Script script =
+                new Script(scriptFile.getPath(), FileUtilities.loadToString(scriptFile), version);
         return script;
     }
 
@@ -176,13 +180,15 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Searching for mass upload files in directory '" + dumpFolder.getAbsolutePath() + "'.");
+            operationLog.debug("Searching for mass upload files in directory '"
+                    + dumpFolder.getAbsolutePath() + "'.");
         }
         String[] csvFiles = dumpFolder.list(new FilenameFilter()
             {
                 public boolean accept(File dir, String name)
                 {
-                    return MassUploadFileType.CSV.isOfType(name) || MassUploadFileType.TSV.isOfType(name);
+                    return MassUploadFileType.CSV.isOfType(name)
+                            || MassUploadFileType.TSV.isOfType(name);
                 }
             });
         if (csvFiles == null)

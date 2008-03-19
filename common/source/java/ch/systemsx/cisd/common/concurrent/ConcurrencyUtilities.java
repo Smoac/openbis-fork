@@ -44,7 +44,8 @@ public final class ConcurrencyUtilities
      * @param corePoolSize The number of threads that should be kept running even if less theads are needed.
      * @param maximumPoolSize The number of threads that this executor service is maximally allowed to spawn.
      */
-    public static ExecutorService newNamedPool(final String name, int corePoolSize, int maximumPoolSize)
+    public static ExecutorService newNamedPool(final String name, int corePoolSize,
+            int maximumPoolSize)
     {
         return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new ThreadFactory()
@@ -79,8 +80,8 @@ public final class ConcurrencyUtilities
      * @return The result of the future, or <code>null</code>, if the result does not become available within
      *         <var>timeoutMillis</var> ms or if the waiting thread gets interrupted.
      */
-    public static <T> T tryGetResult(Future<T> future, long timeoutMillis, ISimpleLogger loggerOrNull,
-            String operationNameOrNull)
+    public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
+            ISimpleLogger loggerOrNull, String operationNameOrNull)
     {
         try
         {
@@ -90,10 +91,10 @@ public final class ConcurrencyUtilities
             future.cancel(true);
             if (loggerOrNull != null)
             {
-                loggerOrNull
-                        .log(LogLevel.DEBUG, String.format("%s took longer than %f s, cancelled.",
-                                operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
-                                timeoutMillis / 1000f));
+                loggerOrNull.log(LogLevel.DEBUG, String.format(
+                        "%s took longer than %f s, cancelled.",
+                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
+                        timeoutMillis / 1000f));
             }
             return null;
         } catch (InterruptedException ex)
@@ -111,8 +112,9 @@ public final class ConcurrencyUtilities
             if (loggerOrNull != null)
             {
                 loggerOrNull.log(LogLevel.ERROR, String.format("%s has caused an exception: %s",
-                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull, cause.getClass()
-                                .getSimpleName(), cause.getMessage() != null ? cause.getMessage() : "<no message>"));
+                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
+                        cause.getClass().getSimpleName(), cause.getMessage() != null ? cause
+                                .getMessage() : "<no message>"));
             }
             if (cause instanceof Error)
             {

@@ -20,14 +20,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Bean class for a script. Holds script name and code. 
- *
+ * Bean class for a script. Holds script name and code.
+ * 
  * @author Franz-Josef Elmer
  */
 public class Script
 {
     private final String name;
+
     private final String code;
+
     private final String version;
 
     /**
@@ -37,7 +39,7 @@ public class Script
     {
         this(name, code, "-");
     }
-    
+
     /**
      * Creates an instance for the specified script name, code and version.
      */
@@ -86,5 +88,5 @@ public class Script
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-    
+
 }

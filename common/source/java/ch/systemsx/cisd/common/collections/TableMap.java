@@ -109,12 +109,14 @@ public class TableMap<K, E> implements Iterable<E>
     public final void add(final E row) throws UniqueKeyViolationException
     {
         final K key = extractor.getKey(row);
-        if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.KEEP_LAST || map.get(key) == null)
+        if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.KEEP_LAST
+                || map.get(key) == null)
         {
             map.put(key, row);
         } else if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.ERROR)
         {
-            throw new UniqueKeyViolationException("Key '" + key.toString() + "' already in the map.");
+            throw new UniqueKeyViolationException("Key '" + key.toString()
+                    + "' already in the map.");
         }
     }
 

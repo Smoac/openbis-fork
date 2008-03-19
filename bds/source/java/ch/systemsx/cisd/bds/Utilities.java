@@ -49,8 +49,8 @@ public class Utilities
         {
             return (IDirectory) node;
         }
-        throw new DataStructureException("There is already a node named '" + name + "' but which isn't a directory ("
-                + node + ").");
+        throw new DataStructureException("There is already a node named '" + name
+                + "' but which isn't a directory (" + node + ").");
     }
 
     /**
@@ -66,8 +66,8 @@ public class Utilities
         INode node = directory.tryGetNode(name);
         if (node == null)
         {
-            throw new DataStructureException(String.format("No directory named '%s' found in directory '%s'.", name,
-                    directory));
+            throw new DataStructureException(String.format(
+                    "No directory named '%s' found in directory '%s'.", name, directory));
         }
         if (node instanceof IDirectory == false)
         {
@@ -142,14 +142,16 @@ public class Utilities
             return Integer.parseInt(value);
         } catch (NumberFormatException ex)
         {
-            throw new DataStructureException("Value of '" + name + "' version file is not a number: " + value);
+            throw new DataStructureException("Value of '" + name
+                    + "' version file is not a number: " + value);
         }
     }
 
     /**
      * Recursively lists nodes in given <var>directory</var>.
      */
-    public final static List<String> listNodes(final IDirectory diretory, final INodeFilter nodeFilterOrNull)
+    public final static List<String> listNodes(final IDirectory diretory,
+            final INodeFilter nodeFilterOrNull)
     {
         assert diretory != null : "Given node can not be null.";
         final INodeFilter nodeFilter;

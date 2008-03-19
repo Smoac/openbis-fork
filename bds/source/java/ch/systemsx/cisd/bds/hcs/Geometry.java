@@ -108,7 +108,8 @@ public class Geometry implements IStorable
         assert directory != null : "Given directory can not be null.";
         assert directory.getName().startsWith(geometryDirectoryName) : "Given directory name must start with given '"
                 + geometryDirectoryName + "'.";
-        return new Geometry(Utilities.getNumber(directory, ROWS), Utilities.getNumber(directory, COLUMNS));
+        return new Geometry(Utilities.getNumber(directory, ROWS), Utilities.getNumber(directory,
+                COLUMNS));
     }
 
     //

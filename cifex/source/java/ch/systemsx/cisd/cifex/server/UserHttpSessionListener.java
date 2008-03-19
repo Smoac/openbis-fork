@@ -39,7 +39,8 @@ public final class UserHttpSessionListener implements HttpSessionListener
             throws ConfigurationFailureException
     {
         final WebApplicationContext ctx =
-                WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
+                WebApplicationContextUtils.getRequiredWebApplicationContext(session
+                        .getServletContext());
         final String beanName = UserHttpSessionHolder.USER_SESSION_HOLDER_BEAN_NAME;
         final UserHttpSessionHolder sessionHolder = (UserHttpSessionHolder) ctx.getBean(beanName);
         if (sessionHolder == null)
@@ -53,7 +54,8 @@ public final class UserHttpSessionListener implements HttpSessionListener
             throws ConfigurationFailureException
     {
         final WebApplicationContext ctx =
-                WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
+                WebApplicationContextUtils.getRequiredWebApplicationContext(session
+                        .getServletContext());
         final String beanName = IUserActionLog.USER_ACTION_LOG_BEAN_NAME;
         final IUserActionLog userBehaviorLog = (IUserActionLog) ctx.getBean(beanName);
         if (userBehaviorLog == null)

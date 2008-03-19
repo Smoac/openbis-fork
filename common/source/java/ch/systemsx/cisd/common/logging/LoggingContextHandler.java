@@ -23,8 +23,6 @@ import org.apache.log4j.MDC;
 
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
-
-
 /**
  * A class that handles the log4j context information.
  * 

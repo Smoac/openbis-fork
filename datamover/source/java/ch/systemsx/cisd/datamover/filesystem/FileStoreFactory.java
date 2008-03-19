@@ -30,13 +30,15 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
 public class FileStoreFactory
 {
     /** use when file store is on a local host */
-    public static final FileStore createLocal(File path, String kind, IFileSysOperationsFactory factory)
+    public static final FileStore createLocal(File path, String kind,
+            IFileSysOperationsFactory factory)
     {
         return new FileStoreLocal(path, kind, factory);
     }
 
     /** use when file store is on a remote share mounted on local host */
-    public static final FileStore createRemoteShare(File path, String kind, IFileSysOperationsFactory factory)
+    public static final FileStore createRemoteShare(File path, String kind,
+            IFileSysOperationsFactory factory)
     {
         return new FileStoreRemoteMounted(path, kind, factory);
     }

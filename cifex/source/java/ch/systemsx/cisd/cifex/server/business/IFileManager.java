@@ -46,15 +46,13 @@ public interface IFileManager
     public FileInformation getFileInformation(final long fileId);
 
     /**
-     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to file
-     * <var>fileDTO</var>.
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to file <var>fileDTO</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO);
 
     /**
-     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file
-     * <var>fileDTO</var>.
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file <var>fileDTO</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO);
@@ -101,8 +99,8 @@ public interface IFileManager
      * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary users.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
-            Collection<FileDTO> files, String comment);
+    public List<String> shareFilesWith(String url, UserDTO requestUser,
+            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment);
 
     /**
      * Deletes file with given <code>fileId</code> from database and file system.

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.process;
 
 /**
  * A role that allows to register a clean-up method that is called regardless of whether an exception occurs or not.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ICleanUpRegistry
@@ -28,5 +28,5 @@ public interface ICleanUpRegistry
      * Register a clean-up to run when the main {@link Runnable} has been executed.
      */
     public void registerCleanUp(Runnable cleanUp);
-    
+
 }

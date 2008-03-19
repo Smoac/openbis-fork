@@ -22,15 +22,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A {@link ISVNProjectPathProvider} that works on a subversion working directory.
- *
+ * 
  * @author Bernd Rinn
  */
 class SVNWCProjectPathProvider implements ISVNProjectPathProvider
 {
 
     private final String baseDirectory;
+
     private final String projectName;
-    
+
     /**
      * @param projectDirectory The directory of the working copy. Is expected to exist and to be a directory.
      */
@@ -38,7 +39,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
     {
         assert projectDirectory != null;
         assert projectDirectory.isDirectory();
-        
+
         final String baseDirectoryPath = projectDirectory.getParentFile().getAbsolutePath();
         final String thisProjectName = projectDirectory.getName();
         if (baseDirectoryPath.endsWith("/.")) // Corresponds to baseDirectory = new File(".")
@@ -50,7 +51,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         }
         this.projectName = thisProjectName;
     }
-    
+
     public String getPath()
     {
         return getPath(projectName);
@@ -61,7 +62,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
         assert subProjectName != null;
 
         SVNUtilities.checkProjectName(subProjectName);
-        
+
         return new File(baseDirectory, subProjectName).getAbsolutePath();
     }
 
@@ -69,7 +70,7 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
     {
         assert subProjectName != null;
         assert entityPath != null;
-        
+
         if (entityPath.length() == 0)
         {
             throw new UserFailureException("Entity path must not be empty.");
@@ -107,5 +108,5 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
     {
         return false;
     }
-    
+
 }

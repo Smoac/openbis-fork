@@ -180,7 +180,8 @@ public final class FileUploadWidget extends Form
                     {
                         assert result[i] != null : "Must not be null.";
                         final String item = result[i].trim();
-                        if (item.length() > 0 && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
+                        if (item.length() > 0
+                                && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
                         {
                             return false;
                         }
@@ -209,7 +210,8 @@ public final class FileUploadWidget extends Form
     private final TextFieldConfig createFileFieldConfig(final int index)
     {
         final TextFieldConfig fileFieldConfig = new TextFieldConfig();
-        fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
+        fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(
+                index + 1));
         fileFieldConfig.setName(getFilenameFieldName(index));
         fileFieldConfig.setInputType("file");
         fileFieldConfig.setWidth(FIELD_WIDTH);
@@ -252,23 +254,25 @@ public final class FileUploadWidget extends Form
         {
             return;
         }
-        context.getCifexService().registerFilenamesForUpload(filenames, new AbstractAsyncCallback(context)
-            {
-                //
-                // AbstractAsyncCallback
-                //
+        context.getCifexService().registerFilenamesForUpload(filenames,
+                new AbstractAsyncCallback(context)
+                    {
+                        //
+                        // AbstractAsyncCallback
+                        //
 
-                public final void onSuccess(final Object result)
-                {
-                    submit();
-                    context.getCifexService().getFileUploadFeedback(new FileUploadFeedbackCallback(context));
-                }
+                        public final void onSuccess(final Object result)
+                        {
+                            submit();
+                            context.getCifexService().getFileUploadFeedback(
+                                    new FileUploadFeedbackCallback(context));
+                        }
 
-                public final void onFailure(final Throwable caught)
-                {
-                    super.onFailure(caught);
-                    button.enable();
-                }
-            });
+                        public final void onFailure(final Throwable caught)
+                        {
+                            super.onFailure(caught);
+                            button.enable();
+                        }
+                    });
     }
 }

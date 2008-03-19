@@ -20,7 +20,7 @@ import java.util.TimerTask;
 
 /**
  * A factory for creating {@link TimerTask}s that, when run, perform a recovery operation on the data mover.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IRecoverableTimerTaskFactory

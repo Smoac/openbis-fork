@@ -102,11 +102,12 @@ public final class DBUtilities
         return statements;
     }
 
-    private final static void addToStatements(final List<String> statements, final StringBuilder statement)
+    private final static void addToStatements(final List<String> statements,
+            final StringBuilder statement)
     {
         final String statementStr =
-                statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)", ") $1").replaceAll("\\s+;",
-                        ";");
+                statement.toString().trim().replaceAll("\\s+", " ").replaceAll("\\)(\\w)", ") $1")
+                        .replaceAll("\\s+;", ";");
         statements.add(statementStr);
         statement.setLength(0);
     }

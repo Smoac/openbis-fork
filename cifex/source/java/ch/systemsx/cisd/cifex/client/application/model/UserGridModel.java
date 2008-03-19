@@ -65,7 +65,8 @@ public final class UserGridModel extends AbstractDataGridModel
 
     private final ColumnConfig createActionColumnConfig()
     {
-        final ColumnConfig actionColumn = createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
+        final ColumnConfig actionColumn =
+                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
         return actionColumn;
     }
 
@@ -89,7 +90,8 @@ public final class UserGridModel extends AbstractDataGridModel
      */
     private final ColumnConfig createRegistratorColumnConfig()
     {
-        final ColumnConfig columnConfig = createColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
+        final ColumnConfig columnConfig =
+                createColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
         return columnConfig;
     }
 
@@ -116,7 +118,8 @@ public final class UserGridModel extends AbstractDataGridModel
         {
             stateField +=
                     messageResources.getTemporaryRoleName()
-                            + " User expires on ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
+                            + " User expires on ".concat(DateTimeUtils.formatDate(user
+                                    .getExpirationDate()));
         }
         return stateField;
     }
@@ -124,16 +127,23 @@ public final class UserGridModel extends AbstractDataGridModel
     private final String listActionsForUser(final User user)
     {
         final String sep = " | ";
-        String actionLabel = DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
+        String actionLabel =
+                DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
         // Regular user cannot be renewed.
         if (user.isPermanent() == false)
         {
-            actionLabel += sep + DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID);
+            actionLabel +=
+                    sep
+                            + DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
+                                    Constants.RENEW_ID);
         }
         // An user can not delete itself.
         if (user.equals(currentUser) == false)
         {
-            actionLabel += sep + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(), Constants.DELETE_ID);
+            actionLabel +=
+                    sep
+                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                                    Constants.DELETE_ID);
         }
         return actionLabel;
     }

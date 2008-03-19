@@ -43,7 +43,8 @@ public final class MappingFileHandlerTest extends AbstractFileSystemTestCase
 {
 
     private final static String MAPPING_FILE_CONTENT =
-            "row1/row2_column1.tiff\tI\toriginal1.tiff\n" + "row2/row3_column2.tiff\tI\toriginal2.tiff\n";
+            "row1/row2_column1.tiff\tI\toriginal1.tiff\n"
+                    + "row2/row3_column2.tiff\tI\toriginal2.tiff\n";
 
     private MappingFileHandler handler;
 
@@ -85,9 +86,9 @@ public final class MappingFileHandlerTest extends AbstractFileSystemTestCase
 
     @Override
     @BeforeMethod
-    public void setup() throws IOException
+    public void setUp() throws IOException
     {
-        super.setup();
+        super.setUp();
         prepareMappingFileHandler();
     }
 
@@ -124,8 +125,10 @@ public final class MappingFileHandlerTest extends AbstractFileSystemTestCase
     @Test
     public final void testPerformClosing() throws IOException
     {
-        handler.addReference(new Reference("row1/row2_column1.tiff", "original1.tiff", ReferenceType.IDENTICAL));
-        handler.addReference(new Reference("row2/row3_column2.tiff", "original2.tiff", ReferenceType.IDENTICAL));
+        handler.addReference(new Reference("row1/row2_column1.tiff", "original1.tiff",
+                ReferenceType.IDENTICAL));
+        handler.addReference(new Reference("row2/row3_column2.tiff", "original2.tiff",
+                ReferenceType.IDENTICAL));
         handler.performClosing();
         final File mappingFile = new File(workingDirectory, MappingFileHandler.MAPPING_FILE);
         assertTrue(mappingFile.exists());

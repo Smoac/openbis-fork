@@ -75,8 +75,8 @@ public class DefaultParser<E> implements IParser<E>
     // Parser
     //
 
-    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter, final int headerLength)
-            throws ParsingException
+    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter,
+            final int headerLength) throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
         synchronized (lineTokenizer)

@@ -124,7 +124,7 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
     {
         return collection.retainAll(coll);
     }
-    
+
     //
     // Object
     //

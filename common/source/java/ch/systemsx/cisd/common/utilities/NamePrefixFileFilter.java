@@ -35,7 +35,7 @@ public class NamePrefixFileFilter implements FileFilter
     public NamePrefixFileFilter(String prefix, boolean shouldStartWithPrefix)
     {
         assert prefix != null;
-        
+
         this.prefix = prefix;
         this.shouldStartWithPrefix = shouldStartWithPrefix;
     }
@@ -43,7 +43,7 @@ public class NamePrefixFileFilter implements FileFilter
     public boolean accept(File pathname)
     {
         assert pathname != null;
-        
+
         final boolean startsWithPrefix = pathname.getName().startsWith(prefix);
         return startsWithPrefix == shouldStartWithPrefix;
     }

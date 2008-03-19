@@ -94,8 +94,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         formattedData =
-                (HCSImageFormattedData) FormattedDataFactory.createFormattedData(directory, format, null,
-                        formatParameters);
+                (HCSImageFormattedData) FormattedDataFactory.createFormattedData(directory, format,
+                        null, formatParameters);
     }
 
     private final void prepareStandardNode()
@@ -213,8 +213,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         final NodePath nodePath =
-                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex, PLATE_LOCATION,
-                        WELL_LOCATION);
+                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
+                        PLATE_LOCATION, WELL_LOCATION);
         final String standardFileName = "row2_column1.tiff";
         assertNotNull(nodePath);
         assertTrue(nodePath.getNode() instanceof ILink);
@@ -225,7 +225,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         assertTrue(standardFile instanceof IFile);
         assertEquals(standardFileName, standardFile.getName());
         // Node should still be in the 'original' directory.
-        assertNotNull(((IDirectory) originalNode.tryGetNode(IMAGE_ROOT_DIRECTORY_NAME)).tryGetNode(ORIGINAL_TIFF));
+        assertNotNull(((IDirectory) originalNode.tryGetNode(IMAGE_ROOT_DIRECTORY_NAME))
+                .tryGetNode(ORIGINAL_TIFF));
         context.assertIsSatisfied();
     }
 
@@ -247,8 +248,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                 }
             });
         final NodePath nodePath =
-                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex, PLATE_LOCATION,
-                        WELL_LOCATION);
+                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
+                        PLATE_LOCATION, WELL_LOCATION);
         final String standardFileName = "row2_column1.tiff";
         assertNotNull(nodePath);
         assertTrue(nodePath.getNode() instanceof IFile);
@@ -277,7 +278,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     will(returnValue(standardNode));
                 }
             });
-        final INode node = formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        final INode node =
+                formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
         assertNull(node);
         context.assertIsSatisfied();
     }
@@ -298,7 +300,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     will(returnValue(standardNode));
                 }
             });
-        final INode node = formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
+        final INode node =
+                formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
         assertNotNull(node);
         context.assertIsSatisfied();
     }

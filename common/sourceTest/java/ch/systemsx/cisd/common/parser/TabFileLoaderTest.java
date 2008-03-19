@@ -87,8 +87,8 @@ public final class TabFileLoaderTest
         // IParserObjectFactoryFactory
         //
 
-        public final IParserObjectFactory<ABC> createFactory(final IAliasPropertyMapper propertyMapper)
-                throws ParserException
+        public final IParserObjectFactory<ABC> createFactory(
+                final IAliasPropertyMapper propertyMapper) throws ParserException
         {
             return new IParserObjectFactory<ABC>()
                 {
@@ -160,7 +160,9 @@ public final class TabFileLoaderTest
     private void loadAndCheck(String preamble)
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
-        List<ABC> list = loader.load(new StringReader(preamble + "A\tB\tC\n" + "a1\tb1\tc1\n" + "a2\tb2\tc2\n"));
+        List<ABC> list =
+                loader.load(new StringReader(preamble + "A\tB\tC\n" + "a1\tb1\tc1\n"
+                        + "a2\tb2\tc2\n"));
 
         assertEquals(list.toString(), 2, list.size());
         assertEquals("a1b1c1", list.get(0).toString());

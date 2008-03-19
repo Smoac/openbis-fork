@@ -40,7 +40,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecutor
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptExecutor.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, SqlScriptExecutor.class);
 
     /** Gives better error messages, but is a lot slower. */
     private final boolean singleStepMode;
@@ -51,7 +52,8 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         this.singleStepMode = singleStepMode;
     }
 
-    public void execute(Script sqlScript, boolean honorSingleStepMode, ISqlScriptExecutionLogger loggerOrNull)
+    public void execute(Script sqlScript, boolean honorSingleStepMode,
+            ISqlScriptExecutionLogger loggerOrNull)
     {
         if (loggerOrNull != null)
         {
@@ -70,12 +72,12 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
                         execute(sqlStatement);
                     } catch (BadSqlGrammarException ex2)
                     {
-                        throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
-                                + "<--<", getCause(ex2));
+                        throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->"
+                                + sqlStatement + "<--<", getCause(ex2));
                     } catch (UncategorizedSQLException ex2)
                     {
-                        throw new UncategorizedSQLException(getTask(ex2), lastSqlStatement + ">-->" + sqlStatement
-                                + "<--<", getCause(ex2));
+                        throw new UncategorizedSQLException(getTask(ex2), lastSqlStatement + ">-->"
+                                + sqlStatement + "<--<", getCause(ex2));
                     }
                     lastSqlStatement = sqlStatement;
                 }
@@ -89,8 +91,8 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
             }
         } catch (Throwable t)
         {
-            operationLog.error("Executing script '" + sqlScript.getName() + "', version " + sqlScript.getVersion()
-                    + " failed.", t);
+            operationLog.error("Executing script '" + sqlScript.getName() + "', version "
+                    + sqlScript.getVersion() + " failed.", t);
             if (loggerOrNull != null)
             {
                 loggerOrNull.logFailure(sqlScript, t);
@@ -109,7 +111,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
     {
         getJdbcTemplate().execute(script);
     }
-    
+
     private String getTask(BadSqlGrammarException ex)
     {
         final String marker = "; bad SQL grammar [";

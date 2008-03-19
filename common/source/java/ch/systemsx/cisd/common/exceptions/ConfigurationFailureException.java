@@ -48,7 +48,8 @@ public class ConfigurationFailureException extends HighLevelException
     /**
      * Creates an {@link ConfigurationFailureException} using a {@link java.util.Formatter}.
      */
-    public static ConfigurationFailureException fromTemplate(Throwable cause, String messageTemplate, Object... args)
+    public static ConfigurationFailureException fromTemplate(Throwable cause,
+            String messageTemplate, Object... args)
     {
         return new ConfigurationFailureException(String.format(messageTemplate, args), cause);
     }

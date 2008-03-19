@@ -28,11 +28,11 @@ public class FileInformation
 {
 
     private final FileDTO fileDTOOrNull;
-    
+
     private final long fileId;
-    
+
     private final String errorMessageOrNull;
-    
+
     public FileInformation(final long fileId, final FileDTO fileDTO)
     {
         assert fileId > 0;
@@ -40,7 +40,7 @@ public class FileInformation
         this.fileDTOOrNull = fileDTO;
         this.errorMessageOrNull = null;
     }
-    
+
     public FileInformation(final long fileId, final String errorMessage)
     {
         assert fileId > 0;
@@ -56,7 +56,7 @@ public class FileInformation
     {
         return (fileDTOOrNull != null);
     }
-    
+
     /**
      * Returns the id of the file in the database.
      */
@@ -92,5 +92,5 @@ public class FileInformation
         }
         return errorMessageOrNull;
     }
-    
+
 }

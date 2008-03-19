@@ -46,13 +46,15 @@ public final class ProcessResult
     private List<String> outputLines;
 
     // process finished or was terminated after timeout
-    public static ProcessResult create(Process process, List<String> commandLine, Logger operationLog, Logger machineLog)
+    public static ProcessResult create(Process process, List<String> commandLine,
+            Logger operationLog, Logger machineLog)
     {
         return new ProcessResult(process, false, commandLine, operationLog, machineLog);
     }
 
     // process could not start at all
-    public static ProcessResult createNotStarted(List<String> commandLine, Logger operationLog, Logger machineLog)
+    public static ProcessResult createNotStarted(List<String> commandLine, Logger operationLog,
+            Logger machineLog)
     {
         return new ProcessResult(null, false, commandLine, operationLog, machineLog);
     }
@@ -64,8 +66,8 @@ public final class ProcessResult
         return new ProcessResult(process, true, commandLine, operationLog, machineLog);
     }
 
-    private ProcessResult(Process processOrNull, boolean hasBlocked, List<String> commandLine, Logger operationLog,
-            Logger machineLog)
+    private ProcessResult(Process processOrNull, boolean hasBlocked, List<String> commandLine,
+            Logger operationLog, Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = new File(commandLine.get(0)).getName();
@@ -180,18 +182,19 @@ public final class ProcessResult
     {
         if (isRun() == false)
         {
-            operationLog.log(logLevel, String.format("[%s] process could not be run.", commandName));
+            operationLog
+                    .log(logLevel, String.format("[%s] process could not be run.", commandName));
         } else if (isTerminated())
         {
             operationLog.log(logLevel, String.format("[%s] process was destroyed.", commandName));
         } else if (hasBlocked())
         {
-            operationLog.log(logLevel, String.format("[%s] process has blocked and could not be destroyed.",
-                    commandName));
+            operationLog.log(logLevel, String.format(
+                    "[%s] process has blocked and could not be destroyed.", commandName));
         } else
         {
-            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.", commandName,
-                    exitValue()));
+            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.",
+                    commandName, exitValue()));
         }
     }
 

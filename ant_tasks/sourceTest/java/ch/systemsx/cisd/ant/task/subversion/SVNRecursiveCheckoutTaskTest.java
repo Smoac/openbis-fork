@@ -43,9 +43,11 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class SVNRecursiveCheckoutTaskTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "SVNRecursiveCheckoutTask");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "SVNRecursiveCheckoutTask");
 
     @BeforeClass
     public void init()
@@ -72,13 +74,13 @@ public class SVNRecursiveCheckoutTaskTest
         final String repositoryUrl;
 
         final String prefix;
-        
+
         final String workingCopyDir;
 
         final List<String> checkedOutPaths;
 
         final List<String> checkedOutProjects;
-        
+
         final List<String> checkedOutRevision;
 
         SVNCheckoutMock(String repositoryUrl, String workingCopyDir)
@@ -94,7 +96,7 @@ public class SVNRecursiveCheckoutTaskTest
         public void checkout(String path, String projectName, String revision) throws SVNException
         {
             assert path.startsWith(prefix);
-            
+
             checkedOutPaths.add(path.substring(prefix.length()));
             checkedOutProjects.add(projectName);
             checkedOutRevision.add(revision);
@@ -130,7 +132,8 @@ public class SVNRecursiveCheckoutTaskTest
         dir.deleteOnExit();
         assert dir.mkdir();
 
-        final SVNRecursiveCheckoutTaskCheckoutMock task = new SVNRecursiveCheckoutTaskCheckoutMock();
+        final SVNRecursiveCheckoutTaskCheckoutMock task =
+                new SVNRecursiveCheckoutTaskCheckoutMock();
         task.setDir(dir.getAbsolutePath());
         final String reposUrl = "http://somehost/somerepos";
         final String projPath = "someproj";
@@ -173,13 +176,15 @@ public class SVNRecursiveCheckoutTaskTest
                         + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
                         + "   <classpathentry kind=\"lib\" path=\"/libraries/testng/testng-jdk15.jar\" sourcepath=\"/libraries/testng/src.zip\"/>\n"
                         + "   <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/common\"/>\n"
-                        + "   <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n";
+                        + "   <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                        + "</classpath>\n";
         final File someProj = new File(workingDirectory, projPath);
         someProj.delete();
         someProj.deleteOnExit();
         assert someProj.mkdir();
 
-        final SVNRecursiveCheckoutTaskCheckoutMock task = new SVNRecursiveCheckoutTaskCheckoutMock();
+        final SVNRecursiveCheckoutTaskCheckoutMock task =
+                new SVNRecursiveCheckoutTaskCheckoutMock();
         final File classPathFile = new File(someProj, ".classpath");
         classPathFile.deleteOnExit();
         CollectionIO.writeIterable(classPathFile, Collections.singleton(classPathFileContent));
@@ -196,15 +201,18 @@ public class SVNRecursiveCheckoutTaskTest
         final List<String> expectedPaths =
                 isTrunk ? Arrays.asList(projPath + "/trunk", SVNUtilities.BUILD_RESOURCES_PROJECT
                         + "/trunk", "libraries/trunk", "common/trunk") : Arrays.asList(projPath,
-                                SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common");
+                        SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common");
         assertEquals(expectedPaths, task.mock.checkedOutPaths);
         final List<String> expectedProjects =
-            Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common");
+                Arrays
+                        .asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
+                                "common");
         assertEquals(expectedProjects, task.mock.checkedOutProjects);
         assertEquals(task.mock.checkedOutProjects.size(), task.mock.checkedOutRevision.size());
         for (int i = 0; i < task.mock.checkedOutRevision.size(); ++i)
         {
-            assertEquals("Entry " + i, SVNUtilities.HEAD_REVISION, task.mock.checkedOutRevision.get(i));
+            assertEquals("Entry " + i, SVNUtilities.HEAD_REVISION, task.mock.checkedOutRevision
+                    .get(i));
         }
     }
 
@@ -223,7 +231,8 @@ public class SVNRecursiveCheckoutTaskTest
                         + "   <classpathentry kind=\"lib\" path=\"/libraries/mail/mail.jar\"/>\n"
                         + "   <classpathentry kind=\"lib\" path=\"/libraries/testng/testng-jdk15.jar\" sourcepath=\"/libraries/testng/src.zip\"/>\n"
                         + "   <classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/common\"/>\n"
-                        + "   <classpathentry kind=\"output\" path=\"targets/classes\"/>\n" + "</classpath>\n";
+                        + "   <classpathentry kind=\"output\" path=\"targets/classes\"/>\n"
+                        + "</classpath>\n";
         final String classPathFileContent2 =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                         + "<classpath>\n"
@@ -248,7 +257,8 @@ public class SVNRecursiveCheckoutTaskTest
         someDependantProj.deleteOnExit();
         assert someDependantProj.mkdir();
 
-        final SVNRecursiveCheckoutTaskCheckoutMock task = new SVNRecursiveCheckoutTaskCheckoutMock();
+        final SVNRecursiveCheckoutTaskCheckoutMock task =
+                new SVNRecursiveCheckoutTaskCheckoutMock();
         final File classPathFile1 = new File(someProj, ".classpath");
         classPathFile1.deleteOnExit();
         CollectionIO.writeIterable(classPathFile1, Collections.singleton(classPathFileContent1));
@@ -269,12 +279,14 @@ public class SVNRecursiveCheckoutTaskTest
 
         final List<String> expectedPaths =
                 isTrunk ? Arrays.asList(projPath + "/trunk", SVNUtilities.BUILD_RESOURCES_PROJECT
-                        + "/trunk", "libraries/trunk", "common/trunk", "common2/trunk") : Arrays.asList(projPath,
-                                SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common", "common2");
+                        + "/trunk", "libraries/trunk", "common/trunk", "common2/trunk") : Arrays
+                        .asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
+                                "common", "common2");
         CollectionIO.writeIterable(System.out, task.mock.checkedOutPaths);
         assertEquals(expectedPaths, task.mock.checkedOutPaths);
         final List<String> expectedProjects =
-            Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries", "common", "common2");
+                Arrays.asList(projPath, SVNUtilities.BUILD_RESOURCES_PROJECT, "libraries",
+                        "common", "common2");
         assertEquals(expectedProjects, task.mock.checkedOutProjects);
         assertEquals(task.mock.checkedOutProjects.size(), task.mock.checkedOutRevision.size());
         for (int i = 0; i < task.mock.checkedOutRevision.size(); ++i)
@@ -282,7 +294,7 @@ public class SVNRecursiveCheckoutTaskTest
             assertEquals("Entry " + i, revision, task.mock.checkedOutRevision.get(i));
         }
     }
-    
+
     @Test(expectedExceptions =
         { BuildException.class })
     public void testSetInvalidRevision()

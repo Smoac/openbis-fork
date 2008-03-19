@@ -22,7 +22,6 @@ import java.io.InputStream;
 import com.twmacinta.util.MD5;
 import com.twmacinta.util.MD5InputStream;
 
-
 /**
  * A {@link IChecksumCalculator} implementation based on <i>MD5</i>.
  * 

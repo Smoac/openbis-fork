@@ -59,7 +59,8 @@ public class LogInitializer
         assert logFile != null && logFile.exists() : "Given log file must be not null and must exist.";
         // For non-XML files, you will use <code>PropertyConfigurator.configureAndWatch(String)</code>
         DOMConfigurator.configureAndWatch(logFile.getPath());
-        LogLog.debug(String.format("Log configured from file '%s' (watching).", logFile.getAbsolutePath()));
+        LogLog.debug(String.format("Log configured from file '%s' (watching).", logFile
+                .getAbsolutePath()));
     }
 
     private final static void configureFromURL(final URL url)

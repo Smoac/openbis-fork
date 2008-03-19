@@ -38,7 +38,8 @@ public final class Version implements IStorable
     static Version loadFrom(IDirectory directory)
     {
         IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
-        return new Version(Utilities.getNumber(versionFolder, MAJOR), Utilities.getNumber(versionFolder, MINOR));
+        return new Version(Utilities.getNumber(versionFolder, MAJOR), Utilities.getNumber(
+                versionFolder, MINOR));
     }
 
     /**

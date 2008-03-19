@@ -44,7 +44,8 @@ public interface IDirectory extends INode, Iterable<INode>
      * Adds the specified real file to this directory. The content of <code>file</code> will be copied. If it is a
      * folder also its complete content including all subfolders will be copied.
      * 
-     * @param nameOrNull the name of the returned node. If <code>null</code>, then given <var>file</var> name is taken.
+     * @param nameOrNull the name of the returned node. If <code>null</code>, then given <var>file</var> name is
+     *            taken.
      * @param move whether given <var>file</var> should be copied or moved.
      * @return the new node. It will be a {@link ILink} if <code>file</code> is a symbolic link, a {@link IDirectory}
      *         if <code>file</code> is a folder, or {@link IFile} if <code>file</code> is a plain file.

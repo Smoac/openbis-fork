@@ -38,9 +38,9 @@ import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
  */
 public enum DatabaseEngine
 {
-    POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class, new DefaultLobHandler(),
-            new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}", "jdbc:postgresql:{0}{1}", "//localhost/",
-            "postgres"),
+    POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class,
+            new DefaultLobHandler(), new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}",
+            "jdbc:postgresql:{0}{1}", "//localhost/", "postgres"),
 
     H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
@@ -70,8 +70,8 @@ public enum DatabaseEngine
 
     @SuppressWarnings("unchecked")
     DatabaseEngine(String code, String driver, Class<?> daoFactoryClass, LobHandler lobHandler,
-            ISequencerHandler sequenceHandler, String adminUrlTemplate, String urlTemplate, String defaultURLHostPart,
-            String defaultAdminUser)
+            ISequencerHandler sequenceHandler, String adminUrlTemplate, String urlTemplate,
+            String defaultURLHostPart, String defaultAdminUser)
     {
         assert code != null;
         assert driver != null;
@@ -94,7 +94,8 @@ public enum DatabaseEngine
         this.daoFactoryClass = (Class<ch.systemsx.cisd.dbmigration.IDAOFactory>) daoFactoryClass;
         try
         {
-            this.daoFactoryConstructor = this.daoFactoryClass.getConstructor(DatabaseConfigurationContext.class);
+            this.daoFactoryConstructor =
+                    this.daoFactoryClass.getConstructor(DatabaseConfigurationContext.class);
         } catch (NoSuchMethodException ex)
         {
             throw new Error("No constructor", ex);
@@ -149,7 +150,8 @@ public enum DatabaseEngine
      */
     public final String getAdminURL(String urlHostPartOrNull, String databaseName)
     {
-        final String hostPartUrl = (urlHostPartOrNull == null) ? defaultURLHostPart : urlHostPartOrNull;
+        final String hostPartUrl =
+                (urlHostPartOrNull == null) ? defaultURLHostPart : urlHostPartOrNull;
         final String url = MessageFormat.format(adminUrlTemplate, hostPartUrl, databaseName);
         return url;
     }
@@ -167,7 +169,8 @@ public enum DatabaseEngine
      */
     public final String getURL(String urlHostPartOrNull, String databaseName)
     {
-        final String hostPartUrl = (urlHostPartOrNull == null) ? defaultURLHostPart : urlHostPartOrNull;
+        final String hostPartUrl =
+                (urlHostPartOrNull == null) ? defaultURLHostPart : urlHostPartOrNull;
         final String url = MessageFormat.format(urlTemplate, hostPartUrl, databaseName);
         return url;
     }

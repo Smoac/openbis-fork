@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link NamePrefixFileFilter}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class NamePrefixFileFilterTest
 {
-    
+
     private static final String PREFIX = "PReFiX";
-    
+
     @Test
     public void testNamePrefixShouldOccurAndFound()
     {

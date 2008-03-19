@@ -68,7 +68,8 @@ public final class FileDownloadHelper
     /** Creates a download link for given <var>fileId</var>. */
     public final static String createDownloadUrl(final long fileId)
     {
-        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "=" + fileId;
+        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "="
+                + fileId;
     }
 
 }

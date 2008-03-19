@@ -47,9 +47,11 @@ public class Compressor
         LogInitializer.init();
     }
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, Compressor.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, Compressor.class);
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Compressor.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, Compressor.class);
 
     private static final int NUMBER_OF_WORKERS = Runtime.getRuntime().availableProcessors();
 
@@ -70,17 +72,20 @@ public class Compressor
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Found %d files to compress.", filesToCompressOrNull.length));
+            operationLog.info(String.format("Found %d files to compress.",
+                    filesToCompressOrNull.length));
         }
-        return new ArrayBlockingQueue<File>(filesToCompressOrNull.length, false, Arrays.asList(filesToCompressOrNull));
+        return new ArrayBlockingQueue<File>(filesToCompressOrNull.length, false, Arrays
+                .asList(filesToCompressOrNull));
     }
 
-    private static void startUpWorkerThreads(Queue<File> workerQueue, Collection<FailureRecord> failed,
-            ICompressionMethod compressor)
+    private static void startUpWorkerThreads(Queue<File> workerQueue,
+            Collection<FailureRecord> failed, ICompressionMethod compressor)
     {
         for (int i = 0; i < NUMBER_OF_WORKERS; ++i)
         {
-            new Thread(new CompressionWorker(workerQueue, failed, compressor), "Compressor " + i).start();
+            new Thread(new CompressionWorker(workerQueue, failed, compressor), "Compressor " + i)
+                    .start();
         }
         if (operationLog.isInfoEnabled())
         {
@@ -88,14 +93,17 @@ public class Compressor
         }
     }
 
-    public static Collection<FailureRecord> start(String directoryName, ICompressionMethod compressionMethod)
+    public static Collection<FailureRecord> start(String directoryName,
+            ICompressionMethod compressionMethod)
     {
         if (compressionMethod instanceof ISelfTestable)
         {
             ((ISelfTestable) compressionMethod).check();
         }
-        final Queue<File> workerQueue = fillWorkerQueueOrExit(new File(directoryName), compressionMethod);
-        final Collection<FailureRecord> failed = Collections.synchronizedCollection(new ArrayList<FailureRecord>());
+        final Queue<File> workerQueue =
+                fillWorkerQueueOrExit(new File(directoryName), compressionMethod);
+        final Collection<FailureRecord> failed =
+                Collections.synchronizedCollection(new ArrayList<FailureRecord>());
         startUpWorkerThreads(workerQueue, failed, compressionMethod);
         return failed;
     }

@@ -51,15 +51,17 @@ public class DBRestrictionParserTest
     {
         LogInitializer.init();
         sqlScript =
-                FileUtilities.loadToString(new File(
-                        "../common/sourceTest/java/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql"));
+                FileUtilities
+                        .loadToString(new File(
+                                "../common/sourceTest/java/ch/systemsx/cisd/common/db/DBRestrictionsTest.sql"));
         assert sqlScript != null;
     }
 
     @Test
     public void testNormalize()
     {
-        final List<String> normalizedList = DBRestrictionParser.normalize(" a  1 ;; B\t2;\n\nC; \n--D\n E ");
+        final List<String> normalizedList =
+                DBRestrictionParser.normalize(" a  1 ;; B\t2;\n\nC; \n--D\n E ");
         assertEquals(Arrays.asList("a 1", "b 2", "c", "e"), normalizedList);
     }
 
@@ -68,10 +70,12 @@ public class DBRestrictionParserTest
     {
         String invalidDomainStatement = "create domain bla for varchar(0)";
         final List<String> domainScript =
-                Arrays.asList("create table sometable", "create domain user_id as varchar(15)", invalidDomainStatement,
-                        "create domain code as varchar(8)", "create domain description_80 as varchar(81)");
+                Arrays.asList("create table sometable", "create domain user_id as varchar(15)",
+                        invalidDomainStatement, "create domain code as varchar(8)",
+                        "create domain description_80 as varchar(81)");
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "line \"" + invalidDomainStatement
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "line \""
+                        + invalidDomainStatement
                         + "\" starts like a domain definition, but key word 'AS' is missing.");
         try
         {
@@ -91,9 +95,11 @@ public class DBRestrictionParserTest
     @Test
     public void testDefaultKeywordInDomain()
     {
-        final List<String> domainScript = Arrays.asList("create domain vc22 as varchar(22) default 'nothing special'");
+        final List<String> domainScript =
+                Arrays.asList("create domain vc22 as varchar(22) default 'nothing special'");
 
-        final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
+        final LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
             final Map<String, Integer> domains = DBRestrictionParser.parseDomains(domainScript);
@@ -111,7 +117,8 @@ public class DBRestrictionParserTest
     {
         final List<String> domainScript = Arrays.asList("create domain dp as double precision");
 
-        final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
+        final LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
             final Map<String, Integer> domains = DBRestrictionParser.parseDomains(domainScript);
@@ -126,9 +133,11 @@ public class DBRestrictionParserTest
     @Test
     public void testDoublePrecisionAndDefaultInDomain()
     {
-        final List<String> domainScript = Arrays.asList("create domain dp as double precision default 3.14159");
+        final List<String> domainScript =
+                Arrays.asList("create domain dp as double precision default 3.14159");
 
-        final LogMonitoringAppender appender = LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
+        final LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "ill-formed");
         try
         {
             final Map<String, Integer> domains = DBRestrictionParser.parseDomains(domainScript);
@@ -163,14 +172,17 @@ public class DBRestrictionParserTest
     public void testInvalidTable()
     {
         final DBRestrictionParser parser = new DBRestrictionParser("");
-        assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("doesnotexit").getLength("doesnotexist"));
+        assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("doesnotexit").getLength(
+                "doesnotexist"));
     }
 
     @Test(expectedExceptions = AssertionError.class)
     public void testInvalidColumn()
     {
-        final DBRestrictionParser parser = new DBRestrictionParser("create table tab (a integer, b varchar(1))");
-        assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("tab").getLength("doesnotexist"));
+        final DBRestrictionParser parser =
+                new DBRestrictionParser("create table tab (a integer, b varchar(1))");
+        assertEquals(Integer.MAX_VALUE, parser.getTableRestrictions("tab")
+                .getLength("doesnotexist"));
     }
 
     @Test
@@ -178,10 +190,10 @@ public class DBRestrictionParserTest
     {
         final DBRestrictionParser parser = new DBRestrictionParser(sqlScript);
 
-        assertEquals(new HashSet<String>(Arrays.asList("PERS", "ORGA")), parser.getTableRestrictions("contacts")
-                .tryGetCheckedConstaint("cnta_type"));
-        assertEquals(new HashSet<String>(Arrays.asList("STOB", "MATE")), parser.getTableRestrictions("materials")
-                .tryGetCheckedConstaint("mate_sub_type"));
+        assertEquals(new HashSet<String>(Arrays.asList("PERS", "ORGA")), parser
+                .getTableRestrictions("contacts").tryGetCheckedConstaint("cnta_type"));
+        assertEquals(new HashSet<String>(Arrays.asList("STOB", "MATE")), parser
+                .getTableRestrictions("materials").tryGetCheckedConstaint("mate_sub_type"));
     }
 
 }

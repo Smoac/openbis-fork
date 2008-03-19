@@ -84,7 +84,8 @@ public final class PlateGeometryTest extends AbstractFileSystemTestCase
     {
         testSaveTo();
         final IDirectory dir = NodeFactory.createDirectoryNode(workingDirectory);
-        final IDirectory geoDir = Utilities.getOrCreateSubDirectory(dir, PlateGeometry.PLATE_GEOMETRY);
+        final IDirectory geoDir =
+                Utilities.getOrCreateSubDirectory(dir, PlateGeometry.PLATE_GEOMETRY);
         final Geometry loaded = PlateGeometry.loadFrom(geoDir);
         assertNotNull(loaded);
         assertTrue(loaded.getRows() == 2);

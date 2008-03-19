@@ -43,7 +43,8 @@ public class TiffCompressor extends Compressor
         }
         for (FailureRecord r : failed)
         {
-            System.err.printf("%s (%s)\n", r.getFailedFile().getName(), r.getFailureStatus().getMessage());
+            System.err.printf("%s (%s)\n", r.getFailedFile().getName(), r.getFailureStatus()
+                    .getMessage());
         }
     }
 

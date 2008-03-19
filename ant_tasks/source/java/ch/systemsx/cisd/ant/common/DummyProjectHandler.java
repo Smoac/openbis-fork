@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.ant.common;
 
 /**
- * 
- *
  * @author felmer
  */
 public class DummyProjectHandler implements IProjectHandler
 {
     public static final IProjectHandler INSTANCE = new DummyProjectHandler();
-    
+
     public IProjectHandler createHandler(EclipseClasspathEntry entry)
     {
         return INSTANCE;

@@ -45,7 +45,8 @@ public class RetriableEnvironmentFailureException extends EnvironmentFailureExce
     /**
      * Creates a {@link RetriableEnvironmentFailureException} using a {@link java.util.Formatter}.
      */
-    public static RetriableEnvironmentFailureException fromTemplate(String messageTemplate, Object... args)
+    public static RetriableEnvironmentFailureException fromTemplate(String messageTemplate,
+            Object... args)
     {
         return new RetriableEnvironmentFailureException(String.format(messageTemplate, args));
     }
@@ -53,8 +54,8 @@ public class RetriableEnvironmentFailureException extends EnvironmentFailureExce
     /**
      * Creates a {@link RetriableEnvironmentFailureException} using a {@link java.util.Formatter}.
      */
-    public static RetriableEnvironmentFailureException fromTemplate(Throwable cause, String messageTemplate,
-            Object... args)
+    public static RetriableEnvironmentFailureException fromTemplate(Throwable cause,
+            String messageTemplate, Object... args)
     {
         return new RetriableEnvironmentFailureException(String.format(messageTemplate, args), cause);
     }

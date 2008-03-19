@@ -64,7 +64,9 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
         String sequenceName = nonstandardMapping.get(tableNameInLowerCase);
         if (sequenceName == null)
         {
-            sequenceName = tableNameInLowerCase.substring(0, tableNameInLowerCase.length() - 1) + "_id_seq";
+            sequenceName =
+                    tableNameInLowerCase.substring(0, tableNameInLowerCase.length() - 1)
+                            + "_id_seq";
         }
         return sequenceName;
     }

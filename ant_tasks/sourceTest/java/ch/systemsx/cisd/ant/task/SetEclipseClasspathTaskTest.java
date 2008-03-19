@@ -76,8 +76,8 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
                 printWriter.println("<classpath>");
                 for (EclipseClasspathEntry entry : entries)
                 {
-                    printWriter.printf("  <classpathentry kind=\"%s\" path=\"%s\"/>\n", entry.getKind(), entry
-                            .getPath());
+                    printWriter.printf("  <classpathentry kind=\"%s\" path=\"%s\"/>\n", entry
+                            .getKind(), entry.getPath());
                 }
                 printWriter.println("</classpath>");
             } catch (IOException ex)
@@ -181,8 +181,10 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
         task.execute();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
+        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
         assertEquals(new String(builder), project.getProperty(PROPERTY_NAME));
     }
 
@@ -199,10 +201,14 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
         task.execute();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(new File(PROJECT_B, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "b.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
+        builder.append(new File(PROJECT_B, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "b.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
         assertEquals(new String(builder), project.getProperty(PROPERTY_NAME));
     }
 
@@ -219,14 +225,22 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
         task.execute();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(new File(PROJECT_D, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(PROJECT_B, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "b.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(PROJECT_C, TARGET_CLASSES).getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "c.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
-        builder.append(new File(TEMP_WORKSPACE, "d.jar").getAbsoluteFile()).append(File.pathSeparatorChar);
+        builder.append(new File(PROJECT_D, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(PROJECT_B, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(PROJECT_A, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "a.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "b.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(PROJECT_C, TARGET_CLASSES).getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "c.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
+        builder.append(new File(TEMP_WORKSPACE, "d.jar").getAbsoluteFile()).append(
+                File.pathSeparatorChar);
         assertEquals(new String(builder), project.getProperty(PROPERTY_NAME));
     }
 }

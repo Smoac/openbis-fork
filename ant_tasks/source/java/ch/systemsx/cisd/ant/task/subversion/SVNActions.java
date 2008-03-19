@@ -41,36 +41,40 @@ class SVNActions implements ISVNActions
 
         this.logger = logger;
     }
-    
 
     public String cat(String pathOrUrl) throws SVNException
     {
         assert pathOrUrl != null;
-        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
+        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl
+                + "' is neither a URL nor an absolute path.";
 
-        final ProcessInfo subversionProcessInfo = SVNUtilities.subversionCommand(logger, false, "cat", pathOrUrl);
+        final ProcessInfo subversionProcessInfo =
+                SVNUtilities.subversionCommand(logger, false, "cat", pathOrUrl);
         return StringUtils.join(subversionProcessInfo.getLines(), OSUtilities.LINE_SEPARATOR);
     }
 
     public List<String> list(String pathOrUrl) throws SVNException
     {
         assert pathOrUrl != null;
-        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
+        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl
+                + "' is neither a URL nor an absolute path.";
 
-        final ProcessInfo subversionProcessInfo = SVNUtilities.subversionCommand(logger, "list", pathOrUrl);
+        final ProcessInfo subversionProcessInfo =
+                SVNUtilities.subversionCommand(logger, "list", pathOrUrl);
         return subversionProcessInfo.getLines();
     }
 
     public void mkdir(String pathOrUrl, String logMessage) throws SVNException
     {
         assert pathOrUrl != null;
-        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
+        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl
+                + "' is neither a URL nor an absolute path.";
 
         SVNUtilities.subversionCommand(logger, "mkdir", "--message", logMessage, pathOrUrl);
     }
 
-    public void copy(String sourcePathOrUrl, String sourceRevision, String destinationPathOrUrl, String logMessage)
-            throws SVNException
+    public void copy(String sourcePathOrUrl, String sourceRevision, String destinationPathOrUrl,
+            String logMessage) throws SVNException
     {
         assert sourcePathOrUrl != null;
         assert checkUrlOrAbsolutePath(sourcePathOrUrl) : "'" + sourcePathOrUrl
@@ -81,32 +85,36 @@ class SVNActions implements ISVNActions
 
         if (SVNUtilities.HEAD_REVISION.equals(sourceRevision))
         {
-            SVNUtilities.subversionCommand(logger, "copy", "--message", logMessage, sourcePathOrUrl,
-                    destinationPathOrUrl);
+            SVNUtilities.subversionCommand(logger, "copy", "--message", logMessage,
+                    sourcePathOrUrl, destinationPathOrUrl);
         } else
         {
-            SVNUtilities.subversionCommand(logger, "copy", "--message", logMessage, "--revision", sourceRevision,
-                    sourcePathOrUrl, destinationPathOrUrl);
+            SVNUtilities.subversionCommand(logger, "copy", "--message", logMessage, "--revision",
+                    sourceRevision, sourcePathOrUrl, destinationPathOrUrl);
         }
     }
 
     public SVNInfoRecord info(String pathOrUrl)
     {
         assert pathOrUrl != null;
-        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
+        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl
+                + "' is neither a URL nor an absolute path.";
 
-        final ProcessInfo subversionProcessInfo = SVNUtilities.subversionCommand(logger, "info", "-R", pathOrUrl);
+        final ProcessInfo subversionProcessInfo =
+                SVNUtilities.subversionCommand(logger, "info", "-R", pathOrUrl);
         final SVNInfoRecord infoRecord = new SVNInfoRecord();
         new SVNInfoRecordExtractor().fillInfoRecord(infoRecord, subversionProcessInfo);
         return infoRecord;
     }
-    
+
     public List<SVNItemStatus> status(String pathOrUrl)
     {
         assert pathOrUrl != null;
-        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl + "' is neither a URL nor an absolute path.";
+        assert checkUrlOrAbsolutePath(pathOrUrl) : "'" + pathOrUrl
+                + "' is neither a URL nor an absolute path.";
 
-        final ProcessInfo subversionProcessInfo = SVNUtilities.subversionCommand(logger, "status", pathOrUrl);
+        final ProcessInfo subversionProcessInfo =
+                SVNUtilities.subversionCommand(logger, "status", pathOrUrl);
         final List<SVNItemStatus> status = new ArrayList<SVNItemStatus>();
         for (String line : subversionProcessInfo.getLines())
         {
@@ -128,18 +136,16 @@ class SVNActions implements ISVNActions
         return false;
     }
 
-
     public boolean isMuccAvailable()
     {
         return SVNUtilities.isMuccAvailable();
     }
 
-
     public void mucc(String logMessage, String... args) throws SVNException
     {
         assert logMessage != null;
         assert args.length > 0;
-        
+
         SVNUtilities.subversionMuccCommand(logger, logMessage, args);
     }
 

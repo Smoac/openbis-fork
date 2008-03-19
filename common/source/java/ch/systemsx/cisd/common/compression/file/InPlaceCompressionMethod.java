@@ -142,13 +142,13 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
             final boolean ok = fileToCompress.delete();
             if (ok)
             {
-                operationLog.warn(String.format("Clean up: deleting left-over file '%s'", fileToCompress
-                        .getAbsolutePath()));
+                operationLog.warn(String.format("Clean up: deleting left-over file '%s'",
+                        fileToCompress.getAbsolutePath()));
                 return Status.OK;
             } else
             {
-                return createStatusAndLog("Clean up: Unable to delete left-over file '%s'", fileToCompress
-                        .getAbsolutePath());
+                return createStatusAndLog("Clean up: Unable to delete left-over file '%s'",
+                        fileToCompress.getAbsolutePath());
             }
         }
         if (isCompressedFile(fileToCompress))
@@ -160,7 +160,8 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
                 final boolean ok = originalFile.delete();
                 if (ok == false)
                 {
-                    return createStatusAndLog("Clean up: Unable to delete uncompressed file '%s'", originalFile);
+                    return createStatusAndLog("Clean up: Unable to delete uncompressed file '%s'",
+                            originalFile);
                 }
             }
             if (fileToCompress.renameTo(originalFile))
@@ -168,15 +169,16 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
                 return Status.OK;
             } else
             {
-                return createStatusAndLog("Renaming compressed file '%s' to original name '%s' failed.",
+                return createStatusAndLog(
+                        "Renaming compressed file '%s' to original name '%s' failed.",
                         fileToCompress, originalFile);
             }
         }
         final File inProgressFile = prefixInProgress(fileToCompress);
         final File compressionFinishedFile = prefixCompressed(fileToCompress);
         final boolean runOK =
-                ProcessExecutionHelper.runAndLog(createCommandLine(fileToCompress, inProgressFile), operationLog,
-                        machineLog);
+                ProcessExecutionHelper.runAndLog(createCommandLine(fileToCompress, inProgressFile),
+                        operationLog, machineLog);
         if (runOK == false)
         {
             return createStatusAndLog("Unable to compress '%s'.", fileToCompress.getAbsolutePath());
@@ -184,19 +186,20 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
         final boolean firstRenameOK = inProgressFile.renameTo(compressionFinishedFile);
         if (firstRenameOK == false)
         {
-            return createStatusAndLog("Unable to rename '%s' to '%s'.", inProgressFile.getAbsolutePath(),
-                    compressionFinishedFile.getAbsolutePath());
+            return createStatusAndLog("Unable to rename '%s' to '%s'.", inProgressFile
+                    .getAbsolutePath(), compressionFinishedFile.getAbsolutePath());
         }
         final boolean removalOfOriginalOK = fileToCompress.delete();
         if (removalOfOriginalOK == false)
         {
-            return createStatusAndLog("Unable to delete original file '%s'", fileToCompress.getAbsolutePath());
+            return createStatusAndLog("Unable to delete original file '%s'", fileToCompress
+                    .getAbsolutePath());
         }
         final boolean secondRenameOK = compressionFinishedFile.renameTo(fileToCompress);
         if (secondRenameOK == false)
         {
-            return createStatusAndLog("Unable to rename '%s' to '%s'.", compressionFinishedFile.getAbsolutePath(),
-                    fileToCompress.getAbsolutePath());
+            return createStatusAndLog("Unable to rename '%s' to '%s'.", compressionFinishedFile
+                    .getAbsolutePath(), fileToCompress.getAbsolutePath());
         }
         return Status.OK;
     }

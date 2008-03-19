@@ -48,9 +48,11 @@ public class SqlScriptProviderTest
 
     private static final String DB_ENGINE_CODE = "dbengine";
 
-    private static final File TEMP_SCHEMA_SCRIPT_ROOT_FOLDER = new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
+    private static final File TEMP_SCHEMA_SCRIPT_ROOT_FOLDER =
+            new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
 
-    private static final File TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER = new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, "generic");
+    private static final File TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER =
+            new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, "generic");
 
     private static final File TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER =
             new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, DB_ENGINE_CODE);
@@ -73,24 +75,29 @@ public class SqlScriptProviderTest
         genericSchemaVersionFolder.mkdirs();
         specificSchemaVersionFolder.mkdirs();
         write(new File(specificSchemaVersionFolder, "schema-" + VERSION + ".sql"), "code: schema");
-        write(new File(specificSchemaVersionFolder, "function-" + VERSION + ".sql"), "code: function");
+        write(new File(specificSchemaVersionFolder, "function-" + VERSION + ".sql"),
+                "code: function");
         final File migrationFolder = new File(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER, MIGRATION);
         migrationFolder.mkdir();
-        write(new File(migrationFolder, "migration-" + VERSION + "-" + VERSION2 + ".sql"), "code: migration");
+        write(new File(migrationFolder, "migration-" + VERSION + "-" + VERSION2 + ".sql"),
+                "code: migration");
         write(new File(specificSchemaVersionFolder, "data-" + VERSION + ".sql"), "code: data");
-        sqlScriptProvider = new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, DB_ENGINE_CODE);
+        sqlScriptProvider =
+                new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, DB_ENGINE_CODE);
         dumpFile = new File(sqlScriptProvider.getDumpFolder(VERSION), ".DUMP");
     }
 
     private File createSpecificSchemaFolder()
     {
-        final File specificSchemaVersionFolder = new File(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER, VERSION);
+        final File specificSchemaVersionFolder =
+                new File(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER, VERSION);
         return specificSchemaVersionFolder;
     }
 
     private File createGenericSchemaFolder()
     {
-        final File specificSchemaVersionFolder = new File(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER, VERSION);
+        final File specificSchemaVersionFolder =
+                new File(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER, VERSION);
         return specificSchemaVersionFolder;
     }
 
@@ -137,28 +144,30 @@ public class SqlScriptProviderTest
     {
         final Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
         assertNotNull(script);
-        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-" + VERSION + ".sql",
-                script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-"
+                + VERSION + ".sql", script.getName());
         assertEquals("code: schema", script.getCode().trim());
     }
 
-    // Note: we make it dependent on testGetSchemaScript(), because we delete the specific schema script 
+    // Note: we make it dependent on testGetSchemaScript(), because we delete the specific schema script
     // in this test case and thus testGetSchemaScript() would fail if run after this test case.
     @Test(dependsOnMethods = "testGetSchemaScript")
     public void testGetGenericSchemaScript()
     {
-        final File specificSchemaScript = new File(createSpecificSchemaFolder(), "schema-" + VERSION + ".sql");
+        final File specificSchemaScript =
+                new File(createSpecificSchemaFolder(), "schema-" + VERSION + ".sql");
         specificSchemaScript.delete();
-        final File genericSchemaScript = new File(createGenericSchemaFolder(), "schema-" + VERSION + ".sql");
+        final File genericSchemaScript =
+                new File(createGenericSchemaFolder(), "schema-" + VERSION + ".sql");
         final String genericSchemaScriptContent = "code: generic schema";
         write(genericSchemaScript, genericSchemaScriptContent);
         final Script script = sqlScriptProvider.tryGetSchemaScript(VERSION);
         assertNotNull(script);
-        assertEquals(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-" + VERSION + ".sql",
-                script.getName());
+        assertEquals(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-"
+                + VERSION + ".sql", script.getName());
         assertEquals(genericSchemaScriptContent, script.getCode().trim());
     }
-    
+
     @Test
     public void testGetNonExistingSchemaScript()
     {
@@ -170,8 +179,8 @@ public class SqlScriptProviderTest
     {
         final Script script = sqlScriptProvider.tryGetFunctionScript(VERSION);
         assertNotNull(script);
-        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/function-" + VERSION + ".sql",
-                script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/function-"
+                + VERSION + ".sql", script.getName());
         assertEquals("code: function", script.getCode().trim());
     }
 
@@ -185,7 +194,8 @@ public class SqlScriptProviderTest
     public void testGetDataScript()
     {
         Script script = sqlScriptProvider.tryGetDataScript(VERSION);
-        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER + "/" + VERSION + "/data-" + VERSION + ".sql", script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER + "/" + VERSION + "/data-" + VERSION
+                + ".sql", script.getName());
         assertEquals("code: data", script.getCode().trim());
     }
 
@@ -199,8 +209,8 @@ public class SqlScriptProviderTest
     public void testGetMigrationScript()
     {
         Script script = sqlScriptProvider.tryGetMigrationScript(VERSION, VERSION2);
-        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + MIGRATION + "/migration-" + VERSION + "-"
-                + VERSION2 + ".sql", script.getName());
+        assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + MIGRATION + "/migration-"
+                + VERSION + "-" + VERSION2 + ".sql", script.getName());
         assertEquals("code: migration", script.getCode().trim());
     }
 

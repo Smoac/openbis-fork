@@ -51,7 +51,8 @@ public final class Location
      * 
      * @return <code>null</code> if position is out of range.
      */
-    public static final Location tryCreateLocationFromPosition(final int position, final Geometry geometry)
+    public static final Location tryCreateLocationFromPosition(final int position,
+            final Geometry geometry)
     {
         assert geometry != null : "Given geometry can not be null.";
         final int columns = geometry.getColumns();

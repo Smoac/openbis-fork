@@ -20,14 +20,14 @@ import java.util.Timer;
 
 /**
  * Helper methods for timer operations.
- *
+ * 
  * @author Bernd Rinn
  */
 public class TimerHelper
 {
 
     /**
-     * Returns an {@link ITerminable} for the <var>timer</var>. 
+     * Returns an {@link ITerminable} for the <var>timer</var>.
      */
     public static ITerminable asTerminable(final Timer timer)
     {

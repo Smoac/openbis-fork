@@ -125,13 +125,14 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
             set.add(row);
         } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.ERROR)
         {
-            throw new UniqueValueViolationException("Row '" + row.toString() + "' already stored in the map.");
+            throw new UniqueValueViolationException("Row '" + row.toString()
+                    + "' already stored in the map.");
         }
     }
 
     /**
      * Gets the row set for the specified <var>key</var>.
-     *
+     * 
      * @return The set, given in the order of addition, or <code>null</code> if the <var>key</var> is not found.
      */
     public final Set<E> tryGet(final K key)

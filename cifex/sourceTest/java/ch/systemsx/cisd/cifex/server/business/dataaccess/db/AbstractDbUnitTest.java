@@ -97,7 +97,8 @@ public abstract class AbstractDbUnitTest extends AbstractAnnotationAwareTransact
     //
 
     @Override
-    protected final ConfigurableApplicationContext loadContextLocations(String[] locations) throws Exception
+    protected final ConfigurableApplicationContext loadContextLocations(String[] locations)
+            throws Exception
     {
         ConfigurableApplicationContext appContext = super.loadContextLocations(locations);
         if (context == null)

@@ -41,7 +41,8 @@ import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 public class SelfTestTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "SelfTestTest");
 
@@ -98,12 +99,14 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
-                public Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory)
+                public Status copyFromRemote(File sourcePath, String sourceHost,
+                        File destinationDirectory)
                 {
                     throw new AssertionError();
                 }
 
-                public Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost)
+                public Status copyToRemote(File sourcePath, File destinationDirectory,
+                        String destinationHost)
                 {
                     throw new AssertionError();
                 }
@@ -118,7 +121,8 @@ public class SelfTestTest
                     return true;
                 }
 
-                public void check() throws EnvironmentFailureException, ConfigurationFailureException
+                public void check() throws EnvironmentFailureException,
+                        ConfigurationFailureException
                 {
                 }
 
@@ -133,7 +137,8 @@ public class SelfTestTest
     public void testHappyCaseWithRemoteHost()
     {
         final String outgoingHost = "some_remote_host";
-        final FileStore remoteHostOutgoingStore = createRemoteStore(outgoingDirectory, outgoingHost, "outgoing");
+        final FileStore remoteHostOutgoingStore =
+                createRemoteStore(outgoingDirectory, outgoingHost, "outgoing");
         SelfTest.check(mockCopier, remoteHostOutgoingStore);
     }
 
@@ -155,18 +160,21 @@ public class SelfTestTest
     public void testNonExistentPaths()
     {
         final File nonExistentIncomingDirectory = new File(workingDirectory, "data");
-        final FileStore nonExistentIncomingStore = createLocalStore(nonExistentIncomingDirectory, "incoming");
+        final FileStore nonExistentIncomingStore =
+                createLocalStore(nonExistentIncomingDirectory, "incoming");
         SelfTest.check(mockCopier, nonExistentIncomingStore, bufferStore, outgoingStore);
     }
 
     private FileStore createRemoteStore(File path, String host, String description)
     {
-        return FileStoreFactory.createRemoteHost(path, host, description, FileOperationsUtil.createTestFatory());
+        return FileStoreFactory.createRemoteHost(path, host, description, FileOperationsUtil
+                .createTestFatory());
     }
 
     private static FileStore createLocalStore(File path, String description)
     {
-        return FileStoreFactory.createLocal(path, description, FileOperationsUtil.createTestFatory());
+        return FileStoreFactory.createLocal(path, description, FileOperationsUtil
+                .createTestFatory());
     }
 
 }

@@ -69,12 +69,13 @@ public final class UrlServletForwardingController extends AbstractController
         final RequestDispatcher rd = getServletContext().getNamedDispatcher(servletName);
         if (rd == null)
         {
-            throw new ServletException(String.format("No servlet with name '%s' defined in web.xml", servletName));
+            throw new ServletException(String.format(
+                    "No servlet with name '%s' defined in web.xml", servletName));
         }
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("Forwarding to servlet [%s] in '%s'.", servletName, getClass()
-                    .getSimpleName()));
+            operationLog.debug(String.format("Forwarding to servlet [%s] in '%s'.", servletName,
+                    getClass().getSimpleName()));
         }
         rd.forward(request, response);
         return null;

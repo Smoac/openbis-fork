@@ -35,8 +35,8 @@ public class LocalBufferDirs
 
     private final File tempDir;
 
-    public LocalBufferDirs(File bufferDir, String copyInProgressDirName, String copyCompleteDirName,
-            String readyToMoveDirName, String tempDirName)
+    public LocalBufferDirs(File bufferDir, String copyInProgressDirName,
+            String copyCompleteDirName, String readyToMoveDirName, String tempDirName)
     {
         this.copyInProgressDir = ensureDirectoryExists(bufferDir, copyInProgressDirName);
         this.copyCompleteDir = ensureDirectoryExists(bufferDir, copyCompleteDirName);

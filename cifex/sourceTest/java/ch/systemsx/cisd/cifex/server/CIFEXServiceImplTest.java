@@ -257,7 +257,8 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed() throws Exception
+    public void testLoginWithExternalServiceFailedBecauseApplicationAuthenticationFailed()
+            throws Exception
     {
         prepareForDBEmptyCheck();
         context.checking(new Expectations()
@@ -282,8 +283,9 @@ public class CIFEXServiceImplTest
             fail("UserFailureException expected.");
         } catch (EnvironmentFailureException ex)
         {
-            assertEquals("User \'u\' couldn\'t be authenticated because authentication of the application at the "
-                    + "external authentication service failed.", ex.getMessage());
+            assertEquals(
+                    "User \'u\' couldn\'t be authenticated because authentication of the application at the "
+                            + "external authentication service failed.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -304,7 +306,8 @@ public class CIFEXServiceImplTest
             fail("UserFailureException expected.");
         } catch (EnvironmentFailureException ex)
         {
-            assertEquals("Principal is null for successfully authenticated user 'u'.", ex.getMessage());
+            assertEquals("Principal is null for successfully authenticated user 'u'.", ex
+                    .getMessage());
         }
 
         context.assertIsSatisfied();
@@ -327,7 +330,8 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                            userName, password);
                     will(returnValue(false));
                 }
             });
@@ -345,7 +349,8 @@ public class CIFEXServiceImplTest
     }
 
     @Test
-    public void testFailedLoginAtExternalServiceAndSuccessfulLoginAtInternalService() throws Exception
+    public void testFailedLoginAtExternalServiceAndSuccessfulLoginAtInternalService()
+            throws Exception
     {
         final String userName = "u";
         final String password = "p";
@@ -363,7 +368,8 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                            userName, password);
                     will(returnValue(false));
 
                     one(userManager).tryFindUserByCode(userName);
@@ -541,7 +547,8 @@ public class CIFEXServiceImplTest
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
-                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE, userName, password);
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                            userName, password);
                     will(returnValue(true));
 
                     one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE, userName);
@@ -550,13 +557,14 @@ public class CIFEXServiceImplTest
             });
     }
 
-    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag)
+    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO,
+            final boolean createFlag)
     {
         prepareForGettingUserFromHTTPSession(userDTO, createFlag, false);
     }
 
-    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO, final boolean createFlag,
-            final boolean resetAdmin)
+    private void prepareForGettingUserFromHTTPSession(final UserDTO userDTO,
+            final boolean createFlag, final boolean resetAdmin)
     {
         context.checking(new Expectations()
             {
@@ -575,14 +583,17 @@ public class CIFEXServiceImplTest
                     if (createFlag)
                     {
                         one(httpSession).setMaxInactiveInterval(60);
-                        final UserDTO transferredUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
+                        final UserDTO transferredUserDTO =
+                                BeanUtils.createBean(UserDTO.class, userDTO);
                         transferredUserDTO.setEncryptedPassword(null);
                         if (resetAdmin)
                         {
                             transferredUserDTO.setAdmin(false);
                         }
-                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME, transferredUserDTO);
-                        one(httpSession).setAttribute(with(same(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE)),
+                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME,
+                                transferredUserDTO);
+                        one(httpSession).setAttribute(
+                                with(same(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE)),
                                 with(any(LinkedBlockingQueue.class)));
                         one(httpSession).getId();
                         will(returnValue(SESSION_TOKEN_EXAMPLE));
@@ -686,7 +697,8 @@ public class CIFEXServiceImplTest
                     { tempRegisteredByAlice, tempNotRegisteredByAlice, false } };
     }
 
-    final static UserDTO createUser(boolean permanent, boolean admin, String code, UserDTO registrator)
+    final static UserDTO createUser(boolean permanent, boolean admin, String code,
+            UserDTO registrator)
     {
         UserDTO user = new UserDTO();
         user.setUserCode(code);
@@ -703,8 +715,8 @@ public class CIFEXServiceImplTest
     }
 
     @Test(dataProvider = "currentUserAndUserToUpdate")
-    public void testCheckUpdateOfUserIsAllowedCurrentUserIsAdmin(final UserDTO currentUser, final UserDTO userToUpdate,
-            boolean canDo)
+    public void testCheckUpdateOfUserIsAllowedCurrentUserIsAdmin(final UserDTO currentUser,
+            final UserDTO userToUpdate, boolean canDo)
     {
         boolean invalidSessionExceptionThrown = false;
         boolean insufficientPrivilegesExceptionThrown = false;
@@ -714,11 +726,13 @@ public class CIFEXServiceImplTest
             {
                 {
                     // changer is not admin, not temporary and tries to change someone else
-                    if (currentUser.isAdmin() == false && currentUser.isPermanent()
+                    if (currentUser.isAdmin() == false
+                            && currentUser.isPermanent()
                             && (currentUser.getUserCode().equals(userToUpdate.getUserCode()) == false))
                     {
                         one(userManager).listUsersRegisteredBy(currentUser.getUserCode());
-                        if (currentUser.getUserCode().equals(userToUpdate.getRegistrator().getUserCode()))
+                        if (currentUser.getUserCode().equals(
+                                userToUpdate.getRegistrator().getUserCode()))
                         {
                             ownedUsers.add(userToUpdate);
                         }

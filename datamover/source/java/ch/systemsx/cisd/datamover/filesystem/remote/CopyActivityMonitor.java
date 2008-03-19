@@ -43,9 +43,11 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 public class CopyActivityMonitor
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CopyActivityMonitor.class);
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, CopyActivityMonitor.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, CopyActivityMonitor.class);
 
     private final IFileStore destinationStore;
 
@@ -77,7 +79,8 @@ public class CopyActivityMonitor
      *            process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
      */
-    public CopyActivityMonitor(IFileStore destinationStore, ITerminable copyProcess, ITimingParameters timingParameters)
+    public CopyActivityMonitor(IFileStore destinationStore, ITerminable copyProcess,
+            ITimingParameters timingParameters)
     {
         assert destinationStore != null;
         assert copyProcess != null;
@@ -129,7 +132,8 @@ public class CopyActivityMonitor
     private final class ActivityMonitoringTimerTask extends TimerTask
     {
 
-        private static final String TERMINATION_LOG_TEMPLATE = "Terminating %s due to a lack of activity.";
+        private static final String TERMINATION_LOG_TEMPLATE =
+                "Terminating %s due to a lack of activity.";
 
         private static final String INACTIVITY_REPORT_TEMPLATE =
                 "No progress on copying '%s' to '%s' for %f seconds - network connection might be stalled.";
@@ -164,12 +168,14 @@ public class CopyActivityMonitor
             {
                 if (operationLog.isTraceEnabled())
                 {
-                    operationLog.trace(String.format("Asking for last change time of '%s' inside '%s'.",
-                            itemToBeCopied, destinationStore));
+                    operationLog.trace(String.format(
+                            "Asking for last change time of '%s' inside '%s'.", itemToBeCopied,
+                            destinationStore));
                 }
                 if (destinationStore.exists(itemToBeCopied) == false)
                 {
-                    operationLog.warn(String.format("File or directory '%s' inside '%s' does not (yet?) exist.",
+                    operationLog.warn(String.format(
+                            "File or directory '%s' inside '%s' does not (yet?) exist.",
                             itemToBeCopied, destinationStore));
                     return;
                 }
@@ -177,27 +183,33 @@ public class CopyActivityMonitor
                         lastChanged(destinationStore, itemToBeCopied, monitoredItemLastChanged);
                 if (operationLog.isTraceEnabled())
                 {
-                    operationLog.trace(String.format(
-                            "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.",
-                            itemToBeCopied, destinationStore, lastChangedAsFoundByPathChecker));
+                    operationLog
+                            .trace(String
+                                    .format(
+                                            "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.",
+                                            itemToBeCopied, destinationStore,
+                                            lastChangedAsFoundByPathChecker));
                 }
                 // This catches the case where since the last check copying a files has been finished (and consequently
                 // the "last changed" time has been set to that of the source file), but copying of the next file has
                 // not yet been started.
-                final long lastChanged = Math.max(lastChangedAsFoundByPathChecker, monitoredItemLastChanged);
+                final long lastChanged =
+                        Math.max(lastChangedAsFoundByPathChecker, monitoredItemLastChanged);
                 final long now = System.currentTimeMillis();
                 if (lastChanged > now) // That can happen if the system clock of the data producer is screwed up.
                 {
-                    machineLog.error(String.format("Found \"last changed time\" in the future (%1$tF %1$tT), "
-                            + "check system clock of data producer.", lastChanged));
+                    machineLog.error(String.format(
+                            "Found \"last changed time\" in the future (%1$tF %1$tT), "
+                                    + "check system clock of data producer.", lastChanged));
                 }
                 monitoredItemLastChanged = lastChanged;
                 final long noProgressSinceMillis = now - lastChanged;
                 if (noProgressSinceMillis > inactivityPeriodMillis)
                 {
-                    machineLog.error(String.format(INACTIVITY_REPORT_TEMPLATE, itemToBeCopied, destinationStore,
-                            noProgressSinceMillis / 1000.0f));
-                    operationLog.warn(String.format(TERMINATION_LOG_TEMPLATE, terminable.getClass().getName()));
+                    machineLog.error(String.format(INACTIVITY_REPORT_TEMPLATE, itemToBeCopied,
+                            destinationStore, noProgressSinceMillis / 1000.0f));
+                    operationLog.warn(String.format(TERMINATION_LOG_TEMPLATE, terminable.getClass()
+                            .getName()));
                     terminable.terminate();
                     stop();
                 }
@@ -227,11 +239,12 @@ public class CopyActivityMonitor
                             minusSafetyMargin(inactivityPeriodMillis)));
             final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
             final Long lastChanged =
-                    ConcurrencyUtilities.tryGetResult(lastChangedFuture, timeoutMillis, simpleMachineLog,
-                            "Check for recent paths");
+                    ConcurrencyUtilities.tryGetResult(lastChangedFuture, timeoutMillis,
+                            simpleMachineLog, "Check for recent paths");
             if (lastChanged == null)
             {
-                operationLog.error(String.format("Could not determine \"last changed time\" of %s: time out.", item));
+                operationLog.error(String.format(
+                        "Could not determine \"last changed time\" of %s: time out.", item));
                 return lastLastChanged;
             }
             return lastChanged;
@@ -251,24 +264,30 @@ public class CopyActivityMonitor
                     {
                         if (machineLog.isTraceEnabled())
                         {
-                            machineLog.trace("Starting quick check for recent paths on '" + item + "'.");
+                            machineLog.trace("Starting quick check for recent paths on '" + item
+                                    + "'.");
                         }
                         try
                         {
-                            final long lastChanged = store.lastChangedRelative(item, stopWhenYoungerThan);
+                            final long lastChanged =
+                                    store.lastChangedRelative(item, stopWhenYoungerThan);
                             if (machineLog.isTraceEnabled())
                             {
-                                machineLog.trace(String.format(
-                                        "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
-                                        item, lastChanged));
+                                machineLog
+                                        .trace(String
+                                                .format(
+                                                        "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
+                                                        item, lastChanged));
                             }
                             return lastChanged;
                         } catch (RuntimeException ex)
                         {
                             if (machineLog.isTraceEnabled())
                             {
-                                final Throwable th = (ex instanceof CheckedExceptionTunnel) ? ex.getCause() : ex;
-                                machineLog.trace("Failed on quick check for recent paths on '" + item + "'.", th);
+                                final Throwable th =
+                                        (ex instanceof CheckedExceptionTunnel) ? ex.getCause() : ex;
+                                machineLog.trace("Failed on quick check for recent paths on '"
+                                        + item + "'.", th);
                             }
                             throw ex;
                         }

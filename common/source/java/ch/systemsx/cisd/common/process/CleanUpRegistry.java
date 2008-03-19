@@ -19,10 +19,9 @@ package ch.systemsx.cisd.common.process;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A class that allows registering items for clean up and that allows to perform the clean up later.
- *
+ * 
  * @author Bernd Rinn
  */
 public final class CleanUpRegistry implements ICleanUpRegistry

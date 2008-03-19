@@ -66,8 +66,8 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     private static final String DB_VERSION = "db_version";
 
     private static final String SELECT_LAST_ENTRY =
-            "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP + " in (select max("
-                    + RUN_STATUS_TIMESTAMP + ") from " + DB_VERSION_LOG + ")";
+            "select * from " + DB_VERSION_LOG + " where " + RUN_STATUS_TIMESTAMP
+                    + " in (select max(" + RUN_STATUS_TIMESTAMP + ") from " + DB_VERSION_LOG + ")";
 
     private static final class LogEntryRowMapper implements ParameterizedRowMapper<LogEntry>
     {
@@ -87,7 +87,8 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
             logEntry.setRunStatusTimestamp(rs.getDate(RUN_STATUS_TIMESTAMP));
             try
             {
-                logEntry.setModuleCode(new String(lobHandler.getBlobAsBytes(rs, MODULE_CODE), ENCODING));
+                logEntry.setModuleCode(new String(lobHandler.getBlobAsBytes(rs, MODULE_CODE),
+                        ENCODING));
             } catch (UnsupportedEncodingException ex)
             {
                 throw new CheckedExceptionTunnel(ex);
@@ -140,73 +141,83 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     public LogEntry getLastEntry()
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        List<LogEntry> entries = template.query(SELECT_LAST_ENTRY, new LogEntryRowMapper(lobHandler));
+        List<LogEntry> entries =
+                template.query(SELECT_LAST_ENTRY, new LogEntryRowMapper(lobHandler));
 
         return entries.size() == 0 ? null : entries.get(entries.size() - 1);
     }
 
     /**
-     * Inserts a new entry into the version log with {@link LogEntry.RunStatus#START}. 
+     * Inserts a new entry into the version log with {@link LogEntry.RunStatus#START}.
      * 
      * @param moduleScript The script of the module to be logged.
      */
     public void logStart(final Script moduleScript)
     {
         JdbcTemplate template = getJdbcTemplate();
-        PreparedStatementCallback callback = new AbstractLobCreatingPreparedStatementCallback(this.lobHandler)
-            {
-                @Override
-                protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException
-                {
-                    ps.setString(1, moduleScript.getVersion());
-                    ps.setString(2, moduleScript.getName());
-                    ps.setString(3, LogEntry.RunStatus.START.toString());
-                    ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                    lobCreator.setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getCode()));
-                }
-            };
-        template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME + "," + RUN_STATUS
-                + "," + RUN_STATUS_TIMESTAMP + "," + MODULE_CODE + ") values (?,?,?,?,?)", callback);
+        PreparedStatementCallback callback =
+                new AbstractLobCreatingPreparedStatementCallback(this.lobHandler)
+                    {
+                        @Override
+                        protected void setValues(PreparedStatement ps, LobCreator lobCreator)
+                                throws SQLException
+                        {
+                            ps.setString(1, moduleScript.getVersion());
+                            ps.setString(2, moduleScript.getName());
+                            ps.setString(3, LogEntry.RunStatus.START.toString());
+                            ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                            lobCreator
+                                    .setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getCode()));
+                        }
+                    };
+        template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME
+                + "," + RUN_STATUS + "," + RUN_STATUS_TIMESTAMP + "," + MODULE_CODE
+                + ") values (?,?,?,?,?)", callback);
     }
 
     /**
-     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#SUCCESS}. 
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#SUCCESS}.
      * 
      * @param moduleScript The script of the successfully applied module.
      */
     public void logSuccess(final Script moduleScript)
     {
         SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        template.update("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ? , " + RUN_STATUS_TIMESTAMP + " = ? "
-                + "where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", LogEntry.RunStatus.SUCCESS.toString(),
-                new Date(System.currentTimeMillis()), moduleScript.getVersion(), moduleScript.getName());
+        template.update("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ? , "
+                + RUN_STATUS_TIMESTAMP + " = ? " + "where " + DB_VERSION + " = ? and "
+                + MODULE_NAME + " = ?", LogEntry.RunStatus.SUCCESS.toString(), new Date(System
+                .currentTimeMillis()), moduleScript.getVersion(), moduleScript.getName());
     }
 
     /**
-     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#FAILED}. 
+     * Update log entry specified by version and module name to {@link LogEntry.RunStatus#FAILED}.
      * 
      * @param moduleScript Script of the failed module.
-     * @param runException Exception causing the failure. 
+     * @param runException Exception causing the failure.
      */
     public void logFailure(final Script moduleScript, Throwable runException)
     {
         final StringWriter stringWriter = new StringWriter();
         runException.printStackTrace(new PrintWriter(stringWriter));
         JdbcTemplate template = getJdbcTemplate();
-        PreparedStatementCallback callback = new AbstractLobCreatingPreparedStatementCallback(this.lobHandler)
-            {
-                @Override
-                protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException
-                {
-                    ps.setString(1, LogEntry.RunStatus.FAILED.toString());
-                    ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-                    lobCreator.setBlobAsBytes(ps, 3, getAsByteArray(stringWriter.toString()));
-                    ps.setString(4, moduleScript.getVersion());
-                    ps.setString(5, moduleScript.getName());
-                }
-            };
-        template.execute("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ?, " + RUN_STATUS_TIMESTAMP + " = ?, "
-                + RUN_EXCEPTION + " = ? where " + DB_VERSION + " = ? and " + MODULE_NAME + " = ?", callback);
+        PreparedStatementCallback callback =
+                new AbstractLobCreatingPreparedStatementCallback(this.lobHandler)
+                    {
+                        @Override
+                        protected void setValues(PreparedStatement ps, LobCreator lobCreator)
+                                throws SQLException
+                        {
+                            ps.setString(1, LogEntry.RunStatus.FAILED.toString());
+                            ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+                            lobCreator.setBlobAsBytes(ps, 3,
+                                    getAsByteArray(stringWriter.toString()));
+                            ps.setString(4, moduleScript.getVersion());
+                            ps.setString(5, moduleScript.getName());
+                        }
+                    };
+        template.execute("update " + DB_VERSION_LOG + " SET " + RUN_STATUS + " = ?, "
+                + RUN_STATUS_TIMESTAMP + " = ?, " + RUN_EXCEPTION + " = ? where " + DB_VERSION
+                + " = ? and " + MODULE_NAME + " = ?", callback);
     }
 
 }

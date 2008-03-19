@@ -30,7 +30,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FileRenamingProcess implements IProcess
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileRenamingProcess.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileRenamingProcess.class);
 
     public static final long DEFAULT_MILLIS_TO_SLEEP = 5000L;
 
@@ -53,8 +54,8 @@ public final class FileRenamingProcess implements IProcess
         this(DEFAULT_MAX_RETRIES, DEFAULT_MILLIS_TO_SLEEP, sourceFile, destinationFile);
     }
 
-    public FileRenamingProcess(final int maxRetries, final long millisToSleep, final File sourceFile,
-            final File destinationFile)
+    public FileRenamingProcess(final int maxRetries, final long millisToSleep,
+            final File sourceFile, final File destinationFile)
     {
         this.sourceFile = sourceFile;
         this.maxRetries = maxRetries;
@@ -98,12 +99,14 @@ public final class FileRenamingProcess implements IProcess
         {
             if (sourceFile.exists() == false)
             {
-                operationLog.error(String.format("Path '%s' doesn't exist, so it can't be moved to '%s'.", sourceFile,
+                operationLog.error(String.format(
+                        "Path '%s' doesn't exist, so it can't be moved to '%s'.", sourceFile,
                         destinationFile));
                 // Nothing to do here. So exit the looping by returning true.
                 return true;
             }
-            operationLog.warn(String.format("Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
+            operationLog.warn(String.format(
+                    "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
                     destinationFile, ++failures));
         }
         return true;

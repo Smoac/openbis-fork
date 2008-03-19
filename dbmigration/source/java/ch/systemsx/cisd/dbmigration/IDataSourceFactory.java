@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 /**
  * Factory for a {@link DataSource}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDataSourceFactory

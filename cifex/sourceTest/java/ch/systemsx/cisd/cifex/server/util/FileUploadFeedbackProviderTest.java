@@ -25,7 +25,7 @@ import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link FileUploadFeedbackProvider}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class FileUploadFeedbackProviderTest
@@ -75,7 +75,7 @@ public class FileUploadFeedbackProviderTest
         assertNotSame(feedback3, fakeFeedback);
         assertTrue(fakeFeedback.isFinished());
     }
-    
+
     @Test
     public void testProvideFeedbackProvideMessage() throws InterruptedException
     {
@@ -96,7 +96,7 @@ public class FileUploadFeedbackProviderTest
         assertSame(message, fakeFeedback.getMessage());
         assertTrue(fakeFeedback2.isFinished());
     }
-    
+
     @Test
     public void testWaitForFeedback() throws InterruptedException
     {
@@ -106,19 +106,19 @@ public class FileUploadFeedbackProviderTest
         provider.take(); // empty the queue
         final FileUploadFeedback feedbackSet = new FileUploadFeedback();
         new Thread(new Runnable()
-        {
-            public void run()
             {
-                try
+                public void run()
                 {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex)
-                {
-                    // ignore
+                    try
+                    {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }
+                    provider.set(feedbackSet);
                 }
-                provider.set(feedbackSet);
-            }
-        }).start();
+            }).start();
         final FileUploadFeedback feedbackObtained = provider.take();
         assertSame(feedbackSet, feedbackObtained);
     }
@@ -132,19 +132,19 @@ public class FileUploadFeedbackProviderTest
         provider.take(); // empty the queue
         final Message message = new Message(Message.INFO, "Message from other thread");
         new Thread(new Runnable()
-        {
-            public void run()
             {
-                try
+                public void run()
                 {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex)
-                {
-                    // ignore
+                    try
+                    {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }
+                    provider.setMessage(message);
                 }
-                provider.setMessage(message);
-            }
-        }).start();
+            }).start();
         final FileUploadFeedback feedbackObtained = provider.take();
         assertSame(message, feedbackObtained.getMessage());
     }
@@ -157,19 +157,19 @@ public class FileUploadFeedbackProviderTest
         provider.set(initialFeedback);
         provider.take(); // empty the queue
         new Thread(new Runnable()
-        {
-            public void run()
             {
-                try
+                public void run()
                 {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex)
-                {
-                    // ignore
+                    try
+                    {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex)
+                    {
+                        // ignore
+                    }
+                    provider.setFileUploadFinished();
                 }
-                provider.setFileUploadFinished();
-            }
-        }).start();
+            }).start();
         final FileUploadFeedback feedbackObtained = provider.take();
         assertTrue(feedbackObtained.isFinished());
     }

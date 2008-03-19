@@ -40,7 +40,7 @@ public final class Model
     private Map urlParams = new HashMap();
 
     private Configuration configuration;
-    
+
     public final Map getUrlParams()
     {
         return urlParams;
@@ -71,7 +71,7 @@ public final class Model
     public final void setConfiguration(Configuration configuration)
     {
         assert configuration != null : "Configuration must not be null.";
-        
+
         this.configuration = configuration;
     }
 }

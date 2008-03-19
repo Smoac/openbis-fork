@@ -72,10 +72,11 @@ public class AdminFileGridModel extends AbstractFileGridModel
                                 size == null ? null : new Integer(size.intValue()),
                                 file.getRegistrationDate(),
                                 file.getExpirationDate(),
-                                DOMUtils.createAnchor(messageResources.getActionRenewLabel(), Constants.RENEW_ID)
+                                DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
+                                        Constants.RENEW_ID)
                                         + " | "
-                                        + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                                                Constants.DELETE_ID) };
+                                        + DOMUtils.createAnchor(messageResources
+                                                .getActionDeleteLabel(), Constants.DELETE_ID) };
             list.add(objects);
         }
         return list;

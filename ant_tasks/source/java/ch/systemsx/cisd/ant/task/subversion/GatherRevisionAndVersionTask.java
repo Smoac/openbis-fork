@@ -109,7 +109,8 @@ public class GatherRevisionAndVersionTask extends Property
                 }
             }
         }
-        checkFailure(versions, projectRevisions, dirtyProjects, minRevision, maxRevision, maxLastChangedRevision);
+        checkFailure(versions, projectRevisions, dirtyProjects, minRevision, maxRevision,
+                maxLastChangedRevision);
         setRevisionProperty(maxLastChangedRevision);
         setVersionProperty(versions);
         setCleanProperty(dirtyProjects);
@@ -145,7 +146,8 @@ public class GatherRevisionAndVersionTask extends Property
     private Set<String> collectProjects(ISVNActions actions)
     {
         final ISVNProjectPathProvider pathProvider = createPathProvider(getProject().getBaseDir());
-        return new SVNDependentProjectsCollector(pathProvider, actions).collectDependentProjectsFromClasspath();
+        return new SVNDependentProjectsCollector(pathProvider, actions)
+                .collectDependentProjectsFromClasspath();
     }
 
     private void setRevisionProperty(int maxLastChangedRevision)
@@ -176,8 +178,8 @@ public class GatherRevisionAndVersionTask extends Property
         }
     }
 
-    private void checkFailure(HashSet<String> versions, StringBuilder projectRevisions, StringBuilder dirtyProjects,
-            int minRevision, int maxRevision, int lastChangedRevision)
+    private void checkFailure(HashSet<String> versions, StringBuilder projectRevisions,
+            StringBuilder dirtyProjects, int minRevision, int maxRevision, int lastChangedRevision)
     {
         if (failOnInconsistency && maxRevision != minRevision)
         {
@@ -190,12 +192,13 @@ public class GatherRevisionAndVersionTask extends Property
         }
         if (failOnInconsistency && versions.size() > 1)
         {
-            throw new BuildException("Versions of local copies of the projects are inconsistent: " + versions);
+            throw new BuildException("Versions of local copies of the projects are inconsistent: "
+                    + versions);
         }
         if (maxRevision < lastChangedRevision)
         {
-            throw new BuildException("Maximum revision < last changed revision: " + maxRevision + " < "
-                    + lastChangedRevision);
+            throw new BuildException("Maximum revision < last changed revision: " + maxRevision
+                    + " < " + lastChangedRevision);
         }
     }
 

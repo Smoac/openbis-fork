@@ -40,7 +40,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     private static final String SQL_FILE_TYPE = ".sql";
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
     private final String genericScriptFolder;
 
@@ -142,10 +143,12 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     private Script tryLoadScript(String scriptName, String scriptVersion, String prefix)
     {
-        Script script = tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
+        Script script =
+                tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
         if (script == null)
         {
-            script = tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion);
+            script =
+                    tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion);
         }
         return script;
     }
@@ -160,7 +163,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
             File file = new File(scriptFolder, scriptName);
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Resource '" + resource + "' could not be found. Trying '" + file.getPath() + "'.");
+                operationLog.debug("Resource '" + resource + "' could not be found. Trying '"
+                        + file.getPath() + "'.");
             }
             if (file.exists() == false)
             {

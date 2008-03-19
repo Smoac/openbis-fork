@@ -97,7 +97,8 @@ public final class DOMUtils
     }
 
     /** Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var> and given <var>id</var>. */
-    public final static String createAnchor(final String value, final String href, final String target, final String id)
+    public final static String createAnchor(final String value, final String href,
+            final String target, final String id)
     {
         assert value != null : "Undefined value.";
         final Element anchor = createBasicAnchorElement();

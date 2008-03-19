@@ -55,7 +55,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
     private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
@@ -73,15 +74,16 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final QuietPeriodFileFilter quietPeriodFileFilter;
 
-    public static final DataMoverProcess createMovingProcess(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs bufferDirs)
+    public static final DataMoverProcess createMovingProcess(Parameters parameters,
+            IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
     {
         final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
 
         return processor.create();
     }
 
-    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
+    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory,
+            LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
@@ -102,8 +104,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
 
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(createIncomingStoreScanner(), bufferDirs.getCopyInProgressDir(),
-                        pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
+                new DirectoryScanningTimerTask(createIncomingStoreScanner(), bufferDirs
+                        .getCopyInProgressDir(), pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
@@ -177,7 +179,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private void moveFromLocalIncoming(IExtendedFileStore sourceStore, StoreItem sourceItem)
     {
-        sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters.getPrefixForIncoming());
+        sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters
+                .getPrefixForIncoming());
     }
 
     private void moveFromRemoteIncoming(StoreItem sourceItem)
@@ -196,7 +199,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
     }
 
-    private File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull, File copyCompleteDir)
+    private File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull,
+            File copyCompleteDir)
     {
         final File finalFile = tryMoveLocal(copiedFile, copyCompleteDir, prefixForIncoming);
         if (finalFile != null)
@@ -219,15 +223,18 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(StoreItem sourceItem, IFileStore sourceStore, File localDestDir)
+    private void moveFromRemoteToLocal(StoreItem sourceItem, IFileStore sourceStore,
+            File localDestDir)
     {
-        createRemotePathMover(sourceStore, FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(
-                sourceItem);
+        createRemotePathMover(sourceStore,
+                FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(sourceItem);
     }
 
-    private IStoreHandler createRemotePathMover(IFileStore sourceDirectory, FileStore destinationDirectory)
+    private IStoreHandler createRemotePathMover(IFileStore sourceDirectory,
+            FileStore destinationDirectory)
     {
-        return RemoteMonitoredMoverFactory.create(sourceDirectory, destinationDirectory, parameters);
+        return RemoteMonitoredMoverFactory
+                .create(sourceDirectory, destinationDirectory, parameters);
     }
 
     private File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
@@ -248,7 +255,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             }
             if (incomingStore.isRemote())
             {
-                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs.getCopyCompleteDir());
+                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
+                        .getCopyCompleteDir());
             }
             if (operationLog.isDebugEnabled())
             {

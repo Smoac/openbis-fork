@@ -43,7 +43,8 @@ final class Directory extends AbstractNode implements IDirectory
         super(directory);
         if (directory.isDirectory() == false)
         {
-            throw new StorageException(String.format("Not a directory '%s'.", directory.getAbsolutePath()));
+            throw new StorageException(String.format("Not a directory '%s'.", directory
+                    .getAbsolutePath()));
         }
     }
 
@@ -90,15 +91,16 @@ final class Directory extends AbstractNode implements IDirectory
         {
             if (dir.isDirectory() == false)
             {
-                throw new StorageException("There already exists a file named '" + name + "' in directory " + this);
+                throw new StorageException("There already exists a file named '" + name
+                        + "' in directory " + this);
             }
             return new Directory(dir);
         }
         boolean successful = dir.mkdir();
         if (successful == false)
         {
-            throw new EnvironmentFailureException("Couldn't create directory " + dir.getAbsolutePath()
-                    + " for some unknown reason.");
+            throw new EnvironmentFailureException("Couldn't create directory "
+                    + dir.getAbsolutePath() + " for some unknown reason.");
         }
         return new Directory(dir);
     }
@@ -140,8 +142,9 @@ final class Directory extends AbstractNode implements IDirectory
                 }
             } catch (IOException ex)
             {
-                throw EnvironmentFailureException.fromTemplate(ex, "Couldn't not copy file '%s' to directory '%s'.",
-                        file, nodeFile.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate(ex,
+                        "Couldn't not copy file '%s' to directory '%s'.", file, nodeFile
+                                .getAbsolutePath());
             }
         }
         return NodeFactory.createNode(newFile);
@@ -152,7 +155,8 @@ final class Directory extends AbstractNode implements IDirectory
         assert node != null : "Node can not be null.";
         assert name != null : "Name can not be null.";
         final java.io.File file = getNodeFile(node);
-        final java.io.File fileLink = LinkMakerProvider.getLinkMaker().tryCopy(file, nodeFile, name);
+        final java.io.File fileLink =
+                LinkMakerProvider.getLinkMaker().tryCopy(file, nodeFile, name);
         if (fileLink != null)
         {
             final Link link = (Link) NodeFactory.createLinkNode(name, file);
@@ -200,8 +204,9 @@ final class Directory extends AbstractNode implements IDirectory
             FileUtils.copyDirectoryToDirectory(nodeFile, directory);
         } catch (IOException ex)
         {
-            throw EnvironmentFailureException.fromTemplate(ex, "Couldn't copy directory '%s' to directory '%s'.",
-                    nodeFile.getAbsolutePath(), directory.getAbsolutePath());
+            throw EnvironmentFailureException.fromTemplate(ex,
+                    "Couldn't copy directory '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
+                    directory.getAbsolutePath());
         }
     }
 
@@ -213,14 +218,15 @@ final class Directory extends AbstractNode implements IDirectory
         {
             if (FileUtilities.deleteRecursively(file, null) == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.", file
-                        .getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.",
+                        file.getAbsolutePath());
             }
         } else if (file.isFile())
         {
             if (file.delete() == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't remove file '%s'.", file.getAbsolutePath());
+                throw EnvironmentFailureException.fromTemplate("Couldn't remove file '%s'.", file
+                        .getAbsolutePath());
             }
         }
     }

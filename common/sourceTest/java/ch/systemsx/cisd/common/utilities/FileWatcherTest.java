@@ -42,7 +42,8 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
  */
 public class FileWatcherTest
 {
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "FileWatcherTest");
 
@@ -87,14 +88,16 @@ public class FileWatcherTest
         File file = new File(workingDirectory, "doesNotExist");
         assert file.exists() == false;
         new TestFileWatcher(file).run();
-        assertEquals(String.format(FileWatcher.DOES_NOT_EXIST_FORMAT, file), testAppender.getLogContent());
+        assertEquals(String.format(FileWatcher.DOES_NOT_EXIST_FORMAT, file), testAppender
+                .getLogContent());
     }
 
     @Test
     public final void testNonChangingFile()
     {
         new TestFileWatcher(tmpFile1).run();
-        assertEquals(String.format(FileWatcher.HAS_NOT_CHANGED_FORMAT, tmpFile1), testAppender.getLogContent());
+        assertEquals(String.format(FileWatcher.HAS_NOT_CHANGED_FORMAT, tmpFile1), testAppender
+                .getLogContent());
     }
 
     @Test
@@ -104,7 +107,8 @@ public class FileWatcherTest
         FileWatcher fileWatcher = new TestFileWatcher(tmpFile1);
         FileUtils.touch(tmpFile1);
         fileWatcher.run();
-        assertEquals(String.format(FileWatcher.HAS_CHANGED_FORMAT, tmpFile1), testAppender.getLogContent());
+        assertEquals(String.format(FileWatcher.HAS_CHANGED_FORMAT, tmpFile1), testAppender
+                .getLogContent());
         assertEquals(true, onChangeCalled);
     }
 

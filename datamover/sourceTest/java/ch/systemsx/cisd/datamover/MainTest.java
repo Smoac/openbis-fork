@@ -60,9 +60,11 @@ public class MainTest
 
     private static final int QUIET_PERIOD = 2;
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, MainTest.class.getSimpleName());
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, MainTest.class.getSimpleName());
 
     @BeforeClass(alwaysRun = true)
     public void init()
@@ -121,8 +123,8 @@ public class MainTest
 
     // ----------------- higher level assertions
 
-    private static void assertSampleStructMovedWithCopy(ExternalDirs dirs, LocalBufferDirs bufferDirs,
-            FileStructEngine structEngine) throws IOException
+    private static void assertSampleStructMovedWithCopy(ExternalDirs dirs,
+            LocalBufferDirs bufferDirs, FileStructEngine structEngine) throws IOException
     {
         assertSampleStructMoved(dirs, bufferDirs, structEngine);
         structEngine.assertSampleStructureExists(dirs.extraCopy);
@@ -135,15 +137,15 @@ public class MainTest
         assertSampleStructInOutgoing(dirs, structEngine);
     }
 
-    private static void assertSampleStructInOutgoing(ExternalDirs dirs, FileStructEngine structEngine)
-            throws IOException
+    private static void assertSampleStructInOutgoing(ExternalDirs dirs,
+            FileStructEngine structEngine) throws IOException
     {
         structEngine.assertSampleStructureExists(dirs.outgoing);
         structEngine.assertSampleStructFinishMarkerExists(dirs.outgoing);
     }
 
-    private static void assertSampleStructMovedWithCopy(ExternalDirs dirs, LocalBufferDirs bufferDirs)
-            throws IOException
+    private static void assertSampleStructMovedWithCopy(ExternalDirs dirs,
+            LocalBufferDirs bufferDirs) throws IOException
     {
         assertEmptyIncomingAndBufferDir(dirs, bufferDirs);
         assertSampleStructInOutgoing(dirs);
@@ -158,7 +160,8 @@ public class MainTest
         assertEquals(2, dirs.outgoing.list().length);
     }
 
-    private static void assertEmptyIncomingAndBufferDir(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+    private static void assertEmptyIncomingAndBufferDir(ExternalDirs dirs,
+            LocalBufferDirs bufferDirs)
     {
         assertEmptyDir(dirs.incoming);
         assertEmptyBufferDirs(bufferDirs);
@@ -206,16 +209,18 @@ public class MainTest
 
     private static ArrayList<String> getDefaultParameters(ExternalDirs dirs)
     {
-        return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer.getPath(),
-                "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer.toString(CHECK_INTERVAL),
-                "--check-interval-internal", Integer.toString(CHECK_INTERVAL_INTERNAL), "--quiet-period", Integer
-                        .toString(QUIET_PERIOD), "--treat-incoming-as-remote");
+        return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer
+                .getPath(), "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer
+                .toString(CHECK_INTERVAL), "--check-interval-internal", Integer
+                .toString(CHECK_INTERVAL_INTERNAL), "--quiet-period", Integer
+                .toString(QUIET_PERIOD), "--treat-incoming-as-remote");
     }
 
-    private static ArrayList<String> getManualInterventionParameters(ExternalDirs dirs, String filteredName)
+    private static ArrayList<String> getManualInterventionParameters(ExternalDirs dirs,
+            String filteredName)
     {
-        return createList("--manual-intervention-dir", dirs.manualIntervDir.getPath(), "--manual-intervention-regex",
-                filteredName);
+        return createList("--manual-intervention-dir", dirs.manualIntervDir.getPath(),
+                "--manual-intervention-regex", filteredName);
     }
 
     private static ArrayList<String> getCleansingParameters(String cleansingStruct)
@@ -257,8 +262,8 @@ public class MainTest
         return createParameters(list);
     }
 
-    private static Parameters createParametersWithFilter(ExternalDirs dirs, String manualIntervName,
-            String cleansingStruct)
+    private static Parameters createParametersWithFilter(ExternalDirs dirs,
+            String manualIntervName, String cleansingStruct)
     {
         ArrayList<String> list = getDefaultParameters(dirs);
         list.addAll(getExtraCopyParameters(dirs));
@@ -269,8 +274,8 @@ public class MainTest
 
     private static LocalBufferDirs createBufferDirs(Parameters parameters)
     {
-        return new LocalBufferDirs(parameters.getBufferDirectoryPath(), "test-copy-in-progress", "test-copy-complete",
-                "test-ready-to-move", "test-temp");
+        return new LocalBufferDirs(parameters.getBufferDirectoryPath(), "test-copy-in-progress",
+                "test-copy-complete", "test-ready-to-move", "test-temp");
     }
 
     private static interface IFSPreparator
@@ -279,7 +284,8 @@ public class MainTest
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
-    private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep) throws Exception
+    private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep)
+            throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
         Parameters parameters = createDefaultParametersWithExtraCopy(dirs);
@@ -297,21 +303,23 @@ public class MainTest
         assertSampleStructMovedWithCopy(dirs, bufferDirs);
     }
 
-    private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs) throws InterruptedException
+    private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs)
+            throws InterruptedException
     {
         runDataMover(parameters, bufferDirs, DATA_MOVER_COMPLETION_TIME);
     }
 
-    private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs, long dataMoverCompleteionTime)
-            throws InterruptedException
+    private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs,
+            long dataMoverCompleteionTime) throws InterruptedException
     {
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
         Thread.sleep(dataMoverCompleteionTime);
         assertTrue(terminable.terminate());
     }
 
-    private static void runDataMover(ExternalDirs dirs, Parameters parameters, LocalBufferDirs bufferDirs,
-            IFSPreparator preparator, long millisToWaitForPrep) throws Exception
+    private static void runDataMover(ExternalDirs dirs, Parameters parameters,
+            LocalBufferDirs bufferDirs, IFSPreparator preparator, long millisToWaitForPrep)
+            throws Exception
     {
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
         Thread.sleep(millisToWaitForPrep);
@@ -342,7 +350,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(dirs.incoming);
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
@@ -357,7 +366,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(dirs.incoming);
                     createPartialSampleStructure(bufferDirs.getCopyInProgressDir());
@@ -372,7 +382,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                 }
@@ -386,7 +397,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                     createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
@@ -401,7 +413,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                     createSampleFinishedMarkerFile(bufferDirs.getCopyInProgressDir());
@@ -416,7 +429,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyInProgressDir());
                     createPartialSampleStructure(dirs.incoming);
@@ -432,7 +446,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                 }
@@ -446,7 +461,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getCopyCompleteDir());
                     createPartialSampleStructure(bufferDirs.getTempDir());
@@ -461,7 +477,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getTempDir());
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
@@ -473,11 +490,13 @@ public class MainTest
         { "slow" }, dataProvider = "delays")
     // recovery after failure during local processing, extra copy created in temp-dir, data moved to read-to-move,
     // outgoing processing has not started. It tests also outgoing process recovery.
-    public void testRecoveryLocalProcessingExtraCopyInTmpAndReadyToMove(long delay) throws Exception
+    public void testRecoveryLocalProcessingExtraCopyInTmpAndReadyToMove(long delay)
+            throws Exception
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(bufferDirs.getTempDir());
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
@@ -492,7 +511,8 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(dirs.extraCopy);
                     createSampleStructure(bufferDirs.getReadyToMoveDir());
@@ -508,15 +528,16 @@ public class MainTest
     {
         performGenericTest(new IFSPreparator()
             {
-                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception
+                public void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs)
+                        throws Exception
                 {
                     createSampleStructure(dirs.incoming);
                 }
             }, delay);
     }
 
-    private FileStructEngine[] createAllThreadsPartialStruct(ExternalDirs dirs, LocalBufferDirs bufferDirs)
-            throws Exception
+    private FileStructEngine[] createAllThreadsPartialStruct(ExternalDirs dirs,
+            LocalBufferDirs bufferDirs) throws Exception
     {
         FileStructEngine[] structs = new FileStructEngine[6];
         int c = 0;
@@ -567,7 +588,8 @@ public class MainTest
     }
 
     // checks recovery mode when all threads need recovery, but no restart is made
-    public void testRecoveryAllThreadsPartial(Parameters parameters, ExternalDirs dirs) throws Exception
+    public void testRecoveryAllThreadsPartial(Parameters parameters, ExternalDirs dirs)
+            throws Exception
     {
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
@@ -697,8 +719,8 @@ public class MainTest
         FileStructEngine cleansinStruct = new FileStructEngine("test2");
 
         Parameters parameters =
-                createParametersWithFilter(dirs, manualIntervStruct.getMainStructName(), cleansinStruct
-                        .getSampleCleansingRegExp());
+                createParametersWithFilter(dirs, manualIntervStruct.getMainStructName(),
+                        cleansinStruct.getSampleCleansingRegExp());
         LocalBufferDirs bufferDirs = createBufferDirs(parameters);
 
         manualIntervStruct.createSampleStructure(dirs.incoming);

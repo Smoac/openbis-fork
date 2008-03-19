@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * The part of the configuration of CIFEX that the client cares about.
  * <p>
  * The information in this object is supposed to be unchanged during the whole session.
- *
+ * 
  * @author Bernd Rinn
  */
 public class Configuration implements IsSerializable
@@ -43,7 +43,7 @@ public class Configuration implements IsSerializable
     {
         this.maxUploadRequestSizeInMB = maxRequestSizeInMB;
     }
-    
+
     public final void setAdministratorEmail(String administratorEmail)
     {
         this.administratorEmail = administratorEmail;

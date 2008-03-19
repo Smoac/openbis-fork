@@ -32,7 +32,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 abstract class AbstractEMailBuilder
 {
     private static final String FOOTER =
-            "\n\n--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
+            "\n\n--------------------------------------------------\n"
+                    + "CIFEX - CISD File EXchanger\n"
                     + "Center for Information Sciences and Databases\n" + "ETH Zurich";
 
     protected static final String DATE_TEMPLATE = "on {0,date,d-MMM-yyyy} at {0,time,HH:mm:ss}";
@@ -139,7 +140,8 @@ abstract class AbstractEMailBuilder
     protected final String getShortRegistratorDescription()
     {
         final String registratorFullName = registrator.getUserFullName();
-        return StringUtils.isBlank(registratorFullName) ? registrator.getUserCode() : registratorFullName;
+        return StringUtils.isBlank(registratorFullName) ? registrator.getUserCode()
+                : registratorFullName;
     }
 
     protected final String getLongRegistratorDescription()
@@ -147,8 +149,8 @@ abstract class AbstractEMailBuilder
         return getShortRegistratorDescription() + " <" + registrator.getEmail() + ">";
     }
 
-    protected final StringBuilder appendURLParam(final StringBuilder builder, final String param, final Object value,
-            final boolean firstParam)
+    protected final StringBuilder appendURLParam(final StringBuilder builder, final String param,
+            final Object value, final boolean firstParam)
     {
         assert param != null : "Undefined URL parameter";
         assert value != null : "Undefined URL parameter value";

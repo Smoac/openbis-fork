@@ -85,7 +85,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         // --- clean before checking results
         // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write, once
         // it has been set read-only, thus this test 'requires_unix' for the time being.
-        Runtime.getRuntime().exec(String.format("/bin/chmod u+w %s", readOnlyDirectory.getPath())).waitFor();
+        Runtime.getRuntime().exec(String.format("/bin/chmod u+w %s", readOnlyDirectory.getPath()))
+                .waitFor();
         if (readOnlyDirectory.canWrite() == false)
         {
             // Can't use assert here since we expect an AssertationError
@@ -103,7 +104,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(47110000, sourceFile.lastModified());
         File destinationFile = new File(workingDirectory, "destination.txt");
         FileUtilities.copyFileTo(sourceFile, destinationFile, true);
-        assertEquals(FileUtilities.loadToString(sourceFile), FileUtilities.loadToString(destinationFile));
+        assertEquals(FileUtilities.loadToString(sourceFile), FileUtilities
+                .loadToString(destinationFile));
         assertEquals(47110000, destinationFile.lastModified());
     }
 
@@ -138,7 +140,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             Throwable cause = e.getCause();
             assertTrue(cause instanceof IOException);
             String message = cause.getMessage();
-            assertTrue("Exception message not as expected: " + message, cause.getMessage().startsWith(dir.toString()));
+            assertTrue("Exception message not as expected: " + message, cause.getMessage()
+                    .startsWith(dir.toString()));
         }
     }
 
@@ -157,7 +160,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             Throwable cause = e.getCause();
             assertTrue(cause instanceof IOException);
             String message = cause.getMessage();
-            assertTrue("Exception message not as expected: " + message, cause.getMessage().startsWith(file.toString()));
+            assertTrue("Exception message not as expected: " + message, cause.getMessage()
+                    .startsWith(file.toString()));
         } finally
         {
             assert file.delete();
@@ -186,7 +190,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     public void testLoadToStringResource() throws Exception
     {
         final String thisFile =
-                FileUtilities.loadToString(getClass(), "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class");
+                FileUtilities.loadToString(getClass(),
+                        "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class");
         assert thisFile != null;
         assert thisFile.indexOf("FileUtilitiesTest") >= 0;
     }
@@ -255,10 +260,11 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             // Nothing to do here
         }
         assertEquals(file, FileUtilities.removePrefixFromFileName(file, null));
-        assertEquals(file, FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX));
+        assertEquals(file, FileUtilities.removePrefixFromFileName(file,
+                Constants.IS_FINISHED_PREFIX));
         file = new File("/tmp/dir/" + Constants.IS_FINISHED_PREFIX + "x.txt");
-        assertEquals("/tmp/dir/x.txt", FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX)
-                .getPath());
+        assertEquals("/tmp/dir/x.txt", FileUtilities.removePrefixFromFileName(file,
+                Constants.IS_FINISHED_PREFIX).getPath());
     }
 
     @Test
@@ -295,7 +301,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         String defaultFileName = "abc_[1]";
         try
         {
-            FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"), defaultFileName);
+            FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"),
+                    defaultFileName);
             fail("Must contain either '(\\d+)' or ([0-9]+).");
         } catch (AssertionError e)
         {
@@ -325,7 +332,9 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         FileUtils.touch(file);
         newFile = FileUtilities.createNextNumberedFile(file, pattern, "12abc_[1]");
         assertEquals(new File(workingDirectory, "12abc_[13]"), newFile);
-        newFile = FileUtilities.createNextNumberedFile(file, Pattern.compile("xxx(\\d+)xxx"), "12abc_[1]");
+        newFile =
+                FileUtilities.createNextNumberedFile(file, Pattern.compile("xxx(\\d+)xxx"),
+                        "12abc_[1]");
         assertEquals(new File(workingDirectory, "12abc_[1]"), newFile);
     }
 
@@ -341,11 +350,13 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             // Nothing to do here
         }
         File file = new File(workingDirectory, "hello");
-        assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file.getAbsolutePath());
+        assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file
+                .getAbsolutePath());
         // If the given string is the empty string, then the result is the empty abstract pathname.
         final File rootFile = new File("");
-        assertEquals(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY + File.separator
-                + workingDirectory.getName() + File.separator + "hello", FileUtilities.getRelativeFile(rootFile, file));
+        assertEquals(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY
+                + File.separator + workingDirectory.getName() + File.separator + "hello",
+                FileUtilities.getRelativeFile(rootFile, file));
         String root = "/temp";
         String relativeFile = FileUtilities.getRelativeFile(new File(root), file);
         assertNull(relativeFile);
@@ -364,7 +375,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     public final void testCopyResourceToTempFile()
     {
         final String resourceName = "/ch/systemsx/cisd/common/utilities/FileUtilities.class";
-        final String absoluteTempFileName = FileUtilities.copyResourceToTempFile(resourceName, "pre", "post");
+        final String absoluteTempFileName =
+                FileUtilities.copyResourceToTempFile(resourceName, "pre", "post");
         assertNotNull(absoluteTempFileName);
         final File tempFile = new File(absoluteTempFileName);
         final String tempFileName = tempFile.getName();
@@ -372,7 +384,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertTrue(tempFile.length() > 0);
         assertTrue(tempFileName.startsWith("pre"));
         assertTrue(tempFileName.endsWith("post"));
-        assertTrue(Arrays.equals(resourceToByteArray(resourceName), fileToByteArray(absoluteTempFileName)));
+        assertTrue(Arrays.equals(resourceToByteArray(resourceName),
+                fileToByteArray(absoluteTempFileName)));
 
     }
 

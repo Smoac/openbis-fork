@@ -85,7 +85,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Maximum upload size set to %d megabytes (-1 means no limit).", longValue));
+            operationLog.info(String.format(
+                    "Maximum upload size set to %d megabytes (-1 means no limit).", longValue));
         }
         return longValue;
     }
@@ -105,13 +106,16 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         if (isMultipart == false)
         {
             final String msg =
-                    String.format("Protocol error : request '%s' is not a multipart content file upload.", request
-                            .getRequestURI());
+                    String
+                            .format(
+                                    "Protocol error : request '%s' is not a multipart content file upload.",
+                                    request.getRequestURI());
             operationLog.error(msg);
             throw new UserFailureException(msg);
         }
         final FileUploadFeedbackProvider feedbackProvider =
-                (FileUploadFeedbackProvider) request.getSession().getAttribute(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
+                (FileUploadFeedbackProvider) request.getSession().getAttribute(
+                        CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE);
         try
         {
             final String[] filenamesToUpload =
@@ -119,8 +123,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             if (filenamesToUpload == null)
             {
                 final String msg =
-                        String.format("Protocol error: no filenames registered for request '%s'.", request
-                                .getRequestURI());
+                        String.format("Protocol error: no filenames registered for request '%s'.",
+                                request.getRequestURI());
                 operationLog.warn(msg);
                 throw new UserFailureException(msg);
             }
@@ -129,30 +133,35 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final int contentLength = request.getContentLength();
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("Request of user '%s' has a content length of %s.", requestUser
-                        .getEmail(), FileUtils.byteCountToDisplaySize(contentLength)));
+                operationLog.debug(String.format(
+                        "Request of user '%s' has a content length of %s.", requestUser.getEmail(),
+                        FileUtils.byteCountToDisplaySize(contentLength)));
             }
             if (contentLength > maxUploadSizeInBytes)
             {
                 final String msg =
-                        String.format("Request size (%s) exceeds maximum permitted one (%s).", FileUtils
-                                .byteCountToDisplaySize(contentLength), FileUtils
-                                .byteCountToDisplaySize(maxUploadSizeInBytes));
+                        String.format("Request size (%s) exceeds maximum permitted one (%s).",
+                                FileUtils.byteCountToDisplaySize(contentLength), FileUtils
+                                        .byteCountToDisplaySize(maxUploadSizeInBytes));
                 operationLog.error(msg);
-                throw new FileUploadBase.SizeLimitExceededException(msg, contentLength, maxUploadSizeInBytes);
+                throw new FileUploadBase.SizeLimitExceededException(msg, contentLength,
+                        maxUploadSizeInBytes);
             }
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> userEmails = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
-            extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files, userEmails, comment);
+            extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files,
+                    userEmails, comment);
             final String url = HttpUtils.getBasicURL(request);
             final IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses =
-                    fileManager.shareFilesWith(url, requestUser, userEmails, files, comment.toString());
+                    fileManager.shareFilesWith(url, requestUser, userEmails, files, comment
+                            .toString());
             if (invalidEmailAddresses.isEmpty() == false)
             {
                 final String msg =
-                        "Some email addresses are invalid: " + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
+                        "Some email addresses are invalid: "
+                                + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
                 feedbackProvider.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
             } else
             {
@@ -169,10 +178,12 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
             final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
-            final List<String> userEmails, final StringBuffer comment) throws FileUploadException, IOException
+            final List<String> userEmails, final StringBuffer comment) throws FileUploadException,
+            IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
-        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false), pathnamesToUpload));
+        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
+                pathnamesToUpload));
         final IFileManager fileManager = domainModel.getFileManager();
         // Sets the maximum allowed size of a complete request in bytes.
         upload.setSizeMax(maxUploadSizeInBytes);
@@ -194,7 +205,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                         continue;
                     } else
                     {
-                        throw UserFailureException.fromTemplate("Unexpected file '%s'.", filenameInStream);
+                        throw UserFailureException.fromTemplate("Unexpected file '%s'.",
+                                filenameInStream);
                     }
                 }
                 if (filenameToUpload.equals(filenameInStream) == false)
@@ -206,24 +218,27 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 {
                     if (operationLog.isDebugEnabled())
                     {
-                        operationLog.debug(String.format("Handle field '%s' with file '%s'.", item.getFieldName(), item
-                                .getName()));
+                        operationLog.debug(String.format("Handle field '%s' with file '%s'.", item
+                                .getFieldName(), item.getName()));
                     }
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, filenameInStream, item.getContentType(), stream);
+                            fileManager.saveFile(requestUser, filenameInStream, item
+                                    .getContentType(), stream);
                     files.add(file);
                 } else
                 {
                     if (operationLog.isDebugEnabled())
                     {
-                        operationLog.debug(String.format("No file specified in field '%s'.", item.getFieldName()));
+                        operationLog.debug(String.format("No file specified in field '%s'.", item
+                                .getFieldName()));
                     }
                 }
             } else
             {
                 if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
                 {
-                    final StringTokenizer stringTokenizer = new StringTokenizer(Streams.asString(stream), ", \t\n\r\f");
+                    final StringTokenizer stringTokenizer =
+                            new StringTokenizer(Streams.asString(stream), ", \t\n\r\f");
                     while (stringTokenizer.hasMoreTokens())
                     {
                         userEmails.add(stringTokenizer.nextToken());

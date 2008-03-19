@@ -67,8 +67,8 @@ public final class NodeFactory
             return file.getCanonicalPath();
         } catch (IOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't get canonical path of file '" + file.getAbsolutePath()
-                    + "'", ex);
+            throw new EnvironmentFailureException("Couldn't get canonical path of file '"
+                    + file.getAbsolutePath() + "'", ex);
         }
     }
 
@@ -89,12 +89,14 @@ public final class NodeFactory
      * This only works for <i>symbolic</i> links and not for <i>hard</i> links.
      * </p>
      */
-    public final static ILink createLinkNode(final java.io.File file) throws EnvironmentFailureException
+    public final static ILink createLinkNode(final java.io.File file)
+            throws EnvironmentFailureException
     {
         final String canonicalPath = getCanonicalPath(file);
         final String absolutePath = file.getAbsolutePath();
         assert absolutePath.equals(canonicalPath) == false : String.format(
-                "Given file must be a link [absolute=%s,canonical=%s].", absolutePath, canonicalPath);
+                "Given file must be a link [absolute=%s,canonical=%s].", absolutePath,
+                canonicalPath);
         return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
     }
 

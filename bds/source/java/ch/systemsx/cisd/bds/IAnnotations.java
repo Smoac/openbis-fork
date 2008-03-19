@@ -19,8 +19,6 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IAnnotations extends IStorable

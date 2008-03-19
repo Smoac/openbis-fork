@@ -51,13 +51,16 @@ import static org.testng.AssertJUnit.*;
 public class CopyActivityMonitorTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "CopyActivityMonitorTest");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "CopyActivityMonitorTest");
 
     private static final int INACTIVITY_PERIOD_MILLIS = 50;
 
-    private final StoringUncaughtExceptionHandler exceptionHandler = new StoringUncaughtExceptionHandler();
+    private final StoringUncaughtExceptionHandler exceptionHandler =
+            new StoringUncaughtExceptionHandler();
 
     // ////////////////////////////////////////
     // Some mock and dummy implementations.
@@ -98,12 +101,12 @@ public class CopyActivityMonitorTest
     private final class HappyPathLastChangedChecker implements ILastChangedChecker
     {
         private final long stopWhenFindYoungerRelativeExpected;
-        
+
         public HappyPathLastChangedChecker(long stopWhenFindYoungerRelativeExpected)
         {
             this.stopWhenFindYoungerRelativeExpected = stopWhenFindYoungerRelativeExpected;
         }
-        
+
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
             assertEquals(stopWhenFindYoungerRelativeExpected, stopWhenFindYoungerRelative);
@@ -161,7 +164,8 @@ public class CopyActivityMonitorTest
         return asFileStore(directory, checker, factory);
     }
 
-    private IFileStore asFileStore(File directory, final ILastChangedChecker checker, IFileSysOperationsFactory factory)
+    private IFileStore asFileStore(File directory, final ILastChangedChecker checker,
+            IFileSysOperationsFactory factory)
     {
         final FileStoreLocal localImpl = new FileStoreLocal(directory, "input-test", factory);
         return new FileStore(directory, null, false, "input-test", factory)
@@ -261,9 +265,11 @@ public class CopyActivityMonitorTest
         final ITerminable dummyTerminable = new DummyTerminable();
         final long inactivityPeriodMillis = 5000L;
         final ITimingParameters parameters = new MyTimingParameters(0, inactivityPeriodMillis);
-        final ILastChangedChecker checker = new HappyPathLastChangedChecker(inactivityPeriodMillis - 1000L);
+        final ILastChangedChecker checker =
+                new HappyPathLastChangedChecker(inactivityPeriodMillis - 1000L);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), dummyTerminable, parameters);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), dummyTerminable,
+                        parameters);
         StoreItem item = createDirectoryInside(workingDirectory);
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
@@ -278,7 +284,8 @@ public class CopyActivityMonitorTest
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
+                        parameters);
         StoreItem item = createDirectoryInside(workingDirectory);
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
@@ -322,7 +329,8 @@ public class CopyActivityMonitorTest
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
+                        parameters);
         StoreItem item = createDirectoryInside(workingDirectory);
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
@@ -342,15 +350,17 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testActivityMonitorTimedOut() throws Throwable
     {
-        final PathLastChangedCheckerDelayed checker = new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS);
+        final PathLastChangedCheckerDelayed checker =
+                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
+                        parameters);
         final StoreItem item = createDirectoryInside(workingDirectory);
         final LogMonitoringAppender appender =
-            LogMonitoringAppender.addAppender(LogCategory.OPERATION,
-                    String.format("Could not determine \"last changed time\" of %s: time out.", item));
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, String.format(
+                        "Could not determine \"last changed time\" of %s: time out.", item));
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
         monitor.stop();
@@ -364,11 +374,13 @@ public class CopyActivityMonitorTest
         { "slow" })
     public void testActivityMonitorOnceTimedOutTheOK() throws Throwable
     {
-        final PathLastChangedCheckerDelayed checker = new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
+        final PathLastChangedCheckerDelayed checker =
+                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
         final MockTerminable copyProcess = new MockTerminable();
         final ITimingParameters parameters = new MyTimingParameters(0);
         final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess, parameters);
+                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
+                        parameters);
         final StoreItem item = createDirectoryInside(workingDirectory);
         monitor.start(item);
         Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);

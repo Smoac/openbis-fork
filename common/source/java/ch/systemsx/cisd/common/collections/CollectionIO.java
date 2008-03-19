@@ -49,7 +49,8 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class CollectionIO
 {
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, FileUtilities.class);
 
     /**
      * Reads a collection of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one
@@ -61,7 +62,8 @@ public class CollectionIO
      */
     public static boolean readCollectionFromResource(String resource, Collection<String> collection)
     {
-        return readCollectionFromResource(resource, collection, FromStringIdentityConverter.getInstance());
+        return readCollectionFromResource(resource, collection, FromStringIdentityConverter
+                .getInstance());
     }
 
     /**
@@ -82,7 +84,8 @@ public class CollectionIO
             machineLog.error(String.format("Resource '%s' not found.", resource));
             return false;
         }
-        return readCollection(resourceStream, collection, converter, String.format("<resource '%s'>", resource));
+        return readCollection(resourceStream, collection, converter, String.format(
+                "<resource '%s'>", resource));
     }
 
     /**
@@ -106,12 +109,13 @@ public class CollectionIO
      * @param converter The converter to use in order to convert each line in the file.
      * @return <code>true</code> if the collection was read successfully, or <code>false</code> otherwise.
      */
-    public static <T> boolean readCollection(File file, Collection<T> collection, IFromStringConverter<T> converter)
+    public static <T> boolean readCollection(File file, Collection<T> collection,
+            IFromStringConverter<T> converter)
     {
         try
         {
-            return readCollection(new FileInputStream(file), collection, converter, String.format("<file '%s'>", file
-                    .getPath()));
+            return readCollection(new FileInputStream(file), collection, converter, String.format(
+                    "<file '%s'>", file.getPath()));
         } catch (FileNotFoundException e)
         {
             machineLog.error(String.format("File '%s' is not accessible.", file.getPath()), e);
@@ -205,7 +209,7 @@ public class CollectionIO
         }
         return true;
     }
-    
+
     /**
      * Reads a list of {@link String}s from a <var>resource</var>. One line in the resource corresponds to one entry
      * in the list.
@@ -227,7 +231,8 @@ public class CollectionIO
      * @return A new {@link ArrayList} containing the entries from the <var>file</var>, or <code>null</code> if there
      *         is an error when reading the <var>file</var>.
      */
-    public static <T> List<T> readListFromResource(String resource, IFromStringConverter<T> converter)
+    public static <T> List<T> readListFromResource(String resource,
+            IFromStringConverter<T> converter)
     {
         assert resource != null;
         assert converter != null;
@@ -370,7 +375,8 @@ public class CollectionIO
      * @param converter The {@link IToStringConverter} to use to convert a <var>T</var> value into a {@link String}.
      * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
-    public static <T> boolean writeIterable(File file, Iterable<T> iterable, IToStringConverter<? super T> converter)
+    public static <T> boolean writeIterable(File file, Iterable<T> iterable,
+            IToStringConverter<? super T> converter)
     {
         FileOutputStream fos = null;
         try
@@ -486,8 +492,8 @@ public class CollectionIO
      * @param iterable The iterable to write to the writer.
      * @return <code>true</code> if the collection was written successfully, or <code>false</code> otherwise.
      */
-    public final static <T> boolean writeIterable(final PrintWriter writer, final Iterable<T> iterable,
-            final IToStringConverter<? super T> converterOrNull)
+    public final static <T> boolean writeIterable(final PrintWriter writer,
+            final Iterable<T> iterable, final IToStringConverter<? super T> converterOrNull)
     {
         assert writer != null : "Given PrintWriter can not be null";
         assert iterable != null : "Given Iterable can not be null";

@@ -49,8 +49,8 @@ public final class FileDAOTest extends AbstractDAOTest
         return listUsers.get(0);
     }
 
-    private final FileDTO createFile(final String name, final String path, final UserDTO registerer,
-            final Date expirationDate)
+    private final FileDTO createFile(final String name, final String path,
+            final UserDTO registerer, final Date expirationDate)
     {
         final List<UserDTO> fileViewers = new ArrayList<UserDTO>();
         fileViewers.add(registerer);
@@ -91,8 +91,8 @@ public final class FileDAOTest extends AbstractDAOTest
      * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date created from
      * <code>expirationTime</code>. If expirationTime is NOT_SET then default time is used.
      */
-    private final void createFileWithExpirationTimeAndNumber(final Long expirationTime, final IFileDAO fileDAO,
-            final int i)
+    private final void createFileWithExpirationTimeAndNumber(final Long expirationTime,
+            final IFileDAO fileDAO, final int i)
     {
         final FileDTO sampleFile = createSampleFile();
         sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());

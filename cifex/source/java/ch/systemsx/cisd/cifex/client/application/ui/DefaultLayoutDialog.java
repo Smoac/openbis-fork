@@ -52,16 +52,17 @@ public class DefaultLayoutDialog extends LayoutDialog
         this(messageResources, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    public DefaultLayoutDialog(final IMessageResources messageResources, final String title, final int width,
-            final int height)
+    public DefaultLayoutDialog(final IMessageResources messageResources, final String title,
+            final int width, final int height)
     {
         this(messageResources, title, width, height, false, true);
     }
 
-    public DefaultLayoutDialog(final IMessageResources messageResources, final String title, final int width,
-            final int height, final boolean modal, final boolean closable)
+    public DefaultLayoutDialog(final IMessageResources messageResources, final String title,
+            final int width, final int height, final boolean modal, final boolean closable)
     {
-        super(createLayoutDialogConfig(title, width, height, modal, closable), createLayoutRegionConfig());
+        super(createLayoutDialogConfig(title, width, height, modal, closable),
+                createLayoutRegionConfig());
         this.messageResources = messageResources;
         if (closable)
         {
@@ -108,8 +109,8 @@ public class DefaultLayoutDialog extends LayoutDialog
         return config;
     }
 
-    protected final static LayoutDialogConfig createLayoutDialogConfig(final String title, final int width,
-            final int height, final boolean modal, final boolean closable)
+    protected final static LayoutDialogConfig createLayoutDialogConfig(final String title,
+            final int width, final int height, final boolean modal, final boolean closable)
     {
         final LayoutDialogConfig config = new LayoutDialogConfig();
         config.setTitle(title);

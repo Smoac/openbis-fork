@@ -32,7 +32,8 @@ public final class FormattedDataContext
 
     private final IFormatParameters formatParameters;
 
-    FormattedDataContext(final IDirectory dataDirectory, final Format format, final IFormatParameters formatParameters)
+    FormattedDataContext(final IDirectory dataDirectory, final Format format,
+            final IFormatParameters formatParameters)
     {
         assert dataDirectory != null : "Unspecified data directory.";
         this.dataDirectory = dataDirectory;

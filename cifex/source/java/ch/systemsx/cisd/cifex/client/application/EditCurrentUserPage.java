@@ -54,7 +54,8 @@ final class EditCurrentUserPage extends AbstractMainPage
                         protected final void finishEditing()
                         {
                             final IPageController pageController = context.getPageController();
-                            final IHistoryController historyController = context.getHistoryController();
+                            final IHistoryController historyController =
+                                    context.getHistoryController();
                             final Page previousPage = historyController.getPreviousPage();
                             assert previousPage != null : "Undefined previous page.";
                             pageController.createPage(previousPage);

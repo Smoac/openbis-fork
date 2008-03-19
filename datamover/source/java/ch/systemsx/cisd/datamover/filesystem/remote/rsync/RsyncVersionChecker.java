@@ -34,9 +34,11 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 final class RsyncVersionChecker
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RsyncVersionChecker.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RsyncVersionChecker.class);
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RsyncVersionChecker.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RsyncVersionChecker.class);
 
     /**
      * The class holding the version information about an <code>rsync</code> binary.
@@ -69,8 +71,8 @@ final class RsyncVersionChecker
          */
         private final boolean rsyncPreReleaseVersion;
 
-        private RsyncVersion(String rsyncVersion, int rsyncMajorVersion, int rsyncMinorVersion, int rsyncPatchVersion,
-                boolean rsyncPreReleaseVersion)
+        private RsyncVersion(String rsyncVersion, int rsyncMajorVersion, int rsyncMinorVersion,
+                int rsyncPatchVersion, boolean rsyncPreReleaseVersion)
         {
             this.rsyncVersion = rsyncVersion;
             this.rsyncMajorVersion = rsyncMajorVersion;
@@ -110,7 +112,7 @@ final class RsyncVersionChecker
         {
             return rsyncPatchVersion;
         }
-        
+
         /**
          * @return <code>true</code>, if this version is a pre-release version.
          */
@@ -120,7 +122,7 @@ final class RsyncVersionChecker
         }
 
         /**
-         * @return <code>true</code>, if this version is newer or as new the minimal version specified. 
+         * @return <code>true</code>, if this version is newer or as new the minimal version specified.
          */
         public boolean isNewerOrEqual(int minMajorVerson, int minMinorVersion, int minPatchLevel)
         {
@@ -188,8 +190,8 @@ final class RsyncVersionChecker
             }
         }
 
-        return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion, rsyncPatchVersion,
-                preReleaseVersion);
+        return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion,
+                rsyncPatchVersion, preReleaseVersion);
     }
 
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)

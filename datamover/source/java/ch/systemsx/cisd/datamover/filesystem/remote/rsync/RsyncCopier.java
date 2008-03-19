@@ -51,22 +51,26 @@ public class RsyncCopier implements IPathCopier
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
      */
-    protected static final Status TERMINATED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was terminated.");
+    protected static final Status TERMINATED_STATUS =
+            new Status(StatusFlag.RETRIABLE_ERROR, "Process was terminated.");
 
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, RsyncCopier.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RsyncCopier.class);
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RsyncCopier.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RsyncCopier.class);
 
-    private static final Status INTERRUPTED_STATUS = new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
+    private static final Status INTERRUPTED_STATUS =
+            new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
 
     private final String rsyncExecutable;
 
     private final RsyncVersion rsyncVersion;
-    
+
     private final String sshExecutable;
 
     private final List<String> additionalCmdLineFlags;
-    
+
     private final boolean overwrite;
 
     /**
@@ -91,8 +95,9 @@ public class RsyncCopier implements IPathCopier
      *            directories on the remote side will be deleted before starting the copy process (no overwriting of
      *            paths).
      */
-    public RsyncCopier(File rsyncExecutable, File sshExecutableOrNull, 
-            boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite, String... cmdLineFlags)
+    public RsyncCopier(File rsyncExecutable, File sshExecutableOrNull,
+            boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite,
+            String... cmdLineFlags)
     {
         assert rsyncExecutable != null && rsyncExecutable.exists();
         assert sshExecutableOrNull == null || rsyncExecutable.exists();
@@ -100,7 +105,8 @@ public class RsyncCopier implements IPathCopier
         this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
         this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
         this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
-        this.destinationDirectoryRequiresDeletionBeforeCreation = destinationDirectoryRequiresDeletionBeforeCreation;
+        this.destinationDirectoryRequiresDeletionBeforeCreation =
+                destinationDirectoryRequiresDeletionBeforeCreation;
         this.copyProcessReference = new AtomicReference<Process>(null);
         this.overwrite = overwrite;
         if (cmdLineFlags.length > 0)
@@ -111,17 +117,18 @@ public class RsyncCopier implements IPathCopier
             this.additionalCmdLineFlags = null;
         }
     }
-    
+
     private boolean rsyncSupportsAppend()
     {
         assert rsyncVersion != null;
-        
+
         return rsyncVersion.isNewerOrEqual(2, 6, 7);
     }
-    
+
     private boolean isOverwriteMode()
     {
-        return overwrite || destinationDirectoryRequiresDeletionBeforeCreation || (rsyncSupportsAppend() == false);
+        return overwrite || destinationDirectoryRequiresDeletionBeforeCreation
+                || (rsyncSupportsAppend() == false);
     }
 
     public Status copy(File sourcePath, File destinationDirectory)
@@ -151,8 +158,8 @@ public class RsyncCopier implements IPathCopier
         try
         {
             final ProcessBuilder copyProcessBuilder =
-                    new ProcessBuilder(createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
-                            destinationHostOrNull));
+                    new ProcessBuilder(createCommandLine(sourcePath, sourceHostOrNull,
+                            destinationDirectory, destinationHostOrNull));
             copyProcessBuilder.redirectErrorStream(true);
             if (operationLog.isDebugEnabled())
             {
@@ -167,7 +174,8 @@ public class RsyncCopier implements IPathCopier
         } catch (IOException e)
         {
             machineLog.error(String.format("Cannot execute rsync binary %s", rsyncExecutable), e);
-            return new Status(StatusFlag.FATAL_ERROR, String.format("ProcessBuilder: %s", e.getMessage()));
+            return new Status(StatusFlag.FATAL_ERROR, String.format("ProcessBuilder: %s", e
+                    .getMessage()));
         } catch (InterruptedException e)
         {
             // Shouldn't happen because this is called in a timer, anyway, it's just another error condition.
@@ -189,11 +197,12 @@ public class RsyncCopier implements IPathCopier
         }
     }
 
-    private List<String> createCommandLine(File sourcePath, String sourceHost, File destinationDirectory,
-            String destinationHost)
+    private List<String> createCommandLine(File sourcePath, String sourceHost,
+            File destinationDirectory, String destinationHost)
     {
         assert sourcePath != null && (sourceHost != null || sourcePath.exists());
-        assert destinationDirectory != null && (destinationHost != null || destinationDirectory.isDirectory());
+        assert destinationDirectory != null
+                && (destinationHost != null || destinationDirectory.isDirectory());
         assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
         assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
 
@@ -286,8 +295,10 @@ public class RsyncCopier implements IPathCopier
     private static void logRsyncExitValue(final Process copyProcess)
     {
         final int exitValue = copyProcess.exitValue();
-        final List<String> processOutput = ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
-        ProcessExecutionHelper.logProcessExecution("rsync", exitValue, processOutput, operationLog, machineLog);
+        final List<String> processOutput =
+                ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
+        ProcessExecutionHelper.logProcessExecution("rsync", exitValue, processOutput, operationLog,
+                machineLog);
     }
 
     /**
@@ -322,29 +333,33 @@ public class RsyncCopier implements IPathCopier
         {
             if (OSUtilities.executableExists(rsyncExecutable))
             {
-                throw new ConfigurationFailureException(String.format("Rsync executable '%s' is invalid.",
-                        rsyncExecutable));
+                throw new ConfigurationFailureException(String.format(
+                        "Rsync executable '%s' is invalid.", rsyncExecutable));
             } else
             {
-                throw new ConfigurationFailureException(String.format("Rsync executable '%s' does not exist.",
-                        rsyncExecutable));
+                throw new ConfigurationFailureException(String.format(
+                        "Rsync executable '%s' does not exist.", rsyncExecutable));
             }
         }
         if (rsyncVersion.isNewerOrEqual(2, 6, 0) == false)
         {
             throw new ConfigurationFailureException(String.format(
-                    "Rsync executable '%s' is too old (required: 2.6.0, found: %s)", rsyncExecutable, rsyncVersion
-                            .getVersionString()));
+                    "Rsync executable '%s' is too old (required: 2.6.0, found: %s)",
+                    rsyncExecutable, rsyncVersion.getVersionString()));
         }
         if (machineLog.isInfoEnabled())
         {
-            machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s", rsyncExecutable,
-                    rsyncVersion.getVersionString(), (isOverwriteMode() ? "overwrite" : "append")));
+            machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s",
+                    rsyncExecutable, rsyncVersion.getVersionString(),
+                    (isOverwriteMode() ? "overwrite" : "append")));
         }
         if (rsyncVersion.isRsyncPreReleaseVersion())
         {
-            machineLog.warn(String.format("The rsync executable '%s' is a pre-release version. It is not recommended " 
-                    + "to use such a version in a production environment.", rsyncExecutable));
+            machineLog.warn(String
+                    .format(
+                            "The rsync executable '%s' is a pre-release version. It is not recommended "
+                                    + "to use such a version in a production environment.",
+                            rsyncExecutable));
         }
     }
 
@@ -355,7 +370,8 @@ public class RsyncCopier implements IPathCopier
 
         final String destination = buildPath(destinationHost, destinationDirectory, true);
         final ProcessBuilder listProcessBuilder =
-                new ProcessBuilder(rsyncExecutable, "--rsh", getSshExecutableArgument(sshExecutable), destination)
+                new ProcessBuilder(rsyncExecutable, "--rsh",
+                        getSshExecutableArgument(sshExecutable), destination)
                         .redirectErrorStream(true);
         if (operationLog.isDebugEnabled())
         {

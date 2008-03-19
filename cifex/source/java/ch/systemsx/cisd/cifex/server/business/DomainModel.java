@@ -42,7 +42,8 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public final class DomainModel implements IDomainModel
 {
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DomainModel.class);
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DomainModel.class);
 
     private IUserManager userManager;
 
@@ -95,13 +96,14 @@ public final class DomainModel implements IDomainModel
             final boolean successful = fileStore.mkdirs();
             if (successful == false)
             {
-                throw new EnvironmentFailureException("Couldn't create file store '" + fileStore.getAbsolutePath()
-                        + "' for some unknown reason.");
+                throw new EnvironmentFailureException("Couldn't create file store '"
+                        + fileStore.getAbsolutePath() + "' for some unknown reason.");
             }
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info(String.format("File store '%s' has been set and is ready to accept files.", fileStore
-                        .getAbsolutePath()));
+                operationLog.info(String.format(
+                        "File store '%s' has been set and is ready to accept files.", fileStore
+                                .getAbsolutePath()));
             }
         }
     }
@@ -147,17 +149,20 @@ public final class DomainModel implements IDomainModel
         businessContext.setMaxUploadRequestSizeInMB(maxRequestUploadSizeInMB);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Maximum request upload size set to %d MB.", maxRequestUploadSizeInMB));
+            operationLog.info(String.format("Maximum request upload size set to %d MB.",
+                    maxRequestUploadSizeInMB));
         }
     }
 
     private final <T> T createLoggingProxy(final T manager)
     {
         final Object proxy =
-                processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
+                processor.postProcessAfterInitialization(manager, "proxy of "
+                        + manager.getClass().getName());
         final Class<? extends DomainModel> clazz = getClass();
         final InvocationHandler invocationHandler =
-                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.DEBUG, clazz);
+                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.DEBUG,
+                        clazz);
         final Class<?>[] interfaces = manager.getClass().getInterfaces();
         return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
     }
@@ -175,7 +180,8 @@ public final class DomainModel implements IDomainModel
     {
         if (userManager == null)
         {
-            userManager = createLoggingProxy(new UserManager(daoFactory, boFactory, businessContext));
+            userManager =
+                    createLoggingProxy(new UserManager(daoFactory, boFactory, businessContext));
         }
         return userManager;
     }
@@ -187,7 +193,8 @@ public final class DomainModel implements IDomainModel
     {
         if (fileManager == null)
         {
-            fileManager = createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext));
+            fileManager =
+                    createLoggingProxy(new FileManager(daoFactory, boFactory, businessContext));
         }
         return fileManager;
     }

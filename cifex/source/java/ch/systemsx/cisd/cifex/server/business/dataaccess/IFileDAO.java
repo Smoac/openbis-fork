@@ -44,7 +44,7 @@ public interface IFileDAO
      * Updates all fields (except the registration timestamp) from <var>file</var> in the database.
      */
     public void updateFile(final FileDTO file) throws DataAccessException;
-    
+
     /**
      * Removes <code>File</code> with given id from database.
      * 

@@ -55,7 +55,8 @@ public final class ChecksumHandler implements IDataStructureHandler
 
     private final IDirectory originalDataDirectory;
 
-    public ChecksumHandler(final IDirectory checksumDirectory, final IDirectory originalDataDirectory)
+    public ChecksumHandler(final IDirectory checksumDirectory,
+            final IDirectory originalDataDirectory)
     {
         this.checksumDirectory = checksumDirectory;
         this.originalDataDirectory = originalDataDirectory;
@@ -70,7 +71,8 @@ public final class ChecksumHandler implements IDataStructureHandler
         return checksums;
     }
 
-    private void addChecksums(final List<Checksum> checksums, final String nodePath, final IDirectory directory)
+    private void addChecksums(final List<Checksum> checksums, final String nodePath,
+            final IDirectory directory)
     {
         final List<INode> children = new ArrayList<INode>();
         for (final INode child : directory)
@@ -84,21 +86,26 @@ public final class ChecksumHandler implements IDataStructureHandler
         }
     }
 
-    private final void addChecksum(final List<Checksum> checksums, final String path, final INode node)
+    private final void addChecksum(final List<Checksum> checksums, final String path,
+            final INode node)
     {
-        final String nodePath = (path == null ? "" : path + Constants.PATH_SEPARATOR) + node.getName();
+        final String nodePath =
+                (path == null ? "" : path + Constants.PATH_SEPARATOR) + node.getName();
         if (node instanceof IFile)
         {
             IFile file = (IFile) node;
             final InputStream inputStream = file.getInputStream();
             try
             {
-                final Checksum checksum = new Checksum(checksumCalculator.calculateChecksum(inputStream), nodePath);
-                assert checksums.contains(checksum) == false : String.format("Checksum '%s' is not unique.", checksum);
+                final Checksum checksum =
+                        new Checksum(checksumCalculator.calculateChecksum(inputStream), nodePath);
+                assert checksums.contains(checksum) == false : String.format(
+                        "Checksum '%s' is not unique.", checksum);
                 checksums.add(checksum);
             } catch (IOException ex)
             {
-                throw new EnvironmentFailureException("Couldn't calculate checksum for file '" + nodePath + "'");
+                throw new EnvironmentFailureException("Couldn't calculate checksum for file '"
+                        + nodePath + "'");
             } finally
             {
                 IOUtils.closeQuietly(inputStream);
@@ -123,14 +130,16 @@ public final class ChecksumHandler implements IDataStructureHandler
             final Checksum checkum = CHECKSUM_CONVERTER.fromString(value);
             if (actual.remove(checkum) == false)
             {
-                throw new DataStructureException(String.format("Given checksum '%s' not found in directory '%s'",
-                        checkum, originalDataDirectory));
+                throw new DataStructureException(String.format(
+                        "Given checksum '%s' not found in directory '%s'", checkum,
+                        originalDataDirectory));
             }
         }
         if (actual.size() > 0)
         {
             throw new DataStructureException(String.format(
-                    "Following checksums '%s' are not present in the checksum file '%s'.", actual, checksumFile));
+                    "Following checksums '%s' are not present in the checksum file '%s'.", actual,
+                    checksumFile));
         }
     }
 
@@ -199,7 +208,8 @@ public final class ChecksumHandler implements IDataStructureHandler
         }
     }
 
-    final static class ChecksumConverter implements IToStringConverter<Checksum>, IFromStringConverter<Checksum>
+    final static class ChecksumConverter implements IToStringConverter<Checksum>,
+            IFromStringConverter<Checksum>
     {
         private static final String SEPARATOR = "  ";
 

@@ -44,18 +44,24 @@ public class RealCrowdAuthenticationTest
 {
 
     private static final int PORT_OF_AUTHENTICATION_SERVICE = 0; // FIX!
+
     private static final String HOST_NAME_OF_AUTHENTICATION_SERVICE = null; // FIX!
+
     private static final String NAME_OF_TEST_APPLICATION = "test";
+
     private static final String PASSWORD_OF_TEST_APPLICATION = null; // FIX!
+
     private static final String NAME_OF_TEST_USER = "test";
+
     private static final String PASSWORD_OF_TEST_USER = null; // FIX!
 
     @Test(groups = "broken")
     public void testCrowdTestAccount()
     {
         final IAuthenticationService as =
-                new CrowdAuthenticationService(HOST_NAME_OF_AUTHENTICATION_SERVICE, PORT_OF_AUTHENTICATION_SERVICE,
-                        NAME_OF_TEST_APPLICATION, PASSWORD_OF_TEST_APPLICATION);
+                new CrowdAuthenticationService(HOST_NAME_OF_AUTHENTICATION_SERVICE,
+                        PORT_OF_AUTHENTICATION_SERVICE, NAME_OF_TEST_APPLICATION,
+                        PASSWORD_OF_TEST_APPLICATION);
         final String token = as.authenticateApplication();
         assertNotNull(token);
         assertTrue(as.authenticateUser(token, NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER));

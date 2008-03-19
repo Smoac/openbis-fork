@@ -92,7 +92,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 // IPathImmutableCopier
                 //
 
-                public final File tryCopy(final File file, final File destinationDirectory, final String nameOrNull)
+                public final File tryCopy(final File file, final File destinationDirectory,
+                        final String nameOrNull)
                 {
                     final Status status = normalCopier.copy(file, destinationDirectory);
                     if (StatusFlag.OK.equals(status.getFlag()))
@@ -100,8 +101,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                         return new File(destinationDirectory, file.getName());
                     } else
                     {
-                        notificationLog.error(String.format("Copy of '%s' to '%s' failed: %s.", file.getPath(),
-                                destinationDirectory.getPath(), status));
+                        notificationLog.error(String.format("Copy of '%s' to '%s' failed: %s.",
+                                file.getPath(), destinationDirectory.getPath(), status));
                         return null;
                     }
                 }
@@ -114,8 +115,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
         if (rsyncExecutable != null)
         {
-            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation, parameters
-                    .isRsyncOverwrite());
+            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
+                    parameters.isRsyncOverwrite());
         } else
         {
             throw new ConfigurationFailureException("Unable to find a copy engine.");
@@ -137,8 +138,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         }
         if (rsyncExecutable != null && OSUtilities.executableExists(rsyncExecutable) == false)
         {
-            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.", rsyncExecutable
-                    .getAbsoluteFile());
+            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.",
+                    rsyncExecutable.getAbsoluteFile());
         }
         return rsyncExecutable;
     }
@@ -162,8 +163,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         }
         if (sshExecutable != null && OSUtilities.executableExists(sshExecutable) == false)
         {
-            throw ConfigurationFailureException.fromTemplate("Cannot find ssh executable '%s'.", sshExecutable
-                    .getAbsoluteFile());
+            throw ConfigurationFailureException.fromTemplate("Cannot find ssh executable '%s'.",
+                    sshExecutable.getAbsoluteFile());
         }
         return sshExecutable;
     }

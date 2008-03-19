@@ -45,7 +45,8 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class RsyncCopierTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "RsyncCopierTest");
 
@@ -53,7 +54,8 @@ public class RsyncCopierTest
 
     private final File destinationDirectory = new File(workingDirectory, "b");
 
-    private final StoringUncaughtExceptionHandler exceptionHandler = new StoringUncaughtExceptionHandler();
+    private final StoringUncaughtExceptionHandler exceptionHandler =
+            new StoringUncaughtExceptionHandler();
 
     @BeforeClass
     public void init()
@@ -79,16 +81,18 @@ public class RsyncCopierTest
         destinationDirectory.deleteOnExit();
     }
 
-    private File createRsync(String rsyncVersion, String... additionalLines) throws IOException, InterruptedException
+    private File createRsync(String rsyncVersion, String... additionalLines) throws IOException,
+            InterruptedException
     {
         final File rsyncBinary = new File(workingDirectory, "rsync");
         rsyncBinary.delete();
         final List<String> lines = new ArrayList<String>();
-        lines.addAll(Arrays.asList("#! /bin/sh", "if [ \"$1\" = \"--version\" ]; then ", String.format(
-                "  echo \"rsync  version %s\"", rsyncVersion), "exit 0", "fi"));
+        lines.addAll(Arrays.asList("#! /bin/sh", "if [ \"$1\" = \"--version\" ]; then ", String
+                .format("  echo \"rsync  version %s\"", rsyncVersion), "exit 0", "fi"));
         lines.addAll(Arrays.asList(additionalLines));
         CollectionIO.writeIterable(rsyncBinary, lines);
-        Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", rsyncBinary.getPath())).waitFor();
+        Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", rsyncBinary.getPath()))
+                .waitFor();
         rsyncBinary.deleteOnExit();
         return rsyncBinary;
     }
@@ -138,7 +142,8 @@ public class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
+                        .getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         copier.copy(sourceFile, destinationDirectory);
         String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
@@ -152,7 +157,8 @@ public class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.6", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+                createRsync("2.6.6", String.format("echo \"$@\" > %s", parametersLogFile
+                        .getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         copier.copy(sourceFile, destinationDirectory);
         String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
@@ -166,7 +172,8 @@ public class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
+                        .getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, true);
         copier.copy(sourceFile, destinationDirectory);
         String rsyncParameters = FileUtilities.loadToString(parametersLogFile);

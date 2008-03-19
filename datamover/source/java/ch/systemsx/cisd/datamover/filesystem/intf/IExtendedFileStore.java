@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * An {@link IFileStore} with additional capabilites.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IExtendedFileStore extends IFileStore

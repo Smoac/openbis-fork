@@ -36,7 +36,8 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 public class OSUtilitiesTest
 {
 
-    private static final File workingDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File workingDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
     @BeforeSuite
     public void init()

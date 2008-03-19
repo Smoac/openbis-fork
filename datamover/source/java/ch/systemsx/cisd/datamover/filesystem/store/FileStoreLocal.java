@@ -42,7 +42,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
  */
 public class FileStoreLocal extends ExtendedFileStore
 {
-    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE, FileStoreLocal.class);
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, FileStoreLocal.class);
 
     private final IPathMover mover;
 
@@ -72,11 +73,12 @@ public class FileStoreLocal extends ExtendedFileStore
     {
         return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
     }
-    
+
     @Override
     public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
     {
-        return FileUtilities.lastChangedRelative(getChildFile(item), true, stopWhenFindYoungerRelative);
+        return FileUtilities.lastChangedRelative(getChildFile(item), true,
+                stopWhenFindYoungerRelative);
     }
 
     @Override
@@ -85,8 +87,9 @@ public class FileStoreLocal extends ExtendedFileStore
         final boolean available = FileUtilities.isAvailable(getPath(), timeOutMillis);
         if (available == false)
         {
-            return String.format("Path '%s' which is supposed to be a %s directory is not available.", getPath(),
-                    getDescription());
+            return String.format(
+                    "Path '%s' which is supposed to be a %s directory is not available.",
+                    getPath(), getDescription());
         }
         return FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
     }
@@ -95,7 +98,8 @@ public class FileStoreLocal extends ExtendedFileStore
     public IStoreCopier getCopier(FileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
-        final IStoreCopier simpleCopier = constructStoreCopier(destinationDirectory, requiresDeletion);
+        final IStoreCopier simpleCopier =
+                constructStoreCopier(destinationDirectory, requiresDeletion);
         if (requiresDeletionBeforeCreation(destinationDirectory, simpleCopier))
         {
             requiresDeletion = true;
@@ -176,7 +180,8 @@ public class FileStoreLocal extends ExtendedFileStore
      * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
      *         <var>destinationDirectory</var> resides requires deleting an existing file before it can be overwritten.
      */
-    protected boolean requiresDeletionBeforeCreation(IFileStore destinationDirectory, final IStoreCopier simpleCopier)
+    protected boolean requiresDeletionBeforeCreation(IFileStore destinationDirectory,
+            final IStoreCopier simpleCopier)
     {
         StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
@@ -210,18 +215,22 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    private static void logCopierOverwriteState(IFileStore destinationDirectory, boolean requiresDeletion)
+    private static void logCopierOverwriteState(IFileStore destinationDirectory,
+            boolean requiresDeletion)
     {
         if (machineLog.isInfoEnabled())
         {
             if (requiresDeletion)
             {
-                machineLog.info(String.format(
-                        "Copier on directory '%s' requires deletion before creation of existing files.",
-                        destinationDirectory));
+                machineLog
+                        .info(String
+                                .format(
+                                        "Copier on directory '%s' requires deletion before creation of existing files.",
+                                        destinationDirectory));
             } else
             {
-                machineLog.info(String.format("Copier on directory '%s' works with overwriting existing files.",
+                machineLog.info(String.format(
+                        "Copier on directory '%s' works with overwriting existing files.",
                         destinationDirectory));
             }
         }

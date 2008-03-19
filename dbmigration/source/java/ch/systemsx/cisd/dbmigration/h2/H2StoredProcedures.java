@@ -32,18 +32,20 @@ public class H2StoredProcedures
      * Renames the sequence <var>oldName</var> into <var>newName</var> ensuring the <code>NEXTVAL()</code> will
      * return the right value.
      * 
-     * @return The next value the sequence will deliver. 
+     * @return The next value the sequence will deliver.
      */
-    public static int renameSequence(Connection conn, String oldName, String newName) throws SQLException
+    public static int renameSequence(Connection conn, String oldName, String newName)
+            throws SQLException
     {
-        final ResultSet rs = conn.createStatement().executeQuery(String.format("SELECT NEXTVAL('%s')", oldName));
+        final ResultSet rs =
+                conn.createStatement().executeQuery(String.format("SELECT NEXTVAL('%s')", oldName));
         if (rs.first() == false)
         {
             throw new SQLException("Cannot get next value of sequence '" + oldName + "'");
         }
         final int currSeqVal = rs.getInt(1);
         rs.close();
-        conn.createStatement().execute("CREATE SEQUENCE " + newName + " START WITH " +  currSeqVal);
+        conn.createStatement().execute("CREATE SEQUENCE " + newName + " START WITH " + currSeqVal);
         conn.createStatement().execute("DROP SEQUENCE " + oldName);
         return currSeqVal;
     }

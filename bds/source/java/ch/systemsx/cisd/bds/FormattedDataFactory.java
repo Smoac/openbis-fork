@@ -45,7 +45,8 @@ public final class FormattedDataFactory
         // This class cannot be instantiated.
     }
 
-    private final static void register(final Format format, final Class<? extends IFormattedData> clazz)
+    private final static void register(final Format format,
+            final Class<? extends IFormattedData> clazz)
     {
         String code = format.getCode();
         Factory<IFormattedData> factory = factories.get(code);
@@ -58,22 +59,25 @@ public final class FormattedDataFactory
     }
 
     /** Uses this public method to create a new instance of <code>IFormattedData</code>. */
-    public final static IFormattedData createFormattedData(final IDirectory dataDirectory, final Format format,
-            final Format defaultFormatOrNull, final IFormatParameters formatParameters)
+    public final static IFormattedData createFormattedData(final IDirectory dataDirectory,
+            final Format format, final Format defaultFormatOrNull,
+            final IFormatParameters formatParameters)
     {
         final Format supportedFormat = getSupportedFormat(format, defaultFormatOrNull);
         final Factory<IFormattedData> factory = factories.get(supportedFormat.getCode());
-        final FormattedDataContext context = new FormattedDataContext(dataDirectory, supportedFormat, formatParameters);
+        final FormattedDataContext context =
+                new FormattedDataContext(dataDirectory, supportedFormat, formatParameters);
         return factory.create(FormattedDataContext.class, context, format.getVersion());
     }
 
-    private final static Format getSupportedFormat(final Format format, final Format defaultFormatOrNull)
+    private final static Format getSupportedFormat(final Format format,
+            final Format defaultFormatOrNull)
     {
         assert format != null : "Unspecified format.";
         final String code = format.getCode();
         assert code != null : "Unspecified format code.";
         assert format.getVersion() != null : "Unspecified version.";
-        
+
         final Factory<IFormattedData> factory = factories.get(code);
         if (factory == null)
         {

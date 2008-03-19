@@ -81,7 +81,8 @@ public class FileWatcherSynchronizer extends TimerTask
         }
     }
 
-    public final synchronized void addChangeListener(final File file, final ChangeListener changeListener)
+    public final synchronized void addChangeListener(final File file,
+            final ChangeListener changeListener)
     {
         FileWatcher fileWatcher = fileWatchers.get(file);
         if (fileWatcher == null)
@@ -101,7 +102,8 @@ public class FileWatcherSynchronizer extends TimerTask
                 };
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("A new watcher has been created for file '%s'", file));
+                operationLog.debug(String.format("A new watcher has been created for file '%s'",
+                        file));
             }
             fileWatchers.put(file, fileWatcher);
         }
@@ -114,13 +116,16 @@ public class FileWatcherSynchronizer extends TimerTask
         listeners.add(changeListener);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format(
-                    "A new listener has been registered for file '%s'. Currently %d listener(s) registered.", file,
-                    listeners.size()));
+            operationLog
+                    .debug(String
+                            .format(
+                                    "A new listener has been registered for file '%s'. Currently %d listener(s) registered.",
+                                    file, listeners.size()));
         }
     }
 
-    public final synchronized void removeChangeListener(final File file, final ChangeListener changeListener)
+    public final synchronized void removeChangeListener(final File file,
+            final ChangeListener changeListener)
     {
         final FileWatcher fileWatcher = fileWatchers.get(file);
         if (fileWatcher == null)
@@ -136,8 +141,11 @@ public class FileWatcherSynchronizer extends TimerTask
         final int size = listeners.size();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format(
-                    "A listener for file '%s' has been removed. Currently %d listener(s) registered.", file, size));
+            operationLog
+                    .debug(String
+                            .format(
+                                    "A listener for file '%s' has been removed. Currently %d listener(s) registered.",
+                                    file, size));
         }
         if (size == 0)
         {

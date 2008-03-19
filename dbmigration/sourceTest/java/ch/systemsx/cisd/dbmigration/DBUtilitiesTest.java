@@ -61,15 +61,19 @@ public class DBUtilitiesTest
     @Test
     public void testSplitSqlStatementsOneStatementOnMultipleLines()
     {
-        assertEquals(Arrays.asList("statement part1 statement part2;", "statement2.1 statement2.2;"), DBUtilities
-                .splitSqlStatements("statement part1 \n statement part2 ;\n statement2.1\nstatement2.2 ; "));
+        assertEquals(
+                Arrays.asList("statement part1 statement part2;", "statement2.1 statement2.2;"),
+                DBUtilities
+                        .splitSqlStatements("statement part1 \n statement part2 ;\n statement2.1\nstatement2.2 ; "));
     }
 
     @Test
     public void testSplitSqlStatementsComments()
     {
-        assertEquals(Arrays.asList("statement1 statement2;"), DBUtilities
-                .splitSqlStatements("statement1 -- comment\n -- just comments; bla\n statement2; -- another comment"));
+        assertEquals(
+                Arrays.asList("statement1 statement2;"),
+                DBUtilities
+                        .splitSqlStatements("statement1 -- comment\n -- just comments; bla\n statement2; -- another comment"));
     }
 
 }

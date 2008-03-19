@@ -20,8 +20,8 @@ import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
- * A <code>ILineFilter</code> implementation that extends {@link ExcludeEmptyAndCommentLineFilter} by
- * excluding the header line (if <code>&gt; 1</code>) as well.
+ * A <code>ILineFilter</code> implementation that extends {@link ExcludeEmptyAndCommentLineFilter} by excluding the
+ * header line (if <code>&gt; 1</code>) as well.
  * 
  * @author Christian Ribeaud
  */

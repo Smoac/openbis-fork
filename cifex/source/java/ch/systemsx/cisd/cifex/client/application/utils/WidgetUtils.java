@@ -33,7 +33,8 @@ public final class WidgetUtils
      * 
      * @param messageResources Message resources used for getting message box title.
      */
-    public final static void showMessage(final Message message, final IMessageResources messageResources)
+    public final static void showMessage(final Message message,
+            final IMessageResources messageResources)
     {
         final String type = message.getType();
         String title;

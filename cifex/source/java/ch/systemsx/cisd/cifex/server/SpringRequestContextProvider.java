@@ -38,6 +38,7 @@ public final class SpringRequestContextProvider implements IRequestContextProvid
 
     public final HttpServletRequest getHttpServletRequest()
     {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest();
     }
 }

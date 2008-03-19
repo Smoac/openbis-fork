@@ -62,10 +62,14 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
     {
         dataStructure.setFormat(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.DEVICE_ID, "M1"));
-        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
-        dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS, createChannelList()));
-        dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY, new PlateGeometry(2, 3)));
-        dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY, new WellGeometry(7, 5)));
+        dataStructure.addFormatParameter(new FormatParameter(
+                HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
+        dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS,
+                createChannelList()));
+        dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY,
+                new PlateGeometry(2, 3)));
+        dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY,
+                new WellGeometry(7, 5)));
     }
 
     //
@@ -109,7 +113,9 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
         setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...
-        final IDataStructure ds = new DataStructureLoader(workingDirectory.getParentFile()).load(getClass().getName());
+        final IDataStructure ds =
+                new DataStructureLoader(workingDirectory.getParentFile())
+                        .load(getClass().getName());
         assertNotNull(ds);
     }
 }

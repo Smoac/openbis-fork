@@ -41,11 +41,12 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  * 
  * @author Christian Ribeaud
  */
-public abstract class GWTSpringController extends RemoteServiceServlet implements Controller, InitializingBean,
-        ServletConfigAware, DisposableBean, BeanNameAware, RemoteService
+public abstract class GWTSpringController extends RemoteServiceServlet implements Controller,
+        InitializingBean, ServletConfigAware, DisposableBean, BeanNameAware, RemoteService
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, GWTSpringController.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, GWTSpringController.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -67,8 +68,8 @@ public abstract class GWTSpringController extends RemoteServiceServlet implement
     // Controller
     //
 
-    public final ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception
+    public final ModelAndView handleRequest(final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception
     {
         doPost(request, response);
         return null;
@@ -87,7 +88,8 @@ public abstract class GWTSpringController extends RemoteServiceServlet implement
         if (operationLog.isTraceEnabled())
         {
             final String message =
-                    "All the properties have been set for bean '" + beanName + "'. Time to initialize this servlet.";
+                    "All the properties have been set for bean '" + beanName
+                            + "'. Time to initialize this servlet.";
             operationLog.trace(message);
         }
         init(servletConfig);
@@ -102,7 +104,8 @@ public abstract class GWTSpringController extends RemoteServiceServlet implement
         assert servletConfig != null;
         if (operationLog.isTraceEnabled())
         {
-            final String message = "Setting servlet config for class '" + getClass().getSimpleName() + "'.";
+            final String message =
+                    "Setting servlet config for class '" + getClass().getSimpleName() + "'.";
             operationLog.trace(message);
         }
         this.servletConfig = servletConfig;

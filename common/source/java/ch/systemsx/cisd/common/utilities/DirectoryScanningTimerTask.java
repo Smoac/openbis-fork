@@ -105,11 +105,11 @@ public final class DirectoryScanningTimerTask extends TimerTask
      *            next error is logged (can be used to suppress error when the directory is on a remote share and the
      *            server is flaky sometimes)
      */
-    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter, IPathHandler handler,
-            int ignoredErrorCount)
+    public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter,
+            IPathHandler handler, int ignoredErrorCount)
     {
-        this(asScannedStore(sourceDirectory, filter), sourceDirectory, asScanningHandler(sourceDirectory, handler),
-                ignoredErrorCount);
+        this(asScannedStore(sourceDirectory, filter), sourceDirectory, asScanningHandler(
+                sourceDirectory, handler), ignoredErrorCount);
     }
 
     /**
@@ -122,8 +122,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
      *            next error is logged (can be used to suppress error when the directory is on a remote share and the
      *            server is flaky sometimes)
      */
-    public DirectoryScanningTimerTask(IScannedStore scannedStore, File faultyPathDirectory, IStoreHandler handler,
-            int ignoredErrorCount)
+    public DirectoryScanningTimerTask(IScannedStore scannedStore, File faultyPathDirectory,
+            IStoreHandler handler, int ignoredErrorCount)
     {
         assert scannedStore != null;
         assert handler != null;
@@ -265,7 +265,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
                 faultyPathsLastChanged = faultyPathsFile.lastModified();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(String.format("Reread faulty paths file (%s), new set contains %d entries",
+                    operationLog.info(String.format(
+                            "Reread faulty paths file (%s), new set contains %d entries",
                             getLocationDescription(faultyPathsFile), faultyPaths.size()));
                 }
             }
@@ -282,14 +283,16 @@ public final class DirectoryScanningTimerTask extends TimerTask
         final boolean logOperationError = (errorCountReadingDirectory < ignoredErrorCount);
         final ISimpleLogger errorLogger =
                 logNotifyError ? createSimpleErrorLogger(LogCategory.NOTIFY)
-                        : (logOperationError ? createSimpleErrorLogger(LogCategory.OPERATION) : null);
+                        : (logOperationError ? createSimpleErrorLogger(LogCategory.OPERATION)
+                                : null);
 
         final StoreItem[] paths = sourceDirectory.tryListSortedReadyToProcess(errorLogger);
         if (errorCountReadingDirectory > ignoredErrorCount && paths != null)
         {
             if (notificationLog.isInfoEnabled())
             {
-                notificationLog.info(String.format("Directory '%s' is available again.", sourceDirectory));
+                notificationLog.info(String.format("Directory '%s' is available again.",
+                        sourceDirectory));
             }
         }
         if (paths == null)

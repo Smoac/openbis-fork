@@ -79,7 +79,8 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         builder.append(" has stored ").append(createFileText());
         builder.append(" on our server for you to download. File information appears below.\n\n");
         addRegistratorDetails(builder);
-        builder.append("\n\n").append(StringUtils.capitalize(createFileText())).append(" (click to download):\n\n");
+        builder.append("\n\n").append(StringUtils.capitalize(createFileText())).append(
+                " (click to download):\n\n");
         Date minExpirationDate = new Date(Long.MAX_VALUE);
         for (final FileDTO file : files)
         {
@@ -101,13 +102,15 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
         builder.append("\n");
         if (password != null)
         {
-            builder.append("\nFor downloading you have to enter the following password: ").append(password);
+            builder.append("\nFor downloading you have to enter the following password: ").append(
+                    password);
             builder.append("\n");
         }
         builder.append("\nTo login to the system: ").append(url).append("/index.html");
         appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, true);
         builder.append("\n\n------------------------------------------------------------\n\n");
-        builder.append("We recommend that you install the latest version of your antivirus software ");
+        builder
+                .append("We recommend that you install the latest version of your antivirus software ");
         builder.append("prior to downloading any files over the Internet.\n");
         return builder.toString();
     }

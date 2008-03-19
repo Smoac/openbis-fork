@@ -71,7 +71,8 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         final long timeLeft = feedback.getTimeLeft();
         if (timeLeft < Long.MAX_VALUE)
         {
-            buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils.formatDuration(timeLeft)));
+            buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils
+                    .formatDuration(timeLeft)));
         }
         return buffer.toString();
     }
@@ -111,7 +112,7 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         {
             MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
         }
-        getViewContext().getCifexService()
-                .getFileUploadFeedback(new FileUploadFeedbackCallback(getViewContext(), true));
+        getViewContext().getCifexService().getFileUploadFeedback(
+                new FileUploadFeedbackCallback(getViewContext(), true));
     }
 }

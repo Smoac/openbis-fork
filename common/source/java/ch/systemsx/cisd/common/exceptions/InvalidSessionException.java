@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
-
 /**
  * This <code>UserFailureException</code> extension signals that a session has expired.
  * 

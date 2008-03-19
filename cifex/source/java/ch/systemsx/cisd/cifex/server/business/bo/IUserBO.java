@@ -19,13 +19,11 @@ package ch.systemsx.cisd.cifex.server.business.bo;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IUserBO
 {
     public void define(UserDTO user);
-    
+
     public void save();
 }

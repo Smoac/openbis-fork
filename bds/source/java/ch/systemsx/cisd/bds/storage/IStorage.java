@@ -18,10 +18,9 @@ package ch.systemsx.cisd.bds.storage;
 
 import ch.systemsx.cisd.bds.exception.StorageException;
 
-
 /**
  * Abstraction of a hierarchical storage.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IStorage
@@ -30,14 +29,14 @@ public interface IStorage
      * Mounts this storage. May perform some initializations. Should be called before calling {@link #getRoot()}.
      */
     public void mount();
-    
+
     /**
-     * Returns root directory of this storage. 
+     * Returns root directory of this storage.
      * 
      * @throws StorageException if invoked before {@link #mount()} or after {@link #unmount()}.
      */
     public IDirectory getRoot();
-    
+
     /**
      * Unmounts this storage. May perform some finalization (e.g. make cached data persistent).
      */

@@ -20,8 +20,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- * Line printer based on a {@link Writer} instance. 
- *
+ * Line printer based on a {@link Writer} instance.
+ * 
  * @author Franz-Josef Elmer
  */
 public class SimpleLinePrinter implements ILinePrinter
@@ -29,12 +29,12 @@ public class SimpleLinePrinter implements ILinePrinter
     private final PrintWriter printWriter;
 
     /**
-     *  Creates an instance for the specified writer.
+     * Creates an instance for the specified writer.
      */
     public SimpleLinePrinter(Writer writer)
     {
         assert writer != null : "Unspecified writer.";
-        
+
         printWriter = new PrintWriter(writer, true);
     }
 

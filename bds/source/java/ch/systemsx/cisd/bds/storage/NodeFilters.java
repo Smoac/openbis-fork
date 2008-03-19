@@ -46,7 +46,8 @@ public final class NodeFilters
     /**
      * Creates filter nodes based on the extension (what the filename ends with).
      */
-    public final static INodeFilter createExtensionNodeFilter(final boolean ignoreCase, final String... extensions)
+    public final static INodeFilter createExtensionNodeFilter(final boolean ignoreCase,
+            final String... extensions)
     {
         assert extensions != null : "Given extensions can not be null.";
         return new SuffixNodeFilter(ignoreCase, toSuffixes(extensions));
@@ -103,12 +104,12 @@ public final class NodeFilters
         {
             if (ignoreCase)
             {
-                return s.toLowerCase(); 
+                return s.toLowerCase();
             } else
             {
                 return s;
             }
         }
     }
-    
+
 }

@@ -67,11 +67,14 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
 
-    FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
+    FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory,
+            IBusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
     }
@@ -79,7 +82,8 @@ final class FileManager extends AbstractManager implements IFileManager
     /**
      * Whether given <var>userDTO</var> could be found in list of sharing users.
      */
-    private final static boolean containsUser(final UserDTO userDTO, final List<UserDTO> sharingUsers)
+    private final static boolean containsUser(final UserDTO userDTO,
+            final List<UserDTO> sharingUsers)
     {
         for (final UserDTO user : sharingUsers)
         {
@@ -120,7 +124,8 @@ final class FileManager extends AbstractManager implements IFileManager
             }
         } else
         {
-            operationLog.warn("File [" + file.getAbsolutePath() + "] requested to be deleted, but doesn't exist.");
+            operationLog.warn("File [" + file.getAbsolutePath()
+                    + "] requested to be deleted, but doesn't exist.");
         }
         return false;
     }
@@ -159,11 +164,13 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     if (operationLog.isInfoEnabled())
                     {
-                        operationLog.info("Expired file '" + file.getPath() + "' removed from database.");
+                        operationLog.info("Expired file '" + file.getPath()
+                                + "' removed from database.");
                     }
                 } else
                 {
-                    operationLog.warn("Expired file '" + file.getPath() + "' could not be found in the database.");
+                    operationLog.warn("Expired file '" + file.getPath()
+                            + "' could not be found in the database.");
                 }
                 success &= deleteFromFileSystem(file.getPath());
                 businessContext.getUserActionLog().logExpireFile(file, success);
@@ -190,14 +197,17 @@ final class FileManager extends AbstractManager implements IFileManager
         final FileDTO fileDTOOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
         if (fileDTOOrNull == null)
         {
-            return new FileInformation(fileId, "File [id=" + fileId + "] not found in the database.");
+            return new FileInformation(fileId, "File [id=" + fileId
+                    + "] not found in the database.");
         } else
         {
-            final File realFile = new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
+            final File realFile =
+                    new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
             if (realFile.exists() == false)
             {
-                return new FileInformation(fileId, String.format("File '%s' [id=%d] not found in the file store.",
-                        realFile.getPath(), fileId));
+                return new FileInformation(fileId, String.format(
+                        "File '%s' [id=%d] not found in the file store.", realFile.getPath(),
+                        fileId));
             }
         }
         return new FileInformation(fileId, fileDTOOrNull);
@@ -212,13 +222,14 @@ final class FileManager extends AbstractManager implements IFileManager
             final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
             if (realFile.exists() == false)
             {
-                throw new IllegalStateException(String.format("File '%s' does not exist on the file system.", realFile
-                        .getAbsolutePath()));
+                throw new IllegalStateException(String.format(
+                        "File '%s' does not exist on the file system.", realFile.getAbsolutePath()));
             }
             try
             {
                 final FileContent content =
-                        new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO), new FileInputStream(realFile));
+                        new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO),
+                                new FileInputStream(realFile));
                 success = true;
                 return content;
             } catch (final FileNotFoundException ex)
@@ -257,8 +268,8 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
-            final InputStream input)
+    public final FileDTO saveFile(final UserDTO user, final String fileName,
+            final String contentType, final InputStream input)
     {
         assert user != null : "Unspecified user.";
         assert user.getEmail() != null : "Unspecified email of user " + user;
@@ -287,8 +298,10 @@ final class FileManager extends AbstractManager implements IFileManager
                     final FileDTO fileDTO = new FileDTO(user.getID());
                     fileDTO.setName(fileName);
                     fileDTO.setContentType(contentType);
-                    fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
-                    fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+                    fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(),
+                            file));
+                    fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                            .getFileRetention()));
                     fileDTO.setSize(byteCount);
                     daoFactory.getFileDAO().createFile(fileDTO);
                     success = true;
@@ -301,7 +314,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 }
             } catch (IOException ex)
             {
-                throw EnvironmentFailureException.fromTemplate(ex, "Error saving file '%s' (Is it a file?).", fileName);
+                throw EnvironmentFailureException.fromTemplate(ex,
+                        "Error saving file '%s' (Is it a file?).", fileName);
             } finally
             {
                 IOUtils.closeQuietly(inputStream);
@@ -319,7 +333,8 @@ final class FileManager extends AbstractManager implements IFileManager
 
     public void throwExceptionOnFileDoesNotExist(final String fileName)
     {
-        final String msg = String.format("File '%s' does not seem to exist. It has not been saved.", fileName);
+        final String msg =
+                String.format("File '%s' does not seem to exist. It has not been saved.", fileName);
         operationLog.warn(msg);
         throw new UserFailureException(msg);
     }
@@ -347,15 +362,16 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
-            Collection<FileDTO> files, String comment)
+    public List<String> shareFilesWith(String url, UserDTO requestUser,
+            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment)
     {
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         boolean success = false;
         try
         {
-            final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
+            final TableMapNonUniqueKey<String, UserDTO> existingUsers =
+                    createTableMapOfExistingUsers();
             final IFileDAO fileDAO = daoFactory.getFileDAO();
             final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
             final IMailClient mailClient = businessContext.getMailClient();
@@ -398,7 +414,8 @@ final class FileManager extends AbstractManager implements IFileManager
                     for (final UserDTO user : usersOrNull)
                     {
                         final EMailBuilderForUploadedFiles builder =
-                                new EMailBuilderForUploadedFiles(mailClient, requestUser, lowerCaseEmail);
+                                new EMailBuilderForUploadedFiles(mailClient, requestUser,
+                                        lowerCaseEmail);
                         builder.setURL(url);
                         builder.setPassword(password);
                         builder.setUserCode(user.getUserCode());
@@ -421,7 +438,8 @@ final class FileManager extends AbstractManager implements IFileManager
                                 // As we are sure that we get correct email addresses, this exception can only be
                                 // related to
                                 // the configuration and/or environment. So inform the administrator about the problem.
-                                notificationLog.error("A problem has occurred while sending email.", ex);
+                                notificationLog.error(
+                                        "A problem has occurred while sending email.", ex);
                                 notified = true;
                             }
                         }
@@ -432,21 +450,22 @@ final class FileManager extends AbstractManager implements IFileManager
             return invalidEmailAdresses;
         } finally
         {
-            businessContext.getUserActionLog().logShareFiles(files, allUsers, emailsOfUsers, invalidEmailAdresses,
-                    success);
+            businessContext.getUserActionLog().logShareFiles(files, allUsers, emailsOfUsers,
+                    invalidEmailAdresses, success);
         }
     }
 
     private TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsers()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        return new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(), new IKeyExtractor<String, UserDTO>()
-            {
-                public String getKey(UserDTO user)
-                {
-                    return user.getEmail();
-                }
-            });
+        return new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(),
+                new IKeyExtractor<String, UserDTO>()
+                    {
+                        public String getKey(UserDTO user)
+                        {
+                            return user.getEmail();
+                        }
+                    });
     }
 
     private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
@@ -492,7 +511,8 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate) throws IllegalArgumentException
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate)
+            throws IllegalArgumentException
     {
         final FileDTO file = getFile(fileId);
         boolean success = false;
@@ -500,7 +520,8 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             if (newExpirationDate == null)
             {
-                file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+                file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                        .getFileRetention()));
             } else
             {
                 file.setExpirationDate(newExpirationDate);

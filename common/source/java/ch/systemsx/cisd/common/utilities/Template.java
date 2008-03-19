@@ -23,25 +23,28 @@ import java.util.Map;
 
 /**
  * A little template engine. Usage example:
+ * 
  * <pre>
- * Template template = new Template("Hello ${name}!");
- * template.bind("name", "world");
+ * Template template = new Template(&quot;Hello ${name}!&quot;);
+ * template.bind(&quot;name&quot;, &quot;world&quot;);
  * String text = template.createText();
  * </pre>
- * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown.
- * The method {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder name is unknown.
- * The method {@link #createText()} throws an exception if not all placeholders have been bound.
+ * 
+ * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown. The method
+ * {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder name is unknown. The method
+ * {@link #createText()} throws an exception if not all placeholders have been bound.
  * <p>
  * Since placeholder bindings change the state of an instance of this class there is method {@link #createFreshCopy()}
  * which creates a copy without reparsing the template. Usage example:
+ * 
  * <pre>
- * static final Template TEMPLATE = new Template("Hello ${name}!");
+ * static final Template TEMPLATE = new Template(&quot;Hello ${name}!&quot;);
  * 
  * void doSomething()
  * {
- *   Template template = TEMPLATE.createFreshCopy();
- *   template.bind("name", "world");
- *   String text = template.createText();
+ *     Template template = TEMPLATE.createFreshCopy();
+ *     template.bind(&quot;name&quot;, &quot;world&quot;);
+ *     String text = template.createText();
  * }
  * </pre>
  * 
@@ -50,41 +53,44 @@ import java.util.Map;
 public class Template
 {
     private static final char PLACEHOLDER_ESCAPE_CHARACTER = '$';
+
     private static final char PLACEHOLDER_START_CHARACTER = '{';
+
     private static final char PLACEHOLDER_END_CHARACTER = '}';
-    
+
     private static final String createPlaceholder(String variableName)
     {
-        return PLACEHOLDER_ESCAPE_CHARACTER + (PLACEHOLDER_START_CHARACTER + variableName) + PLACEHOLDER_END_CHARACTER;
+        return PLACEHOLDER_ESCAPE_CHARACTER + (PLACEHOLDER_START_CHARACTER + variableName)
+                + PLACEHOLDER_END_CHARACTER;
     }
-    
+
     private static interface IToken
     {
         public void appendTo(StringBuilder builder);
     }
-    
+
     private static final class PlainToken implements IToken
     {
         private final String plainText;
-        
+
         PlainToken(String plainText)
         {
             assert plainText != null : "Unspecified plain text.";
             this.plainText = plainText;
         }
-        
+
         public void appendTo(StringBuilder builder)
         {
             builder.append(plainText);
         }
     }
-    
+
     private static final class VariableToken implements IToken
     {
         private final String variableName;
-        
+
         private String value;
-        
+
         VariableToken(String variablePlaceHolder)
         {
             assert variablePlaceHolder != null : "Unspecified variable place holder.";
@@ -95,7 +101,7 @@ public class Template
         {
             builder.append(isBound() ? value : createPlaceholder(variableName));
         }
-        
+
         String getVariableName()
         {
             return variableName;
@@ -105,13 +111,13 @@ public class Template
         {
             return value != null;
         }
-        
+
         void bind(String v)
         {
             this.value = v;
         }
     }
- 
+
     private static enum State
     {
         PLAIN()
@@ -127,7 +133,7 @@ public class Template
                 return PLAIN;
             }
         },
-        
+
         STARTING_PLACEHOLDER()
         {
             @Override
@@ -135,7 +141,7 @@ public class Template
             {
                 switch (character)
                 {
-                    case PLACEHOLDER_ESCAPE_CHARACTER: 
+                    case PLACEHOLDER_ESCAPE_CHARACTER:
                         tokenBuilder.addCharacter(PLACEHOLDER_ESCAPE_CHARACTER);
                         return PLAIN;
                     case PLACEHOLDER_START_CHARACTER:
@@ -148,7 +154,7 @@ public class Template
                 }
             }
         },
-        
+
         PLACEHOLDER()
         {
             @Override
@@ -163,14 +169,16 @@ public class Template
                 return PLACEHOLDER;
             }
         };
-        
+
         abstract State next(char character, TokenBuilder tokenBuilder);
     }
-    
+
     private static final class TokenBuilder
     {
         private final Map<String, VariableToken> variableTokens;
+
         private final List<IToken> tokens;
+
         private final StringBuilder builder;
 
         TokenBuilder(Map<String, VariableToken> variableTokens, List<IToken> tokens)
@@ -184,7 +192,7 @@ public class Template
         {
             builder.append(character);
         }
-        
+
         public void finishPlainToken()
         {
             if (builder.length() > 0)
@@ -199,7 +207,8 @@ public class Template
             String variableName = builder.toString();
             if (variableName.length() == 0)
             {
-                throw new IllegalArgumentException("Nameless placeholder " + createPlaceholder("") + " found.");
+                throw new IllegalArgumentException("Nameless placeholder " + createPlaceholder("")
+                        + " found.");
             }
             VariableToken token = variableTokens.get(variableName);
             if (token == null)
@@ -213,18 +222,19 @@ public class Template
     }
 
     private final Map<String, VariableToken> variableTokens;
+
     private final List<IToken> tokens;
-    
+
     /**
      * Creates a new instance for the specified template.
-     *
+     * 
      * @throws IllegalArgumentException if some error occurred during parsing.
      */
     public Template(String template)
     {
         this(new LinkedHashMap<String, VariableToken>(), new ArrayList<IToken>());
         assert template != null : "Unspecified template.";
-        
+
         TokenBuilder tokenBuilder = new TokenBuilder(variableTokens, tokens);
         State state = State.PLAIN;
         final int n = template.length();
@@ -238,13 +248,13 @@ public class Template
         }
         tokenBuilder.finishPlainToken();
     }
-    
+
     private Template(Map<String, VariableToken> variableTokens, List<IToken> tokens)
     {
         this.variableTokens = variableTokens;
         this.tokens = tokens;
     }
-    
+
     /**
      * Creates a copy of this template with no variable bindings.
      */
@@ -269,7 +279,6 @@ public class Template
         }
         return new Template(map, list);
     }
-    
 
     /**
      * Binds the specified value to the specified placeholder name.
@@ -281,7 +290,7 @@ public class Template
         boolean successful = attemptToBind(placeholderName, value);
         if (successful == false)
         {
-            throw new IllegalArgumentException("Unknown variable '" + placeholderName + "'."); 
+            throw new IllegalArgumentException("Unknown variable '" + placeholderName + "'.");
         }
     }
 
@@ -294,7 +303,7 @@ public class Template
     {
         assert placeholderName != null : "Unspecified placeholder name.";
         assert value != null : "Unspecified value for '" + placeholderName + "'";
-        
+
         VariableToken variableToken = variableTokens.get(placeholderName);
         if (variableToken == null)
         {
@@ -303,7 +312,7 @@ public class Template
         variableToken.bind(value);
         return true;
     }
-    
+
     /**
      * Creates the text by using all placeholder bindings.
      * 
@@ -313,12 +322,12 @@ public class Template
     {
         return createText(true);
     }
-    
+
     /**
      * Creates the text by using placeholder bindings.
      * 
-     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not all
-     *      bindings are set.
+     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not all bindings are
+     *            set.
      */
     public String createText(boolean complete)
     {

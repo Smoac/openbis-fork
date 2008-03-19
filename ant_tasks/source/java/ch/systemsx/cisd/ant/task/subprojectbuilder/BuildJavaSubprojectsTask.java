@@ -38,7 +38,7 @@ public class BuildJavaSubprojectsTask extends Task
         @Override
         protected void handleAbsentsOfClasspathFile(File eclipseClasspathFile)
         {
-            log("No Eclipse " + EclipseClasspathReader.CLASSPATH_FILE + " file found in '" 
+            log("No Eclipse " + EclipseClasspathReader.CLASSPATH_FILE + " file found in '"
                     + eclipseClasspathFile.getParent() + "'.");
         }
 

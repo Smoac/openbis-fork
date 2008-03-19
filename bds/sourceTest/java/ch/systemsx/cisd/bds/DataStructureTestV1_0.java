@@ -97,7 +97,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
-            assertEquals("Couldn't create formatted data because of unspecified format.", e.getMessage());
+            assertEquals("Couldn't create formatted data because of unspecified format.", e
+                    .getMessage());
         }
     }
 
@@ -108,7 +109,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData, ProcessingType.PROCESSING_TYPE));
+        assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData,
+                ProcessingType.PROCESSING_TYPE));
     }
 
     @Test
@@ -119,7 +121,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setProcessingType(ProcessingType.COMPUTED_DATA);
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData, ProcessingType.PROCESSING_TYPE));
+        assertEquals("COMPUTED_DATA\n", Utilities.getString(metaData,
+                ProcessingType.PROCESSING_TYPE));
     }
 
     @Test
@@ -355,10 +358,12 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
         ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
-        ExperimentRegistratorDate experimentRegistratorDate = new ExperimentRegistratorDate(new Date(4711L * 4711000L));
+        ExperimentRegistratorDate experimentRegistratorDate =
+                new ExperimentRegistratorDate(new Date(4711L * 4711000L));
         System.out.println(experimentRegistratorDate);
         dataStructure.setExperimentRegistrationDate(experimentRegistratorDate);
-        ExperimentRegistrator experimentRegistrator = new ExperimentRegistrator("john", "doe", "j@doe");
+        ExperimentRegistrator experimentRegistrator =
+                new ExperimentRegistrator("john", "doe", "j@doe");
         dataStructure.setExperimentRegistrator(experimentRegistrator);
         MeasurementEntity measurementEntity = new MeasurementEntity("cp001", "plate");
         dataStructure.setMeasurementEntity(measurementEntity);
@@ -384,7 +389,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         reloadedDataStructure.open();
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
         assertEquals(experimentIdentifier, reloadedDataStructure.getExperimentIdentifier());
-        assertEquals(experimentRegistratorDate, reloadedDataStructure.getExperimentRegistratorDate());
+        assertEquals(experimentRegistratorDate, reloadedDataStructure
+                .getExperimentRegistratorDate());
         assertEquals(experimentRegistrator, reloadedDataStructure.getExperimentRegistrator());
         assertEquals(measurementEntity, reloadedDataStructure.getMeasurementEntity());
         assertEquals(ProcessingType.RAW_DATA, reloadedDataStructure.getProcessingType());
@@ -393,8 +399,10 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         checkFormattedData(reloadedDataStructure.getFormattedData());
 
         IDirectory metaDataDir = Utilities.getSubDirectory(root, DIR_METADATA);
-        IDirectory checksumDir = Utilities.getSubDirectory(metaDataDir, ChecksumHandler.CHECKSUM_DIRECTORY);
-        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n" + "d41d8cd98f00b204e9800998ecf8427e  origFile1\n"
+        IDirectory checksumDir =
+                Utilities.getSubDirectory(metaDataDir, ChecksumHandler.CHECKSUM_DIRECTORY);
+        assertEquals("a1d0c6e83f027327d8461063f4ac58a6  answer\n"
+                + "d41d8cd98f00b204e9800998ecf8427e  origFile1\n"
                 + "d41d8cd98f00b204e9800998ecf8427e  origFile2\n", Utilities.getString(checksumDir,
                 DataStructureV1_0.DIR_ORIGINAL));
     }
@@ -468,8 +476,9 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (DataStructureException e)
         {
-            assertEquals("Version of loaded data structure is V2.0 which is not backward compatible with V1.0", e
-                    .getMessage());
+            assertEquals(
+                    "Version of loaded data structure is V2.0 which is not backward compatible with V1.0",
+                    e.getMessage());
         }
     }
 
@@ -480,7 +489,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null)
+                .saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
@@ -493,7 +503,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         storage.mount();
         IDirectory root = storage.getRoot();
         IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null)
+                .saveTo(metaData);
         storage.unmount();
         dataStructure.open();
         try
@@ -533,7 +544,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
         originalDataDir.addKeyValuePair("file1", "This is my first file.");
         IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
-        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null).saveTo(metaData);
+        new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null)
+                .saveTo(metaData);
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
         new ExperimentRegistratorDate(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
@@ -547,6 +559,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
     private final static void createExampleChecksum(final IDirectory metaData)
     {
         final IDirectory checksumDir = metaData.makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY);
-        checksumDir.addKeyValuePair(DataStructureV1_0.DIR_ORIGINAL, "23b447be20a6ddfe875a8b59ceae83ff  file1");
+        checksumDir.addKeyValuePair(DataStructureV1_0.DIR_ORIGINAL,
+                "23b447be20a6ddfe875a8b59ceae83ff  file1");
     }
 }

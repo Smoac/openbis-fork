@@ -64,8 +64,8 @@ public class DownloadFileGridModel extends AbstractFileGridModel
                     new Object[]
                         { new Integer((int) file.getID()), file.getName(), file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
-                                UserRenderer.createUserAnchor(file.getRegisterer()), file.getRegistrationDate(),
-                                file.getExpirationDate() };
+                                UserRenderer.createUserAnchor(file.getRegisterer()),
+                                file.getRegistrationDate(), file.getExpirationDate() };
             list.add(objects);
         }
         return list;

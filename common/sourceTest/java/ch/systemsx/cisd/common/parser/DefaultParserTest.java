@@ -49,7 +49,8 @@ public final class DefaultParserTest
     public final void testParseWithoutFactoryAndHeader()
     {
         final IParser<String[]> parser = createParser();
-        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(), HEADER_LENGTH);
+        final List<String[]> result =
+                parser.parse(createLineIterator(), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
         assertEquals(result.get(1)[1], "Darwin");
@@ -61,7 +62,8 @@ public final class DefaultParserTest
     public final void testParseWithoutFactoryWithLineFilter()
     {
         final IParser<String[]> parser = createParser();
-        final List<String[]> result = parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH);
+        final List<String[]> result =
+                parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH);
         assertEquals(2, result.size());
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
@@ -76,9 +78,10 @@ public final class DefaultParserTest
             parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH + 1);
         } catch (final ColumnSizeMismatchException ex)
         {
-            assertEquals("Line <4> has less columns (4) than the header (5):\n  "
-                    + "Charles <TAB> Darwin <TAB> Humboldt Ave. 1865 <TAB> 4242 Somewhere <END_OF_LINE>", ex
-                    .getMessage());
+            assertEquals(
+                    "Line <4> has less columns (4) than the header (5):\n  "
+                            + "Charles <TAB> Darwin <TAB> Humboldt Ave. 1865 <TAB> 4242 Somewhere <END_OF_LINE>",
+                    ex.getMessage());
         }
     }
 
@@ -103,8 +106,9 @@ public final class DefaultParserTest
             parser.parse(createLineIterator(), new HeaderLineFilter(2), HEADER_LENGTH);
         } catch (final ParsingException ex)
         {
-            assertEquals("Creating an object with following tokens '[firstName, lastName, address, city]' failed.", ex
-                    .getMessage());
+            assertEquals(
+                    "Creating an object with following tokens '[firstName, lastName, address, city]' failed.",
+                    ex.getMessage());
             assertEquals(3, ex.getLineNumber());
         }
     }

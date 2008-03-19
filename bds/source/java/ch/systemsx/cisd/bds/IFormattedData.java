@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.bds;
 
-
 /**
  * Interface common for all classes handling formatted data.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IFormattedData
@@ -28,7 +27,7 @@ public interface IFormattedData
      * Returns the format of data.
      */
     public Format getFormat();
-    
+
     /**
      * Returns the parameters of the data format.
      */

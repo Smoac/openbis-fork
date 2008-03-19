@@ -105,7 +105,8 @@ public final class MeasurementEntity implements IStorable
             return false;
         }
         MeasurementEntity entity = (MeasurementEntity) obj;
-        return entity.entityTypeDescription.equals(entityTypeDescription) && entity.entityCode.equals(entityCode);
+        return entity.entityTypeDescription.equals(entityTypeDescription)
+                && entity.entityCode.equals(entityCode);
     }
 
     @Override

@@ -34,5 +34,6 @@ public interface ISqlScriptExecutor
      * @param loggerOrNull A logger to log the execution of the <var>sqlScript</var>, or <code>null</code>, if no
      *            logging should be performed.
      */
-    public void execute(Script sqlScript, boolean honorSingleStepMode, ISqlScriptExecutionLogger loggerOrNull);
+    public void execute(Script sqlScript, boolean honorSingleStepMode,
+            ISqlScriptExecutionLogger loggerOrNull);
 }

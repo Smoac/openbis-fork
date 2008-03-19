@@ -18,11 +18,11 @@ package ch.systemsx.cisd.authentication.crowd;
 
 /**
  * Interface of classes executing requests.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 interface IRequestExecutor
-{   
+{
     /**
      * Executes the specified message at the specified service.
      */

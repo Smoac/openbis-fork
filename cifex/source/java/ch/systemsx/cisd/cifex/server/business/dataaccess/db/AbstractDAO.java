@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
 
 /**
  * Abstract super class of all Data Access Objects (DAOs).
- *
+ * 
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDAO extends SimpleJdbcDaoSupport
@@ -37,12 +37,12 @@ abstract class AbstractDAO extends SimpleJdbcDaoSupport
     {
         assert dataSource != null : "Unspecified data source.";
         assert sequencerHandler != null : "Unspecified sequencer handler.";
-        
+
         this.sequencerHandler = sequencerHandler;
         setDataSource(dataSource);
 
     }
-    
+
     protected final long getNextValueOf(final String sequencer) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();

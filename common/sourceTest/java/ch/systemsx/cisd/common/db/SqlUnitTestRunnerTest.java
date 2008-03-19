@@ -41,19 +41,20 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SqlUnitTestRunnerTest
 {
     private static final File TEST_SCRIPTS_FOLDER = new File("temporary_test_scripts_folder");
-    
+
     private Mockery context;
+
     private ISqlScriptExecutor executor;
+
     private StringWriter monitor;
+
     private SqlUnitTestRunner testRunner;
-    
+
     @BeforeMethod
     public void setup()
     {
@@ -63,7 +64,7 @@ public class SqlUnitTestRunnerTest
         monitor = new StringWriter();
         testRunner = new SqlUnitTestRunner(executor, new PrintWriter(monitor));
     }
-    
+
     @AfterMethod
     public void teardown()
     {
@@ -72,57 +73,58 @@ public class SqlUnitTestRunnerTest
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNullFolder()
     {
         testRunner.run(null);
         assertEquals("", monitor.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNotExistingFolder()
     {
         testRunner.run(new File("blabla"));
         assertEquals("", monitor.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testEmptyFolder()
     {
         testRunner.run(TEST_SCRIPTS_FOLDER);
         assertEquals("", monitor.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNonEmptyFolderButNoTestCases() throws IOException
     {
         assert new File(TEST_SCRIPTS_FOLDER, "some file").createNewFile();
         assert new File(TEST_SCRIPTS_FOLDER, ".folder").mkdir();
-        
+
         testRunner.run(TEST_SCRIPTS_FOLDER);
         assertEquals("", monitor.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testEmptyTestCase()
     {
         assert new File(TEST_SCRIPTS_FOLDER, "my test case").mkdir();
-        
+
         testRunner.run(TEST_SCRIPTS_FOLDER);
-        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR, monitor.toString());
-        
+        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR, monitor
+                .toString());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNonEmptyTestCaseButNoScripts() throws IOException
     {
@@ -130,35 +132,38 @@ public class SqlUnitTestRunnerTest
         assert testCaseFolder.mkdir();
         assert new File(testCaseFolder, "blabla.sql").createNewFile();
         assert new File(testCaseFolder, "folder").mkdir();
-        
+
         testRunner.run(TEST_SCRIPTS_FOLDER);
-        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR, monitor.toString());
-        
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testTestCaseWithNoTestsButBuildupScript() throws IOException 
-    {
-        File testCaseFolder = new File(TEST_SCRIPTS_FOLDER, "my test case");
-        assert testCaseFolder.mkdir();
-        createScriptPrepareExecutor(new File(testCaseFolder, "buildup.sql"), "-- build up\n", null);
-        
-        testRunner.run(TEST_SCRIPTS_FOLDER);
-        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR, monitor.toString());
-        
+        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR, monitor
+                .toString());
+
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testTestCaseWithFailingBuildupScript() throws IOException 
+    public void testTestCaseWithNoTestsButBuildupScript() throws IOException
+    {
+        File testCaseFolder = new File(TEST_SCRIPTS_FOLDER, "my test case");
+        assert testCaseFolder.mkdir();
+        createScriptPrepareExecutor(new File(testCaseFolder, "buildup.sql"), "-- build up\n", null);
+
+        testRunner.run(TEST_SCRIPTS_FOLDER);
+        assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
+                + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR, monitor
+                .toString());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTestCaseWithFailingBuildupScript() throws IOException
     {
         File testCaseFolder = new File(TEST_SCRIPTS_FOLDER, "my test case");
         assert testCaseFolder.mkdir();
         RuntimeException runtimeException = new RuntimeException("42");
-        createScriptPrepareExecutor(new File(testCaseFolder, "buildup.sql"), "-- build up\n", runtimeException);
-        
+        createScriptPrepareExecutor(new File(testCaseFolder, "buildup.sql"), "-- build up\n",
+                runtimeException);
+
         try
         {
             testRunner.run(TEST_SCRIPTS_FOLDER);
@@ -167,27 +172,28 @@ public class SqlUnitTestRunnerTest
         {
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script 'buildup.sql' of test case 'my test case' failed because of "
-                         + runtimeException, message.trim());
+                    + runtimeException, message.trim());
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
-                     + "       script failed: skip test scripts and teardown script." + OSUtilities.LINE_SEPARATOR,
-                     monitor.toString());
-        
+                + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
+                + "       script failed: skip test scripts and teardown script."
+                + OSUtilities.LINE_SEPARATOR, monitor.toString());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
-    public void testOrderOfExecutingTestScripts() throws IOException 
+    public void testOrderOfExecutingTestScripts() throws IOException
     {
         File testCaseFolder = new File(TEST_SCRIPTS_FOLDER, "my test case");
         assert testCaseFolder.mkdir();
         RuntimeException runtimeException = new RuntimeException("42");
-        createScriptPrepareExecutor(new File(testCaseFolder, "9=b.sql"), "Select 9\n", runtimeException);
+        createScriptPrepareExecutor(new File(testCaseFolder, "9=b.sql"), "Select 9\n",
+                runtimeException);
         FileUtils.writeStringToFile(new File(testCaseFolder, "abc=abc.sql"), "Select abc\n");
         createScriptPrepareExecutor(new File(testCaseFolder, "10=c.sql"), "Select 10\n", null);
         createScriptPrepareExecutor(new File(testCaseFolder, "1=a.sql"), "Select 1\n", null);
-        
+
         try
         {
             testRunner.run(TEST_SCRIPTS_FOLDER);
@@ -197,41 +203,41 @@ public class SqlUnitTestRunnerTest
             // Strip away stack trace
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script '9=b.sql' of test case 'my test case' failed because of "
-                         + runtimeException, message.trim());
+                    + runtimeException, message.trim());
         }
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script 9=b.sql" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script 10=c.sql" + OSUtilities.LINE_SEPARATOR,
-                     monitor.toString());
-        
+                + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
+                + "     execute script 9=b.sql" + OSUtilities.LINE_SEPARATOR
+                + "     execute script 10=c.sql" + OSUtilities.LINE_SEPARATOR, monitor.toString());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
-    public void testOrderOfExecutingTestCases() throws IOException 
+    public void testOrderOfExecutingTestCases() throws IOException
     {
         assert new File(TEST_SCRIPTS_FOLDER, "TC002").mkdir();
         File testCaseFolder1 = new File(TEST_SCRIPTS_FOLDER, "TC001");
         assert testCaseFolder1.mkdir();
-        createScriptPrepareExecutor(new File(testCaseFolder1, "buildup.sql"), "create table\n", null);
+        createScriptPrepareExecutor(new File(testCaseFolder1, "buildup.sql"), "create table\n",
+                null);
         createScriptPrepareExecutor(new File(testCaseFolder1, "1=a.sql"), "Select 1\n", null);
         createScriptPrepareExecutor(new File(testCaseFolder1, "2=b.sql"), "Select 2\n", null);
         createScriptPrepareExecutor(new File(testCaseFolder1, "teardown.sql"), "drop table\n", null);
-        
+
         testRunner.run(TEST_SCRIPTS_FOLDER);
         assertEquals("====== Test case: TC001 ======" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script 2=b.sql" + OSUtilities.LINE_SEPARATOR
-                     + "     execute script teardown.sql" + OSUtilities.LINE_SEPARATOR
-                     + "====== Test case: TC002 ======" + OSUtilities.LINE_SEPARATOR,
-                     monitor.toString());
-   
-   context.assertIsSatisfied();
+                + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
+                + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
+                + "     execute script 2=b.sql" + OSUtilities.LINE_SEPARATOR
+                + "     execute script teardown.sql" + OSUtilities.LINE_SEPARATOR
+                + "====== Test case: TC002 ======" + OSUtilities.LINE_SEPARATOR, monitor.toString());
+
+        context.assertIsSatisfied();
     }
-    
-    private void createScriptPrepareExecutor(File scriptFile, String script, Throwable throwable) throws IOException
+
+    private void createScriptPrepareExecutor(File scriptFile, String script, Throwable throwable)
+            throws IOException
     {
         FileUtils.writeStringToFile(scriptFile, script);
         InvocationExpectationBuilder builder = new InvocationExpectationBuilder();
@@ -240,5 +246,5 @@ public class SqlUnitTestRunnerTest
         Action action = throwable == null ? new VoidAction() : new ThrowAction(throwable);
         context.addExpectation(builder.toExpectation(action));
     }
-    
+
 }

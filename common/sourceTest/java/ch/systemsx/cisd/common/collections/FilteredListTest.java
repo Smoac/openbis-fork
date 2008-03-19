@@ -134,7 +134,7 @@ public final class FilteredListTest
         assertEquals(5, list.size());
         assertEquals("renew", list.get(4));
     }
-    
+
     @Test
     public final void testSubList()
     {

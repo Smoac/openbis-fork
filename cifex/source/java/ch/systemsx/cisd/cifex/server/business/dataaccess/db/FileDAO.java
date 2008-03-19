@@ -45,7 +45,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     private static final ParameterizedRowMapper FILE_ROW_MAPPER = new FileRowMapper();
 
-    private static final ParameterizedRowMapper SHARING_USER_ROW_MAPPER = new SharingUserRowMapper();
+    private static final ParameterizedRowMapper SHARING_USER_ROW_MAPPER =
+            new SharingUserRowMapper();
 
     private static final String SELECT =
             "select f.ID as f_id, f.NAME as f_name, f.PATH as f_path, f.USER_ID as f_user_id, "
@@ -54,7 +55,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                     + "f.SIZE as f_size";
 
     private static final String FILES_JOIN_USERS =
-            SELECT + ", u.* " + " from files as f " + " join users as u on f.user_id = u.id where f.id = ?";
+            SELECT + ", u.* " + " from files as f "
+                    + " join users as u on f.user_id = u.id where f.id = ?";
 
     FileDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
     {
@@ -69,8 +71,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private final List<UserDTO> listSharingUsers(final long fileId) throws DataAccessException
     {
         final List<UserDTO> list =
-                getSimpleJdbcTemplate().query("select * from file_shares where file_id = ?", SHARING_USER_ROW_MAPPER,
-                        fileId);
+                getSimpleJdbcTemplate().query("select * from file_shares where file_id = ?",
+                        SHARING_USER_ROW_MAPPER, fileId);
         return list;
     }
 
@@ -80,7 +82,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     public void createSharingLink(long fileID, long userID) throws DataAccessException
     {
-        getSimpleJdbcTemplate().update("insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
+        getSimpleJdbcTemplate().update(
+                "insert into file_shares (id, file_id, user_id) " + "values (?,?,?)",
                 getNextValueOf("FILE_SHARE_ID_SEQ"), fileID, userID);
 
     }
@@ -90,10 +93,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         assert file != null : "Given file cannot be null.";
 
         final long id = createID();
-        getSimpleJdbcTemplate().update(
+        getSimpleJdbcTemplate()
+                .update(
                         "insert into files (ID, NAME, PATH, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?)",
-                        id, file.getName(), file.getPath(), file.getRegistratorId(), file.getContentType(),
-                        file.getSize(), file.getExpirationDate());
+                        id, file.getName(), file.getPath(), file.getRegistratorId(),
+                        file.getContentType(), file.getSize(), file.getExpirationDate());
         file.setID(id);
     }
 
@@ -107,21 +111,24 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
         template.update(
-                        "update files set name = ?, path = ?, expiration_timestamp = ?, user_id = ?, content_type = ?,"
-                                + "size = ? where id = ?", file.getName(), file.getPath(),
-                        file.getExpirationDate(), file.getRegistratorId(), file.getContentType(), file.getSize(), file.getID());
+                "update files set name = ?, path = ?, expiration_timestamp = ?, user_id = ?, content_type = ?,"
+                        + "size = ? where id = ?", file.getName(), file.getPath(), file
+                        .getExpirationDate(), file.getRegistratorId(), file.getContentType(), file
+                        .getSize(), file.getID());
     }
 
     public boolean deleteFile(final long id) throws DataAccessException
     {
-        final int affectedRows = getSimpleJdbcTemplate().update("delete from files where id = ?", id);
+        final int affectedRows =
+                getSimpleJdbcTemplate().update("delete from files where id = ?", id);
         return affectedRows > 0;
     }
 
     public List<FileDTO> listFiles() throws DataAccessException
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate().query(SELECT + ", u.* from files f, users u " + "where f.user_id = u.id",
+                getSimpleJdbcTemplate().query(
+                        SELECT + ", u.* from files f, users u " + "where f.user_id = u.id",
                         FILE_WITH_REGISTERER_ROW_MAPPER);
         return list;
     }
@@ -131,7 +138,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         try
         {
-            final FileDTO file = template.queryForObject(FILES_JOIN_USERS, FILE_WITH_REGISTERER_ROW_MAPPER, id);
+            final FileDTO file =
+                    template.queryForObject(FILES_JOIN_USERS, FILE_WITH_REGISTERER_ROW_MAPPER, id);
             final List<UserDTO> sharingUsers = listSharingUsers(id);
             if (sharingUsers.size() > 0)
             {
@@ -147,7 +155,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public final List<FileDTO> getExpiredFiles()
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate().query(SELECT + " from files as f where f.expiration_timestamp < now() ",
+                getSimpleJdbcTemplate().query(
+                        SELECT + " from files as f where f.expiration_timestamp < now() ",
                         FILE_ROW_MAPPER);
         return list;
 
@@ -167,7 +176,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
-                        SELECT + ", u.* from files f, users u " + "where f.user_id = u.id and u.id = ?",
+                        SELECT + ", u.* from files f, users u "
+                                + "where f.user_id = u.id and u.id = ?",
                         FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
@@ -179,7 +189,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private static final class FileRowMapper implements ParameterizedRowMapper<FileDTO>
     {
 
-        private static final FileDTO fillSimpleFileFromResultSet(final ResultSet rs) throws SQLException
+        private static final FileDTO fillSimpleFileFromResultSet(final ResultSet rs)
+                throws SQLException
         {
             final long registererId = rs.getLong("f_USER_ID");
             final FileDTO file;
@@ -216,10 +227,12 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         }
     }
 
-    private static final class FileWithRegistererRowMapper implements ParameterizedRowMapper<FileDTO>
+    private static final class FileWithRegistererRowMapper implements
+            ParameterizedRowMapper<FileDTO>
     {
 
-        private static final FileDTO fillFileWithRegistererFromResultSet(final ResultSet rs) throws SQLException
+        private static final FileDTO fillFileWithRegistererFromResultSet(final ResultSet rs)
+                throws SQLException
         {
             final FileDTO file = FileRowMapper.fillSimpleFileFromResultSet(rs);
             final UserDTO registerer = UserDAO.UserRowMapper.fillUserFromResultSet(rs);

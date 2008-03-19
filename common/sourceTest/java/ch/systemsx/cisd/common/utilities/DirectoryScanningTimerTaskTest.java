@@ -43,9 +43,11 @@ import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
 public class DirectoryScanningTimerTaskTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "DirectoryScanningTimerTaskTest");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "DirectoryScanningTimerTaskTest");
 
     private final static FileFilter ALWAYS_FALSE_FILE_FILTER = new FileFilter()
         {
@@ -55,7 +57,8 @@ public class DirectoryScanningTimerTaskTest
             }
         };
 
-    private final static String EXCEPTION_THROWING_FILE_FILTER_MESSAGE = "Exception throwing file filter does its job.";
+    private final static String EXCEPTION_THROWING_FILE_FILTER_MESSAGE =
+            "Exception throwing file filter does its job.";
 
     private final static FileFilter EXCEPTION_THROWING_FILE_FILTER = new FileFilter()
         {
@@ -108,7 +111,8 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testFaultyPathsDeletion()
     {
-        final File faultyPaths = new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths =
+                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
         CollectionIO.writeIterable(faultyPaths, Collections.singleton("some_path"));
         new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assertEquals(0, faultyPaths.length());
@@ -135,7 +139,8 @@ public class DirectoryScanningTimerTaskTest
         someFile.createNewFile();
         someFile.deleteOnExit();
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ALWAYS_FALSE_FILE_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(workingDirectory, ALWAYS_FALSE_FILE_FILTER,
+                        mockPathHandler);
         assertEquals(0, mockPathHandler.handledPaths.size());
         scanner.run();
         assertEquals(0, mockPathHandler.handledPaths.size());
@@ -144,7 +149,8 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testManipulateFaultyPaths() throws IOException
     {
-        final File faultyPaths = new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths =
+                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
         final File someFile = new File(workingDirectory, "some_file");
         someFile.createNewFile();
         someFile.deleteOnExit();
@@ -160,7 +166,8 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testFaultyPaths() throws IOException
     {
-        final File faultyPaths = new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths =
+                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
         final File someFile = new File(workingDirectory, "some_file");
         final MockPathHandler myPathHandler = new MockPathHandler()
             {
@@ -238,7 +245,8 @@ public class DirectoryScanningTimerTaskTest
         final File dir = new File(workingDirectory, "testMissingDirectory");
         dir.mkdir();
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+                        "Failed to get listing of directory");
         try
         {
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
@@ -260,7 +268,8 @@ public class DirectoryScanningTimerTaskTest
         final File dir = new File(workingDirectory, "testMissingDirectory");
         dir.mkdir();
         final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+                        "Failed to get listing of directory");
         try
         {
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
@@ -289,14 +298,17 @@ public class DirectoryScanningTimerTaskTest
         file.createNewFile();
         file.deleteOnExit();
         final LogMonitoringAppender appender1 =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+                        "Failed to get listing of directory");
         final LogMonitoringAppender appender2 =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+                        EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
         try
         {
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
             final DirectoryScanningTimerTask scanner =
-                    new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER, mockPathHandler);
+                    new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER,
+                            mockPathHandler);
             scanner.run();
             appender1.verifyLogHasHappened();
             appender2.verifyLogHasHappened();
@@ -315,9 +327,11 @@ public class DirectoryScanningTimerTaskTest
         final File dir = new File(workingDirectory, "testSuppressLogging");
         dir.mkdir();
         final LogMonitoringAppender appenderNotifyError =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+                        "Failed to get listing of directory");
         final LogMonitoringAppender appenderOperationError =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Failed to get listing of directory");
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        "Failed to get listing of directory");
         final LogMonitoringAppender appenderOK =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again");
         try
@@ -325,7 +339,8 @@ public class DirectoryScanningTimerTaskTest
             final int numberOfErrorsToIgnore = 2;
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
             final DirectoryScanningTimerTask scanner =
-                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler,
+                            numberOfErrorsToIgnore);
             dir.delete();
             assert dir.exists() == false;
             // First error -> ignored
@@ -358,7 +373,8 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testDoNotLogDirectoryAvailableWhenNoErrorWasLogged() throws IOException
     {
-        final File dir = new File(workingDirectory, "testDoNotLogDirectoryAvailableWhenNoErrorWasLogged");
+        final File dir =
+                new File(workingDirectory, "testDoNotLogDirectoryAvailableWhenNoErrorWasLogged");
         dir.mkdir();
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "' is available again.");
@@ -367,7 +383,8 @@ public class DirectoryScanningTimerTaskTest
             final int numberOfErrorsToIgnore = 2;
             // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
             final DirectoryScanningTimerTask scanner =
-                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler, numberOfErrorsToIgnore);
+                    new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler,
+                            numberOfErrorsToIgnore);
             dir.delete();
             assert dir.exists() == false;
             // First error -> ignored

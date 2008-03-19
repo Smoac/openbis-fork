@@ -62,9 +62,8 @@ public final class PathPrefixPrependerTest extends AbstractFileSystemTestCase
     {
         try
         {
-            new PathPrefixPrepender((workingDirectory.getAbsolutePath() + "/absolute"), workingDirectory
-                    .getAbsolutePath()
-                    + "/relative");
+            new PathPrefixPrepender((workingDirectory.getAbsolutePath() + "/absolute"),
+                    workingDirectory.getAbsolutePath() + "/relative");
             fail("Given prefixes are not valid.");
         } catch (final ConfigurationFailureException ex)
         {
@@ -102,8 +101,10 @@ public final class PathPrefixPrependerTest extends AbstractFileSystemTestCase
             // Nothing to do here.
         }
         assertEquals(prefixForRelativePathsOrNull + "/", prepender.addPrefixTo(""));
-        assertEquals(prefixForRelativePathsOrNull + "/choubidou", prepender.addPrefixTo("choubidou"));
-        assertEquals(prefixForAbsolutePathsOrNull + "/choubidou", prepender.addPrefixTo("/choubidou"));
+        assertEquals(prefixForRelativePathsOrNull + "/choubidou", prepender
+                .addPrefixTo("choubidou"));
+        assertEquals(prefixForAbsolutePathsOrNull + "/choubidou", prepender
+                .addPrefixTo("/choubidou"));
         assertEquals(prefixForAbsolutePathsOrNull + "/", prepender.addPrefixTo("/"));
     }
 }

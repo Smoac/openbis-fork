@@ -26,12 +26,13 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * General purpose factory for versioned classes with one-argument constructors.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 class Factory<T>
 {
-    private final Map<Version, Class<? extends T>> repository = new HashMap<Version, Class<? extends T>>();
+    private final Map<Version, Class<? extends T>> repository =
+            new HashMap<Version, Class<? extends T>>();
 
     void register(Version version, Class<? extends T> clazz)
     {
@@ -40,7 +41,7 @@ class Factory<T>
 
     Class<? extends T> getClassFor(Version version)
     {
-        
+
         Version v = version;
         while (true)
         {
@@ -63,22 +64,26 @@ class Factory<T>
         Constructor<? extends T> constructor;
         try
         {
-            constructor = clazz.getConstructor(new Class[] {argumentClass});
+            constructor = clazz.getConstructor(new Class[]
+                { argumentClass });
         } catch (Exception ex1)
         {
-            throw new EnvironmentFailureException(clazz + " has no constructor with argument of type "
+            throw new EnvironmentFailureException(clazz
+                    + " has no constructor with argument of type "
                     + argumentClass.getCanonicalName());
         }
         try
         {
-            return constructor.newInstance(new Object[] {argument});
+            return constructor.newInstance(new Object[]
+                { argument });
         } catch (InvocationTargetException ex)
         {
-            throw new DataStructureException("Couldn't create instance of " + clazz + " for version " + version, ex
-                    .getCause());
+            throw new DataStructureException("Couldn't create instance of " + clazz
+                    + " for version " + version, ex.getCause());
         } catch (Exception ex)
         {
-            throw new DataStructureException("Couldn't create instance of " + clazz + " for version " + version, ex);
+            throw new DataStructureException("Couldn't create instance of " + clazz
+                    + " for version " + version, ex);
         }
     }
 

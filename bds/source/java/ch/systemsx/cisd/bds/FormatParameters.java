@@ -30,7 +30,8 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 final class FormatParameters implements IFormatParameters, IStorable
 {
-    private final Map<String, FormatParameter> parameters = new LinkedHashMap<String, FormatParameter>();
+    private final Map<String, FormatParameter> parameters =
+            new LinkedHashMap<String, FormatParameter>();
 
     /**
      * The <code>IFormatParameterFactory</code> implementation used here.
@@ -38,14 +39,16 @@ final class FormatParameters implements IFormatParameters, IStorable
      * Initialized with the default implementation {@link IFormatParameterFactory#DEFAULT_FORMAT_PARAMETER_FACTORY}.
      * </p>
      */
-    private IFormatParameterFactory formatParameterFactory = IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
+    private IFormatParameterFactory formatParameterFactory =
+            IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
 
     final void loadFrom(final IDirectory directory)
     {
         parameters.clear();
         for (INode node : directory)
         {
-            final FormatParameter formatParameter = formatParameterFactory.createFormatParameter(node);
+            final FormatParameter formatParameter =
+                    formatParameterFactory.createFormatParameter(node);
             if (formatParameter != null)
             {
                 addParameter(formatParameter);
@@ -90,7 +93,8 @@ final class FormatParameters implements IFormatParameters, IStorable
         final String parameterName = parameter.getName();
         if (containsParameter(parameterName))
         {
-            throw new IllegalArgumentException("There is already a parameter named '" + parameterName + "'.");
+            throw new IllegalArgumentException("There is already a parameter named '"
+                    + parameterName + "'.");
         }
         parameters.put(parameterName, parameter);
     }

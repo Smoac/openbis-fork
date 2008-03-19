@@ -48,8 +48,10 @@ public class DataStructureFactoryTest
     @Test
     public void testGetDataStructureClassFor()
     {
-        assertEquals(DataStructureV1_0.class, DataStructureFactory.getDataStructureClassFor(new Version(1, 0)));
-        assertEquals(DataStructureV1_0.class, DataStructureFactory.getDataStructureClassFor(new Version(1, 1)));
+        assertEquals(DataStructureV1_0.class, DataStructureFactory
+                .getDataStructureClassFor(new Version(1, 0)));
+        assertEquals(DataStructureV1_0.class, DataStructureFactory
+                .getDataStructureClassFor(new Version(1, 1)));
     }
 
     @Test
@@ -76,7 +78,8 @@ public class DataStructureFactoryTest
                 }
 
             });
-        IDataStructure dataStructure = DataStructureFactory.createDataStructure(storage, new Version(1, 0));
+        IDataStructure dataStructure =
+                DataStructureFactory.createDataStructure(storage, new Version(1, 0));
         assertEquals(DataStructureV1_0.class, dataStructure.getClass());
     }
 }

@@ -108,13 +108,16 @@ public class SVNRecursiveCheckoutTask extends Task
                         final String projectToCheckOut = pathProvider.getPath(projectName);
                         try
                         {
-                            checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider.getRevision());
+                            checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider
+                                    .getRevision());
                         } catch (SVNException ex)
                         {
                             throw new BuildException(ex.getMessage(), ex.getCause());
                         }
-                        final File projectWorkingCopyDir = new File(checkoutCmd.getDirectoryToCheckout(), projectName);
-                        new SVNCheckoutDependentExecutor(checkoutCmd).execute(projectWorkingCopyDir);
+                        final File projectWorkingCopyDir =
+                                new File(checkoutCmd.getDirectoryToCheckout(), projectName);
+                        new SVNCheckoutDependentExecutor(checkoutCmd)
+                                .execute(projectWorkingCopyDir);
                     }
                 }
             }
@@ -148,12 +151,13 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             final ISVNCheckout checkoutCmd = createSVNCheckout(repositoryUrl, workingCopyDir);
-            checkoutCmd.checkout(pathProvider.getPath(), pathProvider.getProjectName(), pathProvider.getRevision());
+            checkoutCmd.checkout(pathProvider.getPath(), pathProvider.getProjectName(),
+                    pathProvider.getRevision());
             // Always check out "build_resources", though it is not specified as dependency in .classpath.
             checkoutCmd.checkout(pathProvider.getPath(SVNUtilities.BUILD_RESOURCES_PROJECT),
                     SVNUtilities.BUILD_RESOURCES_PROJECT, pathProvider.getRevision());
-            new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir, pathProvider
-                    .getProjectName()));
+            new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir,
+                    pathProvider.getProjectName()));
         } catch (SVNException ex)
         {
             throw new BuildException(ex.getMessage(), ex.getCause());

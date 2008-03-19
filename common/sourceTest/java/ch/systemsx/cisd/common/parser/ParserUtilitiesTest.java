@@ -40,9 +40,11 @@ import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 public final class ParserUtilitiesTest
 {
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "ParserUtilitiesTest");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "ParserUtilitiesTest");
 
     @BeforeClass
     public final void setUp()
@@ -102,7 +104,9 @@ public final class ParserUtilitiesTest
             { StringUtils.EMPTY, "# comment line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
-        Line line = ParserUtilities.getFirstAcceptedLine(file, ExcludeEmptyAndCommentLineFilter.INSTANCE);
+        Line line =
+                ParserUtilities.getFirstAcceptedLine(file,
+                        ExcludeEmptyAndCommentLineFilter.INSTANCE);
         assertEquals("hello", line.getText());
         assertEquals(3, line.getNumber());
         assert file.delete();

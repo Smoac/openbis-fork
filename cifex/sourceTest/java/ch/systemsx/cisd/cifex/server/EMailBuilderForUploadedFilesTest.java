@@ -38,7 +38,8 @@ public class EMailBuilderForUploadedFilesTest
         registrator.setUserCode("registrator");
         registrator.setEmail("reg@r.rr");
         MockMailClient mailClient = new MockMailClient();
-        EMailBuilderForUploadedFiles builder = new EMailBuilderForUploadedFiles(mailClient, registrator, "a@a.aa");
+        EMailBuilderForUploadedFiles builder =
+                new EMailBuilderForUploadedFiles(mailClient, registrator, "a@a.aa");
         FileDTO file = new FileDTO(0L);
         file.setID(42L);
         file.setName("myData.zip");
@@ -55,18 +56,31 @@ public class EMailBuilderForUploadedFilesTest
                 "Hello,\n"
                         + "\n"
                         + "registrator <reg@r.rr> has stored a file on our server for you to download. File information appears below.\n"
-                        + "\n" + "------------------------------------------------------------\n" + "\n"
-                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n" + "Comment:\tHere are my data.\n" + "\n"
-                        + "A file (click to download):\n" + "\n"
-                        + "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n" + "\n"
-                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + "\n"
-                        + "For downloading you have to enter the following password: a1234\n" + "\n"
-                        + "To login to the system: http://localhost/cifex/index.html?user=userCode\n" + "\n"
-                        + "------------------------------------------------------------\n" + "\n"
+                        + "\n"
+                        + "------------------------------------------------------------\n"
+                        + "\n"
+                        + "From:\tregistrator\n"
+                        + "Email:\treg@r.rr\n"
+                        + "Comment:\tHere are my data.\n"
+                        + "\n"
+                        + "A file (click to download):\n"
+                        + "\n"
+                        + "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n"
+                        + "\n"
+                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n"
+                        + "\n"
+                        + "For downloading you have to enter the following password: a1234\n"
+                        + "\n"
+                        + "To login to the system: http://localhost/cifex/index.html?user=userCode\n"
+                        + "\n"
+                        + "------------------------------------------------------------\n"
+                        + "\n"
                         + "We recommend that you install the latest version of your antivirus software prior "
                         + "to downloading any files over the Internet.\n" + "\n" + "\n"
-                        + "--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
-                        + "Center for Information Sciences and Databases\n" + "ETH Zurich", mailClient.content);
+                        + "--------------------------------------------------\n"
+                        + "CIFEX - CISD File EXchanger\n"
+                        + "Center for Information Sciences and Databases\n" + "ETH Zurich",
+                mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("a@a.aa", mailClient.recipients[0]);
     }
@@ -78,7 +92,8 @@ public class EMailBuilderForUploadedFilesTest
         registrator.setUserCode("registrator");
         registrator.setEmail("reg@r.rr");
         MockMailClient mailClient = new MockMailClient();
-        EMailBuilderForUploadedFiles builder = new EMailBuilderForUploadedFiles(mailClient, registrator, "a@a.aa");
+        EMailBuilderForUploadedFiles builder =
+                new EMailBuilderForUploadedFiles(mailClient, registrator, "a@a.aa");
         FileDTO file1 = new FileDTO(0L);
         file1.setID(42L);
         file1.setName("myData.zip");
@@ -98,17 +113,29 @@ public class EMailBuilderForUploadedFilesTest
                 "Hello,\n"
                         + "\n"
                         + "registrator <reg@r.rr> has stored files on our server for you to download. File information appears below.\n"
-                        + "\n" + "------------------------------------------------------------\n" + "\n"
-                        + "From:\tregistrator\n" + "Email:\treg@r.rr\n" + "\n" + "Files (click to download):\n" + "\n"
+                        + "\n"
+                        + "------------------------------------------------------------\n"
+                        + "\n"
+                        + "From:\tregistrator\n"
+                        + "Email:\treg@r.rr\n"
+                        + "\n"
+                        + "Files (click to download):\n"
+                        + "\n"
                         + "myData.zip http://localhost/cifex/index.html?fileId=42&user=userCode\n"
-                        + "otherData.zip http://localhost/cifex/index.html?fileId=4711&user=userCode\n" + "\n"
-                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n" + "\n"
-                        + "To login to the system: http://localhost/cifex/index.html?user=userCode" + "\n\n"
-                        + "------------------------------------------------------------\n" + "\n"
+                        + "otherData.zip http://localhost/cifex/index.html?fileId=4711&user=userCode\n"
+                        + "\n"
+                        + "Expiration: Files will be removed  on 15-Jan-1970 at 07:56:07\n"
+                        + "\n"
+                        + "To login to the system: http://localhost/cifex/index.html?user=userCode"
+                        + "\n\n"
+                        + "------------------------------------------------------------\n"
+                        + "\n"
                         + "We recommend that you install the latest version of your antivirus software prior "
                         + "to downloading any files over the Internet.\n" + "\n" + "\n"
-                        + "--------------------------------------------------\n" + "CIFEX - CISD File EXchanger\n"
-                        + "Center for Information Sciences and Databases\n" + "ETH Zurich", mailClient.content);
+                        + "--------------------------------------------------\n"
+                        + "CIFEX - CISD File EXchanger\n"
+                        + "Center for Information Sciences and Databases\n" + "ETH Zurich",
+                mailClient.content);
         assertEquals(1, mailClient.recipients.length);
         assertEquals("a@a.aa", mailClient.recipients[0]);
     }

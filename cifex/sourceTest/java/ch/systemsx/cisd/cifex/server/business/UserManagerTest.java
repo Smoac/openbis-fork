@@ -62,7 +62,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     private UserDTO userAlice;
 
     private IUserSessionInvalidator userSessionInvalidator;
-    
+
     @BeforeMethod
     public final void setUp()
     {
@@ -130,7 +130,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(true));
                     exactly(numberOfExpiredUsers).of(businessContext).getUserSessionInvalidator();
                     will(returnValue(userSessionInvalidator));
-                    exactly(numberOfExpiredUsers).of(userSessionInvalidator).invalidateSessionWithUser(userAlice);
+                    exactly(numberOfExpiredUsers).of(userSessionInvalidator)
+                            .invalidateSessionWithUser(userAlice);
 
                 }
             });

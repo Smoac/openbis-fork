@@ -47,7 +47,8 @@ public final class LogInvocationHandler implements InvocationHandler
      * @param logLevel The log level to use for normal (successful) events.
      * @param classUsedToNameLogger Class used to specify the name of the logger.
      */
-    public LogInvocationHandler(Object object, String name, Level logLevel, Class<?> classUsedToNameLogger)
+    public LogInvocationHandler(Object object, String name, Level logLevel,
+            Class<?> classUsedToNameLogger)
     {
         this.object = object;
         this.name = name;
@@ -80,7 +81,8 @@ public final class LogInvocationHandler implements InvocationHandler
             final Logger logger = createLogger(method);
             if (throwable != null || logger.isEnabledFor(logLevel))
             {
-                final StringBuilder builder = new StringBuilder(throwable == null ? "Successful" : "Failed");
+                final StringBuilder builder =
+                        new StringBuilder(throwable == null ? "Successful" : "Failed");
                 builder.append(" invocation of ");
                 builder.append(name).append('.').append(method.getName()).append('(');
                 if (args != null)
@@ -124,7 +126,8 @@ public final class LogInvocationHandler implements InvocationHandler
     private Logger createLogger(Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
-        final LogCategory logCategory = (annotation == null) ? LogCategory.OPERATION : annotation.logCategory();
+        final LogCategory logCategory =
+                (annotation == null) ? LogCategory.OPERATION : annotation.logCategory();
         return LogFactory.getLogger(logCategory, classUsedToNameLogger);
     }
 }

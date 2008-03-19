@@ -309,8 +309,8 @@ public class CompressionWorkerTest
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
         assertEquals(StatusFlag.FATAL_ERROR, record.getFailureStatus().getFlag());
-        assertEquals("Exceptional condition: " + FakedException.class.getSimpleName(), record.getFailureStatus()
-                .getMessage());
+        assertEquals("Exceptional condition: " + FakedException.class.getSimpleName(), record
+                .getFailureStatus().getMessage());
         assertEquals(ex, record.tryGetThrowable());
         assertTrue(logRecorder.getLogContent().indexOf(
                 String.format(CompressionWorker.EXCEPTION_COMPRESSING_MSG_TEMPLATE, faultyFile)) >= 0);

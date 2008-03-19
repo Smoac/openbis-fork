@@ -61,7 +61,8 @@ public final class CollectionUtilsTest
         final String[] s = StringUtilities.getStrings(5);
         final CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
         String string =
-                collectionStyle.getCollectionStart() + StringUtils.join(s, collectionStyle.getCollectionSeparator())
+                collectionStyle.getCollectionStart()
+                        + StringUtils.join(s, collectionStyle.getCollectionSeparator())
                         + collectionStyle.getCollectionEnd();
         assertEquals(string, CollectionUtils.abbreviate(s, -1, false));
         assertEquals(string, CollectionUtils.abbreviate(s, -10, false));
@@ -83,7 +84,8 @@ public final class CollectionUtilsTest
         }
         try
         {
-            CollectionUtils.abbreviate(objects, 0, false, ToStringDefaultConverter.getInstance(), null);
+            CollectionUtils.abbreviate(objects, 0, false, ToStringDefaultConverter.getInstance(),
+                    null);
             fail("Given CollectionStyle can not be null.");
         } catch (AssertionError e)
         {

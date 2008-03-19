@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * Storage based on HDF5.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class HDF5Storage implements IStorage
@@ -33,7 +33,7 @@ public class HDF5Storage implements IStorage
     {
         assert hdf5File != null : "Unspecified HDF5 file.";
     }
-    
+
     public IDirectory getRoot()
     {
         throw new NotImplementedException();

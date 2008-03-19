@@ -22,14 +22,17 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 final class MockMailClient implements IMailClient
 {
     String subject;
+
     String content;
+
     String[] recipients;
 
-    public void sendMessage(String subj, String contentText, String... emails) throws EnvironmentFailureException
+    public void sendMessage(String subj, String contentText, String... emails)
+            throws EnvironmentFailureException
     {
         this.subject = subj;
         this.content = contentText;
         this.recipients = emails;
     }
-    
+
 }

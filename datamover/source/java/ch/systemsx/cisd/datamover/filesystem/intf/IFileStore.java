@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * An abstraction for a file store.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IFileStore

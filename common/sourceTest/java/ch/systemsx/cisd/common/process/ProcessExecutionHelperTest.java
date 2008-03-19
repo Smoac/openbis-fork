@@ -50,26 +50,32 @@ public class ProcessExecutionHelperTest
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessExecutionHelperTest.class);
 
-    private static final File unitTestRootDirectory = new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory =
+            new File("targets" + File.separator + "unit-test-wd");
 
-    private static final File workingDirectory = new File(unitTestRootDirectory, "ProcessExecutionHelperTest");
+    private static final File workingDirectory =
+            new File(unitTestRootDirectory, "ProcessExecutionHelperTest");
 
-    private File createExecutable(String name, String... lines) throws IOException, InterruptedException
+    private File createExecutable(String name, String... lines) throws IOException,
+            InterruptedException
     {
         final File executable = new File(workingDirectory, name);
         executable.delete();
         CollectionIO.writeIterable(executable, Arrays.asList(lines));
-        Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", executable.getPath())).waitFor();
+        Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", executable.getPath()))
+                .waitFor();
         executable.deleteOnExit();
         return executable;
     }
 
-    private File createExecutable(String name, int exitValue) throws IOException, InterruptedException
+    private File createExecutable(String name, int exitValue) throws IOException,
+            InterruptedException
     {
         return createExecutable(name, "#! /bin/sh", "exit " + exitValue);
     }
 
-    private File createSleepingExecutable(String name, long millisToSleep) throws IOException, InterruptedException
+    private File createSleepingExecutable(String name, long millisToSleep) throws IOException,
+            InterruptedException
     {
         return createExecutable(name, "#! /bin/sh", "sleep " + (millisToSleep / 1000.0f), "exit 0");
     }
@@ -96,7 +102,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createExecutable("dummy.sh", 0);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog);
         assertTrue(ok);
     }
 
@@ -106,7 +113,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createExecutable("dummy.sh", 1);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog);
         assertFalse(ok);
     }
 
@@ -116,8 +124,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createExecutable("dummy.sh", 0);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
-                        operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        WATCHDOG_WAIT_MILLIS, operationLog, machineLog);
         assertTrue(ok);
     }
 
@@ -127,8 +135,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createExecutable("dummy.sh", 1);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
-                        operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        WATCHDOG_WAIT_MILLIS, operationLog, machineLog);
         assertFalse(ok);
     }
 
@@ -138,8 +146,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createSleepingExecutable("dummy.sh", WATCHDOG_WAIT_MILLIS / 2);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
-                        operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        WATCHDOG_WAIT_MILLIS, operationLog, machineLog);
         assertTrue(ok);
     }
 
@@ -149,8 +157,8 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createSleepingExecutable("dummy.sh", 2 * WATCHDOG_WAIT_MILLIS);
         final boolean ok =
-                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
-                        operationLog, machineLog);
+                ProcessExecutionHelper.runAndLog(Arrays.asList(dummyExec.getAbsolutePath()),
+                        WATCHDOG_WAIT_MILLIS, operationLog, machineLog);
         assertFalse(ok);
     }
 
@@ -160,9 +168,10 @@ public class ProcessExecutionHelperTest
     {
         final File dummyExec = createSleepingExecutable("dummy.sh", 2 * WATCHDOG_WAIT_MILLIS);
         final ProcessResult result =
-                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), WATCHDOG_WAIT_MILLIS,
-                        operationLog, machineLog);
-        assertTrue(result.hasBlocked() || ProcessExecutionHelper.isProcessTerminated(result.exitValue()));
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        WATCHDOG_WAIT_MILLIS, operationLog, machineLog);
+        assertTrue(result.hasBlocked()
+                || ProcessExecutionHelper.isProcessTerminated(result.exitValue()));
     }
 
     @Test(groups =
@@ -174,9 +183,11 @@ public class ProcessExecutionHelperTest
         final String stderr1 = "This goes to stderr, 1";
         final String stderr2 = "This goes to stderr, 2";
         final File dummyExec =
-                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1, "echo " + stdout2, "echo " + stderr2);
+                createExecutable("dummy.sh", "echo " + stdout1, "echo " + stderr1, "echo "
+                        + stdout2, "echo " + stderr2);
         final ProcessResult result =
-                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), operationLog, machineLog);
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog);
         final int exitValue = result.exitValue();
         assertEquals(0, exitValue);
         result.log();

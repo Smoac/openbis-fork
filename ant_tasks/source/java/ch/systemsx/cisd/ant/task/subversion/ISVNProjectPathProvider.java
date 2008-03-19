@@ -55,12 +55,12 @@ interface ISVNProjectPathProvider
      * @return The name of the project that is path provider's context is based on.
      */
     public String getProjectName();
-    
+
     /**
      * @return The revision of the project that is path provider's context is based on.
      */
     public String getRevision();
-    
+
     /**
      * @return <code>true</code> if this provider represents a subversion repository path (rather than a working copy
      *         path).

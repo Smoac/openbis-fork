@@ -18,20 +18,20 @@ package ch.systemsx.cisd.common.utilities;
 
 import org.apache.commons.lang.builder.ToStringStyle;
 
-
 /**
- * A modified short prefix {@link ToStringStyle} which allows to work together with jmock and
- * cruisecontrol. The problem was that in jmock exception messages <code>]]&gt;</code> appeared which is the
- * end of a <code>&lt;![CDATA[</code> section in the XML test report. This yields a hiccup in cruisecontrol.
- *
+ * A modified short prefix {@link ToStringStyle} which allows to work together with jmock and cruisecontrol. The problem
+ * was that in jmock exception messages <code>]]&gt;</code> appeared which is the end of a <code>&lt;![CDATA[</code>
+ * section in the XML test report. This yields a hiccup in cruisecontrol.
+ * 
  * @author Franz-Josef Elmer
  */
 public class ModifiedShortPrefixToStringStyle extends ToStringStyle
 {
     private static final long serialVersionUID = 1L;
-    
+
     /** The one and only one instance. */
-    public static final ToStringStyle MODIFIED_SHORT_PREFIX_STYLE = new ModifiedShortPrefixToStringStyle(); 
+    public static final ToStringStyle MODIFIED_SHORT_PREFIX_STYLE =
+            new ModifiedShortPrefixToStringStyle();
 
     private ModifiedShortPrefixToStringStyle()
     {
@@ -42,7 +42,8 @@ public class ModifiedShortPrefixToStringStyle extends ToStringStyle
     }
 
     /**
-     * <p>Ensure <code>Singleton</ode> after serialization.</p>
+     * <p>
+     * Ensure <code>Singleton</ode> after serialization.</p>
      * @return the singleton
      */
     private Object readResolve()

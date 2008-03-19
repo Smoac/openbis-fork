@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An exception indicating a problem performing a subversion command.
- *
+ * 
  * @author Bernd Rinn
  */
 public class SVNException extends EnvironmentFailureException
@@ -32,7 +32,7 @@ public class SVNException extends EnvironmentFailureException
     {
         super(message);
     }
-    
+
     public SVNException(String messageTemplate, Throwable cause)
     {
         super(messageTemplate, cause);
