@@ -53,7 +53,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         super(context);
     }
 
-    private final boolean containsOriginalData()
+    public final boolean containsOriginalData()
     {
         return (Boolean) getFormatParameters().getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
     }
