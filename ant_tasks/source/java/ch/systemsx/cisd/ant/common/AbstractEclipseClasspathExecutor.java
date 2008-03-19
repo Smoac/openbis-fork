@@ -43,7 +43,8 @@ public abstract class AbstractEclipseClasspathExecutor
         {
             try
             {
-                IEclipseClasspathLocation loc = new FileBaseEclipseClasspathLocation(eclipseClasspathFile);
+                IEclipseClasspathLocation loc =
+                        new FileBaseEclipseClasspathLocation(eclipseClasspathFile);
                 executeEntries(EclipseClasspathReader.readClasspathEntries(loc));
             } catch (BuildException ex)
             {
