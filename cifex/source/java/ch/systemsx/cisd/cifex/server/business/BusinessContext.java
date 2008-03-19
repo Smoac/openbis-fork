@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
+import ch.systemsx.cisd.cifex.server.IUserActionLog;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -46,10 +47,13 @@ class BusinessContext implements IBusinessContext
 
     private UserHttpSessionHolder userHttpSessionHolder;
 
+    /** The logger object for user actions. */
+    private IUserActionLog userActionLog;
+
     private String administratorEmail;
 
     private String systemVersion;
-
+    
     public final IUserSessionInvalidator getUserSessionInvalidator()
     {
         return userHttpSessionHolder;
@@ -58,6 +62,22 @@ class BusinessContext implements IBusinessContext
     public final void setUserHttpSessionHolder(final UserHttpSessionHolder userHttpSessionHolder)
     {
         this.userHttpSessionHolder = userHttpSessionHolder;
+    }
+
+    /**
+     * Returns the logger of user behavior.
+     */
+    public IUserActionLog getUserActionLog()
+    {
+        return userActionLog;
+    }
+
+    /**
+     * Sets the logger of user behavior.
+     */
+    public void setUserActionLog(IUserActionLog userActionLog)
+    {
+        this.userActionLog = userActionLog;
     }
 
     public final int getFileRetention()

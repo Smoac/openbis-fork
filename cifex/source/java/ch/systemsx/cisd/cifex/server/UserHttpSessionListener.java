@@ -20,14 +20,11 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.log4j.Logger;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * A <code>HttpSessionListener</code> implementation which registers the active user sessions in a <i>Spring</i>
@@ -37,16 +34,32 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class UserHttpSessionListener implements HttpSessionListener
 {
-    private static final Logger authLog = LogFactory.getLogger(LogCategory.AUTH, UserHttpSessionListener.class);
-
     private final static UserHttpSessionHolder getUserHttpSessionHolder(final HttpSession session)
+            throws ConfigurationFailureException
     {
         final WebApplicationContext ctx =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
         final String beanName = UserHttpSessionHolder.USER_SESSION_HOLDER_BEAN_NAME;
         final UserHttpSessionHolder sessionHolder = (UserHttpSessionHolder) ctx.getBean(beanName);
-        assert sessionHolder != null : String.format("No bean '%s' defined.", beanName);
+        if (sessionHolder == null)
+        {
+            throw ConfigurationFailureException.fromTemplate("No bean '%s' defined.", beanName);
+        }
         return sessionHolder;
+    }
+
+    private final static IUserActionLog getUserBehaviorLog(final HttpSession session)
+            throws ConfigurationFailureException
+    {
+        final WebApplicationContext ctx =
+                WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
+        final String beanName = IUserActionLog.USER_ACTION_LOG_BEAN_NAME;
+        final IUserActionLog userBehaviorLog = (IUserActionLog) ctx.getBean(beanName);
+        if (userBehaviorLog == null)
+        {
+            throw ConfigurationFailureException.fromTemplate("No bean '%s' defined.", beanName);
+        }
+        return userBehaviorLog;
     }
 
     //
@@ -56,20 +69,21 @@ public final class UserHttpSessionListener implements HttpSessionListener
     public final void sessionCreated(final HttpSessionEvent sessionEvent)
     {
         final HttpSession session = sessionEvent.getSession();
-        final UserHttpSessionHolder sessionHolder = getUserHttpSessionHolder(session);
-        sessionHolder.addUserSession(session);
+        if (session == null)
+        {
+            return;
+        }
+        getUserHttpSessionHolder(session).addUserSession(session);
     }
 
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
         final HttpSession session = sessionEvent.getSession();
-        final UserHttpSessionHolder sessionHolder = getUserHttpSessionHolder(session);
-        if (session != null && authLog.isInfoEnabled())
+        if (session == null)
         {
-            final UserDTO user = (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-            String userCode = (user != null) ? user.getUserCode() : "";
-            authLog.info("Close session '" + session.getId() + "' of user '" + userCode + "'.");
+            return;
         }
-        sessionHolder.removeUserSession(session);
+        getUserHttpSessionHolder(session).removeUserSession(session);
+        getUserBehaviorLog(session).logLogout(session);
     }
 }

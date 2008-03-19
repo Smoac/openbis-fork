@@ -104,6 +104,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 return "newpasswd";
             }
         });
+        businessContext.setUserActionLog(new DummyUserActionLog());
         mailClient = context.mock(IMailClient.class);
         businessContext.setMailClient(mailClient);
         fileManager = new FileManager(daoFactory, boFactory, businessContext);

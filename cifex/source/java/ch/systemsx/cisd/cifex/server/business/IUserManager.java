@@ -33,7 +33,7 @@ public interface IUserManager
     /**
      * Returns <code>true</code>, if there are not yet any users in the database.
      */
-    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public boolean isDatabaseEmpty();
 
     /**
@@ -41,45 +41,50 @@ public interface IUserManager
      * 
      * @return <code>null</code> if a user with the given <var>code</var> is not found.
      */
-    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public UserDTO tryFindUserByCode(String code);
 
     /**
      * Returns a list of all users.
      */
-    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public List<UserDTO> listUsers();
 
     /**
      * Returns a list of users, which where registered by the given user.
      */
-    @LogAnnotation(logCategory = LogCategory.ACCESS, logLevel = LogLevel.TRACE)
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public List<UserDTO> listUsersRegisteredBy(final String userCode);
 
     /**
      * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
      */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void createUser(UserDTO user);
 
-    /** 
+    /**
      * Removes expired users from user base.
      */
-    @LogAnnotation(logCategory = LogCategory.TRACKING, logLevel = LogLevel.DEBUG)
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.DEBUG)
     public void deleteExpiredUsers();
 
     /**
      * Deletes the specified user.
      * 
-     * @throws UserFailureException If the user with the given <var>userCode</var> was not found.
+     * @throws UserFailureException If the user with the given <var>userCode</var> was not found in the database.
      */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void deleteUser(String userCode) throws UserFailureException;
 
     /**
      * Updates the fields of the specified user.
+     * 
+     * @throws UserFailureException If the <var>user</var> was not found in the database.
+     * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now should be set
+     *             temporary.
      */
-    @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void updateUser(UserDTO user, String encryptedPassword);
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void updateUser(UserDTO user, String encryptedPassword) throws UserFailureException,
+            IllegalArgumentException;
 
 }

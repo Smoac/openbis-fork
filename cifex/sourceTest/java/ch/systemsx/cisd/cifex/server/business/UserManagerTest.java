@@ -62,7 +62,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     private UserDTO userAlice;
 
     private IUserSessionInvalidator userSessionInvalidator;
-
+    
     @BeforeMethod
     public final void setUp()
     {
@@ -93,6 +93,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(boFactory).createUserBO();
                     will(returnValue(userBO));
+                    allowing(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
                     one(userBO).define(user);
                     one(userBO).save();
                 }
@@ -122,6 +124,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).listExpiredUsers();
                     will(returnValue(expiredUsers));
+                    allowing(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
                     exactly(numberOfExpiredUsers).of(userDAO).deleteUser(userAlice.getID());
                     will(returnValue(true));
                     exactly(numberOfExpiredUsers).of(businessContext).getUserSessionInvalidator();
@@ -241,6 +245,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).tryFindUserByCode(userCode);
                     will(returnValue(user));
+                    allowing(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
                     if (user != null)
                     {
                         one(userDAO).deleteUser(user.getID());

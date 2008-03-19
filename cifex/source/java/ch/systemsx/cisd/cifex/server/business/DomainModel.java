@@ -22,9 +22,9 @@ import java.lang.reflect.Proxy;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+import ch.systemsx.cisd.cifex.server.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -58,34 +58,13 @@ public final class DomainModel implements IDomainModel
     private final BusinessObjectFactory boFactory;
 
     /**
-     * Constructor only used for unit tests.
-     */
-    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
-            final UserHttpSessionHolder userSessionHolder)
-    {
-        this(daoFactory, mailClient, new BeanPostProcessor()
-            {
-                public Object postProcessBeforeInitialization(final Object bean, final String beanName)
-                        throws BeansException
-                {
-                    return bean;
-                }
-
-                public Object postProcessAfterInitialization(final Object bean, final String beanName)
-                        throws BeansException
-                {
-                    return bean;
-                }
-            }, userSessionHolder);
-    }
-
-    /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean post processor is
      * needed to create proxies for the various manager objects which handle transactions. Corresponding manager methods
      * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
      *                processor is correctly configured with the right TransactionInterceptor.
      */
-    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient, final BeanPostProcessor processor,
+    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
+            final IUserActionLog userActionLog, final BeanPostProcessor processor,
             final UserHttpSessionHolder userSessionHolder)
     {
         assert daoFactory != null : "Undefined DAO Factory";
@@ -98,6 +77,7 @@ public final class DomainModel implements IDomainModel
         businessContext.setMailClient(mailClient);
         businessContext.setPasswordGenerator(new PasswordGenerator());
         businessContext.setUserHttpSessionHolder(userSessionHolder);
+        businessContext.setUserActionLog(userActionLog);
         businessContext.setSystemVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
     }
@@ -178,7 +158,7 @@ public final class DomainModel implements IDomainModel
                 processor.postProcessAfterInitialization(manager, "proxy of " + manager.getClass().getName());
         final Class<? extends DomainModel> clazz = getClass();
         final InvocationHandler invocationHandler =
-                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.INFO, clazz);
+                new LogInvocationHandler(proxy, manager.getClass().getSimpleName(), Level.DEBUG, clazz);
         final Class<?>[] interfaces = manager.getClass().getInterfaces();
         return cast(Proxy.newProxyInstance(clazz.getClassLoader(), interfaces, invocationHandler));
     }

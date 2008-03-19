@@ -39,11 +39,12 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
-import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.server.business.DummyUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -262,6 +263,12 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(httpServletRequest));
+                    allowing(httpServletRequest).getRemoteHost();
+                    will(returnValue("someRemoteHost"));
+                    allowing(httpServletRequest).getRemoteAddr();
+                    will(returnValue("someRemoteAddress"));
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
@@ -273,10 +280,10 @@ public class CIFEXServiceImplTest
         {
             service.tryLogin("u", "p");
             fail("UserFailureException expected.");
-        } catch (UserFailureException ex)
+        } catch (EnvironmentFailureException ex)
         {
-            assertEquals("Authentication of the server application at the external authentication service failed.", ex
-                    .getMessage());
+            assertEquals("User \'u\' couldn\'t be authenticated because authentication of the application at the "
+                    + "external authentication service failed.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -295,9 +302,9 @@ public class CIFEXServiceImplTest
         {
             service.tryLogin(userName, password);
             fail("UserFailureException expected.");
-        } catch (UserFailureException ex)
+        } catch (EnvironmentFailureException ex)
         {
-            assertEquals("Unable to retrieve user information.", ex.getMessage());
+            assertEquals("Principal is null for successfully authenticated user 'u'.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -346,6 +353,12 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(httpServletRequest));
+                    allowing(httpServletRequest).getRemoteHost();
+                    will(returnValue("someRemoteHost"));
+                    allowing(httpServletRequest).getRemoteAddr();
+                    will(returnValue("someRemoteAddress"));
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
@@ -514,6 +527,13 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(httpServletRequest));
+                    allowing(httpServletRequest).getRemoteHost();
+                    will(returnValue("someRemoteHost"));
+                    allowing(httpServletRequest).getRemoteAddr();
+                    will(returnValue("someRemoteAddress"));
+
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
 
@@ -541,10 +561,15 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(requestContextProvider).getHttpServletRequest();
+                    allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
 
-                    one(httpServletRequest).getSession(createFlag);
+                    if (createFlag)
+                    {
+                        one(httpServletRequest).getSession(true);
+                        will(returnValue(httpSession));
+                    }
+                    allowing(httpServletRequest).getSession(false);
                     will(returnValue(httpSession));
 
                     if (createFlag)
@@ -600,6 +625,12 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(httpServletRequest));
+                    allowing(httpServletRequest).getRemoteHost();
+                    will(returnValue("someRemoteHost"));
+                    allowing(httpServletRequest).getRemoteAddr();
+                    will(returnValue("someRemoteAddress"));
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(userDTO));
                 }
@@ -608,7 +639,8 @@ public class CIFEXServiceImplTest
 
     private CIFEXServiceImpl createService(IAuthenticationService aService)
     {
-        return new CIFEXServiceImpl(domainModel, requestContextProvider, aService);
+        return new CIFEXServiceImpl(domainModel, requestContextProvider, new DummyUserActionLog(),
+                aService);
     }
 
     @SuppressWarnings("unused")

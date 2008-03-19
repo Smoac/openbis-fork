@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,8 +69,6 @@ final class FileManager extends AbstractManager implements IFileManager
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
-    private static final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING, FileManager.class);
-
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
 
     FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory, IBusinessContext businessContext)
@@ -92,32 +91,38 @@ final class FileManager extends AbstractManager implements IFileManager
         return false;
     }
 
-    /** Deletes file with given path from the file system. */
-    private final void deleteFromFileSystem(final String path)
+    /**
+     * Deletes file with given path from the file system.
+     * 
+     * @returns <code>true</code> if the file has been successfully deleted.
+     */
+    private final boolean deleteFromFileSystem(final String path)
     {
         final File file = new File(businessContext.getFileStore(), path);
-        deleteFromFileSystem(file);
+        return deleteFromFileSystem(file);
     }
 
-    /** Deletes file with given path from the file system. */
-    private final void deleteFromFileSystem(final File file)
+    /**
+     * Deletes file with given path from the file system.
+     * 
+     * @returns <code>true</code> if the file has been successfully deleted.
+     */
+    private final boolean deleteFromFileSystem(final File file)
     {
         if (file.exists())
         {
             if (file.delete())
             {
-                if (trackingLog.isInfoEnabled())
-                {
-                    trackingLog.info("File [" + file.getAbsolutePath() + "] deleted.");
-                }
+                return true;
             } else
             {
                 notificationLog.error("File [" + file.getAbsolutePath() + "] can not be deleted.");
             }
         } else
         {
-            operationLog.warn("File [" + file.getAbsolutePath() + "] not deleted: doesn't exist.");
+            operationLog.warn("File [" + file.getAbsolutePath() + "] requested to be deleted, but doesn't exist.");
         }
+        return false;
     }
 
     //
@@ -160,9 +165,11 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     operationLog.warn("Expired file '" + file.getPath() + "' could not be found in the database.");
                 }
-                deleteFromFileSystem(file.getPath());
+                success &= deleteFromFileSystem(file.getPath());
+                businessContext.getUserActionLog().logExpireFile(file, success);
             } catch (RuntimeException ex)
             {
+                businessContext.getUserActionLog().logExpireFile(file, false);
                 operationLog.error("Error deleting file '" + file.getPath() + "'.", ex);
                 if (firstExecptionOrNull == null)
                 {
@@ -199,18 +206,28 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final FileContent getFileContent(final FileDTO fileDTO)
     {
-        final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
-        if (realFile.exists() == false)
-        {
-            throw new IllegalStateException(String.format("File '%s' does not exist on the file system.", realFile
-                    .getAbsolutePath()));
-        }
+        boolean success = false;
         try
         {
-            return new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO), new FileInputStream(realFile));
-        } catch (final FileNotFoundException ex)
+            final File realFile = new File(businessContext.getFileStore(), fileDTO.getPath());
+            if (realFile.exists() == false)
+            {
+                throw new IllegalStateException(String.format("File '%s' does not exist on the file system.", realFile
+                        .getAbsolutePath()));
+            }
+            try
+            {
+                final FileContent content =
+                        new FileContent(BeanUtils.createBean(BasicFileDTO.class, fileDTO), new FileInputStream(realFile));
+                success = true;
+                return content;
+            } catch (final FileNotFoundException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        } finally
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            businessContext.getUserActionLog().logDownloadFile(fileDTO, success);
         }
     }
 
@@ -251,6 +268,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
         final File folder = createFolderFor(user);
         final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
+        boolean success = false;
         try
         {
             OutputStream outputStream = null;
@@ -273,6 +291,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
                     fileDTO.setSize(byteCount);
                     daoFactory.getFileDAO().createFile(fileDTO);
+                    success = true;
                     return fileDTO;
                 } else
                 {
@@ -292,6 +311,9 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             deleteFromFileSystem(file);
             throw e;
+        } finally
+        {
+            businessContext.getUserActionLog().logUploadFile(fileName, success);
         }
     }
 
@@ -328,77 +350,91 @@ final class FileManager extends AbstractManager implements IFileManager
     public List<String> shareFilesWith(String url, UserDTO requestUser, Collection<String> emailsOfUsers,
             Collection<FileDTO> files, String comment)
     {
-        final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
-        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
-        final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
-        final IMailClient mailClient = businessContext.getMailClient();
-        boolean notified = false;
-        for (final String email : emailsOfUsers)
+        boolean success = false;
+        try
         {
-            final String lowerCaseEmail = email.toLowerCase(); 
-            Set<UserDTO> users = existingUsers.tryGet(lowerCaseEmail);
-            String password = null;
-            if (users == null) // Try to create user.
+            final TableMapNonUniqueKey<String, UserDTO> existingUsers = createTableMapOfExistingUsers();
+            final IFileDAO fileDAO = daoFactory.getFileDAO();
+            final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+            final IMailClient mailClient = businessContext.getMailClient();
+            boolean notified = false;
+            for (final String email : emailsOfUsers)
             {
-                password = passwordGenerator.generatePassword(10);
-                final UserDTO user = tryCreateUser(requestUser, lowerCaseEmail, password);
-                if (user != null)
+                final String lowerCaseEmail = email.toLowerCase();
+                Set<UserDTO> usersOrNull = existingUsers.tryGet(lowerCaseEmail);
+                String password = null;
+                if (usersOrNull == null) // Try to create user.
                 {
-                    existingUsers.add(user);
-                    users = Collections.singleton(user);
-                } else
-                {
-                    // Email address is invalid because user does not exist and requestUser is not allowed to create new
-                    // users.
-                    invalidEmailAdresses.add(lowerCaseEmail);
-                }
-            }
-            if (users != null)
-            {
-                // Implementation note: we do the sharing link creation and the email sending in two loops in order to
-                // ensure that all database links are created before any email is sent (note that this method is
-                // @Transactional).
-                for (final UserDTO user : users)
-                {
-                    for (FileDTO file : files)
+                    password = passwordGenerator.generatePassword(10);
+                    final UserDTO user = tryCreateUser(requestUser, lowerCaseEmail, password);
+                    if (user != null)
                     {
-                        fileDAO.createSharingLink(file.getID(), user.getID());
+                        existingUsers.add(user);
+                        usersOrNull = Collections.singleton(user);
+                    } else
+                    {
+                        // Email address is invalid because user does not exist and requestUser is not allowed to create
+                        // new
+                        // users.
+                        invalidEmailAdresses.add(lowerCaseEmail);
                     }
                 }
-                for (final UserDTO user : users)
+                if (usersOrNull != null)
                 {
-                    final EMailBuilderForUploadedFiles builder =
-                            new EMailBuilderForUploadedFiles(mailClient, requestUser, lowerCaseEmail);
-                    builder.setURL(url);
-                    builder.setPassword(password);
-                    builder.setUserCode(user.getUserCode());
-                    for (final FileDTO fileDTO : files)
+                    allUsers.addAll(usersOrNull);
+                    // Implementation note: we do the sharing link creation and the email sending in two loops in order
+                    // to
+                    // ensure that all database links are created before any email is sent (note that this method is
+                    // @Transactional).
+                    for (final UserDTO user : usersOrNull)
                     {
-                        builder.addFile(fileDTO);
-                    }
-                    if (StringUtils.isNotBlank(comment))
-                    {
-                        builder.setComment(comment);
-                    }
-                    try
-                    {
-                        builder.sendEMail();
-                        notified = false;
-                    } catch (final EnvironmentFailureException ex)
-                    {
-                        if (notified == false)
+                        for (FileDTO file : files)
                         {
-                            // As we are sure that we get correct email addresses, this exception can only be related to
-                            // the configuration and/or environment. So inform the administrator about the problem.
-                            notificationLog.error("A problem has occurred while sending email.", ex);
-                            notified = true;
+                            fileDAO.createSharingLink(file.getID(), user.getID());
+                        }
+                    }
+                    for (final UserDTO user : usersOrNull)
+                    {
+                        final EMailBuilderForUploadedFiles builder =
+                                new EMailBuilderForUploadedFiles(mailClient, requestUser, lowerCaseEmail);
+                        builder.setURL(url);
+                        builder.setPassword(password);
+                        builder.setUserCode(user.getUserCode());
+                        for (final FileDTO fileDTO : files)
+                        {
+                            builder.addFile(fileDTO);
+                        }
+                        if (StringUtils.isNotBlank(comment))
+                        {
+                            builder.setComment(comment);
+                        }
+                        try
+                        {
+                            builder.sendEMail();
+                            notified = false;
+                        } catch (final EnvironmentFailureException ex)
+                        {
+                            if (notified == false)
+                            {
+                                // As we are sure that we get correct email addresses, this exception can only be
+                                // related to
+                                // the configuration and/or environment. So inform the administrator about the problem.
+                                notificationLog.error("A problem has occurred while sending email.", ex);
+                                notified = true;
+                            }
                         }
                     }
                 }
             }
+            success = true;
+            return invalidEmailAdresses;
+        } finally
+        {
+            businessContext.getUserActionLog().logShareFiles(files, allUsers, emailsOfUsers, invalidEmailAdresses,
+                    success);
         }
-        return invalidEmailAdresses;
     }
 
     private TableMapNonUniqueKey<String, UserDTO> createTableMapOfExistingUsers()
@@ -443,22 +479,50 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         assert fileDTO != null : "Given file can not be null";
 
-        daoFactory.getFileDAO().deleteFile(fileDTO.getID());
-        deleteFromFileSystem(fileDTO.getPath());
+        boolean success = false;
+        try
+        {
+            daoFactory.getFileDAO().deleteFile(fileDTO.getID());
+            deleteFromFileSystem(fileDTO.getPath());
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logDeleteFile(fileDTO, success);
+        }
     }
 
     @Transactional
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate)
+    public void updateFileExpiration(final long fileId, final Date newExpirationDate) throws IllegalArgumentException
+    {
+        final FileDTO file = getFile(fileId);
+        boolean success = false;
+        try
+        {
+            if (newExpirationDate == null)
+            {
+                file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
+            } else
+            {
+                file.setExpirationDate(newExpirationDate);
+            }
+            daoFactory.getFileDAO().updateFile(file);
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logRenewFile(file, success);
+        }
+    }
+
+    private FileDTO getFile(final long fileId) throws IllegalArgumentException
     {
         final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-        if (newExpirationDate == null)
+        if (file == null)
         {
-            file.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getFileRetention()));
-        } else
-        {
-            file.setExpirationDate(newExpirationDate);
+            final String msg = "No file found for fileId " + fileId + ".";
+            operationLog.error(msg);
+            throw new IllegalArgumentException(msg);
         }
-        daoFactory.getFileDAO().updateFile(file);
+        return file;
     }
 
 }

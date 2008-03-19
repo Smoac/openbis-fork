@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
+import ch.systemsx.cisd.cifex.server.IUserActionLog;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -62,6 +63,11 @@ public interface IBusinessContext
      * Returns the user session invalidator implementation.
      */
     public IUserSessionInvalidator getUserSessionInvalidator();
+
+    /**
+     * Returns the logger of user behavior.
+     */
+    public IUserActionLog getUserActionLog();
 
     /**
      * Returns the administrator email.

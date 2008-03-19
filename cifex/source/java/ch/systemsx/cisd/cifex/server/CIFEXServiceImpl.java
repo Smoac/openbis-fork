@@ -83,8 +83,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
 
-    private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH, CIFEXServiceImpl.class);
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
 
     private final IDomainModel domainModel;
@@ -95,6 +93,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private final IAuthenticationService externalAuthenticationService;
 
+    private final IUserActionLog userBehaviorLog;
+
     private final static boolean DOWNLOAD = true;
 
     private final static boolean UPLOAD = false;
@@ -103,10 +103,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private int sessionExpirationPeriod;
 
     public CIFEXServiceImpl(final IDomainModel domainModel, final IRequestContextProvider requestContextProvider,
-            final IAuthenticationService externalAuthenticationService)
+            final IUserActionLog userBehaviorLog, final IAuthenticationService externalAuthenticationService)
     {
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
+        this.userBehaviorLog = userBehaviorLog;
         this.externalAuthenticationService = externalAuthenticationService;
         loggingContextHandler = new LoggingContextHandler(new RequestContextProviderAdapter(requestContextProvider));
         if (hasExternalAuthenticationService())
@@ -141,17 +142,18 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private User finishLogin(final UserDTO userDTO) throws UserFailureException
+    private User finishLogin(final UserDTO userDTO)
     {
         // Do not transfer the hash value to the client (security).
         userDTO.setEncryptedPassword(null);
-        if (authenticationLog.isInfoEnabled())
-        {
-            authenticationLog.info("Successful login of user " + userDTO);
-        }
         final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail() + ", session start:"
                 + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Successfully created session for user " + userDTO);
+        }
+        userBehaviorLog.logSuccessfulLogin(); 
         return BeanUtils.createBean(User.class, userDTO);
     }
 
@@ -204,12 +206,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryLogin(final String userCode, final String password) throws UserFailureException,
-            EnvironmentFailureException
+    public final User tryLogin(final String userCode, final String password) throws EnvironmentFailureException
     {
-        if (authenticationLog.isDebugEnabled())
+        if (operationLog.isDebugEnabled())
         {
-            authenticationLog.debug("Try to login user '" + userCode + "'.");
+            operationLog.debug("Try to login user '" + userCode + "'.");
         }
         final IUserManager userManager = domainModel.getUserManager();
         if (userManager.isDatabaseEmpty())
@@ -231,10 +232,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
                     || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
             {
-                if (authenticationLog.isInfoEnabled())
-                {
-                    authenticationLog.info("Failed login attempt from user '" + userCode + "'.");
-                }
+                userBehaviorLog.logFailedLoginAttempt(userCode);
                 return null;
             }
         }
@@ -242,18 +240,19 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     private UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail, final String password)
-            throws UserFailureException, EnvironmentFailureException
+            throws EnvironmentFailureException
     {
         if (hasExternalAuthenticationService())
         {
             final String applicationToken = externalAuthenticationService.authenticateApplication();
             if (applicationToken == null)
             {
-                authenticationLog.error("User '" + userOrEmail
-                        + "' couldn't be authenticated because authentication of "
-                        + "the application at the external authentication service failed.");
-                throw new UserFailureException("Authentication of the server application at "
-                        + "the external authentication service failed.");
+                userBehaviorLog.logFailedLoginAttempt(userOrEmail);
+                final String msg =
+                        "User '" + userOrEmail + "' couldn't be authenticated because authentication of "
+                                + "the application at the external authentication service failed.";
+                operationLog.error(msg);
+                throw new EnvironmentFailureException(msg);
             }
             final boolean authenticated =
                     externalAuthenticationService.authenticateUser(applicationToken, userOrEmail, password);
@@ -264,8 +263,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final Principal principal = externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
             if (principal == null)
             {
-                authenticationLog.error("Principal is null for successfully authenticated user '" + userOrEmail + "'.");
-                throw new UserFailureException("Unable to retrieve user information.");
+                userBehaviorLog.logFailedLoginAttempt(userOrEmail);
+                final String msg = "Principal is null for successfully authenticated user '" + userOrEmail + "'.";
+                operationLog.error(msg);
+                throw new EnvironmentFailureException(msg);
             }
             final String code = principal.getUserId();
             final String email = principal.getEmail();
@@ -421,14 +422,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final HttpSession httpSession = getSession(false);
         if (httpSession != null)
         {
-            final UserDTO user = (UserDTO) httpSession.getAttribute(SESSION_NAME);
             loggingContextHandler.destroyContext(httpSession.getId());
             // This unbinds all the attributes as well. So do not do clever cleaning here.
             httpSession.invalidate();
-            if (authenticationLog.isInfoEnabled())
-            {
-                authenticationLog.info("Logout of user " + user);
-            }
         }
     }
 

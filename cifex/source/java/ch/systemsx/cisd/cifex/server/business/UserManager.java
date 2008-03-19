@@ -44,8 +44,6 @@ class UserManager extends AbstractManager implements IUserManager
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
 
-    private static final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING, UserManager.class);
-
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
             final IBusinessContext businessContext)
     {
@@ -81,9 +79,17 @@ class UserManager extends AbstractManager implements IUserManager
     @Transactional
     public final void createUser(final UserDTO user)
     {
-        final IUserBO userBO = boFactory.createUserBO();
-        userBO.define(user);
-        userBO.save();
+        boolean success = false;
+        try
+        {
+            final IUserBO userBO = boFactory.createUserBO();
+            userBO.define(user);
+            userBO.save();
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logCreateUser(user, success);
+        }
     }
 
     @Transactional
@@ -109,18 +115,16 @@ class UserManager extends AbstractManager implements IUserManager
                 final boolean success = userDAO.deleteUser(user.getID());
                 if (success)
                 {
-                    if (trackingLog.isInfoEnabled())
-                    {
-                        trackingLog.info("Expired user [" + getUserDescription(user) + "] deleted from database.");
-                    }
                     businessContext.getUserSessionInvalidator().invalidateSessionWithUser(user);
                 } else
                 {
                     operationLog.warn("Expired user [" + getUserDescription(user)
                             + "] could not be found in the database.");
                 }
+                businessContext.getUserActionLog().logExpireUser(user, success);
             } catch (final RuntimeException ex)
             {
+                businessContext.getUserActionLog().logExpireUser(user, false);
                 notificationLog.error("Error deleting user [" + getUserDescription(user) + "].", ex);
                 if (firstExceptionOrNull == null)
                 {
@@ -138,72 +142,105 @@ class UserManager extends AbstractManager implements IUserManager
     @Transactional
     public final void deleteUser(final String userCode) throws UserFailureException
     {
-        assert userCode != null : "User is null";
+        assert userCode != null : "userCode is null";
 
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        final UserDTO userOrNull = userDAO.tryFindUserByCode(userCode);
-        if (userOrNull != null)
+        UserDTO userOrNull = null;
+        boolean success = false;
+        try
         {
-            final boolean userSuccesfullyDeletedFromDatabase = userDAO.deleteUser(userOrNull.getID());
-            if (userSuccesfullyDeletedFromDatabase)
+            final IUserDAO userDAO = daoFactory.getUserDAO();
+            userOrNull = userDAO.tryFindUserByCode(userCode);
+            if (userOrNull != null)
             {
-                if (operationLog.isInfoEnabled())
+                success = userDAO.deleteUser(userOrNull.getID());
+                if (success)
                 {
-                    operationLog.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
+                    }
+                    businessContext.getUserSessionInvalidator().invalidateSessionWithUser(userOrNull);
+                } else
+                {
+                    operationLog.warn("Could not delete user [" + getUserDescription(userOrNull) + "] from user database.");
                 }
-                businessContext.getUserSessionInvalidator().invalidateSessionWithUser(userOrNull);
             } else
             {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Could not delete User [" + getUserDescription(userOrNull)
-                            + "] from user database.");
-                }
+                final String msg = String.format("Could not delete user '%s' (user not found)", userCode);
+                operationLog.warn(msg);
+                throw new UserFailureException(msg);
             }
-        } else if (operationLog.isInfoEnabled())
+        } finally
         {
-            final String msg = String.format("Could not delete user '%s' (user not found)", userCode);
-            operationLog.info(msg);
-            throw new UserFailureException(msg);
+            if (userOrNull != null)
+            {
+                businessContext.getUserActionLog().logDeleteUser(userOrNull, success);
+            }
         }
     }
 
     @Transactional
     public final void updateUser(final UserDTO userToUpdate, final String encryptedPassword)
+            throws UserFailureException, IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
 
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        // Get existing user
-        final UserDTO existingUser = userDAO.tryFindUserByCode(userToUpdate.getUserCode());
-        assert existingUser != null;
-        assert existingUser.getUserCode().equals(userToUpdate.getUserCode()) : "User code can not be changed";
-
-        userToUpdate.setID(existingUser.getID());
-
-        // Permanent User can not get temporary user.
-        if (existingUser.isPermanent() == true && userToUpdate.isPermanent() == false)
+        boolean success = false;
+        UserDTO existingUser = null;
+        try
         {
-            userToUpdate.setPermanent(true);
+            final IUserDAO userDAO = daoFactory.getUserDAO();
+            // Get old user entry
+            existingUser = getUserByCode(userDAO, userToUpdate.getUserCode());
+
+            userToUpdate.setID(existingUser.getID());
+
+            checkIllegalModifications(existingUser, userToUpdate);
+
+            // Renew the expiration Date
+            if (userToUpdate.isPermanent() == false)
+            {
+                userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+            }
+
+            // Password, renew it or leave it as it is
+            if (StringUtils.isNotBlank(encryptedPassword))
+            {
+                userToUpdate.setEncryptedPassword(encryptedPassword);
+            } else
+            {
+                userToUpdate.setEncryptedPassword(existingUser.getEncryptedPassword());
+            }
+
+            userDAO.updateUser(userToUpdate);
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
         }
 
-        // Renew the expiration Date
-        if (userToUpdate.isPermanent() == false)
+    }
+
+    private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode) throws UserFailureException
+    {
+        assert userCode != null;
+        
+        final UserDTO existingUser = userDAO.tryFindUserByCode(userCode);
+        if (existingUser == null)
         {
-            userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+            String msg = String.format("User '%s' does not exist in the database.", userCode);
+            throw new UserFailureException(msg);
         }
+        assert userCode.equals(existingUser.getUserCode()) : "Mismatch in user code";
+        return existingUser;
+    }
 
-        // Password, renew it or leave it as it is
-        if (StringUtils.isNotBlank(encryptedPassword))
+    private static void checkIllegalModifications(final UserDTO oldUser, final UserDTO newUser) throws IllegalArgumentException
+    {
+        if (oldUser.isPermanent() && newUser.isPermanent() == false)
         {
-            userToUpdate.setEncryptedPassword(encryptedPassword);
-        } else
-        {
-            userToUpdate.setEncryptedPassword(existingUser.getEncryptedPassword());
+            throw new IllegalArgumentException("Cannot make a regular user temporary.");
         }
-
-        userDAO.updateUser(userToUpdate);
-
     }
 
     @Transactional
