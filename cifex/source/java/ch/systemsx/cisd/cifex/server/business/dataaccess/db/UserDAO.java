@@ -152,9 +152,9 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         final Long registratorIdOrNull = tryGetRegistratorId(user);
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        template.update(
-                "insert into users (id, user_id, email, full_name, encrypted_password, is_externally_authenticated, is_admin,"
-                        + "is_permanent, user_id_registrator, expiration_timestamp) values (?,?,?,?,?,?,?,?,?,?)", id,
+        template.update("insert into users (id, user_id, email, full_name, encrypted_password, "
+                + "is_externally_authenticated, is_admin,"
+                + "is_permanent, user_id_registrator, expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?)", id,
                 user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getEncryptedPassword(), user
                         .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
                         .getExpirationDate());
@@ -224,13 +224,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
-        template
-                .update(
-                        "update users set email = ?, user_id = ?, full_name = ?, encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
-                                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user
-                                .getUserCode(), user.getUserFullName(), user.getEncryptedPassword(), user
-                                .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
-                                .getExpirationDate(), user.getID());
+        template.update("update users set email = ?, user_id = ?, full_name = ?, "
+                + "encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
+                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(), user
+                .getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(), user.isAdmin(), user
+                .isPermanent(), user.getExpirationDate(), user.getID());
     }
-
 }
