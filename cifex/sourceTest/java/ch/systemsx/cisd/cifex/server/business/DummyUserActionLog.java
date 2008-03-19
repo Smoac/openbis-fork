@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpSession;
 
-import ch.systemsx.cisd.cifex.server.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 

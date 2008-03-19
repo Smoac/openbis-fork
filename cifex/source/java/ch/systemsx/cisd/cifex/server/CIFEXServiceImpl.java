@@ -46,6 +46,7 @@ import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;

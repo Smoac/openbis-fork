@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server;
+package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.Collection;
 import javax.servlet.http.HttpSession;

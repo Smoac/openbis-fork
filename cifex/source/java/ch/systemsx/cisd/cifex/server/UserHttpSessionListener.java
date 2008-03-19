@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
