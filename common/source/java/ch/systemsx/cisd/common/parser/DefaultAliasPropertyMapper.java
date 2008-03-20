@@ -79,9 +79,8 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
      */
     private final String getRealPropertyName(final String propertyName)
     {
-        String propertyNameInLowerCase = propertyName.toLowerCase();
-        final String realPropertyName = aliasToPropertyMappings.get(propertyNameInLowerCase);
-        return realPropertyName == null ? propertyNameInLowerCase : realPropertyName;
+        final String realPropertyName = aliasToPropertyMappings.get(propertyName);
+        return realPropertyName == null ? propertyName : realPropertyName;
     }
 
     //
@@ -91,12 +90,11 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
     public final String getPropertyNameForAlias(final String alias) throws IllegalArgumentException
     {
         assert alias != null : "Unspecified alias.";
-        String aliasInLowerCase = alias.toLowerCase();
-        if (aliasToPropertyMappings.containsKey(aliasInLowerCase) == false)
+        if (aliasToPropertyMappings.containsKey(alias) == false)
         {
             throw new IllegalArgumentException(String.format("Unknown alias '%s'.", alias));
         }
-        return aliasToPropertyMappings.get(aliasInLowerCase);
+        return aliasToPropertyMappings.get(alias);
     }
 
     public final void setAliasForPropertyName(final String aliasName, final String propertyName)
@@ -104,10 +102,8 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
     {
         assert aliasName != null : "Given alias name can not be null.";
         assert propertyName != null : "Given property name can not be null.";
-        String aliasNameInLowerCase = aliasName.toLowerCase();
-        String propertyNameInLowerCase = propertyName.toLowerCase();
-        checkOneToOneRelation(aliasNameInLowerCase, propertyNameInLowerCase);
-        aliasToPropertyMappings.put(aliasNameInLowerCase, propertyNameInLowerCase);
+        checkOneToOneRelation(aliasName, propertyName);
+        aliasToPropertyMappings.put(aliasName, propertyName);
     }
 
     public final Set<String> getAllAliases()

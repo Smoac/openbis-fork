@@ -209,7 +209,7 @@ public class TabFileLoader<T>
         final Set<String> unique = new HashSet<String>();
         for (final String token : tokens)
         {
-            if (unique.add(token.toLowerCase()) == false)
+            if (unique.add(token) == false)
             {
                 throw new IllegalArgumentException(String.format("Duplicated column name '%s'.",
                         token));
