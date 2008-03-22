@@ -54,7 +54,8 @@ public class DefaultPropertyMapper implements IPropertyMapper
                 throw new IllegalArgumentException(String.format("%s token of %s is blank.",
                         StringUtilities.getOrdinal(i), Arrays.asList(properties)));
             }
-            propertyModels.put(token, new MappedProperty(i, token));
+            String tokenInLowerCase = token.toLowerCase();
+            propertyModels.put(tokenInLowerCase, new MappedProperty(i, tokenInLowerCase));
         }
     }
 
@@ -64,7 +65,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
 
     public boolean containsPropertyName(final String propertyName)
     {
-        return propertyModels.containsKey(propertyName);
+        return propertyModels.containsKey(propertyName.toLowerCase());
     }
 
     public Set<String> getAllPropertyNames()
@@ -80,6 +81,6 @@ public class DefaultPropertyMapper implements IPropertyMapper
             throw new IllegalArgumentException(String.format(
                     "Given property name '%s' does not exist.", propertyName));
         }
-        return propertyModels.get(propertyName);
+        return propertyModels.get(propertyName.toLowerCase());
     }
 }
