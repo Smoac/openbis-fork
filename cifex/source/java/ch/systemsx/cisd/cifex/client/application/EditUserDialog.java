@@ -74,6 +74,7 @@ public final class EditUserDialog extends DefaultLayoutDialog
                 public void onClick(final Button b, final EventObject e)
                 {
                     editUserWidget.submitForm();
+                    hide();
                 }
             });
     }

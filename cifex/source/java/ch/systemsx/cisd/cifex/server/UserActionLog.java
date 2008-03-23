@@ -204,9 +204,9 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             final String whatChanged = getMessageWhatChanged(oldUser, newUser);
-            trackingLog.info(String.format(getUserHostSessionDescription()
-                    + "update_user '%s' [%s]: %s", getUserDescription(newUser), whatChanged,
-                    getSuccessString(success)));
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("update_user '%s' [%s]: %s", getUserDescription(newUser),
+                            whatChanged, getSuccessString(success)));
         }
     }
 
@@ -420,5 +420,4 @@ public final class UserActionLog implements IUserActionLog
                     + String.format("download_file '%s': %s", getFileDescription(file), success));
         }
     }
-
 }
