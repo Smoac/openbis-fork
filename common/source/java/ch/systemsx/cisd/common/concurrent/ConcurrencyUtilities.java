@@ -83,6 +83,8 @@ public final class ConcurrencyUtilities
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
             ISimpleLogger loggerOrNull, String operationNameOrNull)
     {
+        final String operationName =
+                (operationNameOrNull == null) ? "UNKNOWN OPERATION" : operationNameOrNull;
         try
         {
             return future.get(timeoutMillis, TimeUnit.MILLISECONDS);
@@ -92,8 +94,7 @@ public final class ConcurrencyUtilities
             if (loggerOrNull != null)
             {
                 loggerOrNull.log(LogLevel.DEBUG, String.format(
-                        "%s took longer than %f s, cancelled.",
-                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
+                        "%s took longer than %f s, cancelled.", operationName,
                         timeoutMillis / 1000f));
             }
             return null;
@@ -102,8 +103,8 @@ public final class ConcurrencyUtilities
             future.cancel(true);
             if (loggerOrNull != null)
             {
-                loggerOrNull.log(LogLevel.DEBUG, String.format("%s got interrupted.",
-                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull));
+                loggerOrNull.log(LogLevel.DEBUG, String
+                        .format("%s got interrupted.", operationName));
             }
             return null;
         } catch (ExecutionException ex)
@@ -111,11 +112,12 @@ public final class ConcurrencyUtilities
             final Throwable cause = ex.getCause();
             if (loggerOrNull != null)
             {
-                // FIXME 2008-03-25, Christian Ribeaud: Expected 2 arguments, found 3.
-                loggerOrNull.log(LogLevel.ERROR, String.format("%s has caused an exception: %s",
-                        operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
-                        cause.getClass().getSimpleName(), cause.getMessage() != null ? cause
-                                .getMessage() : "<no message>"));
+                final String message =
+                        (cause.getMessage() == null) ? "<no message>" : cause.getMessage();
+                final String className =
+                        (cause == null) ? "<unknown class>" : cause.getClass().getSimpleName();
+                loggerOrNull.log(LogLevel.ERROR, String.format(
+                        "%s has caused an exception: %s [%s]", operationName, message, className));
             }
             if (cause instanceof Error)
             {
