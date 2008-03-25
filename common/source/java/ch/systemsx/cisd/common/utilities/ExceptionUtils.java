@@ -95,8 +95,8 @@ public final class ExceptionUtils
     }
 
     /**
-     * Analyzes given <var>exception</var> and makes it independent to packages outside the ones specified in
-     * {@link #ACCEPTED_PACKAGE_NAME_DEPENDENCIES}.
+     * Analyzes given <var>exception</var> and makes it independent to packages outside the 
+     * ones specified in an internal list, <code>ACCEPTED_PACKAGE_NAME_DEPENDENCIES</code>.
      */
     public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception)
     {
