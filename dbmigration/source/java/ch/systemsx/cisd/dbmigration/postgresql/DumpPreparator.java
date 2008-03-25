@@ -271,16 +271,15 @@ public class DumpPreparator
 
         private void writeTo(File folder, String fileName, List<String> lines) throws IOException
         {
-            FileWriter writer = null;
+            PrintWriter writer = null;
             try
             {
-                File file = new File(folder, fileName);
+                final File file = new File(folder, fileName);
                 System.out.println("   create " + file.getAbsolutePath());
-                writer = new FileWriter(file);
-                PrintWriter printWriter = new PrintWriter(writer, true);
+                writer = new PrintWriter(new FileWriter(file), true);
                 for (String line : lines)
                 {
-                    printWriter.println(line);
+                    writer.println(line);
                 }
             } finally
             {
