@@ -37,6 +37,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 
+import org.apache.commons.io.IOUtils;
+
 /**
  * Helper application which creates 'mass upload' files to be used to setup the database from a PostgreSQL dump.
  * <p>
@@ -97,7 +99,7 @@ public class DumpPreparator
             createUploadFiles(reader, destination);
         } finally
         {
-            reader.close();
+            IOUtils.closeQuietly(reader);
         }
     }
 
@@ -283,10 +285,7 @@ public class DumpPreparator
                 }
             } finally
             {
-                if (writer != null)
-                {
-                    writer.close();
-                }
+                IOUtils.closeQuietly(writer);
             }
         }
 
