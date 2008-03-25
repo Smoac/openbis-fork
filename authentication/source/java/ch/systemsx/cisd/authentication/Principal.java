@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +31,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author Christian Ribeaud
  */
-public class Principal
+public class Principal implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String userId;
 
     private final String firstName;
