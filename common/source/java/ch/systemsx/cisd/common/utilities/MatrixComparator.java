@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -28,8 +29,10 @@ import java.util.Comparator;
  * 
  * @author Christian Ribeaud
  */
-public final class MatrixComparator implements Comparator<String>
+public final class MatrixComparator implements Comparator<String>, Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private final boolean letterFirst;
 

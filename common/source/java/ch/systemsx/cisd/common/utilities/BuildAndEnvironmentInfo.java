@@ -52,16 +52,21 @@ public final class BuildAndEnvironmentInfo
         String extractedVersion = UNKNOWN;
         String extractedRevision = UNKNOWN;
         boolean extractedCleanFlag = false;
-        InputStream stream = BuildAndEnvironmentInfo.class.getResourceAsStream("/BUILD.INFO");
+        final InputStream stream = BuildAndEnvironmentInfo.class.getResourceAsStream("/BUILD.INFO");
         if (stream != null)
         {
+            BufferedReader reader = null;
             try
             {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                StringTokenizer tokenizer = new StringTokenizer(reader.readLine(), ":");
-                extractedVersion = tokenizer.nextToken();
-                extractedRevision = tokenizer.nextToken();
-                extractedCleanFlag = "clean".equals(tokenizer.nextToken());
+                reader = new BufferedReader(new InputStreamReader(stream));
+                final String line = reader.readLine();
+                if (line != null)
+                {
+                    final StringTokenizer tokenizer = new StringTokenizer(line, ":");
+                    extractedVersion = tokenizer.nextToken();
+                    extractedRevision = tokenizer.nextToken();
+                    extractedCleanFlag = "clean".equals(tokenizer.nextToken());
+                }
             } catch (IOException ex)
             {
                 // ignored
@@ -69,7 +74,7 @@ public final class BuildAndEnvironmentInfo
             {
                 try
                 {
-                    stream.close();
+                    reader.close();
                 } catch (IOException ex)
                 {
                     // ignored

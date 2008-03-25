@@ -29,7 +29,7 @@ public final class ExceptionUtils
     /**
      * Accepted packages for dependencies.
      */
-    public final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
+    private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
         { "java.lang", "ch.systemsx.cisd" };
 
     ExceptionUtils()

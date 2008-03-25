@@ -111,6 +111,7 @@ public final class ConcurrencyUtilities
             final Throwable cause = ex.getCause();
             if (loggerOrNull != null)
             {
+                // FIXME 2008-03-25, Christian Ribeaud: Expected 2 arguments, found 3.
                 loggerOrNull.log(LogLevel.ERROR, String.format("%s has caused an exception: %s",
                         operationNameOrNull == null ? "UNKNOWN OPERATION" : operationNameOrNull,
                         cause.getClass().getSimpleName(), cause.getMessage() != null ? cause

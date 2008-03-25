@@ -81,13 +81,15 @@ public final class ConverterPool
             return (T) Short.valueOf(value);
         } else if (type.equals(Character.class) || type.equals(Character.TYPE))
         {
+            final char c;
             if (value.length() > 0)
             {
-                return (T) Character.valueOf(value.charAt(0));
+                c = value.charAt(0);
             } else
             {
-                return (T) new Character('\0');
+                c = '\0';
             }
+            return (T) Character.valueOf(c);
         } else if (type.equals(String.class))
         {
             return (T) value;
