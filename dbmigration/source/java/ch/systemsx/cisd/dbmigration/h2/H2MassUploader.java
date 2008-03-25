@@ -70,7 +70,7 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
         setDataSource(dataSource);
     }
 
-    private final class MassUploadRecord
+    private final static class MassUploadRecord
     {
         final File massUploadFile;
 

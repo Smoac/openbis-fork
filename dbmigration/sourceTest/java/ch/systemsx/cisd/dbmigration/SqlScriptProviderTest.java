@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -105,14 +106,14 @@ public class SqlScriptProviderTest
     {
         try
         {
-            FileWriter fileWriter = null;
+            PrintWriter printWriter = null;
             try
             {
-                fileWriter = new FileWriter(file);
-                new PrintWriter(fileWriter).print(content);
+                printWriter = new PrintWriter(new FileWriter(file));
+                printWriter.print(content);
             } finally
             {
-                IOUtils.closeQuietly(fileWriter);
+                IOUtils.closeQuietly(printWriter);
             }
         } catch (IOException ex)
         {

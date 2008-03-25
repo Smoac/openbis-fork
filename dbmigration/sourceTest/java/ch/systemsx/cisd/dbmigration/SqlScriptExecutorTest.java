@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +32,6 @@ import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
-import static org.testng.AssertJUnit.*;
-
 /**
  * Test cases for the {@link SqlScriptExecutor}.
  * 
@@ -40,7 +40,7 @@ import static org.testng.AssertJUnit.*;
 public class SqlScriptExecutorTest
 {
 
-    private class TestSqlScriptExecutor extends SqlScriptExecutor
+    private final static class TestSqlScriptExecutor extends SqlScriptExecutor
     {
         private final List<String> executions;
 
@@ -135,7 +135,7 @@ public class SqlScriptExecutorTest
         }
     }
 
-    class MyError extends Error
+    static class MyError extends Error
     {
         private static final long serialVersionUID = 1L;
     }
