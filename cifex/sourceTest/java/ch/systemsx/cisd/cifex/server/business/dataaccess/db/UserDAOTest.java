@@ -305,7 +305,7 @@ public final class UserDAOTest extends AbstractDAOTest
 
         final List<UserDTO> listUsers = userDAO.listUsers();
 
-        assertFalse(userDAO.deleteUser(new Long(-1)));
+        assertFalse(userDAO.deleteUser(-1));
 
         assertTrue(userDAO.deleteUser(testAdminUser.getID()));
         assertEquals(listUsers.size() - 1, userDAO.listUsers().size());

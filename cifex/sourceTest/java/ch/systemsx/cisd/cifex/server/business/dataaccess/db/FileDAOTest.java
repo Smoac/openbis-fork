@@ -96,7 +96,7 @@ public final class FileDAOTest extends AbstractDAOTest
     {
         final FileDTO sampleFile = createSampleFile();
         sampleFile.setPath("prefix" + i + "_" + sampleFile.getPath());
-        if (expirationTime != NOT_SET)
+        if (expirationTime.equals(NOT_SET) == false)
         {
             sampleFile.setExpirationDate(new Date(expirationTime));
         }
@@ -223,7 +223,7 @@ public final class FileDAOTest extends AbstractDAOTest
         boolean newFileInDownloadList = false;
         for (final FileDTO f : filesToDownload)
         {
-            if (f.getID() == newFile.getID())
+            if (f.getID().equals(newFile.getID()))
             {
                 newFileInDownloadList = true;
             }
@@ -233,7 +233,7 @@ public final class FileDAOTest extends AbstractDAOTest
         filesToDownload = fileDAO.listDownloadFiles(user.getID());
         for (final FileDTO f : filesToDownload)
         {
-            if (f.getID() == newFile.getID())
+            if (f.getID().equals(newFile.getID()))
             {
                 newFileInDownloadList = true;
             }
