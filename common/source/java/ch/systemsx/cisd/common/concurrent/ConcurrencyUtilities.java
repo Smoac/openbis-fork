@@ -113,7 +113,8 @@ public final class ConcurrencyUtilities
             if (loggerOrNull != null)
             {
                 final String message =
-                        (cause.getMessage() == null) ? "<no message>" : cause.getMessage();
+                        (cause == null || cause.getMessage() == null) ? "<no message>" : cause
+                                .getMessage();
                 final String className =
                         (cause == null) ? "<unknown class>" : cause.getClass().getSimpleName();
                 loggerOrNull.log(LogLevel.ERROR, String.format(
