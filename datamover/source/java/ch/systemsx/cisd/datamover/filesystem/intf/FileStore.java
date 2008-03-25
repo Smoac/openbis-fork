@@ -32,6 +32,11 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  * @author Bernd Rinn
  * @author Tomasz Pylak
  */
+// TODO 2008-03-25, Christian Ribeaud: this class overrides equals(Object), but does not override hashCode(), and
+// inherits the
+// implementation of hashCode() from java.lang.Object (which returns the identity hash code, an arbitrary value assigned
+// to the object by the VM). Therefore, the class is very likely to violate the invariant that equal objects must have
+// equal hashcodes.
 public abstract class FileStore implements IFileStore
 {
     protected final File path;

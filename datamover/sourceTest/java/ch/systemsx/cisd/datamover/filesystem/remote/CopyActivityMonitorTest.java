@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 
 import org.testng.annotations.AfterMethod;
@@ -41,8 +45,6 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
-import static org.testng.AssertJUnit.*;
-
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
  * 
@@ -66,7 +68,7 @@ public class CopyActivityMonitorTest
     // Some mock and dummy implementations.
     //
 
-    private final class DummyTerminable implements ITerminable
+    private final static class DummyTerminable implements ITerminable
     {
         public boolean terminate()
         {
@@ -74,7 +76,7 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private final class MockTerminable implements ITerminable
+    private final static class MockTerminable implements ITerminable
     {
         private boolean terminated = false;
 
@@ -98,7 +100,7 @@ public class CopyActivityMonitorTest
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
     }
 
-    private final class HappyPathLastChangedChecker implements ILastChangedChecker
+    private final static class HappyPathLastChangedChecker implements ILastChangedChecker
     {
         private final long stopWhenFindYoungerRelativeExpected;
 
@@ -114,7 +116,7 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private final class MyTimingParameters implements ITimingParameters
+    private final static class MyTimingParameters implements ITimingParameters
     {
 
         private final long inactivityPeriodMillis;
@@ -293,7 +295,8 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated();
     }
 
-    private final class SimulateShortInterruptionChangedChecker implements ILastChangedChecker
+    private final static class SimulateShortInterruptionChangedChecker implements
+            ILastChangedChecker
     {
         private int numberOfTimesCalled = 0;
 
@@ -338,7 +341,7 @@ public class CopyActivityMonitorTest
         assert copyProcess.isTerminated() == false;
     }
 
-    private final class PathLastChangedCheckerStalled implements ILastChangedChecker
+    private final static class PathLastChangedCheckerStalled implements ILastChangedChecker
     {
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
@@ -398,7 +401,7 @@ public class CopyActivityMonitorTest
         return item;
     }
 
-    private final class PathLastChangedCheckerDelayed implements ILastChangedChecker
+    private final static class PathLastChangedCheckerDelayed implements ILastChangedChecker
     {
         private final long[] delayMillis;
 
