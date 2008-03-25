@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.io.IOUtils;
+
 /**
  * Bean with build and environment information.
  * <p>
@@ -72,13 +74,7 @@ public final class BuildAndEnvironmentInfo
                 // ignored
             } finally
             {
-                try
-                {
-                    reader.close();
-                } catch (IOException ex)
-                {
-                    // ignored
-                }
+                IOUtils.closeQuietly(reader);
             }
         }
         this.version = extractedVersion;
