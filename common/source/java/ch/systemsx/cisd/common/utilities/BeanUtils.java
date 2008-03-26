@@ -91,7 +91,7 @@ public final class BeanUtils
             return "GENERIC";
         }
 
-        public <T extends Annotation> T getAnnotation(Class<T> annotationClazz)
+        public <T extends Annotation> T getAnnotation(final Class<T> annotationClazz)
         {
             return null;
         }
@@ -106,7 +106,7 @@ public final class BeanUtils
 
         private final Method setterMethod;
 
-        SetterAnnotationMap(Method setterMethod)
+        SetterAnnotationMap(final Method setterMethod)
         {
             assert setterMethod != null;
 
@@ -118,7 +118,7 @@ public final class BeanUtils
             return setterMethod.toGenericString();
         }
 
-        public <T extends Annotation> T getAnnotation(Class<T> annotationClazz)
+        public <T extends Annotation> T getAnnotation(final Class<T> annotationClazz)
         {
             return setterMethod.getAnnotation(annotationClazz);
         }
@@ -165,7 +165,7 @@ public final class BeanUtils
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source)
+    public final static <T, S> List<T> createBeanList(final Class<T> clazz, final Iterable<S> source)
     {
         return createBeanList(clazz, source, null);
     }
@@ -174,10 +174,19 @@ public final class BeanUtils
      * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter
      * specification.
      */
-    public static <T, S> T[] createBeanArray(Class<T> clazz, Collection<S> source,
-            Converter converter)
+    public final static <T, S> T[] createBeanArray(final Class<T> clazz, final Collection<S> source)
     {
-        assert clazz != null;
+        return createBeanArray(clazz, source, null);
+    }
+
+    /**
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter
+     * specification.
+     */
+    public final static <T, S> T[] createBeanArray(final Class<T> clazz,
+            final Collection<S> source, final Converter converter)
+    {
+        assert clazz != null : "Unspecified class";
 
         if (source == null)
         {
@@ -186,7 +195,7 @@ public final class BeanUtils
 
         final T result[] = createArrayOfType(clazz, source.size());
         int i = 0;
-        for (S element : source)
+        for (final S element : source)
         {
             result[i] = BeanUtils.createBean(clazz, element, converter);
             i++;
@@ -198,9 +207,10 @@ public final class BeanUtils
      * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code> for parameter
      * specification.
      */
-    public static <T, S> T[] createBeanArray(Class<T> clazz, Iterable<S> source, Converter converter)
+    public static <T, S> T[] createBeanArray(final Class<T> clazz, final Iterable<S> source,
+            final Converter converter)
     {
-        List<T> list = createBeanList(clazz, source, converter);
+        final List<T> list = createBeanList(clazz, source, converter);
         final T result[] = createArrayOfType(clazz, list.size());
         return list.toArray(result);
     }
@@ -216,8 +226,8 @@ public final class BeanUtils
      * @return The new list filled from <var>sourceList</var> or <code>null</code>, if <var>sourceList</var> is
      *         <code>null</code>.
      */
-    public final static <T, S> List<T> createBeanList(Class<T> clazz, Iterable<S> source,
-            Converter converter)
+    public final static <T, S> List<T> createBeanList(final Class<T> clazz,
+            final Iterable<S> source, final Converter converter)
     {
         assert clazz != null;
 
@@ -227,7 +237,7 @@ public final class BeanUtils
         }
 
         final List<T> resultList = new ArrayList<T>();
-        for (S element : source)
+        for (final S element : source)
         {
             resultList.add(BeanUtils.createBean(clazz, element, converter));
         }
@@ -238,7 +248,8 @@ public final class BeanUtils
      * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
      * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
-    public static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean)
+    public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
+            final Object sourceBean)
     {
         return fillBean(beanClass, beanInstance, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
@@ -247,7 +258,7 @@ public final class BeanUtils
      * Convenience method for {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
      * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
-    public static <T> T createBean(Class<T> beanClass, Object sourceBean)
+    public static <T> T createBean(final Class<T> beanClass, final Object sourceBean)
     {
         return fillBean(beanClass, null, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
@@ -263,8 +274,8 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
-    public static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean,
-            Converter converter)
+    public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
+            final Object sourceBean, final Converter converter)
     {
         Converter c = converter;
         if (c == null)
@@ -284,7 +295,8 @@ public final class BeanUtils
      *            <code>null</code>, in which case only standard conversions are allowed.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
-    public static <T> T createBean(Class<T> beanClass, Object sourceBean, Converter converter)
+    public static <T> T createBean(final Class<T> beanClass, final Object sourceBean,
+            final Converter converter)
     {
         Converter c = converter;
         if (c == null)
@@ -308,8 +320,9 @@ public final class BeanUtils
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    private static <T> T fillBean(Class<T> beanClass, T beanInstance, Object sourceBean,
-            AnnotationMap setterAnnotations, Converter converter)
+    private static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
+            final Object sourceBean, final AnnotationMap setterAnnotations,
+            final Converter converter)
     {
         assert beanClass != null : "undefined bean class";
         assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
@@ -352,7 +365,7 @@ public final class BeanUtils
                 copyBean(destinationBean, sourceBean, converter);
             }
             return destinationBean;
-        } catch (InvocationTargetException ex)
+        } catch (final InvocationTargetException ex)
         {
             final Throwable cause = ex.getCause();
             if (cause instanceof Error)
@@ -360,23 +373,23 @@ public final class BeanUtils
                 throw (Error) cause;
             }
             throw CheckedExceptionTunnel.wrapIfNecessary((Exception) cause);
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private static boolean isCollection(Object o)
+    private static boolean isCollection(final Object o)
     {
         return o instanceof Collection<?>;
     }
 
-    private static boolean isCollection(Class<?> clazz)
+    private static boolean isCollection(final Class<?> clazz)
     {
         return Collection.class.isAssignableFrom(clazz);
     }
 
-    private static boolean isArray(Object o)
+    private static boolean isArray(final Object o)
     {
         return o != null && o.getClass().isArray();
     }
@@ -386,9 +399,9 @@ public final class BeanUtils
         return clazz.isArray();
     }
 
-    private static <T> T instantiateBean(Class<T> beanClass, Object sourceBean,
-            AnnotationMap setterAnnotations) throws InstantiationException, IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException
+    private static <T> T instantiateBean(final Class<T> beanClass, final Object sourceBean,
+            final AnnotationMap setterAnnotations) throws InstantiationException,
+            IllegalAccessException, InvocationTargetException, NoSuchMethodException
     {
         if (sourceBean == null)
         {
@@ -415,7 +428,7 @@ public final class BeanUtils
         return beanClass.newInstance();
     }
 
-    private static Integer getSize(Object o)
+    private static Integer getSize(final Object o)
     {
         if (isArray(o))
         {
@@ -430,14 +443,14 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T createArray(Class<T> beanClass, int length)
+    private static <T> T createArray(final Class<T> beanClass, final int length)
             throws NegativeArraySizeException
     {
         return (T) Array.newInstance(beanClass.getComponentType(), length);
     }
 
     @SuppressWarnings("unchecked")
-    private static <E> E[] createArrayOfType(Class<E> elemClass, int length)
+    private static <E> E[] createArrayOfType(final Class<E> elemClass, final int length)
             throws NegativeArraySizeException
     {
         return (E[]) Array.newInstance(elemClass, length);
@@ -457,7 +470,7 @@ public final class BeanUtils
                     mapping.collectionClass().getConstructor(new Class[]
                         { int.class });
             return constructCollection(constructorWithSize, size);
-        } catch (NoSuchMethodException ex)
+        } catch (final NoSuchMethodException ex)
         { // Happens e.g. for a LinkedList
             return constructCollection(mapping.collectionClass());
         }
@@ -465,7 +478,7 @@ public final class BeanUtils
 
     @SuppressWarnings("unchecked")
     private static <T> T constructCollection(
-            final Constructor<? extends Collection> constructorWithSize, int size)
+            final Constructor<? extends Collection> constructorWithSize, final int size)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException
     {
@@ -485,8 +498,8 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T copyArrayToArray(T destination, Object source, Converter converter)
-            throws IllegalAccessException, InvocationTargetException
+    private final static <T> T copyArrayToArray(final T destination, final Object source,
+            final Converter converter) throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
@@ -529,8 +542,9 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T[] copyCollectionToArray(Object destination, Collection<T> source,
-            Converter converter) throws IllegalAccessException, InvocationTargetException
+    private final static <T> T[] copyCollectionToArray(final Object destination,
+            final Collection<T> source, final Converter converter) throws IllegalAccessException,
+            InvocationTargetException
     {
         if (destination == null)
         {
@@ -549,14 +563,14 @@ public final class BeanUtils
         if (immutableTypes.contains(componentType))
         {
             int index = 0;
-            for (Object sourceElement : source)
+            for (final Object sourceElement : source)
             {
                 Array.set(returned, index++, sourceElement);
             }
         } else
         {
             int index = 0;
-            for (Object sourceElement : source)
+            for (final Object sourceElement : source)
             {
                 final Object destinationElement =
                         createBean(componentType, sourceElement, converter);
@@ -566,8 +580,8 @@ public final class BeanUtils
         return returned;
     }
 
-    private static void copyArrayToCollection(Collection<?> destination, Object source,
-            AnnotationMap setterAnnotations, Converter converter)
+    private static void copyArrayToCollection(final Collection<?> destination, final Object source,
+            final AnnotationMap setterAnnotations, final Converter converter)
     {
         if (destination == null)
         {
@@ -594,8 +608,9 @@ public final class BeanUtils
         }
     }
 
-    private static void copyCollectionToCollection(Collection<?> destination, Collection<?> source,
-            AnnotationMap setterAnnotations, Converter converter)
+    private static void copyCollectionToCollection(final Collection<?> destination,
+            final Collection<?> source, final AnnotationMap setterAnnotations,
+            final Converter converter)
     {
         if (destination == null)
         {
@@ -604,13 +619,13 @@ public final class BeanUtils
         final Class<?> componentType = getCollectionComponentType(setterAnnotations);
         if (immutableTypes.contains(componentType))
         {
-            for (Object sourceElement : source)
+            for (final Object sourceElement : source)
             {
                 addToUntypedCollection(destination, sourceElement);
             }
         } else
         {
-            for (Object sourceElement : source)
+            for (final Object sourceElement : source)
             {
                 final Object destinationElement =
                         createBean(componentType, sourceElement, converter);
@@ -620,17 +635,17 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private static void addToUntypedCollection(Collection destination, Object element)
+    private static void addToUntypedCollection(final Collection destination, final Object element)
     {
         destination.add(element);
     }
 
-    private static Class<?> getCollectionComponentType(AnnotationMap setterAnnotations)
+    private static Class<?> getCollectionComponentType(final AnnotationMap setterAnnotations)
     {
         return getCollectionMapping(setterAnnotations).elementClass();
     }
 
-    private static CollectionMapping getCollectionMapping(AnnotationMap setterAnnotations)
+    private static CollectionMapping getCollectionMapping(final AnnotationMap setterAnnotations)
     {
         final CollectionMapping mapping = setterAnnotations.getAnnotation(CollectionMapping.class);
         if (mapping == null)
@@ -641,8 +656,8 @@ public final class BeanUtils
         return mapping;
     }
 
-    private static <T> void copyBean(T destination, Object source, Converter converter)
-            throws IllegalAccessException, InvocationTargetException
+    private static <T> void copyBean(final T destination, final Object source,
+            final Converter converter) throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
@@ -655,7 +670,7 @@ public final class BeanUtils
         final Map<String, Method> sourceGetters = scanForPublicMethods(source, GETTER_PREFIX, 0);
         scanForPublicMethods(source, sourceGetters, BOOLEAN_GETTER_PREFIX, 0, boolean.class,
                 Boolean.class);
-        for (Method setter : destinationSetters)
+        for (final Method setter : destinationSetters)
         {
             final T newBean =
                     emergeNewBean(setter, source, destination, sourceGetters, destinationGetters,
@@ -666,7 +681,7 @@ public final class BeanUtils
                 {
                     setter.invoke(destination, new Object[]
                         { newBean });
-                } catch (IllegalArgumentException ex)
+                } catch (final IllegalArgumentException ex)
                 {
                     final String defaultJavaArgumentTypeMismatchMessage = "argument type mismatch";
                     if (defaultJavaArgumentTypeMismatchMessage.equals(ex.getMessage()))
@@ -698,10 +713,10 @@ public final class BeanUtils
      * </p>
      */
     @SuppressWarnings("unchecked")
-    private static <T> T emergeNewBean(Method setter, Object source, T destination,
-            Map<String, Method> sourceGetters, Map<String, Method> destinationGetters,
-            Converter converter) throws IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException
+    private static <T> T emergeNewBean(final Method setter, final Object source,
+            final T destination, final Map<String, Method> sourceGetters,
+            final Map<String, Method> destinationGetters, final Converter converter)
+            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
     {
         final AnnotationMap annotationMap = new SetterAnnotationMap(setter);
         final Method converterMethod = getConverterMethod(setter, source, converter);
@@ -723,7 +738,7 @@ public final class BeanUtils
         {
             // If a non-null value could be found in the destination bean for <code>destinationOldBean</code>,
             // then take it.
-            T destinationOldBean = (T) getOldBean(setter, destinationGetters, destination);
+            final T destinationOldBean = (T) getOldBean(setter, destinationGetters, destination);
             return fillBean(parameterType, destinationOldBean, oldBean, annotationMap, converter);
         }
     }
@@ -732,8 +747,9 @@ public final class BeanUtils
      * For given <var>setter</var> method, we try to get the corresponding <i>getter</i>. If this step succeeds, we
      * invoke the found <i>getter</i> on given <var>bean</var> and returns the value.
      */
-    private final static Object getOldBean(Method setter, Map<String, Method> getters, Object bean)
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    private final static Object getOldBean(final Method setter, final Map<String, Method> getters,
+            final Object bean) throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException
     {
         final Method getter = getGetter(setter, getters);
         if (getter == null)
@@ -758,15 +774,17 @@ public final class BeanUtils
         }
     }
 
-    private static Method getConverterMethod(Method setter, Object sourceBean, Converter converter)
+    private static Method getConverterMethod(final Method setter, final Object sourceBean,
+            final Converter converter)
     {
         if (converter != NULL_CONVERTER)
         {
-            String methodName = "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
-            Class<? extends Converter> converterClasss = converter.getClass();
-            Collection<Class<?>> classes =
+            final String methodName =
+                    "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
+            final Class<? extends Converter> converterClasss = converter.getClass();
+            final Collection<Class<?>> classes =
                     ClassUtils.gatherAllCastableClassesAndInterfacesFor(sourceBean);
-            for (Class<?> clazz : classes)
+            for (final Class<?> clazz : classes)
             {
                 try
                 {
@@ -778,7 +796,7 @@ public final class BeanUtils
                         converterMethod.setAccessible(true);
                     }
                     return converterMethod;
-                } catch (NoSuchMethodException e)
+                } catch (final NoSuchMethodException e)
                 {
                     // Nothing to do here - there just isn't any converter method for this setter.
                 }
@@ -787,9 +805,9 @@ public final class BeanUtils
         return null;
     }
 
-    private static Method getGetter(Method setter, Map<String, Method> sourceGetters)
+    private static Method getGetter(final Method setter, final Map<String, Method> sourceGetters)
     {
-        String propertyName = setter.getName().substring(SETTER_PREFIX.length());
+        final String propertyName = setter.getName().substring(SETTER_PREFIX.length());
         final Method getter = sourceGetters.get(GETTER_PREFIX + propertyName);
         if (getter != null)
         {
@@ -806,26 +824,28 @@ public final class BeanUtils
         return null;
     }
 
-    private static Map<String, Method> scanForPublicMethods(Object bean, String prefix,
-            int numberOfParameters)
+    private static Map<String, Method> scanForPublicMethods(final Object bean, final String prefix,
+            final int numberOfParameters)
     {
         final Map<String, Method> methodMap = new LinkedHashMap<String, Method>();
         scanForPublicMethods(bean, methodMap, prefix, numberOfParameters, (Set<Class<?>>) null);
         return methodMap;
     }
 
-    private static void scanForPublicMethods(Object bean, Map<String, Method> methodMap,
-            String prefix, int numberOfParameters, Class<?>... returnValueTypes)
+    private static void scanForPublicMethods(final Object bean,
+            final Map<String, Method> methodMap, final String prefix, final int numberOfParameters,
+            final Class<?>... returnValueTypes)
     {
-        List<Class<?>> list = Arrays.asList(returnValueTypes);
+        final List<Class<?>> list = Arrays.asList(returnValueTypes);
         scanForPublicMethods(bean, methodMap, prefix, numberOfParameters,
                 new LinkedHashSet<Class<?>>(list));
     }
 
-    private static void scanForPublicMethods(Object bean, Map<String, Method> methodMap,
-            String prefix, int numberOfParameters, Set<Class<?>> returnValueTypes)
+    private static void scanForPublicMethods(final Object bean,
+            final Map<String, Method> methodMap, final String prefix, final int numberOfParameters,
+            final Set<Class<?>> returnValueTypes)
     {
-        for (Method method : bean.getClass().getMethods())
+        for (final Method method : bean.getClass().getMethods())
         {
             final String methodName = method.getName();
             if (methodName.startsWith(prefix)
@@ -847,7 +867,7 @@ public final class BeanUtils
      * <code>class</code>).
      * </p>
      */
-    public final static Map<String, PropertyDescriptor> getPropertyDescriptors(Class<?> clazz)
+    public final static Map<String, PropertyDescriptor> getPropertyDescriptors(final Class<?> clazz)
     {
         try
         {
@@ -856,7 +876,7 @@ public final class BeanUtils
             final List<PropertyDescriptor> descriptors =
                     new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
                             .getPropertyDescriptors()));
-            for (Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext(); )
+            for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
             {
                 final PropertyDescriptor descriptor = iter.next();
                 // If no write method, remove it. For instance 'class' property does not have any
@@ -868,7 +888,7 @@ public final class BeanUtils
                 }
             }
             return map;
-        } catch (IntrospectionException ex)
+        } catch (final IntrospectionException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
