@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -32,11 +34,6 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  * @author Bernd Rinn
  * @author Tomasz Pylak
  */
-// TODO 2008-03-25, Christian Ribeaud: this class overrides equals(Object), but does not override hashCode(), and
-// inherits the
-// implementation of hashCode() from java.lang.Object (which returns the identity hash code, an arbitrary value assigned
-// to the object by the VM). Therefore, the class is very likely to violate the invariant that equal objects must have
-// equal hashcodes.
 public abstract class FileStore implements IFileStore
 {
     protected final File path;
@@ -49,8 +46,8 @@ public abstract class FileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(File path, String hostOrNull, boolean remote, String kind,
-            IFileSysOperationsFactory factory)
+    protected FileStore(final File path, final String hostOrNull, final boolean remote,
+            final String kind, final IFileSysOperationsFactory factory)
     {
         assert path != null;
         assert kind != null;
@@ -76,14 +73,14 @@ public abstract class FileStore implements IFileStore
         return kind;
     }
 
-    protected final File getChildFile(StoreItem item)
+    protected final File getChildFile(final StoreItem item)
     {
         return new File(path, item.getName());
     }
 
     // does not take into account the fact, that the destination cannot be overwritten and must be deleted beforehand
-    protected final IStoreCopier constructStoreCopier(FileStore destinationDirectory,
-            boolean requiresDeletionBeforeCreation)
+    protected final IStoreCopier constructStoreCopier(final FileStore destinationDirectory,
+            final boolean requiresDeletionBeforeCreation)
     {
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
         final String srcHostOrNull = hostOrNull;
@@ -91,9 +88,9 @@ public abstract class FileStore implements IFileStore
         final File destPath = destinationDirectory.path;
         return new IStoreCopier()
             {
-                public Status copy(StoreItem item)
+                public Status copy(final StoreItem item)
                 {
-                    File srcItem = getChildFile(item);
+                    final File srcItem = getChildFile(item);
                     if (srcHostOrNull == null)
                     {
                         if (destHostOrNull == null)
@@ -128,7 +125,7 @@ public abstract class FileStore implements IFileStore
         return remote;
     }
 
-    public boolean isParentDirectory(IFileStore child)
+    public boolean isParentDirectory(final IFileStore child)
     {
         if (child instanceof FileStore == false)
         {
@@ -139,7 +136,7 @@ public abstract class FileStore implements IFileStore
                 && getCanonicalPath(potentialChild.path).startsWith(getCanonicalPath(path));
     }
 
-    private String getCanonicalPath(File file)
+    private String getCanonicalPath(final File file)
     {
         if (hostOrNull != null)
         {
@@ -148,28 +145,44 @@ public abstract class FileStore implements IFileStore
         try
         {
             return file.getCanonicalPath() + File.separator;
-        } catch (IOException e)
+        } catch (final IOException e)
         {
             throw EnvironmentFailureException.fromTemplate(e,
                     "Cannot determine canonical form of path '%s'", file.getPath());
         }
     }
 
+    //
+    // Object
+    //
+
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
-        if (obj instanceof FileStore)
+        if (obj == this)
         {
-            FileStore fileStore = (FileStore) obj;
-            boolean sameHost =
-                    (hostOrNull == null ? fileStore.hostOrNull == null
-                            : fileStore.hostOrNull != null
-                                    && hostOrNull.equals(fileStore.hostOrNull));
-            return sameHost && kind.equals(fileStore.kind) && path.equals(fileStore.path);
-        } else
+            return true;
+        }
+        if (obj instanceof FileStore == false)
         {
             return false;
         }
+        final FileStore that = (FileStore) obj;
+        final EqualsBuilder equalsBuilder = new EqualsBuilder();
+        equalsBuilder.append(hostOrNull, that.hostOrNull);
+        equalsBuilder.append(kind, that.kind);
+        equalsBuilder.append(path, that.path);
+        return equalsBuilder.isEquals();
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(hostOrNull);
+        builder.append(kind);
+        builder.append(path);
+        return builder.toHashCode();
     }
 
     // -------------------
@@ -231,8 +244,8 @@ public abstract class FileStore implements IFileStore
 
     public static abstract class ExtendedFileStore extends FileStore implements IExtendedFileStore
     {
-        protected ExtendedFileStore(File path, String hostOrNull, boolean remote, String kind,
-                IFileSysOperationsFactory factory)
+        protected ExtendedFileStore(final File path, final String hostOrNull, final boolean remote,
+                final String kind, final IFileSysOperationsFactory factory)
         {
             super(path, hostOrNull, remote, kind, factory);
         }
