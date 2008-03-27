@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.beans.PropertyDescriptor;
+import java.lang.Thread.State;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -51,15 +52,15 @@ public final class BeanUtilsTest
     public final void testGetPropertyDescriptors() throws IllegalArgumentException,
             IllegalAccessException, InvocationTargetException
     {
-        List<PropertyDescriptor> descriptors =
+        final List<PropertyDescriptor> descriptors =
                 new ArrayList<PropertyDescriptor>(BeanUtils.getPropertyDescriptors(FooBean.class)
                         .values());
         assertEquals(1, descriptors.size());
         PropertyDescriptor outerDescriptor = null;
         // Play with property 'description'
-        for (Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext(); )
+        for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
         {
-            PropertyDescriptor innerDescriptor = iter.next();
+            final PropertyDescriptor innerDescriptor = iter.next();
             if (innerDescriptor.getName().equals("foo"))
             {
                 outerDescriptor = innerDescriptor;
@@ -71,9 +72,9 @@ public final class BeanUtilsTest
         assertEquals(outerDescriptor.getName(), "foo");
         assertNotNull(outerDescriptor.getWriteMethod());
         // Setting the property 'foo' live on an object
-        FooBean fooBean = new FooBean();
-        Method method = outerDescriptor.getWriteMethod();
-        String description = "This is a foolish description.";
+        final FooBean fooBean = new FooBean();
+        final Method method = outerDescriptor.getWriteMethod();
+        final String description = "This is a foolish description.";
         method.invoke(fooBean, new Object[]
             { description });
         assertEquals(fooBean.getFoo(), description);
@@ -96,7 +97,7 @@ public final class BeanUtilsTest
             return b;
         }
 
-        public void setB(boolean b)
+        public void setB(final boolean b)
         {
             this.b = b;
         }
@@ -106,7 +107,7 @@ public final class BeanUtilsTest
             return f;
         }
 
-        public void setF(float f)
+        public void setF(final float f)
         {
             this.f = f;
         }
@@ -116,7 +117,7 @@ public final class BeanUtilsTest
             return i;
         }
 
-        public void setI(int i)
+        public void setI(final int i)
         {
             this.i = i;
         }
@@ -126,7 +127,7 @@ public final class BeanUtilsTest
             return s;
         }
 
-        public void setS(String s)
+        public void setS(final String s)
         {
             this.s = s;
         }
@@ -136,7 +137,7 @@ public final class BeanUtilsTest
             return bb;
         }
 
-        public final void setBb(boolean bb)
+        public final void setBb(final boolean bb)
         {
             this.bb = bb;
         }
@@ -160,7 +161,7 @@ public final class BeanUtilsTest
             return bb;
         }
 
-        public final void setBb(Boolean bb)
+        public final void setBb(final Boolean bb)
         {
             this.bb = bb;
         }
@@ -170,7 +171,7 @@ public final class BeanUtilsTest
             return b;
         }
 
-        public void setB(Boolean b)
+        public void setB(final Boolean b)
         {
             this.b = b;
         }
@@ -180,7 +181,7 @@ public final class BeanUtilsTest
             return f;
         }
 
-        public void setF(Float f)
+        public void setF(final Float f)
         {
             this.f = f;
         }
@@ -190,7 +191,7 @@ public final class BeanUtilsTest
             return i;
         }
 
-        public void setI(Integer i)
+        public void setI(final Integer i)
         {
             this.i = i;
         }
@@ -200,7 +201,7 @@ public final class BeanUtilsTest
             return s;
         }
 
-        public void setS(String s)
+        public void setS(final String s)
         {
             this.s = s;
         }
@@ -224,7 +225,7 @@ public final class BeanUtilsTest
             return b;
         }
 
-        public void setB(boolean b)
+        public void setB(final boolean b)
         {
             this.b = b;
         }
@@ -234,7 +235,7 @@ public final class BeanUtilsTest
             return f;
         }
 
-        public void setF(float f)
+        public void setF(final float f)
         {
             this.f = f;
         }
@@ -244,7 +245,7 @@ public final class BeanUtilsTest
             return i;
         }
 
-        public void setI(int i)
+        public void setI(final int i)
         {
             this.i = i;
         }
@@ -254,12 +255,12 @@ public final class BeanUtilsTest
             return s;
         }
 
-        public void setS(String s)
+        public void setS(final String s)
         {
             this.s = s;
         }
 
-        public final void setBb(boolean bb)
+        public final void setBb(final boolean bb)
         {
             this.bb = bb;
         }
@@ -287,7 +288,7 @@ public final class BeanUtilsTest
             return bb;
         }
 
-        public final void setBb(Boolean bb)
+        public final void setBb(final Boolean bb)
         {
             this.bb = bb;
         }
@@ -297,7 +298,7 @@ public final class BeanUtilsTest
             return b;
         }
 
-        public void setB(Boolean b)
+        public void setB(final Boolean b)
         {
             this.b = b;
         }
@@ -307,7 +308,7 @@ public final class BeanUtilsTest
             return f;
         }
 
-        public void setF(Float f)
+        public void setF(final Float f)
         {
             this.f = f;
         }
@@ -317,7 +318,7 @@ public final class BeanUtilsTest
             return i;
         }
 
-        public void setI(Integer i)
+        public void setI(final Integer i)
         {
             this.i = i;
         }
@@ -327,7 +328,7 @@ public final class BeanUtilsTest
             return s;
         }
 
-        public void setS(String s)
+        public void setS(final String s)
         {
             this.s = s;
         }
@@ -479,7 +480,7 @@ public final class BeanUtilsTest
             return array;
         }
 
-        public void setArray(byte[] array)
+        public void setArray(final byte[] array)
         {
             this.array = array;
         }
@@ -494,7 +495,7 @@ public final class BeanUtilsTest
             return array;
         }
 
-        public void setArray(Byte[] array)
+        public void setArray(final Byte[] array)
         {
             this.array = array;
         }
@@ -509,7 +510,7 @@ public final class BeanUtilsTest
             return array;
         }
 
-        public void setArray(String[] array)
+        public void setArray(final String[] array)
         {
             this.array = array;
         }
@@ -559,7 +560,7 @@ public final class BeanUtilsTest
         }
 
         @CollectionMapping(collectionClass = ArrayList.class, elementClass = String.class)
-        public void setArray(List<String> array)
+        public void setArray(final List<String> array)
         {
             this.array = array;
         }
@@ -590,7 +591,7 @@ public final class BeanUtilsTest
         aWrapper.setArray(array);
         final CollectionWrapper1 colWrapper =
                 BeanUtils.createBean(CollectionWrapper1.class, aWrapper);
-        List<String> list = colWrapper.getArray();
+        final List<String> list = colWrapper.getArray();
         assertNotNull(list);
         assertEquals(array.length, list.size());
         for (int i = 0; i < array.length; ++i)
@@ -608,7 +609,7 @@ public final class BeanUtilsTest
         colWrapper.setArray(list);
         final CollectionWrapper1 colWrapper2 =
                 BeanUtils.createBean(CollectionWrapper1.class, colWrapper);
-        List<String> list2 = colWrapper2.getArray();
+        final List<String> list2 = colWrapper2.getArray();
         assertNotNull(list2);
         assertEquals(list.size(), list2.size());
         for (int i = 0; i < list.size(); ++i)
@@ -626,7 +627,7 @@ public final class BeanUtilsTest
             return bean;
         }
 
-        public void setBean(Bean1a bean)
+        public void setBean(final Bean1a bean)
         {
             this.bean = bean;
         }
@@ -641,7 +642,7 @@ public final class BeanUtilsTest
             return bean;
         }
 
-        public void setBean(Bean2a bean)
+        public void setBean(final Bean2a bean)
         {
             this.bean = bean;
         }
@@ -680,10 +681,10 @@ public final class BeanUtilsTest
     public final void testFillComplexBeanWithNonNullInnerBean()
     {
         final BeanWithBean1 b1 = new BeanWithBean1();
-        Bean1a bean1a = createBean1a();
+        final Bean1a bean1a = createBean1a();
         b1.setBean(bean1a);
         final BeanWithBean2 b2 = new BeanWithBean2();
-        Bean2a bean2a = new Bean2a();
+        final Bean2a bean2a = new Bean2a();
         b2.setBean(bean2a);
         BeanUtils.fillBean(BeanWithBean2.class, b2, b1);
         assertBeansAreEqual("Bean comparison", bean1a, b2.getBean());
@@ -701,7 +702,7 @@ public final class BeanUtilsTest
             return bean;
         }
 
-        public void setBeanArray(Bean1a[] bean)
+        public void setBeanArray(final Bean1a[] bean)
         {
             this.bean = bean;
         }
@@ -716,7 +717,7 @@ public final class BeanUtilsTest
             return bean;
         }
 
-        public void setBeanArray(Bean2a[] bean)
+        public void setBeanArray(final Bean2a[] bean)
         {
             this.bean = bean;
         }
@@ -732,7 +733,7 @@ public final class BeanUtilsTest
         }
 
         @CollectionMapping(collectionClass = LinkedHashSet.class, elementClass = Bean1a.class)
-        public void setBeanArray(Collection<Bean1a> bean)
+        public void setBeanArray(final Collection<Bean1a> bean)
         {
             this.bean = bean;
         }
@@ -748,7 +749,7 @@ public final class BeanUtilsTest
         }
 
         @CollectionMapping(collectionClass = LinkedList.class, elementClass = Bean2a.class)
-        public void setBeanArray(Collection<Bean2a> bean)
+        public void setBeanArray(final Collection<Bean2a> bean)
         {
             this.bean = bean;
         }
@@ -833,7 +834,7 @@ public final class BeanUtilsTest
         assertNotNull(arrayb2);
         assertEquals(colb1.size(), arrayb2.length);
         int i = 0;
-        for (Bean1a b1 : colb1)
+        for (final Bean1a b1 : colb1)
         {
             assertBeansAreEqual("Element " + i, b1, arrayb2[i]);
             ++i;
@@ -897,7 +898,7 @@ public final class BeanUtilsTest
         assertEquals(colb1.size(), colb2.size());
         final Iterator<Bean2a> itb2 = colb2.iterator();
         int i = 0;
-        for (Bean1a b1 : colb1)
+        for (final Bean1a b1 : colb1)
         {
             assertBeansAreEqual("Element " + (i++), b1, itb2.next());
         }
@@ -943,7 +944,7 @@ public final class BeanUtilsTest
         assertBeanArraysAreEqual(b1.getBeanArray(), b2.getBeanArray());
     }
 
-    private final static void assertBeansAreEqual(String msg, Bean1a b1, Bean2a b2)
+    private final static void assertBeansAreEqual(final String msg, final Bean1a b1, final Bean2a b2)
     {
         assertNotNull(msg, b1);
         assertNotNull(msg, b2);
@@ -954,7 +955,7 @@ public final class BeanUtilsTest
         assertEquals(msg, b1.getBb(), b2.getBb());
     }
 
-    private final static void assertBeansAreEqual(String msg, Bean2a b2, Bean1a b1)
+    private final static void assertBeansAreEqual(final String msg, final Bean2a b2, final Bean1a b1)
     {
         assertNotNull(msg, b1);
         assertNotNull(msg, b2);
@@ -978,7 +979,7 @@ public final class BeanUtilsTest
             return foo;
         }
 
-        public void setFoo(String foo)
+        public void setFoo(final String foo)
         {
             this.foo = foo;
         }
@@ -993,9 +994,24 @@ public final class BeanUtilsTest
             return bar;
         }
 
-        public void setBar(String bar)
+        public void setBar(final String bar)
         {
             this.bar = bar;
+        }
+    }
+
+    public final static class BeanWithEnum
+    {
+        State state;
+
+        public final State getState()
+        {
+            return state;
+        }
+
+        public final void setState(final State state)
+        {
+            this.state = state;
         }
     }
 
@@ -1031,5 +1047,14 @@ public final class BeanUtilsTest
                         }
                     });
         assertEquals("some to Foo", toFooBean.getBar());
+    }
+
+    @Test
+    public final void testWithEnum()
+    {
+        final BeanWithEnum bean1 = new BeanWithEnum();
+        bean1.setState(State.BLOCKED);
+        final BeanWithEnum bean2 = BeanUtils.createBean(BeanWithEnum.class, bean1);
+        assertEquals(State.BLOCKED, bean2.getState());
     }
 }
