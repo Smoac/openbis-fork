@@ -1,9 +1,9 @@
 login -o 3V -u test -p <password>
 register-project NEMO
-register-master-plate -p PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP001-1.txt code1
-register-master-plate -p PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP002-1.txt code2
+register-master-plate -p INTERNAL.PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP001-1.txt code1
+register-master-plate -p INTERNAL.PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP002-1.txt code2
 register-dilution-plates testdata/exampleDilutionPlates.txt
-register-control-layout -p PLATE_GEOMETRY=384_WELLS_16X24 testdata/register-experiments/CL-3V.txt
+register-control-layout -p INTERNAL.PLATE_GEOMETRY=384_WELLS_16X24 testdata/register-experiments/CL-3V.txt
 register-cell-plates testdata/exampleCellPlates.txt -c CL-3V
 register-experiments SIRNAHCS testdata/register-experiments/example3VExperiments.txt
 logout
