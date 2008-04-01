@@ -660,7 +660,10 @@ function assert_correct_dataset_content_in_database {
     local dataset_id=$1
     local pattern=$2
     local dataset=`psql -U postgres -d lims_integration_test \
-       -c "select id, data_producer_code, production_timestamp from data where id = $dataset_id" | awk '/ +[0-9]+/'`
+       -c "select d.id, d.code, r.data_id_parent, d.data_producer_code, d.production_timestamp \
+           from data as d left join data_set_relationships as r on r.data_id_child = d.id \
+           where d.id = $dataset_id" \
+       | awk '/ +[0-9]+/'`
     local lines=`echo $dataset | grep "$pattern" | wc -l`
     if [ $lines == 0 ]; then
         report_error dataset does not match pattern $pattern: $dataset
@@ -678,10 +681,10 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP3
     assert_correct_content_of_image_analysis_data 3VCP4
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    assert_correct_dataset_content_in_database 1 ".*microX.*2008.*"
-    assert_correct_dataset_content_in_database 2 ".*microX.*2008.*"
-    assert_correct_dataset_content_in_database 3 ".*microX.*2008.*"
-    assert_correct_dataset_content_in_database 4 ".*microX.*2008.*"
+    assert_correct_dataset_content_in_database 1 "1 \| MICROX-200801011213 \| \| microX.*2008.*"
+    assert_correct_dataset_content_in_database 2 "2 \| 20[0-9]*-2 \| 1 \| \|"
+    assert_correct_dataset_content_in_database 3 "3 \| 20[0-9]*-2 \| 1 \| \|"
+    assert_correct_dataset_content_in_database 4 "4 \| 20[0-9]*-2 \| 1 \| \|"
 }
 
 function integration_tests {
