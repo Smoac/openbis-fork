@@ -683,8 +683,8 @@ function assert_correct_content {
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     assert_correct_dataset_content_in_database 1 "1 \| MICROX-200801011213 \| \| microX.*2008.*"
     assert_correct_dataset_content_in_database 2 "2 \| 20[0-9]*-2 \| 1 \| \|"
-    assert_correct_dataset_content_in_database 3 "3 \| 20[0-9]*-2 \| 1 \| \|"
-    assert_correct_dataset_content_in_database 4 "4 \| 20[0-9]*-2 \| 1 \| \|"
+    assert_correct_dataset_content_in_database 3 "3 \| 20[0-9]*-3 \| 1 \| \|"
+    assert_correct_dataset_content_in_database 4 "4 \| 20[0-9]*-4 \| 1 \| \|"
 }
 
 function integration_tests {
