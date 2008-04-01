@@ -659,7 +659,8 @@ function assert_correct_content_of_unidentified_plate_in_store {
 function assert_correct_dataset_content_in_database {
     local dataset_id=$1
     local pattern=$2
-    local dataset=`pqsl -U postgres -d lims_integration_test -c "select id, data_producer_code, production_timestamp from data where id = $dataset_id" | awk '/ +[0-9]+/'`
+    local dataset=`psql -U postgres -d lims_integration_test \
+       -c "select id, data_producer_code, production_timestamp from data where id = $dataset_id" | awk '/ +[0-9]+/'`
     local lines=`echo $dataset | grep "$pattern" | wc -l`
     if [ $lines == 0 ]; then
         report_error dataset does not match pattern $pattern: $dataset
