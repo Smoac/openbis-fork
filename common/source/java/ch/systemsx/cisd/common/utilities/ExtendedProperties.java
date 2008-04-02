@@ -90,7 +90,7 @@ public final class ExtendedProperties extends Properties
 
         final ExtendedProperties result = new ExtendedProperties();
         final int prefixLength = prefix.length();
-        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
         {
             final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
@@ -106,7 +106,7 @@ public final class ExtendedProperties extends Properties
      */
     public void removeSubset(final String prefix)
     {
-        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
         {
             final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
