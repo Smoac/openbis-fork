@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-
 /**
  * <code>ValidatorUtils</code> provides reference implementations and utilities for the
  * <code>Validator</code> interface.
@@ -85,7 +83,12 @@ public final class ValidatorUtils
             case 1:
                 return createPatternValidator(patterns[0]);
             default:
-                throw new NotImplementedException();
+                final CompositeValidator<String> validator = new CompositeValidator<String>();
+                for (final String pattern : patterns)
+                {
+                    validator.addValidator(createPatternValidator(pattern));
+                }
+                return validator;
         }
     }
 
@@ -102,18 +105,7 @@ public final class ValidatorUtils
             return null;
         }
         final Pattern regEx = Pattern.compile(convertToRegEx(pattern));
-        return new Validator<String>()
-            {
-
-                //
-                // Validator
-                //
-
-                public final boolean isValid(final String text)
-                {
-                    return regEx.matcher(text).matches();
-                }
-            };
+        return new RegExValidator(regEx);
     }
 
     /** Returns a typed validator for non-<code>null</code> objects. */
