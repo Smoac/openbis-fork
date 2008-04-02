@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 /**
@@ -91,7 +92,7 @@ public final class ValidatorUtilsTest
     @Test
     public final void testCreatePatternValidator()
     {
-        assertNull(ValidatorUtils.createPatternValidator((String[]) null));
+        assertNull(ValidatorUtils.createPatternValidator(ArrayUtils.EMPTY_STRING_ARRAY));
         Validator<String> validator = ValidatorUtils.createPatternValidator("he*");
         assert validator.isValid("he");
         assert validator.isValid("hello");
