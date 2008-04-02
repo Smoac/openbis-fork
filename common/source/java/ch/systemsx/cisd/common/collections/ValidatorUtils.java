@@ -19,9 +19,11 @@ package ch.systemsx.cisd.common.collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+
 /**
- * <code>ValidatorUtils</code> provides reference implementations and utilities for the <code>Validator</code>
- * interface.
+ * <code>ValidatorUtils</code> provides reference implementations and utilities for the
+ * <code>Validator</code> interface.
  * 
  * @author Christian Ribeaud
  */
@@ -29,8 +31,8 @@ public final class ValidatorUtils
 {
 
     /**
-     * A <code>Validator</code> implementation which check whether given <code>Object</code> is not
-     * <code>null</code>.
+     * A <code>Validator</code> implementation which check whether given <code>Object</code> is
+     * not <code>null</code>.
      */
     private final static Validator<Object> NOT_NULL_VALIDATOR = new Validator<Object>()
         {
@@ -64,6 +66,27 @@ public final class ValidatorUtils
     private ValidatorUtils()
     {
         // Can not be instantiated.
+    }
+
+    /**
+     * Creates a <code>Validator</code> based on the given pattern.
+     * 
+     * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
+     * @throws PatternSyntaxException if the expression's syntax is invalid.
+     */
+    public final static Validator<String> createPatternValidator(final String[] patterns)
+    {
+        assert patterns != null : "Unspecified patterns.";
+        final int length = patterns.length;
+        switch (length)
+        {
+            case 0:
+                return null;
+            case 1:
+                return createPatternValidator(patterns[0]);
+            default:
+                throw new NotImplementedException();
+        }
     }
 
     /**
@@ -116,13 +139,13 @@ public final class ValidatorUtils
      * <li>replaces any <code>*</code> with <code>.*</code></li>
      * </ol>
      */
-    final static String convertToRegEx(String pattern)
+    final static String convertToRegEx(final String pattern)
     {
         assert pattern != null;
-        StringBuilder stringBuilder = new StringBuilder();
-        char[] chars = pattern.toCharArray();
+        final StringBuilder stringBuilder = new StringBuilder();
+        final char[] chars = pattern.toCharArray();
         boolean escape = false;
-        for (char c : chars)
+        for (final char c : chars)
         {
             String toAppend;
             if (c == '\\')

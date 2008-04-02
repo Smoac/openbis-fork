@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.collections;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.regex.Pattern;
 
@@ -89,7 +91,7 @@ public final class ValidatorUtilsTest
     @Test
     public final void testCreatePatternValidator()
     {
-        assertNull(ValidatorUtils.createPatternValidator(null));
+        assertNull(ValidatorUtils.createPatternValidator((String[]) null));
         Validator<String> validator = ValidatorUtils.createPatternValidator("he*");
         assert validator.isValid("he");
         assert validator.isValid("hello");
