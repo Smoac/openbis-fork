@@ -22,13 +22,13 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Test cases for corresponding {@link PropertyUtils} class.
@@ -38,7 +38,14 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 public final class PropertyUtilsTest
 {
 
-    private final BufferedAppender appender = new BufferedAppender();
+    private BufferedAppender appender;
+
+    @BeforeMethod
+    public final void setUp()
+    {
+        appender = new BufferedAppender();
+        appender.resetLogContent();
+    }
 
     @Test
     public final void testGetMandatoryProperty()
@@ -75,7 +82,6 @@ public final class PropertyUtilsTest
     @Test
     public final void testGetLong()
     {
-        appender.resetLogContent();
         final Properties properties = new Properties();
         final String propertyKey = "key";
         final long defaultValue = 123L;
@@ -104,7 +110,6 @@ public final class PropertyUtilsTest
     @Test
     public final void testGetBoolean()
     {
-        appender.resetLogContent();
         final Properties properties = new Properties();
         final String propertyKey = "key";
         final boolean defaultValue = false;
