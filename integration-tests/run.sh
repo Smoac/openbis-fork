@@ -547,7 +547,7 @@ function assert_empty_in_out_folders {
 function assert_correct_content_of_processing_dir {
     echo ==== assert correct content of processing-dir ====
     
-    local data_set=$DATA/processing-dir/microX_200801011213_3VCP1
+    local data_set=$DATA/processing-dir/microX-3VCP1_microX_200801011213_3VCP1
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
