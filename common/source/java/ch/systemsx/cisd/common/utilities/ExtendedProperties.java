@@ -22,7 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 /**
- * Another class of Properties that allows recursive references for property keys and values. For example,
+ * Another class of Properties that allows recursive references for property keys and values. For
+ * example,
  * 
  * <pre>
  * A=12345678
@@ -31,10 +32,10 @@ import org.apache.commons.lang.SystemUtils;
  * 
  * </code></pre>
  * 
- * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". The keys will be rewritten
- * when queried (dynamically), thus the order of adding properties is unimportant. Cyclic references are handled by
- * removing the current key before resolving it, i.e. when setting A=${B} and B=${A} and then asking for A, you will get
- * ${A}.
+ * will result in <code>getProperty("C")</code> returning the value "1234567890 plus more". The
+ * keys will be rewritten when queried (dynamically), thus the order of adding properties is
+ * unimportant. Cyclic references are handled by removing the current key before resolving it, i.e.
+ * when setting A=${B} and B=${A} and then asking for A, you will get ${A}.
  * 
  * @author Christian Ribeaud
  */
@@ -55,9 +56,10 @@ public final class ExtendedProperties extends Properties
     /** The minimum length a string should have to be considered. */
     private static final int MIN_LENGTH = PREFIX.length() + SUFFIX.length() + 1;
 
-    public static ExtendedProperties createWith(Properties properties)
+    public static ExtendedProperties createWith(final Properties properties)
     {
-        ExtendedProperties result = new ExtendedProperties();
+        assert properties != null : "Unspecified properties.";
+        final ExtendedProperties result = new ExtendedProperties();
         result.putAll(properties);
         return result;
     }
@@ -76,21 +78,21 @@ public final class ExtendedProperties extends Properties
      * @param prefix string, each property key should start with.
      * @param dropPrefix If <code>true</code> the prefix will be removed from the key.
      */
-    public static ExtendedProperties getSubset(Properties properties, String prefix,
-            boolean dropPrefix)
+    public static ExtendedProperties getSubset(final Properties properties, final String prefix,
+            final boolean dropPrefix)
     {
         return ExtendedProperties.createWith(properties).getSubset(prefix, dropPrefix);
     }
 
-    public final ExtendedProperties getSubset(final String prefix, boolean dropPrefix)
+    public final ExtendedProperties getSubset(final String prefix, final boolean dropPrefix)
     {
         assert prefix != null : "Missing prefix";
 
-        ExtendedProperties result = new ExtendedProperties();
-        int prefixLength = prefix.length();
-        for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
+        final ExtendedProperties result = new ExtendedProperties();
+        final int prefixLength = prefix.length();
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
-            String key = enumeration.nextElement().toString();
+            final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
             {
                 result.put(dropPrefix ? key.substring(prefixLength) : key, getProperty(key));
@@ -104,9 +106,9 @@ public final class ExtendedProperties extends Properties
      */
     public void removeSubset(final String prefix)
     {
-        for (Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements(); )
+        for (final Enumeration<?> enumeration = propertyNames(); enumeration.hasMoreElements();)
         {
-            String key = enumeration.nextElement().toString();
+            final String key = enumeration.nextElement().toString();
             if (key.startsWith(prefix))
             {
                 remove(key);
@@ -132,7 +134,7 @@ public final class ExtendedProperties extends Properties
             // recurse into this variable, prevent cyclic references by removing the current key
             // before asking for the property and the setting it again afterwards.
             remove(key);
-            String paramValue = getProperty(paramName);
+            final String paramValue = getProperty(paramName);
             super.setProperty(key, value);
             if (paramValue != null)
             {
@@ -151,8 +153,8 @@ public final class ExtendedProperties extends Properties
     /**
      * Returns the value of property <code>key</code> without resolving.
      * <p>
-     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not expanded with substituted
-     * parameters) property value.
+     * So the {@link java.util.Map#get(java.lang.Object)} works as usual and returns raw (not
+     * expanded with substituted parameters) property value.
      * </p>
      */
     public final String getUnalteredProperty(final String key)
@@ -165,8 +167,8 @@ public final class ExtendedProperties extends Properties
     //
 
     /**
-     * Any parameter like <code>${propertyName}</code> in property value will be replaced with the value of property
-     * with name <code>propertyName</code>.
+     * Any parameter like <code>${propertyName}</code> in property value will be replaced with the
+     * value of property with name <code>propertyName</code>.
      * <p>
      * For example, for the following set of properties:
      * 
