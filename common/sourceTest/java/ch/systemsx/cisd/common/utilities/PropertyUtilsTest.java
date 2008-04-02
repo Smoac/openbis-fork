@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Properties;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -155,5 +158,37 @@ public final class PropertyUtilsTest
                 simpleLogger));
         assertEquals(String.format(PropertyUtils.NON_BOOLEAN_VALUE_FORMAT, value, defaultValue),
                 appender.getLogContent());
+    }
+
+    @Test
+    public final void testGetPosInt()
+    {
+        final String key = "posInt";
+        final Properties properties = new Properties();
+        // -7
+        properties.setProperty(key, "-7");
+        assertFalse(NumberUtils.isDigits("-7"));
+        assertTrue(NumberUtils.isNumber("-7"));
+        assertEquals(4, PropertyUtils.getPosInt(properties, key, 4));
+        assertEquals(-7, PropertyUtils.getInt(properties, key, 4));
+        // 0
+        properties.setProperty(key, "0");
+        assertEquals(0, PropertyUtils.getInt(properties, key, 4));
+        assertEquals(0, PropertyUtils.getPosInt(properties, key, 4));
+        // 34L
+        properties.setProperty(key, "34L");
+        assertEquals(34, PropertyUtils.getInt(properties, key, 4));
+    }
+
+    @Test
+    public final void testGetPosLong()
+    {
+        final String key = "posInt";
+        final Properties properties = new Properties();
+        properties.setProperty(key, "-7");
+        assertFalse(NumberUtils.isDigits("-7"));
+        assertTrue(NumberUtils.isNumber("-7"));
+        assertEquals(4, PropertyUtils.getPosLong(properties, key, 4));
+        assertEquals(-7, PropertyUtils.getLong(properties, key, 4));
     }
 }

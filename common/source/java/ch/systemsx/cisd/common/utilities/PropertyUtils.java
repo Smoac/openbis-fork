@@ -40,10 +40,17 @@ public final class PropertyUtils
     static final String NON_CHAR_VALUE_FORMAT =
             "Invalid character '%s' (incorrect length). Default value '%s' will be used.";
 
-    static final String NON_INT_VALUE_FORMAT = "Invalid int '%s'. Default value '%s' will be used.";
+    static final String NON_INT_VALUE_FORMAT =
+            "Invalid integer '%s'. Default value '%s' will be used.";
+
+    static final String NOT_POSITIVE_INT_VALUE_FORMAT =
+            "Invalid positive integer '%s'. Default value '%s' will be used.";
 
     static final String NON_LONG_VALUE_FORMAT =
             "Invalid long '%s'. Default value '%s' will be used.";
+
+    static final String NOT_POSITIVE_LONG_VALUE_FORMAT =
+            "Invalid positive long '%s'. Default value '%s' will be used.";
 
     static final String NOT_FOUND_PROPERTY_FORMAT = "Given key '%s' not found in properties '%s'";
 
@@ -100,7 +107,7 @@ public final class PropertyUtils
             }
             return defaultValue;
         }
-        return Long.parseLong(longOrNull);
+        return NumberUtils.createNumber(longOrNull).longValue();
     }
 
     /**
@@ -112,6 +119,44 @@ public final class PropertyUtils
             final long defaultValue)
     {
         return getLong(properties, propertyKey, defaultValue, null);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static long getPosLong(final Properties properties, final String propertyKey,
+            final long defaultValue, final ISimpleLogger loggerOrNull)
+    {
+        assertParameters(properties, propertyKey);
+        assert defaultValue > -1 : "Negative default value (< 0).";
+        final String longOrNull = properties.getProperty(propertyKey);
+        if (longOrNull == null)
+        {
+            return defaultValue;
+        }
+        if (NumberUtils.isDigits(longOrNull) == false)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.INFO, String.format(NON_LONG_VALUE_FORMAT, longOrNull,
+                        defaultValue));
+            }
+            return defaultValue;
+        }
+        return Long.parseLong(longOrNull);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static long getPosLong(final Properties properties, final String propertyKey,
+            final long defaultValue)
+    {
+        return getPosLong(properties, propertyKey, defaultValue, null);
     }
 
     /**
@@ -137,7 +182,7 @@ public final class PropertyUtils
             }
             return defaultValue;
         }
-        return Integer.parseInt(intOrNull);
+        return NumberUtils.createNumber(intOrNull).intValue();
     }
 
     /**
@@ -149,6 +194,44 @@ public final class PropertyUtils
             final int defaultValue)
     {
         return getInt(properties, propertyKey, defaultValue, null);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static int getPosInt(final Properties properties, final String propertyKey,
+            final int defaultValue, final ISimpleLogger loggerOrNull)
+    {
+        assertParameters(properties, propertyKey);
+        assert defaultValue > -1 : "Negative default value (< 0).";
+        final String intOrNull = properties.getProperty(propertyKey);
+        if (intOrNull == null)
+        {
+            return defaultValue;
+        }
+        if (NumberUtils.isDigits(intOrNull) == false)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.INFO, String.format(NON_INT_VALUE_FORMAT, intOrNull,
+                        defaultValue));
+            }
+            return defaultValue;
+        }
+        return Integer.parseInt(intOrNull);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     */
+    public final static int getPosInt(final Properties properties, final String propertyKey,
+            final int defaultValue)
+    {
+        return getPosInt(properties, propertyKey, defaultValue, null);
     }
 
     /**
