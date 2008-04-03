@@ -452,6 +452,7 @@ function generate_test_data {
     sleep 30
     copy_test_data 3VCP3 $DATA
     mv $DATA/3VCP3/TIFF/blabla_3VCP1_K13_8_w460.tif  $DATA/3VCP3/TIFF/blabla_3VCP3_K13_8_w460.tif
+    echo image for well M03 > $DATA/3VCP3/TIFF/blabla_3VCP3_M03_2_w350.tif
     mv $DATA/3VCP3 $DIR 
 }
 
