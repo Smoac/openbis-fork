@@ -250,12 +250,12 @@ function install_datamovers {
     if [ $install_dmv == "true" ]; then
         unpack datamover
 	prepare datamover datamover-raw
-        prepare datamover datamover-analys
+        prepare datamover datamover-analysis
 	remove_unpacked datamover
 	cp -fR $TEMPLATE/dummy-img-analyser $WORK
     else 
 	copy_templates datamover-raw
-	copy_templates datamover-analys
+	copy_templates datamover-analysis
     fi
 }
 
@@ -529,7 +529,7 @@ function switch_dmv {
 function switch_processing_pipeline {
     new_state=$1
     switch_etl $new_state etlserver-all
-    switch_dmv $new_state datamover-analys
+    switch_dmv $new_state datamover-analysis
     switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
     switch_dmv $new_state datamover-raw
 }
@@ -560,9 +560,9 @@ function assert_correct_experiment_info {
 function assert_empty_in_out_folders {
     echo ==== assert empty in/out folders ====
     assert_dir_empty $DATA/in-raw
-    assert_dir_empty $DATA/in-analys
-    assert_dir_empty $DATA/out-analys
-    assert_dir_empty $DATA/analys-copy
+    assert_dir_empty $DATA/in-analysis
+    assert_dir_empty $DATA/out-analysis
+    assert_dir_empty $DATA/analysis-copy
 }
 
 function assert_correct_content_of_processing_dir {

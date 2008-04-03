@@ -1,6 +1,6 @@
 #!/bin/sh
-IN=../data/analys-copy
-OUT=../data/in-analys
+IN=../data/analysis-copy
+OUT=../data/in-analysis
 MARKER=.marker_stop_processing
 
 function log {
