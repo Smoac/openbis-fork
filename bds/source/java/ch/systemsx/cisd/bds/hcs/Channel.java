@@ -24,14 +24,14 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 /**
  * A channel is composed of only one child: <code>wavelength</code>.
  * <p>
- * Each channel has its <code>counter</code> which uniquely identifies it.
+ * Each channel has its <code>counter</code> which uniquely identifies it. It implements
+ * {@link Comparable} based on the <code>wavelength</code> value.
  * </p>
  * 
  * @author Christian Ribeaud
  */
-public final class Channel implements IStorable
+public final class Channel implements IStorable, Comparable<Channel>
 {
-
     static final String CHANNEL = "channel";
 
     static final String WAVELENGTH = "wavelength";
@@ -69,7 +69,7 @@ public final class Channel implements IStorable
         try
         {
             return Integer.parseInt(name.substring(CHANNEL.length()));
-        } catch (NumberFormatException ex)
+        } catch (final NumberFormatException ex)
         {
             throw new DataStructureException(String.format(
                     "Could not parse the channel number in '%s'", name), ex);
@@ -91,7 +91,7 @@ public final class Channel implements IStorable
     //
 
     @Override
-    public final boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -115,5 +115,15 @@ public final class Channel implements IStorable
     public final String toString()
     {
         return CHANNEL + counter + "[" + wavelength + "=" + getWavelength() + "]";
+    }
+
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final Channel o)
+    {
+        assert o != null : "Unspecified Channel.";
+        return counter - o.counter;
     }
 }

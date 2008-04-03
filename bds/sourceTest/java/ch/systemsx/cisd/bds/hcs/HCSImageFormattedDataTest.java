@@ -24,8 +24,6 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
@@ -117,10 +115,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
     private final void addParameterCheckExpectations(final Expectations exp)
     {
-        final ChannelList channelList = createChannelList();
         final Geometry geometry = new Geometry(2, 2);
-        exp.one(formatParameters).getValue(ChannelList.NUMBER_OF_CHANNELS);
-        exp.will(exp.returnValue(channelList));
+        exp.one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
+        exp.will(exp.returnValue(new Integer(1)));
         exp.one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
         exp.will(exp.returnValue(geometry));
         exp.one(formatParameters).getValue(WellGeometry.WELL_GEOMETRY);
@@ -156,16 +153,6 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
-    }
-
-    private final ChannelList createChannelList()
-    {
-        final int wavelength = 987;
-        final int channelCounter = 1;
-        final Channel channel = new Channel(channelCounter, wavelength);
-        final List<Channel> channels = Arrays.asList(new Channel[]
-            { channel });
-        return new ChannelList(channels);
     }
 
     @Test
@@ -312,8 +299,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(formatParameters).getValue(ChannelList.NUMBER_OF_CHANNELS);
-                    will(returnValue(createChannelList()));
+                    one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
+                    will(returnValue(new Integer(1)));
                 }
             });
         try
@@ -333,8 +320,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(formatParameters).getValue(ChannelList.NUMBER_OF_CHANNELS);
-                    will(returnValue(createChannelList()));
+                    one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
+                    will(returnValue(new Integer(1)));
 
                     one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
                     will(returnValue(new Geometry(2, 2)));

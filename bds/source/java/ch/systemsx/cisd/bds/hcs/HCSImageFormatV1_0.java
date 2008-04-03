@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.Format;
+import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IFormatParameterFactory;
 import ch.systemsx.cisd.bds.Version;
 
@@ -37,21 +38,27 @@ public final class HCSImageFormatV1_0 extends Format
     public final static String DEVICE_ID = "device_id";
 
     /**
-     * Flag ({@link Boolean#TRUE} or {@link Boolean#FALSE}) specifying whether the data directory contains the
-     * original data or not.
+     * Flag ({@link Boolean#TRUE} or {@link Boolean#FALSE}) specifying whether the data directory
+     * contains the original data or not.
      */
     public final static String CONTAINS_ORIGINAL_DATA = "contains_original_data";
 
     /**
-     * The format parameters that must be defined so that this implementation is able to work properly.
+     * Unique identifier when used as {@link FormatParameter}.
+     */
+    public final static String NUMBER_OF_CHANNELS = "number_of_channels";
+
+    /**
+     * The format parameters that must be defined so that this implementation is able to work
+     * properly.
      * <p>
      * These parameters are located in <code>metadata/parameters</code>.
      * </p>
      */
     private final static String[] FORMAT_PARAMETERS =
             new String[]
-                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY,
-                        ChannelList.NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
+                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS,
+                        CONTAINS_ORIGINAL_DATA };
 
     /**
      * The one and only one instance.

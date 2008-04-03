@@ -34,8 +34,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is associated with
- * {@link HCSImageFormatV1_0}.
+ * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is
+ * associated with {@link HCSImageFormatV1_0}.
  * 
  * @author Christian Ribeaud
  */
@@ -71,12 +71,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     private final int getChannelCount()
     {
-        return getChannelList().getChannelCount();
-    }
-
-    private final ChannelList getChannelList()
-    {
-        return (ChannelList) getFormatParameters().getValue(ChannelList.NUMBER_OF_CHANNELS);
+        return ((Integer) getFormatParameters().getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS))
+                .intValue();
     }
 
     private final static void checkLocation(final Geometry geometry, final Location location)
@@ -104,7 +100,10 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
     }
 
-    /** From given <var>wellLocation</var> creates the leaf file name that is found in <code>data/standard</code>. */
+    /**
+     * From given <var>wellLocation</var> creates the leaf file name that is found in
+     * <code>data/standard</code>.
+     */
     final static String createWellFileName(final Location wellLocation)
     {
         assert wellLocation != null : "Well location can not be null.";

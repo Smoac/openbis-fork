@@ -23,5 +23,9 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
  */
 public interface IAnnotations extends IStorable
 {
+
+    /**
+     * Asserts annotations against given <code>IFormattedData</code>.
+     */
     public void assertValid(IFormattedData formattedData) throws DataStructureException;
 }

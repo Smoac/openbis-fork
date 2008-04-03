@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.bds.Format;
@@ -31,74 +28,72 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
+ * The <code>IAnnotations</code> implementation for <i>HCS</i>.
+ * 
  * @author Franz-Josef Elmer
  */
-public class HCSImageAnnotations implements IAnnotations
+public final class HCSImageAnnotations implements IAnnotations
 {
+    private static final String DEVICE_ID = "device_id";
+
     private static final Set<Format> FORMATS =
             Collections.unmodifiableSet(new HashSet<Format>(Arrays
                     .asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
 
+    private Set<Channel> channels;
+
     private String deviceID;
-
-    private List<Channel> channels = new ArrayList<Channel>();
-
-    public void addChannels(Iterable<Channel> channelIterable)
-    {
-        for (Channel channel : channelIterable)
-        {
-            addChannel(channel);
-        }
-    }
-
-    public void addChannel(Channel channel)
-    {
-        channels.add(channel);
-    }
-
-    public List<Channel> getChannels()
-    {
-        return Collections.unmodifiableList(channels);
-    }
 
     public final String getDeviceID()
     {
         return deviceID;
     }
 
-    public final void setDeviceID(String deviceID)
+    public final void setDeviceID(final String deviceID)
     {
         this.deviceID = deviceID;
     }
 
-    public void assertValid(IFormattedData formattedData) throws DataStructureException
+    public final Set<Channel> getChannels()
     {
-        Format format = formattedData.getFormat();
+        return Collections.unmodifiableSet(channels);
+    }
+
+    public final void setChannels(final Set<Channel> channels)
+    {
+        this.channels = channels;
+    }
+
+    //
+    // IAnnotations
+    //
+
+    public final void assertValid(final IFormattedData formattedData) throws DataStructureException
+    {
+        final Format format = formattedData.getFormat();
         if (FORMATS.contains(format) == false)
         {
             throw new DataStructureException("One of the following formats expected instead of '"
                     + format + "': " + FORMATS);
         }
-        // TODO 2008-01-15, Franz-Josef Elmer also checks number of channels
+        // final int channelCount =
+        // ((Integer) formattedData.getFormatParameters().getValue(
+        // HCSImageFormatV1_0.NUMBER_OF_CHANNELS)).intValue();
+        // if (channelCount != channels.size())
+        // {
+        // throw new DataStructureException("Channel counts do not match.");
+        // }
     }
 
-    public void saveTo(IDirectory directory)
+    public final void saveTo(final IDirectory directory)
     {
         if (deviceID != null)
         {
-            directory.addKeyValuePair("device_id", deviceID);
+            directory.addKeyValuePair(DEVICE_ID, deviceID);
         }
-        Collections.sort(channels, new Comparator<Channel>()
-            {
-                public int compare(Channel c1, Channel c2)
-                {
-                    return c1.getCounter() - c2.getCounter();
-                }
-            });
-        for (Channel channel : channels)
+        for (final Channel channel : channels)
         {
-            IDirectory channelDir = directory.makeDirectory("channel" + channel.getCounter());
-            channelDir.addKeyValuePair("wavelength", Integer.toString(channel.getWavelength()));
+            channel.saveTo(directory);
         }
     }
 }

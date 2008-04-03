@@ -22,8 +22,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * A customized <code>IFormatParameterFactory</code> implementation suitable for <i>HCS (High-Content Screening) with
- * Images</i>.
+ * A customized <code>IFormatParameterFactory</code> implementation suitable for <i>HCS
+ * (High-Content Screening) with Images</i>.
  * 
  * @author Christian Ribeaud
  */
@@ -64,9 +64,6 @@ public final class FormatParameterFactory implements IFormatParameterFactory
             } else if (nodeName.equals(WellGeometry.WELL_GEOMETRY))
             {
                 return new FormatParameter(nodeName, WellGeometry.loadFrom(directory));
-            } else if (nodeName.equals(ChannelList.NUMBER_OF_CHANNELS))
-            {
-                return new FormatParameter(nodeName, ChannelList.loadFrom(directory));
             } else
             {
                 // Probably 'channelN'. As already loaded, returns null here.
@@ -92,9 +89,9 @@ public final class FormatParameterFactory implements IFormatParameterFactory
             {
                 return new FormatParameter(name, new WellGeometry(geometry));
             }
-        } else if (name.equals(ChannelList.NUMBER_OF_CHANNELS))
+        } else if (name.equals(HCSImageFormatV1_0.NUMBER_OF_CHANNELS))
         {
-            return new FormatParameter(name, ChannelList.createChannelListFromString(value));
+            return new FormatParameter(name, Integer.parseInt(value));
         } else if (name.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
         {
             return new FormatParameter(name, Boolean.valueOf(value));

@@ -22,15 +22,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.DataStructureLoader;
-import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.DataStructureTestV1_0;
+import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
@@ -40,7 +38,8 @@ import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
 /**
- * Test cases for corresponding {@link DataStructureV1_0} class specific to <i>HCS (High-Content Screening) with Images</i>.
+ * Test cases for corresponding {@link DataStructureV1_0} class specific to <i>HCS (High-Content
+ * Screening) with Images</i>.
  * 
  * @author Christian Ribeaud
  */
@@ -50,22 +49,14 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
 
     private DataStructureV1_0 dataStructure;
 
-    private final static ChannelList createChannelList()
-    {
-        final List<Channel> list = new ArrayList<Channel>();
-        list.add(new Channel(1, 123));
-        list.add(new Channel(2, 456));
-        return new ChannelList(list);
-    }
-
     private final void setFormatAndFormatParameters()
     {
         dataStructure.setFormat(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.DEVICE_ID, "M1"));
         dataStructure.addFormatParameter(new FormatParameter(
                 HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
-        dataStructure.addFormatParameter(new FormatParameter(ChannelList.NUMBER_OF_CHANNELS,
-                createChannelList()));
+        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.NUMBER_OF_CHANNELS,
+                new Integer(2)));
         dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY,
                 new PlateGeometry(2, 3)));
         dataStructure.addFormatParameter(new FormatParameter(WellGeometry.WELL_GEOMETRY,

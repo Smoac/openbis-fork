@@ -154,7 +154,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         formatParameters.addParameter(formatParameter);
     }
 
-    public void setAnnotations(IAnnotations annotations)
+    public void setAnnotations(final IAnnotations annotations)
     {
         this.annotations = annotations;
     }
@@ -174,7 +174,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the experiment identifier. Overwrites an already set or loaded value.
      */
-    public void setExperimentIdentifier(ExperimentIdentifier id)
+    public void setExperimentIdentifier(final ExperimentIdentifier id)
     {
         assert id != null : "Unspecified experiment identifier";
         assertOpenOrCreated();
@@ -196,7 +196,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the date of registration of the experiment.
      */
-    public void setExperimentRegistrationDate(ExperimentRegistratorDate date)
+    public void setExperimentRegistrationDate(final ExperimentRegistratorDate date)
     {
         assertOpenOrCreated();
         date.saveTo(getMetaDataDirectory());
@@ -214,7 +214,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
     }
 
-    public void setExperimentRegistrator(ExperimentRegistrator registrator)
+    public void setExperimentRegistrator(final ExperimentRegistrator registrator)
     {
         assert registrator != null : "Unspecified experiment registrator.";
         assertOpenOrCreated();
@@ -236,7 +236,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the measurement entity. Overwrites an already set or loaded value.
      */
-    public void setMeasurementEntity(MeasurementEntity entity)
+    public void setMeasurementEntity(final MeasurementEntity entity)
     {
         assert entity != null : "Unspecified measurement entity.";
         assertOpenOrCreated();
@@ -258,7 +258,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the processing type. Overwrites an already set or loaded value.
      */
-    public void setProcessingType(ProcessingType type)
+    public void setProcessingType(final ProcessingType type)
     {
         assert type != null : "Unspecified processing type.";
         assertOpenOrCreated();
@@ -290,7 +290,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     public final void assertValid()
     {
         super.assertValid();
-        IDirectory metaDataDirectory = getMetaDataDirectory();
+        final IDirectory metaDataDirectory = getMetaDataDirectory();
         if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format == null)
         {
             throw new DataStructureException("Unspecified format.");
