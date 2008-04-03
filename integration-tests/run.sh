@@ -660,9 +660,11 @@ function assert_correct_dataset_content_in_database {
     local dataset_id=$1
     local pattern=$2
     local dataset=`psql -U postgres -d lims_integration_test \
-       -c "select d.id, d.code, r.data_id_parent, d.data_producer_code, d.production_timestamp \
-           from data as d left join data_set_relationships as r on r.data_id_child = d.id \
-           where d.id = $dataset_id"  \
+       -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
+                  d.data_producer_code, d.production_timestamp \
+           from data as d left join data_set_relationships as r on r.data_id_child = d.id, 
+                procedures as p join procedure_types as pt on pt.id = p.pcty_id 
+           where p.id = d.proc_id_produced_by and d.id = $dataset_id"  \
        | awk '/ +[0-9]+/' \
        | awk '{gsub(/ /,"");print}' \
        | awk '{gsub(/\|/,";");print}'`
@@ -683,10 +685,12 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP3
     assert_correct_content_of_image_analysis_data 3VCP4
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    assert_correct_dataset_content_in_database 1 "1;MICROX-200801011213;;microX;2008"
-    assert_correct_dataset_content_in_database 2 "2;20[0-9]*-2;1;;"
-    assert_correct_dataset_content_in_database 3 "3;20[0-9]*-3;1;;"
-    assert_correct_dataset_content_in_database 4 "4;20[0-9]*-4;1;;"
+    assert_correct_dataset_content_in_database 1 "1;DATA_ACQUISITION;MICROX-3VCP1;f;;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 2 "2;IMAGE_ANALYSIS;20[0-9]*-2;f;3;;"
+    assert_correct_dataset_content_in_database 3 "3;UNKNOWN;MICROX-3VCP4;t;;;"
+    assert_correct_dataset_content_in_database 4 "4;IMAGE_ANALYSIS;20[0-9]*-4;f;1;;"
+    assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-5;f;6;;"
+    assert_correct_dataset_content_in_database 6 "6;UNKNOWN;MICROX-3VCP3;t;;;"
 }
 
 function integration_tests {
