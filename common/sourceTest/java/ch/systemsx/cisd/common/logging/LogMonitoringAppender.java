@@ -25,8 +25,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-
 /**
  * A class that allows to monitor the log for unit tests.
  * 
@@ -42,7 +40,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
 
     private final Pattern regex;
 
-    private LogMonitoringAppender(Pattern pattern)
+    private LogMonitoringAppender(final Pattern pattern)
     {
         this.regex = pattern;
     }
@@ -50,24 +48,25 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     private int logCount = 0;
 
     /**
-     * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
-     * <code>category</code> and <code>clazz</code>.
+     * Creates an appender that monitors for <var>messagePart</var> and adds it to the
+     * {@link Logger} for <code>category</code> and <code>clazz</code>.
      * 
      * @return The created appender.
      */
-    public static synchronized LogMonitoringAppender addAppender(LogCategory category,
-            String messagePart)
+    public static synchronized LogMonitoringAppender addAppender(final LogCategory category,
+            final String messagePart)
     {
         return addAppender(category, Pattern.compile(Pattern.quote(messagePart)));
     }
 
     /**
-     * Creates an appender that monitors for <var>messagePart</var> and adds it to the {@link Logger} for
-     * <code>category</code> and <code>clazz</code>.
+     * Creates an appender that monitors for <var>messagePart</var> and adds it to the
+     * {@link Logger} for <code>category</code> and <code>clazz</code>.
      * 
      * @return The created appender.
      */
-    public static synchronized LogMonitoringAppender addAppender(LogCategory category, Pattern regex)
+    public static synchronized LogMonitoringAppender addAppender(final LogCategory category,
+            final Pattern regex)
     {
         final LogMonitoringAppender appender = new LogMonitoringAppender(regex);
         final String loggerName = category.name();
@@ -79,7 +78,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     /**
      * Removes the given <var>appender</var>.
      */
-    public static synchronized void removeAppender(LogMonitoringAppender appender)
+    public static synchronized void removeAppender(final LogMonitoringAppender appender)
     {
         final String loggerName = appenderMap.get(appender);
         if (loggerName != null)
@@ -88,11 +87,12 @@ public final class LogMonitoringAppender extends AppenderSkeleton
             appenderMap.remove(appender);
         } else
         {
-            // This means that the caller tries to remove the appender twice - nothing to do here really.
+            // This means that the caller tries to remove the appender twice - nothing to do here
+            // really.
         }
     }
 
-    private String getThrowableStr(LoggingEvent event)
+    private String getThrowableStr(final LoggingEvent event)
     {
         final ThrowableInformation info = event.getThrowableInformation();
         if (info == null)
@@ -102,35 +102,6 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         {
             return info.getThrowableStrRep()[0];
         }
-    }
-
-    @Override
-    protected void append(LoggingEvent event)
-    {
-        String eventMessage = event.getMessage().toString();
-        eventRecorder.append("event message: ").append(eventMessage).append('\n');
-        String throwableStr = getThrowableStr(event);
-        if (throwableStr.length() > 0)
-        {
-            eventRecorder.append("event throwable: ").append(throwableStr).append('\n');
-        }
-        if (regex.matcher(event.getMessage().toString()).find()
-                || regex.matcher(getThrowableStr(event)).find())
-        {
-            ++logCount;
-        }
-    }
-
-    @Override
-    public void close()
-    {
-        // Nothing to do here.
-    }
-
-    @Override
-    public boolean requiresLayout()
-    {
-        return false;
     }
 
     public void verifyLogHasNotHappened()
@@ -144,7 +115,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         assert logCount > 0 : "Regex '" + regex + "' has been missed in log:\n" + eventRecorder;
     }
 
-    public void verifyLogHappendNTimes(int n)
+    public void verifyLogHappendNTimes(final int n)
     {
         assert logCount == n : String.format(
                 "Log snippet '%s' should have found %d times, but has been found %d times.", regex,
@@ -155,4 +126,35 @@ public final class LogMonitoringAppender extends AppenderSkeleton
     {
         logCount = 0;
     }
+
+    //
+    // AppenderSkeleton
+    //
+
+    @Override
+    protected final void append(final LoggingEvent event)
+    {
+        final String eventMessage = event.getMessage().toString();
+        eventRecorder.append("event message: ").append(eventMessage).append('\n');
+        final String throwableStr = getThrowableStr(event);
+        if (throwableStr.length() > 0)
+        {
+            eventRecorder.append("event throwable: ").append(throwableStr).append('\n');
+        }
+        if (regex.matcher(event.getMessage().toString()).find()
+                || regex.matcher(getThrowableStr(event)).find())
+        {
+            ++logCount;
+        }
+    }
+
+    public final void close()
+    {
+    }
+
+    public final boolean requiresLayout()
+    {
+        return false;
+    }
+
 }
