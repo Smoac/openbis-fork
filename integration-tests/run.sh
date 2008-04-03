@@ -553,7 +553,7 @@ function assert_correct_experiment_info {
     assert_pattern_present $res 1 "Path: processing-dir"
     assert_pattern_present $res 1 "Description: Processing parameters from file .*processing-parameters.txt"
     assert_pattern_present $res 2 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
-    assert_pattern_present $res 4 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
+    assert_pattern_present $res 5 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 
 }
 
@@ -708,10 +708,12 @@ function assert_correct_content {
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     assert_correct_dataset_content_in_database 1 "1;DATA_ACQUISITION;MICROX-3VCP1;f;;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 2 "2;IMAGE_ANALYSIS;20[0-9]*-2;f;1;;"
-    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-3;f;4;;"
-    assert_correct_dataset_content_in_database 4 "4;DATA_ACQUISITION;MICROX-3VCP3;f;;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-5;f;6;;"
-    assert_correct_dataset_content_in_database 6 "6;UNKNOWN;MICROX-3VCP4;t;;;"
+    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-3;f;1;;"
+    assert_correct_dataset_content_in_database 4 "4;IMAGE_ANALYSIS;20[0-9]*-4;f;5;;"
+    assert_correct_dataset_content_in_database 5 "5;DATA_ACQUISITION;MICROX-3VCP3;f;;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 6 "6;IMAGE_ANALYSIS;20[0-9]*-6;f;7;;"
+    assert_correct_dataset_content_in_database 7 "7;UNKNOWN;MICROX-3VCP4;t;;;"
+    assert_correct_dataset_content_in_database 8 "8;IMAGE_ANALYSIS;20[0-9]*-8;f;5;;"
 }
 
 function integration_tests {
