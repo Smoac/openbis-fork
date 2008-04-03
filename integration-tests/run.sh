@@ -443,8 +443,11 @@ function generate_test_data {
     echo Generate incoming data
     local DIR=$DATA/in-raw
     copy_test_data 3VCP1 $DIR
+    sleep 10
     copy_test_data 3VCP3 $DIR
+    sleep 10
     copy_test_data 3VCP4 $DIR
+    sleep 10
     copy_test_data UnknownPlate $DIR
 }
 
