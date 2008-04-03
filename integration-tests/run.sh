@@ -689,9 +689,9 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP4
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
     assert_correct_dataset_content_in_database 1 "1;DATA_ACQUISITION;MICROX-3VCP1;f;;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 2 "2;IMAGE_ANALYSIS;20[0-9]*-2;f;3;;"
-    assert_correct_dataset_content_in_database 3 "3;UNKNOWN;MICROX-3VCP3;t;;;"
-    assert_correct_dataset_content_in_database 4 "4;IMAGE_ANALYSIS;20[0-9]*-4;f;1;;"
+    assert_correct_dataset_content_in_database 2 "2;IMAGE_ANALYSIS;20[0-9]*-2;f;1;;"
+    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-3;f;4;;"
+    assert_correct_dataset_content_in_database 4 "4;UNKNOWN;MICROX-3VCP3;t;;;"
     assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-5;f;6;;"
     assert_correct_dataset_content_in_database 6 "6;UNKNOWN;MICROX-3VCP4;t;;;"
 }
