@@ -560,7 +560,6 @@ function assert_correct_experiment_info {
 function assert_empty_in_out_folders {
     echo ==== assert empty in/out folders ====
     assert_dir_empty $DATA/in-raw
-    assert_dir_empty $DATA/out-raw
     assert_dir_empty $DATA/in-analys
     assert_dir_empty $DATA/out-analys
     assert_dir_empty $DATA/analys-copy
@@ -699,6 +698,7 @@ function assert_correct_dataset_content_in_database {
 function assert_correct_content {
     assert_correct_experiment_info
     assert_empty_in_out_folders
+    assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
