@@ -551,7 +551,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
-    local bds_container=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_3VCP1/1/microX_200801011213_3VCP1
+    local bds_container=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Barcode_3VCP1/1/microX_200801011213_3VCP1
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
     assert_same_inode $data_set/TIFF/blabla_3VCP1_M03_2_w530.tif $data_set2/TIFF/blabla_3VCP1_M03_2_w530.tif
@@ -562,7 +562,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo ==== assert correct content of plate 3VCP1 in store ====
     
     local main_dir=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1
-    local raw_data_dir=$main_dir/ObservableType_IMAGE/Barcode_3VCP1/1
+    local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Barcode_3VCP1/1
     assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
     assert_dir_exists $raw_data_set
@@ -629,19 +629,19 @@ function assert_correct_content_of_invalid_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of invalid plate $cell_plate in store ====
     
-    local error_dir=$DATA/main-store/3V/error/ObservableType_IMAGE
+    local error_dir=$DATA/main-store/3V/error/ObservableType_HCS_IMAGE
     assert_dir_exists $error_dir
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
-    assert_dir_empty $DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE/Barcode_$cell_plate
+    assert_dir_empty $DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Barcode_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
     local cell_plate=$1
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local img_analysis=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/1
+    local img_analysis=$DATA/main-store/3V/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/1
     assert_dir_exists $img_analysis
     assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
 }
@@ -652,8 +652,8 @@ function assert_correct_content_of_unidentified_plate_in_store {
     
     local unidentified_dir=$DATA/main-store/3V/unidentified
     assert_dir_exists $unidentified_dir
-    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_IMAGE/microX_200801011213_$cell_plate
-    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
 }
 
 function assert_correct_dataset_content_in_database {
