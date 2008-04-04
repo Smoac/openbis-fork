@@ -35,7 +35,7 @@ public final class DataSet implements IStorable
 
     static final String CODE = "code";
 
-    static final String PRODUCTION_TIMESTAMP = "production_date";
+    static final String PRODUCTION_TIMESTAMP = "production_timestamp";
 
     static final String PRODUCER_CODE = "producer_code";
 
