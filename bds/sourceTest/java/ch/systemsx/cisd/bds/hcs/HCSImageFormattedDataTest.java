@@ -117,11 +117,11 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         final Geometry geometry = new Geometry(2, 2);
         exp.one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
-        exp.will(exp.returnValue(new Integer(1)));
+        exp.will(Expectations.returnValue(new Integer(1)));
         exp.one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
-        exp.will(exp.returnValue(geometry));
+        exp.will(Expectations.returnValue(geometry));
         exp.one(formatParameters).getValue(WellGeometry.WELL_GEOMETRY);
-        exp.will(exp.returnValue(geometry));
+        exp.will(Expectations.returnValue(geometry));
     }
 
     private final void prepareImageRootDirectory() throws IOException
@@ -162,7 +162,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         {
             HCSImageFormattedData.createWellFileName(null);
             fail("Location can not be null.");
-        } catch (AssertionError ex)
+        } catch (final AssertionError ex)
         {
             // Nothing to do here.
         }
@@ -307,7 +307,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         {
             formattedData.tryGetStandardNodeAt(2, null, null);
             fail("2 > 1");
-        } catch (IndexOutOfBoundsException ex)
+        } catch (final IndexOutOfBoundsException ex)
         {
             // Nothing to do here.
         }
@@ -332,7 +332,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
             final Location location = new Location(2, 3);
             formattedData.tryGetStandardNodeAt(1, location, location);
             fail("Given geometry '2x2' does not contain location '[x=2,y=3]'");
-        } catch (IllegalArgumentException ex)
+        } catch (final IllegalArgumentException ex)
         {
             // Nothing to do here.
         }
@@ -352,7 +352,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         {
             formattedData.tryGetStandardNodeAt(1, new Location(2, 2), new Location(3, 2));
             fail("Given geometry '2x2' does not contain location '[x=3,y=2]'");
-        } catch (IllegalArgumentException ex)
+        } catch (final IllegalArgumentException ex)
         {
             // Nothing to do here.
         }
