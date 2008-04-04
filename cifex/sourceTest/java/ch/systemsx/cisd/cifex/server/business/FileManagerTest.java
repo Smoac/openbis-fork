@@ -63,7 +63,7 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public class FileManagerTest extends AbstractFileSystemTestCase
 {
 
-    Mockery context = new Mockery();
+    private Mockery context;
 
     private IDAOFactory daoFactory;
 
@@ -75,7 +75,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private IFileManager fileManager;
 
-    File fileStore;
+    private File fileStore;
 
     private IBusinessObjectFactory boFactory;
 
@@ -83,23 +83,31 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private FileDTO imageFile;
 
+    @Override
     @BeforeMethod
     public final void setUp() throws IOException
     {
+        super.setUp();
         userAlice = createSampleUserDTO(1L, "alice@users.com");
         imageFile = cerateSampleFileDTO(1L, userAlice, "image.jpg", "image");
+        context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         fileDAO = context.mock(IFileDAO.class);
         userDAO = context.mock(IUserDAO.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
-        BusinessContext businessContext = new BusinessContext();
+        final BusinessContext businessContext = new BusinessContext();
         businessContext.setFileRetention(5);
         businessContext.setFileStore(fileStore);
         businessContext.setPasswordGenerator(new PasswordGenerator()
             {
+
+                //
+                // PasswordGenerator
+                //
+
                 @Override
-                public String generatePassword(int length)
+                public final String generatePassword(final int length)
                 {
                     return "newpasswd";
                 }
@@ -112,19 +120,19 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @AfterMethod
-    public void tearDown()
+    public final void tearDown()
     {
-        File userFolder = new File(fileStore, userAlice.getEmail());
+        final File userFolder = new File(fileStore, userAlice.getEmail());
         deleteFileRecursive(userFolder);
         context.assertIsSatisfied();
     }
 
-    private void deleteFileRecursive(File file)
+    private final void deleteFileRecursive(final File file)
     {
         if (file.isDirectory())
         {
-            File[] files = file.listFiles();
-            for (File f : files)
+            final File[] files = file.listFiles();
+            for (final File f : files)
             {
                 deleteFileRecursive(f);
             }
@@ -133,11 +141,11 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testDeleteExpiredFiles()
+    public final void testDeleteExpiredFiles()
     {
         final List<FileDTO> fileDTOs = new ArrayList<FileDTO>();
         fileDTOs.add(imageFile);
-        File realFile = createRealFile(imageFile.getPath());
+        final File realFile = createRealFile(imageFile.getPath());
         context.checking(new Expectations()
             {
                 {
@@ -155,7 +163,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRegistratorIsAllowedAccessAndDeletion()
+    public final void testRegistratorIsAllowedAccessAndDeletion()
     {
         final long userId = 17L;
         final UserDTO user = new UserDTO();
@@ -166,7 +174,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testAdminIsAllowedAccessAndDeletion()
+    public final void testAdminIsAllowedAccessAndDeletion()
     {
         final long adminId = 42L;
         final long userId = 17L;
@@ -179,7 +187,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testSharingUserIsAllowedAccessButNotDeletion()
+    public final void testSharingUserIsAllowedAccessButNotDeletion()
     {
         final long sharingUserId = 1L;
         final long registratorIdId = 17L;
@@ -192,7 +200,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testNonInvolvedUserIsNotAllowedAccessAndDeletion()
+    public final void testNonInvolvedUserIsNotAllowedAccessAndDeletion()
     {
         final long sharingUserId = 1L;
         final long registratorIdId = 17L;
@@ -205,11 +213,11 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     @Test(dependsOnMethods =
         { "testSaveFile", "testGetFile" })
-    public void testDeleteFile()
+    public final void testDeleteFile()
     {
 
         final long fileId = imageFile.getID();
-        File realFile = createRealFile(imageFile.getPath());
+        final File realFile = createRealFile(imageFile.getPath());
         assertTrue(realFile.exists());
         context.checking(new Expectations()
             {
@@ -226,7 +234,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testShareFileWithExistingUser()
+    public final void testShareFileWithExistingUser()
     {
         final String url = "https://server/instance";
         final long requestUserId = 42;
@@ -278,7 +286,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testShareFileWithExistingUserButDifferentCapitalization()
+    public final void testShareFileWithExistingUserButDifferentCapitalization()
     {
         final String url = "https://server/instance";
         final long requestUserId = 42;
@@ -332,11 +340,11 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetFile()
+    public final void testGetFile()
     {
-        File realFile = createRealFile(imageFile.getPath());
+        final File realFile = createRealFile(imageFile.getPath());
         assertTrue(realFile.exists());
-        FileContent returnedFile = fileManager.getFileContent(imageFile);
+        final FileContent returnedFile = fileManager.getFileContent(imageFile);
         assertNotNull(returnedFile);
         assertEquals(imageFile.getName(), returnedFile.getBasicFile().getName());
         assertEquals(imageFile.getSize(), returnedFile.getBasicFile().getSize());
@@ -344,7 +352,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test(dataProvider = "booleans")
-    public void testListFiles(boolean listOfSharedFilesEmpty)
+    public final void testListFiles(final boolean listOfSharedFilesEmpty)
     {
         final long userId = userAlice.getID();
         final List<FileDTO> files = new ArrayList<FileDTO>();
@@ -386,12 +394,12 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "booleans")
-    public void testSaveFile(final boolean fileAlreadyExists) throws FileNotFoundException
+    public final void testSaveFile(final boolean fileAlreadyExists) throws FileNotFoundException
     {
-        UserDTO user = userAlice;
+        final UserDTO user = userAlice;
         final String filePath = imageFile.getPath();
-        File inputFile = createRealFile(filePath + "_user");
-        InputStream inputStream = new FileInputStream(inputFile);
+        final File inputFile = createRealFile(filePath + "_user");
+        final InputStream inputStream = new FileInputStream(inputFile);
         File filePathIfFileNotExisted = new File(fileStore, filePath);
         File expectedFilePath;
         if (fileAlreadyExists == false)
@@ -417,10 +425,10 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(fileDAO).createFile(this.with(new IsInstanceOf<FileDTO>(FileDTO.class)));
                 }
             });
-        FileDTO createdFileDTO =
+        final FileDTO createdFileDTO =
                 fileManager.saveFile(user, imageFile.getName(), imageFile.getContentType(),
                         inputStream);
-        File createdFile = new File(fileStore, createdFileDTO.getPath());
+        final File createdFile = new File(fileStore, createdFileDTO.getPath());
         assertTrue(createdFile.exists());
         assertEquals(createdFile.getPath(), expectedFilePath.getPath());
         assertEquals(createdFileDTO.getContentType(), imageFile.getContentType());
@@ -431,16 +439,16 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private File createRealFile(String path)
+    private final File createRealFile(final String path)
     {
-        File realFile = new File(fileStore, path);
+        final File realFile = new File(fileStore, path);
         boolean fileCannotBeCreated = false;
         try
         {
-            String directoryName = FilenameUtils.getPathNoEndSeparator(path);
+            final String directoryName = FilenameUtils.getPathNoEndSeparator(path);
             if (directoryName.equals("") == false)
             {
-                File directory = new File(fileStore, directoryName);
+                final File directory = new File(fileStore, directoryName);
                 directory.mkdirs();
             }
             realFile.createNewFile();
@@ -448,7 +456,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             {
                 FileUtilities.writeToFile(realFile, "Lorem ipsum.");
             }
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             fileCannotBeCreated = true;
         } finally
@@ -459,22 +467,22 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         return realFile;
     }
 
-    final static UserDTO createSampleUserDTO(long id, String email)
+    final static UserDTO createSampleUserDTO(final long id, final String email)
     {
-        UserDTO user = new UserDTO();
+        final UserDTO user = new UserDTO();
         user.setID(id);
         user.setUserCode(email);
         user.setEmail(email);
         return user;
     }
 
-    final static private FileDTO cerateSampleFileDTO(long id, UserDTO owner, String fileName,
-            String contentType)
+    final static private FileDTO cerateSampleFileDTO(final long id, final UserDTO owner,
+            final String fileName, final String contentType)
     {
-        FileDTO fileDTO = new FileDTO(owner.getID());
+        final FileDTO fileDTO = new FileDTO(owner.getID());
         fileDTO.setID(id);
         fileDTO.setName(fileName);
-        String path = owner.getEmail() + "/" + fileName;
+        final String path = owner.getEmail() + "/" + fileName;
         fileDTO.setPath(path);
         fileDTO.setContentType(contentType);
         fileDTO.setRegisterer(owner);

@@ -45,7 +45,7 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 public class UserManagerTest extends AbstractFileSystemTestCase
 {
 
-    Mockery context = new Mockery();
+    private Mockery context;
 
     private IDAOFactory daoFactory;
 
@@ -63,9 +63,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     private IUserSessionInvalidator userSessionInvalidator;
 
+    @Override
     @BeforeMethod
     public final void setUp()
     {
+        context = new Mockery();
         userAlice = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
         daoFactory = context.mock(IDAOFactory.class);
         userDAO = context.mock(IUserDAO.class);
@@ -105,7 +107,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "booleans")
-    public void testDeleteExpiredUsers(final boolean areThereAnyExpiredUsers)
+    public final void testDeleteExpiredUsers(final boolean areThereAnyExpiredUsers)
     {
         final List<UserDTO> expiredUsers = new ArrayList<UserDTO>();
         final int numberOfExpiredUsers = areThereAnyExpiredUsers ? 3 : 0;
@@ -141,7 +143,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @SuppressWarnings("unused")
     @DataProvider(name = "booleans")
-    private Object[][] provideAllBooleans()
+    private final Object[][] provideAllBooleans()
     {
         return new Object[][]
             {
@@ -151,7 +153,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "booleans")
-    public void testIsDatabaseEmpty(final boolean isDatabaseEmpty)
+    public final void testIsDatabaseEmpty(final boolean isDatabaseEmpty)
     {
         final int numberOfUsers = isDatabaseEmpty ? 0 : 2;
         context.checking(new Expectations()
@@ -169,7 +171,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @SuppressWarnings("unused")
     @DataProvider(name = "userCodesAndUsers")
-    private Object[][] provideUserCodes()
+    private final Object[][] provideUserCodes()
     {
 
         return new Object[][]
@@ -178,16 +180,16 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                 { "alice", getSimpleUser("alice") } };
     }
 
-    private static final UserDTO getSimpleUser(String userCode)
+    private static final UserDTO getSimpleUser(final String userCode)
     {
-        UserDTO user = new UserDTO();
+        final UserDTO user = new UserDTO();
         user.setUserCode(userCode);
         user.setID(1L);
         return user;
     }
 
     @Test(dataProvider = "userCodesAndUsers")
-    public void testTryToFindUserByCode(final String userCode, final UserDTO user)
+    public final void testTryToFindUserByCode(final String userCode, final UserDTO user)
     {
         context.checking(new Expectations()
             {
@@ -204,11 +206,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @SuppressWarnings("unused")
     @DataProvider(name = "listsOfUsers")
-    private Object[][] provideListOfUsers()
+    private final Object[][] provideListOfUsers()
     {
         final int numberOfUsers = 3;
-        List<UserDTO> users = new ArrayList<UserDTO>();
-        Object[][] data = new Object[numberOfUsers][1];
+        final List<UserDTO> users = new ArrayList<UserDTO>();
+        final Object[][] data = new Object[numberOfUsers][1];
         for (int i = 0; i < numberOfUsers; i++)
         {
             data[i][0] = new ArrayList<UserDTO>(users);
@@ -218,7 +220,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test(dataProvider = "listsOfUsers")
-    public void testListUsers(final List<UserDTO> usersFromDAO)
+    public final void testListUsers(final List<UserDTO> usersFromDAO)
     {
         context.checking(new Expectations()
             {
@@ -236,7 +238,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "userCodesAndUsers")
-    public void testDeleteUser(final String userCode, final UserDTO user)
+    public final void testDeleteUser(final String userCode, final UserDTO user)
     {
 
         context.checking(new Expectations()
@@ -265,7 +267,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(expectedExceptions = UserFailureException.class)
-    public void testDeleteUserUserNotFound()
+    public final void testDeleteUserUserNotFound()
     {
         final String userCode = "nonexistent";
         context.checking(new Expectations()
