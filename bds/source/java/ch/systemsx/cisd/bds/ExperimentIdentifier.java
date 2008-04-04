@@ -20,8 +20,8 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Identifier of the experiment which corresponds to the data. This is an immutable but extendable value object class.
- * An instance of this class allows unique identification in the database.
+ * Identifier of the experiment which corresponds to the data. This is an immutable but extendable
+ * value object class. An instance of this class allows unique identification in the database.
  * 
  * @author Franz-Josef Elmer
  */
@@ -40,12 +40,12 @@ public class ExperimentIdentifier implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    static ExperimentIdentifier loadFrom(IDirectory directory)
+    final static ExperimentIdentifier loadFrom(final IDirectory directory)
     {
-        IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
-        String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
-        String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
-        String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
+        final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
+        final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
+        final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
+        final String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
         return new ExperimentIdentifier(groupCode, projectCode, experimentCode);
     }
 
@@ -62,21 +62,20 @@ public class ExperimentIdentifier implements IStorable
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
      */
-    public ExperimentIdentifier(String groupCode, String projectCode, String experimentCode)
+    public ExperimentIdentifier(final String groupCode, final String projectCode,
+            final String experimentCode)
     {
-        assert groupCode != null && groupCode.length() > 0 : "Undefined group code";
+        assert StringUtils.isEmpty(groupCode) == false : "Undefined group code";
         this.groupCode = groupCode;
-        assert projectCode != null && projectCode.length() > 0 : "Undefined project code";
+        assert StringUtils.isEmpty(projectCode) == false : "Undefined project code";
         this.projectCode = projectCode;
-        assert experimentCode != null && experimentCode.length() > 0 : "Undefined experiment code";
+        assert StringUtils.isEmpty(experimentCode) == false : "Undefined experiment code";
         this.experimentCode = experimentCode;
     }
 
     /**
      * Returns the group code;
      */
-    // TODO 2007-12-03, Tomasz Pylak review: should not we use the term organization as everywhere else instead of
-    // group?
     public final String getGroupCode()
     {
         return groupCode;
@@ -107,14 +106,18 @@ public class ExperimentIdentifier implements IStorable
      */
     public final void saveTo(final IDirectory directory)
     {
-        IDirectory folder = directory.makeDirectory(FOLDER);
+        final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
         folder.addKeyValuePair(PROJECT_CODE, projectCode);
         folder.addKeyValuePair(EXPERIMENT_CODE, experimentCode);
     }
 
+    //
+    // Object
+    //
+
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -124,20 +127,23 @@ public class ExperimentIdentifier implements IStorable
         {
             return false;
         }
-        ExperimentIdentifier id = (ExperimentIdentifier) obj;
+        final ExperimentIdentifier id = (ExperimentIdentifier) obj;
         return id.groupCode.equals(groupCode) && id.projectCode.equals(projectCode)
                 && id.experimentCode.equals(experimentCode);
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return (groupCode.hashCode() * 37 + projectCode.hashCode()) * 37
-                + experimentCode.hashCode();
+        int result = 17;
+        result = 37 * result + groupCode.hashCode();
+        result = 37 * result + projectCode.hashCode();
+        result = 37 * result + experimentCode.hashCode();
+        return result;
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
         return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode
                 + "]";

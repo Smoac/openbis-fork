@@ -90,37 +90,39 @@ public class DataStructureV1_0 extends AbstractDataStructure
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
     }
 
-    private IDirectory getDataDirectory()
+    private final IDirectory getDataDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
     }
 
-    private IDirectory getMetaDataDirectory()
+    private final IDirectory getMetaDataDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
     }
 
-    private IDirectory getAnnotationsDirectory()
+    private final IDirectory getAnnotationsDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_ANNOTATIONS);
     }
 
-    private IDirectory getParametersDirectory()
+    private final IDirectory getParametersDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
     }
 
     /**
-     * Returns the formatted data. This method can be called only after method {@link #setFormat(Format)} has been
-     * invoked. If the format is not known {@link UnknownFormatV1_0} will be assumed.
+     * Returns the formatted data. This method can be called only after method
+     * {@link #setFormat(Format)} has been invoked. If the format is not known
+     * {@link UnknownFormatV1_0} will be assumed.
      * 
-     * @throws DataStructureException if this method has been invoked before the format has been set.
+     * @throws DataStructureException if this method has been invoked before the format has been
+     *             set.
      */
-    public IFormattedData getFormattedData() throws DataStructureException
+    public final IFormattedData getFormattedData() throws DataStructureException
     {
         assertOpenOrCreated();
         if (format == null)
@@ -146,15 +148,16 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Adds the specified format parameter.
      * 
-     * @throws IllegalArgumentException if they is already a parameter with same name as <code>parameter</code>.
+     * @throws IllegalArgumentException if they is already a parameter with same name as
+     *             <code>parameter</code>.
      */
-    public void addFormatParameter(final FormatParameter formatParameter)
+    public final void addFormatParameter(final FormatParameter formatParameter)
     {
         assert formatParameter != null : "Unspecified format parameter.";
         formatParameters.addParameter(formatParameter);
     }
 
-    public void setAnnotations(final IAnnotations annotations)
+    public final void setAnnotations(final IAnnotations annotations)
     {
         this.annotations = annotations;
     }
@@ -162,8 +165,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Returns the experiment identifier.
      * 
-     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be set by
-     *             {@link #setExperimentIdentifier(ExperimentIdentifier)}.
+     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
+     *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      */
     public ExperimentIdentifier getExperimentIdentifier()
     {
@@ -174,7 +177,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the experiment identifier. Overwrites an already set or loaded value.
      */
-    public void setExperimentIdentifier(final ExperimentIdentifier id)
+    public final void setExperimentIdentifier(final ExperimentIdentifier id)
     {
         assert id != null : "Unspecified experiment identifier";
         assertOpenOrCreated();
@@ -185,18 +188,18 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * Returns the date of registration of the experiment.
      * 
      * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
-     *             {@link #setExperimentRegistrator(ExperimentRegistrator)}.
+     *             {@link #setExperimentRegistrationTimestamp(ExperimentRegistrationTimestamp)}.
      */
-    public ExperimentRegistratorDate getExperimentRegistratorDate()
+    public final ExperimentRegistrationTimestamp getExperimentRegistratorTimestamp()
     {
         assertOpenOrCreated();
-        return ExperimentRegistratorDate.loadFrom(getMetaDataDirectory());
+        return ExperimentRegistrationTimestamp.loadFrom(getMetaDataDirectory());
     }
 
     /**
      * Sets the date of registration of the experiment.
      */
-    public void setExperimentRegistrationDate(final ExperimentRegistratorDate date)
+    public final void setExperimentRegistrationTimestamp(final ExperimentRegistrationTimestamp date)
     {
         assertOpenOrCreated();
         date.saveTo(getMetaDataDirectory());
@@ -208,13 +211,13 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
      *             {@link #setExperimentRegistrator(ExperimentRegistrator)}.
      */
-    public ExperimentRegistrator getExperimentRegistrator()
+    public final ExperimentRegistrator getExperimentRegistrator()
     {
         assertOpenOrCreated();
         return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
     }
 
-    public void setExperimentRegistrator(final ExperimentRegistrator registrator)
+    public final void setExperimentRegistrator(final ExperimentRegistrator registrator)
     {
         assert registrator != null : "Unspecified experiment registrator.";
         assertOpenOrCreated();
@@ -222,47 +225,25 @@ public class DataStructureV1_0 extends AbstractDataStructure
     }
 
     /**
-     * Returns the measurement entity.
+     * Returns the sample.
      * 
-     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
-     *             {@link #setProcessingType(ProcessingType)}.
+     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
+     *             {@link #setSample(Sample)}.
      */
-    public MeasurementEntity getMeasurementEntity()
+    public final Sample getSample()
     {
         assertOpenOrCreated();
-        return MeasurementEntity.loadFrom(getMetaDataDirectory());
+        return Sample.loadFrom(getMetaDataDirectory());
     }
 
     /**
      * Sets the measurement entity. Overwrites an already set or loaded value.
      */
-    public void setMeasurementEntity(final MeasurementEntity entity)
+    public final void setSample(final Sample sample)
     {
-        assert entity != null : "Unspecified measurement entity.";
+        assert sample != null : "Unspecified measurement entity.";
         assertOpenOrCreated();
-        entity.saveTo(getMetaDataDirectory());
-    }
-
-    /**
-     * Returns the processing type.
-     * 
-     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
-     *             {@link #setProcessingType(ProcessingType)}.
-     */
-    public ProcessingType getProcessingType()
-    {
-        assertOpenOrCreated();
-        return ProcessingType.loadFrom(getMetaDataDirectory());
-    }
-
-    /**
-     * Sets the processing type. Overwrites an already set or loaded value.
-     */
-    public void setProcessingType(final ProcessingType type)
-    {
-        assert type != null : "Unspecified processing type.";
-        assertOpenOrCreated();
-        type.saveTo(getMetaDataDirectory());
+        sample.saveTo(getMetaDataDirectory());
     }
 
     public final void addReference(final Reference reference)
@@ -299,7 +280,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Unspecified experiment identifier.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentRegistratorDate.FILE_NAME) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentRegistrationTimestamp.FILE_NAME) == null)
         {
             throw new DataStructureException("Unspecified experiment registration date.");
         }
@@ -307,13 +288,9 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Unspecified experiment registrator.");
         }
-        if (metaDataDirectory.tryGetNode(MeasurementEntity.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(Sample.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified measurement entity.");
-        }
-        if (metaDataDirectory.tryGetNode(ProcessingType.PROCESSING_TYPE) == null)
-        {
-            throw new DataStructureException("Unspecified processing type.");
         }
         if (annotations != null)
         {

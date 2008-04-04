@@ -34,34 +34,21 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class HCSImageAnnotations implements IAnnotations
 {
-    private static final String DEVICE_ID = "device_id";
-
     private static final Set<Format> FORMATS =
             Collections.unmodifiableSet(new HashSet<Format>(Arrays
                     .asList(HCSImageFormatV1_0.HCS_IMAGE_1_0)));
 
-    private Set<Channel> channels;
+    private final Set<Channel> channels;
 
-    private String deviceID;
-
-    public final String getDeviceID()
+    public HCSImageAnnotations(final Set<Channel> channels)
     {
-        return deviceID;
+        this.channels = channels;
     }
 
-    public final void setDeviceID(final String deviceID)
-    {
-        this.deviceID = deviceID;
-    }
-
+    /** Returns an unmodifiable set of <code>Channels</code>. */
     public final Set<Channel> getChannels()
     {
         return Collections.unmodifiableSet(channels);
-    }
-
-    public final void setChannels(final Set<Channel> channels)
-    {
-        this.channels = channels;
     }
 
     //
@@ -89,10 +76,6 @@ public final class HCSImageAnnotations implements IAnnotations
 
     public final void saveTo(final IDirectory directory)
     {
-        if (deviceID != null)
-        {
-            directory.addKeyValuePair(DEVICE_ID, deviceID);
-        }
         for (final Channel channel : channels)
         {
             channel.saveTo(directory);

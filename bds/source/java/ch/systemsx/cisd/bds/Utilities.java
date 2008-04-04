@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,11 +38,12 @@ public class Utilities
     /**
      * Returns a subdirectory from the specified directory. If it does not exist it will be created.
      * 
-     * @throws DataStructureException if there is already a node named <code>name</code> but which isn't a directory.
+     * @throws DataStructureException if there is already a node named <code>name</code> but which
+     *             isn't a directory.
      */
-    public static IDirectory getOrCreateSubDirectory(IDirectory directory, String name)
+    public static IDirectory getOrCreateSubDirectory(final IDirectory directory, final String name)
     {
-        INode node = directory.tryGetNode(name);
+        final INode node = directory.tryGetNode(name);
         if (node == null)
         {
             return directory.makeDirectory(name);
@@ -63,7 +66,7 @@ public class Utilities
     public final static IDirectory getSubDirectory(final IDirectory directory, final String name)
             throws DataStructureException
     {
-        INode node = directory.tryGetNode(name);
+        final INode node = directory.tryGetNode(name);
         if (node == null)
         {
             throw new DataStructureException(String.format(
@@ -79,7 +82,7 @@ public class Utilities
     /**
      * Convenient short cut for <code>{@link #getString(IDirectory, String)}.trim()</code>.
      */
-    public static String getTrimmedString(IDirectory directory, String name)
+    public static String getTrimmedString(final IDirectory directory, final String name)
     {
         return getString(directory, name).trim();
     }
@@ -89,6 +92,7 @@ public class Utilities
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
+     * @return never <code>null</code> but could return an empty string.
      * @throws DataStructureException if the requested file does not exist.
      */
     public static String getString(final IDirectory directory, final String name)
@@ -99,10 +103,12 @@ public class Utilities
     }
 
     /**
-     * Returns the string content of a file from the specified directory as list of <code>String</code> objects.
+     * Returns the string content of a file from the specified directory as list of
+     * <code>String</code> objects.
      * 
      * @param directory Directory of the requested file.
      * @param name Name of the file.
+     * @return never <code>null</code> but could return an empty list.
      * @throws DataStructureException if the requested file does not exist.
      */
     public static List<String> getStringList(final IDirectory directory, final String name)
@@ -132,18 +138,62 @@ public class Utilities
     {
     }
 
+    /**
+     * Return the string content of a file from the given <var>directory</var> as boolean (<code>TRUE</code>
+     * or <code>FALSE</code>).
+     */
+    public static boolean getBoolean(final IDirectory directory, final String name)
+            throws DataStructureException
+    {
+        // No assertion here as 'getString(IDirectory, String)' already does it.
+        final String value = getTrimmedString(directory, name);
+        try
+        {
+            return Boolean.valueOf(value).toBoolean();
+        } catch (final IllegalArgumentException ex)
+        {
+            throw new DataStructureException("Value of '" + name
+                    + "' version file is not a boolean (TRUE or FALSE): " + value);
+        }
+    }
+
     /** For given <code>IDirectory</code> returns the number value corresponding to given <var>name</var>. */
     public final static int getNumber(final IDirectory directory, final String name)
+            throws DataStructureException
     {
         // No assertion here as 'getString(IDirectory, String)' already does it.
         final String value = getTrimmedString(directory, name);
         try
         {
             return Integer.parseInt(value);
-        } catch (NumberFormatException ex)
+        } catch (final NumberFormatException ex)
         {
             throw new DataStructureException("Value of '" + name
                     + "' version file is not a number: " + value);
+        }
+    }
+
+    /**
+     * For given <code>IDirectory</code> returns the date value corresponding to given <var>name</var>.
+     * 
+     * @return the parsed date or <code>null</code> if the value is empty.
+     */
+    public final static Date getDateOrNull(final IDirectory directory, final String name)
+            throws DataStructureException
+    {
+        // No assertion here as 'getString(IDirectory, String)' already does it.
+        final String value = getTrimmedString(directory, name);
+        if (StringUtils.isEmpty(value))
+        {
+            return null;
+        }
+        try
+        {
+            return Constants.DATE_FORMAT.parse(value);
+        } catch (final ParseException ex)
+        {
+            throw new DataStructureException("Value of '" + name + "' version file is not a date: "
+                    + value);
         }
     }
 
@@ -181,6 +231,24 @@ public class Utilities
                 innerListNodes(nodes, (IDirectory) child, nodeFilter, prepend + child.getName()
                         + Constants.PATH_SEPARATOR);
             }
+        }
+    }
+
+    //
+    // Helper classes
+    //
+
+    /**
+     * A boolean object that only accepts <code>TRUE</code> or <code>FALSE</code> as value
+     * (case-sensitive).
+     */
+    private static enum Boolean
+    {
+        TRUE, FALSE;
+
+        final boolean toBoolean()
+        {
+            return this == TRUE ? true : false;
         }
     }
 }

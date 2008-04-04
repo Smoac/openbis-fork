@@ -28,6 +28,8 @@ public interface IFile extends INode
 {
     /**
      * Returns the content of this file node as a byte array.
+     * 
+     * @return never <code>null</code> but could return an empty byte array.
      */
     public byte[] getBinaryContent();
 
@@ -38,6 +40,8 @@ public interface IFile extends INode
 
     /**
      * Returns the content of this file node as a string.
+     * 
+     * @return never <code>null</code> but could return an empty string.
      */
     public String getStringContent();
 
@@ -46,6 +50,8 @@ public interface IFile extends INode
      * <p>
      * This is useful when you know that the file content is composed of several lines.
      * </p>
+     * 
+     * @return never <code>null</code> but could return an empty list.
      */
     public List<String> getStringContentList();
 

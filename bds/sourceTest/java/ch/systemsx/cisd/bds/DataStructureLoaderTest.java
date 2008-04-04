@@ -37,23 +37,23 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
     @Test
     public final void testOpen()
     {
-        File dir = new File(workingDirectory, "ds");
+        final File dir = new File(workingDirectory, "ds");
         assert dir.mkdir();
-        DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
+        final DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
+        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
-        ExperimentRegistrator experimentRegistrator =
+        final ExperimentRegistrator experimentRegistrator =
                 new ExperimentRegistrator("john", "doe", "j@doe");
         dataStructure.setExperimentRegistrator(experimentRegistrator);
-        dataStructure.setExperimentRegistrationDate(new ExperimentRegistratorDate(new Date(0)));
-        dataStructure.setMeasurementEntity(new MeasurementEntity("a", "b"));
-        dataStructure.setProcessingType(ProcessingType.RAW_DATA);
+        dataStructure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(
+                new Date(0)));
+        dataStructure.setSample(new Sample("a", SampleType.CELL_PLATE, "b"));
         dataStructure.close();
 
-        IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
+        final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
         assertEquals(DataStructureV1_0.class, ds.getClass());
         assertEquals(experimentIdentifier, ((DataStructureV1_0) ds).getExperimentIdentifier());
     }

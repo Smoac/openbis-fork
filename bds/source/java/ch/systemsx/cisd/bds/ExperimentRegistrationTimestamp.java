@@ -16,35 +16,22 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Immutable class which holds the date of registration of an experiment.
+ * Immutable class which holds the timestamp of registration of an experiment.
  * 
  * @author Franz-Josef Elmer
  */
-public final class ExperimentRegistratorDate implements IStorable
+public final class ExperimentRegistrationTimestamp implements IStorable
 {
-    static final String FILE_NAME = "experiment_registration_date";
+    static final String FILE_NAME = "experiment_registration_timestamp";
 
-    private static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-
-    static ExperimentRegistratorDate loadFrom(IDirectory directory)
+    final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
     {
-        String dateAsString = Utilities.getTrimmedString(directory, FILE_NAME);
-        try
-        {
-            return new ExperimentRegistratorDate(DATE_FORMAT.parse(dateAsString));
-        } catch (ParseException ex)
-        {
-            throw new DataStructureException("Couldn't be parsed as a date: " + dateAsString);
-        }
+        return new ExperimentRegistrationTimestamp(Utilities.getDateOrNull(directory, FILE_NAME));
     }
 
     private final Date date;
@@ -52,7 +39,7 @@ public final class ExperimentRegistratorDate implements IStorable
     /**
      * Creates an instance for the specified date.
      */
-    public ExperimentRegistratorDate(Date date)
+    public ExperimentRegistrationTimestamp(final Date date)
     {
         this.date = date;
     }
@@ -72,35 +59,39 @@ public final class ExperimentRegistratorDate implements IStorable
     /**
      * Saves this instance to the specified directory.
      */
-    public final void saveTo(IDirectory directory)
+    public final void saveTo(final IDirectory directory)
     {
-        directory.addKeyValuePair(FILE_NAME, DATE_FORMAT.format(date));
+        directory.addKeyValuePair(FILE_NAME, Constants.DATE_FORMAT.format(date));
     }
 
+    //
+    // Object
+    //
+
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
         if (obj == this)
         {
             return true;
         }
-        if (obj instanceof ExperimentRegistratorDate == false)
+        if (obj instanceof ExperimentRegistrationTimestamp == false)
         {
             return false;
         }
-        return ((ExperimentRegistratorDate) obj).getDate().getTime() == date.getTime();
+        return ((ExperimentRegistrationTimestamp) obj).getDate().getTime() == date.getTime();
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
         return (int) date.getTime();
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
-        return DATE_FORMAT.format(date);
+        return Constants.DATE_FORMAT.format(date);
     }
 
 }

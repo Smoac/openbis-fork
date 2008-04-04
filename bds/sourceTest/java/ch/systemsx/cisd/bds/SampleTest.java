@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,30 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 
 /**
- * Some constants used inside the <i>BDS</i> library
+ * Test cases for corresponding {@link Sample} class.
  * 
  * @author Christian Ribeaud
  */
-public final class Constants
+public final class SampleTest extends EqualsHashCodeTestCase<Sample>
 {
 
-    /** The date format pattern. */
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+    //
+    // EqualsHashCodeTestCase
+    //
 
-    /** The only accepted path separator (system independent). */
-    public final static char PATH_SEPARATOR = '/';
-
-    /** The uniformly date format used. */
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_PATTERN);
-
-    private Constants()
+    @Override
+    protected final Sample createInstance() throws Exception
     {
-        // Can not be instantiated.
+        return new Sample("sample", SampleType.CELL_PLATE, "description");
     }
+
+    @Override
+    protected final Sample createNotEqualInstance() throws Exception
+    {
+        return new Sample("sample", SampleType.REINFECTION_PLATE, "description");
+    }
+
 }

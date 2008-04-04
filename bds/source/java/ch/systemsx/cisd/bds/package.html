@@ -13,7 +13,6 @@ storage.mount();
 DataStructureV1_0 dataStructure = new DataStructureV1_0(storage);
 dataStructure.getOriginalData().addFile(someFileWithData);
 dataStructure.setFormat(UnknownFormat1_0.UNKNOWN_1_0);
-dataStructure.setProcessingType(ProcessingType.RAW_DATA);
 dataStructure.setExperimentIdentifier(new ExperimentIdentifier("myGroup", "My project", "exp1"));
 dataStructure.save();
 storage.unmount();

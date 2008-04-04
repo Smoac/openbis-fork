@@ -41,17 +41,20 @@ public interface IDirectory extends INode, Iterable<INode>
     public IDirectory makeDirectory(final String name);
 
     /**
-     * Adds the specified real file to this directory. The content of <code>file</code> will be copied. If it is a
-     * folder also its complete content including all subfolders will be copied.
+     * Adds the specified real file to this directory. The content of <code>file</code> will be
+     * copied. If it is a folder also its complete content including all subfolders will be copied.
      * 
-     * @param nameOrNull the name of the returned node. If <code>null</code>, then given <var>file</var> name is
-     *            taken.
+     * @param nameOrNull the name of the returned node. If <code>null</code>, then given
+     *            <var>file</var> name is taken.
      * @param move whether given <var>file</var> should be copied or moved.
-     * @return the new node. It will be a {@link ILink} if <code>file</code> is a symbolic link, a {@link IDirectory}
-     *         if <code>file</code> is a folder, or {@link IFile} if <code>file</code> is a plain file.
+     * @return the new node. It will be a {@link ILink} if <code>file</code> is a symbolic link, a
+     *         {@link IDirectory} if <code>file</code> is a folder, or {@link IFile} if
+     *         <code>file</code> is a plain file.
      */
-    // TODO 2007-12-03, Tomasz Pylak review: this generic interface should not use java.io.File. Is the 'move' parameter
-    // possible to implement in HDF5? Maybe those operations should be done before, depending on the implementation
+    // TODO 2007-12-03, Tomasz Pylak review: this generic interface should not use java.io.File. Is
+    // the 'move' parameter
+    // possible to implement in HDF5? Maybe those operations should be done before, depending on the
+    // implementation
     // which is used?
     public INode addFile(final File file, final String nameOrNull, final boolean move);
 
@@ -61,7 +64,12 @@ public interface IDirectory extends INode, Iterable<INode>
     public void removeNode(final INode node);
 
     /**
-     * Adds a plain file named <code>key</code> with content <code>value</code> to this directory.
+     * Adds a plain file named <code>key</code> with content <code>value</code> to this
+     * directory.
+     * 
+     * @param key key (or file name) that stores given <var>value</var>. Can not be
+     *            <code>null</code>.
+     * @param value value of this pair. Can not be <code>null</code>.
      */
     public IFile addKeyValuePair(final String key, final String value);
 

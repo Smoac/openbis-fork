@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -104,6 +105,47 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals("dir1/file2", nodes.get(0));
         assertEquals("dir2/file3", nodes.get(1));
         assertEquals("file1", nodes.get(2));
+    }
+
+    @Test
+    public final void testGetBoolean()
+    {
+        try
+        {
+            Utilities.getBoolean(null, null);
+            fail("Directory and name can not be null.");
+        } catch (final AssertionError e)
+        {
+            // Nothing to do here.
+        }
+        final IDirectory directory = (IDirectory) NodeFactory.createNode(workingDirectory);
+        try
+        {
+            Utilities.getBoolean(directory, "doesNotExist");
+            fail("File 'doesNotExist' missing");
+        } catch (final DataStructureException e)
+        {
+            // Nothing to do here.
+        }
+        final String key = "bool";
+        final String value = "TRUE";
+        final IFile file = directory.addKeyValuePair(key, value);
+        final File[] listFiles = workingDirectory.listFiles();
+        assertEquals(1, listFiles.length);
+        assertEquals(key, listFiles[0].getName());
+        assertEquals(value, file.getStringContent().trim());
+        assertTrue(Utilities.getBoolean(directory, key));
+        directory.addKeyValuePair(key, "true");
+        try
+        {
+            Utilities.getBoolean(directory, key);
+            fail("Given value is not a boolean.");
+        } catch (final DataStructureException ex)
+        {
+            // Nothing to do here.
+        }
+        directory.addKeyValuePair(key, " FALSE ");
+        assertFalse(Utilities.getBoolean(directory, key));
     }
 
 }
