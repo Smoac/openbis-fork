@@ -619,7 +619,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file 3V $metadata_dir/experiment_identifier/group_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
-    assert_file_exists $metadata_dir/experiment_registration_date
+    assert_file_exists $metadata_dir/experiment_registration_timestamp
     assert_file_exists $metadata_dir/experiment_registrator/email
     assert_file_exists $metadata_dir/experiment_registrator/first_name
     assert_file_exists $metadata_dir/experiment_registrator/last_name
@@ -630,11 +630,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
-    assert_equals_as_in_file 3VCP1 $metadata_dir/measurement_entity/entity_code
-    assert_equals_as_in_file 'screening plate' $metadata_dir/measurement_entity/entity_type_description
-    assert_equals_as_in_file RAW_DATA $metadata_dir/processing_type
+    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/sample_code
+    assert_equals_as_in_file 'CELL_PLATE' $metadata_dir/sample/sample_type_code
+    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/sample_type_description
     assert_file_exists $metadata_dir/standard_original_mapping
-    
     
     echo == check format parameters
     local parameters_dir=$metadata_dir/parameters
