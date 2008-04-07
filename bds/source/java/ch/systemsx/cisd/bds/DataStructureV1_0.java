@@ -272,7 +272,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         super.assertValid();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
-        if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format == null)
+        if (metaDataDirectory.tryGetNode(Format.FOLDER) == null && format == null)
         {
             throw new DataStructureException("Unspecified format.");
         }
@@ -313,7 +313,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         super.performClosing();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         formatParameters.saveTo(getParametersDirectory());
-        if (metaDataDirectory.tryGetNode(Format.FORMAT_DIR) == null && format != null)
+        if (metaDataDirectory.tryGetNode(Format.FOLDER) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
         }

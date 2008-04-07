@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.bds;
 
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.common.collections.CollectionIO;
 
 /**
  * Identifier of the data set. This is an immutable but extendable value object class. An instance
@@ -31,6 +33,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class DataSet implements IStorable
 {
+    static final String NO_PARENT_FOR_DERIVED_DATA_ASSERTION =
+            "No parent can be specified for derived data.";
+
     static final String FOLDER = "data_set";
 
     static final String CODE = "code";
@@ -92,7 +97,7 @@ public final class DataSet implements IStorable
             this.parentCodes = parentCodesOrNull;
         } else
         {
-            assert parentCodesOrNull == null || parentCodesOrNull.size() == 0 : "No parent can be specified for derived data.";
+            assert parentCodesOrNull == null || parentCodesOrNull.size() == 0 : NO_PARENT_FOR_DERIVED_DATA_ASSERTION;
             this.parentCodes = Collections.<String> emptyList();
         }
         this.producerCode = producerCodeOrNull;
@@ -134,8 +139,9 @@ public final class DataSet implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    static DataSet loadFrom(final IDirectory directory)
+    final static DataSet loadFrom(final IDirectory directory)
     {
+        assert directory != null : "Given directory can not be null.";
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String code = Utilities.getTrimmedString(idFolder, CODE);
         ObservableType observableType = null;
@@ -151,10 +157,10 @@ public final class DataSet implements IStorable
         final boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
         final Date productionTimestampOrNull =
                 Utilities.getDateOrNull(idFolder, PRODUCTION_TIMESTAMP);
-        final String producerCodeOrNull = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
+        final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
         final List<String> parentCodes = Utilities.getStringList(idFolder, PARENT_CODES);
         return new DataSet(code, observableType, isMeasured, productionTimestampOrNull,
-                producerCodeOrNull, parentCodes);
+                (producerCode.length() == 0 ? null : producerCode), parentCodes);
     }
 
     //
@@ -169,8 +175,19 @@ public final class DataSet implements IStorable
                 productionTimestamp == null ? StringUtils.EMPTY_STRING : Constants.DATE_FORMAT
                         .format(productionTimestamp));
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
-        folder.addKeyValuePair(IS_MEASURED, Boolean.toString(isMeasured));
-
+        folder.addKeyValuePair(IS_MEASURED, Boolean.toString(isMeasured).toUpperCase());
+        folder.addKeyValuePair(OBSERVABLE_TYPE, observableType.getCode());
+        final String value;
+        if (parentCodes.size() > 0)
+        {
+            final StringWriter stringWriter = new StringWriter();
+            CollectionIO.writeIterable(stringWriter, parentCodes, null);
+            value = stringWriter.toString();
+        } else
+        {
+            value = StringUtils.EMPTY_STRING;
+        }
+        folder.addKeyValuePair(PARENT_CODES, value);
     }
 
     //

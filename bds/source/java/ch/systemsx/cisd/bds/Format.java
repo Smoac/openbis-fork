@@ -31,35 +31,36 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 public class Format implements IStorable
 {
-    static final String FORMAT_CODE_FILE = "format_code";
 
-    static final String FORMAT_DIR = "format";
+    static final String FOLDER = "format";
 
-    static final String FORMAT_VARIANT_FILE = "format_variant";
+    static final String CODE = "code";
+
+    static final String VARIANT = "variant";
 
     /**
      * Loads the format from the specified directory.
      * 
      * @throws DataStructureException if the format could be loaded.
      */
-    static Format loadFrom(IDirectory directory)
+    final static Format loadFrom(final IDirectory directory)
     {
-        INode dir = directory.tryGetNode(FORMAT_DIR);
+        final INode dir = directory.tryGetNode(FOLDER);
         if (dir instanceof IDirectory == false)
         {
             throw new DataStructureException("Not a directory: " + dir);
         }
-        IDirectory formatDir = (IDirectory) dir;
-        INode file = formatDir.tryGetNode(FORMAT_CODE_FILE);
+        final IDirectory formatDir = (IDirectory) dir;
+        INode file = formatDir.tryGetNode(CODE);
         if (file instanceof IFile == false)
         {
             throw new DataStructureException("Not a plain file: " + file);
         }
-        IFile codeFile = (IFile) file;
-        String formatCode = codeFile.getStringContent().trim();
-        Version formatVersion = Version.loadFrom(formatDir);
+        final IFile codeFile = (IFile) file;
+        final String formatCode = codeFile.getStringContent().trim();
+        final Version formatVersion = Version.loadFrom(formatDir);
         String variant = null;
-        file = formatDir.tryGetNode(FORMAT_VARIANT_FILE);
+        file = formatDir.tryGetNode(VARIANT);
         if (file != null)
         {
             if (file instanceof IFile == false)
@@ -120,7 +121,8 @@ public class Format implements IStorable
     private final String variant;
 
     /**
-     * Creates a new instance based on the specified format code, format variant (optional), and version.
+     * Creates a new instance based on the specified format code, format variant (optional), and
+     * version.
      */
     public Format(final String code, final Version version, final String variantOrNull)
     {
@@ -158,7 +160,8 @@ public class Format implements IStorable
     }
 
     /**
-     * Returns the <code>IFormatParameterFactory</code> implementation for this <code>Format</code>.
+     * Returns the <code>IFormatParameterFactory</code> implementation for this
+     * <code>Format</code>.
      */
     public IFormatParameterFactory getFormatParameterFactory()
     {
@@ -168,7 +171,8 @@ public class Format implements IStorable
     /**
      * Returns an unmodifiable list of mandatory parameters that are specific to this format.
      * <p>
-     * They can be found in <code>metadata/parameters</code> directory. Default implementation returns an empty list.
+     * They can be found in <code>metadata/parameters</code> directory. Default implementation
+     * returns an empty list.
      * </p>
      */
     public List<String> getParameterNames()
@@ -182,12 +186,12 @@ public class Format implements IStorable
 
     public final void saveTo(final IDirectory directory)
     {
-        IDirectory dir = directory.makeDirectory(FORMAT_DIR);
-        dir.addKeyValuePair(FORMAT_CODE_FILE, code);
+        final IDirectory dir = directory.makeDirectory(FOLDER);
+        dir.addKeyValuePair(CODE, code);
         version.saveTo(dir);
         if (variant != null)
         {
-            dir.addKeyValuePair(FORMAT_VARIANT_FILE, variant);
+            dir.addKeyValuePair(VARIANT, variant);
         }
     }
 
@@ -196,7 +200,7 @@ public class Format implements IStorable
     //
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -206,7 +210,7 @@ public class Format implements IStorable
         {
             return false;
         }
-        Format format = (Format) obj;
+        final Format format = (Format) obj;
         return format.code.equals(code) && format.version.equals(version)
                 && (format.variant == null ? null == variant : format.variant.equals(variant));
     }
