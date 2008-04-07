@@ -33,8 +33,11 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
  */
 public final class DataSet implements IStorable
 {
-    static final String NO_PARENT_FOR_DERIVED_DATA_ASSERTION =
-            "No parent can be specified for derived data.";
+    static final String NO_PARENT_FOR_MEASURED_DATA =
+            "No parent could be specified for measured data.";
+
+    static final String PARENT_FOR_DERIVED_DATA =
+            "At least one parent must be specified for derived data.";
 
     static final String FOLDER = "data_set";
 
@@ -104,11 +107,17 @@ public final class DataSet implements IStorable
         this.observableTypeCode = observableType;
         if (isMeasured == false)
         {
-            assert parentCodesOrNull != null && parentCodesOrNull.size() > 0 : "Unspecified parent codes.";
+            if (parentCodesOrNull == null || parentCodesOrNull.size() == 0)
+            {
+                throw new IllegalArgumentException(PARENT_FOR_DERIVED_DATA);
+            }
             this.parentCodes = parentCodesOrNull;
         } else
         {
-            assert parentCodesOrNull == null || parentCodesOrNull.size() == 0 : NO_PARENT_FOR_DERIVED_DATA_ASSERTION;
+            if (parentCodesOrNull != null && parentCodesOrNull.size() > 0)
+            {
+                throw new IllegalArgumentException(String.format(NO_PARENT_FOR_MEASURED_DATA));
+            }
             this.parentCodes = Collections.<String> emptyList();
         }
         this.producerCode = producerCodeOrNull;

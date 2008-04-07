@@ -98,10 +98,10 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         try
         {
             new DataSet(dataSetCode, observableType, true, null, null, parentCodes);
-            fail(DataSet.NO_PARENT_FOR_DERIVED_DATA_ASSERTION);
-        } catch (final AssertionError ex)
+            fail(DataSet.NO_PARENT_FOR_MEASURED_DATA);
+        } catch (final IllegalArgumentException ex)
         {
-            assertEquals(DataSet.NO_PARENT_FOR_DERIVED_DATA_ASSERTION, ex.getMessage());
+            assertEquals(DataSet.NO_PARENT_FOR_MEASURED_DATA, ex.getMessage());
         }
         final DataSet dataSet =
                 new DataSet(dataSetCode, observableType, false, null, null, parentCodes);
