@@ -36,9 +36,6 @@ public final class DataSet implements IStorable
     static final String NO_PARENT_FOR_MEASURED_DATA =
             "No parent could be specified for measured data.";
 
-    static final String PARENT_FOR_DERIVED_DATA =
-            "At least one parent must be specified for derived data.";
-
     static final String FOLDER = "data_set";
 
     static final String CODE = "code";
@@ -105,21 +102,12 @@ public final class DataSet implements IStorable
         this.isMeasured = isMeasured;
         assert StringUtils.isEmpty(observableType) == false : "Unspecified observable type.";
         this.observableTypeCode = observableType;
-        if (isMeasured == false)
+        if (isMeasured == true && parentCodesOrNull != null && parentCodesOrNull.size() > 0)
         {
-            if (parentCodesOrNull == null || parentCodesOrNull.size() == 0)
-            {
-                throw new IllegalArgumentException(PARENT_FOR_DERIVED_DATA);
-            }
-            this.parentCodes = parentCodesOrNull;
-        } else
-        {
-            if (parentCodesOrNull != null && parentCodesOrNull.size() > 0)
-            {
-                throw new IllegalArgumentException(String.format(NO_PARENT_FOR_MEASURED_DATA));
-            }
-            this.parentCodes = Collections.<String> emptyList();
+            throw new IllegalArgumentException(String.format(NO_PARENT_FOR_MEASURED_DATA));
         }
+        this.parentCodes =
+                parentCodesOrNull == null ? Collections.<String> emptyList() : parentCodesOrNull;
         this.producerCode = producerCodeOrNull;
         this.productionTimestamp = productionTimestampOrNull;
     }
