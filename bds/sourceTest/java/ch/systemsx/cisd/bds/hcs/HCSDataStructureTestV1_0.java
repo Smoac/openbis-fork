@@ -52,7 +52,6 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
     private final void setFormatAndFormatParameters()
     {
         dataStructure.setFormat(HCSImageFormatV1_0.HCS_IMAGE_1_0);
-        dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.DEVICE_ID, "M1"));
         dataStructure.addFormatParameter(new FormatParameter(
                 HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
         dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.NUMBER_OF_CHANNELS,

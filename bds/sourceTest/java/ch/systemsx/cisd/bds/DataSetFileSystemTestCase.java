@@ -44,8 +44,8 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final String dataSetCode = "code";
-        final ObservableType observableType = ObservableType.HCS_IMAGE;
-        final DataSet dataSet = new DataSet(dataSetCode, observableType, true, null, null, null);
+        final String observableType = "HCS_IMAGE";
+        final DataSet dataSet = new DataSet(dataSetCode, observableType);
         dataSet.saveTo(directory);
         final IDirectory folder = Utilities.getSubDirectory(directory, DataSet.FOLDER);
         checkBasicDataSet(folder, dataSetCode, observableType, true);
@@ -58,11 +58,10 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     }
 
     private final static void checkBasicDataSet(final IDirectory directory,
-            final String dataSetCode, final ObservableType observableType, final boolean isMeasured)
+            final String dataSetCode, final String observableType, final boolean isMeasured)
     {
         assertEquals(dataSetCode, Utilities.getTrimmedString(directory, DataSet.CODE));
-        assertEquals(observableType.getCode(), Utilities.getTrimmedString(directory,
-                DataSet.OBSERVABLE_TYPE));
+        assertEquals("HCS_IMAGE", Utilities.getTrimmedString(directory, DataSet.OBSERVABLE_TYPE));
         assertEquals(isMeasured, Utilities.getBoolean(directory, DataSet.IS_MEASURED));
     }
 
@@ -71,7 +70,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final String dataSetCode = "code";
-        final ObservableType observableType = ObservableType.HCS_IMAGE;
+        final String observableType = "HCS_IMAGE";
         final String producerCode = "producerCode";
         final Date productionTimestamp = new Date(0L);
         final DataSet dataSet =
@@ -91,7 +90,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final String dataSetCode = "code";
-        final ObservableType observableType = ObservableType.HCS_IMAGE;
+        final String observableType = "HCS_IMAGE";
         final List<String> parentCodes = new ArrayList<String>();
         final String parentCode = "parent1";
         parentCodes.add(parentCode);
@@ -134,7 +133,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final String dataSetCode = "code";
-        final ObservableType observableType = ObservableType.HCS_IMAGE;
+        final String observableType = "HCS_IMAGE";
         final List<String> parentCodes = new ArrayList<String>();
         final String parentCode = "parent1";
         parentCodes.add(parentCode);
@@ -144,7 +143,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
                         parentCodes);
         dataSet.saveTo(directory);
         final DataSet newDataSet = DataSet.loadFrom(directory);
-        assertEquals(observableType, newDataSet.getObservableType());
+        assertEquals(observableType, newDataSet.getObservableTypeCode());
         assertEquals(dataSetCode, newDataSet.getCode());
         assertEquals(parentCodes, newDataSet.getParentCodes());
         assertEquals(productionTimestamp, newDataSet.getProductionTimestamp());

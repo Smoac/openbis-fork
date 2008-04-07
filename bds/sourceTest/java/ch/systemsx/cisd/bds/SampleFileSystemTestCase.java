@@ -40,12 +40,12 @@ public final class SampleFileSystemTestCase extends AbstractFileSystemTestCase
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final String sampleCode = "code";
         final String typeDescription = "typeDescription";
-        final SampleType sampleType = SampleType.CELL_PLATE;
+        final String sampleType = "CELL_PLATE";
         final Sample sample = new Sample(sampleCode, sampleType, typeDescription);
         sample.saveTo(directory);
         final IDirectory folder = Utilities.getSubDirectory(directory, Sample.FOLDER);
         assertEquals(sampleCode, Utilities.getTrimmedString(folder, Sample.CODE));
-        assertEquals(sampleType.getCode(), Utilities.getTrimmedString(folder, Sample.TYPE_CODE));
+        assertEquals(sampleType, Utilities.getTrimmedString(folder, Sample.TYPE_CODE));
         assertEquals(typeDescription, Utilities.getTrimmedString(folder, Sample.TYPE_DESCRIPTION));
     }
 
@@ -62,13 +62,13 @@ public final class SampleFileSystemTestCase extends AbstractFileSystemTestCase
         }
         try
         {
-            new Sample("", SampleType.CELL_PLATE, "");
+            new Sample("", "", "");
             fail("Empty values not allowed.");
         } catch (final AssertionError ex)
         {
             // Nothing to do here.
         }
-        new Sample(" ", SampleType.CELL_PLATE, " ");
+        new Sample(" ", " ", " ");
     }
 
     @DataProvider
@@ -83,7 +83,7 @@ public final class SampleFileSystemTestCase extends AbstractFileSystemTestCase
     public final void testLoadFrom(final String code, final String typeDescription)
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
-        final SampleType sampleType = SampleType.CELL_PLATE;
+        final String sampleType = "CELL_PLATE";
         final Sample sample = new Sample(code, sampleType, typeDescription);
         sample.saveTo(directory);
         final Sample newSample = Sample.loadFrom(directory);

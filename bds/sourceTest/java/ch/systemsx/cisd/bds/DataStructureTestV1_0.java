@@ -267,7 +267,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (final DataStructureException e)
         {
-            assertEquals("Unspecified experiment registration date.", e.getMessage());
+            assertEquals("Unspecified experiment registration timestamp.", e.getMessage());
         }
     }
 
@@ -287,7 +287,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (final DataStructureException e)
         {
-            assertEquals("Unspecified measurement entity.", e.getMessage());
+            assertEquals("Unspecified sample.", e.getMessage());
         }
     }
 
@@ -306,13 +306,13 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         final ExperimentRegistrator experimentRegistrator =
                 new ExperimentRegistrator("john", "doe", "j@doe");
         dataStructure.setExperimentRegistrator(experimentRegistrator);
-        final Sample sample = new Sample("cp001", SampleType.CELL_PLATE, "plate");
+        final Sample sample = new Sample("cp001", "CELL_PLATE", "plate");
         dataStructure.setSample(sample);
         addReference("path1", "origFile1", ReferenceType.IDENTICAL);
         addReference("path2", "origFile2", ReferenceType.TRANSFORMED);
         dataStructure.addFormatParameter(new FormatParameter("plate_dimension", "16x24"));
         checkFormattedData(dataStructure.getFormattedData());
-
+        dataStructure.setDataSet(new DataSet("data_set", "HCS_IMAGE_ANALYSIS_DATA"));
         final IDirectory root = storage.getRoot();
         dataStructure.close();
         assertEquals(dataStructure.getVersion(), Version.loadFrom(root));
@@ -489,7 +489,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
         new ExperimentRegistrationTimestamp(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
-        new Sample("a", SampleType.CELL_PLATE, "b").saveTo(metaData);
+        new Sample("a", "CELL_PLATE", "b").saveTo(metaData);
+        new DataSet("d", "HCS_IMAGE").saveTo(metaData);
         createExampleChecksum(metaData);
         metaData.addKeyValuePair(MappingFileHandler.MAPPING_FILE, "");
         storage.unmount();

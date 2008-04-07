@@ -19,7 +19,9 @@ package ch.systemsx.cisd.bds;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -50,11 +52,21 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
         dataStructure.setExperimentRegistrator(experimentRegistrator);
         dataStructure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(
                 new Date(0)));
-        dataStructure.setSample(new Sample("a", SampleType.CELL_PLATE, "b"));
+        dataStructure.setSample(new Sample("a", "CELL_PLATE", "b"));
+        final List<String> parentCodes = createParentCodes();
+        dataStructure.setDataSet(new DataSet("s", "HCS_IMAGE", false, null, null, parentCodes));
         dataStructure.close();
 
         final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
         assertEquals(DataStructureV1_0.class, ds.getClass());
         assertEquals(experimentIdentifier, ((DataStructureV1_0) ds).getExperimentIdentifier());
+    }
+
+    private final static List<String> createParentCodes()
+    {
+        final List<String> parentCodes = new ArrayList<String>();
+        parentCodes.add("parent1");
+        parentCodes.add("parent2");
+        return parentCodes;
     }
 }

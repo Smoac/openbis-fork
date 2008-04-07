@@ -33,13 +33,13 @@ public final class SampleTest extends EqualsHashCodeTestCase<Sample>
     @Override
     protected final Sample createInstance() throws Exception
     {
-        return new Sample("sample", SampleType.CELL_PLATE, "description");
+        return new Sample("sample", "CELL_PLATE", "description");
     }
 
     @Override
     protected final Sample createNotEqualInstance() throws Exception
     {
-        return new Sample("sample", SampleType.REINFECTION_PLATE, "description");
+        return new Sample("sample", "REINFECTION_PLATE", "description");
     }
 
 }

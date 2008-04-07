@@ -45,21 +45,13 @@ public final class Sample implements IStorable
         final IDirectory folder = Utilities.getSubDirectory(directory, FOLDER);
         final String typeDescription = Utilities.getTrimmedString(folder, TYPE_DESCRIPTION);
         final String code = Utilities.getTrimmedString(folder, CODE);
-        SampleType sampleType = null;
-        try
-        {
-            sampleType =
-                    SampleType.getSampleTypeCode(Utilities.getTrimmedString(folder, TYPE_CODE));
-        } catch (final IllegalArgumentException ex)
-        {
-            throw new DataStructureException(ex.getMessage());
-        }
-        return new Sample(code, sampleType, typeDescription);
+        final String typeCode = Utilities.getTrimmedString(folder, TYPE_CODE);
+        return new Sample(code, typeCode, typeDescription);
     }
 
     private final String typeDescription;
 
-    private final SampleType type;
+    private final String typeCode;
 
     private final String code;
 
@@ -67,17 +59,17 @@ public final class Sample implements IStorable
      * Creates an instance for the specified code and type description of the sample.
      * 
      * @param code A non-empty string of the sample code.
-     * @param sampleType the sample type code.
+     * @param typeCode the sample type code.
      * @param typeDescription A non-empty description of the sample type.
      */
-    public Sample(final String code, final SampleType sampleType, final String typeDescription)
+    public Sample(final String code, final String typeCode, final String typeDescription)
     {
         assert StringUtils.isEmpty(typeDescription) == false : "Undefined sample type description.";
         this.typeDescription = typeDescription;
         assert StringUtils.isEmpty(code) == false : "Undefined sample code.";
         this.code = code;
-        assert sampleType != null : "Undefined sample type code.";
-        this.type = sampleType;
+        assert StringUtils.isEmpty(typeCode) == false : "Undefined sample type code.";
+        this.typeCode = typeCode;
     }
 
     /**
@@ -89,11 +81,11 @@ public final class Sample implements IStorable
     }
 
     /**
-     * Returns the sample type.
+     * Returns the sample type code.
      */
-    public final SampleType getType()
+    public final String getTypeCode()
     {
-        return type;
+        return typeCode;
     }
 
     /**
@@ -116,7 +108,7 @@ public final class Sample implements IStorable
         final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(TYPE_DESCRIPTION, typeDescription);
         folder.addKeyValuePair(CODE, code);
-        folder.addKeyValuePair(TYPE_CODE, type.getCode());
+        folder.addKeyValuePair(TYPE_CODE, typeCode);
     }
 
     //
@@ -135,7 +127,7 @@ public final class Sample implements IStorable
             return false;
         }
         final Sample that = (Sample) obj;
-        return that.code.equals(code) && type == that.type;
+        return that.code.equals(code) && typeCode.equals(that.typeCode);
     }
 
     @Override
@@ -143,14 +135,14 @@ public final class Sample implements IStorable
     {
         int result = 17;
         result = 37 * result + code.hashCode();
-        result = 37 * result + type.hashCode();
+        result = 37 * result + typeCode.hashCode();
         return result;
     }
 
     @Override
     public final String toString()
     {
-        return "[code:" + code + ",type:" + type + ",typeDescription:" + typeDescription + "]";
+        return "[code:" + code + ",type:" + typeCode + ",typeDescription:" + typeDescription + "]";
     }
 
 }

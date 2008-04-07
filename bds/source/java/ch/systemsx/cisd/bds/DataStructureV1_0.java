@@ -168,7 +168,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
      *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      */
-    public ExperimentIdentifier getExperimentIdentifier()
+    public final ExperimentIdentifier getExperimentIdentifier()
     {
         assertOpenOrCreated();
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
@@ -177,11 +177,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the experiment identifier. Overwrites an already set or loaded value.
      */
-    public final void setExperimentIdentifier(final ExperimentIdentifier id)
+    public final void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
-        assert id != null : "Unspecified experiment identifier";
+        assert experimentIdentifier != null : "Unspecified experiment identifier";
         assertOpenOrCreated();
-        id.saveTo(getMetaDataDirectory());
+        experimentIdentifier.saveTo(getMetaDataDirectory());
     }
 
     /**
@@ -257,6 +257,28 @@ public class DataStructureV1_0 extends AbstractDataStructure
         return mappingFileHandler.getReferences();
     }
 
+    /**
+     * Sets given <var>dataSet</var> in metadata directory.
+     */
+    public final void setDataSet(final DataSet dataSet)
+    {
+        assert dataSet != null : "Unspecified data set.";
+        assertOpenOrCreated();
+        dataSet.saveTo(getMetaDataDirectory());
+    }
+
+    /**
+     * Returns the data set.
+     * 
+     * @throws DataStructureException if the data set hasn't be loaded nor hasn't be set by
+     *             {@link #setDataSet(DataSet)}.
+     */
+    public final DataSet getDataSet()
+    {
+        assertOpenOrCreated();
+        return DataSet.loadFrom(getMetaDataDirectory());
+    }
+
     //
     // AbstractDataStructure
     //
@@ -282,7 +304,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         }
         if (metaDataDirectory.tryGetNode(ExperimentRegistrationTimestamp.FILE_NAME) == null)
         {
-            throw new DataStructureException("Unspecified experiment registration date.");
+            throw new DataStructureException("Unspecified experiment registration timestamp.");
         }
         if (metaDataDirectory.tryGetNode(ExperimentRegistrator.FOLDER) == null)
         {
@@ -290,7 +312,11 @@ public class DataStructureV1_0 extends AbstractDataStructure
         }
         if (metaDataDirectory.tryGetNode(Sample.FOLDER) == null)
         {
-            throw new DataStructureException("Unspecified measurement entity.");
+            throw new DataStructureException("Unspecified sample.");
+        }
+        if (metaDataDirectory.tryGetNode(DataSet.FOLDER) == null)
+        {
+            throw new DataStructureException("Unspecified data set.");
         }
         if (annotations != null)
         {

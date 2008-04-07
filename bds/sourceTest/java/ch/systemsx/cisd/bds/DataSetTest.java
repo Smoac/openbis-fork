@@ -33,13 +33,13 @@ public final class DataSetTest extends EqualsHashCodeTestCase<DataSet>
     @Override
     protected final DataSet createInstance() throws Exception
     {
-        return new DataSet("code", ObservableType.HCS_IMAGE, true, null, null, null);
+        return new DataSet("code", "HCS_IMAGE");
     }
 
     @Override
     protected final DataSet createNotEqualInstance() throws Exception
     {
-        return new DataSet("code1", ObservableType.HCS_IMAGE, true, null, null, null);
+        return new DataSet("code1", "HCS_IMAGE");
     }
 
 }

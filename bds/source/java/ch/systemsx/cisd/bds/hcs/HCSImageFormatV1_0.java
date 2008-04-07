@@ -34,9 +34,6 @@ public final class HCSImageFormatV1_0 extends Format
 
     public static final String FORMAT_CODE = "HCS_IMAGE";
 
-    /** Key for setting the measurement device that was used to take the data of this data set. */
-    public final static String DEVICE_ID = "device_id";
-
     /**
      * Flag ({@link Boolean#TRUE} or {@link Boolean#FALSE}) specifying whether the data directory
      * contains the original data or not.
