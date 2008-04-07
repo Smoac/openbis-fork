@@ -82,7 +82,6 @@ echo Unzipping Jetty...
 # Files are unzipped in $rel_jetty_folder
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
 cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
-cp -p "$installation_folder"/source-systemsx.ethz.ch.keystore "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
 war_classes=WEB-INF/classes

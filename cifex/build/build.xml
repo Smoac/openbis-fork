@@ -50,7 +50,6 @@
                 <striplinebreaks />
             </filterchain>
         </copy>
-        <copy file="../authentication/resource/source-systemsx.ethz.ch.keystore" todir="${zipped.dir}" />
         <!--
 		// Although there is already one 'service.properties' and 'log.xml' in the war, we need one here that
 		// can be configured by the administrator. The idea is to replace the one in the war with it in the

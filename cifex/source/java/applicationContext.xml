@@ -26,7 +26,7 @@
     <bean id="no-authentication-service" class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
 
     <bean id="crowd-authentication-service" class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
-        <constructor-arg value="source-systemsx.ethz.ch" />
+        <constructor-arg value="crowd.systemsx.ch" />
         <constructor-arg value="8443" />
         <constructor-arg value="${crowd.application.name}" />
         <constructor-arg value="${crowd.application.password}" />
