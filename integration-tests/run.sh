@@ -630,9 +630,9 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
-    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/sample_code
-    assert_equals_as_in_file 'CELL_PLATE' $metadata_dir/sample/sample_type_code
-    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/sample_type_description
+    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
+    assert_equals_as_in_file 'CELL_PLATE' $metadata_dir/sample/type_code
+    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
     assert_file_exists $metadata_dir/standard_original_mapping
     
     echo == check format parameters
