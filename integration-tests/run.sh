@@ -623,7 +623,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_file_exists $metadata_dir/experiment_registrator/email
     assert_file_exists $metadata_dir/experiment_registrator/first_name
     assert_file_exists $metadata_dir/experiment_registrator/last_name
-    assert_equals_as_in_file HCS_IMAGE $metadata_dir/format/format_code
+    assert_equals_as_in_file HCS_IMAGE $metadata_dir/format/code
     assert_equals_as_in_file 1 $metadata_dir/format/version/major
     assert_equals_as_in_file 0 $metadata_dir/format/version/minor
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/log.txt"
