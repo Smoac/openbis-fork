@@ -81,6 +81,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String urlHostPart;
 
+    private String groupCode;
+
     public DatabaseConfigurationContext()
     {
         setOwner(null);
@@ -90,6 +92,16 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setDataSourceFactory(IDataSourceFactory dataSourceFactory)
     {
         this.dataSourceFactory = dataSourceFactory;
+    }
+
+    public final String getGroupCode() throws ConfigurationFailureException
+    {
+        return groupCode;
+    }
+
+    public final void setGroupCode(String groupCode) throws ConfigurationFailureException
+    {
+        this.groupCode = groupCode;
     }
 
     private final static void closeConnection(final DataSource dataSource)
@@ -158,7 +170,8 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Returns user name of the administrator.
      * 
      * @return The default admin user of the database engine when undefined.
-     * @throws ConfigurationFailureException If neither the admin user nor the database engine are defined.
+     * @throws ConfigurationFailureException If neither the admin user nor the database engine are
+     *             defined.
      */
     private final String getAdminUser() throws ConfigurationFailureException
     {
@@ -217,8 +230,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns the basic name of the database. The kind of database will be added to this to create the full database
-     * name.
+     * Returns the basic name of the database. The kind of database will be added to this to create
+     * the full database name.
      */
     public String getBasicDatabaseName()
     {
@@ -228,8 +241,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Returns data source for admin purposes.
      * 
-     * @throws ConfigurationFailureException If not all relevant information has been defined that is needed for the
-     *             admin data source.
+     * @throws ConfigurationFailureException If not all relevant information has been defined that
+     *             is needed for the admin data source.
      */
     public final DataSource getAdminDataSource() throws ConfigurationFailureException
     {
@@ -251,8 +264,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code> or empty, the OS
-     * user running the VM will be set instead.
+     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code>
+     * or empty, the OS user running the VM will be set instead.
      */
     public final void setOwner(String owner)
     {
@@ -274,8 +287,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the password part of the database credentials for the db owner. A <code>null</code> password will be
-     * replaced by an empty string.
+     * Sets the password part of the database credentials for the db owner. A <code>null</code>
+     * password will be replaced by an empty string.
      */
     public final void setPassword(String password)
     {
@@ -291,8 +304,9 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets user name of the administrator.
      * 
-     * @param adminUser New value. Can be <code>null</code>. For convenience when using with Spring property
-     *            placeholders, an empty string will be replaced by <code>null</code>.
+     * @param adminUser New value. Can be <code>null</code>. For convenience when using with
+     *            Spring property placeholders, an empty string will be replaced by
+     *            <code>null</code>.
      */
     public final void setAdminUser(String adminUser)
     {
@@ -306,7 +320,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the basic name of the database. The kind of database will be added to this to create the full database name.
+     * Sets the basic name of the database. The kind of database will be added to this to create the
+     * full database name.
      * 
      * @param basicDatabaseName The basic name of the database. Must not be <code>null</code>.
      */
@@ -343,8 +358,9 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For convenince when using
-     * with Spring property placeholders, an empty string will be replaced by <code>null</code>.
+     * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For
+     * convenince when using with Spring property placeholders, an empty string will be replaced by
+     * <code>null</code>.
      */
     public final void setUrlHostPart(String urlHostPart)
     {
@@ -407,7 +423,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns <code>true</code> if the current database should be dropped and (re)created from scratch.
+     * Returns <code>true</code> if the current database should be dropped and (re)created from
+     * scratch.
      * 
      * @return <code>false</code> when the database should only be migrated if necessary.
      */
@@ -425,8 +442,9 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns <code>true</code> if scripts in the db migration engine should be executed statement by statement. This
-     * mode gives better error messages on where the faulty SQL is but on the other hand it is a lot slower.
+     * Returns <code>true</code> if scripts in the db migration engine should be executed
+     * statement by statement. This mode gives better error messages on where the faulty SQL is but
+     * on the other hand it is a lot slower.
      */
     public final boolean isScriptSingleStepMode()
     {
@@ -442,8 +460,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets database kind. This will be append to the name of the database. It allows to have different database
-     * instances in parallel (for developing, testing, etc.).
+     * Sets database kind. This will be append to the name of the database. It allows to have
+     * different database instances in parallel (for developing, testing, etc.).
      * 
      * @param databaseKind New value. Can be <code>null</code>.
      */
