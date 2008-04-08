@@ -57,7 +57,8 @@
     </schedule>
     <log>
       <merge dir="${lims.nightly-build.dir}/targets/test-output"/>
-      <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client/test-report.xml"/>
+      <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client/test-report-strict.xml"/>
+      <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client/test-report-plates-on-demand.xml"/>
     </log>
     <publishers>
       <onsuccess>
