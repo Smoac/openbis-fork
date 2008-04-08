@@ -650,7 +650,7 @@ function assert_correct_content_of_invalid_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of invalid plate $cell_plate in store ====
     
-    local error_dir=$DATA/main-store/Group_CISD/error/ObservableType_HCS_IMAGE
+    local error_dir=$DATA/main-store/error/ObservableType_HCS_IMAGE
     assert_dir_exists $error_dir
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
@@ -671,7 +671,7 @@ function assert_correct_content_of_unidentified_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of unidentified plate $cell_plate in store ====
     
-    local unidentified_dir=$DATA/main-store/Group_CISD/unidentified
+    local unidentified_dir=$DATA/main-store/unidentified
     assert_dir_exists $unidentified_dir
     assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
