@@ -1,4 +1,4 @@
-login -o 3V -u test -p <password>
+login -u test -p <password>
 register-project NEMO
 register-master-plate -p INTERNAL.PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP001-1.txt code1
 register-master-plate -p INTERNAL.PLATE_GEOMETRY=384_WELLS_16X24 testdata/MP002-1.txt code2
