@@ -53,6 +53,11 @@ public class FileAuthenticationService implements IAuthenticationService
 
     private final PasswordFile passwordFile;
     
+    public FileAuthenticationService(final String passwordFileName)
+    {
+        this.passwordFile = new PasswordFile(new File(passwordFileName));
+    }
+
     public FileAuthenticationService(final File passwordFile)
     {
         this.passwordFile = new PasswordFile(passwordFile);
