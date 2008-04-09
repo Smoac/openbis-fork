@@ -53,7 +53,8 @@ public final class FileDownloadServlet extends AbstractCIFEXServiceServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, InvalidSessionException
     {
-        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not valid.
+        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not
+                                                            // valid.
         final String fileIdParameter = request.getParameter(Constants.FILE_ID_PARAMETER);
         if (StringUtils.isNotBlank(fileIdParameter))
         {

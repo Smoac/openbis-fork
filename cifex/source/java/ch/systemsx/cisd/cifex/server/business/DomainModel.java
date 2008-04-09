@@ -58,10 +58,11 @@ public final class DomainModel implements IDomainModel
     private final BusinessObjectFactory boFactory;
 
     /**
-     * Creates an instance based on the specified DAO Factory and mail client. The specified bean post processor is
-     * needed to create proxies for the various manager objects which handle transactions. Corresponding manager methods
-     * are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
-     *                processor is correctly configured with the right TransactionInterceptor.
+     * Creates an instance based on the specified DAO Factory and mail client. The specified bean
+     * post processor is needed to create proxies for the various manager objects which handle
+     * transactions. Corresponding manager methods are annotated with <code>@Transactional</code>. In the Spring <code>applicationContext.xml</code> it is assumed
+     *                that a the bean post processor is correctly configured with the right
+     *                TransactionInterceptor.
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
             final IUserActionLog userActionLog, final BeanPostProcessor processor,

@@ -57,7 +57,8 @@ public interface IUserManager
     public List<UserDTO> listUsersRegisteredBy(final String userCode);
 
     /**
-     * Creates the specified user in the database. As a side effect the unqiue ID of <code>user</code> will be set.
+     * Creates the specified user in the database. As a side effect the unqiue ID of
+     * <code>user</code> will be set.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void createUser(UserDTO user);
@@ -71,7 +72,8 @@ public interface IUserManager
     /**
      * Deletes the specified user.
      * 
-     * @throws UserFailureException If the user with the given <var>userCode</var> was not found in the database.
+     * @throws UserFailureException If the user with the given <var>userCode</var> was not found in
+     *             the database.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void deleteUser(String userCode) throws UserFailureException;
@@ -80,8 +82,8 @@ public interface IUserManager
      * Updates the fields of the specified user.
      * 
      * @throws UserFailureException If the <var>user</var> was not found in the database.
-     * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now should be set
-     *             temporary.
+     * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now
+     *             should be set temporary.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void updateUser(UserDTO user, String encryptedPassword) throws UserFailureException,

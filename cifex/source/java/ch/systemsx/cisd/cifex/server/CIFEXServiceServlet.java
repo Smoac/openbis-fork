@@ -45,8 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * The server <code>ICifexService</code> implementation.
  * <p>
- * Note that this is a servlet. It is usually good practice to let the constructor body empty and to put initialization
- * stuff in {@link #init(ServletConfig)}.
+ * Note that this is a servlet. It is usually good practice to let the constructor body empty and to
+ * put initialization stuff in {@link #init(ServletConfig)}.
  * </p>
  * 
  * @author Christian Ribeaud

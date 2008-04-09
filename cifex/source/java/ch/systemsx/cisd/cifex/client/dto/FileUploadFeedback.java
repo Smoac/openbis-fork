@@ -21,7 +21,8 @@ import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A <i>DTO</i> giving some feedback about the file upload process that is currently running on the server.
+ * A <i>DTO</i> giving some feedback about the file upload process that is currently running on the
+ * server.
  * 
  * @author Christian Ribeaud
  */
@@ -47,7 +48,8 @@ public final class FileUploadFeedback implements IsSerializable, Serializable
     /**
      * Approximative time left until this file upload is finished (in milliseconds).
      * <p>
-     * Default value is <code>Long.MAX_VALUE</code> meaning that we have no clue about the time left.
+     * Default value is <code>Long.MAX_VALUE</code> meaning that we have no clue about the time
+     * left.
      * </p>
      */
     private long timeLeft = Long.MAX_VALUE;

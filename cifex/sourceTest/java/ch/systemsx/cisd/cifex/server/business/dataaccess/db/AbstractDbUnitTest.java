@@ -34,7 +34,10 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
  */
 public abstract class AbstractDbUnitTest extends AbstractAnnotationAwareTransactionalTests
 {
-    /** Statically save the <code>ConfigurableApplicationContext</code> to ensure that it only gets loaded once. */
+    /**
+     * Statically save the <code>ConfigurableApplicationContext</code> to ensure that it only gets
+     * loaded once.
+     */
     private static ConfigurableApplicationContext context;
 
     protected DatabaseConfigurationContext configurationContext;
@@ -74,7 +77,8 @@ public abstract class AbstractDbUnitTest extends AbstractAnnotationAwareTransact
     }
 
     //
-    // TestNG annotations. We put '(alwaysRun = true)' so that these methods get called as well when we run the 'db'
+    // TestNG annotations. We put '(alwaysRun = true)' so that these methods get called as well when
+    // we run the 'db'
     // group for instance (by default, they do not when running groups).
     //
 

@@ -44,7 +44,10 @@ public final class FileDTO extends ID
     /** The date at which this file will expire and be deleted. */
     private Date expirationDate;
 
-    /** Users the file will be shared with. Not all FileDAO loading methods are obligated to fill this list. */
+    /**
+     * Users the file will be shared with. Not all FileDAO loading methods are obligated to fill
+     * this list.
+     */
     private List<UserDTO> sharingUsers = Collections.emptyList();
 
     private final Long registratorId;

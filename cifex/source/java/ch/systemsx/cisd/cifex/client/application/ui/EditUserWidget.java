@@ -25,7 +25,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * A <code>UserWidget</code> extension suitable for user editing.
  * <p>
- * This widget is used when the user edits his own profile or/and when the administrator edits registered users.
+ * This widget is used when the user edits his own profile or/and when the administrator edits
+ * registered users.
  * </p>
  * 
  * @author Basil Neff

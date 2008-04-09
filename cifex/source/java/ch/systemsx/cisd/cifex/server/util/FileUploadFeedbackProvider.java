@@ -37,8 +37,9 @@ public final class FileUploadFeedbackProvider implements Serializable
     private boolean fileUploadIsProgressing;
 
     /**
-     * Sets the <var>feedback</var>, possibly overwriting older feedback. Any messages will be cleared. This needs to
-     * be called when a new upload starts to let it know that now an upload is proceeding.
+     * Sets the <var>feedback</var>, possibly overwriting older feedback. Any messages will be
+     * cleared. This needs to be called when a new upload starts to let it know that now an upload
+     * is proceeding.
      */
     public synchronized void set(final FileUploadFeedback feedback)
     {
@@ -76,10 +77,12 @@ public final class FileUploadFeedbackProvider implements Serializable
     /**
      * Returns the current feedback.
      * <p>
-     * If an upload process is ongoing but no feedback is available, wait for it to become available.
+     * If an upload process is ongoing but no feedback is available, wait for it to become
+     * available.
      * <p>
-     * If no upload process is ongoing, a fake feedback object indicating this circumstance will be returned. If a
-     * message has been set by {@link #setMessage(Message)}, the feedback will contain it.
+     * If no upload process is ongoing, a fake feedback object indicating this circumstance will be
+     * returned. If a message has been set by {@link #setMessage(Message)}, the feedback will
+     * contain it.
      */
     public synchronized FileUploadFeedback take() throws InterruptedException
     {
@@ -94,7 +97,8 @@ public final class FileUploadFeedbackProvider implements Serializable
 
     private FileUploadFeedback tryGet()
     {
-        if (fileUploadIsProgressing == false) // Currently no upload in progress? Provide fake progress object.
+        if (fileUploadIsProgressing == false) // Currently no upload in progress? Provide fake
+                                                // progress object.
         {
             final FileUploadFeedback fakeFeedback = new FileUploadFeedback();
             fakeFeedback.setFinished(true);

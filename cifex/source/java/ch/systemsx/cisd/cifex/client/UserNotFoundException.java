@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.cifex.client;
 
 /**
- * This <code>UserFailureException</code> extension signals that a user involved in an operation was not found.
+ * This <code>UserFailureException</code> extension signals that a user involved in an operation
+ * was not found.
  * 
  * @author Bernd Rinn
  */

@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.Image;
 /**
  * A static class to access the images.
  * <p>
- * On purpose no cache is applied here: everytime you need an image you must create a new instance of <code>Image</code>
- * and not reuse it.
+ * On purpose no cache is applied here: everytime you need an image you must create a new instance
+ * of <code>Image</code> and not reuse it.
  * </p>
  * 
  * @author Christian Ribeaud

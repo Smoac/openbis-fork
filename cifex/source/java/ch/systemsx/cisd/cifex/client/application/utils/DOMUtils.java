@@ -44,7 +44,8 @@ public final class DOMUtils
     }
 
     /**
-     * Looks in given <var>text</var> for given <var>tagName</var> and extracts its value (by removing the tag).
+     * Looks in given <var>text</var> for given <var>tagName</var> and extracts its value (by
+     * removing the tag).
      */
     public final static String getElementValue(final String tagName, final String text)
     {
@@ -96,7 +97,10 @@ public final class DOMUtils
         return createAnchor(value, null, null, id);
     }
 
-    /** Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var> and given <var>id</var>. */
+    /**
+     * Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var>
+     * and given <var>id</var>.
+     */
     public final static String createAnchor(final String value, final String href,
             final String target, final String id)
     {

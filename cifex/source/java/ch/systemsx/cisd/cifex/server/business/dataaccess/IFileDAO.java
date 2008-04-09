@@ -32,11 +32,12 @@ public interface IFileDAO
     /**
      * Inserts given <code>File</code> into the database.
      * <p>
-     * As side effect the <i>unique identifier</i> returned by the database is set to given <code>File</code> object
-     * using {@link FileDTO#setID(Long)}.
+     * As side effect the <i>unique identifier</i> returned by the database is set to given
+     * <code>File</code> object using {@link FileDTO#setID(Long)}.
      * </p>
      * 
-     * @param file <code>File</code> object to be inserted into the database. Can not be <code>null</code>.
+     * @param file <code>File</code> object to be inserted into the database. Can not be
+     *            <code>null</code>.
      */
     public void createFile(final FileDTO file) throws DataAccessException;
 
@@ -49,8 +50,8 @@ public interface IFileDAO
      * Removes <code>File</code> with given id from database.
      * 
      * @param fileId Id of file which should be removed from database.
-     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no file found with that
-     *         id.
+     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no
+     *         file found with that id.
      */
     public boolean deleteFile(final long fileId) throws DataAccessException;
 
@@ -59,7 +60,10 @@ public interface IFileDAO
      */
     public List<FileDTO> listFiles() throws DataAccessException;
 
-    /** Returns detailed information about file, including registrator data and list of users the file is shared with. */
+    /**
+     * Returns detailed information about file, including registrator data and list of users the
+     * file is shared with.
+     */
     public FileDTO tryGetFile(final long fileId) throws DataAccessException;
 
     /**
@@ -71,7 +75,8 @@ public interface IFileDAO
     public List<FileDTO> getExpiredFiles();
 
     /**
-     * Returns a list of all files (including expired and not yet deleted) given <var>userId</var> has access to.
+     * Returns a list of all files (including expired and not yet deleted) given <var>userId</var>
+     * has access to.
      */
     public List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException;
 

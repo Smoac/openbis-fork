@@ -29,7 +29,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Class which creates and sends an e-mail informing someone that some files are available for download.
+ * Class which creates and sends an e-mail informing someone that some files are available for
+ * download.
  * 
  * @author Franz-Josef Elmer
  */
@@ -43,8 +44,8 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
     private String userCode;
 
     /**
-     * Creates an new instance for the specified mail client, registrator of the new files, and the email of the
-     * recipient.
+     * Creates an new instance for the specified mail client, registrator of the new files, and the
+     * email of the recipient.
      */
     public EMailBuilderForUploadedFiles(IMailClient mailClient, UserDTO registrator, String email)
     {
@@ -88,7 +89,8 @@ public class EMailBuilderForUploadedFiles extends AbstractEMailBuilder
             builder.append(url).append("/index.html");
             appendURLParam(builder, Constants.FILE_ID_PARAMETER, file.getID(), true);
             appendURLParam(builder, Constants.USERCODE_PARAMETER, userCode, false);
-            // Append line separator as String as not as Character. On MacOS with Entourage I got a not-so-correctly
+            // Append line separator as String as not as Character. On MacOS with Entourage I got a
+            // not-so-correctly
             // formatted email.
             builder.append("\n");
             Date expirationDate = file.getExpirationDate();

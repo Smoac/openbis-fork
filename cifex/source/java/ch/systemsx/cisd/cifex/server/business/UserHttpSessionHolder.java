@@ -46,7 +46,10 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
 
     private final List<HttpSession> activeSessions;
 
-    /** A flag to avoid <code>ConcurrentModificationException</code> exception when session gets invalidated here. */
+    /**
+     * A flag to avoid <code>ConcurrentModificationException</code> exception when session gets
+     * invalidated here.
+     */
     private boolean isInvalidating;
 
     public UserHttpSessionHolder()

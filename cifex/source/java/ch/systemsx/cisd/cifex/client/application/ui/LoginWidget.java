@@ -36,7 +36,8 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
- * A <code>Form</code> extension that is the login panel we use to login to the <i>openBIS</i> system.
+ * A <code>Form</code> extension that is the login panel we use to login to the <i>openBIS</i>
+ * system.
  * 
  * @author Christian Ribeaud
  */

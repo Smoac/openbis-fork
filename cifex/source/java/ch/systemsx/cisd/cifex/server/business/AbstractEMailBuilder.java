@@ -75,7 +75,8 @@ abstract class AbstractEMailBuilder
     }
 
     /**
-     * Sets the base URL used to creating links in the e-mail. Has to be called before e-mail will be send.
+     * Sets the base URL used to creating links in the e-mail. Has to be called before e-mail will
+     * be send.
      */
     public void setURL(String url)
     {

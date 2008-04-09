@@ -39,8 +39,8 @@ public final class FileDownloadHelper
     /**
      * Starts file download in a new window.
      * <p>
-     * URL parameters are taken from given <var>model</var>. This action is only fired if a file id AND a user code
-     * have been specified in the URL.
+     * URL parameters are taken from given <var>model</var>. This action is only fired if a file id
+     * AND a user code have been specified in the URL.
      * </p>
      */
     public final static void startFileDownload(final Model model)

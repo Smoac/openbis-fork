@@ -24,8 +24,9 @@ import org.testng.annotations.BeforeMethod;
 /**
  * Abstract test case for <i>DAO</i>.
  * <p>
- * Note that the {@link Transactional} does not work with TestNG right now but we keep it anyway to express intention.
- * The real transactions are handled in {@link #beforeMethod()} and {@link #afterMethod()}.
+ * Note that the {@link Transactional} does not work with TestNG right now but we keep it anyway to
+ * express intention. The real transactions are handled in {@link #beforeMethod()} and
+ * {@link #afterMethod()}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -36,7 +37,8 @@ public abstract class AbstractDAOTest extends AbstractDbUnitTest
     static final String EXCEED_20_CHARACTERS = StringUtils.repeat("A", 21);
 
     //
-    // TestNG annotations. We put '(alwaysRun = true)' so that these methods get called as well when we run the 'db'
+    // TestNG annotations. We put '(alwaysRun = true)' so that these methods get called as well when
+    // we run the 'db'
     // group for instance (by default, they do not when running groups).
     //
 

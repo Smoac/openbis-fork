@@ -35,8 +35,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
  * <p>
- * {@link #onModuleLoad()} gets called when the user enters the application (by calling <code>index.html</code> page)
- * or when the user pushes the navigator refresh button.
+ * {@link #onModuleLoad()} gets called when the user enters the application (by calling
+ * <code>index.html</code> page) or when the user pushes the navigator refresh button.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -49,7 +49,8 @@ public final class CIFEXEntryPoint implements EntryPoint
         final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         // 'GWT.getModuleBaseURL()/GWT.getHostPageBaseURL()' returns
-        // 'http://localhost:8888/ch.systemsx.cisd.cifex.Cifex/' in Hosted/Web mode and 'http://localhost:8080/cifex/'
+        // 'http://localhost:8888/ch.systemsx.cisd.cifex.Cifex/' in Hosted/Web mode and
+        // 'http://localhost:8080/cifex/'
         // when deployed.
         // 'GWT.getModuleName()' always returns 'ch.systemsx.cisd.cifex.Cifex'.
         // Do not prepend 'GWT.getModuleBaseURL()' here as we want '/cifex/cifex' in Hosted Mode.

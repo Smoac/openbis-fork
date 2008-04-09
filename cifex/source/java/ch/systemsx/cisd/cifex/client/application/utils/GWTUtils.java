@@ -39,15 +39,15 @@ public final class GWTUtils
     }
 
     /**
-     * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting <code>?</code> if
-     * any).
+     * Returns the <i>search</i> of a <i>Javascript</i> window location (without the starting
+     * <code>?</code> if any).
      * 
      * @return something like <code>key1=value1&key2=value2</code>.
      */
     public final static native String getParamString() /*-{
-          var search = $wnd.location.search;
-          return search.indexOf("?") == 0 ? search.substring(1) : search;
-       }-*/;
+             var search = $wnd.location.search;
+             return search.indexOf("?") == 0 ? search.substring(1) : search;
+          }-*/;
 
     /**
      * Parses given URL <var>string</var> and returns the key-value pairs

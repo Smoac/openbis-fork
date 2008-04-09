@@ -45,8 +45,8 @@ public final class UserRenderer implements Renderer
     /**
      * Nicely renders given <code>user</code>.
      * <p>
-     * You can not use this method in a {@link Renderer} and you should not make sortable the column where this method
-     * is used.
+     * You can not use this method in a {@link Renderer} and you should not make sortable the column
+     * where this method is used.
      * </p>
      */
     public final static String createUserAnchor(final User user)

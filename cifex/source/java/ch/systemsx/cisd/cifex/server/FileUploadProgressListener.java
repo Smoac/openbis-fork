@@ -26,7 +26,8 @@ import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
 
 /**
- * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code> as session attribute.
+ * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code>
+ * as session attribute.
  * 
  * @author Christian Ribeaud
  */
@@ -44,8 +45,8 @@ final class FileUploadProgressListener extends ThresholdProgressListener
     /**
      * Registers the time at which this object has been instantiated.
      * <p>
-     * We assume that once this object has been instantiated, the first call to {@link #update(long, long, int)} will
-     * happen really soon.
+     * We assume that once this object has been instantiated, the first call to
+     * {@link #update(long, long, int)} will happen really soon.
      * </p>
      */
     private final long start;

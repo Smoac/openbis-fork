@@ -42,8 +42,8 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 /**
  * An abstract <code>HttpServlet</code> extension.
  * <p>
- * This internally prepares an <code>ICIFEXService</code> instance for subclasses and has already the necessary
- * <code>Logger</code>s.
+ * This internally prepares an <code>ICIFEXService</code> instance for subclasses and has already
+ * the necessary <code>Logger</code>s.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -135,7 +135,8 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     /**
      * Sends an error message to the client.
      */
-    // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp. JSON response which
+    // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp.
+    // JSON response which
     // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
     // formConfig.setReader(reader)).
     protected final void sendErrorMessage(final HttpServletResponse response, final String message)

@@ -28,8 +28,8 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  * An abstract <code>AsyncCallback</code> implementations which only implements
  * {@link AsyncCallback#onFailure(Throwable)} method by showing an appropriate error message.
  * <p>
- * This abstract class should be used instead of implementing your own <code>AsyncCallback</code> implementation as it
- * already does the right job.
+ * This abstract class should be used instead of implementing your own <code>AsyncCallback</code>
+ * implementation as it already does the right job.
  * </p>
  * 
  * @author Christian Ribeaud

@@ -49,7 +49,8 @@ public final class FileUtils
     private final static NumberFormat FORMATTER = NumberFormat.getFormat("0.00");
 
     /**
-     * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
+     * Returns a human-readable version of the file size, where the input represents a specific
+     * number of bytes.
      * 
      * @param size the number of bytes
      * @return a human-readable display value (includes units)
@@ -76,9 +77,11 @@ public final class FileUtils
     }
 
     /**
-     * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
+     * Returns a human-readable version of the file size, where the input represents a specific
+     * number of bytes.
      * <p>
-     * This method does not use a {@link NumberFormat} and is not as precise as {@link #byteCountToDisplaySize(long)}.
+     * This method does not use a {@link NumberFormat} and is not as precise as
+     * {@link #byteCountToDisplaySize(long)}.
      * </p>
      * 
      * @param size the number of bytes

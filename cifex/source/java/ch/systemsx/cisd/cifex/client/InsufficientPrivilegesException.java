@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.cifex.client;
 
 /**
- * This <code>UserFailureException</code> extension signals that an operation is not allowed due to insufficient
- * privileges.
+ * This <code>UserFailureException</code> extension signals that an operation is not allowed due
+ * to insufficient privileges.
  * 
  * @author Bernd Rinn
  */

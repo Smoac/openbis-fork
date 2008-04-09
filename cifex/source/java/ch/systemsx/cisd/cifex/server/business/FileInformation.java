@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.server.business;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 
 /**
- * A class that holds information about a file in the database. Either it has the {@link FileDTO} or it has an error
- * message describing what is wrong.
+ * A class that holds information about a file in the database. Either it has the {@link FileDTO} or
+ * it has an error message describing what is wrong.
  * 
  * @author Bernd Rinn
  */

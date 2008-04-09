@@ -27,8 +27,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
 /**
- * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have access to the
- * resolved properties not obligatory from the Spring context. e.g. from JSP or so.
+ * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have
+ * access to the resolved properties not obligatory from the Spring context. e.g. from JSP or so.
  * 
  * @author Christian Ribeaud
  */

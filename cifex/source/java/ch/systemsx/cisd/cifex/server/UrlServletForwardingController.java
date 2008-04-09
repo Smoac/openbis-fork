@@ -30,8 +30,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A <code>AbstractController</code> extension which tries to forward the request to the named servlet found in the
- * <i>URL</i>.
+ * A <code>AbstractController</code> extension which tries to forward the request to the named
+ * servlet found in the <i>URL</i>.
  * 
  * @author Christian Ribeaud
  */

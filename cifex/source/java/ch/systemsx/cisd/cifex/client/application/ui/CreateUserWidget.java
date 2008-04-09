@@ -25,8 +25,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * A <code>UserWidget</code> extension suitable for user creation.
  * <p>
- * This widget is used when a <i>regular</i> user creates new <i>temporary</i> users or/and when the administrator
- * creates new users (<i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>).
+ * This widget is used when a <i>regular</i> user creates new <i>temporary</i> users or/and when
+ * the administrator creates new users (<i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>).
  * </p>
  * 
  * @author Basil Neff

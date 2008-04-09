@@ -44,7 +44,8 @@ public final class Constants
     /**
      * Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side).
      */
-    // Do not use 'getPrepend()' here as this URL does not change, nor in Web/Hosted Mode neither in Deployed Mode.
+    // Do not use 'getPrepend()' here as this URL does not change, nor in Web/Hosted Mode neither in
+    // Deployed Mode.
     public static final String CIFEX_SERVLET_NAME = CONTEXT_PATH + "/cifex";
 
     /** The HTTP URL parameter used to specify the file id. */
@@ -73,7 +74,8 @@ public final class Constants
     /**
      * Whether this application is deployed.
      * <p>
-     * Deployed means that module name (<code>ch.systemsx.cisd.cifex.Cifex</code>) not present in module base URL (<code>http://localhost:8080/cifex/</code>).
+     * Deployed means that module name (<code>ch.systemsx.cisd.cifex.Cifex</code>) not present
+     * in module base URL (<code>http://localhost:8080/cifex/</code>).
      * </p>
      */
     private final static boolean isDeployed()

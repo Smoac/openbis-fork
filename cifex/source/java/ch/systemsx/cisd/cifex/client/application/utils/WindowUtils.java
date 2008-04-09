@@ -32,7 +32,8 @@ public final class WindowUtils
     }
 
     /**
-     * Opens a new window on every call (uses the special value <code>_blank</code> as window name).
+     * Opens a new window on every call (uses the special value <code>_blank</code> as window
+     * name).
      * <p>
      * The new window will be scrollable, resizable, closable and will have a title bar.
      * </p>

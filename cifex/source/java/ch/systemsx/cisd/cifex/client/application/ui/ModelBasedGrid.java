@@ -85,7 +85,8 @@ public final class ModelBasedGrid extends Grid
     private final static GridConfig createGridConfig()
     {
         final GridConfig gridConfig = new GridConfig();
-        // True to set the grid's width to the default total width of the grid's columns instead of a fixed width.
+        // True to set the grid's width to the default total width of the grid's columns instead of
+        // a fixed width.
         // gridConfig.setAutoWidth(true);
         // gridConfig.setAutoHeight(true);
         gridConfig.setMaxRowsToMeasure(5);

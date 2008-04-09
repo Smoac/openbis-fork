@@ -41,11 +41,12 @@ public interface IUserDAO
     /**
      * Inserts given <code>User</code> into the database.
      * <p>
-     * As side effect the <i>unique identifier</i> returned by the database is set to given <code>User</code> object
-     * using {@link UserDTO#setID(Long)}.
+     * As side effect the <i>unique identifier</i> returned by the database is set to given
+     * <code>User</code> object using {@link UserDTO#setID(Long)}.
      * </p>
      * 
-     * @param user <code>User</code> object to be inserted into the database. Can not be <code>null</code>.
+     * @param user <code>User</code> object to be inserted into the database. Can not be
+     *            <code>null</code>.
      */
     public void createUser(UserDTO user) throws DataAccessException;
 
@@ -67,8 +68,8 @@ public interface IUserDAO
     /**
      * Deletes the user with the given <code>userId</code> from the database.
      * 
-     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if no user was found
-     *         with that id.
+     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if
+     *         no user was found with that id.
      */
     public boolean deleteUser(long userId) throws DataAccessException;
 

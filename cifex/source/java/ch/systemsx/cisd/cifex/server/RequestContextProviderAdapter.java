@@ -23,7 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
 /**
- * A <code>IRemoteHostProvider</code> implementation which adapts an encapsulated <code>IRequestContextProvider</code>.
+ * A <code>IRemoteHostProvider</code> implementation which adapts an encapsulated
+ * <code>IRequestContextProvider</code>.
  * 
  * @author Christian Ribeaud
  */

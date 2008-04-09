@@ -34,13 +34,16 @@ public interface IPageController
     /**
      * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
      * <p>
-     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i> and a {@link MainPage} for
-     * <i>regular</i> or <i>temporary</i> users.
+     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i> and a
+     * {@link MainPage} for <i>regular</i> or <i>temporary</i> users.
      * </p>
      */
     public void createAdminPage();
 
-    /** Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the <code>RootPanel</code>. */
+    /**
+     * Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the
+     * <code>RootPanel</code>.
+     */
     public void createEditCurrentUserPage();
 
     /** Creates page specified by given <var>page</var>. */

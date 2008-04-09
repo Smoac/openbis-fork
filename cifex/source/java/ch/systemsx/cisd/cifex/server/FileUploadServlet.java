@@ -52,8 +52,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 {
     /*
-     * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload was successful, so
-     * if you change the value of the constant here it should also be changed in the widget.
+     * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload
+     * was successful, so if you change the value of the constant here it should also be changed in
+     * the widget.
      */
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
 
@@ -101,7 +102,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, InvalidSessionException
     {
-        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not valid.
+        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not
+                                                            // valid.
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
@@ -128,7 +130,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 operationLog.warn(msg);
                 throw new UserFailureException(msg);
             }
-            // Returns the length, in bytes, of the request body and made available by the input stream, or -1 if the
+            // Returns the length, in bytes, of the request body and made available by the input
+            // stream, or -1 if the
             // length is not known.
             final int contentLength = request.getContentLength();
             if (operationLog.isDebugEnabled())

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.server.util;
 import org.apache.commons.fileupload.ProgressListener;
 
 /**
- * A <code>ProgressListener</code> implementation which uses a threshold expressed in bytes to reduce the progress
- * listener activity.
+ * A <code>ProgressListener</code> implementation which uses a threshold expressed in bytes to
+ * reduce the progress listener activity.
  * <p>
  * Each time we cross this threshold, the event will be propagated but not before.
  * </p>

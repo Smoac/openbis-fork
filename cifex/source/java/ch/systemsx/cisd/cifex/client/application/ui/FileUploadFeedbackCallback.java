@@ -36,7 +36,10 @@ import ch.systemsx.cisd.cifex.client.dto.Message;
 final class FileUploadFeedbackCallback extends AbstractAsyncCallback
 {
 
-    /** Whether the progress bar has already been initialized (using {@link MessageBox#progress(String, String)}). */
+    /**
+     * Whether the progress bar has already been initialized (using
+     * {@link MessageBox#progress(String, String)}).
+     */
     private final boolean initialized;
 
     FileUploadFeedbackCallback(final ViewContext context)

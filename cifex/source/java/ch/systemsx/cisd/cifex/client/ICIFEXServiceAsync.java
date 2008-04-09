@@ -64,8 +64,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
 
     /**
-     * Creates a new <code>User</code> with the given <var>password</var>. If <var>registratorOrNull</var> is not
-     * <code>null</code>, it will be interpreted as the user who creates the new user.
+     * Creates a new <code>User</code> with the given <var>password</var>. If
+     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
+     * who creates the new user.
      */
     public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment, final AsyncCallback callback);
@@ -101,7 +102,8 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Registers the file names for the next upload request in the session.
      * 
-     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
+     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or
+     *            empty.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload,
             final AsyncCallback callback);
@@ -109,17 +111,18 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Get file upload feedback.
      * <p>
-     * A never-<code>null</code> {@link FileUploadFeedback} is expected in given <code>AsyncCallback</code>.
+     * A never-<code>null</code> {@link FileUploadFeedback} is expected in given
+     * <code>AsyncCallback</code>.
      * </p>
      */
     public void getFileUploadFeedback(final AsyncCallback callback);
 
     /**
-     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
-     * the others, the default expiration Date is used.
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own
+     * ExpirationDate, for all the others, the default expiration Date is used.
      * 
-     * @param newExpirationDate The new Expiration date, can only used from an admin. <code>null</code> if the default
-     *            expiration date should be used.
+     * @param newExpirationDate The new Expiration date, can only used from an admin.
+     *            <code>null</code> if the default expiration date should be used.
      */
     public void updateFileExpiration(final long fileId, final Date newExpirationDate,
             final AsyncCallback callback);

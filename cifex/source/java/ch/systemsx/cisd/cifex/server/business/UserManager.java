@@ -40,9 +40,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class UserManager extends AbstractManager implements IUserManager
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
 
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
 
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
             final IBusinessContext businessContext)
@@ -125,7 +127,8 @@ class UserManager extends AbstractManager implements IUserManager
             } catch (final RuntimeException ex)
             {
                 businessContext.getUserActionLog().logExpireUser(user, false);
-                notificationLog.error("Error deleting user [" + getUserDescription(user) + "].", ex);
+                notificationLog
+                        .error("Error deleting user [" + getUserDescription(user) + "].", ex);
                 if (firstExceptionOrNull == null)
                 {
                     firstExceptionOrNull = ex;
@@ -157,16 +160,20 @@ class UserManager extends AbstractManager implements IUserManager
                 {
                     if (operationLog.isInfoEnabled())
                     {
-                        operationLog.info("User [" + getUserDescription(userOrNull) + "] deleted from user database.");
+                        operationLog.info("User [" + getUserDescription(userOrNull)
+                                + "] deleted from user database.");
                     }
-                    businessContext.getUserSessionInvalidator().invalidateSessionWithUser(userOrNull);
+                    businessContext.getUserSessionInvalidator().invalidateSessionWithUser(
+                            userOrNull);
                 } else
                 {
-                    operationLog.warn("Could not delete user [" + getUserDescription(userOrNull) + "] from user database.");
+                    operationLog.warn("Could not delete user [" + getUserDescription(userOrNull)
+                            + "] from user database.");
                 }
             } else
             {
-                final String msg = String.format("Could not delete user '%s' (user not found)", userCode);
+                final String msg =
+                        String.format("Could not delete user '%s' (user not found)", userCode);
                 operationLog.warn(msg);
                 throw new UserFailureException(msg);
             }
@@ -200,7 +207,8 @@ class UserManager extends AbstractManager implements IUserManager
             // Renew the expiration Date
             if (userToUpdate.isPermanent() == false)
             {
-                userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext.getUserRetention()));
+                userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                        .getUserRetention()));
             }
 
             // Password, renew it or leave it as it is
@@ -221,10 +229,11 @@ class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode) throws UserFailureException
+    private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode)
+            throws UserFailureException
     {
         assert userCode != null;
-        
+
         final UserDTO existingUser = userDAO.tryFindUserByCode(userCode);
         if (existingUser == null)
         {
@@ -235,7 +244,8 @@ class UserManager extends AbstractManager implements IUserManager
         return existingUser;
     }
 
-    private static void checkIllegalModifications(final UserDTO oldUser, final UserDTO newUser) throws IllegalArgumentException
+    private static void checkIllegalModifications(final UserDTO oldUser, final UserDTO newUser)
+            throws IllegalArgumentException
     {
         if (oldUser.isPermanent() && newUser.isPermanent() == false)
         {

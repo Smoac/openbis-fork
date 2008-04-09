@@ -19,8 +19,9 @@ package ch.systemsx.cisd.cifex.client;
 import com.google.gwt.user.client.rpc.SerializableException;
 
 /**
- * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have their cause in a
- * failure condition in the environment of the syste. This implies that the user himself cannot fix the problem
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
+ * their cause in a failure condition in the environment of the syste. This implies that the user
+ * himself cannot fix the problem
  * 
  * @author Bernd Rinn
  */

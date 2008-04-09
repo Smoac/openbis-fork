@@ -28,8 +28,8 @@ import ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * A <code>HttpSessionListener</code> implementation which registers the active user sessions in a <i>Spring</i>
- * bean.
+ * A <code>HttpSessionListener</code> implementation which registers the active user sessions in a
+ * <i>Spring</i> bean.
  * 
  * @author Christian Ribeaud
  */

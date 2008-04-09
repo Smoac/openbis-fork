@@ -24,7 +24,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Class which creates and sends an e-mail informing someone that a new login account has been created.
+ * Class which creates and sends an e-mail informing someone that a new login account has been
+ * created.
  * 
  * @author Franz-Josef Elmer
  */
@@ -37,7 +38,8 @@ public class EMailBuilderForNewUser extends AbstractEMailBuilder
     private final UserDTO newUser;
 
     /**
-     * Creates an instance for the specified mail client, registrator of the new user, and the new user.
+     * Creates an instance for the specified mail client, registrator of the new user, and the new
+     * user.
      */
     public EMailBuilderForNewUser(IMailClient mailClient, UserDTO registrator, UserDTO newUser)
     {

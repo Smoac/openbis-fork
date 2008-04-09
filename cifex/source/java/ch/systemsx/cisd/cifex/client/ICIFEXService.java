@@ -70,7 +70,8 @@ public interface ICIFEXService extends RemoteService
     public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user
+     * exists.
      * 
      * @throws InvalidSessionException
      */
@@ -84,8 +85,9 @@ public interface ICIFEXService extends RemoteService
     public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
 
     /**
-     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If <var>registratorOrNull</var>
-     * is not <code>null</code>, it will be interpreted as the user who creates the new user.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If
+     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
+     * who creates the new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
@@ -138,7 +140,8 @@ public interface ICIFEXService extends RemoteService
     /**
      * Registers the file names for the next upload request in the session.
      * 
-     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
+     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or
+     *            empty.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload)
             throws InvalidSessionException;
@@ -146,14 +149,15 @@ public interface ICIFEXService extends RemoteService
     /**
      * Gets current file upload feedback.
      * <p>
-     * Note that this method never returns <code>null</code> but waits till the first feedback is in the queue.
+     * Note that this method never returns <code>null</code> but waits till the first feedback is
+     * in the queue.
      * </p>
      */
     public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
 
     /**
-     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own ExpirationDate, for all
-     * the others, the default expiration Date is used.
+     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own
+     * ExpirationDate, for all the others, the default expiration Date is used.
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */

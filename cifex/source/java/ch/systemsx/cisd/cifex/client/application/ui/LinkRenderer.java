@@ -25,7 +25,8 @@ import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 
 /**
- * A <code>Renderer</code> implementation that create an anchor element with inner text <code>value.toString()</code>.
+ * A <code>Renderer</code> implementation that create an anchor element with inner text
+ * <code>value.toString()</code>.
  * 
  * @author Christian Ribeaud
  */

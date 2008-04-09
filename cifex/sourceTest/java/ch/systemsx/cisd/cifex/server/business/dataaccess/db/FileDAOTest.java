@@ -88,8 +88,9 @@ public final class FileDAOTest extends AbstractDAOTest
     }
 
     /**
-     * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date created from
-     * <code>expirationTime</code>. If expirationTime is NOT_SET then default time is used.
+     * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date
+     * created from <code>expirationTime</code>. If expirationTime is NOT_SET then default time
+     * is used.
      */
     private final void createFileWithExpirationTimeAndNumber(final Long expirationTime,
             final IFileDAO fileDAO, final int i)

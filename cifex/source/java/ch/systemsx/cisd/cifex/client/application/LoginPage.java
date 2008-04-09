@@ -47,7 +47,8 @@ final class LoginPage extends VerticalPanel
         setWidth("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         final LoginWidget loginWidget = createLoginWidget();
-        // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this panel.
+        // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
+        // panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
         Image cisdLogo = createImage();

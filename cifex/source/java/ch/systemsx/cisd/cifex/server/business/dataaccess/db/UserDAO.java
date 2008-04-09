@@ -56,9 +56,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         /**
          * Requires <code>id</code>, <code>email</code>, <code>user_name</code>,
-         * <code>encrypted_password</code>, <code>is_externally_authenticated</code>, <code>is_admin</code>,
-         * <code>is_permanent</code>, <code>registration_timestamp</code>, <code>expiration_timestamp</code> to
-         * be present in the {@link ResultSet} <var>rs</var>.
+         * <code>encrypted_password</code>, <code>is_externally_authenticated</code>,
+         * <code>is_admin</code>, <code>is_permanent</code>,
+         * <code>registration_timestamp</code>, <code>expiration_timestamp</code> to be present
+         * in the {@link ResultSet} <var>rs</var>.
          */
         final public static UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {

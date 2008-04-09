@@ -32,7 +32,8 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 /**
  * An default <code>LayoutDialog</code> extension which incorporates a button in the south region.
  * <p>
- * To finalize the construction of this <code>LayoutDialog</code> you must call {@link #addContentPanel()}.
+ * To finalize the construction of this <code>LayoutDialog</code> you must call
+ * {@link #addContentPanel()}.
  * </p>
  * 
  * @author Christian Ribeaud

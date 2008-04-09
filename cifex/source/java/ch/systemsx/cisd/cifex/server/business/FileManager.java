@@ -289,7 +289,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 outputStream = new FileOutputStream(file);
                 final CountingInputStream countingInputStream = new CountingInputStream(input);
                 inputStream = countingInputStream;
-                // Uncomment the following line if you want a more perceptible effect in the file upload feedback.
+                // Uncomment the following line if you want a more perceptible effect in the file
+                // upload feedback.
                 // inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
                 final long byteCount = countingInputStream.getByteCount();
@@ -391,7 +392,8 @@ final class FileManager extends AbstractManager implements IFileManager
                         usersOrNull = Collections.singleton(user);
                     } else
                     {
-                        // Email address is invalid because user does not exist and requestUser is not allowed to create
+                        // Email address is invalid because user does not exist and requestUser is
+                        // not allowed to create
                         // new
                         // users.
                         invalidEmailAdresses.add(lowerCaseEmail);
@@ -400,9 +402,11 @@ final class FileManager extends AbstractManager implements IFileManager
                 if (usersOrNull != null)
                 {
                     allUsers.addAll(usersOrNull);
-                    // Implementation note: we do the sharing link creation and the email sending in two loops in order
+                    // Implementation note: we do the sharing link creation and the email sending in
+                    // two loops in order
                     // to
-                    // ensure that all database links are created before any email is sent (note that this method is
+                    // ensure that all database links are created before any email is sent (note
+                    // that this method is
                     // @Transactional).
                     for (final UserDTO user : usersOrNull)
                     {
@@ -435,9 +439,11 @@ final class FileManager extends AbstractManager implements IFileManager
                         {
                             if (notified == false)
                             {
-                                // As we are sure that we get correct email addresses, this exception can only be
+                                // As we are sure that we get correct email addresses, this
+                                // exception can only be
                                 // related to
-                                // the configuration and/or environment. So inform the administrator about the problem.
+                                // the configuration and/or environment. So inform the administrator
+                                // about the problem.
                                 notificationLog.error(
                                         "A problem has occurred while sending email.", ex);
                                 notified = true;
@@ -470,7 +476,8 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
     {
-        if (requestUser.isPermanent()) // Only permanent users are allowed to create new user accounts.
+        if (requestUser.isPermanent()) // Only permanent users are allowed to create new user
+                                        // accounts.
         {
             final UserDTO user = new UserDTO();
             user.setUserCode(email);

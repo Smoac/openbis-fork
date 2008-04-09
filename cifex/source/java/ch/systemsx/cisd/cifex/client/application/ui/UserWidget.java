@@ -85,7 +85,8 @@ public abstract class UserWidget extends Form
     /**
      * Status of the user.
      * <p>
-     * An user can have one of following roles: <i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>.
+     * An user can have one of following roles: <i>Administrator</i>, <i>Regular</i> or
+     * <i>Temporary</i>.
      * </p>
      */
     protected ComboBox statusField;

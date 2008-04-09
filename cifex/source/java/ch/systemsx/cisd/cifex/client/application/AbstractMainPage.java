@@ -38,7 +38,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2008-02-13, Christian Ribeaud: the toolbar should be share between 'AdminMainPage', 'EditCurrentUserPage' and
+// TODO 2008-02-13, Christian Ribeaud: the toolbar should be share between 'AdminMainPage',
+// 'EditCurrentUserPage' and
 // 'MainPage'. The is no reason to re-create it everytime I switch the page.
 abstract class AbstractMainPage extends BorderLayout
 {
