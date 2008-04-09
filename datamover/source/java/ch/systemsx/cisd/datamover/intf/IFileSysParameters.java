@@ -32,8 +32,8 @@ public interface IFileSysParameters
     String getRsyncExecutable();
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist are overwritten rather
-     *         than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist
+     *         are overwritten rather than appended to.
      */
 
     boolean isRsyncOverwrite();

@@ -178,7 +178,8 @@ public class FileStoreLocal extends ExtendedFileStore
 
     /**
      * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
-     *         <var>destinationDirectory</var> resides requires deleting an existing file before it can be overwritten.
+     *         <var>destinationDirectory</var> resides requires deleting an existing file before it
+     *         can be overwritten.
      */
     protected boolean requiresDeletionBeforeCreation(IFileStore destinationDirectory,
             final IStoreCopier simpleCopier)

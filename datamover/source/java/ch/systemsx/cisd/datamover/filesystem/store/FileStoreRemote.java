@@ -29,7 +29,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 /**
  * @author Tomasz Pylak on Oct 9, 2007
  */
-// TODO 2007-10-09, Tomasz Pylak: Ssh tunneling mode should be implemented here. This class is a dummy implementation.
+// TODO 2007-10-09, Tomasz Pylak: Ssh tunneling mode should be implemented here. This class is a
+// dummy implementation.
 // Methods with NOTE should be written.
 public class FileStoreRemote extends FileStore
 {

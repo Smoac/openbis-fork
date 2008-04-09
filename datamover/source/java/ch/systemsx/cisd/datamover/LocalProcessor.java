@@ -37,8 +37,9 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
 /**
- * Processing of the files on the local machine. This class does not scan its input directory, all resources must
- * registered with a handler by someone else, also in the case of recovery after shutdown.
+ * Processing of the files on the local machine. This class does not scan its input directory, all
+ * resources must registered with a handler by someone else, also in the case of recovery after
+ * shutdown.
  * 
  * @author Tomasz Pylak on Aug 24, 2007
  */
@@ -67,8 +68,10 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private final File outputDir;
 
     // auxiliary directory used if we need to make a copy of incoming data
-    // Making a copy can take some time, so we do that in the temporary directory. Than we move it from
-    // temporary the final destination. In this way external process can start moving data from final
+    // Making a copy can take some time, so we do that in the temporary directory. Than we move it
+    // from
+    // temporary the final destination. In this way external process can start moving data from
+    // final
     // destination as soon as they appear there.
     private final File tempDir;
 
@@ -137,9 +140,12 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                 FileUtilities.deleteRecursively(file); // partial copy, delete it
             } else
             {
-                // if in previous run we were creating an extra copy, and now we do not, we leave the resource in tmp
-                // directory. If now we do create copies, it's not clear what to do, because the destination directory
-                // could change. We move the copy to that directory to ensure clean recovery from errors.
+                // if in previous run we were creating an extra copy, and now we do not, we leave
+                // the resource in tmp
+                // directory. If now we do create copies, it's not clear what to do, because the
+                // destination directory
+                // could change. We move the copy to that directory to ensure clean recovery from
+                // errors.
                 if (extraCopyDirOrNull != null)
                 {
                     mover.tryMove(file, extraCopyDirOrNull);

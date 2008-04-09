@@ -31,10 +31,11 @@ public interface IPathRemover
     /**
      * Removes the <var>path</var>, if necessary recursively.
      * 
-     * @param path The file or directory to remove. It needs to be writable (including all entries in case of a
-     *            directory).
-     * @return The status of the operation, {@link Status#OK} if everything went fine. If the <var>path</var> didn't
-     *         exist when the method is called, {@link Status#OK} will be returned as well.
+     * @param path The file or directory to remove. It needs to be writable (including all entries
+     *            in case of a directory).
+     * @return The status of the operation, {@link Status#OK} if everything went fine. If the
+     *         <var>path</var> didn't exist when the method is called, {@link Status#OK} will be
+     *         returned as well.
      */
     public Status remove(File path);
 

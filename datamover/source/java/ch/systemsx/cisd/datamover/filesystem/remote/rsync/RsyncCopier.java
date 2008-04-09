@@ -45,7 +45,10 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.Rs
 public class RsyncCopier implements IPathCopier
 {
 
-    /** The maximal period to wait for the <code>rsync</code> list process to finish before killing it. */
+    /**
+     * The maximal period to wait for the <code>rsync</code> list process to finish before killing
+     * it.
+     */
     private static final int MAX_INACTIVITY_PERIOD_RSYNC_LIST = 30 * 1000;
 
     /**
@@ -74,14 +77,15 @@ public class RsyncCopier implements IPathCopier
     private final boolean overwrite;
 
     /**
-     * If <code>true</code>, the file system of the destination directory requires that already existing files and
-     * directories on the remote side are removed before the copy process is started.
+     * If <code>true</code>, the file system of the destination directory requires that already
+     * existing files and directories on the remote side are removed before the copy process is
+     * started.
      */
     private final boolean destinationDirectoryRequiresDeletionBeforeCreation;
 
     /**
-     * A reference to the {@link Process} that performs the copy. Note that the reference will be <code>null</code>,
-     * if currently no copy process is running.
+     * A reference to the {@link Process} that performs the copy. Note that the reference will be
+     * <code>null</code>, if currently no copy process is running.
      */
     private final AtomicReference<Process> copyProcessReference;
 
@@ -89,11 +93,11 @@ public class RsyncCopier implements IPathCopier
      * Constructs an <code>RsyncCopier</code>.
      * 
      * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
-     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or <code>null</code>, if
-     *            no <code>ssh</code> is available on this machine.
-     * @param destinationDirectoryRequiresDeletionBeforeCreation If <code>true</code>, already existing files and
-     *            directories on the remote side will be deleted before starting the copy process (no overwriting of
-     *            paths).
+     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or
+     *            <code>null</code>, if no <code>ssh</code> is available on this machine.
+     * @param destinationDirectoryRequiresDeletionBeforeCreation If <code>true</code>, already
+     *            existing files and directories on the remote side will be deleted before starting
+     *            the copy process (no overwriting of paths).
      */
     public RsyncCopier(File rsyncExecutable, File sshExecutableOrNull,
             boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite,
@@ -153,7 +157,8 @@ public class RsyncCopier implements IPathCopier
         assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
         assert destinationDirectory != null;
         assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
-        assert sourceHostOrNull == null || destinationHostOrNull == null; // only one side can be remote
+        assert sourceHostOrNull == null || destinationHostOrNull == null; // only one side can be
+                                                                            // remote
 
         try
         {
@@ -178,7 +183,8 @@ public class RsyncCopier implements IPathCopier
                     .getMessage()));
         } catch (InterruptedException e)
         {
-            // Shouldn't happen because this is called in a timer, anyway, it's just another error condition.
+            // Shouldn't happen because this is called in a timer, anyway, it's just another error
+            // condition.
             return INTERRUPTED_STATUS;
         } finally
         {
@@ -256,13 +262,15 @@ public class RsyncCopier implements IPathCopier
             String path = resource.getPath();
             if (isDirectory)
                 path += File.separator;
-            // We must not use the absolute path here because that is the business of the destination host.
+            // We must not use the absolute path here because that is the business of the
+            // destination host.
             return host + ":" + toUnix(path);
         }
     }
 
     /**
-     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a Cygwin path.
+     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a
+     * Cygwin path.
      */
     private static String toUnix(String path)
     {
@@ -302,8 +310,8 @@ public class RsyncCopier implements IPathCopier
     }
 
     /**
-     * Terminates the copy process by calling {@link Process#destroy()}, if a copy process is currently running. If no
-     * copy process is running, the method will return immediately.
+     * Terminates the copy process by calling {@link Process#destroy()}, if a copy process is
+     * currently running. If no copy process is running, the method will return immediately.
      */
     public boolean terminate()
     {

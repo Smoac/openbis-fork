@@ -29,17 +29,20 @@ public interface ITimingParameters
     public long getCheckIntervalMillis();
 
     /**
-     * @return The time interval that a directory needs to be "quiet" before being moved in milliseconds.
+     * @return The time interval that a directory needs to be "quiet" before being moved in
+     *         milliseconds.
      */
     public long getQuietPeriodMillis();
 
     /**
-     * @return The time period of inactivity that triggers the alarm (i.e. notification of the administrator).
+     * @return The time period of inactivity that triggers the alarm (i.e. notification of the
+     *         administrator).
      */
     public long getInactivityPeriodMillis();
 
     /**
-     * @return The time interval to wait after a retriable error has occurred before a new attempt is made.
+     * @return The time interval to wait after a retriable error has occurred before a new attempt
+     *         is made.
      */
     public long getIntervalToWaitAfterFailure();
 

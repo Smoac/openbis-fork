@@ -72,8 +72,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private static final boolean DEFAULT_RSYNC_OVERWRITE = false;
 
     /**
-     * If set to <code>true</code>, rsync is called in such a way to files that already exist are overwritten rather
-     * than appended to.
+     * If set to <code>true</code>, rsync is called in such a way to files that already exist are
+     * overwritten rather than appended to.
      */
     @Option(longName = "rsync-overwrite", usage = "If true, files that already exist on the remote side are always "
             + "overwritten rather than appended.")
@@ -104,25 +104,29 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private long checkIntervalMillis;
 
     /**
-     * Default interval to wait between two checks for activity for the internal processing queues (in seconds)
+     * Default interval to wait between two checks for activity for the internal processing queues
+     * (in seconds)
      */
     static final int DEFAULT_CHECK_INTERVAL_INTERNAL = 10;
 
     /**
-     * The interval to wait between two checks for activity for the internal processing queues (in milliseconds).
+     * The interval to wait between two checks for activity for the internal processing queues (in
+     * milliseconds).
      */
     @Option(longName = "check-interval-internal", usage = "The interval to wait between two checks for the internal processing queues (in seconds) "
             + "[default: 10]", handler = MillisecondConversionOptionHandler.class)
     private long checkIntervalInternalMillis;
 
     /**
-     * Default period to wait before a file or directory is considered "inactive" or "stalled" (in seconds).
+     * Default period to wait before a file or directory is considered "inactive" or "stalled" (in
+     * seconds).
      */
     static final int DEFAULT_INACTIVITY_PERIOD = 600;
 
     /**
-     * The period to wait before a file or directory is considered "inactive" or "stalled" (in milliseconds). This
-     * setting is used when deciding whether a copy operation of a file or directory is "stalled".
+     * The period to wait before a file or directory is considered "inactive" or "stalled" (in
+     * milliseconds). This setting is used when deciding whether a copy operation of a file or
+     * directory is "stalled".
      */
     @Option(name = "i", longName = "inactivity-period", usage = "The period to wait before a file or directory is "
             + "considered \"inactive\" or \"stalled\" (in seconds) [default: 600].", handler = MillisecondConversionOptionHandler.class)
@@ -134,8 +138,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     static final int DEFAULT_QUIET_PERIOD = 300;
 
     /**
-     * The period to wait before a file or directory is considered "quiet" (in milliseconds). This setting is used when
-     * deciding whether a file or directory is ready to be moved to the remote side.
+     * The period to wait before a file or directory is considered "quiet" (in milliseconds). This
+     * setting is used when deciding whether a file or directory is ready to be moved to the remote
+     * side.
      */
     @Option(name = "q", longName = "quiet-period", usage = "The period that needs to pass before a path item is "
             + "considered quiet (in seconds) [default: 300].", handler = MillisecondConversionOptionHandler.class)
@@ -147,7 +152,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     static final int DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES = 1800;
 
     /**
-     * The time interval to wait after a failure has occurred before the operation is retried (in milliseconds).
+     * The time interval to wait after a failure has occurred before the operation is retried (in
+     * milliseconds).
      */
     @Option(name = "f", longName = "failure-interval", usage = "The interval to wait after a failure has occurred "
             + "before retrying the operation (in seconds) [default: 1800].", handler = MillisecondConversionOptionHandler.class)
@@ -159,8 +165,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private static final boolean DEFAULT_TREAT_INCOMING_AS_REMOTE = false;
 
     /**
-     * If set to true, than directory with incoming data is supposed to be on a remote share. It implies that a special
-     * care will be taken when coping is performed from that directory.
+     * If set to true, than directory with incoming data is supposed to be on a remote share. It
+     * implies that a special care will be taken when coping is performed from that directory.
      */
     @Option(name = "r", longName = "treat-incoming-as-remote", usage = "If flag is set, than directory with incoming data "
             + "is supposed to be on a remote share.")
@@ -172,8 +178,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     static final int DEFAULT_MAXIMAL_NUMBER_OF_RETRIES = 10;
 
     /**
-     * The number of times a failed operation is retried (note that this means that the total number that the operation
-     * is tried is one more).
+     * The number of times a failed operation is retried (note that this means that the total number
+     * that the operation is tried is one more).
      */
     @Option(name = "m", longName = "max-retries", usage = "The number of retries of a failed operation before the "
             + "Datamover gives up on it. [default: 10].")
@@ -199,9 +205,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private File bufferDirectory = null;
 
     /**
-     * The directory to move files and directories to that have been quiet in the incoming directory for long enough and
-     * that need manual intervention. Note that this directory needs to be on the same file system than
-     * {@link #bufferDirectory}.
+     * The directory to move files and directories to that have been quiet in the incoming directory
+     * for long enough and that need manual intervention. Note that this directory needs to be on
+     * the same file system than {@link #bufferDirectory}.
      */
     @Option(longName = "manual-intervention-dir", metaVar = "DIR", usage = "The local directory to "
             + "store paths that need manual intervention.")
@@ -221,30 +227,32 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private String outgoingHost = null;
 
     /**
-     * The local directory where we create additional copy of the incoming data (if and only if the directory is
-     * specified)
+     * The local directory where we create additional copy of the incoming data (if and only if the
+     * directory is specified)
      */
     @Option(longName = "extra-copy-dir", metaVar = "DIR", usage = "The local directory where we create additional "
             + "copy of the incoming data.")
     private File extraCopyDirectory = null;
 
     /**
-     * The regular expression to use for cleansing on the incoming directory before moving it to the buffer.
+     * The regular expression to use for cleansing on the incoming directory before moving it to the
+     * buffer.
      */
     @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
             + "moving to outgoing.")
     private Pattern cleansingRegex = null;
 
     /**
-     * The regular expression to use for deciding whether a path in the incoming directory needs manual intervention.
+     * The regular expression to use for deciding whether a path in the incoming directory needs
+     * manual intervention.
      */
     @Option(longName = "manual-intervention-regex", usage = "The regular expression to use for deciding whether an "
             + "incoming paths needs manual intervention. ")
     private Pattern manualInterventionRegex = null;
 
     /**
-     * A prefix for all incoming items. Note that '%t' will be replaced with the current timestamp in format
-     * 'yyyyMMddHHmmss'.
+     * A prefix for all incoming items. Note that '%t' will be replaced with the current timestamp
+     * in format 'yyyyMMddHHmmss'.
      */
     @Option(longName = "prefix-for-incoming", usage = "A string that all incoming items will be prepended with, "
             + "'%t' will be replaced with the current time stamp.")
@@ -466,7 +474,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * Returns the service property.
      * 
-     * @throws ConfigurationFailureException If an exception occurs when loading the service properties.
+     * @throws ConfigurationFailureException If an exception occurs when loading the service
+     *             properties.
      */
     private Properties loadServiceProperties()
     {
@@ -501,8 +510,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist are overwritten rather
-     *         than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist
+     *         are overwritten rather than appended to.
      */
     public boolean isRsyncOverwrite()
     {
@@ -518,8 +527,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The name of the <code>ln</code> executable to use for creating hard links or <code>null</code> if not
-     *         specified.
+     * @return The name of the <code>ln</code> executable to use for creating hard links or
+     *         <code>null</code> if not specified.
      */
     public String getHardLinkExecutable()
     {
@@ -535,7 +544,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The interval to wait between two checks for activity for the internal threads (in milliseconds).
+     * @return The interval to wait between two checks for activity for the internal threads (in
+     *         milliseconds).
      */
     public long getCheckIntervalInternalMillis()
     {
@@ -543,8 +553,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The period to wait before a file or directory is considered "inactive" (in milliseconds). This setting is
-     *         used when deciding whether a copy operation of a file or directory is "stalled".
+     * @return The period to wait before a file or directory is considered "inactive" (in
+     *         milliseconds). This setting is used when deciding whether a copy operation of a file
+     *         or directory is "stalled".
      */
     public long getInactivityPeriodMillis()
     {
@@ -552,8 +563,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The period to wait before a file or directory is considered "quiet" (in milliseconds). This setting is
-     *         used when deciding whether a file or directory is ready to be moved to the remote side.
+     * @return The period to wait before a file or directory is considered "quiet" (in
+     *         milliseconds). This setting is used when deciding whether a file or directory is
+     *         ready to be moved to the remote side.
      */
     public long getQuietPeriodMillis()
     {
@@ -561,7 +573,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The time interval to wait after a failure has occurred before the operation is retried.
+     * @return The time interval to wait after a failure has occurred before the operation is
+     *         retried.
      */
     public long getIntervalToWaitAfterFailure()
     {
@@ -569,8 +582,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The number of times a failed operation is retried (note that this means that the total number that the
-     *         operation is tried is one more).
+     * @return The number of times a failed operation is retried (note that this means that the
+     *         total number that the operation is tried is one more).
      */
     public int getMaximalNumberOfRetries()
     {
@@ -603,9 +616,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The directory to move files and directories to that have been quiet in the local data directory for long
-     *         enough and that need manual intervention. Note that this directory needs to be on the same file system as
-     *         {@link #getBufferDirectoryPath}.
+     * @return The directory to move files and directories to that have been quiet in the local data
+     *         directory for long enough and that need manual intervention. Note that this directory
+     *         needs to be on the same file system as {@link #getBufferDirectoryPath}.
      */
     public File tryGetManualInterventionDir()
     {
@@ -613,9 +626,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The directory where we create an additional copy of incoming data or <code>null</code> if it is not
-     *         specified. Note that this directory needs to be on the same file system as
-     *         {@link #getBufferDirectoryPath}.
+     * @return The directory where we create an additional copy of incoming data or
+     *         <code>null</code> if it is not specified. Note that this directory needs to be on
+     *         the same file system as {@link #getBufferDirectoryPath}.
      */
     public File tryGetExtraCopyDir()
     {
@@ -623,8 +636,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The regular expression to use for cleansing on the incoming directory before moving it to the buffer or
-     *         <code>null</code>, if no regular expression for cleansing has been provided.
+     * @return The regular expression to use for cleansing on the incoming directory before moving
+     *         it to the buffer or <code>null</code>, if no regular expression for cleansing has
+     *         been provided.
      */
     public Pattern tryGetCleansingRegex()
     {
@@ -632,9 +646,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The regular expression to use for deciding whether a path in the incoming directory requires manual
-     *         intervention or <code>null</code>, if no regular expression for manual interventionpaths has been
-     *         provided.
+     * @return The regular expression to use for deciding whether a path in the incoming directory
+     *         requires manual intervention or <code>null</code>, if no regular expression for
+     *         manual interventionpaths has been provided.
      */
     public Pattern tryGetManualInterventionRegex()
     {
@@ -642,8 +656,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return The prefix string to put in front of all incoming items. Note that '%t' will be replaced with the current
-     *         time stamp.
+     * @return The prefix string to put in front of all incoming items. Note that '%t' will be
+     *         replaced with the current time stamp.
      */
     public String getPrefixForIncoming()
     {

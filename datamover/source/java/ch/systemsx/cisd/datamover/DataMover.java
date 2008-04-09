@@ -37,7 +37,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * A class that starts up the processing pipeline and its monitoring, based on the parameters provided.
+ * A class that starts up the processing pipeline and its monitoring, based on the parameters
+ * provided.
  * 
  * @author Bernd Rinn
  * @author Tomasz Pylak on Aug 24, 2007

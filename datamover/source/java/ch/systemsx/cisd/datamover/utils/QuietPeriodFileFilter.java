@@ -31,13 +31,15 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
- * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given quiet period.
+ * A {@link FileFilter} that picks all entries that haven't been changed for longer than some given
+ * quiet period.
  * <p>
- * Note that the system is designed to be robust when the clocks of the host that runs the datamover and the host that
- * writes the files are out of sync. To this end, we are <i>never<i> comparing times as provided by the datamover host
- * clock with last modification times. Instead we wait for some quiet period as defined solely by the clock of the
- * datamover host. After that time we require the last modification time to be not younger than the last time we checked
- * before we {@link #accept(StoreItem)} the path.
+ * Note that the system is designed to be robust when the clocks of the host that runs the datamover
+ * and the host that writes the files are out of sync. To this end, we are <i>never<i> comparing
+ * times as provided by the datamover host clock with last modification times. Instead we wait for
+ * some quiet period as defined solely by the clock of the datamover host. After that time we
+ * require the last modification time to be not younger than the last time we checked before we
+ * {@link #accept(StoreItem)} the path.
  * 
  * @author Bernd Rinn
  */
@@ -161,7 +163,8 @@ public class QuietPeriodFileFilter
                 pathMap.put(item, new PathCheckRecord(now, fileStore.lastChanged(item, 0L)));
                 return false;
             }
-            if (now - checkRecordOrNull.getTimeChecked() < quietPeriodMillis) // no need to check yet
+            if (now - checkRecordOrNull.getTimeChecked() < quietPeriodMillis) // no need to check
+                                                                                // yet
             {
                 return false;
             }

@@ -47,8 +47,10 @@ public class MainTest
 {
     private static final FileStructEngine DEFAULT_STRUCT = new FileStructEngine("test");
 
-    // time needed be a single test to complete. After this time we kill data mover and check if results are correct. It
-    // can happen, that tests running on slow machines fail because they need more time. Than this constant should be
+    // time needed be a single test to complete. After this time we kill data mover and check if
+    // results are correct. It
+    // can happen, that tests running on slow machines fail because they need more time. Than this
+    // constant should be
     // adjusted.
     private static final long DATA_MOVER_COMPLETION_TIME = 6000;
 
@@ -156,7 +158,8 @@ public class MainTest
     {
         assertSampleStructureExists(dirs.outgoing);
         assertSampleStructFinishMarkerExists(dirs.outgoing);
-        // we use default structure engine, so there is exactly one directory in outgoing + the marker file
+        // we use default structure engine, so there is exactly one directory in outgoing + the
+        // marker file
         assertEquals(2, dirs.outgoing.list().length);
     }
 
@@ -280,7 +283,8 @@ public class MainTest
 
     private static interface IFSPreparator
     {
-        // prepares structure in the file system to mimic possible state of directories before data mover is launched
+        // prepares structure in the file system to mimic possible state of directories before data
+        // mover is launched
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
@@ -345,7 +349,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after copy from incoming has been done, but no marker exists nor the source was not deleted
+    // recovery after copy from incoming has been done, but no marker exists nor the source was not
+    // deleted
     public void testRecoveryIncomingCopiedNotDeleted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
@@ -408,7 +413,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after failure when data are moved to 'copy-completed', but before the marker in in-progress is deleted
+    // recovery after failure when data are moved to 'copy-completed', but before the marker in
+    // in-progress is deleted
     public void testRecoveryIncomingCompleteMarkerNotDeleted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
@@ -424,7 +430,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after failure when data are copied to 'copy-completed', but before deletion has been finished
+    // recovery after failure when data are copied to 'copy-completed', but before deletion has been
+    // finished
     public void testRecoveryIncomingCompleteDeletionInProgress(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
@@ -441,7 +448,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after failure when incoming has finished processing and local processing has not started
+    // recovery after failure when incoming has finished processing and local processing has not
+    // started
     public void testRecoveryLocalProcessingNotStarted(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
@@ -472,7 +480,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after failure during local processing, extra copy created in temp-dir, data moved to read-to-move
+    // recovery after failure during local processing, extra copy created in temp-dir, data moved to
+    // read-to-move
     public void testRecoveryLocalProcessingExtraCopyInTmp(long delay) throws Exception
     {
         performGenericTest(new IFSPreparator()
@@ -488,7 +497,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" }, dataProvider = "delays")
-    // recovery after failure during local processing, extra copy created in temp-dir, data moved to read-to-move,
+    // recovery after failure during local processing, extra copy created in temp-dir, data moved to
+    // read-to-move,
     // outgoing processing has not started. It tests also outgoing process recovery.
     public void testRecoveryLocalProcessingExtraCopyInTmpAndReadyToMove(long delay)
             throws Exception
@@ -708,7 +718,8 @@ public class MainTest
 
     @Test(groups =
         { "slow" })
-    // some data are in incoming, test the whole pipeline taking manual intervention and cleansing scenario into account
+    // some data are in incoming, test the whole pipeline taking manual intervention and cleansing
+    // scenario into account
     public void testWholePipelineCleansingManualIntervention() throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);

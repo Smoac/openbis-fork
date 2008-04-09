@@ -33,8 +33,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
- * A class that moves files and directories to remote directories. This class monitors the copy process and, if
- * necessary, notifies an administrator of failures.
+ * A class that moves files and directories to remote directories. This class monitors the copy
+ * process and, if necessary, notifies an administrator of failures.
  * 
  * @author Bernd Rinn
  */
@@ -96,7 +96,8 @@ public final class RemotePathMover implements IStoreHandler
      * @param destinationDirectory The directory to move paths to.
      * @param copier Copies items from source to destination
      * @param monitor The activity monitor to inform about actions.
-     * @param timingParameters The timing parameters used for monitoring and reporting stall situations.
+     * @param timingParameters The timing parameters used for monitoring and reporting stall
+     *            situations.
      * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(IFileStore sourceDirectory, IFileStore destinationDirectory,
@@ -131,7 +132,8 @@ public final class RemotePathMover implements IStoreHandler
     {
         if (isDeletionInProgress(item))
         {
-            // This is a recovery situation: we have been interrupted removing the path and now finish the job.
+            // This is a recovery situation: we have been interrupted removing the path and now
+            // finish the job.
             if (operationLog.isInfoEnabled())
             {
                 operationLog
@@ -158,7 +160,8 @@ public final class RemotePathMover implements IStoreHandler
                             destinationDirectory));
                 }
             }
-            // TODO 2008-03-17, Bernd Rinn: There needs to be a limit for how often we take this exit without sending
+            // TODO 2008-03-17, Bernd Rinn: There needs to be a limit for how often we take this
+            // exit without sending
             // a notification email.
             if (checkTargetAvailable() == false)
             {
@@ -196,7 +199,8 @@ public final class RemotePathMover implements IStoreHandler
                 Thread.sleep(intervallToWaitAfterFailure);
             } catch (InterruptedException e)
             {
-                // We don't expect to get interrupted, but even if, there is no need to handle this here.
+                // We don't expect to get interrupted, but even if, there is no need to handle this
+                // here.
             }
         } while (true);
 
@@ -304,7 +308,8 @@ public final class RemotePathMover implements IStoreHandler
             return createFileInside(extendedFileStore, markerItem);
         } else
         {
-            // When destination is remote, we put the item directory in the source directory and copy it to destination.
+            // When destination is remote, we put the item directory in the source directory and
+            // copy it to destination.
             extendedFileStore = sourceDirectory.tryAsExtended();
             assert extendedFileStore != null;
             return markOnSourceLocalAndCopyToRemoteDestination(extendedFileStore, markerItem);

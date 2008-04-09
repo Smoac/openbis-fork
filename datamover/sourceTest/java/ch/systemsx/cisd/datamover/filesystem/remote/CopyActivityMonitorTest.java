@@ -305,7 +305,8 @@ public class CopyActivityMonitorTest
             ++numberOfTimesCalled;
             if (numberOfTimesCalled == 2)
             {
-                // Here we simulate the rare case where one file has been finished but the next file hasn't yet been
+                // Here we simulate the rare case where one file has been finished but the next file
+                // hasn't yet been
                 // started.
                 return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
             } else
@@ -317,12 +318,13 @@ public class CopyActivityMonitorTest
     }
 
     /**
-     * This test case catches a case that I first hadn't thought of: since we use <code>rsync</code> in a mode where
-     * at the end of copying a file they set the "last modified" time back to the one of the source file, there is a
-     * short time interval after finishing copying one file and starting copying the next file where the copy monitor
-     * could be tempted to trigger false alarm: the just finished file will have already the "last modified" time of the
-     * source file (which is when the data produce finished writing the source file). In fact everything is fine but
-     * still the copy process will be canceled.
+     * This test case catches a case that I first hadn't thought of: since we use <code>rsync</code>
+     * in a mode where at the end of copying a file they set the "last modified" time back to the
+     * one of the source file, there is a short time interval after finishing copying one file and
+     * starting copying the next file where the copy monitor could be tempted to trigger false
+     * alarm: the just finished file will have already the "last modified" time of the source file
+     * (which is when the data produce finished writing the source file). In fact everything is fine
+     * but still the copy process will be canceled.
      */
     @Test(groups =
         { "slow" })

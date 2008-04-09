@@ -67,7 +67,8 @@ final class RsyncVersionChecker
         private final int rsyncPatchVersion;
 
         /**
-         * Returns <code>true</code>, if the version is a pre-release version of <code>rsync</code>.
+         * Returns <code>true</code>, if the version is a pre-release version of
+         * <code>rsync</code>.
          */
         private final boolean rsyncPreReleaseVersion;
 
@@ -122,7 +123,8 @@ final class RsyncVersionChecker
         }
 
         /**
-         * @return <code>true</code>, if this version is newer or as new the minimal version specified.
+         * @return <code>true</code>, if this version is newer or as new the minimal version
+         *         specified.
          */
         public boolean isNewerOrEqual(int minMajorVerson, int minMinorVersion, int minPatchLevel)
         {
@@ -150,8 +152,8 @@ final class RsyncVersionChecker
     }
 
     /**
-     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its a good executable at
-     * all.
+     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its
+     * a good executable at all.
      * 
      * @param rsyncExecutable The executable to find the version for.
      * @return The version information, or <code>null</code>, if the executable doesn't work.

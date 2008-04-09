@@ -35,8 +35,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
- * A <code>CopyActivityMonitor</code> monitors write activity on a <var>destinationStore</var> and triggers an alarm
- * if there was a period of inactivity that exceeds a given inactivity period.
+ * A <code>CopyActivityMonitor</code> monitors write activity on a <var>destinationStore</var>
+ * and triggers an alarm if there was a period of inactivity that exceeds a given inactivity period.
  * 
  * @author Bernd Rinn
  */
@@ -60,14 +60,14 @@ public class CopyActivityMonitor
     private final ITerminable terminable;
 
     /**
-     * We need to keep a reference to the timer since we want to be able to cancel it and because otherwise the timer
-     * thread will terminate.
+     * We need to keep a reference to the timer since we want to be able to cancel it and because
+     * otherwise the timer thread will terminate.
      */
     private Timer activityMonitoringTimer;
 
     /**
-     * Unfortunately there is no way for a {@link TimerTask} to know whether it has been canceled. So we have to keep it
-     * around in order to be able to terminate it directly.
+     * Unfortunately there is no way for a {@link TimerTask} to know whether it has been canceled.
+     * So we have to keep it around in order to be able to terminate it directly.
      */
     private ActivityMonitoringTimerTask activityMonitoringTimerTask;
 
@@ -75,9 +75,10 @@ public class CopyActivityMonitor
      * Creates a monitor.
      * 
      * @param destinationStore The file store to monitor for write access.
-     * @param copyProcess The {@link ITerminable} representing the copy process. This will get terminated if the copy
-     *            process gets stuck.
-     * @param timingParameters The {@link ITimingParameters} to get the check interval and the inactivity period from.
+     * @param copyProcess The {@link ITerminable} representing the copy process. This will get
+     *            terminated if the copy process gets stuck.
+     * @param timingParameters The {@link ITimingParameters} to get the check interval and the
+     *            inactivity period from.
      */
     public CopyActivityMonitor(IFileStore destinationStore, ITerminable copyProcess,
             ITimingParameters timingParameters)
@@ -106,8 +107,8 @@ public class CopyActivityMonitor
     /**
      * Starts the activity monitoring.
      * 
-     * @param itemToBeCopied The item that will be copied to the destination file store and whose write progress should
-     *            be monitored.
+     * @param itemToBeCopied The item that will be copied to the destination file store and whose
+     *            write progress should be monitored.
      */
     public void start(StoreItem itemToBeCopied)
     {
@@ -119,7 +120,8 @@ public class CopyActivityMonitor
     }
 
     /**
-     * Stops the activity monitoring. The activity monitor must not be used after calling this method.
+     * Stops the activity monitoring. The activity monitor must not be used after calling this
+     * method.
      */
     public void stop()
     {
@@ -190,13 +192,16 @@ public class CopyActivityMonitor
                                             itemToBeCopied, destinationStore,
                                             lastChangedAsFoundByPathChecker));
                 }
-                // This catches the case where since the last check copying a files has been finished (and consequently
-                // the "last changed" time has been set to that of the source file), but copying of the next file has
+                // This catches the case where since the last check copying a files has been
+                // finished (and consequently
+                // the "last changed" time has been set to that of the source file), but copying of
+                // the next file has
                 // not yet been started.
                 final long lastChanged =
                         Math.max(lastChangedAsFoundByPathChecker, monitoredItemLastChanged);
                 final long now = System.currentTimeMillis();
-                if (lastChanged > now) // That can happen if the system clock of the data producer is screwed up.
+                if (lastChanged > now) // That can happen if the system clock of the data producer
+                                        // is screwed up.
                 {
                     machineLog.error(String.format(
                             "Found \"last changed time\" in the future (%1$tF %1$tT), "

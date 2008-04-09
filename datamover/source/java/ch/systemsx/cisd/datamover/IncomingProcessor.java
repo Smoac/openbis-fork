@@ -50,8 +50,8 @@ import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 public class IncomingProcessor implements IRecoverableTimerTaskFactory
 {
     /**
-     * The number of consecutive errors of listing the incoming directories that are not reported in the log to avoid
-     * mailbox flooding.
+     * The number of consecutive errors of listing the incoming directories that are not reported in
+     * the log to avoid mailbox flooding.
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
 

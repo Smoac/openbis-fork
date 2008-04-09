@@ -164,7 +164,8 @@ public class QuietPeriodFileFilterTest
                         one(timeProvider).getCurrentTimeMillis();
                         will(returnValue(nowMillis + i));
                     }
-                    // last call - will check only when last check is longer ago than the quiet period
+                    // last call - will check only when last check is longer ago than the quiet
+                    // period
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis);
                     will(returnValue(pathLastChangedMillis));
                 }
