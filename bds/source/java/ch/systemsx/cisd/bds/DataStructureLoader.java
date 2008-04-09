@@ -33,7 +33,8 @@ public class DataStructureLoader
     private final File baseDir;
 
     /**
-     * Creates an instance for the specified base directory where all data structures to be loaded have to exist.
+     * Creates an instance for the specified base directory where all data structures to be loaded
+     * have to exist.
      */
     public DataStructureLoader(final File baseDir)
     {

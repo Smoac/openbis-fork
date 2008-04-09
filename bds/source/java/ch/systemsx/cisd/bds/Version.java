@@ -101,8 +101,9 @@ public final class Version implements IStorable
     }
 
     /**
-     * Returns <code>true</code> if this version is backwards compatible to the specified version. That is, if
-     * <code>version.getMajor() == this.getMajor()</code> and <code>version.getMinor() &lt;= this.getMinor()</code>.
+     * Returns <code>true</code> if this version is backwards compatible to the specified version.
+     * That is, if <code>version.getMajor() == this.getMajor()</code> and
+     * <code>version.getMinor() &lt;= this.getMinor()</code>.
      */
     public boolean isBackwardsCompatibleWith(Version version)
     {

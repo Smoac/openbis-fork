@@ -50,8 +50,8 @@ public final class LinkMakerProvider
     }
 
     /**
-     * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i> using the underlying
-     * <i>operating system</i>.
+     * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i>
+     * using the underlying <i>operating system</i>.
      */
     public final static IPathImmutableCopier getLinkMaker()
     {

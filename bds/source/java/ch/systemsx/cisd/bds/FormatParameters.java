@@ -24,7 +24,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * Implementation of {@link IFormatParameters} which allows to add {@link FormatParameter} instances.
+ * Implementation of {@link IFormatParameters} which allows to add {@link FormatParameter}
+ * instances.
  * 
  * @author Franz-Josef Elmer
  */
@@ -36,7 +37,8 @@ final class FormatParameters implements IFormatParameters, IStorable
     /**
      * The <code>IFormatParameterFactory</code> implementation used here.
      * <p>
-     * Initialized with the default implementation {@link IFormatParameterFactory#DEFAULT_FORMAT_PARAMETER_FACTORY}.
+     * Initialized with the default implementation
+     * {@link IFormatParameterFactory#DEFAULT_FORMAT_PARAMETER_FACTORY}.
      * </p>
      */
     private IFormatParameterFactory formatParameterFactory =
@@ -85,8 +87,9 @@ final class FormatParameters implements IFormatParameters, IStorable
     /**
      * Adds the specified parameter.
      * 
-     * @throws IllegalArgumentException if a parameter with same name as given <var>parameter</var> already exists. To
-     *             check whether given <var>parameter</var> is already present, use {@link #containsParameter(String)}.
+     * @throws IllegalArgumentException if a parameter with same name as given <var>parameter</var>
+     *             already exists. To check whether given <var>parameter</var> is already present,
+     *             use {@link #containsParameter(String)}.
      */
     final void addParameter(final FormatParameter parameter)
     {

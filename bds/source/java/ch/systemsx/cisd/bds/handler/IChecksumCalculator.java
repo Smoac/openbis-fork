@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Implementations know how to compute a <a href="http://en.wikipedia.org/wiki/Checksum">checksum</a> from a file.
+ * Implementations know how to compute a <a href="http://en.wikipedia.org/wiki/Checksum">checksum</a>
+ * from a file.
  * 
  * @author Christian Ribeaud
  */
@@ -31,7 +32,8 @@ interface IChecksumCalculator
      * Returns the checksum of the bytes read from the specified input stream.
      * 
      * @param inputStream Input stream from whom the bytes are read to calculate checksum.
-     * @throws IOException if reading from <code>inputStream</code> causes an <code>IOException</code>.
+     * @throws IOException if reading from <code>inputStream</code> causes an
+     *             <code>IOException</code>.
      */
     String calculateChecksum(InputStream inputStream) throws IOException;
 }

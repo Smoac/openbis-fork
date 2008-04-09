@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 /**
  * A <code>INode</code> factory class.
  * <p>
- * You should prefer to use this class instead of directly instantiate the corresponding <code>INode</code>
- * implementations.
+ * You should prefer to use this class instead of directly instantiate the corresponding
+ * <code>INode</code> implementations.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -39,8 +39,9 @@ public final class NodeFactory
     /**
      * A <code>INode</code> factory method for given <var>file</var>.
      * <p>
-     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether it is a link or not.
-     * This only works for <i>symbolic</i> links and not for <i>hard</i> links.
+     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether
+     * it is a link or not. This only works for <i>symbolic</i> links and not for <i>hard</i>
+     * links.
      * </p>
      */
     public static INode createNode(final java.io.File file) throws EnvironmentFailureException
@@ -73,7 +74,8 @@ public final class NodeFactory
     }
 
     /**
-     * Creates a new <code>ILink</code> with given <var>name</var> which points to given <var>file</var>.
+     * Creates a new <code>ILink</code> with given <var>name</var> which points to given
+     * <var>file</var>.
      */
     public final static ILink createLinkNode(final String name, final java.io.File file)
     {
@@ -85,8 +87,9 @@ public final class NodeFactory
     /**
      * Creates a new <code>ILink</code>.
      * <p>
-     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether it is a link or not.
-     * This only works for <i>symbolic</i> links and not for <i>hard</i> links.
+     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether
+     * it is a link or not. This only works for <i>symbolic</i> links and not for <i>hard</i>
+     * links.
      * </p>
      */
     public final static ILink createLinkNode(final java.io.File file)

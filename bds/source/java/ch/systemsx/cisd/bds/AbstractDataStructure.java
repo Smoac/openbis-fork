@@ -56,7 +56,8 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
     }
 
     /**
-     * Asserts that this instance is already opened or created otherwise a {@link IllegalStateException} is thrown.
+     * Asserts that this instance is already opened or created otherwise a
+     * {@link IllegalStateException} is thrown.
      */
     protected final void assertOpenOrCreated()
     {
@@ -67,8 +68,8 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
     }
 
     /**
-     * After-creation jobs that should be done. Kind of initialization for subclasses when they create a new data
-     * structure.
+     * After-creation jobs that should be done. Kind of initialization for subclasses when they
+     * create a new data structure.
      * <p>
      * By default this method does nothing.
      * </p>

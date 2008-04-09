@@ -35,7 +35,8 @@ public class DataStructureFactory
     }
 
     /**
-     * Returns the class of the object returned after invoking {@link #createDataStructure(IStorage, Version)}.
+     * Returns the class of the object returned after invoking
+     * {@link #createDataStructure(IStorage, Version)}.
      * 
      * @param version Version of the data structure.
      * @throws DataStructureException if no data structure can be created for the specified version.
@@ -50,7 +51,8 @@ public class DataStructureFactory
      * 
      * @param storage Storage behind the data structure.
      * @param version Version of the data structure to be created.
-     * @throws EnvironmentFailureException found data structure class has not an appropriated constructor.
+     * @throws EnvironmentFailureException found data structure class has not an appropriated
+     *             constructor.
      * @throws DataStructureException if no data structure can be created for the specified version.
      */
     public static IDataStructure createDataStructure(final IStorage storage, final Version version)

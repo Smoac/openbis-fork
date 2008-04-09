@@ -19,8 +19,8 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 
 /**
- * The aim of this interface is to delegate the work that should be done in {@link AbstractDataStructure} to smaller
- * parties.
+ * The aim of this interface is to delegate the work that should be done in
+ * {@link AbstractDataStructure} to smaller parties.
  * 
  * @author Christian Ribeaud
  */
@@ -30,21 +30,21 @@ public interface IDataStructureHandler
     /**
      * Validates this data structure and throws {@link DataStructureException} if invalid.
      * <p>
-     * This is typically called after {@link #performClosing()} or {@link #performOpening()} has been successfully
-     * invoked.
+     * This is typically called after {@link #performClosing()} or {@link #performOpening()} has
+     * been successfully invoked.
      * </p>
      */
     public void assertValid() throws DataStructureException;
 
     /**
-     * Performs opening specific for the concrete data structure. Will be invoked after the common part of
-     * {@link IDataStructure#open()} but before validation with {@link #assertValid()}.
+     * Performs opening specific for the concrete data structure. Will be invoked after the common
+     * part of {@link IDataStructure#open()} but before validation with {@link #assertValid()}.
      */
     public void performOpening();
 
     /**
-     * Performs closing specific for the concrete data structure. Will be invoked before validation with
-     * {@link #assertValid()}.
+     * Performs closing specific for the concrete data structure. Will be invoked before validation
+     * with {@link #assertValid()}.
      */
     public void performClosing();
 

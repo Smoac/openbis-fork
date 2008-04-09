@@ -51,7 +51,10 @@ public final class FormatStore
         return getKey(format.getCode(), format.getVersion(), format.getVariant());
     }
 
-    /** Constructs an unique key for given <var>formatCode</var>, <var>version</var> and <var>variant</var>. */
+    /**
+     * Constructs an unique key for given <var>formatCode</var>, <var>version</var> and
+     * <var>variant</var>.
+     */
     private final static String getKey(final String formatCode, final Version version,
             final String variant)
     {
@@ -64,7 +67,8 @@ public final class FormatStore
     }
 
     /**
-     * Returns corresponding <code>Format</code> for given format code, version and format variant.
+     * Returns corresponding <code>Format</code> for given format code, version and format
+     * variant.
      */
     public final static Format getFormat(final String formatCode, final Version version,
             final String formatVariant) throws DataStructureException

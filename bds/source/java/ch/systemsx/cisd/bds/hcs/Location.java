@@ -46,8 +46,8 @@ public final class Location
     }
 
     /**
-     * For given <var>position</var> in given <code>geometry</code> returns corresponding <code>Location</code>.
-     * Position should be greater than 0.
+     * For given <var>position</var> in given <code>geometry</code> returns corresponding
+     * <code>Location</code>. Position should be greater than 0.
      * 
      * @return <code>null</code> if position is out of range.
      */
@@ -69,8 +69,8 @@ public final class Location
     }
 
     /**
-     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns corresponding
-     * <code>Location</code>.
+     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns
+     * corresponding <code>Location</code>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */

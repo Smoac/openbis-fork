@@ -27,15 +27,18 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  * <li>columns</li>
  * </ul>
  * <p>
- * This class is not <code>abstract</code> but {@link #getGeometryDirectoryName()} must be overridden by subclasses in
- * order to work properly.
+ * This class is not <code>abstract</code> but {@link #getGeometryDirectoryName()} must be
+ * overridden by subclasses in order to work properly.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 public class Geometry implements IStorable
 {
-    /** The <code>rows</code>-<code>columns</code> separator in the string representation of this object. */
+    /**
+     * The <code>rows</code>-<code>columns</code> separator in the string representation of
+     * this object.
+     */
     private static final String X = "x";
 
     static final String NOT_POSITIVE = "Given geometry component '%s' must be > 0 (%d <= 0).";
@@ -101,7 +104,8 @@ public class Geometry implements IStorable
     /**
      * Loads the geometry from the specified directory.
      * 
-     * @param directory the geometry directory. Its name must start with given <var>geometryDirectoryName</var>.
+     * @param directory the geometry directory. Its name must start with given
+     *            <var>geometryDirectoryName</var>.
      */
     final static Geometry loadFrom(final IDirectory directory, final String geometryDirectoryName)
     {
@@ -125,8 +129,8 @@ public class Geometry implements IStorable
     }
 
     /**
-     * Whether this <code>Geometry</code> contains given <var>location</var>, meaning that it is a valid
-     * <code>Location</code>.
+     * Whether this <code>Geometry</code> contains given <var>location</var>, meaning that it is
+     * a valid <code>Location</code>.
      */
     public final boolean contains(final Location location)
     {

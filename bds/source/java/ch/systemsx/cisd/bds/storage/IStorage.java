@@ -26,7 +26,8 @@ import ch.systemsx.cisd.bds.exception.StorageException;
 public interface IStorage
 {
     /**
-     * Mounts this storage. May perform some initializations. Should be called before calling {@link #getRoot()}.
+     * Mounts this storage. May perform some initializations. Should be called before calling
+     * {@link #getRoot()}.
      */
     public void mount();
 

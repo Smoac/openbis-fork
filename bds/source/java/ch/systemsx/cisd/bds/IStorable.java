@@ -21,8 +21,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 /**
  * Each implementation knows how to save itself in given <code>IDirectory</code>.
  * <p>
- * Note that each implementation should have a <code>static</code> method <code>loadFrom(IDirectory)</code> that
- * knows how to construct itself from given <code>IDirectory</code>.
+ * Note that each implementation should have a <code>static</code> method
+ * <code>loadFrom(IDirectory)</code> that knows how to construct itself from given
+ * <code>IDirectory</code>.
  * </p>
  * 
  * @author Christian Ribeaud

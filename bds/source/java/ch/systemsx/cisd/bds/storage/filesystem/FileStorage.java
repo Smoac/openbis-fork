@@ -36,7 +36,8 @@ public class FileStorage implements IStorage
     /**
      * Creates an instance with the specified folder as the root directory.
      * 
-     * @throws StorageException if <code>folder</code> does not exist or is not a directory in the file system.
+     * @throws StorageException if <code>folder</code> does not exist or is not a directory in the
+     *             file system.
      */
     public FileStorage(File folder)
     {

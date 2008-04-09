@@ -32,7 +32,8 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 
 /**
- * A <code>IDataStructureHandler</code> implementation for the <code>standard_original_mapping</code> file.
+ * A <code>IDataStructureHandler</code> implementation for the
+ * <code>standard_original_mapping</code> file.
  * 
  * @author Christian Ribeaud
  */
@@ -43,17 +44,23 @@ public final class MappingFileHandler implements IDataStructureHandler
     /** The directory the mapping is going to be written to. */
     private final IDirectory mappingDirectory;
 
-    /** The root of {@link Reference#getPath()}. Usually the path to <code>standard</code> directory. */
+    /**
+     * The root of {@link Reference#getPath()}. Usually the path to <code>standard</code>
+     * directory.
+     */
     private final IDirectory pathRoot;
 
-    /** The root of {@link Reference#getOriginalPath()}. Usually the path to <code>original</code> directory. */
+    /**
+     * The root of {@link Reference#getOriginalPath()}. Usually the path to <code>original</code>
+     * directory.
+     */
     private final IDirectory originalPathRoot;
 
     /**
      * The mapping relating <i>standard</i> with <i>original</i> data.
      * <p>
-     * Note that under format specific conditions this mapping file could be empty, meaning that the <i>standard</i>
-     * directory contains the real data and not only links.
+     * Note that under format specific conditions this mapping file could be empty, meaning that the
+     * <i>standard</i> directory contains the real data and not only links.
      * </p>
      */
     public static final String MAPPING_FILE = "standard_original_mapping";

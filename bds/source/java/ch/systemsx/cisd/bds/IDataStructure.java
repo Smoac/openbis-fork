@@ -19,13 +19,14 @@ package ch.systemsx.cisd.bds;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 
 /**
- * Common interface of all data structures. Implementations of this interface provide methods to manipulate a data
- * structure. These methods are specific for the version of the data structure. For each version there is a concrete
- * class implementing this interface.
+ * Common interface of all data structures. Implementations of this interface provide methods to
+ * manipulate a data structure. These methods are specific for the version of the data structure.
+ * For each version there is a concrete class implementing this interface.
  * <p>
- * A data structure must first be created with {@link #create()} or opened with {@link #open()} before any other method
- * can be invoked. An {@link IllegalStateException} is thrown otherwise. Finally a data structure has to be closed with
- * {@link #close()} in order to commit all changes made since creation or opening.
+ * A data structure must first be created with {@link #create()} or opened with {@link #open()}
+ * before any other method can be invoked. An {@link IllegalStateException} is thrown otherwise.
+ * Finally a data structure has to be closed with {@link #close()} in order to commit all changes
+ * made since creation or opening.
  * 
  * @author Franz-Josef Elmer
  */
@@ -47,8 +48,8 @@ public interface IDataStructure extends IHasVersion
      * Closes the data structure. Before the data structure is closed it will be validated.
      * 
      * @throws DataStructureException if the data structure is invalid.
-     * @throws IllegalStateException if called before the first invocation of either {@link #create()} or
-     *             {@link #open()}.
+     * @throws IllegalStateException if called before the first invocation of either
+     *             {@link #create()} or {@link #open()}.
      */
     public void close();
 

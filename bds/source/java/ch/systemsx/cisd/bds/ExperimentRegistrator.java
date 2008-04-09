@@ -20,7 +20,8 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Registrator of the experiment which corresponds to the data. This is an immutable value object class.
+ * Registrator of the experiment which corresponds to the data. This is an immutable value object
+ * class.
  * 
  * @author Franz-Josef Elmer
  */

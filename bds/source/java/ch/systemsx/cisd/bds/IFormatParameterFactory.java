@@ -20,8 +20,8 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
- * Interface to be implemented if you want to set a different <code>IFormatParameterFactory</code> in
- * {@link FormatParameters}.
+ * Interface to be implemented if you want to set a different <code>IFormatParameterFactory</code>
+ * in {@link FormatParameters}.
  * 
  * @author Christian Ribeaud
  */
@@ -57,8 +57,8 @@ public interface IFormatParameterFactory
     /**
      * Creates a <code>FormatParameter</code> from given <var>node</var>.
      * 
-     * @return <code>null</code> if no appropriate <code>FormatParameter</code> could be created from given
-     *         <code>INode</code>.
+     * @return <code>null</code> if no appropriate <code>FormatParameter</code> could be created
+     *         from given <code>INode</code>.
      */
     public FormatParameter createFormatParameter(final INode node);
 
@@ -68,8 +68,8 @@ public interface IFormatParameterFactory
      * @param name name of the format parameter. Usually it is one of the values returned by
      *            {@link Format#getParameterNames()}.
      * @param value generic value that should help to construct the <code>FormatParameter</code>.
-     * @return <code>null</code> if no appropriate <code>FormatParameter</code> could be created from given
-     *         <code>value</code>.
+     * @return <code>null</code> if no appropriate <code>FormatParameter</code> could be created
+     *         from given <code>value</code>.
      */
     public FormatParameter createFormatParameter(final String name, final String value);
 }

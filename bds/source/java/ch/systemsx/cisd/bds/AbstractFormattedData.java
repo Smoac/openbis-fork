@@ -42,9 +42,9 @@ public abstract class AbstractFormattedData implements IFormattedData
     }
 
     /**
-     * Asserts valid format and format parameters. Will be called at the end of the constructor. The format of the
-     * {@link FormattedDataContext} will be available by the protected attribute {@link #format}. The format parameters
-     * will be available by {@link #getFormatParameters()}.
+     * Asserts valid format and format parameters. Will be called at the end of the constructor. The
+     * format of the {@link FormattedDataContext} will be available by the protected attribute
+     * {@link #format}. The format parameters will be available by {@link #getFormatParameters()}.
      * 
      * @throws DataStructureException if format of format parameters are invalid.
      */

@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.bds.exception;
 
 /**
- * Exception thrown by manipulations of BDS data structures which can not be classified as {@link StorageException}.
+ * Exception thrown by manipulations of BDS data structures which can not be classified as
+ * {@link StorageException}.
  * 
  * @author Franz-Josef Elmer
  */
