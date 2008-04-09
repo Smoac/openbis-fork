@@ -24,9 +24,11 @@ import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * This class defines in its constructor minimum information that we must know about a <code>Principal</code>.
+ * This class defines in its constructor minimum information that we must know about a
+ * <code>Principal</code>.
  * <p>
- * It is also possible to put additional <code>Object</code> properties related to this <code>Principal</code>.
+ * It is also possible to put additional <code>Object</code> properties related to this
+ * <code>Principal</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -117,7 +119,8 @@ public class Principal implements Serializable
     }
 
     /**
-     * Returns the property for given <var>key</var>, or <code>null</code>, if no property exists for this <var>key</var>.
+     * Returns the property for given <var>key</var>, or <code>null</code>, if no property
+     * exists for this <var>key</var>.
      */
     public final String getProperty(String key)
     {

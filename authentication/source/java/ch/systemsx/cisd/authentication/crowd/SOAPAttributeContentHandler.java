@@ -24,7 +24,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Looks for <code>SOAPAttribute</code> elements in a XML file and tries to digest their 'name-values' children.
+ * Looks for <code>SOAPAttribute</code> elements in a XML file and tries to digest their
+ * 'name-values' children.
  * <p>
  * When its job is finished, result is returned using {@link #getSoapAttributes()}.
  * </p>
@@ -38,7 +39,10 @@ final class SOAPAttributeContentHandler extends DefaultHandler
 
     private final Map<String, String> soapAttributes;
 
-    /** A <code>SOAPAttribute</code> has two possible children: <code>name</code> and <code>values</code>. */
+    /**
+     * A <code>SOAPAttribute</code> has two possible children: <code>name</code> and
+     * <code>values</code>.
+     */
     private static enum Child
     {
         soapAttributeName, soapAttributeValues;

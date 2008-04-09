@@ -26,13 +26,15 @@ import ch.systemsx.cisd.authentication.Principal;
 /**
  * A real test case for the Crowd authentication.
  * <p>
- * Note: this test case is dependent on the environment and is usually broken. If you want to use it, do this:
+ * Note: this test case is dependent on the environment and is usually broken. If you want to use
+ * it, do this:
  * <ol>
  * <li>Enter the right name of the authentication host in the source code</li>
  * <li>Enter the right port of the authentication service in the source code</li>
  * <li>Enter the right password of the test service</li>
  * <li>Enter the right password of the test user</li>
- * <li>Enter property <code>-Djavax.net.ssl.trustStore=&lt;path to keystore with certificate of authentication 
+ * <li>Enter property
+ * <code>-Djavax.net.ssl.trustStore=&lt;path to keystore with certificate of authentication 
  * host&gt;<code> to the java command line that runs the command</li>
  * <li>Remove the test case from the "broken" group.</li>
  * <li>Last but not least: check the output and compare with the Crowd console!</li>

@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * This <code>IAuthenticationService</code> implementation first registers the application on the <i>Crowd</i>
- * server, then authenticates the user.
+ * This <code>IAuthenticationService</code> implementation first registers the application on the
+ * <i>Crowd</i> server, then authenticates the user.
  * <p>
  * The modus operandi is based on information found at <a
  * href="http://confluence.atlassian.com/display/CROWD/SOAP+API">http://confluence.atlassian.com/display/CROWD/SOAP+API</a>
@@ -315,8 +315,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Constructs the POST message, does the HTTP request and picks the given <code>responseElement</code> in the
-     * server's response.
+     * Constructs the POST message, does the HTTP request and picks the given
+     * <code>responseElement</code> in the server's response.
      * 
      * @return The <var>responseElement</var> in the server's response.
      */
@@ -339,8 +339,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     /**
      * Tries to find given <code>element</code> in <code>xmlString</code>.
      * <p>
-     * Note that this is a special-perpose method not suitable for putting it into general utility classes. For example
-     * it does not find empty elements.
+     * Note that this is a special-perpose method not suitable for putting it into general utility
+     * classes. For example it does not find empty elements.
      * 
      * @return The requested element, or <code>null</code> if it could not be found.
      */
