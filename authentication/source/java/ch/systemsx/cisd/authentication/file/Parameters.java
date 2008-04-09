@@ -72,7 +72,7 @@ final class Parameters
 
     @Option(name = "p", longName = "password", usage = "The password.")
     private String password;
-    
+
     @Option(name = "P", longName = "change-password", usage = "Read the new password from the console,")
     private boolean changePassword;
 
@@ -214,7 +214,7 @@ final class Parameters
     {
         return emailOrNull;
     }
-    
+
     /**
      * Returns <code>true</code>, if the password should be changed.
      * <p>

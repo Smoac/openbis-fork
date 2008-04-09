@@ -27,25 +27,25 @@ public interface IAuthenticationService extends ISelfTestable
 {
 
     /**
-     * Attempts authentication of the application with credentials passed in the constructor and retuns the application
-     * token. Implementations should log what is going on, whether the application could register itself successfully or
-     * not.
+     * Attempts authentication of the application with credentials passed in the constructor and
+     * retuns the application token. Implementations should log what is going on, whether the
+     * application could register itself successfully or not.
      * <p>
      * The returned application token can then be used to authenticate an user (via
-     * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about an user (via
-     * {@link #getPrincipal(String, String)})
+     * {@link #authenticateUser(String, String, String)}) or to retrieve additional details about
+     * an user (via {@link #getPrincipal(String, String)})
      * </p>
      * 
-     * @return the application token if the application has been successfully authenticated, <code>null</code>
-     *         otherwise.
+     * @return the application token if the application has been successfully authenticated,
+     *         <code>null</code> otherwise.
      */
     public String authenticateApplication();
 
     /**
      * Attempts authentication for the given user credentials.
      * <p>
-     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is not
-     * <code>null</code>) to perform this lookup.
+     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is
+     * not <code>null</code>) to perform this lookup.
      * </p>
      * 
      * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
@@ -53,14 +53,15 @@ public interface IAuthenticationService extends ISelfTestable
     public boolean authenticateUser(String applicationToken, String user, String password);
 
     /**
-     * For a given user name returns additional details encapsulated in returned <code>Principal</code>.
+     * For a given user name returns additional details encapsulated in returned
+     * <code>Principal</code>.
      * <p>
-     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is not
-     * <code>null</code>) to perform this lookup.
+     * Note that the application must be authenticated (meaning that <var>applicationToken</var> is
+     * not <code>null</code>) to perform this lookup.
      * </p>
      * 
-     * @return a <code>Principal</code> object if given <var>user</var> could be found, <code>null</code>
-     *         otherwise.
+     * @return a <code>Principal</code> object if given <var>user</var> could be found,
+     *         <code>null</code> otherwise.
      */
     public Principal getPrincipal(String applicationToken, String user);
 }

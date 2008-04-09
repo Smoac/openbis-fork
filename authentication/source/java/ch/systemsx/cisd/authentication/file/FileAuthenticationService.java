@@ -52,7 +52,7 @@ public class FileAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, FileAuthenticationService.class);
 
     private final PasswordFile passwordFile;
-    
+
     public FileAuthenticationService(final String passwordFileName)
     {
         this.passwordFile = new PasswordFile(new File(passwordFileName));
