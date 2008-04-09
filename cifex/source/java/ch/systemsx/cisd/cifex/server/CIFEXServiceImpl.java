@@ -75,7 +75,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
     public static final String SESSION_NAME = "cifex-user";
 
     /**
-     * The attribute name that holds the absolute paths of the files that should be uploaded in the next request.
+     * The attribute name that holds the absolute paths of the files that should be uploaded in the
+     * next request.
      */
     static final String FILES_TO_UPLOAD = "files-to-upload";
 
@@ -319,7 +320,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     throw new EnvironmentFailureException(msg);
                 }
             } else
-            { // check whether name or email of the principal have changed, and update, if necessary
+            { // check whether name or email of the principal have changed, and update, if
+                // necessary
                 boolean changed = false;
                 if (StringUtils.equals(displayName, userDTO.getUserFullName()) == false)
                 {
@@ -359,7 +361,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String encryptedPassword)
+    // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String
+    // encryptedPassword)
     public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
@@ -579,7 +582,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
         }
-        // A user is allowed to edit him or herself but not to raise his or her privilege level to admin.
+        // A user is allowed to edit him or herself but not to raise his or her privilege level to
+        // admin.
         if (requestUser.getUserCode().equals(userToUpdate.getUserCode()))
         {
             if (userToUpdate.isAdmin())
