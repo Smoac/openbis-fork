@@ -29,9 +29,12 @@ interface ISVNCopy
     /**
      * Performs a <code>copy</code> command on a subversion repository.
      * 
-     * @param sourcePathOrUrl The path of the file or directory in the subversion repository to copy from.
-     * @param sourceRevision The revision of the <var>sourcePath</var> to copy to the <var>destinationPath</var>.
-     * @param destinationPathOrUrl The path of the file or directory in the subversion repository to copy from.
+     * @param sourcePathOrUrl The path of the file or directory in the subversion repository to copy
+     *            from.
+     * @param sourceRevision The revision of the <var>sourcePath</var> to copy to the
+     *            <var>destinationPath</var>.
+     * @param destinationPathOrUrl The path of the file or directory in the subversion repository to
+     *            copy from.
      * @param logMessage The log message to set in the revision properties.
      * @throws SVNException If there is a problem with performing the <code>copy</code> command.
      */

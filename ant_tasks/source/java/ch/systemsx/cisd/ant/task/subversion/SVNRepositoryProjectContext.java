@@ -56,7 +56,8 @@ class SVNRepositoryProjectContext
     private String revision = SVNUtilities.HEAD_REVISION;
 
     /**
-     * @return The root url of the subversion repository. Defaults to <code>svn+ssh://source.systemsx.ch/repos</code>.
+     * @return The root url of the subversion repository. Defaults to
+     *         <code>svn+ssh://source.systemsx.ch/repos</code>.
      */
     public String getRepositoryRoot()
     {
@@ -109,7 +110,8 @@ class SVNRepositoryProjectContext
 
     /**
      * @see #getProjectName()
-     * @throws UserFailureException If the <var>projectName</var> is empty or contains an illegal character.
+     * @throws UserFailureException If the <var>projectName</var> is empty or contains an illegal
+     *             character.
      */
     public void setProjectName(String projectName) throws UserFailureException
     {
@@ -121,8 +123,8 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * @return The version of the project. If it ends in <code>.x</code>, it will refer to a branch. Defaults to
-     *         {@link SVNProjectVersionType#TRUNK}.
+     * @return The version of the project. If it ends in <code>.x</code>, it will refer to a
+     *         branch. Defaults to {@link SVNProjectVersionType#TRUNK}.
      */
     public String getVersion()
     {
@@ -139,10 +141,11 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_BRANCH} and the version to
-     * <var>branchName</var>.
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_BRANCH} and
+     * the version to <var>branchName</var>.
      * 
-     * @throws UserFailureException If the <var>branchName</var> does not match the pattern for release branches.
+     * @throws UserFailureException If the <var>branchName</var> does not match the pattern for
+     *             release branches.
      */
     public void setReleaseBranch(String branchName) throws UserFailureException
     {
@@ -166,10 +169,11 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#FEATURE_BRANCH} and the version to
-     * <var>branchName</var>.
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#FEATURE_BRANCH} and
+     * the version to <var>branchName</var>.
      * 
-     * @throws UserFailureException If the <var>branchName</var> is empty or contains an illegal character.
+     * @throws UserFailureException If the <var>branchName</var> is empty or contains an illegal
+     *             character.
      */
     public void setFeatureBranch(String branchName) throws UserFailureException
     {
@@ -189,10 +193,11 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_TAG} and the version to
-     * <var>tagName</var>.
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_TAG} and the
+     * version to <var>tagName</var>.
      * 
-     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for release tags.
+     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for
+     *             release tags.
      */
     public void setReleaseTag(String tagName) throws UserFailureException
     {
@@ -223,8 +228,8 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * @return The revision that this definition corresponds to. Either <code>HEAD</code> or a revision number. We use
-     *         this as a working and a PEG revision.
+     * @return The revision that this definition corresponds to. Either <code>HEAD</code> or a
+     *         revision number. We use this as a working and a PEG revision.
      */
     public String getRevision()
     {
@@ -253,8 +258,8 @@ class SVNRepositoryProjectContext
     }
 
     /**
-     * @return The repository url (including the project path for branches and tags) described by this subversion
-     *         project definition.
+     * @return The repository url (including the project path for branches and tags) described by
+     *         this subversion project definition.
      * @throws UserFailureException If the project name hasn't been set.
      */
     public String getRepositoryUrl() throws UserFailureException

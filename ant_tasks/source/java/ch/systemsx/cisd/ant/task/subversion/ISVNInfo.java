@@ -29,7 +29,8 @@ interface ISVNInfo
     /**
      * Performs an <code>info</code> query on a subversion repository.
      * 
-     * @param pathOrUrl The path of the file or directory in the subversion repository to perform the query on.
+     * @param pathOrUrl The path of the file or directory in the subversion repository to perform
+     *            the query on.
      * @return The info record as returned by subversion.
      * @throws SVNException If there is a problem with performing the <code>info</code> query.
      */

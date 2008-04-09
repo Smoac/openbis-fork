@@ -26,8 +26,9 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
- * A class that provides a wrapper for actions performed on a subversion path by wrapping the subversion command line
- * client. It requires the <code>svn<code> executable to be on the <var>PATH</var>.
+ * A class that provides a wrapper for actions performed on a subversion path by wrapping the
+ * subversion command line client. It requires the
+ * <code>svn<code> executable to be on the <var>PATH</var>.
  *
  * @author Bernd Rinn
  */

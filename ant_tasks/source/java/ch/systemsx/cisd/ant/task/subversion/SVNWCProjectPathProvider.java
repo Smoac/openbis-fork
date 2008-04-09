@@ -33,7 +33,8 @@ class SVNWCProjectPathProvider implements ISVNProjectPathProvider
     private final String projectName;
 
     /**
-     * @param projectDirectory The directory of the working copy. Is expected to exist and to be a directory.
+     * @param projectDirectory The directory of the working copy. Is expected to exist and to be a
+     *            directory.
      */
     public SVNWCProjectPathProvider(File projectDirectory) throws UserFailureException
     {

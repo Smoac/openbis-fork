@@ -38,11 +38,12 @@ public final class StringUtils
 
     /**
      * <p>
-     * Joins the elements of the provided <code>Iterator</code> into a single String containing the provided elements.
+     * Joins the elements of the provided <code>Iterator</code> into a single String containing
+     * the provided elements.
      * </p>
      * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the iteration are
-     * represented by empty strings.
+     * No delimiter is added before or after the list. Null objects or empty strings within the
+     * iteration are represented by empty strings.
      * </p>
      * 
      * @param iterator the <code>Iterator</code> of values to join together, may be null
@@ -89,11 +90,12 @@ public final class StringUtils
 
     /**
      * <p>
-     * Joins the elements of the provided <code>Iterator</code> into a single String containing the provided elements.
+     * Joins the elements of the provided <code>Iterator</code> into a single String containing
+     * the provided elements.
      * </p>
      * <p>
-     * No delimiter is added before or after the list. A <code>null</code> separator is the same as an empty String
-     * ("").
+     * No delimiter is added before or after the list. A <code>null</code> separator is the same
+     * as an empty String ("").
      * </p>
      * 
      * @param iterator the <code>Iterator</code> of values to join together, may be null
@@ -142,12 +144,12 @@ public final class StringUtils
 
     /**
      * <p>
-     * Joins the elements of the provided <code>Collection</code> into a single String containing the provided
-     * elements.
+     * Joins the elements of the provided <code>Collection</code> into a single String containing
+     * the provided elements.
      * </p>
      * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the iteration are
-     * represented by empty strings.
+     * No delimiter is added before or after the list. Null objects or empty strings within the
+     * iteration are represented by empty strings.
      * </p>
      * 
      * @param collection the <code>Collection</code> of values to join together, may be null
@@ -165,12 +167,12 @@ public final class StringUtils
 
     /**
      * <p>
-     * Joins the elements of the provided <code>Collection</code> into a single String containing the provided
-     * elements.
+     * Joins the elements of the provided <code>Collection</code> into a single String containing
+     * the provided elements.
      * </p>
      * <p>
-     * No delimiter is added before or after the list. A <code>null</code> separator is the same as an empty String
-     * ("").
+     * No delimiter is added before or after the list. A <code>null</code> separator is the same
+     * as an empty String ("").
      * </p>
      * 
      * @param collection the <code>Collection</code> of values to join together, may be null
@@ -190,8 +192,8 @@ public final class StringUtils
     // -----------------------------------------------------------------------
     /**
      * <p>
-     * Gets the <code>toString</code> of an <code>Object</code> returning an empty string ("") if <code>null</code>
-     * input.
+     * Gets the <code>toString</code> of an <code>Object</code> returning an empty string ("")
+     * if <code>null</code> input.
      * </p>
      * 
      * @see String#valueOf(Object)

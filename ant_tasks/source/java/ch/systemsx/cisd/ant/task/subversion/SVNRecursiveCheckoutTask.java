@@ -29,8 +29,9 @@ import ch.systemsx.cisd.ant.common.EclipseClasspathEntry;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * An <code>ant</code> task that allows to recursively check out a project that follows the CISD project dependency
- * rules. It is distinguished between <code>trunk</code> and <code>tag</code> mode.
+ * An <code>ant</code> task that allows to recursively check out a project that follows the CISD
+ * project dependency rules. It is distinguished between <code>trunk</code> and <code>tag</code>
+ * mode.
  * <p>
  * In <code>trunk</code> we assume the following subversion layout:
  * 
@@ -63,8 +64,8 @@ public class SVNRecursiveCheckoutTask extends Task
 {
 
     /**
-     * The set of projects that have already been checked out. We need to keep track of it, because the same project can
-     * be referenced from several other projects.
+     * The set of projects that have already been checked out. We need to keep track of it, because
+     * the same project can be referenced from several other projects.
      */
     private final Set<String> projectsAlreadyCheckedOut = new HashSet<String>();
 
@@ -77,7 +78,8 @@ public class SVNRecursiveCheckoutTask extends Task
     private SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
 
     /**
-     * A class that checks the classpath entries on whether they require a checkout of a new project.
+     * A class that checks the classpath entries on whether they require a checkout of a new
+     * project.
      * 
      * @author Bernd Rinn
      */
@@ -153,7 +155,8 @@ public class SVNRecursiveCheckoutTask extends Task
             final ISVNCheckout checkoutCmd = createSVNCheckout(repositoryUrl, workingCopyDir);
             checkoutCmd.checkout(pathProvider.getPath(), pathProvider.getProjectName(),
                     pathProvider.getRevision());
-            // Always check out "build_resources", though it is not specified as dependency in .classpath.
+            // Always check out "build_resources", though it is not specified as dependency in
+            // .classpath.
             checkoutCmd.checkout(pathProvider.getPath(SVNUtilities.BUILD_RESOURCES_PROJECT),
                     SVNUtilities.BUILD_RESOURCES_PROJECT, pathProvider.getRevision());
             new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir,
@@ -184,7 +187,8 @@ public class SVNRecursiveCheckoutTask extends Task
     }
 
     /**
-     * Sets the root url of the subversion repository. Defaults to <code>svn+ssh://source.systemsx.ch/repos</code>.
+     * Sets the root url of the subversion repository. Defaults to
+     * <code>svn+ssh://source.systemsx.ch/repos</code>.
      */
     public void setRepositoryRoot(String repositoryRoot)
     {
@@ -262,9 +266,10 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the version to <var>versionName</var>.
      * <p>
-     * If <code>versionName == "trunk"</code>, the version will be the trunk. If <var>versionName</var> fits into
-     * the release branch schema, it will be interpreted as a release branch, if it fits into a release tag schema, it
-     * will be interpreted as a release tag. In all other cases the version will be interpreted as a feature branch.
+     * If <code>versionName == "trunk"</code>, the version will be the trunk. If <var>versionName</var>
+     * fits into the release branch schema, it will be interpreted as a release branch, if it fits
+     * into a release tag schema, it will be interpreted as a release tag. In all other cases the
+     * version will be interpreted as a feature branch.
      */
     public void setVersion(String versionName)
     {

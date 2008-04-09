@@ -173,8 +173,8 @@ class SVNUtilities
     }
 
     /**
-     * @return The parent directory of the subversion repository <var>urlPath</var>, or <code>null</code>, if the
-     *         <var>urlPath</var> does not have a parent directory.
+     * @return The parent directory of the subversion repository <var>urlPath</var>, or
+     *         <code>null</code>, if the <var>urlPath</var> does not have a parent directory.
      */
     static String getParent(String urlPath)
     {
@@ -192,7 +192,8 @@ class SVNUtilities
     }
 
     /**
-     * @return The <var>url</var> with all trailing slashes removed and all multiple slashes replaced with single ones.
+     * @return The <var>url</var> with all trailing slashes removed and all multiple slashes
+     *         replaced with single ones.
      */
     static String normalizeUrl(String url)
     {
@@ -236,8 +237,8 @@ class SVNUtilities
     /**
      * Checks whether the <var>name</var> is valid.
      * 
-     * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is used to create a
-     *             meaningful error message.
+     * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is
+     *             used to create a meaningful error message.
      */
     private static void checkName(String name, String typeOfName) throws UserFailureException
     {

@@ -28,8 +28,8 @@ import org.apache.tools.ant.Task;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * An ant task that allows branching of projects with all dependent projects (using Eclipse' <code>.classpath</code>
- * file to find out about the dependencies).
+ * An ant task that allows branching of projects with all dependent projects (using Eclipse'
+ * <code>.classpath</code> file to find out about the dependencies).
  * 
  * @author Bernd Rinn
  */

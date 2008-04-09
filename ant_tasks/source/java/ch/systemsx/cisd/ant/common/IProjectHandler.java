@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.ant.common;
 
 /**
- * Call-back interface used by {@link RecursiveProjectTraverser} for traversing project dependency graphs.
+ * Call-back interface used by {@link RecursiveProjectTraverser} for traversing project dependency
+ * graphs.
  * 
  * @author felmer
  */
@@ -46,7 +47,8 @@ public interface IProjectHandler
     public void handleEntry(EclipseClasspathEntry entry);
 
     /**
-     * Creates a new project handler based on the specified entry. Implementations should never return <code>null</code>.
+     * Creates a new project handler based on the specified entry. Implementations should never
+     * return <code>null</code>.
      */
     public IProjectHandler createHandler(EclipseClasspathEntry entry);
 }

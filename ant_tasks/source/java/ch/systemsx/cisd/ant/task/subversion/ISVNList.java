@@ -32,7 +32,8 @@ interface ISVNList
      * Performs a <code>list</code> on a file or directory in subversion.
      * 
      * @param pathOrUrl The path of the file or directory in the subversion repository.
-     * @return The list of files and directories in the <var>path</code> (directories end with a slash).
+     * @return The list of files and directories in the <var>path</code> (directories end with a
+     *         slash).
      * @throws SVNException If there is a problem with performing the <code>list</code> query.
      */
     public List<String> list(String pathOrUrl) throws SVNException;

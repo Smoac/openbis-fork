@@ -31,9 +31,10 @@ interface ISVNStatus
     /**
      * Performs a <code>status</code> query on a subversion repository.
      * 
-     * @param path The path of the file or directory in the subversion repository to perform the query on.
-     * @return The changed entries (as compared to the <code>BASE</code> revision of the repository) as returned by
-     *         subversion.
+     * @param path The path of the file or directory in the subversion repository to perform the
+     *            query on.
+     * @return The changed entries (as compared to the <code>BASE</code> revision of the
+     *         repository) as returned by subversion.
      * @throws SVNException If there is a problem with performing the <code>status</code> query.
      */
     public List<SVNItemStatus> status(String path);

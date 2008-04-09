@@ -21,8 +21,8 @@ import java.io.File;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
- * A class that provides a checkout function for subversion, using the subversion command line client. It requires the
- * <code>svn<code> to be in the <var>PATH</var>.
+ * A class that provides a checkout function for subversion, using the subversion command line
+ * client. It requires the <code>svn<code> to be in the <var>PATH</var>.
  * <p>
  * This command works on a subversion repository. 
  *

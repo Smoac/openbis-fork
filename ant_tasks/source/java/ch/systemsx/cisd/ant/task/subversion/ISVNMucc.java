@@ -17,14 +17,16 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
 /**
- * A wrapper for the multi-url command line client <code>svnmucc</var> (formerly known as <code>mucc</code>).
+ * A wrapper for the multi-url command line client
+ * <code>svnmucc</var> (formerly known as <code>mucc</code>).
  *
  * @author Bernd Rinn
  */
 interface ISVNMucc
 {
     /**
-     * @return <code>true</code> if <code>svnmucc</code> is available (note that the client is still optional).
+     * @return <code>true</code> if <code>svnmucc</code> is available (note that the client is
+     *         still optional).
      */
     public boolean isMuccAvailable();
 
@@ -32,8 +34,8 @@ interface ISVNMucc
      * Call <code>svnmucc</code> with the given <var>commandLine</var>.
      * 
      * @param logMessage The log message to set.
-     * @param args The command line arguments to provide to <code>svnmucc</code>. See the help output of for what is
-     *            acceptable.
+     * @param args The command line arguments to provide to <code>svnmucc</code>. See the help
+     *            output of for what is acceptable.
      */
     public void mucc(String logMessage, String... args) throws SVNException;
 
