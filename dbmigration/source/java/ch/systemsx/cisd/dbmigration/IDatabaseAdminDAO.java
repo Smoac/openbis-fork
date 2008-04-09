@@ -36,8 +36,8 @@ public interface IDatabaseAdminDAO
     public String getDatabaseURL();
 
     /**
-     * Creates the owner/user of the database. Implementation should handle the case of already existing owner/user
-     * gracefully.
+     * Creates the owner/user of the database. Implementation should handle the case of already
+     * existing owner/user gracefully.
      */
     public void createOwner();
 

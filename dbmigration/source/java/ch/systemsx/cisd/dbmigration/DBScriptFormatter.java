@@ -32,7 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * A class that formats the SQL schema scripts. The output will have a canonical form that is easy to compare.
+ * A class that formats the SQL schema scripts. The output will have a canonical form that is easy
+ * to compare.
  * 
  * @author Bernd Rinn
  */

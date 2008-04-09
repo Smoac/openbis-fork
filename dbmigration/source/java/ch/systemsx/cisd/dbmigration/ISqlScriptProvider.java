@@ -29,8 +29,9 @@ import ch.systemsx.cisd.common.Script;
 public interface ISqlScriptProvider
 {
     /**
-     * Returns <code>true</code> if this script provider is suitable for a dump restore of the given <var>version</var>
-     * of the database, and <code>false</code>, if it is suitable for a regular setup.
+     * Returns <code>true</code> if this script provider is suitable for a dump restore of the
+     * given <var>version</var> of the database, and <code>false</code>, if it is suitable for a
+     * regular setup.
      */
     public boolean isDumpRestore(String version);
 

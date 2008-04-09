@@ -29,8 +29,8 @@ public class H2StoredProcedures
 {
 
     /**
-     * Renames the sequence <var>oldName</var> into <var>newName</var> ensuring the <code>NEXTVAL()</code> will
-     * return the right value.
+     * Renames the sequence <var>oldName</var> into <var>newName</var> ensuring the
+     * <code>NEXTVAL()</code> will return the right value.
      * 
      * @return The next value the sequence will deliver.
      */

@@ -118,7 +118,8 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
 
     public void createDatabase()
     {
-        // Creation of databases happens "on the fly" with H2, we only need to create the database_version_logs table
+        // Creation of databases happens "on the fly" with H2, we only need to create the
+        // database_version_logs table
         createDatabaseVersionLogsTable();
     }
 

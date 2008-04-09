@@ -27,7 +27,8 @@ public class H2TestStoredProcedures
 {
 
     /**
-     * Compares <var>expected</var> with <var>actual</var> and throws an exception if they are not equal.
+     * Compares <var>expected</var> with <var>actual</var> and throws an exception if they are not
+     * equal.
      * 
      * @return 0.
      */

@@ -114,8 +114,8 @@ public class LogEntry
     }
 
     /**
-     * Sets runStatus based its string representation. If the argument does not match one of the valid constants.
-     * {@link RunStatus#UNKNOWN} will be used.
+     * Sets runStatus based its string representation. If the argument does not match one of the
+     * valid constants. {@link RunStatus#UNKNOWN} will be used.
      */
     public void setRunStatus(String runStatusAsString)
     {

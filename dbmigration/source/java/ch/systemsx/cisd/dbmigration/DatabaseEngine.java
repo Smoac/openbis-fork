@@ -143,9 +143,10 @@ public enum DatabaseEngine
     }
 
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host part should be
-     *            used.
-     * @param databaseName The name of the database (may be ignored for the admin URL, depending on the database engine)
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default
+     *            host part should be used.
+     * @param databaseName The name of the database (may be ignored for the admin URL, depending on
+     *            the database engine)
      * @return The admin URL of the db.
      */
     public final String getAdminURL(String urlHostPartOrNull, String databaseName)
@@ -162,8 +163,8 @@ public enum DatabaseEngine
     }
 
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host part should be
-     *            used.
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default
+     *            host part should be used.
      * @param databaseName The name of the database.
      * @return The URL of the db.
      */

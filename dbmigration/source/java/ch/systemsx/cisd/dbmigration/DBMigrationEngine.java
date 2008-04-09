@@ -73,7 +73,8 @@ public class DBMigrationEngine
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
      * 
-     * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
+     * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and
+     *            created from scratch.
      */
     public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider,
             boolean shouldCreateFromScratch)
@@ -89,7 +90,8 @@ public class DBMigrationEngine
      * Create or migrate database to the specified version.
      * 
      * @throws ConfigurationFailureException If creation/migration fails due to a missing script
-     * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent database.
+     * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent
+     *             database.
      */
     public void migrateTo(String version)
     {

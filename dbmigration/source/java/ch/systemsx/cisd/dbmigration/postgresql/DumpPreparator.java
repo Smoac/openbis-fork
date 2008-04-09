@@ -40,9 +40,11 @@ import javax.swing.JFileChooser;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Helper application which creates 'mass upload' files to be used to setup the database from a PostgreSQL dump.
+ * Helper application which creates 'mass upload' files to be used to setup the database from a
+ * PostgreSQL dump.
  * <p>
- * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option <b>--no-owner</b>.
+ * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option
+ * <b>--no-owner</b>.
  * <p>
  * Note, that this is a stand alone class which only uses J2EE library classes.
  * 
@@ -88,8 +90,8 @@ public class DumpPreparator
     /**
      * Creates all files necessary to setup a database from the specified PostgreSQL dump file.
      * 
-     * @param destination Destination folder in which the folder with the files will be created. The folder will be
-     *            named after the database version extracted from the dump.
+     * @param destination Destination folder in which the folder with the files will be created. The
+     *            folder will be named after the database version extracted from the dump.
      */
     public static void createUploadFiles(File dumpFile, File destination) throws IOException
     {

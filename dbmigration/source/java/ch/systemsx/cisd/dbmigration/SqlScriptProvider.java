@@ -28,9 +28,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory. This provider tries
- * first to load a resource. If this isn't successful the provider tries to look for files relative to the working
- * directory.
+ * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory.
+ * This provider tries first to load a resource. If this isn't successful the provider tries to look
+ * for files relative to the working directory.
  * 
  * @author Franz-Josef Elmer
  */
@@ -48,12 +48,12 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private final String specificScriptFolder;
 
     /**
-     * Creates an instance for the specified script folders. They are either resource folders or folders relative to the
-     * working directory.
+     * Creates an instance for the specified script folders. They are either resource folders or
+     * folders relative to the working directory.
      * 
      * @param schemaScriptRootFolder Root folder of schema, migration and data scripts.
-     * @param databaseEngineCode The code of the database engine. Used to find the db engine specific schema script
-     *            folder.
+     * @param databaseEngineCode The code of the database engine. Used to find the db engine
+     *            specific schema script folder.
      */
     public SqlScriptProvider(String schemaScriptRootFolder, String databaseEngineCode)
     {
@@ -62,7 +62,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code> otherwise.
+     * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code>
+     * otherwise.
      */
     public boolean isDumpRestore(String version)
     {
@@ -100,7 +101,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the script containing all functions for the specified version. The name of the script is expected to be
+     * Returns the script containing all functions for the specified version. The name of the script
+     * is expected to be
      * 
      * <pre>
      * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
@@ -124,7 +126,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
     }
 
     /**
-     * Returns the migration script for the specified versions. The name of the script is expected to be
+     * Returns the migration script for the specified versions. The name of the script is expected
+     * to be
      * 
      * <pre>
      * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
