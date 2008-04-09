@@ -550,9 +550,9 @@ function assert_correct_experiment_info {
     echo ==== assert correct experiment info ====
     local res=$WORK/client-result.txt
     call_in_dir check-results.sh $LIMS_CLIENT/ > $res
-    assert_pattern_present $res 1 "DATA_ACQUISITION\tprocessing-dir\tProcessing parameters from file .*processing-parameters.txt"
-    assert_pattern_present $res 2 ".*NEMO.*EXP1.*IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
-    assert_pattern_present $res 5 ".*NEMO.*EXP1.*IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
+    assert_pattern_present $res 1 "DATA_ACQUISITION.processing-dir.Processing parameters from file .*processing-parameters.txt"
+    assert_pattern_present $res 2 "DATA_ACQUISITION.*HCS_IMAGE.*NEMO.*EXP1.*HCS_IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
+    assert_pattern_present $res 5 "IMAGE_ANALYSIS.*HCS_IMAGE_ANALYSIS_DATA.*NEMO.*EXP1.*HCS_IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 
 }
 
