@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>ParserException</code> extension which signalizes a lookup index outside of the currently available tokens.
+ * A <code>ParserException</code> extension which signalizes a lookup index outside of the
+ * currently available tokens.
  * 
  * @author Christian Ribeaud
  */

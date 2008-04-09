@@ -136,8 +136,8 @@ public abstract class FileWatcher extends TimerTask
         /**
          * Whether the file state has changed.
          * <p>
-         * If the file state has changed, each implementation should save the new state before returning
-         * <code>true</code>.
+         * If the file state has changed, each implementation should save the new state before
+         * returning <code>true</code>.
          * </p>
          */
         public boolean stateChanged(File fileToWatch);

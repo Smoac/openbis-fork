@@ -29,10 +29,10 @@ public interface ISqlScriptExecutor
      * Executes the specified SQL script.
      * 
      * @param sqlScript The script to execute.
-     * @param honorSingleStepMode If <code>false</code>, the single step mode will be ignored for this script, even
-     *            if configured in the properties.
-     * @param loggerOrNull A logger to log the execution of the <var>sqlScript</var>, or <code>null</code>, if no
-     *            logging should be performed.
+     * @param honorSingleStepMode If <code>false</code>, the single step mode will be ignored for
+     *            this script, even if configured in the properties.
+     * @param loggerOrNull A logger to log the execution of the <var>sqlScript</var>, or
+     *            <code>null</code>, if no logging should be performed.
      */
     public void execute(Script sqlScript, boolean honorSingleStepMode,
             ISqlScriptExecutionLogger loggerOrNull);

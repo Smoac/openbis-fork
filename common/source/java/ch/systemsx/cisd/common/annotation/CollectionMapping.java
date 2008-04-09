@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 import java.util.Collection;
 
 /**
- * An annotation that defines the type of collection and the type of elements to use when creating the collection in a
- * bean context.
+ * An annotation that defines the type of collection and the type of elements to use when creating
+ * the collection in a bean context.
  * 
  * @author Bernd Rinn
  */
@@ -38,11 +38,13 @@ public @interface CollectionMapping
      * The concrete class to use as a collection.
      */
     @SuppressWarnings("unchecked")
-    // No way to avoid the warning since the compiler doesn't accept something like ArrayList<String>.class
+    // No way to avoid the warning since the compiler doesn't accept something like
+    // ArrayList<String>.class
     Class<? extends Collection> collectionClass();
 
     /**
-     * The class to use as the elements of the collection (since the generics type isn't known at run time).
+     * The class to use as the elements of the collection (since the generics type isn't known at
+     * run time).
      */
     Class<?> elementClass();
 }

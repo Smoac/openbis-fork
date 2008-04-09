@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>ParsingException</code> for column size mismatching between the header columns and line columns.
+ * A <code>ParsingException</code> for column size mismatching between the header columns and line
+ * columns.
  * 
  * @author Christian Ribeaud
  */

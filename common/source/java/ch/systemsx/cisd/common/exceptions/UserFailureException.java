@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The <code>UserFailureException</code> is the super class of all exceptions that have their cause in an
- * inappropriate usage of the system. This implies that the user himself (without help of an administrator) can fix the
- * problem.
+ * The <code>UserFailureException</code> is the super class of all exceptions that have their
+ * cause in an inappropriate usage of the system. This implies that the user himself (without help
+ * of an administrator) can fix the problem.
  * 
  * @author Bernd Rinn
  */

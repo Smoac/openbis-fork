@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 /**
  * Class that keeps around the result of running an Operating System process.
  * <p>
- * Since the process output can only ever be read once from a process, it need to be kept around if it is needed more
- * than once. This is what this class is good for.
+ * Since the process output can only ever be read once from a process, it need to be kept around if
+ * it is needed more than once. This is what this class is good for.
  */
 public final class ProcessResult
 {
@@ -81,11 +81,12 @@ public final class ProcessResult
     /**
      * Calls the {@link Process#destroy()} method which explicitly closes some file handles.
      * <p>
-     * <i>Note that one must not call {#link {@link #getProcessOutput()} for the first time after this method has been
-     * called.</i>
+     * <i>Note that one must not call {#link {@link #getProcessOutput()} for the first time after
+     * this method has been called.</i>
      * <p>
-     * Whether it is necessary to call this method depends on the JRE. For some JREs there occur {@link IOException}s
-     * with code 24 ("Too many open files") when running processes with high frequency without calling this method.
+     * Whether it is necessary to call this method depends on the JRE. For some JREs there occur
+     * {@link IOException}s with code 24 ("Too many open files") when running processes with high
+     * frequency without calling this method.
      */
     public void destroyProcess()
     {
@@ -148,8 +149,8 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code> if the process could not been terminated after the timeout and we stopped waiting for
-     * it.
+     * Returns <code>true</code> if the process could not been terminated after the timeout and we
+     * stopped waiting for it.
      */
     public boolean hasBlocked()
     {

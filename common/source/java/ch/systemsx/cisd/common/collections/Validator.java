@@ -19,8 +19,9 @@ package ch.systemsx.cisd.common.collections;
 /**
  * Defines a functor interface implemented by classes that perform a predicate test on an object.
  * <p>
- * A <code>Validator</code> is the object equivalent of an <code>if</code> statement. It uses the input object to
- * return a <code>true</code> or <code>false</code> value, and is often used in validation or filtering.
+ * A <code>Validator</code> is the object equivalent of an <code>if</code> statement. It uses
+ * the input object to return a <code>true</code> or <code>false</code> value, and is often used
+ * in validation or filtering.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -29,7 +30,8 @@ public interface Validator<E>
 {
 
     /**
-     * Use the specified parameter to perform a test that returns <code>true</code> or <code>false</code>.
+     * Use the specified parameter to perform a test that returns <code>true</code> or
+     * <code>false</code>.
      * 
      * @param object the typed object to evaluate
      * @return <code>true</code> or <code>false</code>

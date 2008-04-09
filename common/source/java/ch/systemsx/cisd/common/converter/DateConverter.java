@@ -60,8 +60,8 @@ public final class DateConverter implements Converter<Date>
     /**
      * Converts given <code>value</code> to a <code>Date</code>.
      * <p>
-     * Return <code>null</code> if a <code>ParseException</code> occurs or if given <var>value</var> is
-     * <code>null</code>.
+     * Return <code>null</code> if a <code>ParseException</code> occurs or if given <var>value</var>
+     * is <code>null</code>.
      * </p>
      */
     public final Date convert(String value)

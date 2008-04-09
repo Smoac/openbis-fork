@@ -33,8 +33,9 @@ public enum LogCategory
     /**
      * Log category for events that require immediate notification of an administrator.
      * <p>
-     * This should be carefully used as each logging event sent to this category will be automatically emailed to a
-     * specified recipient (assuming the event priority matches the configured one).
+     * This should be carefully used as each logging event sent to this category will be
+     * automatically emailed to a specified recipient (assuming the event priority matches the
+     * configured one).
      * </p>
      */
     NOTIFY,

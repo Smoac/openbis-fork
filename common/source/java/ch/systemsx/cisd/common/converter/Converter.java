@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.converter;
 
 /**
- * General purpose data type converter that can be registered and used in {@link ConverterPool} to manage the conversion
- * of objects from one type to another.
+ * General purpose data type converter that can be registered and used in {@link ConverterPool} to
+ * manage the conversion of objects from one type to another.
  * 
  * @author Christian Ribeaud
  */
@@ -28,13 +28,15 @@ public interface Converter<T>
      * Converts the <var>value</var> <code>String</code> into an object of type <code>T</code>.
      * 
      * @param value The <code>String</code> to convert. <code>null</code> is acceptable here.
-     * @return The converted value, or <code>null</code>, if the <var>value</var> was <code>null</code>.
+     * @return The converted value, or <code>null</code>, if the <var>value</var> was
+     *         <code>null</code>.
      */
     public T convert(String value);
 
     /**
-     * @return The default in case the value we try to convert is <code>null</code>. If the converter does not
-     *         support a default value, the return value of this method may be <code>null</code> as well.
+     * @return The default in case the value we try to convert is <code>null</code>. If the
+     *         converter does not support a default value, the return value of this method may be
+     *         <code>null</code> as well.
      */
     public T getDefaultValue();
 

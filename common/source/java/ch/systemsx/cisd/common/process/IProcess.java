@@ -30,12 +30,14 @@ public interface IProcess extends Runnable
      * Is typically called after {@link Runnable#run()} has performed.
      * </p>
      * 
-     * @return <code>true</code> if this <code>IProcess</code> succeeds, terminating so the whole running process.
+     * @return <code>true</code> if this <code>IProcess</code> succeeds, terminating so the
+     *         whole running process.
      */
     public boolean succeeded();
 
     /**
-     * The number of times we should try if this <code>IProcess</code> failed (including the first excecution).
+     * The number of times we should try if this <code>IProcess</code> failed (including the first
+     * excecution).
      * <p>
      * This is a static method: it only gets called once during the initialization process.
      * </p>

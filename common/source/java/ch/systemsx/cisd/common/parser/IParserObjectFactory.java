@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and convert them into
- * an appropriate <code>Object</code>.
+ * A <code>IParserObjectFactory</code> implementation knows how to deal with given line tokens and
+ * convert them into an appropriate <code>Object</code>.
  * <p>
  * A <code>IParserObjectFactory</code> is typically registered in {@link IParser}.
  * </p>

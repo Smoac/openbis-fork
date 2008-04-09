@@ -137,9 +137,10 @@ public final class BuildAndEnvironmentInfo
     }
 
     /**
-     * @return <code>true</code> if the versioned entities of the working copy have been clean when this build has
-     *         been made, in other words, whether the revision given by {@link #getRevision()} does really identify the
-     *         source that is build has been produced from.
+     * @return <code>true</code> if the versioned entities of the working copy have been clean
+     *         when this build has been made, in other words, whether the revision given by
+     *         {@link #getRevision()} does really identify the source that is build has been
+     *         produced from.
      */
     public final boolean isCleanSources()
     {

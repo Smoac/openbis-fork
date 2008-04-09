@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The <code>RetriableEnvironmentFailureException</code> is the super class of all exceptions that have their cause in
- * the software or hardware environment of the system failing and where, at least in principle, retrying the operation
- * could help.
+ * The <code>RetriableEnvironmentFailureException</code> is the super class of all exceptions that
+ * have their cause in the software or hardware environment of the system failing and where, at
+ * least in principle, retrying the operation could help.
  * <p>
  * If retrying doesn't help, use an {@link EnvironmentFailureException} instead.
  * <p>

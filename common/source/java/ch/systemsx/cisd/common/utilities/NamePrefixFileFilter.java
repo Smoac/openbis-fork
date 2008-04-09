@@ -20,8 +20,8 @@ import java.io.File;
 import java.io.FileFilter;
 
 /**
- * A {@link FileFilter} that checks whether the name part of the <var>pathname</var> starts (or does not start) with
- * the <var>prefix</var> specified.
+ * A {@link FileFilter} that checks whether the name part of the <var>pathname</var> starts (or
+ * does not start) with the <var>prefix</var> specified.
  * 
  * @author Bernd Rinn
  */

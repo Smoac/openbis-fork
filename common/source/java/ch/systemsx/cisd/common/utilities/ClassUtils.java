@@ -85,14 +85,14 @@ public final class ClassUtils
     /**
      * Returns the <code>Method</code> on the stack of <var>level</var>.
      * <p>
-     * <code>level=0</code> is this method itself, <code>level=1</code> is the method that called it and so forth.
-     * This method internally uses {@link Class#getMethods()} to retrieve the <code>Method</code> (meaning that
-     * <code>private</code> methods will not be found).
+     * <code>level=0</code> is this method itself, <code>level=1</code> is the method that
+     * called it and so forth. This method internally uses {@link Class#getMethods()} to retrieve
+     * the <code>Method</code> (meaning that <code>private</code> methods will not be found).
      * </p>
      * <p>
-     * IMPORTANT NOTE: You should carefully use this method in a class having more than one method with the same name.
-     * The internal idea used here (<code>new Throwable().getStackTrace()</code>) only returns a method name and
-     * does not make any other consideration.
+     * IMPORTANT NOTE: You should carefully use this method in a class having more than one method
+     * with the same name. The internal idea used here (<code>new Throwable().getStackTrace()</code>)
+     * only returns a method name and does not make any other consideration.
      * </p>
      * 
      * @see StackTraceElement#getMethodName()
@@ -130,9 +130,10 @@ public final class ClassUtils
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
      * @param className Fully-qualified class name.
-     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then the empty
-     *            constructor will be used. Note that <code>(Object) null</code> is not interpreted as
-     *            <code>null</code> arguments but rather as <code>new Object[]{null}</code>.
+     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then
+     *            the empty constructor will be used. Note that <code>(Object) null</code> is not
+     *            interpreted as <code>null</code> arguments but rather as
+     *            <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
     public static <T> T create(final Class<T> superClazz, final String className,
@@ -280,10 +281,12 @@ public final class ClassUtils
     }
 
     /**
-     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new value <var>newValue</var>.
+     * Sets declared field named <var>fieldName</var> of given <var>object</var> to given new
+     * value <var>newValue</var>.
      * <p>
-     * This is useful when you want to set a <code>private</code> field on which you do not have access. Note that
-     * this method should only be used in very special cases. You should consider it as a hack.
+     * This is useful when you want to set a <code>private</code> field on which you do not have
+     * access. Note that this method should only be used in very special cases. You should consider
+     * it as a hack.
      * </p>
      * 
      * @return a <code>true</code> if <code>fieldName</code> has been modified.

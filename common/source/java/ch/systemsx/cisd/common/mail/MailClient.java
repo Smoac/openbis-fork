@@ -43,10 +43,11 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
  * <p>
- * Just instantiate this class and use {@link #sendMessage(String, String, String[])} to send the email via SMTP.
+ * Just instantiate this class and use {@link #sendMessage(String, String, String[])} to send the
+ * email via SMTP.
  * </p>
- * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but it is stored in a
- * file in the directory specified by the relative path following this prefix.
+ * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server
+ * but it is stored in a file in the directory specified by the relative path following this prefix.
  * 
  * @author Christian Ribeaud
  */

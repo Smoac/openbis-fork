@@ -32,7 +32,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A parser for SQL92 data definition language scripts. The result are columns lengths and checked constraints.
+ * A parser for SQL92 data definition language scripts. The result are columns lengths and checked
+ * constraints.
  * 
  * @author Bernd Rinn
  */

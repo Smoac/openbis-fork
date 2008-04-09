@@ -22,7 +22,8 @@ import java.util.Map;
 /**
  * A pool of {@link Converter}s.
  * <p>
- * You can have your own instance of this class or you can use the static accessor to get a 'public' instance.
+ * You can have your own instance of this class or you can use the static accessor to get a 'public'
+ * instance.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -144,7 +145,8 @@ public final class ConverterPool
         return returned;
     }
 
-    // The setter registerConverter() will ensure that no converter can be entered that is of the wrong type.
+    // The setter registerConverter() will ensure that no converter can be entered that is of the
+    // wrong type.
     @SuppressWarnings("unchecked")
     final <T> Converter<T> getConverter(Class<T> type)
     {

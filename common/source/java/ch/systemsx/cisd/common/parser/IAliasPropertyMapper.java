@@ -19,20 +19,22 @@ package ch.systemsx.cisd.common.parser;
 import java.util.Set;
 
 /**
- * A <code>IPropertyMapper</code> extension that allows you to define an alias for a given property name.
+ * A <code>IPropertyMapper</code> extension that allows you to define an alias for a given
+ * property name.
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field aliases)
+// TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field
+// aliases)
 public interface IAliasPropertyMapper extends IPropertyMapper
 {
     /**
-     * Sets an alias for given <var>propertyName</var>. Note that it does not check whether a property with the name
-     * <var>propertyName</var> could be found because, for optional properties, this is not sure that we will find them
-     * in the header.
+     * Sets an alias for given <var>propertyName</var>. Note that it does not check whether a
+     * property with the name <var>propertyName</var> could be found because, for optional
+     * properties, this is not sure that we will find them in the header.
      * <p>
-     * Only one alias for a given property name can be specified and it should not be possible to set the same alias for
-     * two different properties.
+     * Only one alias for a given property name can be specified and it should not be possible to
+     * set the same alias for two different properties.
      * </p>
      * <p>
      * Alias replaces the original property name in <code>Set</code> returned by
@@ -40,13 +42,15 @@ public interface IAliasPropertyMapper extends IPropertyMapper
      * </p>
      * 
      * @param aliasName can not be <code>null</code>. The is the property name found in the bean.
-     * @param propertyName can not be <code>null</code>. This is the property name found in the parsed file.
+     * @param propertyName can not be <code>null</code>. This is the property name found in the
+     *            parsed file.
      */
     public void setAliasForPropertyName(final String aliasName, final String propertyName)
             throws IllegalArgumentException;
 
     /**
-     * Returns the property name (in parsed file) that has been specified for given alias (<i>Bean</i> properties).
+     * Returns the property name (in parsed file) that has been specified for given alias (<i>Bean</i>
+     * properties).
      * 
      * @throws IllegalArgumentException if given <var>alias</var> does not exist.
      */

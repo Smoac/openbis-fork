@@ -21,8 +21,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Standard sequence name mapper which replaces the last character of the table name by <code>_id_seq</code>. This
- * generic rules applies only for sequence names not found in the map provided as constructor argument.
+ * Standard sequence name mapper which replaces the last character of the table name by
+ * <code>_id_seq</code>. This generic rules applies only for sequence names not found in the map
+ * provided as constructor argument.
  * 
  * @author Franz-Josef Elmer
  */
@@ -41,7 +42,8 @@ public class StandardSequenceNameMapper implements ISequenceNameMapper
     }
 
     /**
-     * Creates an instance for the specified map of sequence name which are not map by the above mentioned rule.
+     * Creates an instance for the specified map of sequence name which are not map by the above
+     * mentioned rule.
      */
     public StandardSequenceNameMapper(final Map<String, String> nonstandardMapping,
             final Set<String> tablesWithoutSequencers)

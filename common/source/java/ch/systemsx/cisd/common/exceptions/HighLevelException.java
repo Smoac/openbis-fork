@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * An exception that is "high-level" in the sense that we have a pretty good understanding what the failure means in the
- * context where the exception has been thrown.
+ * An exception that is "high-level" in the sense that we have a pretty good understanding what the
+ * failure means in the context where the exception has been thrown.
  * 
  * @author Bernd Rinn
  */

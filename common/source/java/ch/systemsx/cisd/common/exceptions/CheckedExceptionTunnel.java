@@ -39,9 +39,9 @@ public final class CheckedExceptionTunnel extends RuntimeException
     }
 
     /**
-     * Returns a {@link RuntimeException} from an <var>exception</var>. If <var>exception</var> is already a
-     * {@link RuntimeException}, itself is returned, otherwise a {@link CheckedExceptionTunnel} with <var>exception</var>
-     * as checked exception argument.
+     * Returns a {@link RuntimeException} from an <var>exception</var>. If <var>exception</var> is
+     * already a {@link RuntimeException}, itself is returned, otherwise a
+     * {@link CheckedExceptionTunnel} with <var>exception</var> as checked exception argument.
      * 
      * @param exception The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>exception</var>.
@@ -58,8 +58,8 @@ public final class CheckedExceptionTunnel extends RuntimeException
     }
 
     /**
-     * Returns the original exception before being wrapped, if the exception has been wrapped, or <var>exception</var>
-     * otherwise.
+     * Returns the original exception before being wrapped, if the exception has been wrapped, or
+     * <var>exception</var> otherwise.
      */
     public final static Exception unwrapIfNecessary(final Exception exception)
     {

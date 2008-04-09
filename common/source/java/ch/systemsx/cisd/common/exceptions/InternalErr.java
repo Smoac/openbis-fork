@@ -17,14 +17,15 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * Exception representing internal error in the program caused by programmer error. It should never be caught. We throw
- * this exception to say the system (e.g. some data structure) is in the state, in which it never meant to be when a
- * particular piece of code was written. This is something different from the situation when a user has provided wrong
- * input data. <br>
- * This class becomes handy when we do comparition of some value with the enumerator. The following 'enum-match' pattern
- * should be applied: 1. all values of the enumerator should be checked 2. if no matching of the value and enumerator is
- * found, it is a programmer mistake and internal error occurs. It means that when one adds a new enumerator value, one
- * should check every comparition of other values and update them.
+ * Exception representing internal error in the program caused by programmer error. It should never
+ * be caught. We throw this exception to say the system (e.g. some data structure) is in the state,
+ * in which it never meant to be when a particular piece of code was written. This is something
+ * different from the situation when a user has provided wrong input data. <br>
+ * This class becomes handy when we do comparition of some value with the enumerator. The following
+ * 'enum-match' pattern should be applied: 1. all values of the enumerator should be checked 2. if
+ * no matching of the value and enumerator is found, it is a programmer mistake and internal error
+ * occurs. It means that when one adds a new enumerator value, one should check every comparition of
+ * other values and update them.
  * 
  * <pre>
  * Example:

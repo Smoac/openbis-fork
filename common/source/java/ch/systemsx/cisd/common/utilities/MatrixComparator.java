@@ -20,11 +20,11 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * A <code>Comparator</code> implementation that is based on matrix labelling having the following form:
- * <code>[a-zA-Z]+[0-9]+</code>.
+ * A <code>Comparator</code> implementation that is based on matrix labelling having the following
+ * form: <code>[a-zA-Z]+[0-9]+</code>.
  * <p>
- * A default natural sorting will place, for instance, <code>A3</code> before <code>A10</code>. This comparator can
- * also sort by letter first or by number first.
+ * A default natural sorting will place, for instance, <code>A3</code> before <code>A10</code>.
+ * This comparator can also sort by letter first or by number first.
  * </p>
  * 
  * @author Christian Ribeaud

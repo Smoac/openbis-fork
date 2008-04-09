@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The status of an operation. To be used whenever a failure of an operation is signalled back via a return value rather
- * than an exception.
+ * The status of an operation. To be used whenever a failure of an operation is signalled back via a
+ * return value rather than an exception.
  * 
  * @author Bernd Rinn
  */

@@ -83,7 +83,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         String errorMsg = FileUtilities.checkDirectoryFullyAccessible(readOnlyDirectory, "test");
 
         // --- clean before checking results
-        // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write, once
+        // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write,
+        // once
         // it has been set read-only, thus this test 'requires_unix' for the time being.
         Runtime.getRuntime().exec(String.format("/bin/chmod u+w %s", readOnlyDirectory.getPath()))
                 .waitFor();

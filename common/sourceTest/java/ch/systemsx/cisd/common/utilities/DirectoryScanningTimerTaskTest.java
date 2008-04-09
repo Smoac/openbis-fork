@@ -249,7 +249,8 @@ public class DirectoryScanningTimerTaskTest
                         "Failed to get listing of directory");
         try
         {
-            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            // The directory needs to exist when the scanner is created, otherwise the self-test
+            // will fail.
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
             dir.delete();
@@ -272,7 +273,8 @@ public class DirectoryScanningTimerTaskTest
                         "Failed to get listing of directory");
         try
         {
-            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            // The directory needs to exist when the scanner is created, otherwise the self-test
+            // will fail.
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
             dir.delete();
@@ -305,7 +307,8 @@ public class DirectoryScanningTimerTaskTest
                         EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
         try
         {
-            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            // The directory needs to exist when the scanner is created, otherwise the self-test
+            // will fail.
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, EXCEPTION_THROWING_FILE_FILTER,
                             mockPathHandler);
@@ -337,7 +340,8 @@ public class DirectoryScanningTimerTaskTest
         try
         {
             final int numberOfErrorsToIgnore = 2;
-            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            // The directory needs to exist when the scanner is created, otherwise the self-test
+            // will fail.
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler,
                             numberOfErrorsToIgnore);
@@ -381,7 +385,8 @@ public class DirectoryScanningTimerTaskTest
         try
         {
             final int numberOfErrorsToIgnore = 2;
-            // The directory needs to exist when the scanner is created, otherwise the self-test will fail.
+            // The directory needs to exist when the scanner is created, otherwise the self-test
+            // will fail.
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler,
                             numberOfErrorsToIgnore);

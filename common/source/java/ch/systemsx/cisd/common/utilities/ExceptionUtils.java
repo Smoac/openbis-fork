@@ -38,8 +38,9 @@ public final class ExceptionUtils
     }
 
     /**
-     * Creates a new {@link MasqueradingException} from given <var>exception</var> only if it is needed ({@link #isCandidateForMasquerading(Exception)}
-     * returns <code>true</code>). Otherwise returns given <var>exception</var>.
+     * Creates a new {@link MasqueradingException} from given <var>exception</var> only if it is
+     * needed ({@link #isCandidateForMasquerading(Exception)} returns <code>true</code>).
+     * Otherwise returns given <var>exception</var>.
      */
     private final static Exception createMasqueradingException(final Exception exception)
     {
@@ -95,8 +96,8 @@ public final class ExceptionUtils
     }
 
     /**
-     * Analyzes given <var>exception</var> and makes it independent to packages outside the 
-     * ones specified in an internal list, <code>ACCEPTED_PACKAGE_NAME_DEPENDENCIES</code>.
+     * Analyzes given <var>exception</var> and makes it independent to packages outside the ones
+     * specified in an internal list, <code>ACCEPTED_PACKAGE_NAME_DEPENDENCIES</code>.
      */
     public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception)
     {

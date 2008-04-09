@@ -23,9 +23,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * A {@link FileFilter} based on a set of path patterns. A path pattern consists of a {@link PathType} and a regular
- * expression matching (the entire region of) the name of the path entry as returned by {@link File#getName()}. If any
- * path pattern of the set matches a path entry, the filter will accept the path entry.
+ * A {@link FileFilter} based on a set of path patterns. A path pattern consists of a
+ * {@link PathType} and a regular expression matching (the entire region of) the name of the path
+ * entry as returned by {@link File#getName()}. If any path pattern of the set matches a path
+ * entry, the filter will accept the path entry.
  * 
  * @author Bernd Rinn
  */
@@ -43,7 +44,10 @@ public class RegexFileFilter implements FileFilter
         ALL
     }
 
-    /** A class specifying a pattern for files, combining a regular expression for the file name and a file type. */
+    /**
+     * A class specifying a pattern for files, combining a regular expression for the file name and
+     * a file type.
+     */
     private static class PathPattern
     {
         private final PathType type;
@@ -125,10 +129,11 @@ public class RegexFileFilter implements FileFilter
     }
 
     /**
-     * Adds a path pattern to this filter. Multiple path pattern can be added by calling this method several times. If
-     * any path pattern matches a file, the file will be accepted by this filter.
+     * Adds a path pattern to this filter. Multiple path pattern can be added by calling this method
+     * several times. If any path pattern matches a file, the file will be accepted by this filter.
      * 
-     * @param type The type of path that a path entry has to be of in order to be accepted by this filter.
+     * @param type The type of path that a path entry has to be of in order to be accepted by this
+     *            filter.
      * @param regexPattern The regular expression pattern that the name of the file (as returned by
      *            {@link File#getName()} has to match in order to be accepted by this filter.
      */
@@ -140,12 +145,13 @@ public class RegexFileFilter implements FileFilter
     }
 
     /**
-     * Adds a path pattern to this filter. Multiple path pattern can be added by calling this method several times. If
-     * any path pattern matches a file, the file will be accepted by this filter.
+     * Adds a path pattern to this filter. Multiple path pattern can be added by calling this method
+     * several times. If any path pattern matches a file, the file will be accepted by this filter.
      * 
-     * @param type The type of path that a path entry has to be of in order to be accepted by this filter.
-     * @param regex The regular expression that the name of the file (as returned by {@link File#getName()} has to match
-     *            in order to be accepted by this filter.
+     * @param type The type of path that a path entry has to be of in order to be accepted by this
+     *            filter.
+     * @param regex The regular expression that the name of the file (as returned by
+     *            {@link File#getName()} has to match in order to be accepted by this filter.
      */
     public void add(PathType type, Pattern regex)
     {

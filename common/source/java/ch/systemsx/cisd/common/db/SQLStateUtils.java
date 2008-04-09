@@ -21,9 +21,10 @@ import java.sql.SQLException;
 /**
  * Some utility methods regarding <i>SQL State</i>.
  * <p>
- * Note: be careful not to duplicate functionality with the <i>Spring</i> framework. Have a look at at
- * <code>org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator</code> and
- * <code>org.springframework.util.StringUtils.SQLErrorCodes</code> before extending the functionality of this class.
+ * Note: be careful not to duplicate functionality with the <i>Spring</i> framework. Have a look at
+ * at <code>org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator</code> and
+ * <code>org.springframework.util.StringUtils.SQLErrorCodes</code> before extending the
+ * functionality of this class.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -53,7 +54,8 @@ public final class SQLStateUtils
     /**
      * Tries to get the SQL state of given <code>Throwable</code>.
      * <p>
-     * This is only possible if {@link Throwable#getCause()} is an instance of <code>SQLException</code>.
+     * This is only possible if {@link Throwable#getCause()} is an instance of
+     * <code>SQLException</code>.
      * </p>
      */
     public final static String getSqlState(Throwable ex)

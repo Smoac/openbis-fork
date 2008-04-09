@@ -56,8 +56,9 @@ public class Log4jSimpleLogger implements ISimpleLogger
      * Creates a logger that uses <var>log4jLogger<var> to do the real logging.
      * 
      * @param log4jLogger The log4j logger to use.
-     * @param log4jOverridePriorityOrNull If not <code>null</code>, use this log level instead of the one provided to
-     *            the {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.LogLevel, String)}.
+     * @param log4jOverridePriorityOrNull If not <code>null</code>, use this log level instead of
+     *            the one provided to the
+     *            {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.LogLevel, String)}.
      */
     public Log4jSimpleLogger(Logger log4jLogger, Priority log4jOverridePriorityOrNull)
     {

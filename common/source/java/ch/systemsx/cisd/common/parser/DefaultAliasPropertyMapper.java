@@ -26,7 +26,8 @@ import java.util.TreeSet;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field aliases)
+// TODO 2008-02-17, Tomasz Pylak: this class should be removed (we do not need or want field
+// aliases)
 public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
         IAliasPropertyMapper
 {
@@ -126,8 +127,8 @@ public class DefaultAliasPropertyMapper extends DefaultPropertyMapper implements
     }
 
     /**
-     * Returns property names replaced with aliases that are really backed up by property names (alias can be specified
-     * for a non-existing property name).
+     * Returns property names replaced with aliases that are really backed up by property names
+     * (alias can be specified for a non-existing property name).
      */
     @Override
     public final Set<String> getAllPropertyNames()

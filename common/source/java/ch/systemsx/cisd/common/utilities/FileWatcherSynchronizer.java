@@ -33,12 +33,13 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Kind of <code>FileWatcher</code> extension that allow registration of multiple <code>ChangeListener</code> for
- * one file watched.
+ * Kind of <code>FileWatcher</code> extension that allow registration of multiple
+ * <code>ChangeListener</code> for one file watched.
  * <p>
- * You can use this class as <i>singleton</i> calling {@link #getInstance()} or you may instance it with a constructor.<br />
- * Note that access to this class is <i>synchronized</i> and that this class internally uses a {@link WeakHashMap} to
- * store the registered <code>ChangeListener</code>s.
+ * You can use this class as <i>singleton</i> calling {@link #getInstance()} or you may instance it
+ * with a constructor.<br />
+ * Note that access to this class is <i>synchronized</i> and that this class internally uses a
+ * {@link WeakHashMap} to store the registered <code>ChangeListener</code>s.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -156,8 +157,8 @@ public class FileWatcherSynchronizer extends TimerTask
     /**
      * For given <var>file</var> returns the registered <code>ChangeListener</code>s.
      * 
-     * @return <code>null</code> if given <var>file</var> is unknown or if no <code>ChangeListener</code> could be
-     *         found for given <var>file</var>.
+     * @return <code>null</code> if given <var>file</var> is unknown or if no
+     *         <code>ChangeListener</code> could be found for given <var>file</var>.
      */
     public final synchronized ChangeListener[] getChangeListeners(final File file)
     {

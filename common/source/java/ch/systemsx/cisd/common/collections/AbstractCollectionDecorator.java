@@ -21,10 +21,11 @@ import java.util.Iterator;
 /**
  * Decorates another <code>Collection</code> to provide additional behaviour.
  * <p>
- * Each method call made on this <code>Collection</code> is forwarded to the decorated <code>Collection</code>.
- * This class is used as a framework on which to build extensions. The main advantage of decoration is that one
- * decorator can wrap any implementation of <code>Collection</code>, whereas sub-classing requires a new class to be
- * written for each implementation.
+ * Each method call made on this <code>Collection</code> is forwarded to the decorated
+ * <code>Collection</code>. This class is used as a framework on which to build extensions. The
+ * main advantage of decoration is that one decorator can wrap any implementation of
+ * <code>Collection</code>, whereas sub-classing requires a new class to be written for each
+ * implementation.
  * </p>
  * 
  * @author Christian Ribeaud

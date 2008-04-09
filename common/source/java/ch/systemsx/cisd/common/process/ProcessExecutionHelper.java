@@ -49,14 +49,14 @@ public class ProcessExecutionHelper
     public static final int EXIT_VALUE_OK = 0;
 
     /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()}
-     * on a UNIX machine.
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
+     * {@link Process#destroy()} on a UNIX machine.
      */
     private static final int EXIT_VALUE_FOR_TERMINATION_UNIX = 143;
 
     /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by {@link Process#destroy()}
-     * on a MS Windows machine.
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
+     * {@link Process#destroy()} on a MS Windows machine.
      */
     private static final int EXIT_VALUE_FOR_TERMINATION_WINDOWS = 1;
 
@@ -70,7 +70,8 @@ public class ProcessExecutionHelper
      * @param commandLine The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
      */
     public static boolean runAndLog(List<String> commandLine, Logger operationLog, Logger machineLog)
     {
@@ -94,11 +95,13 @@ public class ProcessExecutionHelper
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
      * @param cmd The command line to run.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is
-     *            not finished after that time, it will be terminated by a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code> otherwise.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
      */
     public static boolean runAndLog(List<String> cmd, long millisToWaitForCompletion,
             Logger operationLog, Logger machineLog)
@@ -111,8 +114,9 @@ public class ProcessExecutionHelper
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
      * @param cmd The command line to run.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is
-     *            not finished after that time, it will be terminated by a watch dog.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return The process result.
@@ -125,8 +129,8 @@ public class ProcessExecutionHelper
     }
 
     /**
-     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been terminated on the
-     * Operating System level.
+     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
+     * terminated on the Operating System level.
      */
     public static boolean isProcessTerminated(final int exitValue)
     {
@@ -140,8 +144,8 @@ public class ProcessExecutionHelper
     }
 
     /**
-     * Returns the stdout (and stderr if {@link ProcessBuilder#redirectErrorStream(boolean)} has been called with
-     * <code>true</code>).
+     * Returns the stdout (and stderr if {@link ProcessBuilder#redirectErrorStream(boolean)} has
+     * been called with <code>true</code>).
      */
     public static List<String> readProcessOutputLines(Process processOrNull, Logger machineLog)
     {
@@ -194,7 +198,8 @@ public class ProcessExecutionHelper
             this.isInterruptedAfterTimeout = false;
         }
 
-        // this prevents interruption from watch-dog when we are outside of catch InterruptedException
+        // this prevents interruption from watch-dog when we are outside of catch
+        // InterruptedException
         synchronized public void interruptionUnnecesary()
         {
             canInterrupt = false;
@@ -248,7 +253,8 @@ public class ProcessExecutionHelper
                 return createNotStartedResult(commandLine, ex);
             }
             process.waitFor();
-            processStatus.interruptionUnnecesary(); // the process terminated and does not block anymore
+            processStatus.interruptionUnnecesary(); // the process terminated and does not block
+                                                    // anymore
         } catch (InterruptedException ex)
         {
             processStatus.interruptionUnnecesary();
@@ -272,7 +278,8 @@ public class ProcessExecutionHelper
         {
             operationLog.debug("Executing command: " + commandLine);
         }
-        // NOTE 2008-02-04, Tomasz Pylak: This operation can get blocked. I've observed it when ln was executed on NAS
+        // NOTE 2008-02-04, Tomasz Pylak: This operation can get blocked. I've observed it when ln
+        // was executed on NAS
         // file system mounted locally.
         final Process process = processBuilder.start();
         return process;
@@ -306,7 +313,8 @@ public class ProcessExecutionHelper
     private void logInterruption(final String commandLine, ProcessStatus terminationStatus,
             InterruptedException ex)
     {
-        if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the watchDog
+        if (terminationStatus.isInterruptedAfterTimeout() == false) // have NOT been stopped by the
+                                                                    // watchDog
         {
             machineLog.error(String.format("Execution of %s interrupted", commandLine), ex);
         } else
@@ -339,7 +347,8 @@ public class ProcessExecutionHelper
                         if (process != null)
                         {
                             process.destroy();
-                            sleep(millisToWaitForCompletion / 2); // allow the process to terminate normally
+                            sleep(millisToWaitForCompletion / 2); // allow the process to
+                                                                    // terminate normally
                         }
                         synchronized (processStatus)
                         {
@@ -350,8 +359,10 @@ public class ProcessExecutionHelper
                                 operationLog.info(String.format(
                                         "Interrupting waiting for the process %s by the watchDog",
                                         commandForLog));
-                                // stop waiting for the process. We want to prevent situations when the child process,
-                                // which is an external program, gets stuck during the start or cannot be destroyed. It
+                                // stop waiting for the process. We want to prevent situations when
+                                // the child process,
+                                // which is an external program, gets stuck during the start or
+                                // cannot be destroyed. It
                                 // would cause the whole system to hang and we do not want that.
                                 processThread.interrupt();
                             }

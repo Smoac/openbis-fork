@@ -16,8 +16,8 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * A class that holds the information about the status of an operation. To be used whenever a failure of an operation is
- * signalled back via a return value rather than an exception.
+ * A class that holds the information about the status of an operation. To be used whenever a
+ * failure of an operation is signalled back via a return value rather than an exception.
  * 
  * @author Bernd Rinn
  */
@@ -49,7 +49,8 @@ public final class Status
     }
 
     /**
-     * @return The message of the operation if <code>getFlag() != OK</code>, or <code>null</code> otherwise.
+     * @return The message of the operation if <code>getFlag() != OK</code>, or <code>null</code>
+     *         otherwise.
      */
     public String getMessage()
     {

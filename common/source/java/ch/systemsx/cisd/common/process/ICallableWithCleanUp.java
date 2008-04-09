@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.common.process;
 
 /**
- * A role that calls a method which requires one or more clean-up steps that need to be run reliably at the end of the
- * method regardless of whether the method is finished normally or whether it exits with an exception.
+ * A role that calls a method which requires one or more clean-up steps that need to be run reliably
+ * at the end of the method regardless of whether the method is finished normally or whether it
+ * exits with an exception.
  * 
  * @author Bernd Rinn
  */

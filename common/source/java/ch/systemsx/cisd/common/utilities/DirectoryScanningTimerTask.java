@@ -31,12 +31,13 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
- * A {@link TimerTask} that scans a source directory for entries that are accepted by some {@link FileFilter} and
- * handles the accepted entries by some {@link IPathHandler}. It maintains a list of faulty paths that failed to be
- * handled OK in the past. Clearing the list will make the class to retry handling the paths.
+ * A {@link TimerTask} that scans a source directory for entries that are accepted by some
+ * {@link FileFilter} and handles the accepted entries by some {@link IPathHandler}. It maintains a
+ * list of faulty paths that failed to be handled OK in the past. Clearing the list will make the
+ * class to retry handling the paths.
  * <p>
- * The class should be constructed in the start-up phase and as part of the system's self-test in order to reveal
- * problems with incorrect paths timely.
+ * The class should be constructed in the start-up phase and as part of the system's self-test in
+ * order to reveal problems with incorrect paths timely.
  * 
  * @author Bernd Rinn
  */
@@ -61,9 +62,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
         boolean exists(StoreItem item);
 
         /**
-         * returned description should give the user the idea about file location. You should not use the result for
-         * something else than printing it for user. It should not be especially assumed that the result is the path
-         * which could be used in java.io.File constructor.
+         * returned description should give the user the idea about file location. You should not
+         * use the result for something else than printing it for user. It should not be especially
+         * assumed that the result is the path which could be used in java.io.File constructor.
          */
         String getLocationDescription(StoreItem item);
     }
@@ -72,7 +73,10 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final IScannedStore sourceDirectory;
 
-    /** The number of consecutive errors of reading a directory that need to occur before the event is logged. */
+    /**
+     * The number of consecutive errors of reading a directory that need to occur before the event
+     * is logged.
+     */
     private final int ignoredErrorCount;
 
     private int errorCountReadingDirectory;
@@ -101,9 +105,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
      * @param sourceDirectory The directory to scan for entries.
      * @param filter The file filter that picks the entries to handle.
      * @param handler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the
-     *            next error is logged (can be used to suppress error when the directory is on a remote share and the
-     *            server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
+     *            to occur before the next error is logged (can be used to suppress error when the
+     *            directory is on a remote share and the server is flaky sometimes)
      */
     public DirectoryScanningTimerTask(File sourceDirectory, FileFilter filter,
             IPathHandler handler, int ignoredErrorCount)
@@ -118,9 +122,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
      * @param scannedStore The store which is scan for entries.
      * @param faultyPathDirectory The directory in which file with faulty paths is should be stored.
      * @param handler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need to occur before the
-     *            next error is logged (can be used to suppress error when the directory is on a remote share and the
-     *            server is flaky sometimes)
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
+     *            to occur before the next error is logged (can be used to suppress error when the
+     *            directory is on a remote share and the server is flaky sometimes)
      */
     public DirectoryScanningTimerTask(IScannedStore scannedStore, File faultyPathDirectory,
             IStoreHandler handler, int ignoredErrorCount)
@@ -226,7 +230,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
                 try
                 {
                     handle(path);
-                } catch (Exception ex) // do not stop when processing of one file has failed, continue with other files
+                } catch (Exception ex) // do not stop when processing of one file has failed,
+                                        // continue with other files
                 {
                     printNotification(ex);
                 }
@@ -258,7 +263,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
     {
         if (faultyPathsFile.exists())
         {
-            if (faultyPathsFile.lastModified() > faultyPathsLastChanged) // Handles manual manipulation.
+            if (faultyPathsFile.lastModified() > faultyPathsLastChanged) // Handles manual
+                                                                            // manipulation.
             {
                 faultyPaths.clear();
                 CollectionIO.readCollection(faultyPathsFile, faultyPaths);
@@ -279,7 +285,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private StoreItem[] listFiles()
     {
-        final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount); // Avoid mailbox flooding.
+        final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount); // Avoid
+                                                                                            // mailbox
+                                                                                            // flooding.
         final boolean logOperationError = (errorCountReadingDirectory < ignoredErrorCount);
         final ISimpleLogger errorLogger =
                 logNotifyError ? createSimpleErrorLogger(LogCategory.NOTIFY)
@@ -333,7 +341,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
             handler.handle(item);
         } finally
         {
-            // If the item still exists, we assume that it has not been handled. So it should be added to the faulty
+            // If the item still exists, we assume that it has not been handled. So it should be
+            // added to the faulty
             // paths.
             if (sourceDirectory.exists(item))
             {

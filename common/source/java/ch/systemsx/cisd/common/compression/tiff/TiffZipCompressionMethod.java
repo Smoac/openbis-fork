@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
- * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with compression
- * <code>Zip</code>.
+ * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with
+ * compression <code>Zip</code>.
  * 
  * @author Bernd Rinn
  */

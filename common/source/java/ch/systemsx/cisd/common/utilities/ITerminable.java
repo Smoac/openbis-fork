@@ -37,7 +37,8 @@ public interface ITerminable
     /**
      * Terminates the {@link ITerminable}.
      * 
-     * @return <code>true</code> if and only if the {@link ITerminable} has terminated successfully.
+     * @return <code>true</code> if and only if the {@link ITerminable} has terminated
+     *         successfully.
      */
     public boolean terminate();
 

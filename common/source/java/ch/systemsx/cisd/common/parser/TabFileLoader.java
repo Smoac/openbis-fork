@@ -37,8 +37,8 @@ import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
- * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The following formats for
- * the column headers are recognized.
+ * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The
+ * following formats for the column headers are recognized.
  * <ol>
  * <li>Column headers in first line:
  * 

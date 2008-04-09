@@ -32,8 +32,9 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
- * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual tests. The runner
- * executes all test scripts found in the specified test scripts folder. The folder should have the following structure
+ * Runner of SQL Unit tests. Needs an implementation of {@link ISqlScriptExecutor} to do the actual
+ * tests. The runner executes all test scripts found in the specified test scripts folder. The
+ * folder should have the following structure
  * 
  * <pre>
  *   &lt;&lt;i&gt;test script folder&lt;/i&gt;&gt;
@@ -48,20 +49,22 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  *      ...
  * </pre>
  * 
- * Folder starting with '.' or <code>migration</code> are ignored. The test cases are executed in lexicographical
- * order of their name. For each test case <code>buildup.sql</code> will be executed first. The test scripts follow
- * the naming schema
+ * Folder starting with '.' or <code>migration</code> are ignored. The test cases are executed in
+ * lexicographical order of their name. For each test case <code>buildup.sql</code> will be
+ * executed first. The test scripts follow the naming schema
  * 
  * <pre>
  *   &lt;&lt;i&gt;decimal number&lt;/i&gt;&gt;=&lt;&lt;i&gt;test name&lt;/i&gt;&gt;.sql
  * </pre>
  * 
- * They are executed in ascending order of their numbers. Finally <code>teardown.sql</code> is executed. If execution
- * of <code>buildup.sql</code> failed all test scripts and the tear down script are skipped. Note that
- * <code>buildup.sql</code> and <code>teardown.sql</code> are optional.
+ * They are executed in ascending order of their numbers. Finally <code>teardown.sql</code> is
+ * executed. If execution of <code>buildup.sql</code> failed all test scripts and the tear down
+ * script are skipped. Note that <code>buildup.sql</code> and <code>teardown.sql</code> are
+ * optional.
  * <p>
- * A script fails if its execution throws an exception. Its innermost cause (usually a {@link SQLException}) will be
- * recorded together with the name of the test case and the script. All failed scripts will be recorded.
+ * A script fails if its execution throws an exception. Its innermost cause (usually a
+ * {@link SQLException}) will be recorded together with the name of the test case and the script.
+ * All failed scripts will be recorded.
  * <p>
  * The runner throws an {@link AssertionError} if at least one script failed.
  * 
@@ -133,7 +136,8 @@ public class SqlUnitTestRunner
     }
 
     /**
-     * Executes all scripts in the specified folder. Does nothing if it does not exists or if it is empty.
+     * Executes all scripts in the specified folder. Does nothing if it does not exists or if it is
+     * empty.
      * 
      * @throws AssertionError if at least one script failed.
      */

@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 /**
  * Some useful utlities methods for {@link String}s.
  * <p>
- * If you are tempted to add new functionality to this class, ensure that the new functionality does not yet exist in
- * {@link StringUtils}, see <a
+ * If you are tempted to add new functionality to this class, ensure that the new functionality does
+ * not yet exist in {@link StringUtils}, see <a
  * href="http://jakarta.apache.org/commons/lang/api-release/org/apache/commons/lang/StringUtils.html">javadoc</a>.
  * 
  * @author Bernd Rinn
@@ -164,8 +164,8 @@ public final class StringUtilities
     /**
      * Splits a matrix coordinate and returns the result in a two-dimensional array.
      * <p>
-     * For instance the following matrix coordinate <code>H24</code> will returns the following array
-     * <code>[H, 24]</code>.
+     * For instance the following matrix coordinate <code>H24</code> will returns the following
+     * array <code>[H, 24]</code>.
      * </p>
      * 
      * @return <code>null</code> if the operation fails.

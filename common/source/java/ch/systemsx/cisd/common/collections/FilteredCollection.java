@@ -20,7 +20,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Decorates another <code>Collection</code> to validate that additions match a specified <code>Validator</code>.
+ * Decorates another <code>Collection</code> to validate that additions match a specified
+ * <code>Validator</code>.
  * <p>
  * This collection exists to provide validation for the decorated collection.
  * </p>
@@ -40,7 +41,8 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * </p>
      * 
      * @param coll the collection to decorate. Must not be <code>null</code>.
-     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>.
+     * @param validator the <code>Validator</code> to use for validation. Must not be
+     *            <code>null</code>.
      * @return a new filtered collection.
      */
     public static <E> Collection<E> decorate(Collection<E> coll, Validator<E> validator)
@@ -52,7 +54,8 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * Constructor that filters given <code>Collection</code>.
      * 
      * @param collection the collection to decorate. Must not be <code>null</code>.
-     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>.
+     * @param validator the <code>Validator</code> to use for validation. Must not be
+     *            <code>null</code>.
      */
     protected FilteredCollection(Collection<E> collection, Validator<E> validator)
     {
@@ -65,8 +68,8 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     /**
      * Filters given <var>collection</var> with given <var>validator</var>.
      * <p>
-     * Note that this operation changes passed <code>Collection</code> if some invalid elements are found. The
-     * original collection does not get cloned before .
+     * Note that this operation changes passed <code>Collection</code> if some invalid elements
+     * are found. The original collection does not get cloned before .
      * </p>
      */
     @SuppressWarnings("unchecked")

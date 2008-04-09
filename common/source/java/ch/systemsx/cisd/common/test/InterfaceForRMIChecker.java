@@ -33,11 +33,11 @@ import java.util.Set;
 public class InterfaceForRMIChecker
 {
     /**
-     * Asserts that the specified interface is ready for RMI. That is, for all methods the parameter types and the
-     * return type is {@link Serializable}.
+     * Asserts that the specified interface is ready for RMI. That is, for all methods the parameter
+     * types and the return type is {@link Serializable}.
      * 
-     * @throws AssertionError if <code>interfaze</code> is not an interface or a parameter type or a return value is
-     *             not serializable.
+     * @throws AssertionError if <code>interfaze</code> is not an interface or a parameter type or
+     *             a return value is not serializable.
      */
     public static void assertInterfaceForRMI(Class<?> interfaze)
     {
@@ -69,8 +69,8 @@ public class InterfaceForRMIChecker
     /**
      * Asserts that the specified class is serializable.
      * 
-     * @throws AssertionError if <code>clazz</code> is not serializable or a non-transient non-static attribute isn't
-     *             serializable.
+     * @throws AssertionError if <code>clazz</code> is not serializable or a non-transient
+     *             non-static attribute isn't serializable.
      */
     public static void assertSerializable(Class<?> clazz)
     {

@@ -59,7 +59,8 @@ public class TableMap<K, E> implements Iterable<E>
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
-     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
      * @throws UniqueKeyViolationException If the keys of <var>rows</var> are not unique and a
      *             <var>uniqueKeyViolationStrategy</var> of <code>ERROR</code> has been chosen.
      */
@@ -72,7 +73,8 @@ public class TableMap<K, E> implements Iterable<E>
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
-     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
      * @param uniqueKeyViolationStrategy Strategy to react on unique key violations.
      * @throws UniqueKeyViolationException If the keys of <var>rows</var> are not unique and a
      *             <var>uniqueKeyViolationStrategy</var> of <code>ERROR</code> has been chosen.
@@ -92,19 +94,22 @@ public class TableMap<K, E> implements Iterable<E>
     }
 
     /**
-     * Adds the specified row to this table. What the method will do when a row is provided with a key that is already
-     * in the map, depends on the unique key violation strategy as given to the constructor:
+     * Adds the specified row to this table. What the method will do when a row is provided with a
+     * key that is already in the map, depends on the unique key violation strategy as given to the
+     * constructor:
      * <ul>
-     * <li>For {@link UniqueKeyViolationStrategy#KEEP_FIRST} the first inserted row with this key will be kept and all
-     * later ones will be ignored.</li>
-     * <li>For {@link UniqueKeyViolationStrategy#KEEP_LAST} the last inserted row with a given key will replace all the
-     * others.</li>
-     * <li>For {@link UniqueKeyViolationStrategy#ERROR} a {@link UniqueKeyViolationException} will be thrown when
-     * trying to insert a row with a key that is already in the map. <i>This is the default.</i>.</li>
+     * <li>For {@link UniqueKeyViolationStrategy#KEEP_FIRST} the first inserted row with this key
+     * will be kept and all later ones will be ignored.</li>
+     * <li>For {@link UniqueKeyViolationStrategy#KEEP_LAST} the last inserted row with a given key
+     * will replace all the others.</li>
+     * <li>For {@link UniqueKeyViolationStrategy#ERROR} a {@link UniqueKeyViolationException} will
+     * be thrown when trying to insert a row with a key that is already in the map. <i>This is the
+     * default.</i>.</li>
      * </ul>
      * 
-     * @throws UniqueKeyViolationException If the key of <var>row</var> is already in the map and a unique key
-     *             violation strategy of {@link UniqueKeyViolationStrategy#ERROR} has been chosen.
+     * @throws UniqueKeyViolationException If the key of <var>row</var> is already in the map and a
+     *             unique key violation strategy of {@link UniqueKeyViolationStrategy#ERROR} has
+     *             been chosen.
      */
     public final void add(final E row) throws UniqueKeyViolationException
     {

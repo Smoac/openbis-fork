@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.common.process;
 
 /**
- * A role that allows to register a clean-up method that is called regardless of whether an exception occurs or not.
+ * A role that allows to register a clean-up method that is called regardless of whether an
+ * exception occurs or not.
  * 
  * @author Bernd Rinn
  */

@@ -45,14 +45,16 @@ public final class ParserUtilities
     }
 
     /**
-     * Returns the first <code>Line</code> that is not filtered out by given <code>ILineFilter</code>.
+     * Returns the first <code>Line</code> that is not filtered out by given
+     * <code>ILineFilter</code>.
      * <p>
      * You should not call this method if given <var>file</var> does not exist.
      * </p>
      * 
-     * @param lineFilter could be <code>null</code>. In this case, the {@link AlwaysAcceptLineFilter} implementation
-     *            will be used.
-     * @param file the file that is going to be analyzed. Can not be <code>null</code> and must exists.
+     * @param lineFilter could be <code>null</code>. In this case, the
+     *            {@link AlwaysAcceptLineFilter} implementation will be used.
+     * @param file the file that is going to be analyzed. Can not be <code>null</code> and must
+     *            exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
     public final static Line getFirstAcceptedLine(final File file, final ILineFilter lineFilter)

@@ -37,7 +37,8 @@ public final class CleanUpRegistry implements ICleanUpRegistry
     /**
      * Performs all clean-ups registered with {@link #registerCleanUp(Runnable)}.
      * 
-     * @param suppressExceptions If <code>true</code>, all exceptions that happen during clean-up will be suppressed.
+     * @param suppressExceptions If <code>true</code>, all exceptions that happen during clean-up
+     *            will be suppressed.
      */
     public void cleanUp(boolean suppressExceptions)
     {

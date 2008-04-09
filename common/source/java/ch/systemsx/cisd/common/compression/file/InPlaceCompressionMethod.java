@@ -31,8 +31,8 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
- * An {@link ICompressionMethod} that performs in-place compression of a bulk of files by means of calling an external
- * compression program and running it per file in an external process.
+ * An {@link ICompressionMethod} that performs in-place compression of a bulk of files by means of
+ * calling an external compression program and running it per file in an external process.
  * 
  * @author Bernd Rinn
  */
@@ -110,8 +110,8 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
     protected abstract List<String> getAcceptedExtensions();
 
     /**
-     * Perform any check necessary to see whether the external program that has been found is suitable for the
-     * compression task (e.g. program version).
+     * Perform any check necessary to see whether the external program that has been found is
+     * suitable for the compression task (e.g. program version).
      */
     public abstract void check() throws EnvironmentFailureException, ConfigurationFailureException;
 

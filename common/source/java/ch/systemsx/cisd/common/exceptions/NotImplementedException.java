@@ -19,11 +19,11 @@ package ch.systemsx.cisd.common.exceptions;
 import java.io.Serializable;
 
 /**
- * This is an extension to the <code>RuntimeException</code> for unimplemented methods. The empty constructor tries to
- * get the method resp. the class name the exception has been thrown.
+ * This is an extension to the <code>RuntimeException</code> for unimplemented methods. The empty
+ * constructor tries to get the method resp. the class name the exception has been thrown.
  * <p>
- * This class should be used everywhere where the <i>Apache</i> commons one can not (because the library is not
- * imported, for instance).
+ * This class should be used everywhere where the <i>Apache</i> commons one can not (because the
+ * library is not imported, for instance).
  * </p>
  * 
  * @author Chritian Ribeaud
@@ -71,8 +71,8 @@ public final class NotImplementedException extends RuntimeException
     //
 
     /**
-     * Returns the error message for this exception. If the error message has not been defined in this class, returns
-     * the error message defined in the super class.
+     * Returns the error message for this exception. If the error message has not been defined in
+     * this class, returns the error message defined in the super class.
      * 
      * @see java.lang.Throwable#getMessage()
      */

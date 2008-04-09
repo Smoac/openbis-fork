@@ -16,8 +16,8 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have their cause in the
- * software or hardware environment of the system failing.
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
+ * their cause in the software or hardware environment of the system failing.
  * <p>
  * Note that the user does not count as part of the environment in this respect.
  * 
@@ -56,8 +56,9 @@ public class EnvironmentFailureException extends HighLevelException
     }
 
     /**
-     * Returns the assessment of the subsystem throwing the exception whether the failure could be temporarily and thus
-     * retrying the operation (on a higher level) could possibly help to cure the problem.
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be
+     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
+     * the problem.
      * <p>
      * This class will always return <code>false</code>, but sub classes can override the method.
      * 

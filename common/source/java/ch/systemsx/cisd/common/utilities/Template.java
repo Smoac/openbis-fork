@@ -30,12 +30,13 @@ import java.util.Map;
  * String text = template.createText();
  * </pre>
  * 
- * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown. The method
- * {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder name is unknown. The method
- * {@link #createText()} throws an exception if not all placeholders have been bound.
+ * The method {@link #bind(String, String)} throws an exception if the placeholder name is unknown.
+ * The method {@link #attemptToBind(String, String)} returns <code>false</code> if the placeholder
+ * name is unknown. The method {@link #createText()} throws an exception if not all placeholders
+ * have been bound.
  * <p>
- * Since placeholder bindings change the state of an instance of this class there is method {@link #createFreshCopy()}
- * which creates a copy without reparsing the template. Usage example:
+ * Since placeholder bindings change the state of an instance of this class there is method
+ * {@link #createFreshCopy()} which creates a copy without reparsing the template. Usage example:
  * 
  * <pre>
  * static final Template TEMPLATE = new Template(&quot;Hello ${name}!&quot;);
@@ -326,8 +327,8 @@ public class Template
     /**
      * Creates the text by using placeholder bindings.
      * 
-     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not all bindings are
-     *            set.
+     * @param complete If <code>true</code> an {@link IllegalStateException} will be thrown if not
+     *            all bindings are set.
      */
     public String createText(boolean complete)
     {

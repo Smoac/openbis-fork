@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Decorates another <code>List</code> to validate that all additions match a specified <code>Validator</code>.
+ * Decorates another <code>List</code> to validate that all additions match a specified
+ * <code>Validator</code>.
  * <p>
- * This list exists to provide validation for the decorated list. This class is not <code>Serializable</code>.
+ * This list exists to provide validation for the decorated list. This class is not
+ * <code>Serializable</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -35,7 +37,8 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * Constructor that filters given <code>List</code>.
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>
+     * @param validator the <code>Validator</code> to use for validation. Must not be
+     *            <code>null</code>
      */
     protected FilteredList(List<E> list, Validator<E> validator)
     {
@@ -49,7 +52,8 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * </p>
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>Validator</code> to use for validation. Must not be <code>null</code>
+     * @param validator the <code>Validator</code> to use for validation. Must not be
+     *            <code>null</code>
      */
     public static <E> List<E> decorate(List<E> list, Validator<E> validator)
     {

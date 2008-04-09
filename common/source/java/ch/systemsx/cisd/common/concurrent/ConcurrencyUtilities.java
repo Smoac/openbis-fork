@@ -41,8 +41,10 @@ public final class ConcurrencyUtilities
      * Creates an {@link ExecutorService} where threads have a name starting with <var>name</var>.
      * 
      * @param name The name prefix of new threads started by this pool.
-     * @param corePoolSize The number of threads that should be kept running even if less theads are needed.
-     * @param maximumPoolSize The number of threads that this executor service is maximally allowed to spawn.
+     * @param corePoolSize The number of threads that should be kept running even if less theads are
+     *            needed.
+     * @param maximumPoolSize The number of threads that this executor service is maximally allowed
+     *            to spawn.
      */
     public static ExecutorService newNamedPool(final String name, int corePoolSize,
             int maximumPoolSize)
@@ -60,13 +62,14 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to
-     * become available. Any {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown.
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
+     * for the result to become available. Any {@link ExecutionException} that might occur in the
+     * future task is unwrapped and re-thrown.
      * 
-     * @return The result of the future, or <code>null</code>, if the result does not become available within
-     *         <var>timeoutMillis</var> ms.
-     * @throws CheckedExceptionTunnel of an {@link InterruptedException} if the current thread gets interrupted during
-     *             waiting for the result.
+     * @return The result of the future, or <code>null</code>, if the result does not become
+     *         available within <var>timeoutMillis</var> ms.
+     * @throws CheckedExceptionTunnel of an {@link InterruptedException} if the current thread gets
+     *             interrupted during waiting for the result.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis)
     {
@@ -74,11 +77,13 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the result to
-     * become available. Any {@link ExecutionException} that might occur in the future task is unwrapped and re-thrown.
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
+     * for the result to become available. Any {@link ExecutionException} that might occur in the
+     * future task is unwrapped and re-thrown.
      * 
-     * @return The result of the future, or <code>null</code>, if the result does not become available within
-     *         <var>timeoutMillis</var> ms or if the waiting thread gets interrupted.
+     * @return The result of the future, or <code>null</code>, if the result does not become
+     *         available within <var>timeoutMillis</var> ms or if the waiting thread gets
+     *         interrupted.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
             ISimpleLogger loggerOrNull, String operationNameOrNull)

@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The <code>ConfigurationFailureException</code> is the super class of all exceptions that have their cause in an
- * inappropriate configuration of the system. This implies that an application administrator can fix the problem.
+ * The <code>ConfigurationFailureException</code> is the super class of all exceptions that have
+ * their cause in an inappropriate configuration of the system. This implies that an application
+ * administrator can fix the problem.
  * 
  * @author Bernd Rinn
  */

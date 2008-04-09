@@ -27,7 +27,8 @@ import ch.systemsx.cisd.common.converter.ConverterPool;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
- * An abstract <code>IParserObjectFactory</code> which already implements and offers convenience methods.
+ * An abstract <code>IParserObjectFactory</code> which already implements and offers convenience
+ * methods.
  * 
  * @author Christian Ribeaud
  */
@@ -98,9 +99,10 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
-     * This method tries to find properties declared in given <code>IPropertyMapper</code> that are not in labels in
-     * annotated write methods (throws a <code>UnmatchedPropertiesException</code>) or mandatory fields that could
-     * not be found in the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
+     * This method tries to find properties declared in given <code>IPropertyMapper</code> that
+     * are not in labels in annotated write methods (throws a
+     * <code>UnmatchedPropertiesException</code>) or mandatory fields that could not be found in
+     * the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
     private final void checkPropertyMapper(final Class<E> clazz,

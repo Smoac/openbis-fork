@@ -29,8 +29,9 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessRunner;
 
 /**
- * Utility to create a hard link of a file or copy recursively a directories structure, creating a hard link for each
- * file inside. Note that presence of <code>ln</code> executable is required, which is not available under Windows.
+ * Utility to create a hard link of a file or copy recursively a directories structure, creating a
+ * hard link for each file inside. Note that presence of <code>ln</code> executable is required,
+ * which is not available under Windows.
  * 
  * @author Tomasz Pylak
  */
@@ -100,14 +101,14 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     }
 
     /**
-     * Creates copier which is able to retry the operation of creating each hard link of a file if it does not complete
-     * after a specified timeout.
+     * Creates copier which is able to retry the operation of creating each hard link of a file if
+     * it does not complete after a specified timeout.
      * 
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli seconds. If the process is
-     *            not finished after that time, it will be terminated.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated.
      * @param maxRetryOnFailure The number of times we should try if copy operation fails.
-     * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing the copy of a single
-     *            file. Specify 0 to wait till the first operation completes.
+     * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing
+     *            the copy of a single file. Specify 0 to wait till the first operation completes.
      */
     public static final IPathImmutableCopier tryCreateRetrying(
             final long millisToWaitForCompletion, final int maxRetryOnFailure,
@@ -137,8 +138,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     }
 
     /**
-     * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by duplicating directory
-     * structure and creating hard link for each file.
+     * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by
+     * duplicating directory structure and creating hard link for each file.
      * <p>
      * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>

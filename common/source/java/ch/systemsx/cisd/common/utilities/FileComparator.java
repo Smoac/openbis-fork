@@ -52,8 +52,8 @@ public final class FileComparator
         };
 
     /**
-     * A {@link File} <code>Comparator</code> implementation that considers value returned by {@link File#getName()}
-     * to sort the files.
+     * A {@link File} <code>Comparator</code> implementation that considers value returned by
+     * {@link File#getName()} to sort the files.
      * 
      * @author Christian Ribeaud
      */
@@ -71,8 +71,8 @@ public final class FileComparator
         };
 
     /**
-     * A {@link File} <code>Comparator</code> implementation that sorts by type (file or directory): first the files
-     * are listed then come the directories.
+     * A {@link File} <code>Comparator</code> implementation that sorts by type (file or
+     * directory): first the files are listed then come the directories.
      * 
      * @author Christian Ribeaud
      */

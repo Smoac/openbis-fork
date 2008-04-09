@@ -24,11 +24,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A table of rows of type <code>E</code> with random access via a key of type <code>K</code> where the key does not
- * have to be unique.
+ * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>
+ * where the key does not have to be unique.
  * <p>
- * Note that the <i>values</i> still need to be unique (according to the {@link Object#equals(Object)} contract), only
- * duplicate <i>keys</i> are acceptable for this map.
+ * Note that the <i>values</i> still need to be unique (according to the
+ * {@link Object#equals(Object)} contract), only duplicate <i>keys</i> are acceptable for this map.
  * 
  * @author Franz-Josef Elmer
  * @author Bernd Rinn
@@ -64,7 +64,8 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
-     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
      */
     public TableMapNonUniqueKey(final Iterable<E> rows, final IKeyExtractor<K, E> extractor)
     {
@@ -75,7 +76,8 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
-     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
      */
     public TableMapNonUniqueKey(final Iterable<E> rows, final IKeyExtractor<K, E> extractor,
             UniqueValueViolationStrategy uniqueValueViolationStrategy)
@@ -92,19 +94,22 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     }
 
     /**
-     * Adds the specified row to this table. What the method will do when a row is provided that is equals to a row that
-     * is already in the map (according to {@link Object#equals(Object)}, depends on the unique value violation
-     * strategy as given to the constructor:
+     * Adds the specified row to this table. What the method will do when a row is provided that is
+     * equals to a row that is already in the map (according to {@link Object#equals(Object)},
+     * depends on the unique value violation strategy as given to the constructor:
      * <ul>
-     * <li>For {@link UniqueValueViolationStrategy#KEEP_FIRST} the first inserted row will be kept and all later ones
-     * will be ignored.</li>
-     * <li>For {@link UniqueValueViolationStrategy#KEEP_LAST} the last inserted row will replace all the others.</li>
-     * <li>For {@link UniqueValueViolationStrategy#ERROR} a {@link UniqueValueViolationException} will be thrown when
-     * trying to insert a row with a key that is already in the map. <i>This is the default.</i>.</li>
+     * <li>For {@link UniqueValueViolationStrategy#KEEP_FIRST} the first inserted row will be kept
+     * and all later ones will be ignored.</li>
+     * <li>For {@link UniqueValueViolationStrategy#KEEP_LAST} the last inserted row will replace
+     * all the others.</li>
+     * <li>For {@link UniqueValueViolationStrategy#ERROR} a {@link UniqueValueViolationException}
+     * will be thrown when trying to insert a row with a key that is already in the map. <i>This is
+     * the default.</i>.</li>
      * </ul>
      * 
-     * @throws UniqueValueViolationException If a row that equals the <var>row</var> is already in the map and a unique
-     *             value violation strategy of {@link UniqueValueViolationStrategy#ERROR} has been chosen.
+     * @throws UniqueValueViolationException If a row that equals the <var>row</var> is already in
+     *             the map and a unique value violation strategy of
+     *             {@link UniqueValueViolationStrategy#ERROR} has been chosen.
      */
     public final void add(final E row) throws UniqueValueViolationException
     {
@@ -133,7 +138,8 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     /**
      * Gets the row set for the specified <var>key</var>.
      * 
-     * @return The set, given in the order of addition, or <code>null</code> if the <var>key</var> is not found.
+     * @return The set, given in the order of addition, or <code>null</code> if the <var>key</var>
+     *         is not found.
      */
     public final Set<E> tryGet(final K key)
     {

@@ -24,11 +24,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * If you want your class to behave correctly when used in {@link Map}s or {@link Set}s, you can do this by:
+ * If you want your class to behave correctly when used in {@link Map}s or {@link Set}s, you can
+ * do this by:
  * <ol>
  * <li>Extending this class</li>
- * <li>Ensuring that all used field types implement <code>equals()</code> and <code>hashCode()</code> (e.g. by
- * extending this class)</li>
+ * <li>Ensuring that all used field types implement <code>equals()</code> and
+ * <code>hashCode()</code> (e.g. by extending this class)</li>
  * </ol>
  * 
  * @author Tomasz Pylak on Oct 26, 2007

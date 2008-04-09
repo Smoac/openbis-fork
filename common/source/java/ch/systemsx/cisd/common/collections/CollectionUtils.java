@@ -35,12 +35,13 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
-     * {@link ToStringDefaultConverter} are used.
+     * By default it shows the number of items left,
+     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are
+     * used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final T[] objects, final int maxLength)
     {
@@ -50,12 +51,13 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default it shows the number of items left, {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
-     * {@link ToStringDefaultConverter} are used.
+     * By default it shows the number of items left,
+     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are
+     * used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength)
     {
@@ -68,8 +70,8 @@ public final class CollectionUtils
      * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final T[] objects, final int maxLength,
             final CollectionStyle style)
@@ -83,8 +85,8 @@ public final class CollectionUtils
      * By default it shows the number of items left and {@link ToStringDefaultConverter} is used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final CollectionStyle style)
@@ -98,8 +100,8 @@ public final class CollectionUtils
      * By default it shows the number of items left.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final IToStringConverter<? super T> converter)
@@ -114,8 +116,8 @@ public final class CollectionUtils
      * By default it shows the number of items left.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final IToStringConverter<? super T> converter, final CollectionStyle style)
@@ -126,11 +128,12 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final T[] objects, final int maxLength,
             final boolean showLeft)
@@ -141,11 +144,12 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are used.
+     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final boolean showLeft)
@@ -159,8 +163,8 @@ public final class CollectionUtils
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final T[] objects, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
@@ -187,8 +191,8 @@ public final class CollectionUtils
      * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
      * </p>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,
             final boolean showLeft, final IToStringConverter<? super T> converter)
@@ -205,10 +209,10 @@ public final class CollectionUtils
      * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, true) = &quot;[1, 2, 3, ... (2 left)]&quot;
      * </pre>
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
-     * @param showLeft whether the number of items left should be displayed at the end of the output. This is only
-     *            relevant if you limit the number of items displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
+     * @param showLeft whether the number of items left should be displayed at the end of the
+     *            output. This is only relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
     public final static <T> String abbreviate(final T[] objects, final int maxLength,
@@ -222,10 +226,10 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * 
-     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then all items will be
-     *            displayed.
-     * @param showLeft whether the number of items left should be displayed at the end of the output. This is only
-     *            relevant if you limit the number of items displayed.
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
+     * @param showLeft whether the number of items left should be displayed at the end of the
+     *            output. This is only relevant if you limit the number of items displayed.
      * @param style the style that should be applied to the output.
      */
     public final static <T> String abbreviate(final Collection<T> collection, final int maxLength,

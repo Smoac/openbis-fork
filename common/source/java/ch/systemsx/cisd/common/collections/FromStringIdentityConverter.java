@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.collections;
 
 /**
- * The identity {@link IFromStringConverter} for {@link String}s, which returns the value itself as the converted
- * value. This class is a singleton.
+ * The identity {@link IFromStringConverter} for {@link String}s, which returns the value itself as
+ * the converted value. This class is a singleton.
  * 
  * @author Bernd Rinn
  */

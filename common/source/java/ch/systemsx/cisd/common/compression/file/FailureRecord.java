@@ -59,8 +59,8 @@ public class FailureRecord
     }
 
     /**
-     * Returns the {@link Status} of the failure. Can have a {@link StatusFlag} of {@link StatusFlag#RETRIABLE_ERROR} if
-     * retrying the operation did not help.
+     * Returns the {@link Status} of the failure. Can have a {@link StatusFlag} of
+     * {@link StatusFlag#RETRIABLE_ERROR} if retrying the operation did not help.
      */
     public final Status getFailureStatus()
     {

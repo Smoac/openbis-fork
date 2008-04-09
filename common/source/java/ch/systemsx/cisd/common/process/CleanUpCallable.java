@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.common.process;
 
 /**
- * A class that implements the logic of cleaning up a resource even in case of an exception but re-throws an exception
- * of the clean up procedure only when the main procedure didn't throw one. <code>CleanUpRunner</code>s can be
- * stacked.
+ * A class that implements the logic of cleaning up a resource even in case of an exception but
+ * re-throws an exception of the clean up procedure only when the main procedure didn't throw one.
+ * <code>CleanUpRunner</code>s can be stacked.
  * 
  * @author Bernd Rinn
  */
@@ -29,7 +29,8 @@ public final class CleanUpCallable
     private final CleanUpRegistry registry = new CleanUpRegistry();
 
     /**
-     * Runs a {@link ICallableWithCleanUp} and ensures that all registered clean-ups are performed afterwards.
+     * Runs a {@link ICallableWithCleanUp} and ensures that all registered clean-ups are performed
+     * afterwards.
      */
     public <T> T call(ICallableWithCleanUp<T> runnable)
     {

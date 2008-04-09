@@ -107,7 +107,8 @@ public class FileUtilitiesLastChangedTest
         final long diff = Math.abs(lastChanged - now);
         assert diff <= 2000 : "expected difference less than 2s, but was " + diff / 1000.0 + "s";
 
-        // We need to wait for more than 1s because that's the granularity of the changed time attribute saved with
+        // We need to wait for more than 1s because that's the granularity of the changed time
+        // attribute saved with
         // files.
         restALittleBit();
     }

@@ -120,8 +120,10 @@ public final class ClassUtilsTest
 
     private final void privateMethodOnStack()
     {
-        // If <code>Class.getDeclaredMethods</code> were used instead of <code>Class.getDeclaredMethods</code>,
-        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()' here.
+        // If <code>Class.getDeclaredMethods</code> were used instead of
+        // <code>Class.getDeclaredMethods</code>,
+        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()'
+        // here.
         assertNull(ClassUtils.getMethodOnStack(1));
     }
 

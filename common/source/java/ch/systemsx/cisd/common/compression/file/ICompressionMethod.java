@@ -22,8 +22,8 @@ import java.io.FileFilter;
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
- * A role that compresses a file. A compression method may only be suitable for some files, thus it is also a
- * {@link FileFilter}.
+ * A role that compresses a file. A compression method may only be suitable for some files, thus it
+ * is also a {@link FileFilter}.
  * 
  * @author Bernd Rinn
  */
@@ -33,7 +33,8 @@ public interface ICompressionMethod extends FileFilter
     /**
      * Compress the <var>fileToCompress</var>
      * 
-     * @return {@link Status#OK} if the operation was successful, a status indicating the kind of problem otherwise.
+     * @return {@link Status#OK} if the operation was successful, a status indicating the kind of
+     *         problem otherwise.
      */
     public Status compress(File fileToCompress);
 

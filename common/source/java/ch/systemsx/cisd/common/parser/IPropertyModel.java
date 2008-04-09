@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * This returns the mapping informations needed in {@link IParserObjectFactory} via the {@link IPropertyMapper}.
+ * This returns the mapping informations needed in {@link IParserObjectFactory} via the
+ * {@link IPropertyMapper}.
  * <p>
  * This model is specified by the parsed file.
  * </p>

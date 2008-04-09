@@ -44,8 +44,8 @@ public final class UnmatchedPropertiesException extends ParserException
     private final Set<String> optionalNames;
 
     /**
-     * The property names of {@link #allPropertyNames} that can neither be found in {@link #mandatoryNames} nor in
-     * {@link #optionalNames}.
+     * The property names of {@link #allPropertyNames} that can neither be found in
+     * {@link #mandatoryNames} nor in {@link #optionalNames}.
      */
     private final Set<String> propertyNames;
 

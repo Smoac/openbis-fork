@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * A <code>RuntimeException</code> extension which almost clones given <var>rootException</var> without saving it as
- * cause.
+ * A <code>RuntimeException</code> extension which almost clones given <var>rootException</var>
+ * without saving it as cause.
  * <p>
- * This means that it does not contain any third-party specific or proprietary <code>Exception</code> extension that
- * the client does not know about and does not understand.
+ * This means that it does not contain any third-party specific or proprietary
+ * <code>Exception</code> extension that the client does not know about and does not understand.
  * </p>
  * 
  * @author Christian Ribeaud
