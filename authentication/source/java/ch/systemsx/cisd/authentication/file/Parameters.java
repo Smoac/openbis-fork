@@ -73,7 +73,7 @@ final class Parameters
     @Option(name = "p", longName = "password", usage = "The password.")
     private String password;
 
-    @Option(name = "P", longName = "change-password", usage = "Read the new password from the console,")
+    @Option(name = "P", longName = "change-password", usage = "Read the new password from the console.")
     private boolean changePassword;
 
     @Argument
