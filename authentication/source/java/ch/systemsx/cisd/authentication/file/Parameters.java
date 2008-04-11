@@ -89,7 +89,7 @@ final class Parameters
     {
         parser.printHelp("passwd",
                 "list | [remove|show|test] <user> | [add|change] <user> [option [...]]", "",
-                ExampleMode.ALL);
+                ExampleMode.NONE);
         if (exit)
         {
             exitHandler.exit(0);
@@ -218,7 +218,7 @@ final class Parameters
     /**
      * Returns <code>true</code>, if the password should be changed.
      * <p>
-     * The new password is supposed to be read from the console.§
+     * The new password is supposed to be read from the console.ï¿½
      */
     final boolean isChangePassword()
     {
