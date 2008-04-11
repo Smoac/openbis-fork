@@ -32,9 +32,9 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
 public final class AbstractParserObjectFactoryTest
 {
 
-    private final static IAliasPropertyMapper createPropertyMapper()
+    private final static IPropertyMapper createPropertyMapper()
     {
-        return new DefaultAliasPropertyMapper(new String[]
+        return new DefaultPropertyMapper(new String[]
             { "name", "description", "number" });
     }
 
@@ -60,7 +60,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testPropertyMapperWithNoExperimentProperties()
     {
-        final IAliasPropertyMapper propertyMapper = new DefaultAliasPropertyMapper(new String[]
+        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
             { "name", "description", "IsNotIn" });
         try
         {
@@ -68,7 +68,7 @@ public final class AbstractParserObjectFactoryTest
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (final UnmatchedPropertiesException ex)
         {
-            assertEquals("Following header columns are not part of 'Bean': IsNotIn", ex
+            assertEquals("Following header columns are not part of 'Bean': isnotin", ex
                     .getMessage());
         }
     }
@@ -76,9 +76,8 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testMandatoryFields()
     {
-        final DefaultAliasPropertyMapper propertyMapper =
-                new DefaultAliasPropertyMapper(new String[]
-                    { "description" });
+        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
+            { "description" });
         try
         {
             final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
@@ -96,7 +95,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testTooManyDataColumns()
     {
-        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper();
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] lineTokens = (String[]) ArrayUtils.add(createDefaultLineTokens(), "notUsed");
         final Bean bean = beanFactory.createObject(lineTokens);
@@ -106,7 +105,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testNotEnoughDataColumns()
     {
-        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper();
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] defaultTokens = createDefaultLineTokens();
         final String[] lineTokens =
@@ -126,7 +125,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testRegisterConverterWithNull()
     {
-        final IAliasPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper();
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         try
         {
@@ -146,7 +145,7 @@ public final class AbstractParserObjectFactoryTest
     private final static class BeanFactory extends AbstractParserObjectFactory<Bean>
     {
 
-        BeanFactory(final Class<Bean> clazz, final IAliasPropertyMapper propertyMapper)
+        BeanFactory(final Class<Bean> clazz, final IPropertyMapper propertyMapper)
         {
             super(clazz, propertyMapper);
         }

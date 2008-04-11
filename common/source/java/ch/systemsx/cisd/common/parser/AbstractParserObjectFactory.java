@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
@@ -48,7 +47,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     private final BeanAnalyzer<E> beanAnalyzer;
 
     protected AbstractParserObjectFactory(final Class<E> beanClass,
-            final IAliasPropertyMapper propertyMapper)
+            final IPropertyMapper propertyMapper)
     {
         assert beanClass != null : "Given bean class can not be null.";
         assert propertyMapper != null : "Given property mapper can not be null.";
@@ -105,8 +104,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
      * the same annotated write methods (throws a <code>MandatoryPropertyMissingException</code>).
      * </p>
      */
-    private final void checkPropertyMapper(final Class<E> clazz,
-            final IAliasPropertyMapper propMapper) throws ParserException
+    private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
+            throws ParserException
     {
         final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
         final Set<String> propertyNames = new LinkedHashSet<String>(allPropertyNames);
@@ -114,7 +113,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         final Set<String> fieldNames = beanAnalyzer.getLabelToWriteMethods().keySet();
         for (final String fieldName : fieldNames)
         {
-            String fieldNameInLowerCase = fieldName.toLowerCase();
+            final String fieldNameInLowerCase = fieldName.toLowerCase();
             if (propertyNames.contains(fieldNameInLowerCase))
             {
                 propertyNames.remove(fieldNameInLowerCase);
@@ -124,36 +123,16 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             }
         }
         final Set<String> mandatoryPropertyNames =
-                getPropertyNames(beanAnalyzer.getMandatoryProperties(), propMapper);
+                beanAnalyzer.getMandatoryProperties();
         if (missingProperties.size() > 0)
         {
-            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, getPropertyNames(
-                    missingProperties, propMapper));
+            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, missingProperties);
         }
         if (propertyNames.size() > 0)
         {
-            Set<String> names = getPropertyNames(beanAnalyzer.getOptionalProperties(), propMapper);
             throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames,
-                    names, propertyNames);
+                    beanAnalyzer.getOptionalProperties(), propertyNames);
         }
-    }
-
-    private final static Set<String> getPropertyNames(final Set<String> beanProperties,
-            final IAliasPropertyMapper propertyMapper)
-    {
-        final Set<String> aliases = propertyMapper.getAllAliases();
-        final Set<String> propertyNames = new TreeSet<String>();
-        for (final String beanProperty : beanProperties)
-        {
-            if (aliases.contains(beanProperty.toLowerCase()))
-            {
-                propertyNames.add(propertyMapper.getPropertyNameForAlias(beanProperty));
-            } else
-            {
-                propertyNames.add(beanProperty);
-            }
-        }
-        return propertyNames;
     }
 
     private final String getPropertyValue(final String[] lineTokens,

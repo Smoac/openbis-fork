@@ -87,8 +87,8 @@ public final class TabFileLoaderTest
         // IParserObjectFactoryFactory
         //
 
-        public final IParserObjectFactory<ABC> createFactory(
-                final IAliasPropertyMapper propertyMapper) throws ParserException
+        public final IParserObjectFactory<ABC> createFactory(final IPropertyMapper propertyMapper)
+                throws ParserException
         {
             return new IParserObjectFactory<ABC>()
                 {

@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
@@ -33,12 +33,24 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class DefaultPropertyMapper implements IPropertyMapper
 {
-    private final Map<String, IPropertyModel> propertyModels;
+    private final TableMap<String, IPropertyModel> propertyModels;
 
     public DefaultPropertyMapper(final String[] properties) throws IllegalArgumentException
     {
         assert properties != null : "Unspecified properties";
-        propertyModels = new LinkedHashMap<String, IPropertyModel>(properties.length);
+        propertyModels =
+                new TableMap<String, IPropertyModel>(new IKeyExtractor<String, IPropertyModel>()
+                    {
+
+                        //
+                        // IKeyExtractor
+                        //
+
+                        public final String getKey(final IPropertyModel e)
+                        {
+                            return e.getName().toLowerCase();
+                        }
+                    });
         tokensToMap(properties);
 
     }
@@ -54,8 +66,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
                 throw new IllegalArgumentException(String.format("%s token of %s is blank.",
                         StringUtilities.getOrdinal(i), Arrays.asList(properties)));
             }
-            String tokenInLowerCase = token.toLowerCase();
-            propertyModels.put(tokenInLowerCase, new MappedProperty(i, tokenInLowerCase));
+            propertyModels.add(new MappedProperty(i, token));
         }
     }
 
@@ -63,17 +74,17 @@ public class DefaultPropertyMapper implements IPropertyMapper
     // IPropertyMapper
     //
 
-    public boolean containsPropertyName(final String propertyName)
+    public final boolean containsPropertyName(final String propertyName)
     {
-        return propertyModels.containsKey(propertyName.toLowerCase());
+        return propertyModels.tryGet(propertyName.toLowerCase()) != null;
     }
 
-    public Set<String> getAllPropertyNames()
+    public final Set<String> getAllPropertyNames()
     {
         return new TreeSet<String>(propertyModels.keySet());
     }
 
-    public IPropertyModel getPropertyModel(final String propertyName)
+    public final IPropertyModel getPropertyModel(final String propertyName)
             throws IllegalArgumentException
     {
         if (containsPropertyName(propertyName) == false)
@@ -81,6 +92,6 @@ public class DefaultPropertyMapper implements IPropertyMapper
             throw new IllegalArgumentException(String.format(
                     "Given property name '%s' does not exist.", propertyName));
         }
-        return propertyModels.get(propertyName.toLowerCase());
+        return propertyModels.tryGet(propertyName.toLowerCase());
     }
 }

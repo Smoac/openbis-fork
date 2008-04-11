@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A factory of {@link IParserObjectFactory} objects based on a {@link IAliasPropertyMapper}.
+ * A factory of {@link IParserObjectFactory} objects based on a {@link IPropertyMapper}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -26,6 +26,6 @@ public interface IParserObjectFactoryFactory<T>
     /**
      * Creates a new factory for the specified property mapper.
      */
-    public IParserObjectFactory<T> createFactory(final IAliasPropertyMapper propertyMapper)
+    public IParserObjectFactory<T> createFactory(final IPropertyMapper propertyMapper)
             throws ParserException;
 }
