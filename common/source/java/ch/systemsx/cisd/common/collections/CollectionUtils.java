@@ -36,7 +36,7 @@ public final class CollectionUtils
      * Abbreviates a given array of <code>Object</code>.
      * <p>
      * By default it shows the number of items left,
-     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are
+     * {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are
      * used.
      * </p>
      * 
@@ -52,7 +52,7 @@ public final class CollectionUtils
      * Abbreviates a given <code>Collection</code>.
      * <p>
      * By default it shows the number of items left,
-     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and {@link ToStringDefaultConverter} are
+     * {@link CollectionStyle#DEFAULT} and {@link ToStringDefaultConverter} are
      * used.
      * </p>
      * 
@@ -107,7 +107,7 @@ public final class CollectionUtils
             final IToStringConverter<? super T> converter)
     {
         return abbreviate(collection, maxLength, converter,
-                CollectionStyle.DEFAULT_COLLECTION_STYLE);
+                CollectionStyle.DEFAULT);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * By default {@link CollectionStyle#DEFAULT} and
      * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
@@ -144,7 +144,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} and
+     * By default {@link CollectionStyle#DEFAULT} and
      * {@link ToStringDefaultConverter} are used.
      * </p>
      * 
@@ -160,7 +160,7 @@ public final class CollectionUtils
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default {@link CollectionStyle#DEFAULT} is used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -170,25 +170,25 @@ public final class CollectionUtils
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
         return abbreviate(objects, maxLength, showLeft, converter,
-                CollectionStyle.DEFAULT_COLLECTION_STYLE);
+                CollectionStyle.DEFAULT);
     }
 
     /**
      * Abbreviates a given array of <code>Object</code>.
      * <p>
-     * {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used and all items is displayed.
+     * {@link CollectionStyle#DEFAULT} is used and all items is displayed.
      * </p>
      */
     public final static <T> String abbreviate(final T[] objects,
             final IToStringConverter<? super T> converter)
     {
-        return abbreviate(objects, -1, false, converter, CollectionStyle.DEFAULT_COLLECTION_STYLE);
+        return abbreviate(objects, -1, false, converter, CollectionStyle.DEFAULT);
     }
 
     /**
      * Abbreviates a given <code>Collection</code>.
      * <p>
-     * By default {@link CollectionStyle#DEFAULT_COLLECTION_STYLE} is used.
+     * By default {@link CollectionStyle#DEFAULT} is used.
      * </p>
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
@@ -198,7 +198,7 @@ public final class CollectionUtils
             final boolean showLeft, final IToStringConverter<? super T> converter)
     {
         return abbreviate(collection, maxLength, showLeft, converter,
-                CollectionStyle.DEFAULT_COLLECTION_STYLE);
+                CollectionStyle.DEFAULT);
     }
 
     /**

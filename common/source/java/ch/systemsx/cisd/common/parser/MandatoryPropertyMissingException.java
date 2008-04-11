@@ -58,7 +58,7 @@ public final class MandatoryPropertyMissingException extends ParserException
 
     final static String toString(final Set<String> set)
     {
-        return CollectionUtils.abbreviate(set, -1, CollectionStyle.NO_BOUNDARY_COLLECTION_STYLE);
+        return CollectionUtils.abbreviate(set, -1, CollectionStyle.NO_BOUNDARY);
     }
 
     public final Set<String> getMissingMandatoryProperties()

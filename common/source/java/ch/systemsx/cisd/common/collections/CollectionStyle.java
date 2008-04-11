@@ -24,8 +24,7 @@ package ch.systemsx.cisd.common.collections;
 public enum CollectionStyle
 {
     /** Default <code>CollectionStyle</code>. */
-    DEFAULT_COLLECTION_STYLE("[", "]", ", "), NO_BOUNDARY_COLLECTION_STYLE("", "", ", "),
-    NICE_COLLECTION_STYLE("'", "'", "', '");
+    DEFAULT("[", "]", ", "), NO_BOUNDARY("", "", ", "), SINGLE_QUOTE_BOUNDARY("'", "'", "', '");
 
     private final String collectionStart;
 

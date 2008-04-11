@@ -59,7 +59,7 @@ public final class CollectionUtilsTest
     public final void testAbbreviateWithArray()
     {
         final String[] s = StringUtilities.getStrings(5);
-        final CollectionStyle collectionStyle = CollectionStyle.DEFAULT_COLLECTION_STYLE;
+        final CollectionStyle collectionStyle = CollectionStyle.DEFAULT;
         String string =
                 collectionStyle.getCollectionStart()
                         + StringUtils.join(s, collectionStyle.getCollectionSeparator())
