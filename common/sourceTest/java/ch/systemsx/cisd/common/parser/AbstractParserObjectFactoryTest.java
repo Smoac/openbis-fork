@@ -32,23 +32,38 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
 public final class AbstractParserObjectFactoryTest
 {
 
-    private final static IPropertyMapper createPropertyMapper()
+    private static final int BEAN_NUMBER = 1;
+
+    private static final String BEAN_DESCRIPTION = "Bean Description";
+
+    private static final String BEAN_NAME = "Bean Name";
+
+    private final static IPropertyMapper createPropertyMapper(final boolean mixedCase)
     {
-        return new DefaultPropertyMapper(new String[]
-            { "name", "description", "number" });
+        final String[] strings;
+        if (mixedCase)
+        {
+            strings = new String[]
+                { "NAME", "Description", "NuMbEr" };
+        } else
+        {
+            strings = new String[]
+                { "name", "description", "number" };
+        }
+        return new DefaultPropertyMapper(strings);
     }
 
     private final static String[] createDefaultLineTokens()
     {
         return new String[]
-            { "Bean Name", "Bean Description", "1" };
+            { BEAN_NAME, BEAN_DESCRIPTION, "1" };
     }
 
     private final void checkBean(final Bean bean)
     {
-        assertEquals("Bean Name", bean.name);
-        assertEquals("Bean Description", bean.description);
-        assertEquals(1, bean.number);
+        assertEquals(BEAN_NAME, bean.name);
+        assertEquals(BEAN_DESCRIPTION, bean.description);
+        assertEquals(BEAN_NUMBER, bean.number);
     }
 
     @Test(expectedExceptions = AssertionError.class)
@@ -58,7 +73,7 @@ public final class AbstractParserObjectFactoryTest
     }
 
     @Test
-    public final void testPropertyMapperWithNoExperimentProperties()
+    public final void testPropertyMapperWithUnmatchedProperties()
     {
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
             { "name", "description", "IsNotIn" });
@@ -95,7 +110,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testTooManyDataColumns()
     {
-        final IPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper(false);
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] lineTokens = (String[]) ArrayUtils.add(createDefaultLineTokens(), "notUsed");
         final Bean bean = beanFactory.createObject(lineTokens);
@@ -105,7 +120,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testNotEnoughDataColumns()
     {
-        final IPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper(false);
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         final String[] defaultTokens = createDefaultLineTokens();
         final String[] lineTokens =
@@ -125,7 +140,7 @@ public final class AbstractParserObjectFactoryTest
     @Test
     public final void testRegisterConverterWithNull()
     {
-        final IPropertyMapper propertyMapper = createPropertyMapper();
+        final IPropertyMapper propertyMapper = createPropertyMapper(false);
         final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
         try
         {
@@ -136,6 +151,15 @@ public final class AbstractParserObjectFactoryTest
             // Nothing to do here.
         }
         beanFactory.registerConverter(String.class, null);
+    }
+
+    @Test
+    public final void testCaseInsensitivity()
+    {
+        final IPropertyMapper propertyMapper = createPropertyMapper(true);
+        final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
+        final Bean bean = beanFactory.createObject(createDefaultLineTokens());
+        checkBean(bean);
     }
 
     //
