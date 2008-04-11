@@ -56,6 +56,30 @@ public class TableMap<K, E> implements Iterable<E>
     private final UniqueKeyViolationStrategy uniqueKeyViolationStrategy;
 
     /**
+     * Creates a new instance for specified key extractor.
+     * 
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
+     */
+    public TableMap(final IKeyExtractor<K, E> extractor)
+    {
+        this(null, extractor, UniqueKeyViolationStrategy.ERROR);
+    }
+
+    /**
+     * Creates a new instance for the specified rows and key extractor.
+     * 
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
+     * @param uniqueKeyViolationStrategy Strategy to react on unique key violations.
+     */
+    public TableMap(final IKeyExtractor<K, E> extractor,
+            final UniqueKeyViolationStrategy uniqueKeyViolationStrategy)
+    {
+        this(null, extractor, uniqueKeyViolationStrategy);
+    }
+
+    /**
      * Creates a new instance for the specified rows and key extractor.
      * 
      * @param rows Collection of rows of type <code>E</code>.
@@ -72,24 +96,26 @@ public class TableMap<K, E> implements Iterable<E>
     /**
      * Creates a new instance for the specified rows and key extractor.
      * 
-     * @param rows Collection of rows of type <code>E</code>.
+     * @param rowsOrNull Collection of rows of type <code>E</code>.
      * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
      *            <code>E</code>.
      * @param uniqueKeyViolationStrategy Strategy to react on unique key violations.
      * @throws UniqueKeyViolationException If the keys of <var>rows</var> are not unique and a
      *             <var>uniqueKeyViolationStrategy</var> of <code>ERROR</code> has been chosen.
      */
-    public TableMap(final Iterable<E> rows, final IKeyExtractor<K, E> extractor,
+    public TableMap(final Iterable<E> rowsOrNull, final IKeyExtractor<K, E> extractor,
             final UniqueKeyViolationStrategy uniqueKeyViolationStrategy)
     {
-        assert rows != null : "Unspecified collection of rows.";
         assert extractor != null : "Unspecified key extractor.";
-        assert uniqueKeyViolationStrategy != null : "Unispecified unique key violation strategy.";
+        assert uniqueKeyViolationStrategy != null : "Unspecified unique key violation strategy.";
         this.extractor = extractor;
         this.uniqueKeyViolationStrategy = uniqueKeyViolationStrategy;
-        for (final E row : rows)
+        if (rowsOrNull != null)
         {
-            add(row);
+            for (final E row : rowsOrNull)
+            {
+                add(row);
+            }
         }
     }
 
