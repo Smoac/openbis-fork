@@ -224,6 +224,25 @@ public final class CollectionUtils
     }
 
     /**
+     * Abbreviates a given array of <code>Object</code>.
+     * 
+     * <pre>
+     * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, false) = &quot;[1, 2, 3, ...]&quot;
+     * CollectionUtils.abbreviate(new String[] { &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot; }, 3, true) = &quot;[1, 2, 3, ... (2 left)]&quot;
+     * </pre>
+     * 
+     * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
+     *            all items will be displayed.
+     * @param style the style that should be applied to the output.
+     */
+    public final static <T> String abbreviate(final T[] objects, final int maxLength,
+            final IToStringConverter<? super T> converter, final CollectionStyle style)
+    {
+        assert objects != null : "Given objects can not be null.";
+        return abbreviate(Arrays.asList(objects), maxLength, true, converter, style);
+    }
+
+    /**
      * Abbreviates a given <code>Collection</code>.
      * 
      * @param maxLength the maximum number of items that should be shown. If <code>-1</code> then
