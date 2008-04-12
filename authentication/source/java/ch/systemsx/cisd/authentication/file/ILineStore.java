@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An abstraction of a file that allows to store and retrieve lines.
- *
+ * 
  * @author Bernd Rinn
  */
 interface ILineStore
@@ -33,12 +33,12 @@ interface ILineStore
      * Returns a unique identifier for this line store.
      */
     String getId();
-    
+
     /**
      * Returns <code>true</code>, if this store exists.
      */
     boolean exists();
-    
+
     /**
      * Checks whether the store is operational.
      * <p>
@@ -47,12 +47,13 @@ interface ILineStore
      * @throws ConfigurationFailureException If this store is not operational.
      */
     void check() throws ConfigurationFailureException;
-    
+
     /**
-     * Returns the lines currently in this store.
+     * Returns the lines currently in this store. If the store does not yet exist, return an empty
+     * list.
      */
     List<String> readLines() throws EnvironmentFailureException;
-    
+
     /**
      * Writes the <var>lines</var> to the store.
      */
