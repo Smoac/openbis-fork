@@ -19,6 +19,7 @@ package ch.systemsx.cisd.authentication.file;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PasswordHasher;
 
 /**
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.common.utilities.PasswordHasher;
  * 
  * @author Bernd Rinn
  */
-class UserEntry
+class UserEntry extends AbstractHashable
 {
     private static final int NUMBER_OF_COLUMNS_IN_PASSWORD_FILE = 5;
 

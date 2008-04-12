@@ -92,10 +92,11 @@ public class PasswordEditorCommand
     public static void main(String[] args)
     {
         final Parameters params = new Parameters(args);
-        final PasswordFile pwFile = new PasswordFile(getPasswordFile());
+        final ILineStore lineStore = new FileBasedLineStore(getPasswordFile(), "Password file");
+        final LineBasedUserStore pwFile = new LineBasedUserStore(lineStore);
         if (params.getCommand().equals(Parameters.Command.ADD) == false && pwFile.exists() == false)
         {
-            System.err.printf("File '%s' does not exist.\n", pwFile.getPath());
+            System.err.printf("File '%s' does not exist.\n", pwFile.getId());
             System.exit(1);
         }
         switch (params.getCommand())

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * An implementation of {@link IAuthenticationService} that gets the authentication information from
- * a password file.
+ * a password store (which is usually backed by a file).
  * <p>
  * The file contains:
  * <ul>
@@ -51,21 +51,28 @@ public class FileAuthenticationService implements IAuthenticationService
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileAuthenticationService.class);
 
-    private final PasswordFile passwordFile;
+    private final IUserStore userStore;
+
+    private static IUserStore createUserStore(final String passwordFileName)
+    {
+        final ILineStore lineStore =
+                new FileBasedLineStore(new File(passwordFileName), "Password file");
+        return new LineBasedUserStore(lineStore);
+    }
 
     public FileAuthenticationService(final String passwordFileName)
     {
-        this.passwordFile = new PasswordFile(new File(passwordFileName));
+        this(createUserStore(passwordFileName));
     }
 
-    public FileAuthenticationService(final File passwordFile)
+    public FileAuthenticationService(IUserStore userStore)
     {
-        this.passwordFile = new PasswordFile(passwordFile);
+        this.userStore = userStore;
     }
 
     private String getToken()
     {
-        return passwordFile.getPath();
+        return userStore.getId();
     }
 
     /**
@@ -84,7 +91,7 @@ public class FileAuthenticationService implements IAuthenticationService
             operationLog.warn(String.format(TOKEN_FAILURE_MSG_TEMPLATE, token, applicationToken));
             return false;
         }
-        return passwordFile.isPasswordCorrect(user, password);
+        return userStore.isPasswordCorrect(user, password);
     }
 
     public Principal getPrincipal(String applicationToken, String user)
@@ -95,12 +102,12 @@ public class FileAuthenticationService implements IAuthenticationService
             operationLog.warn(String.format(TOKEN_FAILURE_MSG_TEMPLATE, token, applicationToken));
             return null;
         }
-        return passwordFile.tryGetUser(user).asPrincial();
+        return userStore.tryGetUser(user).asPrincial();
     }
 
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
-        passwordFile.check();
+        userStore.check();
     }
 
 }
