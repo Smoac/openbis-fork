@@ -68,6 +68,7 @@ public class FileAuthenticationService implements IAuthenticationService
     public FileAuthenticationService(IUserStore userStore)
     {
         this.userStore = userStore;
+        userStore.check();
     }
 
     private String getToken()
@@ -76,7 +77,7 @@ public class FileAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Returns the path of the password file, which we consider to be the token.
+     * Returns the id of the password store, which we consider to be the token.
      */
     public String authenticateApplication()
     {
@@ -102,7 +103,12 @@ public class FileAuthenticationService implements IAuthenticationService
             operationLog.warn(String.format(TOKEN_FAILURE_MSG_TEMPLATE, token, applicationToken));
             return null;
         }
-        return userStore.tryGetUser(user).asPrincial();
+        final UserEntry userOrNull = userStore.tryGetUser(user);
+        if (userOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find user '" + user + "'.");
+        }
+        return userOrNull.asPrincial();
     }
 
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
