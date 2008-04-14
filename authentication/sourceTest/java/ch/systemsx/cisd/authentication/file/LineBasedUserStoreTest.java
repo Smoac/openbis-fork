@@ -74,34 +74,6 @@ public class LineBasedUserStoreTest
     }
 
     @Test
-    public void testStoreExists()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(lineStore).exists();
-                    will(returnValue(true));
-                }
-            });
-        assertTrue(userStore.exists());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testStoreDoesntExist()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(lineStore).exists();
-                    will(returnValue(false));
-                }
-            });
-        assertFalse(userStore.exists());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testCheck()
     {
         context.checking(new Expectations()

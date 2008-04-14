@@ -35,11 +35,6 @@ interface ILineStore
     String getId();
 
     /**
-     * Returns <code>true</code>, if this store exists.
-     */
-    boolean exists();
-
-    /**
      * Checks whether the store is operational.
      * <p>
      * Supposed to be called at program start up.

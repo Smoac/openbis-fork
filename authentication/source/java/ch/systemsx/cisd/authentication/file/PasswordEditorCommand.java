@@ -93,25 +93,17 @@ public class PasswordEditorCommand
     {
         final Parameters params = new Parameters(args);
         final ILineStore lineStore = new FileBasedLineStore(getPasswordFile(), "Password file");
-        final LineBasedUserStore pwFile = new LineBasedUserStore(lineStore);
-        if (params.getCommand().equals(Parameters.Command.ADD) == false && pwFile.exists() == false)
-        {
-            System.err.printf("File '%s' does not exist.\n", pwFile.getId());
-            System.exit(1);
-        }
+        final IUserStore userStore = new LineBasedUserStore(lineStore);
         switch (params.getCommand())
         {
             case ADD:
             {
                 final String userId = params.getUserId();
-                if (pwFile.exists())
+                final UserEntry userOrNull = userStore.tryGetUser(userId);
+                if (userOrNull != null)
                 {
-                    final UserEntry userOrNull = pwFile.tryGetUser(userId);
-                    if (userOrNull != null)
-                    {
-                        System.err.printf("User '%s' already exists.\n", userId);
-                        System.exit(1);
-                    }
+                    System.err.printf("User '%s' already exists.\n", userId);
+                    System.exit(1);
                 }
                 final String password;
                 if (params.tryGetPassword() != null)
@@ -124,13 +116,13 @@ public class PasswordEditorCommand
                 final UserEntry user =
                         new UserEntry(params.getUserId(), params.tryGetFirstName(), params
                                 .tryGetLastName(), params.tryGetEmail(), password);
-                pwFile.addOrUpdateUser(user);
+                userStore.addOrUpdateUser(user);
                 break;
             }
             case CHANGE:
             {
                 final String userId = params.getUserId();
-                final UserEntry userOrNull = pwFile.tryGetUser(userId);
+                final UserEntry userOrNull = userStore.tryGetUser(userId);
                 if (userOrNull == null)
                 {
                     System.err.printf("User '%s' does not exist.\n", userId);
@@ -156,13 +148,13 @@ public class PasswordEditorCommand
                 {
                     userOrNull.setPassword(readPassword());
                 }
-                pwFile.addOrUpdateUser(userOrNull);
+                userStore.addOrUpdateUser(userOrNull);
                 break;
             }
             case LIST:
             {
                 printHeader();
-                for (UserEntry user : pwFile.listUsers())
+                for (UserEntry user : userStore.listUsers())
                 {
                     printUser(user);
                 }
@@ -171,7 +163,7 @@ public class PasswordEditorCommand
             case REMOVE:
             {
                 final String userId = params.getUserId();
-                if (pwFile.removeUser(userId) == false)
+                if (userStore.removeUser(userId) == false)
                 {
                     System.err.printf("User '%s' does not exist.\n", userId);
                     System.exit(1);
@@ -181,7 +173,7 @@ public class PasswordEditorCommand
             case SHOW:
             {
                 final String userId = params.getUserId();
-                final UserEntry userOrNull = pwFile.tryGetUser(userId);
+                final UserEntry userOrNull = userStore.tryGetUser(userId);
                 if (userOrNull == null)
                 {
                     System.err.printf("User '%s' does not exist.\n", userId);
@@ -195,7 +187,7 @@ public class PasswordEditorCommand
             case TEST:
             {
                 final String userId = params.getUserId();
-                final UserEntry userOrNull = pwFile.tryGetUser(userId);
+                final UserEntry userOrNull = userStore.tryGetUser(userId);
                 if (userOrNull == null)
                 {
                     System.err.printf("User '%s' does not exist.\n", userId);
@@ -203,7 +195,7 @@ public class PasswordEditorCommand
                     return; // Fake: convince compiler that it is save to dereference userOrNull
                 }
                 final String password = readPassword();
-                if (pwFile.isPasswordCorrect(userId, password))
+                if (userStore.isPasswordCorrect(userId, password))
                 {
                     System.out.printf("User '%s' successfully authenticated.\n", userId);
                 } else

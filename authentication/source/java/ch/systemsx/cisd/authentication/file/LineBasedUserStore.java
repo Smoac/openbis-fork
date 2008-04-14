@@ -57,11 +57,6 @@ final class LineBasedUserStore implements IUserStore
         return lineStore.getId();
     }
 
-    public boolean exists()
-    {
-        return lineStore.exists();
-    }
-
     public UserEntry tryGetUser(String user)
     {
         return tryFindUserEntry(user, lineStore.readLines());

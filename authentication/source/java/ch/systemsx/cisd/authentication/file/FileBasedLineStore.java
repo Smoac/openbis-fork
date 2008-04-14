@@ -61,6 +61,13 @@ final class FileBasedLineStore implements ILineStore
 
     public void check() throws ConfigurationFailureException
     {
+        try
+        {
+            checkWritable();
+        } catch (EnvironmentFailureException ex)
+        {
+            throw new ConfigurationFailureException(ex.getMessage());
+        }
         if (file.canRead() == false)
         {
             final String msg =
@@ -68,13 +75,6 @@ final class FileBasedLineStore implements ILineStore
                             : "%s '%s' does not exist.", fileDescription, file.getAbsolutePath());
             operationLog.error(msg);
             throw new ConfigurationFailureException(msg);
-        }
-        try
-        {
-            checkWritable();
-        } catch (EnvironmentFailureException ex)
-        {
-            throw new ConfigurationFailureException(ex.getMessage());
         }
     }
 
@@ -103,11 +103,6 @@ final class FileBasedLineStore implements ILineStore
             operationLog.error(msg);
             throw new EnvironmentFailureException(msg);
         }
-    }
-
-    public boolean exists()
-    {
-        return file.exists();
     }
 
     public String getId()

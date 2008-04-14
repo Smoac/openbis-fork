@@ -34,11 +34,6 @@ interface IUserStore extends ISelfTestable
     String getId();
 
     /**
-     * Returns <code>true</code>, if the password file backing this class exists.
-     */
-    boolean exists();
-    
-    /**
      * Returns the {@link UserEntry} of <var>user</var>, or <code>null</code>, if this user does
      * not exist.
      */
