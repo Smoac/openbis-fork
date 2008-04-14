@@ -273,11 +273,10 @@ public class CrowdAuthenticationService implements IAuthenticationService
             }
             if (principal == null)
             {
-                throw new EnvironmentFailureException("CROWD: Principal information for user '"
-                        + user + "' could not be obtained.");
+                throw new IllegalArgumentException("Cannot find user '" + user + "'.");
             }
             return principal;
-        } catch (EnvironmentFailureException ex)
+        } catch (IllegalArgumentException ex)
         {
             throw ex;
         } catch (Exception ex) // SAXException, IOException

@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
@@ -250,10 +249,9 @@ public class CrowdAuthenticationServiceTest
         {
             authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e)
+        } catch (IllegalArgumentException e)
         {
-            assertEquals("CROWD: Principal information for user '" + USER
-                    + "' could not be obtained.", e.getMessage());
+            assertEquals("Cannot find user '" + USER + "'.", e.getMessage());
         }
 
         assertEquals(

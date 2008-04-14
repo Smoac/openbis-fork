@@ -28,7 +28,7 @@ public interface IAuthenticationService extends ISelfTestable
 
     /**
      * Attempts authentication of the application with credentials passed in the constructor and
-     * retuns the application token. Implementations should log what is going on, whether the
+     * returns the application token. Implementations should log what is going on, whether the
      * application could register itself successfully or not.
      * <p>
      * The returned application token can then be used to authenticate an user (via
@@ -60,8 +60,10 @@ public interface IAuthenticationService extends ISelfTestable
      * not <code>null</code>) to perform this lookup.
      * </p>
      * 
-     * @return a <code>Principal</code> object if given <var>user</var> could be found,
-     *         <code>null</code> otherwise.
+     * @return The <code>Principal</code> object for the given <var>user</var>.
+     * @throws IllegalArgumentException If either the <var>applicationToken</var> is invalid or the
+     *             <var>user</var> cannot be found.
      */
-    public Principal getPrincipal(String applicationToken, String user);
+    public Principal getPrincipal(String applicationToken, String user)
+            throws IllegalArgumentException;
 }
