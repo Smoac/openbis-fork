@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
+
 /**
  * This class defines in its constructor minimum information that we must know about a
  * <code>Principal</code>.
@@ -33,7 +35,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author Christian Ribeaud
  */
-public class Principal implements Serializable
+public class Principal extends AbstractHashable implements Serializable 
 {
     private static final long serialVersionUID = 1L;
 
