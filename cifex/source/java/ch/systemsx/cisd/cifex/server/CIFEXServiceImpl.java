@@ -270,16 +270,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
             {
                 return null;
             }
-            final Principal principal =
-                    externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-            if (principal == null)
+            final Principal principal;
+            try
             {
-                userBehaviorLog.logFailedLoginAttempt(userOrEmail);
-                final String msg =
-                        "Principal is null for successfully authenticated user '" + userOrEmail
-                                + "'.";
-                operationLog.error(msg);
-                throw new EnvironmentFailureException(msg);
+                principal =
+                        externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
+            } catch (IllegalArgumentException ex)
+            {
+                operationLog.error(ex.getMessage());
+                throw ex;
             }
             final String code = principal.getUserId();
             final String email = principal.getEmail();
