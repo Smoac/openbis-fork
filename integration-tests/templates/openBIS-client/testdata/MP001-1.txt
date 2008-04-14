@@ -1,3 +1,3 @@
-code	materialCode	materialTypeCode
+code	material	material_type
 A03	SCRAM	CONTROL
 A04	GFP	CONTROL

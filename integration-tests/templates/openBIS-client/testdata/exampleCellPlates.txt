@@ -1,4 +1,4 @@
-Cell Plate	Dilution Plate
+code	parent
 3VCP1	3V-123
 3VCP2	3V-123
 3VCP3	3V-125
