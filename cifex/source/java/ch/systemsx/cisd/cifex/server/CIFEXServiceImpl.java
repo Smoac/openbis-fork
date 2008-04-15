@@ -278,7 +278,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             } catch (IllegalArgumentException ex)
             {
                 operationLog.error(ex.getMessage());
-                throw ex;
+                throw new EnvironmentFailureException(ex.getMessage());
             }
             final String code = principal.getUserId();
             final String email = principal.getEmail();

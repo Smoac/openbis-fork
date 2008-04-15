@@ -291,7 +291,7 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testLoginWithExternalServiceFailedBecausePrincipalNotFound() throws Exception
     {
         final String userName = "u";
@@ -306,8 +306,7 @@ public class CIFEXServiceImplTest
             fail("UserFailureException expected.");
         } catch (EnvironmentFailureException ex)
         {
-            assertEquals("Principal is null for successfully authenticated user 'u'.", ex
-                    .getMessage());
+            assertEquals("Cannot find user 'u'.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -552,7 +551,14 @@ public class CIFEXServiceImplTest
                     will(returnValue(true));
 
                     one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE, userName);
-                    will(returnValue(principal));
+                    if (principal != null)
+                    {
+                        will(returnValue(principal));
+                    } else
+                    {
+                        will(throwException(new IllegalArgumentException("Cannot find user '"
+                                + userName + "'.")));
+                    }
                 }
             });
     }
