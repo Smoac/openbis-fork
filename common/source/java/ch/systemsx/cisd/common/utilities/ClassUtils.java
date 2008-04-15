@@ -163,6 +163,7 @@ public final class ClassUtils
             return constructor.newInstance(argumentsOrNull);
         } catch (final ClassNotFoundException e)
         {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         } catch (final InstantiationException ex)
         {
         } catch (final IllegalAccessException ex)
