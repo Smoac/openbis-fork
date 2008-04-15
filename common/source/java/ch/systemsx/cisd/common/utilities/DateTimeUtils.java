@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -31,7 +32,7 @@ public final class DateTimeUtils
 {
     /**
      * Returns the time zone in the following form: <code>GMT+01:00</code> (could not be easily
-     * performed with <i>Java</i>).
+     * performed using {@link DateFormat}).
      */
     public final static String getTimeZone(final Date date)
     {
@@ -61,5 +62,4 @@ public final class DateTimeUtils
     {
         return num < 10 ? "0" + num : "" + num;
     }
-
 }
