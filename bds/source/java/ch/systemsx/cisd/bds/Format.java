@@ -83,7 +83,12 @@ public class Format implements IStorable
      * @param value an example: <code>UNKNOWN [A] V1.2</code>.
      * @return <code>null</code> if operation fails.
      */
-    public static final Format createFormatFromString(final String value)
+    public static final Format tryToCreateFormatFromString(final String value)
+    {
+        return tryToCreateFormatFromString(value, false);
+    }
+    
+    static Format tryToCreateFormatFromString(final String value, final boolean createIfWellFormed)
     {
         assert value != null : "Format string is not expected to be null.";
         int index = value.lastIndexOf('V');
@@ -104,7 +109,7 @@ public class Format implements IStorable
                     }
                 }
                 Format format = FormatStore.getFormat(firstPart, version, variant);
-                if (format == null)
+                if (format == null && createIfWellFormed)
                 {
                     format = new Format(firstPart, version, variant);
                 }

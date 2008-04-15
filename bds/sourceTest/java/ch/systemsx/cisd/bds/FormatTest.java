@@ -28,9 +28,9 @@ public final class FormatTest
 {
 
     @Test
-    public final void testCreateFormatFromString()
+    public final void testTryToCreateFormatFromString()
     {
-        final Format format = Format.createFormatFromString("UNKNOWN [A] V1.2");
+        final Format format = Format.tryToCreateFormatFromString("UNKNOWN [A] V1.2", true);
         final Version version = format.getVersion();
         assertEquals(1, version.getMajor());
         assertEquals(2, version.getMinor());
