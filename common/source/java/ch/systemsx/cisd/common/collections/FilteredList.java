@@ -40,7 +40,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>
      */
-    protected FilteredList(List<E> list, Validator<E> validator)
+    protected FilteredList(final List<E> list, final Validator<E> validator)
     {
         super(list, validator);
     }
@@ -55,7 +55,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>
      */
-    public static <E> List<E> decorate(List<E> list, Validator<E> validator)
+    public static <E> List<E> decorate(final List<E> list, final Validator<E> validator)
     {
         return new FilteredList<E>(list, validator);
     }
@@ -74,22 +74,22 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
     // List
     //
 
-    public E get(int index)
+    public E get(final int index)
     {
         return getList().get(index);
     }
 
-    public int indexOf(Object object)
+    public int indexOf(final Object object)
     {
         return getList().indexOf(object);
     }
 
-    public int lastIndexOf(Object object)
+    public int lastIndexOf(final Object object)
     {
         return getList().lastIndexOf(object);
     }
 
-    public E remove(int index)
+    public E remove(final int index)
     {
         return getList().remove(index);
     }
@@ -99,12 +99,12 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         return getList().listIterator();
     }
 
-    public ListIterator<E> listIterator(int i)
+    public ListIterator<E> listIterator(final int i)
     {
         return getList().listIterator(i);
     }
 
-    public E set(int index, E object)
+    public E set(final int index, final E object)
     {
         if (isValid(object))
         {
@@ -113,12 +113,12 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         return null;
     }
 
-    public List<E> subList(int fromIndex, int toIndex)
+    public List<E> subList(final int fromIndex, final int toIndex)
     {
         return new FilteredList<E>(getList().subList(fromIndex, toIndex), validator);
     }
 
-    public void add(int index, E object)
+    public void add(final int index, final E object)
     {
         if (isValid(object))
         {
@@ -126,7 +126,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
         }
     }
 
-    public boolean addAll(int index, Collection<? extends E> collection)
+    public boolean addAll(final int index, final Collection<? extends E> collection)
     {
         return getList().addAll(index, filterCollection(collection, validator));
     }

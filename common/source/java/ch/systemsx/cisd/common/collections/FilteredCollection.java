@@ -45,7 +45,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      *            <code>null</code>.
      * @return a new filtered collection.
      */
-    public static <E> Collection<E> decorate(Collection<E> coll, Validator<E> validator)
+    public static <E> Collection<E> decorate(final Collection<E> coll, final Validator<E> validator)
     {
         return new FilteredCollection<E>(coll, validator);
     }
@@ -57,7 +57,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>.
      */
-    protected FilteredCollection(Collection<E> collection, Validator<E> validator)
+    protected FilteredCollection(final Collection<E> collection, final Validator<E> validator)
     {
         super(filterCollection(collection, validator));
         assert validator != null;
@@ -73,14 +73,14 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected final static <E> Collection<E> filterCollection(Collection<? extends E> collection,
-            Validator<E> validator)
+    protected final static <E> Collection<E> filterCollection(final Collection<? extends E> collection,
+            final Validator<E> validator)
     {
         if (collection == null)
         {
             return null;
         }
-        for (Iterator<? extends E> iter = collection.iterator(); iter.hasNext(); )
+        for (final Iterator<? extends E> iter = collection.iterator(); iter.hasNext(); )
         {
             if (validator.isValid(iter.next()) == false)
             {
@@ -95,7 +95,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * 
      * @param object the object being added
      */
-    protected boolean isValid(E object)
+    protected boolean isValid(final E object)
     {
         return validator.isValid(object);
     }
@@ -105,7 +105,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     //
 
     @Override
-    public final boolean add(E object)
+    public final boolean add(final E object)
     {
         if (isValid(object))
         {
@@ -115,10 +115,10 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
     }
 
     @Override
-    public final boolean addAll(Collection<? extends E> collection)
+    public final boolean addAll(final Collection<? extends E> collection)
     {
         boolean changed = false;
-        for (E e : collection)
+        for (final E e : collection)
         {
             if (add(e) && changed == false)
             {

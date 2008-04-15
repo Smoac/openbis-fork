@@ -41,7 +41,7 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
      * 
      * @param coll the collection to decorate, must not be <code>null</code>.
      */
-    protected AbstractCollectionDecorator(Collection<E> coll)
+    protected AbstractCollectionDecorator(final Collection<E> coll)
     {
         assert coll != null;
         this.collection = coll;
@@ -61,12 +61,12 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
     // Collection
     //
 
-    public boolean add(E object)
+    public boolean add(final E object)
     {
         return collection.add(object);
     }
 
-    public boolean addAll(Collection<? extends E> coll)
+    public boolean addAll(final Collection<? extends E> coll)
     {
         return collection.addAll(coll);
     }
@@ -76,7 +76,7 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
         collection.clear();
     }
 
-    public boolean contains(Object object)
+    public boolean contains(final Object object)
     {
         return collection.contains(object);
     }
@@ -91,7 +91,7 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
         return collection.iterator();
     }
 
-    public boolean remove(Object object)
+    public boolean remove(final Object object)
     {
         return collection.remove(object);
     }
@@ -106,22 +106,22 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
         return collection.toArray();
     }
 
-    public <T> T[] toArray(T[] object)
+    public <T> T[] toArray(final T[] object)
     {
         return collection.toArray(object);
     }
 
-    public boolean containsAll(Collection<?> coll)
+    public boolean containsAll(final Collection<?> coll)
     {
         return collection.containsAll(coll);
     }
 
-    public boolean removeAll(Collection<?> coll)
+    public boolean removeAll(final Collection<?> coll)
     {
         return collection.removeAll(coll);
     }
 
-    public boolean retainAll(Collection<?> coll)
+    public boolean retainAll(final Collection<?> coll)
     {
         return collection.retainAll(coll);
     }
@@ -131,7 +131,7 @@ public abstract class AbstractCollectionDecorator<E> implements Collection<E>
     //
 
     @Override
-    public final boolean equals(Object object)
+    public final boolean equals(final Object object)
     {
         if (object == this)
         {
