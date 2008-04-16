@@ -41,6 +41,14 @@ public enum BooleanOrUnknown
     {
         return databaseRepresentation;
     }
+    
+    /**
+     * Resolve the specified boolean flag to either {@link #TRUE} or {@link #FALSE}.
+     */
+    public static BooleanOrUnknown resolve(boolean flag)
+    {
+        return flag ? TRUE : FALSE;
+    }
 
     /**
      * Returns the value for the corresponding <var>databaseRepresentation</var>. The
