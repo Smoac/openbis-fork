@@ -59,17 +59,17 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return (Boolean) getFormatParameters().getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
     }
 
-    private final Geometry getWellGeometry()
+    public final Geometry getWellGeometry()
     {
         return (Geometry) getFormatParameters().getValue(WellGeometry.WELL_GEOMETRY);
     }
 
-    private final Geometry getPlateGeometry()
+    public final Geometry getPlateGeometry()
     {
         return (Geometry) getFormatParameters().getValue(PlateGeometry.PLATE_GEOMETRY);
     }
 
-    private final int getChannelCount()
+    public final int getChannelCount()
     {
         return ((Integer) getFormatParameters().getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS))
                 .intValue();
@@ -169,20 +169,20 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     // IHCSFormattedData
     //
 
-    public final INode tryGetStandardNodeAt(final int channel, final Location plateLocation,
-            final Location wellLocation)
+    public final INode tryGetStandardNodeAt(final int channel, final Location wellLocation,
+            final Location tileLocation)
     {
-        checkCoordinates(channel, plateLocation, wellLocation);
+        checkCoordinates(channel, wellLocation, tileLocation);
         try
         {
             final IDirectory standardDir = getStandardDataDirectory();
             final IDirectory channelDir =
                     Utilities.getSubDirectory(standardDir, getChannelName(channel));
             final IDirectory plateRowDir =
-                    Utilities.getSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+                    Utilities.getSubDirectory(channelDir, getPlateRowDirName(wellLocation));
             final IDirectory plateColumnDir =
-                    Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
-            return plateColumnDir.tryGetNode(createWellFileName(wellLocation));
+                    Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(wellLocation));
+            return plateColumnDir.tryGetNode(createWellFileName(tileLocation));
         } catch (final DataStructureException e)
         {
             return null;
@@ -190,28 +190,28 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     }
 
     public final NodePath addStandardNode(final File imageRootDirectory,
-            final String imageRelativePath, final int channel, final Location plateLocation,
-            final Location wellLocation) throws DataStructureException
+            final String imageRelativePath, final int channel, final Location wellLocation,
+            final Location tileLocation) throws DataStructureException
     {
         assert imageRootDirectory != null : "Given image root directory can not be null.";
         assert imageRelativePath != null : "Given image relative path can not be null.";
-        INode node = tryGetStandardNodeAt(channel, plateLocation, wellLocation);
+        INode node = tryGetStandardNodeAt(channel, wellLocation, tileLocation);
         if (node != null)
         {
             throw new DataStructureException(
                     String
                             .format(
                                     "A node already exists at channel %d, plate location '%s' and well location '%s'.",
-                                    channel, plateLocation, wellLocation));
+                                    channel, wellLocation, tileLocation));
         }
         final IDirectory standardDir = getStandardDataDirectory();
         final IDirectory channelDir =
                 Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
         final IDirectory plateRowDir =
-                Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(plateLocation));
+                Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(wellLocation));
         final IDirectory plateColumnDir =
-                Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(plateLocation));
-        final String wellFileName = createWellFileName(wellLocation);
+                Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(wellLocation));
+        final String wellFileName = createWellFileName(tileLocation);
         if (containsOriginalData())
         {
             final IDirectory imageRootDirectoryNode = getImageRootDirectoryNode(imageRootDirectory);
@@ -236,7 +236,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                     String
                             .format(
                                     "Original file name '%s' could not be added at channel %d, plate location '%s' and well location '%s'.",
-                                    imageRelativePath, channel, plateLocation, wellLocation));
+                                    imageRelativePath, channel, wellLocation, tileLocation));
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =

@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import types.BooleanOrUnknown;
+
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.collections.CollectionIO;
@@ -47,6 +49,8 @@ public final class DataSet implements IStorable
     static final String OBSERVABLE_TYPE = "observable_type";
 
     static final String IS_MEASURED = "is_measured";
+    
+    static final String IS_COMPLETE = "is_complete";
 
     static final String PARENT_CODES = "parent_codes";
 
@@ -67,10 +71,12 @@ public final class DataSet implements IStorable
      * by means of some calculation from another data set.
      */
     private final boolean isMeasured;
-
+    
     /** The list of parent codes. Never <code>null</code> but could be empty. */
     private final List<String> parentCodes;
 
+    private BooleanOrUnknown isComplete = BooleanOrUnknown.UNKNOWN;
+    
     /**
      * Creates an instance of data set.
      * 
@@ -141,6 +147,11 @@ public final class DataSet implements IStorable
     {
         return parentCodes;
     }
+    
+    public final void setComplete(boolean complete)
+    {
+        isComplete = BooleanOrUnknown.resolve(complete);
+    }
 
     /**
      * Loads the experiment identifier from the specified directory.
@@ -176,6 +187,7 @@ public final class DataSet implements IStorable
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
         folder.addKeyValuePair(IS_MEASURED, Boolean.toString(isMeasured).toUpperCase());
         folder.addKeyValuePair(OBSERVABLE_TYPE, observableTypeCode);
+        folder.addKeyValuePair(IS_COMPLETE, isComplete.toString());
         final String value;
         if (parentCodes.size() > 0)
         {

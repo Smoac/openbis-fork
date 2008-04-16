@@ -31,9 +31,29 @@ import ch.systemsx.cisd.bds.storage.INode;
  */
 public interface IHCSImageFormattedData extends IFormattedData
 {
+    /**
+     * Returns <code>true</code> if the data structure contains the original data.
+     */
+    public boolean containsOriginalData();
+    
+    /**
+     * Returns the number of channels.
+     */
+    public int getChannelCount();
+    
+    /**
+     * Returns the geometric arrangement of the tiles of a well.
+     */
+    public Geometry getWellGeometry();
 
     /**
-     * For given <var>channel</var>, given <var>plateLocation</var> and given <var>wellLocation</var>
+     * Returns the geometric arrangement of the wells of a plate.
+     */
+    public Geometry getPlateGeometry();
+
+    
+    /**
+     * For given <var>channel</var>, given <var>wellLocation</var> and given <var>tileLocation</var>
      * returns the corresponding <code>INode</code> (found in <code>data/standard</code>
      * directory).
      * 
@@ -41,8 +61,8 @@ public interface IHCSImageFormattedData extends IFormattedData
      *         <code>data/original</code> directory or a {@link IFile} that can be extracted
      *         somewhere. Might return <code>null</code>.
      */
-    public INode tryGetStandardNodeAt(final int channel, final Location plateLocation,
-            final Location wellLocation);
+    public INode tryGetStandardNodeAt(final int channel, final Location wellLocation,
+            final Location tileLocation);
 
     /**
      * Adds a new image file at given coordinates.
@@ -57,8 +77,9 @@ public interface IHCSImageFormattedData extends IFormattedData
      * @throws DataStructureException if a node already exists at given coordinates.
      */
     public NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath,
-            final int channel, final Location plateLocation, final Location wellLocation)
+            final int channel, final Location wellLocation, final Location tileLocation)
             throws DataStructureException;
+    
 
     //
     // Helper classes

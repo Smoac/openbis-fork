@@ -52,10 +52,8 @@ public final class HCSImageFormatV1_0 extends Format
      * These parameters are located in <code>metadata/parameters</code>.
      * </p>
      */
-    private final static String[] FORMAT_PARAMETERS =
-            new String[]
-                { PlateGeometry.PLATE_GEOMETRY, WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS,
-                        CONTAINS_ORIGINAL_DATA };
+    private final static String[] FORMAT_PARAMETERS = new String[]
+        { WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
 
     /**
      * The one and only one instance.
