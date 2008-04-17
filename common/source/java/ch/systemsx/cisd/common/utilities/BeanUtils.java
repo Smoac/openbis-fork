@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -815,6 +816,9 @@ public final class BeanUtils
         }
     }
 
+    private final static Map<Class<?>, Collection<Class<?>>> cache =
+            new HashMap<Class<?>, Collection<Class<?>>>();
+
     private static Method getConverterMethod(final Method setter, final Object sourceBean,
             final Converter converter)
     {
@@ -822,16 +826,20 @@ public final class BeanUtils
         {
             final String methodName =
                     "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
-            final Class<? extends Converter> converterClasss = converter.getClass();
-            final Collection<Class<?>> classes =
-                    ClassUtils.gatherAllCastableClassesAndInterfacesFor(sourceBean);
+            final Class<? extends Converter> converterClass = converter.getClass();
+            final Class<?> beanClass = sourceBean.getClass();
+            Collection<Class<?>> classes = cache.get(beanClass);
+            if (classes == null)
+            {
+                classes = ClassUtils.gatherAllCastableClassesAndInterfacesFor(sourceBean);
+                cache.put(beanClass, classes);
+            }
             for (final Class<?> clazz : classes)
             {
                 try
                 {
-                    final Method converterMethod =
-                            converterClasss.getMethod(methodName, new Class[]
-                                { clazz });
+                    final Method converterMethod = converterClass.getMethod(methodName, new Class[]
+                        { clazz });
                     if (converterMethod.isAccessible() == false)
                     {
                         converterMethod.setAccessible(true);
