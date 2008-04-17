@@ -688,10 +688,10 @@ function assert_correct_dataset_content_in_database {
     local dataset=`psql -U postgres -d lims_integration_test \
        -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
-           from data as d left join data_set_relationships as r on r.data_id_child = d.id, \
-                procedures as p join procedure_types as pt on pt.id = p.pcty_id, \
-                external_data as ed \
-           where ed.data_id = d.id and p.id = d.proc_id_produced_by and d.id = $dataset_id"  \
+           from data as d left join data_set_relationships as r on r.data_id_child = d.id \
+                          left join external_data as ed on ed.data_id = d.id, \
+                procedures as p join procedure_types as pt on pt.id = p.pcty_id \
+           where p.id = d.proc_id_produced_by and d.id = $dataset_id"  \
        | awk '/ +[0-9]+/' \
        | awk '{gsub(/ /,"");print}' \
        | awk '{gsub(/\|/,";");print}'`
