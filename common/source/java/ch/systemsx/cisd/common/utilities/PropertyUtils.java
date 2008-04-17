@@ -83,7 +83,31 @@ public final class PropertyUtils
         }
         return property;
     }
-
+    
+    /**
+     * Returns a certain property from the specified properties.
+     * 
+     * @return the property value without leading and trailing white spaces.
+     * @throws ConfigurationFailureException if no property found or the result would be an empty
+     *             string.
+     */
+    public static String getProperty(Properties properties, String propertyKey)
+            throws ConfigurationFailureException
+    {
+        assertParameters(properties, propertyKey);
+        String property = properties.getProperty(propertyKey);
+        if (property == null)
+        {
+            throw new ConfigurationFailureException("Unspecified property '" + propertyKey + "'.");
+        }
+        property = property.trim();
+        if (property.length() == 0)
+        {
+            throw new ConfigurationFailureException("Property '" + propertyKey
+                    + "' is an empty string.");
+        }
+        return property;
+    }
     /**
      * Looks up given <var>propertyKey</var> in given <var>properties</var>.
      * 
