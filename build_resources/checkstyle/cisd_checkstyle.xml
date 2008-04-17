@@ -46,7 +46,6 @@ The mandatory checks for the CISD source code repository.
             <property name="severity" value="ignore"/>
         </module>
         <module name="EmptyForIteratorPad">
-            <property name="severity" value="ignore"/>
             <property name="option" value="space"/>
         </module>
         <module name="NoWhitespaceAfter">
