@@ -720,7 +720,7 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 4 "4;IMAGE_ANALYSIS;20[0-9]*-4;f;5;U;;"
     assert_correct_dataset_content_in_database 5 "5;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 6 "6;IMAGE_ANALYSIS;20[0-9]*-6;f;7;U;;"
-    assert_correct_dataset_content_in_database 7 "7;UNKNOWN;MICROX-3VCP4;t;;U;;"
+    assert_correct_dataset_content_in_database 7 "7;UNKNOWN;MICROX-3VCP4;t;;;;"
     assert_correct_dataset_content_in_database 8 "8;IMAGE_ANALYSIS;20[0-9]*-8;f;5;U;;"
 }
 
