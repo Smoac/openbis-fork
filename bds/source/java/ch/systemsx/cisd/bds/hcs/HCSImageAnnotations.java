@@ -63,9 +63,16 @@ public final class HCSImageAnnotations implements IAnnotations
             throw new DataStructureException("One of the following formats expected instead of '"
                     + format + "': " + FORMATS);
         }
-        final int channelCount =
-                ((Integer) formattedData.getFormatParameters().getValue(
-                        HCSImageFormatV1_0.NUMBER_OF_CHANNELS)).intValue();
+        Object value =
+                formattedData.getFormatParameters().getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
+        int channelCount;
+        if (value instanceof Integer)
+        {
+            channelCount = ((Integer) value).intValue();
+        } else
+        {
+            channelCount = Integer.parseInt(String.valueOf(value));
+        }
         final int size = channels.size();
         if (channelCount != size)
         {
