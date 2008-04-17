@@ -185,6 +185,25 @@ public final class BeanUtils
      * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
      * for parameter specification.
      */
+    public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source)
+    {
+        return createBeanArray(clazz, Arrays.asList(source), null);
+    }
+
+    /**
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
+     * for parameter specification.
+     */
+    public final static <T, S> T[] createBeanArray(final Class<T> clazz, final S[] source,
+            final Converter converter)
+    {
+        return createBeanArray(clazz, Arrays.asList(source), converter);
+    }
+
+    /**
+     * Creates a new array of Beans of type <var>clazz</var>. See <code>createBeanList()</code>
+     * for parameter specification.
+     */
     public final static <T, S> T[] createBeanArray(final Class<T> clazz,
             final Collection<S> source, final Converter converter)
     {
@@ -899,7 +918,7 @@ public final class BeanUtils
             final List<PropertyDescriptor> descriptors =
                     new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
                             .getPropertyDescriptors()));
-            for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext(); )
+            for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
             {
                 final PropertyDescriptor descriptor = iter.next();
                 // If no write method, remove it. For instance 'class' property does not have any
