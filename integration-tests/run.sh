@@ -615,8 +615,12 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local metadata_dir=$raw_data_set/metadata
     assert_dir_exists $metadata_dir
     assert_equals_as_in_file microX-3VCP1 $metadata_dir/data_set/code
-#    assert_equals_as_in_file TRUE $metadata_dir/data_set/is_measured
+    assert_equals_as_in_file TRUE $metadata_dir/data_set/is_measured
     assert_equals_as_in_file FALSE $metadata_dir/data_set/is_complete
+    assert_equals_as_in_file HCS_IMAGE $metadata_dir/data_set/observable_type
+    assert_equals_as_in_file microX $metadata_dir/data_set/producer_code
+    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
+    assert_equals_as_in_file CELL_PLATE $metadata_dir/sample/type_code
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/group_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
