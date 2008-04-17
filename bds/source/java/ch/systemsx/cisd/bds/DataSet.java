@@ -54,9 +54,6 @@ public final class DataSet implements IStorable
 
     static final String PARENT_CODES = "parent_codes";
 
-    /** This data set unique identifier. */
-    private final String code;
-
     /** Provides the information when the data set has been created. */
     private final Date productionTimestamp;
 
@@ -75,6 +72,9 @@ public final class DataSet implements IStorable
     /** The list of parent codes. Never <code>null</code> but could be empty. */
     private final List<String> parentCodes;
 
+    /** This data set unique identifier. */
+    private String code;
+    
     private BooleanOrUnknown isComplete = BooleanOrUnknown.UNKNOWN;
     
     /**
@@ -103,8 +103,7 @@ public final class DataSet implements IStorable
             final Date productionTimestampOrNull, final String producerCodeOrNull,
             final List<String> parentCodesOrNull)
     {
-        assert StringUtils.isEmpty(code) == false : "Unspecified data set code.";
-        this.code = code;
+        this.code = code == null ? "" : code;
         this.isMeasured = isMeasured;
         assert StringUtils.isEmpty(observableType) == false : "Unspecified observable type.";
         this.observableTypeCode = observableType;
@@ -116,6 +115,11 @@ public final class DataSet implements IStorable
                 parentCodesOrNull == null ? Collections.<String> emptyList() : parentCodesOrNull;
         this.producerCode = producerCodeOrNull;
         this.productionTimestamp = productionTimestampOrNull;
+    }
+
+    public final void setCode(String code)
+    {
+        this.code = code;
     }
 
     public final String getCode()
