@@ -106,11 +106,12 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
     public void testSetExperimentIdentifier()
     {
         dataStructure.create();
-        final ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
+        final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.FOLDER);
+        assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
         assertEquals("e\n", Utilities.getString(idDir, ExperimentIdentifier.EXPERIMENT_CODE));
@@ -120,12 +121,13 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
     public void testSetExperimentIdentifierTwice()
     {
         dataStructure.create();
-        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("a", "b", "c"));
-        final ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("0", "a", "b", "c"));
+        final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.FOLDER);
+        assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
         assertEquals("e\n", Utilities.getString(idDir, ExperimentIdentifier.EXPERIMENT_CODE));
@@ -149,7 +151,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
     public void testGetExperimentIdentifier()
     {
         dataStructure.create();
-        final ExperimentIdentifier id = new ExperimentIdentifier("g", "p", "e");
+        final ExperimentIdentifier id = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(id);
         assertEquals(id, dataStructure.getExperimentIdentifier());
     }
@@ -240,7 +242,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
         dataStructure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(
                 new Date(0)));
         try
@@ -259,7 +261,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
         try
         {
@@ -277,7 +279,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("g", "p", "e"));
+        dataStructure.setExperimentIdentifier(new ExperimentIdentifier("i", "g", "p", "e"));
         dataStructure.setExperimentRegistrator(new ExperimentRegistrator("g", "p", "g@p"));
         dataStructure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(
                 new Date(0)));
@@ -297,7 +299,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("g", "p", "e");
+        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         final ExperimentRegistrationTimestamp experimentRegistratorDate =
                 new ExperimentRegistrationTimestamp(new Date(4711L * 4711000L));
@@ -486,7 +488,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         final IDirectory metaData = root.makeDirectory(DataStructureV1_0.DIR_METADATA);
         new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null)
                 .saveTo(metaData);
-        new ExperimentIdentifier("g", "p", "e").saveTo(metaData);
+        new ExperimentIdentifier("i", "g", "p", "e").saveTo(metaData);
         new ExperimentRegistrationTimestamp(new Date(0)).saveTo(metaData);
         new ExperimentRegistrator("john", "doe", "j@doe").saveTo(metaData);
         new Sample("a", "CELL_PLATE", "b").saveTo(metaData);

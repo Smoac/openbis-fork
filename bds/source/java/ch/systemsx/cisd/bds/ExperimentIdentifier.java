@@ -28,6 +28,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 public class ExperimentIdentifier implements IStorable
 {
     static final String FOLDER = "experiment_identifier";
+    
+    static final String INSTANCE_CODE = "instance_code";
 
     static final String GROUP_CODE = "group_code";
 
@@ -43,12 +45,15 @@ public class ExperimentIdentifier implements IStorable
     final static ExperimentIdentifier loadFrom(final IDirectory directory)
     {
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
+        final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);
         final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
         final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
         final String experimentCode = Utilities.getTrimmedString(idFolder, EXPERIMENT_CODE);
-        return new ExperimentIdentifier(groupCode, projectCode, experimentCode);
+        return new ExperimentIdentifier(instanceCode, groupCode, projectCode, experimentCode);
     }
 
+    private final String instanceCode;
+    
     private final String groupCode;
 
     private final String projectCode;
@@ -58,19 +63,30 @@ public class ExperimentIdentifier implements IStorable
     /**
      * Creates an instance for the specified codes of group, project, and experiment.
      * 
+     * @param instanceCode A non-empty string of the instance code.
      * @param groupCode A non-empty string of the group code.
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
      */
-    public ExperimentIdentifier(final String groupCode, final String projectCode,
+    public ExperimentIdentifier(final String instanceCode, final String groupCode, final String projectCode,
             final String experimentCode)
     {
+        assert StringUtils.isEmpty(instanceCode) == false : "Undefined instance code";
+        this.instanceCode = instanceCode;
         assert StringUtils.isEmpty(groupCode) == false : "Undefined group code";
         this.groupCode = groupCode;
         assert StringUtils.isEmpty(projectCode) == false : "Undefined project code";
         this.projectCode = projectCode;
         assert StringUtils.isEmpty(experimentCode) == false : "Undefined experiment code";
         this.experimentCode = experimentCode;
+    }
+
+    /**
+     * Returns the instance code;
+     */
+    public final String getInstanceCode()
+    {
+        return instanceCode;
     }
 
     /**
@@ -107,6 +123,7 @@ public class ExperimentIdentifier implements IStorable
     public final void saveTo(final IDirectory directory)
     {
         final IDirectory folder = directory.makeDirectory(FOLDER);
+        folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
         folder.addKeyValuePair(PROJECT_CODE, projectCode);
         folder.addKeyValuePair(EXPERIMENT_CODE, experimentCode);
@@ -128,14 +145,15 @@ public class ExperimentIdentifier implements IStorable
             return false;
         }
         final ExperimentIdentifier id = (ExperimentIdentifier) obj;
-        return id.groupCode.equals(groupCode) && id.projectCode.equals(projectCode)
-                && id.experimentCode.equals(experimentCode);
+        return id.instanceCode.equals(instanceCode) && id.groupCode.equals(groupCode)
+                && id.projectCode.equals(projectCode) && id.experimentCode.equals(experimentCode);
     }
 
     @Override
     public final int hashCode()
     {
         int result = 17;
+        result = 37 * result + instanceCode.hashCode();
         result = 37 * result + groupCode.hashCode();
         result = 37 * result + projectCode.hashCode();
         result = 37 * result + experimentCode.hashCode();
@@ -145,8 +163,8 @@ public class ExperimentIdentifier implements IStorable
     @Override
     public final String toString()
     {
-        return "[group:" + groupCode + ",project:" + projectCode + ",experiment:" + experimentCode
-                + "]";
+        return "[instance:" + instanceCode + ",group:" + groupCode + ",project:" + projectCode
+                + ",experiment:" + experimentCode + "]";
     }
 
 }

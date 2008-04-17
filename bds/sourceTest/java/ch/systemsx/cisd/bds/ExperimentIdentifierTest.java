@@ -33,12 +33,12 @@ public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<Exper
     @Override
     protected final ExperimentIdentifier createInstance() throws Exception
     {
-        return new ExperimentIdentifier("group", "project", "experiment1");
+        return new ExperimentIdentifier("instance", "group", "project", "experiment1");
     }
 
     @Override
     protected final ExperimentIdentifier createNotEqualInstance() throws Exception
     {
-        return new ExperimentIdentifier("group", "project", "experiment2");
+        return new ExperimentIdentifier("instance", "group", "project", "experiment2");
     }
 }
