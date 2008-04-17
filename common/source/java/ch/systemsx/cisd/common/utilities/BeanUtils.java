@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -816,8 +817,11 @@ public final class BeanUtils
         }
     }
 
-    private final static Map<Class<?>, Collection<Class<?>>> cache =
-            new HashMap<Class<?>, Collection<Class<?>>>();
+    private final static Map<Class<?>, Collection<Class<?>>> sourceBeanClassesCache =
+            Collections.synchronizedMap(new HashMap<Class<?>, Collection<Class<?>>>());
+
+    private final static Map<Class<?>, Method[]> converterMethodsCache =
+            Collections.synchronizedMap(new HashMap<Class<?>, Method[]>());
 
     private static Method getConverterMethod(final Method setter, final Object sourceBean,
             final Converter converter)
@@ -828,26 +832,32 @@ public final class BeanUtils
                     "convertTo" + setter.getName().substring(SETTER_PREFIX.length());
             final Class<? extends Converter> converterClass = converter.getClass();
             final Class<?> beanClass = sourceBean.getClass();
-            Collection<Class<?>> classes = cache.get(beanClass);
+            Collection<Class<?>> classes = sourceBeanClassesCache.get(beanClass);
             if (classes == null)
             {
                 classes = ClassUtils.gatherAllCastableClassesAndInterfacesFor(sourceBean);
-                cache.put(beanClass, classes);
+                sourceBeanClassesCache.put(beanClass, classes);
             }
             for (final Class<?> clazz : classes)
             {
-                try
+                Method[] methods = converterMethodsCache.get(converterClass);
+                if (methods == null)
                 {
-                    final Method converterMethod = converterClass.getMethod(methodName, new Class[]
-                        { clazz });
-                    if (converterMethod.isAccessible() == false)
+                    methods = converterClass.getMethods();
+                    converterMethodsCache.put(converterClass, methods);
+                }
+                for (final Method method : methods)
+                {
+                    final Class<?>[] parameterTypes = method.getParameterTypes();
+                    if (methodName.equals(method.getName()) && parameterTypes.length == 1
+                            && parameterTypes[0].equals(clazz))
                     {
-                        converterMethod.setAccessible(true);
+                        if (method.isAccessible() == false)
+                        {
+                            method.setAccessible(true);
+                        }
+                        return method;
                     }
-                    return converterMethod;
-                } catch (final NoSuchMethodException e)
-                {
-                    // Nothing to do here - there just isn't any converter method for this setter.
                 }
             }
         }
