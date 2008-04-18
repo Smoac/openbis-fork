@@ -64,13 +64,22 @@ public final class FormatParameterFactory implements IFormatParameterFactory
             } else if (nodeName.equals(WellGeometry.WELL_GEOMETRY))
             {
                 return new FormatParameter(nodeName, WellGeometry.loadFrom(directory));
-            } else
-            {
-                // Probably 'channelN'. As already loaded, returns null here.
-                return null;
             }
         }
-        return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(node);
+        final FormatParameter formatParameter =
+                IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY
+                        .createFormatParameter(node);
+        final String value = (String) formatParameter.getValue();
+        if (nodeName.equals(HCSImageFormatV1_0.NUMBER_OF_CHANNELS))
+        {
+            return new FormatParameter(HCSImageFormatV1_0.NUMBER_OF_CHANNELS, Integer
+                    .parseInt(value));
+        } else if (nodeName.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
+        {
+            return new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean
+                    .valueOf(value));
+        }
+        return formatParameter;
     }
 
     public final FormatParameter createFormatParameter(final String name, final String value)

@@ -65,14 +65,7 @@ public final class HCSImageAnnotations implements IAnnotations
         }
         Object value =
                 formattedData.getFormatParameters().getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
-        int channelCount;
-        if (value instanceof Integer)
-        {
-            channelCount = ((Integer) value).intValue();
-        } else
-        {
-            channelCount = Integer.parseInt(String.valueOf(value));
-        }
+        final int channelCount = ((Integer) value).intValue();
         final int size = channels.size();
         if (channelCount != size)
         {
