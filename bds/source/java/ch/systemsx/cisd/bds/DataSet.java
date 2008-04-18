@@ -174,7 +174,7 @@ public final class DataSet implements IStorable
                 Utilities.getDateOrNull(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
         final List<String> parentCodes = Utilities.getStringList(idFolder, PARENT_CODES);
-        final String strIsComplete = Utilities.getString(idFolder, IS_COMPLETE);
+        final String strIsComplete = Utilities.getTrimmedString(idFolder, IS_COMPLETE);
         BooleanOrUnknown completeFlag;
         try
         {
