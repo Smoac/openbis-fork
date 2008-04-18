@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +50,7 @@ public final class DataSet implements IStorable
     static final String OBSERVABLE_TYPE = "observable_type";
 
     static final String IS_MEASURED = "is_measured";
-    
+
     static final String IS_COMPLETE = "is_complete";
 
     static final String PARENT_CODES = "parent_codes";
@@ -68,15 +69,15 @@ public final class DataSet implements IStorable
      * by means of some calculation from another data set.
      */
     private final boolean isMeasured;
-    
+
     /** The list of parent codes. Never <code>null</code> but could be empty. */
     private final List<String> parentCodes;
 
     /** This data set unique identifier. */
     private String code;
-    
+
     private BooleanOrUnknown isComplete = BooleanOrUnknown.UNKNOWN;
-    
+
     /**
      * Creates an instance of data set.
      * 
@@ -151,7 +152,7 @@ public final class DataSet implements IStorable
     {
         return parentCodes;
     }
-    
+
     public final void setComplete(final boolean complete)
     {
         isComplete = BooleanOrUnknown.resolve(complete);
@@ -173,8 +174,23 @@ public final class DataSet implements IStorable
                 Utilities.getDateOrNull(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
         final List<String> parentCodes = Utilities.getStringList(idFolder, PARENT_CODES);
-        return new DataSet(code, observableTypeCode, isMeasured, productionTimestampOrNull,
-                (producerCode.length() == 0 ? null : producerCode), parentCodes);
+        final String strIsComplete = Utilities.getString(idFolder, IS_COMPLETE);
+        BooleanOrUnknown completeFlag;
+        try
+        {
+            completeFlag = BooleanOrUnknown.valueOf(strIsComplete);
+        } catch (final IllegalArgumentException ex)
+        {
+            throw new DataStructureException(String.format(
+                    "'%s' value must be one of '%s' but is '%s'.", IS_COMPLETE, Arrays
+                            .asList(BooleanOrUnknown.values()), strIsComplete));
+        }
+        assert completeFlag != null : "Complete flag not specified.";
+        final DataSet dataSet =
+                new DataSet(code, observableTypeCode, isMeasured, productionTimestampOrNull,
+                        (producerCode.length() == 0 ? null : producerCode), parentCodes);
+        dataSet.isComplete = completeFlag;
+        return dataSet;
     }
 
     //
