@@ -19,6 +19,7 @@ package ch.systemsx.cisd.dbmigration;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -269,7 +270,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      */
     public final void setOwner(String owner)
     {
-        if (owner == null || owner.length() == 0)
+        if (StringUtils.isBlank(owner))
         {
             this.owner = System.getProperty("user.name").toLowerCase();
         } else
@@ -305,7 +306,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets user name of the administrator.
      * 
      * @param adminUser New value. Can be <code>null</code>. For convenience when using with
-     *            Spring property placeholders, an empty string will be replaced by
+     *            Spring property place holders, an empty string will be replaced by
      *            <code>null</code>.
      */
     public final void setAdminUser(String adminUser)
@@ -315,7 +316,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             this.adminUser = null;
         } else
         {
-            this.adminUser = adminUser;
+            this.adminUser = StringUtils.trim(adminUser);
         }
     }
 
@@ -327,7 +328,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      */
     public void setBasicDatabaseName(String basicDatabaseName)
     {
-        this.basicDatabaseName = basicDatabaseName;
+        this.basicDatabaseName = StringUtils.trim(basicDatabaseName);
     }
 
     public String getDatabaseName()
@@ -359,8 +360,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     /**
      * Sets the host part of the URL. <var>urlHostPart</var> can be <code>null</code>. For
-     * convenince when using with Spring property placeholders, an empty string will be replaced by
-     * <code>null</code>.
+     * convenience when using with Spring property place holders, an empty string will be replaced
+     * by <code>null</code>.
      */
     public final void setUrlHostPart(String urlHostPart)
     {
@@ -369,10 +370,10 @@ public class DatabaseConfigurationContext implements DisposableBean
             this.urlHostPart = null;
         } else
         {
-            this.urlHostPart = urlHostPart;
+            this.urlHostPart = StringUtils.trim(urlHostPart);
         }
     }
-
+    
     /**
      * Returns the URL of the database server which allows to create a new database.
      * 
@@ -467,7 +468,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      */
     public final void setDatabaseKind(String databaseKind)
     {
-        this.databaseKind = databaseKind;
+        this.databaseKind = StringUtils.trim(databaseKind);
     }
 
     /**
@@ -493,7 +494,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setDatabaseEngineCode(String databaseEngineCode)
             throws ConfigurationFailureException
     {
-        this.databaseEngine = DatabaseEngine.getEngineForCode(databaseEngineCode);
+        this.databaseEngine = DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
     }
 
     /**
