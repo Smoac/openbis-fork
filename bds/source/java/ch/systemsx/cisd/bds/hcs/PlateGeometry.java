@@ -50,7 +50,15 @@ public final class PlateGeometry extends Geometry
      */
     final static Geometry loadFrom(final IDirectory directory)
     {
-        return loadFrom(directory, PLATE_GEOMETRY);
+        return new PlateGeometry(loadFrom(directory, PLATE_GEOMETRY));
+    }
+
+    /**
+     * Creates a new <code>WellGeometry</code> from given <var>toString</var>.
+     */
+    public final static Geometry createFromString(final String toString)
+    {
+        return new PlateGeometry(Geometry.createFromString(toString));
     }
 
     //

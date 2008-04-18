@@ -50,7 +50,15 @@ public final class WellGeometry extends Geometry
      */
     final static Geometry loadFrom(final IDirectory directory)
     {
-        return loadFrom(directory, WELL_GEOMETRY);
+        return new WellGeometry(loadFrom(directory, WELL_GEOMETRY));
+    }
+
+    /**
+     * Creates a new <code>WellGeometry</code> from given <var>toString</var>.
+     */
+    public final static Geometry createFromString(final String toString)
+    {
+        return new WellGeometry(Geometry.createFromString(toString));
     }
 
     //
