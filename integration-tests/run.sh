@@ -686,6 +686,7 @@ function assert_correct_content_of_unidentified_plate_in_store {
 function assert_correct_dataset_content_in_database {
     local dataset_id=$1
     local pattern=$2
+    echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
     local dataset=`psql -U postgres -d lims_integration_test \
        -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
