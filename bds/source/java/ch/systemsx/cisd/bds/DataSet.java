@@ -117,7 +117,7 @@ public final class DataSet implements IStorable
         this.productionTimestamp = productionTimestampOrNull;
     }
 
-    public final void setCode(String code)
+    public final void setCode(final String code)
     {
         this.code = code;
     }
@@ -152,7 +152,7 @@ public final class DataSet implements IStorable
         return parentCodes;
     }
     
-    public final void setComplete(boolean complete)
+    public final void setComplete(final boolean complete)
     {
         isComplete = BooleanOrUnknown.resolve(complete);
     }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.bds;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,22 +51,24 @@ public final class SampleFileSystemTestCase extends AbstractFileSystemTestCase
     @Test
     public final void testConstructor()
     {
+        boolean fail = true;
         try
         {
             new Sample(null, null, null);
-            fail("Null values not allowed.");
         } catch (final AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
+        fail = true;
         try
         {
             new Sample("", "", "");
-            fail("Empty values not allowed.");
         } catch (final AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         new Sample(" ", " ", " ");
     }
 

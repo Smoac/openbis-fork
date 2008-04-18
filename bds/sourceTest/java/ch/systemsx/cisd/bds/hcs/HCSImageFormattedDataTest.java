@@ -158,14 +158,15 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testCreateWellFileName()
     {
+        boolean fail = true;
         try
         {
             HCSImageFormattedData.createWellFileName(null);
-            fail("Location can not be null.");
-        } catch (final AssertionError ex)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         final Location location = WELL_LOCATION;
         final String expected = "row2_column1.tiff";
         assertEquals(expected, HCSImageFormattedData.createWellFileName(location));

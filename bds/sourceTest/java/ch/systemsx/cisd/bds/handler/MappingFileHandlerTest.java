@@ -95,14 +95,15 @@ public final class MappingFileHandlerTest extends AbstractFileSystemTestCase
     @Test
     public final void testAddReference()
     {
+        boolean fail = true;
         try
         {
             handler.addReference(null);
-            fail("Null value not allowed.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         handler.addReference(new Reference("1", "2", ReferenceType.IDENTICAL));
         try
         {

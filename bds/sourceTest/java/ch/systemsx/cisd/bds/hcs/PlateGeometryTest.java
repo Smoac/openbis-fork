@@ -18,8 +18,8 @@ package ch.systemsx.cisd.bds.hcs;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 
@@ -43,14 +43,15 @@ public final class PlateGeometryTest extends AbstractFileSystemTestCase
     @Test
     public final void testConstructor()
     {
+        boolean fail = true;
         try
         {
             new PlateGeometry(-1, 0);
-            fail("Rows and columns must be > 0.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
     }
 
     @Test

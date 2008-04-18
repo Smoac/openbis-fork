@@ -61,14 +61,15 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(1, listFiles.length);
         assertEquals(key, listFiles[0].getName());
         assertEquals(value, file.getStringContent().trim());
+        boolean fail = true;
         try
         {
             Utilities.getNumber(null, null);
-            fail("Directory and name can not be null.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here
+            fail = false;
         }
+        assertEquals(false, fail);
         try
         {
             Utilities.getNumber(directory, "doesNotExist");
@@ -83,14 +84,15 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testListNodes() throws IOException
     {
+        boolean fail = true;
         try
         {
             Utilities.listNodes(null, null);
-            fail("Given directory can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         createFile(workingDirectory, "file1");
         final File dir1 = new File(workingDirectory, "dir1");
         dir1.mkdir();
@@ -110,14 +112,15 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testGetBoolean()
     {
+        boolean fail = true;
         try
         {
             Utilities.getBoolean(null, null);
-            fail("Directory and name can not be null.");
         } catch (final AssertionError e)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         final IDirectory directory = (IDirectory) NodeFactory.createNode(workingDirectory);
         try
         {

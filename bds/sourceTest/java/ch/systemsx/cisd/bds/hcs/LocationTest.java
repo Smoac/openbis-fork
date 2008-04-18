@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for corresponding {@link Location} class.
@@ -30,30 +33,33 @@ public final class LocationTest
     @Test
     public final void testConstructor()
     {
+        boolean fail = true;
         try
         {
             new Location(-1, 0);
-            fail("Wrong parameters.");
-        } catch (AssertionError e)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
+        fail = true;
         try
         {
             new Location(1, 0);
-            fail("Wrong parameters.");
-        } catch (AssertionError e)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
+        fail = true;
         try
         {
             new Location(0, 1);
-            fail("Wrong parameters.");
-        } catch (AssertionError e)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
     }
 
     @Test
@@ -69,39 +75,34 @@ public final class LocationTest
     public final void testCreateLocationFromPosition()
     {
         final Geometry geometry = new Geometry(4, 5);
+        boolean fail = true;
         try
         {
             Location.tryCreateLocationFromPosition(1, null);
-            fail("Null geometry not allowed.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         assertEquals(new Location(2, 3), Location.tryCreateLocationFromPosition(12, geometry));
         assertEquals(new Location(5, 3), Location.tryCreateLocationFromPosition(15, geometry));
         assertEquals(new Location(2, 1), Location.tryCreateLocationFromPosition(2, geometry));
         assertEquals(new Location(1, 2), Location.tryCreateLocationFromPosition(6, geometry));
-        try
-        {
-            Location.tryCreateLocationFromPosition(100, geometry);
-            fail("Position is out of range.");
-        } catch (AssertionError ex)
-        {
-            // Nothing to do here.
-        }
+        assertNull(Location.tryCreateLocationFromPosition(100, geometry));
     }
 
     @Test
     public final void testCreateLocationFromMatrixCoordinate()
     {
+        boolean fail = true;
         try
         {
             Location.tryCreateLocationFromMatrixCoordinate(null);
-            fail("Coordinate can not be null.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         assertNull(Location.tryCreateLocationFromMatrixCoordinate(""));
         assertNull(Location.tryCreateLocationFromMatrixCoordinate("8"));
         assertNull(Location.tryCreateLocationFromMatrixCoordinate("M"));

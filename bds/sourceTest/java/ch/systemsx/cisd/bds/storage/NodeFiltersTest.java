@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.bds.storage;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,13 +47,15 @@ public class NodeFiltersTest extends AbstractFileSystemTestCase
     @Test
     public final void testExtensionNodeFilterWithNull()
     {
+        boolean fail = true;
         try
         {
-            NodeFilters.createExtensionNodeFilter(true, (String) null);
-            fail("Null extension not accepted.");
+            NodeFilters.createExtensionNodeFilter(true, (String[]) null);
         } catch (AssertionError ex)
         {
+            fail = false;
         }
+        assertEquals(false, fail);
     }
 
     @Test

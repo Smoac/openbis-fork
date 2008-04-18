@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for corresponding {@link Geometry} class.
@@ -31,14 +36,15 @@ public final class GeometryTest
     public final void testContainsLocation()
     {
         final Geometry geometry = new Geometry(2, 3);
+        boolean fail = true;
         try
         {
             geometry.contains(null);
-            fail("Location can not be null.");
-        } catch (AssertionError e)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         assertTrue(geometry.contains(new Location(1, 2)));
         assertFalse(geometry.contains(new Location(1, 3)));
         assertTrue(geometry.contains(new Location(3, 1)));
@@ -48,27 +54,29 @@ public final class GeometryTest
     @Test
     public final void testCreateFromString()
     {
+        boolean fail = true;
         try
         {
             Geometry.createFromString(null);
-            fail("Null value not allowed here.");
-        } catch (AssertionError e)
+        } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
         assertNull(Geometry.createFromString("a"));
         assertNull(Geometry.createFromString("x4"));
         final Geometry geometry = Geometry.createFromString("1x4");
         assertNotNull(geometry);
         assertEquals(1, geometry.getRows());
         assertEquals(4, geometry.getColumns());
+        fail = true;
         try
         {
             Geometry.createFromString("0x4");
-            fail("0 row not possible.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertEquals(false, fail);
     }
 }
