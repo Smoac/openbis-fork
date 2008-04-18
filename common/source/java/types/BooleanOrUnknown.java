@@ -29,7 +29,7 @@ public enum BooleanOrUnknown
 
     private final String databaseRepresentation;
 
-    BooleanOrUnknown(String databaseRepresentation)
+    BooleanOrUnknown(final String databaseRepresentation)
     {
         this.databaseRepresentation = databaseRepresentation;
     }
@@ -37,15 +37,15 @@ public enum BooleanOrUnknown
     /**
      * Returns the database representation of the value.
      */
-    public String getDatabaseRepresentation()
+    public final String getDatabaseRepresentation()
     {
         return databaseRepresentation;
     }
-    
+
     /**
      * Resolve the specified boolean flag to either {@link #TRUE} or {@link #FALSE}.
      */
-    public static BooleanOrUnknown resolve(boolean flag)
+    public final static BooleanOrUnknown resolve(final boolean flag)
     {
         return flag ? TRUE : FALSE;
     }
@@ -57,7 +57,7 @@ public enum BooleanOrUnknown
      * @throws IllegalArgumentException If the <var>databaseRepresentation</var> provided does not
      *             correspond to any value of this type.
      */
-    public static BooleanOrUnknown fromDatabaseRepresentation(String databaseRepresentation)
+    public static BooleanOrUnknown fromDatabaseRepresentation(final String databaseRepresentation)
             throws IllegalArgumentException
     {
         if (databaseRepresentation.toUpperCase().equals("F"))
