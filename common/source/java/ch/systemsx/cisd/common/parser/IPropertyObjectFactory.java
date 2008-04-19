@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * @author Tomasz Pylak on Oct 26, 2007
+ * @author Tomasz Pylak
  */
 public interface IPropertyObjectFactory<E>
 {

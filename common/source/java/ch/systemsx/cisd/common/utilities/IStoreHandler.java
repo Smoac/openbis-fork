@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 /**
  * Handles items in the file store
  * 
- * @author Tomasz Pylak on Oct 9, 2007
+ * @author Tomasz Pylak
  */
 public interface IStoreHandler
 {

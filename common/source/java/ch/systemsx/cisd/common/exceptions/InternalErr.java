@@ -43,7 +43,7 @@ package ch.systemsx.cisd.common.exceptions;
  * }
  * </pre>
  * 
- * @author Tomasz Pylak on Sep 3, 2007
+ * @author Tomasz Pylak
  */
 public class InternalErr extends RuntimeException
 {

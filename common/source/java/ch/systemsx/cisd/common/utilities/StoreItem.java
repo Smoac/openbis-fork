@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.utilities;
 /**
  * Represents one entry (file or directory) in a file store
  * 
- * @author Tomasz Pylak on Oct 8, 2007
+ * @author Tomasz Pylak
  */
 public class StoreItem
 {

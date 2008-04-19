@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.parser;
 /**
  * Used to construct object by setting its properties
  * 
- * @author Tomasz Pylak on Oct 29, 2007
+ * @author Tomasz Pylak
  */
 public interface IPropertiesSetter<T>
 {

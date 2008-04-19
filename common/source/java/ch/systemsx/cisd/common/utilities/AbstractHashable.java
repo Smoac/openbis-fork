@@ -32,7 +32,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * <code>hashCode()</code> (e.g. by extending this class)</li>
  * </ol>
  * 
- * @author Tomasz Pylak on Oct 26, 2007
+ * @author Tomasz Pylak
  */
 public abstract class AbstractHashable
 {
