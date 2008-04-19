@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 /**
  * Paths to different local buffer directories.
  * 
- * @author Tomasz Pylak on Aug 29, 2007
+ * @author Tomasz Pylak
  */
 public class LocalBufferDirs
 {

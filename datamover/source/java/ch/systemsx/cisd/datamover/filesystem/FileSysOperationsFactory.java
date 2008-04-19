@@ -36,7 +36,7 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncCopier;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
 /**
- * @author Tomasz Pylak on Sep 7, 2007
+ * @author Tomasz Pylak
  */
 public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {

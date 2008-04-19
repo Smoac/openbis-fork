@@ -38,7 +38,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 
 /**
- * @author Tomasz Pylak on Oct 9, 2007
+ * @author Tomasz Pylak
  */
 public class FileStoreLocal extends ExtendedFileStore
 {

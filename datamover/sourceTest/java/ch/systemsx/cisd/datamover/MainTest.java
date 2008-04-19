@@ -41,7 +41,7 @@ import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * @author Tomasz Pylak on Aug 29, 2007
+ * @author Tomasz Pylak
  */
 public class MainTest
 {

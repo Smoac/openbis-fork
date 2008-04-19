@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
 /**
  * Manipulations on marker files. Should not use string types in the interface.
  * 
- * @author Tomasz Pylak on Aug 27, 2007
+ * @author Tomasz Pylak
  */
 public class MarkerFile
 {

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
- * @author Tomasz Pylak on Oct 9, 2007
+ * @author Tomasz Pylak
  */
 public class FileStoreRemoteMounted extends FileStore
 {

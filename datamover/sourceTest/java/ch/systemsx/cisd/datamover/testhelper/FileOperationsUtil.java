@@ -21,7 +21,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
 /**
- * @author Tomasz Pylak on Oct 11, 2007
+ * @author Tomasz Pylak
  */
 public class FileOperationsUtil
 {

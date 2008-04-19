@@ -35,7 +35,7 @@ import ch.systemsx.cisd.datamover.common.MarkerFile;
 /**
  * Immutable helper for creating a sample directory structure and manipulating it.
  * 
- * @author Tomasz Pylak on Aug 29, 2007
+ * @author Tomasz Pylak
  */
 public class FileStructEngine
 {

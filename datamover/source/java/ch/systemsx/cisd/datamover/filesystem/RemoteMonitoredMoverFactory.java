@@ -25,7 +25,7 @@ import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
- * @author Tomasz Pylak on Sep 7, 2007
+ * @author Tomasz Pylak
  */
 public class RemoteMonitoredMoverFactory
 {

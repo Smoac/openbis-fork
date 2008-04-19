@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 /**
  * Helper for files and directories manipulations.
  * 
- * @author Tomasz Pylak on Aug 29, 2007
+ * @author Tomasz Pylak
  */
 public class FileSystemHelper
 {

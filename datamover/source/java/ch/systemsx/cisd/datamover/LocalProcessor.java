@@ -41,7 +41,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
  * resources must registered with a handler by someone else, also in the case of recovery after
  * shutdown.
  * 
- * @author Tomasz Pylak on Aug 24, 2007
+ * @author Tomasz Pylak
  */
 public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactory
 {

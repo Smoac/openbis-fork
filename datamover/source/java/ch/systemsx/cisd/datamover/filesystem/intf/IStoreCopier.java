@@ -21,7 +21,7 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
- * @author Tomasz Pylak on Oct 10, 2007
+ * @author Tomasz Pylak
  */
 public interface IStoreCopier extends ITerminable
 {

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
- * @author Tomasz Pylak on Oct 9, 2007
+ * @author Tomasz Pylak
  */
 // TODO 2007-10-09, Tomasz Pylak: Ssh tunneling mode should be implemented here. This class is a
 // dummy implementation.

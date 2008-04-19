@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.datamover.intf;
 
 /**
- * @author Tomasz Pylak on Sep 7, 2007
+ * @author Tomasz Pylak
  */
 public interface IFileSysParameters
 {

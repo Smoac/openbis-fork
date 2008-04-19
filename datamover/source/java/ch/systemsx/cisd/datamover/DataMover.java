@@ -41,7 +41,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  * provided.
  * 
  * @author Bernd Rinn
- * @author Tomasz Pylak on Aug 24, 2007
+ * @author Tomasz Pylak
  */
 public class DataMover
 {

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
 
 /**
- * @author Tomasz Pylak on Oct 11, 2007
+ * @author Tomasz Pylak
  */
 public class FileStoreFactory
 {

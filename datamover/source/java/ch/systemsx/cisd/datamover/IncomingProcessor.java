@@ -45,7 +45,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 
 /**
- * @author Tomasz Pylak on Sep 7, 2007
+ * @author Tomasz Pylak
  */
 public class IncomingProcessor implements IRecoverableTimerTaskFactory
 {

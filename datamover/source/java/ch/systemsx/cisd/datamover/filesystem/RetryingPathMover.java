@@ -32,7 +32,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 /**
  * Basic file system operations helper.
  * 
- * @author Tomasz Pylak on Aug 27, 2007
+ * @author Tomasz Pylak
  */
 class RetryingPathMover implements IPathMover
 {
