@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package types;
+package ch.systemsx.cisd.common.types;
 
 /**
  * A type which represents a boolean which is third state <code>UNKNOWN</code>. It additionally

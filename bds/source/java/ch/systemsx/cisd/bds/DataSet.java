@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import types.BooleanOrUnknown;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 
 /**
  * Identifier of the data set. This is an immutable but extendable value object class. An instance
