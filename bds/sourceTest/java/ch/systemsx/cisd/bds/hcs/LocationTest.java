@@ -94,15 +94,6 @@ public final class LocationTest
     @Test
     public final void testCreateLocationFromMatrixCoordinate()
     {
-        boolean fail = true;
-        try
-        {
-            Location.tryCreateLocationFromMatrixCoordinate(null);
-        } catch (AssertionError ex)
-        {
-            fail = false;
-        }
-        assertEquals(false, fail);
         assertNull(Location.tryCreateLocationFromMatrixCoordinate(""));
         assertNull(Location.tryCreateLocationFromMatrixCoordinate("8"));
         assertNull(Location.tryCreateLocationFromMatrixCoordinate("M"));

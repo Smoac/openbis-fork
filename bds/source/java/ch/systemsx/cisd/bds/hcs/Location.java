@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.bds.hcs;
 
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.geometry.ConversionUtils;
+import ch.systemsx.cisd.common.geometry.Point;
 
 /**
  * A location in (x, y) coordinate space, specified in integer precision.
@@ -76,20 +77,11 @@ public final class Location
      */
     public static final Location tryCreateLocationFromMatrixCoordinate(final String coordinate)
     {
-        assert coordinate != null : "Coordinate can not be null.";
-        final String[] split = StringUtilities.splitMatrixCoordinate(coordinate);
-        if (split == null)
-        {
-            return null;
-        }
         try
         {
-            final String letter = split[0];
-            assert letter.length() == 1 : "Only one letter is supported right now.";
-            final int y = letter.toLowerCase().charAt(0) - 'a' + 1;
-            final int x = Integer.parseInt(split[1]);
-            return new Location(x, y);
-        } catch (NumberFormatException ex)
+            Point point = ConversionUtils.parseSpreadsheetLocation(coordinate);
+            return new Location(point.getY() + 1, point.getX() + 1);
+        } catch (IllegalArgumentException ex)
         {
             return null;
         }
