@@ -117,9 +117,7 @@ public final class StringUtilities
      */
     public static String capitalize(String string)
     {
-        assert string != null;
-
-        if (string.length() == 0) // Guard: empty string.
+        if (StringUtils.isBlank(string))
         {
             return string;
         }
