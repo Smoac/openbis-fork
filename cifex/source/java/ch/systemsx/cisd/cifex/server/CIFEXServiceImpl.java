@@ -83,7 +83,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     /** The attribute name that holds the queue that has the feedbacks of the upload. */
     static final String UPLOAD_FEEDBACK_QUEUE = "upload-feedback-queue";
 
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd hh:mm:ss";
+    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
