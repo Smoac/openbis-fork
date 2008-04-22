@@ -158,9 +158,9 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
                     destinationDirectory));
             return null;
         }
-        if (operationLog.isInfoEnabled())
+        if (operationLog.isTraceEnabled())
         {
-            operationLog.info(String.format("Creating a hard link copy of '%s' in '%s'.", path
+            operationLog.trace(String.format("Creating a hard link copy of '%s' in '%s'.", path
                     .getPath(), destinationDirectory.getPath()));
         }
         return tryMakeCopy(path, destinationDirectory, nameOrNull);
