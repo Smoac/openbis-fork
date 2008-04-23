@@ -157,8 +157,12 @@ public final class ClassUtils
             final Constructor<T> constructor = getConstructor(clazz, classes);
             if (constructor == null)
             {
-                throw new IllegalArgumentException(String.format(
-                        "No constructor could be found for classes '%s'.", Arrays.asList(classes)));
+                if (classes.length == 0)
+                {
+                    throw new IllegalArgumentException("No default constructor found for " + clazz);
+                }
+                throw new IllegalArgumentException("No constructor found for " + clazz
+                        + " with arguments of the following types: " + Arrays.asList(classes));
             }
             return constructor.newInstance(argumentsOrNull);
         } catch (final ClassNotFoundException e)
