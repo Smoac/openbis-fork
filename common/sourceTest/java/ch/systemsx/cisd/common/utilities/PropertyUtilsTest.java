@@ -53,14 +53,15 @@ public final class PropertyUtilsTest
     @Test
     public final void testGetMandatoryProperty()
     {
+        boolean fail = true;
         try
         {
             PropertyUtils.getMandatoryProperty(null, null);
-            fail("Null values not allowed.");
         } catch (final AssertionError e)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertFalse(fail);
         final Properties properties = new Properties();
         final String propertyKey = "key";
         try
@@ -71,6 +72,15 @@ public final class PropertyUtilsTest
         {
             assertEquals(String.format(PropertyUtils.NOT_FOUND_PROPERTY_FORMAT, propertyKey, "[]"),
                     ex.getMessage());
+        }
+        properties.setProperty(propertyKey, "  ");
+        try
+        {
+            PropertyUtils.getMandatoryProperty(properties, propertyKey);
+        } catch (final ConfigurationFailureException ex)
+        {
+            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey, "[]"), ex
+                    .getMessage());
         }
         final String value = "value";
         properties.setProperty(propertyKey, value);
