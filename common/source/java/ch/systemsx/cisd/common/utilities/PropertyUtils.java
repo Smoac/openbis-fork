@@ -34,6 +34,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 public final class PropertyUtils
 {
 
+    static final String EMPTY_STRING_FORMAT = "Property '%s' is an empty string.";
+
     static final String NON_BOOLEAN_VALUE_FORMAT =
             "Invalid boolean '%s'. Default value '%s' will be used.";
 
@@ -68,46 +70,28 @@ public final class PropertyUtils
     /**
      * Looks up given mandatory <var>propertyKey</var> in given <var>properties</var>.
      * 
-     * @throws ConfigurationFailureException if given <var>propertyKey</var> could not be found.
+     * @throws ConfigurationFailureException if given <var>propertyKey</var> could not be found or
+     *             if it is empty.
      */
     public final static String getMandatoryProperty(final Properties properties,
             final String propertyKey) throws ConfigurationFailureException
     {
         assertParameters(properties, propertyKey);
-        final String property = properties.getProperty(propertyKey);
+        String property = properties.getProperty(propertyKey);
         if (property == null)
         {
             throw ConfigurationFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT,
                     propertyKey, CollectionUtils.abbreviate(Collections.list(properties
                             .propertyNames()), 10));
         }
-        return property;
-    }
-    
-    /**
-     * Returns a certain property from the specified properties.
-     * 
-     * @return the property value without leading and trailing white spaces.
-     * @throws ConfigurationFailureException if no property found or the result would be an empty
-     *             string.
-     */
-    public static String getProperty(Properties properties, String propertyKey)
-            throws ConfigurationFailureException
-    {
-        assertParameters(properties, propertyKey);
-        String property = properties.getProperty(propertyKey);
-        if (property == null)
-        {
-            throw new ConfigurationFailureException("Unspecified property '" + propertyKey + "'.");
-        }
         property = property.trim();
         if (property.length() == 0)
         {
-            throw new ConfigurationFailureException("Property '" + propertyKey
-                    + "' is an empty string.");
+            throw ConfigurationFailureException.fromTemplate(EMPTY_STRING_FORMAT, propertyKey);
         }
         return property;
     }
+
     /**
      * Looks up given <var>propertyKey</var> in given <var>properties</var>.
      * 
