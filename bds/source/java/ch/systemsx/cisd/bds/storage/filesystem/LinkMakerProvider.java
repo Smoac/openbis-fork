@@ -30,6 +30,12 @@ public final class LinkMakerProvider
 
     private static final String NO_HARD_LINK_EXECUTABLE = "No hard link executable has been found.";
 
+    private static final long MILLIS_TO_WAIT_FOR_COMPLETION = 10000L;
+
+    private static final long MILLIS_TO_SLEEP_AFTER_COPY_FAILS = 3000L;
+
+    private static final int MAX_COPY_RETRIES = 7;
+
     private static IPathImmutableCopier hardLinkMaker;
 
     private LinkMakerProvider()
@@ -39,7 +45,9 @@ public final class LinkMakerProvider
 
     private final static IPathImmutableCopier tryCreateHardLinkMaker()
     {
-        final IPathImmutableCopier copier = RecursiveHardLinkMaker.tryCreate();
+        final IPathImmutableCopier copier =
+                RecursiveHardLinkMaker.tryCreateRetrying(MILLIS_TO_WAIT_FOR_COMPLETION,
+                        MAX_COPY_RETRIES, MILLIS_TO_SLEEP_AFTER_COPY_FAILS);
         if (copier != null)
         {
             return copier;
