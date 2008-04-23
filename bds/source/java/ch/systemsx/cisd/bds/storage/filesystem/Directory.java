@@ -108,7 +108,10 @@ final class Directory extends AbstractNode implements IDirectory
     public final IFile addKeyValuePair(final String key, final String value)
     {
         assert key != null : "Given key can not be null.";
-        assert value != null : "Given value can not be null.";
+        if (value == null)
+        {
+            throw new IllegalArgumentException("Value for key '" + key + "' not specified.");
+        }
         java.io.File file = new java.io.File(nodeFile, key);
         FileUtilities.writeToFile(file, value);
         return new File(file);
