@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,23 +65,28 @@ public final class ParserUtilitiesTest
     public final void testGetFirstAcceptedLineWithProblematicValues()
     {
         File file = new File(workingDirectory, "doesNotExist");
+        boolean exceptionThrown = false;
         try
         {
             ParserUtilities.getFirstAcceptedLine(null, null);
-            fail("Given file can not be null.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Given file can not be null.", exceptionThrown);
+
+        exceptionThrown = false;
         assert file.exists() == false;
         try
         {
             ParserUtilities.getFirstAcceptedLine(file, null);
-            fail("Given file must exist.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Given file must exist.", exceptionThrown);
     }
 
     @Test

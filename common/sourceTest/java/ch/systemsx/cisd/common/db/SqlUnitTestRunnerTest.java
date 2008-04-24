@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.db;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -164,16 +164,18 @@ public class SqlUnitTestRunnerTest
         createScriptPrepareExecutor(new File(testCaseFolder, "buildup.sql"), "-- build up\n",
                 runtimeException);
 
+        boolean exceptionThrown = false;
         try
         {
             testRunner.run(TEST_SCRIPTS_FOLDER);
-            fail("AssertionError expected");
         } catch (AssertionError e)
         {
+            exceptionThrown = true;
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script 'buildup.sql' of test case 'my test case' failed because of "
                     + runtimeException, message.trim());
         }
+        assertTrue("AssertionError expected", exceptionThrown);
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                 + "     execute script buildup.sql" + OSUtilities.LINE_SEPARATOR
                 + "       script failed: skip test scripts and teardown script."
@@ -193,18 +195,20 @@ public class SqlUnitTestRunnerTest
         FileUtils.writeStringToFile(new File(testCaseFolder, "abc=abc.sql"), "Select abc\n");
         createScriptPrepareExecutor(new File(testCaseFolder, "10=c.sql"), "Select 10\n", null);
         createScriptPrepareExecutor(new File(testCaseFolder, "1=a.sql"), "Select 1\n", null);
-
+        boolean exceptionThrown = false;
         try
         {
             testRunner.run(TEST_SCRIPTS_FOLDER);
-            fail("AssertionError expected");
+
         } catch (AssertionError e)
         {
+            exceptionThrown = true;
             // Strip away stack trace
             final String message = StringUtils.split(e.getMessage(), "\n")[0];
             assertEquals("Script '9=b.sql' of test case 'my test case' failed because of "
                     + runtimeException, message.trim());
         }
+        assertTrue("AssertionError expected", exceptionThrown);
         assertEquals("====== Test case: my test case ======" + OSUtilities.LINE_SEPARATOR
                 + "     execute script 1=a.sql" + OSUtilities.LINE_SEPARATOR
                 + "     execute script 9=b.sql" + OSUtilities.LINE_SEPARATOR

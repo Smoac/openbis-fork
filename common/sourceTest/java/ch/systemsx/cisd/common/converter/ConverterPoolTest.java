@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.common.converter;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.Date;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link ConverterPool}.
@@ -34,22 +39,26 @@ public final class ConverterPoolTest
     @Test
     public final void testRegisterConverter()
     {
+        boolean exceptionThrown = false;
         try
         {
             ConverterPool.getInstance().registerConverter(null, null);
-            fail("Null type is not allowed.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null type is not allowed.", exceptionThrown);
+
+        exceptionThrown = false;
         try
         {
             ConverterPool.getInstance().registerConverter(String.class, null);
-            fail("Null converter is not allowed.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null converter is not allowed.", exceptionThrown);
+
         assertNull(ConverterPool.getInstance().getConverter(String.class));
         assertNull(ConverterPool.getInstance().getConverter(Date.class));
         ConverterPool.getInstance().registerConverter(Date.class, new DateConverter("dd.MM.yyyy"));
@@ -61,14 +70,16 @@ public final class ConverterPoolTest
     public final void testUnRegisterConverter()
     {
         assertNotNull(ConverterPool.getInstance().getConverter(Date.class));
+        boolean exceptionThrown = false;
         try
         {
             ConverterPool.getInstance().unregisterConverter(null);
-            fail("Null type is not allowed.");
+
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null type is not allowed.", exceptionThrown);
         ConverterPool.getInstance().unregisterConverter(Date.class);
         assertNull(ConverterPool.getInstance().getConverter(Date.class));
     }
@@ -76,14 +87,16 @@ public final class ConverterPoolTest
     @Test
     public final void testConvert()
     {
+        boolean exceptionThrown = false;
         try
         {
             ConverterPool.getInstance().convert(null, null);
-            fail("Null type is not allowed.");
+
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null type is not allowed.", exceptionThrown);
         ConverterPool pool = ConverterPool.getInstance();
         // String
         assertNull(pool.convert(null, String.class));

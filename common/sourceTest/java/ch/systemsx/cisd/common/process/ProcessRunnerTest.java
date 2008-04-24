@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.common.process;
 
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.process.IProcess;
-import ch.systemsx.cisd.common.process.ProcessRunner;
 
 /**
  * Test cases for the {@link ProcessRunner}.
@@ -112,14 +109,16 @@ public class ProcessRunnerTest
                     will(returnValue(-1));
                 }
             });
+        boolean exceptionThrown = false;
         try
         {
             new ProcessRunner(process);
-            fail("Negative value for millis to sleep on failure not allowed");
+
         } catch (AssertionError ex)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Negative value for millis to sleep on failure not allowed", exceptionThrown);
         context.checking(new Expectations()
             {
                 {

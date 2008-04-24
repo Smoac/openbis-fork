@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
 
@@ -74,38 +74,46 @@ public final class CollectionUtilsTest
     public final void testAbbreviateWithError()
     {
         final Object[] objects = new Object[0];
+
+        boolean exceptionThrown = false;
         try
         {
             CollectionUtils.abbreviate((Collection<?>) null, 0, false);
-            fail("Given list can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Given list can not be null.", exceptionThrown);
+
+        exceptionThrown = false;
         try
         {
             CollectionUtils.abbreviate(objects, 0, false, ToStringDefaultConverter.getInstance(),
                     null);
-            fail("Given CollectionStyle can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Given CollectionStyle can not be null.", exceptionThrown);
+
+        exceptionThrown = false;
         try
         {
             CollectionUtils.abbreviate(objects, 0, null);
-            fail("Given CollectionStyle can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Given CollectionStyle can not be null.", exceptionThrown);
+
+        exceptionThrown = false;
         try
         {
             CollectionUtils.abbreviate((Collection<?>) null, 0, false, null);
-            fail("IToStringConverter can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("IToStringConverter can not be null.", exceptionThrown);
     }
 }

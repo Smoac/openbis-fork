@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.utilities.StringUtilities;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Test cases for the {@link StringUtilities}.
@@ -69,14 +68,16 @@ public class StringUtilitiesTest
     @Test
     public final void testGetOrdinal()
     {
+        boolean exceptionThrown = false;
         try
         {
             StringUtilities.getOrdinal(-1);
-            fail("Ordinal of negative number not possible.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Ordinal of negative number not possible.", exceptionThrown);
         assertEquals("0th", StringUtilities.getOrdinal(0));
         assertEquals("1st", StringUtilities.getOrdinal(1));
         assertEquals("2nd", StringUtilities.getOrdinal(2));

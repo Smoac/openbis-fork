@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 /**
  * Tests for {@link FilteredList}.
@@ -33,22 +36,24 @@ public final class FilteredListTest
     @Test
     public final void testDecorate()
     {
+        boolean exceptionThrown = false;
         try
         {
             FilteredList.decorate(new ArrayList<String>(), null);
-            fail("Neither list nor validator can be null");
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Neither list nor validator can be null", exceptionThrown);
+        exceptionThrown = false;
         try
         {
             FilteredList.decorate(null, ValidatorUtils.getNotNullValidator());
-            fail("Neither list nor validator can be null");
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Neither list nor validator can be null", exceptionThrown);
     }
 
     private final static List<String> createList()

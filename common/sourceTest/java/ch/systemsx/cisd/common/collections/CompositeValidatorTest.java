@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -32,23 +32,26 @@ public final class CompositeValidatorTest
     @Test
     public final void testNonNullConvention()
     {
+        boolean exceptionThrown = false;
         final CompositeValidator<Object> validator = new CompositeValidator<Object>();
         try
         {
             validator.addValidator(null);
-            fail("Null validator not allowed.");
         } catch (final AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null validator not allowed.", exceptionThrown);
+
+        exceptionThrown = false;
         try
         {
             validator.removeValidator(null);
-            fail("Null validator not allowed.");
         } catch (final AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Null validator not allowed.", exceptionThrown);
     }
 
     @Test

@@ -252,14 +252,16 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     public final void testRemovePrefixFromFileName()
     {
         File file = new File("/tmp/dir/x.txt");
+        boolean exceptionThrown = false;
         try
         {
             FileUtilities.removePrefixFromFileName(null, Constants.IS_FINISHED_PREFIX);
-            fail("Given file can not be null.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Given file can not be null.", exceptionThrown);
         assertEquals(file, FileUtilities.removePrefixFromFileName(file, null));
         assertEquals(file, FileUtilities.removePrefixFromFileName(file,
                 Constants.IS_FINISHED_PREFIX));
@@ -291,24 +293,28 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assert file.exists();
         newFile = FileUtilities.createNextNumberedFile(file, pattern, null);
         assertEquals(new File(workingDirectory, "abc1"), newFile);
+        boolean exceptionThrown = false;
         try
         {
             FileUtilities.createNextNumberedFile(null, pattern, null);
-            fail("Null value for file not allowed.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Null value for file not allowed.", exceptionThrown);
         String defaultFileName = "abc_[1]";
+        exceptionThrown = false;
         try
         {
             FileUtilities.createNextNumberedFile(file, Pattern.compile("dummyPattern"),
                     defaultFileName);
-            fail("Must contain either '(\\d+)' or ([0-9]+).");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Must contain either '(\\d+)' or ([0-9]+).", exceptionThrown);
         // File already exists but default one does not
         assertEquals(file.getName(), "abc");
         assert file.exists();
@@ -342,14 +348,16 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testGetRelativeFile()
     {
+        boolean exceptionThrown = false;
         try
         {
             FileUtilities.getRelativeFile(null, null);
-            fail("Given root and file can not be null.");
+
         } catch (AssertionError e)
         {
-            // Nothing to do here
+            exceptionThrown = true;
         }
+        assertTrue("Given root and file can not be null.", exceptionThrown);
         File file = new File(workingDirectory, "hello");
         assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file
                 .getAbsolutePath());
@@ -477,14 +485,15 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testNormalizeFile() throws IOException
     {
+        boolean exceptionThrown = false;
         try
         {
             FileUtilities.normalizeFile(null);
-            fail("Given file can not be null.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Given file can not be null.", exceptionThrown);
         final File file = new File(workingDirectory, "../dir");
         final String canonicalPath = file.getCanonicalPath();
         assertFalse(canonicalPath.equals(file.getAbsolutePath()));

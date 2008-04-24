@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.regex.Pattern;
 
@@ -36,14 +36,15 @@ public final class ValidatorUtilsTest
     public final void testConvertToRegEx()
     {
         String s = null;
+        boolean exceptionThrown = false;
         try
         {
             ValidatorUtils.convertToRegEx(s);
-            fail("Pattern can not be null.");
         } catch (AssertionError e)
         {
-            // Nothing to do here.
+            exceptionThrown = true;
         }
+        assertTrue("Pattern can not be null.", exceptionThrown);
 
         s = "hello";
         String regEx = ValidatorUtils.convertToRegEx(s);
