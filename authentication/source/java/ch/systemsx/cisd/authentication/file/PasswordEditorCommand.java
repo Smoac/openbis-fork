@@ -31,6 +31,10 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 public class PasswordEditorCommand
 {
 
+    private static final String ENTER_NEW_PASSWORD_MSG = "Enter new password: ";
+
+    private static final String ENTER_PASSWORD_MSG = "Enter the user's password: ";
+
     private final static File PASSWORD_FILE = new File("etc/passwd");
 
     private static ConsoleReader consoleReader;
@@ -52,11 +56,11 @@ public class PasswordEditorCommand
         return consoleReader;
     }
 
-    private final static String readPassword()
+    private final static String readPassword(final String message)
     {
         try
         {
-            return getConsoleReader().readLine("Enter new password: ", Character.valueOf('*'));
+            return getConsoleReader().readLine(message, Character.valueOf('*'));
         } catch (IOException ex)
         {
             System.err.println("Error reading password (" + ex.getMessage() + ").");
@@ -111,11 +115,11 @@ public class PasswordEditorCommand
                     password = params.tryGetPassword();
                 } else
                 {
-                    password = readPassword();
+                    password = readPassword(ENTER_NEW_PASSWORD_MSG);
                 }
                 final UserEntry user =
-                        new UserEntry(params.getUserId(), params.tryGetFirstName(), params
-                                .tryGetLastName(), params.tryGetEmail(), password);
+                        new UserEntry(params.getUserId(), params.getFirstName(), params
+                                .getLastName(), params.getEmail(), password);
                 userStore.addOrUpdateUser(user);
                 break;
             }
@@ -129,24 +133,24 @@ public class PasswordEditorCommand
                     System.exit(1);
                     return; // Fake: convince compiler that it is save to dereference userOrNull
                 }
-                if (params.tryGetFirstName() != null)
+                if (params.getFirstName() != null)
                 {
-                    userOrNull.setFirstName(params.tryGetFirstName());
+                    userOrNull.setFirstName(params.getFirstName());
                 }
-                if (params.tryGetLastName() != null)
+                if (params.getLastName() != null)
                 {
-                    userOrNull.setLastName(params.tryGetLastName());
+                    userOrNull.setLastName(params.getLastName());
                 }
-                if (params.tryGetEmail() != null)
+                if (params.getEmail() != null)
                 {
-                    userOrNull.setEmail(params.tryGetEmail());
+                    userOrNull.setEmail(params.getEmail());
                 }
                 if (params.tryGetPassword() != null)
                 {
                     userOrNull.setPassword(params.tryGetPassword());
                 } else if (params.isChangePassword())
                 {
-                    userOrNull.setPassword(readPassword());
+                    userOrNull.setPassword(readPassword(ENTER_NEW_PASSWORD_MSG));
                 }
                 userStore.addOrUpdateUser(userOrNull);
                 break;
@@ -194,7 +198,7 @@ public class PasswordEditorCommand
                     System.exit(1);
                     return; // Fake: convince compiler that it is save to dereference userOrNull
                 }
-                final String password = readPassword();
+                final String password = readPassword(ENTER_PASSWORD_MSG);
                 if (userStore.isPasswordCorrect(userId, password))
                 {
                     System.out.printf("User '%s' successfully authenticated.\n", userId);

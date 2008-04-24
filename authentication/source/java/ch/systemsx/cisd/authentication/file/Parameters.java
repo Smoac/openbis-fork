@@ -198,21 +198,27 @@ final class Parameters
     }
 
     /**
-     * Returns the first name of the user, or <code>null</code>.
+     * Returns the first name of the user, or an empty string otherwise.
      */
-    final String tryGetFirstName()
+    final String getFirstName()
     {
-        return firstNameOrNull;
+        return firstNameOrNull == null ? "" : firstNameOrNull;
     }
 
-    final String tryGetLastName()
+    /**
+     * Returns the last name of the user, or an empty string otherwise.
+     */
+    final String getLastName()
     {
-        return lastNameOrNull;
+        return lastNameOrNull == null ? "" : lastNameOrNull;
     }
 
-    final String tryGetEmail()
+    /**
+     * Returns the email of the user, or an empty string otherwise.
+     */
+    final String getEmail()
     {
-        return emailOrNull;
+        return emailOrNull == null ? "" : emailOrNull;
     }
 
     /**
