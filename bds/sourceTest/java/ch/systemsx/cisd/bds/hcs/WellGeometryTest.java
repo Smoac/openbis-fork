@@ -39,18 +39,10 @@ public final class WellGeometryTest extends AbstractFileSystemTestCase
 {
     private final Geometry geometry = new WellGeometry(2, 3);
 
-    @Test
+    @Test(expectedExceptions = AssertionError.class)
     public final void testConstructor()
     {
-        boolean fail = true;
-        try
-        {
-            new WellGeometry(-1, 0);
-        } catch (AssertionError ex)
-        {
-            fail = false;
-        }
-        assertFalse(fail);
+        new WellGeometry(-1, 0);
     }
 
     @Test
