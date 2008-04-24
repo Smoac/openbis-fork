@@ -98,20 +98,13 @@ public final class UserDAOTest extends AbstractDAOTest
     // 'create' group
     //
 
-    @Test(groups = "user.create")
+    @Test(groups = "user.create", expectedExceptions = AssertionError.class)
     @Transactional
     public final void testCreateUserRainyDay()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        try
-        {
-            // Try with <code>null</code>
-            userDAO.createUser(null);
-            fail("Null user not allowed.");
-        } catch (final AssertionError e)
-        {
-            // Nothing to do here.
-        }
+        userDAO.createUser(null);
+
     }
 
     @SuppressWarnings("unused")
