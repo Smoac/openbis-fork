@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 
@@ -43,14 +42,15 @@ public final class WellGeometryTest extends AbstractFileSystemTestCase
     @Test
     public final void testConstructor()
     {
+        boolean fail = true;
         try
         {
             new WellGeometry(-1, 0);
-            fail("Rows and columns must be > 0.");
         } catch (AssertionError ex)
         {
-            // Nothing to do here.
+            fail = false;
         }
+        assertFalse(fail);
     }
 
     @Test
