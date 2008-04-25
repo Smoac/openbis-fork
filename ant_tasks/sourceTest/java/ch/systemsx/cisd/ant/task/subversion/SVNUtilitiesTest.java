@@ -97,6 +97,8 @@ public class SVNUtilitiesTest
     {
         assertEquals("0.9.x", SVNUtilities.getBranchForTag("0.9.0"));
         assertEquals("1.0.x", SVNUtilities.getBranchForTag("1.0.10"));
+        assertEquals("8.04.x", SVNUtilities.getBranchForTag("8.04.10"));
+        assertEquals("S30.x", SVNUtilities.getBranchForTag("S30.10"));
     }
 
     @Test
@@ -104,6 +106,8 @@ public class SVNUtilitiesTest
     {
         assertEquals("0.9.0", SVNUtilities.getFirstTagForBranch("0.9.x"));
         assertEquals("1.5.0", SVNUtilities.getFirstTagForBranch("1.5.x"));
+        assertEquals("8.04.0", SVNUtilities.getFirstTagForBranch("8.04.x"));
+        assertEquals("S30.0", SVNUtilities.getFirstTagForBranch("S30.x"));
     }
 
 }

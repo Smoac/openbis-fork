@@ -58,11 +58,13 @@ class SVNUtilities
     /** A project all other projects depend on implicitely. */
     static final String BUILD_RESOURCES_PROJECT = "build_resources";
 
+    private static final String RELEASE_PATTERN_PREFIX = "((S|[0-9]+\\.)[0-9]+)\\.";
+    
     /** The regular expression that a release tag has to match. */
-    static final String RELEASE_TAG_PATTERN_STRING = "([0-9]+)\\.([0-9]+)\\.([0-9]+)";
+    static final String RELEASE_TAG_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "[0-9]+";
 
     /** The regular expression that a release branch has to match. */
-    static final String RELEASE_BRANCH_PATTERN_STRING = "([0-9]+)\\.([0-9]+)\\.x";
+    static final String RELEASE_BRANCH_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "x";
 
     /**
      * A class that holds the information about an operating system process when it is finished.
@@ -371,7 +373,7 @@ class SVNUtilities
         final Matcher tagMatcher = Pattern.compile(RELEASE_TAG_PATTERN_STRING).matcher(tagName);
         boolean matches = tagMatcher.matches();
         assert matches;
-        return String.format("%s.%s.x", tagMatcher.group(1), tagMatcher.group(2));
+        return String.format("%s.x", tagMatcher.group(1));
     }
 
     static String getFirstTagForBranch(String branchName)
@@ -380,7 +382,7 @@ class SVNUtilities
                 Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
         boolean matches = branchMatcher.matches();
         assert matches;
-        return String.format("%s.%s.0", branchMatcher.group(1), branchMatcher.group(2));
+        return String.format("%s.0", branchMatcher.group(1));
     }
 
 }

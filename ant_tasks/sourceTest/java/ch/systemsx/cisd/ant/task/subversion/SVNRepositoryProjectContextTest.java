@@ -48,24 +48,36 @@ public class SVNRepositoryProjectContextTest
     public void testVersionTypeReleaseBranch()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        
         def.setReleaseBranch("2.3.x");
         assert RELEASE_BRANCH == def.getVersionType();
         assertEquals("2.3.x", def.getVersion());
+        
         def.setReleaseBranch("0.0.x");
         assert RELEASE_BRANCH == def.getVersionType();
         assertEquals("0.0.x", def.getVersion());
+        
+        def.setReleaseBranch("S30.x");
+        assert RELEASE_BRANCH == def.getVersionType();
+        assertEquals("S30.x", def.getVersion());
     }
 
     @Test
     public void testVersionTypeTag()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        
         def.setReleaseTag("2.3.0");
         assert RELEASE_TAG == def.getVersionType();
         assertEquals("2.3.0", def.getVersion());
+        
         def.setReleaseTag("1.18.100");
         assert RELEASE_TAG == def.getVersionType();
         assertEquals("1.18.100", def.getVersion());
+        
+        def.setReleaseTag("S18.100");
+        assert RELEASE_TAG == def.getVersionType();
+        assertEquals("S18.100", def.getVersion());
     }
 
     @Test
@@ -142,7 +154,7 @@ public class SVNRepositoryProjectContextTest
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         final String name = "someProject";
         final String subName = "someSubProject";
-        final String branchName = "0.9.x";
+        final String branchName = "S9.x";
         def.setProjectName(name);
         def.setReleaseBranch(branchName);
         final String branchUrl =
@@ -299,6 +311,14 @@ public class SVNRepositoryProjectContextTest
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseTag("1.1.x");
     }
+    
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+        public void testIllegalTag8()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setReleaseTag("s1.x");
+    }
 
     @Test(expectedExceptions =
         { UserFailureException.class })
@@ -356,6 +376,14 @@ public class SVNRepositoryProjectContextTest
         def.setReleaseBranch("1.1.0");
     }
 
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+        public void testIllegalBranch8()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setReleaseBranch("s1.0");
+    }
+    
     @Test
     public void testMissingName()
     {
