@@ -28,6 +28,7 @@ import org.kohsuke.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
@@ -177,6 +178,19 @@ final class Parameters
         return null;
     }
 
+    private static void checkValid(String fieldOrNull, String describer)
+    {
+        if (fieldOrNull == null)
+        {
+            return;
+        }
+        if (fieldOrNull.indexOf(':') >= 0)
+        {
+            throw new UserFailureException(StringUtilities.capitalize(describer)
+                    + " '" + fieldOrNull + "'" + " must not contain a ':'.");
+        }
+    }
+
     /**
      * Returns the {@link Command} to be executed.
      */
@@ -194,6 +208,7 @@ final class Parameters
     {
         assert userId != null;
 
+        checkValid(userId, "user id");
         return userId;
     }
 
@@ -202,6 +217,7 @@ final class Parameters
      */
     final String getFirstName()
     {
+        checkValid(firstNameOrNull, "first name");
         return firstNameOrNull == null ? "" : firstNameOrNull;
     }
 
@@ -210,6 +226,7 @@ final class Parameters
      */
     final String getLastName()
     {
+        checkValid(lastNameOrNull, "last name");
         return lastNameOrNull == null ? "" : lastNameOrNull;
     }
 
@@ -218,6 +235,7 @@ final class Parameters
      */
     final String getEmail()
     {
+        checkValid(emailOrNull, "email");
         return emailOrNull == null ? "" : emailOrNull;
     }
 
