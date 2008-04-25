@@ -5,8 +5,7 @@
 
 # ----------------------------- configuration
 TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
-SVN_PATHS="/opt/local/bin /usr/bin"
-LSOF_PATHS="/usr/sbin"
+BIN_PATHS="/opt/local/bin /usr/bin /usr/sbin"
 TRUE=1
 FALSE=0
 
@@ -31,18 +30,20 @@ TEST_FAILED=false # working variable, if true then some tests failed
 
 # --------------------------- build distributions from sources
 
+# Replaces the ':' in $PATH with ' '.
 function get_env_path {
     echo $PATH | tr ":" " "
 }
 
-# looks for a specified file in environment paths and paths given as a parameter (space separated)
+# Looks for a specified executable in environment paths and
+# paths given as a parameter (space separated).
 function locate_file {
     local file=$1
     shift
     local additional_paths=$@
     for dir in `get_env_path` $additional_paths; do 
 	local full_path=$dir/$file
-	if [ -f $full_path ]; then
+	if [ -x $full_path ]; then
     	    echo $full_path;
 	    return
 	fi 
@@ -50,7 +51,26 @@ function locate_file {
 }
 
 function run_svn {
-    `locate_file svn $SVN_PATHS` $@
+    `locate_file svn $BIN_PATHS` $@
+}
+
+function run_lsof {
+    `locate_file lsof $BIN_PATHS` $@
+}
+
+# Tries to find PostgreSQL executable and returns its absolute path.
+# If not found, then exits the script with an appropriate error message.
+function run_psql {
+	for prg in psql psql83; do
+		exe=`locate_file $prg $BIN_PATHS`
+		if [ $exe ]; then
+			echo $exe
+			return
+		fi
+	done
+	echo "Cannot find PostgreSQL"
+	echo "This executable is needed to run the integration tests"
+	exit 1
 }
 
 function build_zips {
@@ -136,6 +156,7 @@ function build_zips_from_svn {
 
 # -------------------------- installation
 
+# Recursively removes '.svn' directory in passed directory.
 function clean_svn {
     local DIR=$1
     for file in `find $DIR -name ".svn"`; do 
@@ -164,10 +185,6 @@ function unpack { # from ZIPS to BUILD
 
 function remove_unpacked {
     rm -fR $WORK/$1
-}
-
-function run_lsof {
-    `locate_file lsof $LSOF_PATHS` $@
 }
 
 function check_server_port {
@@ -687,7 +704,8 @@ function assert_correct_dataset_content_in_database {
     local dataset_id=$1
     local pattern=$2
     echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
-    local dataset=`psql -U postgres -d lims_integration_test \
+    local psql=`run_psql`
+    local dataset=`$psql -U postgres -d lims_integration_test \
        -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
@@ -734,8 +752,9 @@ function integration_tests {
     init_log
     build_zips $install_etl $install_dmv $install_lims $use_local_source
     
-    # prepare empty incoming data
+    # Prepare empty incoming data
     rm -fr $DATA
+    mkdir -p $DATA
     cp -R $TEMPLATE/data $WORK
     clean_svn $DATA
 
@@ -773,7 +792,8 @@ function print_help {
     echo "	$0 --etl"
 }
 
-# -- MAIN ------------ 
+# -- MAIN ------------
+ 
 if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
