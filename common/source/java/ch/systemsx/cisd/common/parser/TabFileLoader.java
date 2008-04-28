@@ -102,6 +102,10 @@ public class TabFileLoader<T>
         } catch (final IOException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
+        } catch (final ParserException ex)
+        {
+            throwParserException(ex, file);
+            throw new AssertionError("We should never reach this point.");
         } catch (final ParsingException ex)
         {
             throwParsingException(ex, file);
@@ -193,6 +197,19 @@ public class TabFileLoader<T>
     protected void throwParsingException(final ParsingException parsingException, final File file)
     {
         throw parsingException;
+    }
+
+    /**
+     * Throws given <var>ex</var> or translates it into another kind of exception.
+     * <p>
+     * Default behavior just throws it.
+     * </p>
+     * 
+     * @param file the parsed file.
+     */
+    protected void throwParserException(ParserException ex, File file)
+    {
+        throw ex;
     }
 
     /**

@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
@@ -83,8 +84,9 @@ public final class AbstractParserObjectFactoryTest
             fail("Following properties '[isnotin]' are not part of 'Bean'.");
         } catch (final UnmatchedPropertiesException ex)
         {
-            assertEquals("Following header columns are not part of 'Bean': isnotin", ex
-                    .getMessage());
+            assertEquals(
+                    "Columns 'isnotin' specified in the header are not expected (mandatory colums are 'name', optional colums are 'description', 'number')",
+                    ex.getMessage());
         }
     }
 
@@ -102,8 +104,7 @@ public final class AbstractParserObjectFactoryTest
             fail("Field/Property name 'name' is mandatory.");
         } catch (final MandatoryPropertyMissingException ex)
         {
-            assertEquals(String.format(MandatoryPropertyMissingException.MESSAGE_FORMAT, "name"),
-                    ex.getMessage());
+            AssertJUnit.assertTrue(ex.getMessage().indexOf("name") > 1);
         }
     }
 
@@ -126,7 +127,7 @@ public final class AbstractParserObjectFactoryTest
         final String[] lineTokens =
                 (String[]) ArrayUtils.remove(defaultTokens, defaultTokens.length - 1);
         final String msg =
-                String.format(IndexOutOfBoundsException.MESSAGE_FORMAT, 2, lineTokens.length);
+                "Not enough columns available. Looking for 3rd column but we have only 2 columns ('Bean Name', 'Bean Description').";
         try
         {
             beanFactory.createObject(lineTokens);

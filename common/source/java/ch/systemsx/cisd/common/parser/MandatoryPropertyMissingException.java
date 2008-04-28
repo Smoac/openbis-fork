@@ -29,9 +29,6 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
  */
 public final class MandatoryPropertyMissingException extends ParserException
 {
-
-    static final String MESSAGE_FORMAT = "Field/Property name(s) '%s' is(are) mandatory.";
-
     private static final long serialVersionUID = 1L;
 
     /** The mandatory property names that could not be found in the parsed file. */
@@ -43,22 +40,24 @@ public final class MandatoryPropertyMissingException extends ParserException
     public MandatoryPropertyMissingException(final Set<String> mandatoryFields,
             final Set<String> missingMandatoryProperties)
     {
-        super(createMessage(missingMandatoryProperties));
+        super(createMessage(missingMandatoryProperties, mandatoryFields));
         assert mandatoryFields != null && mandatoryFields.size() > 0 : "Unspecified mandatory fields.";
         this.mandatoryFields = mandatoryFields;
         this.missingMandatoryProperties = missingMandatoryProperties;
     }
 
-    private final static String createMessage(final Set<String> missingMandatoryProperties)
+    private final static String createMessage(final Set<String> missingMandatoryProperties,
+            Set<String> mandatoryFields)
     {
         assert missingMandatoryProperties != null : "Missing mandatory properties can not be null.";
         assert missingMandatoryProperties.size() > 0 : "No reason to throw this exception.";
-        return String.format(MESSAGE_FORMAT, toString(missingMandatoryProperties));
+        return String.format("Mandatory column(s) %s are missing (mandatory columns are %s).",
+                toString(missingMandatoryProperties), toString(mandatoryFields));
     }
 
     final static String toString(final Set<String> set)
     {
-        return CollectionUtils.abbreviate(set, -1, CollectionStyle.NO_BOUNDARY);
+        return CollectionUtils.abbreviate(set, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY);
     }
 
     public final Set<String> getMissingMandatoryProperties()

@@ -19,6 +19,9 @@ package ch.systemsx.cisd.common.parser;
 import java.util.Collections;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+
 /**
  * A <code>ParserException</code> extension which signalizes unmatched properties.
  * 
@@ -26,9 +29,6 @@ import java.util.Set;
  */
 public final class UnmatchedPropertiesException extends ParserException
 {
-
-    static final String MESSAGE_FORMAT = "Following header columns are not part of '%s': %s";
-
     private static final long serialVersionUID = 1L;
 
     /** The bean this is set during the parsing process. */
@@ -53,7 +53,7 @@ public final class UnmatchedPropertiesException extends ParserException
             final Set<String> allPropertyNames, final Set<String> mandatoryNames,
             final Set<String> optionalNames, final Set<String> propertyNames)
     {
-        super(createMessage(beanClass, propertyNames));
+        super(createMessage(propertyNames, mandatoryNames, optionalNames));
         assert allPropertyNames != null : "All property names can not be null.";
         assert mandatoryNames != null : "Mandatory names can not be null.";
         assert optionalNames != null : "Optional names can not be null.";
@@ -64,14 +64,37 @@ public final class UnmatchedPropertiesException extends ParserException
         this.propertyNames = propertyNames;
     }
 
-    private final static String createMessage(final Class<?> beanClass,
-            final Set<String> propertyNames)
+    private final static String createMessage(Set<String> propertyNames,
+            Set<String> mandatoryNames, Set<String> optionalNames)
     {
-        assert beanClass != null : "Bean class can not be null.";
         assert propertyNames != null : "Property names can not be null.";
         assert propertyNames.size() > 0 : "There is no reason to throw this exception.";
-        return String.format(MESSAGE_FORMAT, beanClass.getSimpleName(),
-                MandatoryPropertyMissingException.toString((propertyNames)));
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Columns ").append(toString(propertyNames)).append(
+                " specified in the header are not expected (");
+        final boolean hasMandatory = mandatoryNames.size() > 0;
+        if (hasMandatory)
+        {
+            builder.append("mandatory colums are ");
+            builder.append(toString(mandatoryNames));
+        }
+        if (optionalNames.size() > 0)
+        {
+            if (hasMandatory)
+            {
+                builder.append(", ");
+            }
+            builder.append("optional colums are ");
+            builder.append(toString(optionalNames));
+        }
+        builder.append(")");
+        return builder.toString();
+
+    }
+
+    private final static String toString(final Set<String> set)
+    {
+        return CollectionUtils.abbreviate(set, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY);
     }
 
     public final Class<?> getBeanClass()

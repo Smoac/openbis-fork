@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
+
 /**
  * A <code>ParserException</code> extension which signalizes a lookup index outside of the
  * currently available tokens.
@@ -24,10 +28,6 @@ package ch.systemsx.cisd.common.parser;
  */
 public final class IndexOutOfBoundsException extends ParserException
 {
-
-    static final String MESSAGE_FORMAT =
-            "Not enough tokens are available (index: %d, available: %d)";
-
     private static final long serialVersionUID = 1L;
 
     private final int column;
@@ -45,7 +45,11 @@ public final class IndexOutOfBoundsException extends ParserException
     {
         assert lineTokens != null : "Line tokens can not be null.";
         assert index >= lineTokens.length : "Index must be out of range (otherwise no reason to call this exception).";
-        return String.format(MESSAGE_FORMAT, index, lineTokens.length);
+        return String
+                .format(
+                        "Not enough columns available. Looking for %s column but we have only %d columns (%s).",
+                        StringUtilities.getOrdinal(index + 1), lineTokens.length, CollectionUtils
+                                .abbreviate(lineTokens, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY));
     }
 
     public final int getColumn()
