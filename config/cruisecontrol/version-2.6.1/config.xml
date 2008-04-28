@@ -74,13 +74,8 @@
           <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
           <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
           <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-<<<<<<< .mine
 	  <map alias="bneff" address="basil.neff@systemsx.ch" />
 	  <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
-=======
-          <map alias="bneff" address="basil.neff@systemsx.ch" />
-          <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
->>>>>>> .r5352
         </htmlemail>
       </onfailure>
     </publishers>
@@ -176,6 +171,16 @@
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
+  <project name="dataset_download">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/lims_base"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
