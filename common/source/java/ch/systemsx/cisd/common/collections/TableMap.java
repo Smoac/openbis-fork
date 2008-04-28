@@ -43,9 +43,17 @@ public class TableMap<K, E> implements Iterable<E>
     {
         private static final long serialVersionUID = 1L;
 
-        UniqueKeyViolationException(String msg)
+        private final Object/* <K> */invalidKey; // NOTE: exceptions cannot be generic in java
+
+        UniqueKeyViolationException(Object/* <K> */invalidKey)
         {
-            super(msg);
+            super("Key '" + invalidKey.toString() + "' already in the map.");
+            this.invalidKey = invalidKey;
+        }
+
+        public Object/* <K> */getInvalidKey()
+        {
+            return invalidKey;
         }
     }
 
@@ -146,8 +154,7 @@ public class TableMap<K, E> implements Iterable<E>
             map.put(key, row);
         } else if (uniqueKeyViolationStrategy == UniqueKeyViolationStrategy.ERROR)
         {
-            throw new UniqueKeyViolationException("Key '" + key.toString()
-                    + "' already in the map.");
+            throw new UniqueKeyViolationException(key);
         }
     }
 
