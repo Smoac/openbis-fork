@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -1054,4 +1055,35 @@ public final class FileUtilities
         }
     }
 
+    /**
+     * Create a temporary file in a given directory.
+     * <p>
+     * The file denoted by the returned abstract pathname did not exist before this method was
+     * invoked, any subsequent invocation of this method will yield a different file name.
+     * </p>
+     * <p>
+     * The filename is prefixNNNNsuffix where NNNN is a random number.
+     * </p>
+     * <p>
+     * This method is different from File.createTempFile() of JDK 1.2 as it doesn't create the file
+     * itself. It uses the location pointed to by java.io.tmpdir when the parentDir attribute is
+     * null.
+     * </p>
+     */
+    public final static File createTempFile(final String prefixOrNull, final String suffixOrNull,
+            final File parentDirOrNull)
+    {
+        File result = null;
+        final String parent =
+                (parentDirOrNull == null) ? System.getProperty("java.io.tmpdir") : parentDirOrNull
+                        .getPath();
+        do
+        {
+            result =
+                    new File(parent, StringUtils.defaultString(prefixOrNull)
+                            + RandomStringUtils.randomNumeric(4)
+                            + StringUtils.defaultString(suffixOrNull));
+        } while (result.exists());
+        return result;
+    }
 }

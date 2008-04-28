@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
@@ -500,4 +501,27 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(canonicalPath, FileUtilities.normalizeFile(file).getAbsolutePath());
     }
 
+    @Test
+    public final void testCreateTempFile()
+    {
+        File file = FileUtilities.createTempFile(null, null, null);
+        assertNotNull(file);
+        assertFalse(file.exists());
+        String name = file.getName();
+        assertTrue(name.length() == 4);
+        NumberUtils.isNumber(name);
+        String prefix = System.getProperty("java.io.tmpdir");
+        assertTrue(file.getAbsolutePath().startsWith(prefix));
+        // With a prefix, suffix and a parent
+        final String filePrefix = "prefix";
+        final String fileSuffix = ".tmp";
+        file = FileUtilities.createTempFile(filePrefix, fileSuffix, workingDirectory);
+        assertNotNull(file);
+        assertFalse(file.exists());
+        assertTrue(file.getAbsolutePath().startsWith(workingDirectory.getAbsolutePath()));
+        name = file.getName();
+        assertTrue(name.startsWith(filePrefix));
+        assertTrue(name.endsWith(fileSuffix));
+        assertEquals(filePrefix.length() + fileSuffix.length() + 4, name.length());
+    }
 }
