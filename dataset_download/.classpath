@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-util.jar" sourcepath="/libraries/jetty/src/jetty-util.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

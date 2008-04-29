@@ -25,6 +25,12 @@ import java.util.Properties;
  */
 class ConfigParameters
 {
+    static final String PASSWORD_KEY = "password";
+    static final String USERNAME_KEY = "username";
+    static final String SERVER_URL_KEY = "server-url";
+    static final String PORT_KEY = "port";
+    static final String STOREROOT_DIR_KEY = "storeroot-dir";
+
     private final String storePath;
     
     private final int port;
@@ -37,11 +43,11 @@ class ConfigParameters
     
     public ConfigParameters(Properties properties)
     {
-        storePath = properties.getProperty("storeroot-dir");
-        port = Integer.parseInt(properties.getProperty("port"));
-        serverURL = properties.getProperty("server-url");
-        userName = properties.getProperty("username");
-        password = properties.getProperty("password");
+        storePath = properties.getProperty(STOREROOT_DIR_KEY);
+        port = Integer.parseInt(properties.getProperty(PORT_KEY));
+        serverURL = properties.getProperty(SERVER_URL_KEY);
+        userName = properties.getProperty(USERNAME_KEY);
+        password = properties.getProperty(PASSWORD_KEY);
     }
 
     public final String getStorePath()

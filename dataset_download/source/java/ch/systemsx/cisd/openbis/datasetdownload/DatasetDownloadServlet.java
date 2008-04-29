@@ -18,27 +18,40 @@ package ch.systemsx.cisd.openbis.datasetdownload;
 
 import static ch.systemsx.cisd.openbis.datasetdownload.DatasetDownloadService.APPLICATION_CONTEXT_KEY;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.lims.base.ExternalData;
+import ch.systemsx.cisd.lims.base.LocatorType;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class DatasetDownloadServlet extends HttpServlet
 {
+    static final String DATA_SET_ROOT_DIR_KEY = "data-set-root-dir";
+
+    static final String DATA_SET_KEY = "data-set";
+
     static final String DATASET_CODE_KEY = "dataSetCode";
     
     static final String SESSION_ID_KEY = "sessionID";
@@ -52,6 +65,15 @@ public class DatasetDownloadServlet extends HttpServlet
             LogFactory.getLogger(LogCategory.NOTIFY, DatasetDownloadServlet.class);
 
     private ApplicationContext applicationContext;
+    
+    public DatasetDownloadServlet()
+    {
+    }
+
+    DatasetDownloadServlet(ApplicationContext applicationContext)
+    {
+        this.applicationContext = applicationContext;
+    }
     
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
@@ -73,12 +95,144 @@ public class DatasetDownloadServlet extends HttpServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        final String dataSetCode = request.getParameter(DATASET_CODE_KEY);
-        final String sessionID = request.getParameter(SESSION_ID_KEY);
-        ExternalData dataSet = applicationContext.getDataSetService().getDataSet(sessionID, dataSetCode);
-        final PrintWriter writer = response.getWriter();
-        writer.write("<html><body>Download dataset " + dataSetCode + " (sessionID:" + sessionID + "):" + dataSet + "</body></html>");
+        try
+        {
+            obtainDataSetFromServer(request);
+            
+            HttpSession session = request.getSession(false);
+            if (session == null)
+            {
+                printSessionExpired(response);
+            } else
+            {
+                ExternalData dataSet = (ExternalData) session.getAttribute(DATA_SET_KEY);
+                File rootDir = (File) session.getAttribute(DATA_SET_ROOT_DIR_KEY);
+                String pathInfo = request.getPathInfo();
+                if (pathInfo != null && pathInfo.startsWith("/"))
+                {
+                    pathInfo = pathInfo.substring(1);
+                }
+                String requestURI = request.getRequestURI();
+                renderPage(response, dataSet, rootDir, requestURI, pathInfo);
+            }
+            
+        } catch (Exception e)
+        {
+            PrintWriter writer = response.getWriter();
+            writer.println("<html><body><h1>Error</h1>");
+            String message = e.getMessage();
+            writer.println(StringUtils.isBlank(message) ? e.toString() : message);
+            writer.println("</body></html>");
+            writer.flush();
+            writer.close();
+        }
+    }
+
+    private void renderPage(final HttpServletResponse response, ExternalData dataSet, File rootDir,
+            String requestURI, String relativePathOrNull) throws IOException
+    {
+        File file = rootDir;
+        String urlPrefix = requestURI;
+        String relativeParentPath = null;
+        if (relativePathOrNull != null && relativePathOrNull.length() > 0)
+        {
+            file = new File(rootDir, relativePathOrNull);
+            urlPrefix = requestURI.substring(0, requestURI.length() - relativePathOrNull.length());
+            relativeParentPath = FileUtilities.getRelativeFile(rootDir, file.getParentFile());
+            if (relativeParentPath == null)
+            {
+                relativeParentPath = "";
+            }
+        }
+        if (file.exists() == false)
+        {
+            throw new EnvironmentFailureException("File '" + file.getName() + "' does not exist.");
+        }
+        if (file.isDirectory())
+        {
+            IDirectoryRenderer directoryRenderer = new HTMLDirectoryRenderer(urlPrefix, relativePathOrNull);
+            response.setContentType(directoryRenderer.getContentType());
+            PrintWriter writer = response.getWriter();
+            directoryRenderer.setWriter(writer);
+            directoryRenderer.printHeader(dataSet);
+            if (relativeParentPath != null)
+            {
+                directoryRenderer.printLinkToParentDirectory(relativeParentPath);
+            }
+            File[] children = file.listFiles();
+            for (File child : children)
+            {
+                String name = child.getName();
+                String relativePath = FileUtilities.getRelativeFile(rootDir, child);
+                String normalizedRelativePath = relativePath.replace('\\', '/');
+                if (child.isDirectory())
+                {
+                    directoryRenderer.printDirectory(name, normalizedRelativePath);
+                } else
+                {
+                    directoryRenderer.printFile(name, normalizedRelativePath, child.length());
+                }
+            }
+            directoryRenderer.printFooter();
+            writer.flush();
+            writer.close();
+        } else
+        {
+            long size = file.length();
+            response.setContentLength((int) size);
+            response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
+            ServletOutputStream outputStream = null;
+            FileInputStream fileInputStream = null;
+            try
+            {
+                outputStream = response.getOutputStream();
+                fileInputStream = new FileInputStream(file);
+                IOUtils.copy(fileInputStream, outputStream);
+                
+            } finally
+            {
+                IOUtils.closeQuietly(fileInputStream);
+                IOUtils.closeQuietly(outputStream);
+            }
+        }
+    }
+
+    private void printSessionExpired(final HttpServletResponse response) throws IOException
+    {
+        PrintWriter writer = response.getWriter();
+        writer.write("<html><body>Download session expired.</body></html>");
         writer.flush();
         writer.close();
+    }
+
+    private void obtainDataSetFromServer(final HttpServletRequest request)
+    {
+        final String dataSetCode = request.getParameter(DATASET_CODE_KEY);
+        final String sessionID = request.getParameter(SESSION_ID_KEY);
+        if (dataSetCode != null && sessionID != null)
+        {
+            ExternalData dataSet = applicationContext.getDataSetService().getDataSet(sessionID, dataSetCode);
+            File dataSetRootDirectory = new File(createDataSetPath(dataSet));
+            if (dataSetRootDirectory.exists() == false)
+            {
+                throw new EnvironmentFailureException("Data set '" + dataSetCode
+                        + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath()
+                        + "'.");
+            }
+            HttpSession session = request.getSession(true);
+            session.setAttribute(DATA_SET_KEY, dataSet);
+            session.setAttribute(DATA_SET_ROOT_DIR_KEY, dataSetRootDirectory);
+        }
+    }
+
+    private String createDataSetPath(ExternalData dataSet)
+    {
+        String location = dataSet.getLocation();
+        LocatorType locatorType = dataSet.getLocatorType();
+        if (locatorType.getCode().equals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE))
+        {
+            return applicationContext.getConfigParameters().getStorePath() + "/" + location;
+        }
+        return location;
     }
 }

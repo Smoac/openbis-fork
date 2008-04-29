@@ -60,7 +60,7 @@ public class DatasetDownloadService
         Server server = new Server(applicationContext.getConfigParameters().getPort());
         Context context = new Context(server, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
-        context.addServlet(DatasetDownloadServlet.class, "/dataset-download");
+        context.addServlet(DatasetDownloadServlet.class, "/dataset-download/*");
         server.start();
         
         selfTest(applicationContext);
