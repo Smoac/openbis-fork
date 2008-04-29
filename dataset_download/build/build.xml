@@ -18,7 +18,7 @@
 	
   <target name="run-tests">
     <antcall target="build-common.run-tests">
-      <param name="test.suite" value="tests_fast.xml" />
+      <param name="test.suite" value="tests.xml" />
     </antcall>
   </target>
 	
