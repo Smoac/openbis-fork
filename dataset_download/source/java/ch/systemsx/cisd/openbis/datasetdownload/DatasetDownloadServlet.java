@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
+import static ch.systemsx.cisd.openbis.datasetdownload.DatasetDownloadService.APPLICATION_CONTEXT_KEY;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,14 +32,14 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.lims.base.ExternalData;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class DatasetDownloadServlet extends HttpServlet
 {
-    static final String DATASET_CODE_KEY = "datasetCode";
+    static final String DATASET_CODE_KEY = "dataSetCode";
     
     static final String SESSION_ID_KEY = "sessionID";
     
@@ -48,17 +51,16 @@ public class DatasetDownloadServlet extends HttpServlet
     protected static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DatasetDownloadServlet.class);
 
-    //
-    // HttpServlet
-    //
-
+    private ApplicationContext applicationContext;
+    
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
     {
         super.init(servletConfig);
-        LogInitializer.init();
         try
         {
+            ServletContext context = servletConfig.getServletContext();
+            applicationContext = (ApplicationContext) context.getAttribute(APPLICATION_CONTEXT_KEY);
         } catch (Exception ex)
         {
             notificationLog.fatal("Failure during '" + servletConfig.getServletName()
@@ -71,10 +73,11 @@ public class DatasetDownloadServlet extends HttpServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        final String datasetCode = request.getParameter(DATASET_CODE_KEY);
+        final String dataSetCode = request.getParameter(DATASET_CODE_KEY);
         final String sessionID = request.getParameter(SESSION_ID_KEY);
+        ExternalData dataSet = applicationContext.getDataSetService().getDataSet(sessionID, dataSetCode);
         final PrintWriter writer = response.getWriter();
-        writer.write("<html><body>Download dataset " + datasetCode + " (sessionID:" + sessionID + ")</body></html>");
+        writer.write("<html><body>Download dataset " + dataSetCode + " (sessionID:" + sessionID + "):" + dataSet + "</body></html>");
         writer.flush();
         writer.close();
     }
