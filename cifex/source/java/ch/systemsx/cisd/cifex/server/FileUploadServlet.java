@@ -155,7 +155,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final StringBuffer comment = new StringBuffer();
             extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files,
                     userEmails, comment);
-            final String url = domainModel.getBusinessContext().getURLForEmail(request);
+            final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, userEmails, files, comment
@@ -176,6 +176,18 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             operationLog.error("Could not process multipart content.", ex);
             final String msg = getErrorMessage(ex);
             feedbackProvider.setMessage(new Message(Message.ERROR, msg));
+        }
+    }
+
+    private String getURLForEmail(HttpServletRequest request)
+    {
+        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
+        if (StringUtils.isBlank(overrideURL))
+        {
+            return HttpUtils.getBasicURL(request);
+        } else
+        {
+            return overrideURL;
         }
     }
 

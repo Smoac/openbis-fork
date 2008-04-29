@@ -18,9 +18,6 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
-import javax.servlet.http.HttpServletRequest;
-
-import ch.systemsx.cisd.cifex.server.HttpUtils;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -167,15 +164,9 @@ class BusinessContext implements IBusinessContext
         this.overrideURL = overrideURL;
     }
 
-    public String getURLForEmail(HttpServletRequest request)
+    public final String getOverrideURL()
     {
-        if (overrideURL != null)
-        {
-            return overrideURL;
-        } else
-        {
-            return HttpUtils.getBasicURL(request);
-        }
+        return overrideURL;
     }
 
     public final void setSystemVersion(final String systemVersion)

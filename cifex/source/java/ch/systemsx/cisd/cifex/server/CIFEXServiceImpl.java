@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -391,8 +392,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final IMailClient mailClient = domainModel.getMailClient();
             final EMailBuilderForNewUser builder =
                     new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
-            builder.setURL(domainModel.getBusinessContext().getURLForEmail(
-                    requestContextProvider.getHttpServletRequest()));
+            builder.setURL(getURLForEmail(requestContextProvider.getHttpServletRequest()));
             builder.setPassword(finalPassword);
             if (comment != null && comment.equals("") == false)
             {
@@ -405,6 +405,18 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
             operationLog.error(msg, ex);
             throw new EnvironmentFailureException(msg);
+        }
+    }
+
+    private String getURLForEmail(HttpServletRequest request)
+    {
+        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
+        if (StringUtils.isBlank(overrideURL))
+        {
+            return HttpUtils.getBasicURL(request);
+        } else
+        {
+            return overrideURL;
         }
     }
 
