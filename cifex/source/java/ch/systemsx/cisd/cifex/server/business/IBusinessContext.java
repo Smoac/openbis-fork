@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
 
+import javax.servlet.http.HttpServletRequest;
+
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -73,6 +75,11 @@ public interface IBusinessContext
      */
     public String getAdministratorEmail();
 
+    /**
+     * Returns the URL to be used for links in emails.
+     */
+    public String getURLForEmail(HttpServletRequest request);
+    
     /** Returns the full version information of this server. */
     public String getSystemVersion();
 

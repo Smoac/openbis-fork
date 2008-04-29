@@ -391,7 +391,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final IMailClient mailClient = domainModel.getMailClient();
             final EMailBuilderForNewUser builder =
                     new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
-            builder.setURL(HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest()));
+            builder.setURL(domainModel.getBusinessContext().getURLForEmail(
+                    requestContextProvider.getHttpServletRequest()));
             builder.setPassword(finalPassword);
             if (comment != null && comment.equals("") == false)
             {

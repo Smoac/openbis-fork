@@ -57,6 +57,7 @@
         <constructor-arg ref="user-action-log" />
         <constructor-arg ref="bean-post-processor" />
         <constructor-arg ref="user-session-holder" />
+        <constructor-arg value="${mail.url.override}" />
         <property name="fileStorePath" value="${file-store}" />
         <property name="fileRetention" value="${file-retention}" />
         <property name="userRetention" value="${user-retention}" />

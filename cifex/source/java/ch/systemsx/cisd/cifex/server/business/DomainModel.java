@@ -66,7 +66,7 @@ public final class DomainModel implements IDomainModel
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
             final IUserActionLog userActionLog, final BeanPostProcessor processor,
-            final UserHttpSessionHolder userSessionHolder)
+            final UserHttpSessionHolder userSessionHolder, final String overrideURL)
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
@@ -79,6 +79,7 @@ public final class DomainModel implements IDomainModel
         businessContext.setPasswordGenerator(new PasswordGenerator());
         businessContext.setUserHttpSessionHolder(userSessionHolder);
         businessContext.setUserActionLog(userActionLog);
+        businessContext.setOverrideURL(overrideURL);
         businessContext.setSystemVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
     }

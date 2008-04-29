@@ -155,7 +155,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             final StringBuffer comment = new StringBuffer();
             extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files,
                     userEmails, comment);
-            final String url = HttpUtils.getBasicURL(request);
+            final String url = domainModel.getBusinessContext().getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, userEmails, files, comment
