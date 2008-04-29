@@ -16,6 +16,12 @@
 
   <target name="compile" depends="build-common.compile, clean" />
 	
+  <target name="run-tests">
+    <antcall target="build-common.run-tests">
+      <param name="test.suite" value="tests_fast.xml" />
+    </antcall>
+  </target>
+	
   <target name="jar" depends="compile">
     <mkdir dir="${dist.download-service.lib}" />
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
@@ -50,5 +56,6 @@
     <delete dir="${dist.download-service.lib}" />
   </target>
 	
-  <target name="ci" depends="run-tests, check-dependencies"/>
+  <target name="ci" depends="run-tests, check-dependencies, dist"/>
+	
 </project>
