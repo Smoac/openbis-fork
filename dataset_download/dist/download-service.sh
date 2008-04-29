@@ -1,0 +1,169 @@
+#!/bin/bash
+#
+# Control script for CISD Data Set Download Server on UNIX / Linux systems
+# -------------------------------------------------------------------------
+#!/bin/bash
+#
+# Control script for CISD ETL Server on UNIX / Linux systems
+# -------------------------------------------------------------------------
+
+awkBin()
+{
+	# We need a awk that accepts variable assignments with '-v'
+	case `uname -s` in
+		"SunOS")
+			echo "nawk"
+			return
+			;;
+	esac
+	# default
+	echo "awk"
+}
+
+isPIDRunning()
+{
+	if [ "$1" = "" ]; then
+		return 0
+	fi
+	# This will have a return value of 0 on BSDish systems
+	isBSD="`ps aux > /dev/null 2>&1; echo $?`"
+	AWK=`awkBin`
+	if [ "$isBSD" = "0" ]; then
+		if [ "`ps aux | $AWK -v PID=$1 '{if ($2==PID) {print "FOUND"}}'`" = "FOUND" ]; then
+			return 0
+		else
+			return 1
+		fi
+	else
+		if [ "`ps -ef | $AWK -v PID=$1 '{if ($2==PID) {print "FOUND"}}'`" = "FOUND" ]; then
+			return 0
+		else
+			return 1
+		fi
+	fi
+}
+
+#
+# definitions
+#
+
+PIDFILE=${DOWNLOAD_SERVICE_PID:-DOWNLOAD_SERVICE.pid}
+CONFFILE=etc/download-service.conf
+LOGFILE=log/download-service_log.txt
+STARTUPLOG=log/startup_log.txt
+SUCCESS_MSG="Data set download service ready"
+MAX_LOOPS=10
+
+#
+# change to installation directory
+#
+bin=$0
+if [ -L $bin ]; then
+  bin=`dirname $bin`/`readlink $bin`
+fi
+WD=`dirname $bin`
+cd $WD
+SCRIPT=./`basename $0`
+
+#
+# source configuration script, if any
+#
+test -f $CONFFILE && source $CONFFILE
+if [ "$JAVA_HOME" != "" ]; then
+	JAVA_BIN="$JAVA_HOME/bin/java"
+else
+	JAVA_BIN="java"
+fi
+
+command=$1
+# ensure that we ignore a possible prefix "--" for any command 
+command="${command#--*}"
+case "$command" in
+        start)
+	        echo -n "Starting Data Set Download Service "
+                rm -f $LOGFILE.old
+                if [ -f $LOGFILE ]; then
+                        mv $LOGFILE $LOGFILE.old
+                fi
+   
+		shift 1
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+		if [ $? -eq 0 ]; then
+			# wait for initial self-test to finish
+			n=0
+			while [ $n -lt $MAX_LOOPS ]; do
+				sleep 1
+				grep "$SUCCESS_MSG" $LOGFILE > /dev/null 2>&1
+				if [ $? -eq 0 ]; then
+					break
+				fi
+				n=$(($n+1))
+			done 
+			PID=`cat $PIDFILE`
+			isPIDRunning $PID
+			if [ $? -eq 0 ]; then
+				grep "$SUCCESS_MSG" $LOGFILE > /dev/null 2>&1
+				if [ $? -ne 0 ]; then
+					echo "(pid $PID - WARNING: log message for successful startup not yet found)"
+				else
+					echo "(pid $PID)"
+				fi
+			else
+				rm $PIDFILE
+				echo "FAILED"
+				echo "startup log says:"
+				cat $STARTUPLOG
+			fi
+		else
+			echo "FAILED"
+		fi
+		;;
+        stop)
+        	echo -n "Stopping Data Set Download Service "
+		if [ -f $PIDFILE ]; then
+			PID=`cat $PIDFILE`
+			isPIDRunning $PID
+			if [ $? -eq 0 ]; then
+				kill $PID
+				if [ $? -eq 0 ]; then
+					echo "(pid $PID)"
+					rm $PIDFILE
+				else
+					echo "FAILED"
+				fi
+			else
+				rm $PIDFILE
+				echo "(was dead - cleaned up pid file)"
+			fi
+		else
+			echo "(not running - nothing to do)"
+		fi
+        ;;
+        status)
+		if [ -f $PIDFILE ]; then
+			PID=`cat $PIDFILE`
+			isPIDRunning $PID
+			if [ $? -eq 0 ]; then
+				echo "Data Set Download Service is running (pid $PID)"
+			else
+				echo "Data Set Download Service is dead (stale pid $PID)"
+			fi
+		else
+			echo "Data Set Download Service is not running"
+		fi
+        ;;
+        restart)
+	        $SCRIPT stop
+	        $SCRIPT start
+        ;;
+	help)
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar --help
+	;;
+	version)
+                ${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar --version
+	;;
+        *)
+        echo $"Usage: $0 {start|stop|restart|status|help|version}"
+        exit 1
+esac
+exit 0

@@ -57,13 +57,18 @@ public class DatasetDownloadService
         ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
         
         ApplicationContext applicationContext = createApplicationContext();
-        Server server = new Server(applicationContext.getConfigParameters().getPort());
+        int port = applicationContext.getConfigParameters().getPort();
+        Server server = new Server(port);
         Context context = new Context(server, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.addServlet(DatasetDownloadServlet.class, "/dataset-download/*");
         server.start();
         
         selfTest(applicationContext);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Data set download service ready on port " + port);
+        }
     }
     
     private static void selfTest(ApplicationContext applicationContext)
