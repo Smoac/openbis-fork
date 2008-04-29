@@ -589,7 +589,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
     local bds_container=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Barcode_3VCP1/
-    bds_container=$bds_container`ls -1 $bds_container | head -1`/microX_200801011213_3VCP1
+    bds_container=$bds_container`ls -1 $bds_container | grep -v '^Temp_' | head -1`/microX_200801011213_3VCP1
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
@@ -604,7 +604,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Barcode_3VCP1/
     assert_dir_exists $raw_data_dir
     # Picks up the first directory found
-    raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir | head -1`
+    raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir |  grep -v '^Temp_' | head -1`
     assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
     assert_dir_exists $raw_data_set
@@ -693,7 +693,7 @@ function assert_correct_content_of_image_analysis_data {
     local img_analysis=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/
     assert_dir_exists $img_analysis
     # Picks up the first directory found
-    img_analysis=$img_analysis`ls -1 $img_analysis | head -1`
+    img_analysis=$img_analysis`ls -1 $img_analysis | grep -v '^Temp_' | head -1`
     assert_dir_exists $img_analysis
     assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
 }
