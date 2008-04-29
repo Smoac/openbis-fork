@@ -105,6 +105,13 @@ public final class FileRenamingProcess implements IProcess
                 // Nothing to do here. So exit the looping by returning true.
                 return true;
             }
+            if (destinationFile.exists())
+            {
+                operationLog.error(String.format("Destination path '%s' already exists.",
+                        destinationFile));
+                // Nothing to do here. So exit the looping by returning true.
+                return true;
+            }
             operationLog.warn(String.format(
                     "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
                     destinationFile, ++failures));
