@@ -50,10 +50,11 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     private final String relativePathOrNull;
 
-    HTMLDirectoryRenderer(String urlPrefix, String relativePathOrNull)
+    HTMLDirectoryRenderer(RenderingContext context)
     {
-        this.relativePathOrNull = relativePathOrNull;
-        this.urlPrefix = urlPrefix.endsWith("/") ? urlPrefix : urlPrefix + "/";
+        this.relativePathOrNull = context.getRelativePathOrNull();
+        String prefix = context.getUrlPrefix();
+        this.urlPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
     }
 
     public void setWriter(PrintWriter writer)

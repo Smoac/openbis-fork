@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -57,8 +58,16 @@ public class DatasetDownloadService
         ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
         
         ApplicationContext applicationContext = createApplicationContext();
-        int port = applicationContext.getConfigParameters().getPort();
-        Server server = new Server(port);
+        ConfigParameters configParameters = applicationContext.getConfigParameters();
+        int port = configParameters.getPort();
+        Server server = new Server();
+        SslSocketConnector socketConnector = new SslSocketConnector();
+        socketConnector.setPort(port);
+        socketConnector.setMaxIdleTime(30000);
+        socketConnector.setKeystore(configParameters.getKeystorePath());
+        socketConnector.setPassword(configParameters.getKeystorePassword());
+        socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
+        server.addConnector(socketConnector);
         Context context = new Context(server, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.addServlet(DatasetDownloadServlet.class, "/dataset-download/*");

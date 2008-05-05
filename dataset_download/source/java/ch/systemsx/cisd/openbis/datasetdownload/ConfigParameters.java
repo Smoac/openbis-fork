@@ -30,6 +30,10 @@ class ConfigParameters
     static final String SERVER_URL_KEY = "server-url";
     static final String PORT_KEY = "port";
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
+    private static final String KEYSTORE = "keystore.";
+    static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
+    static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
+    static final String KEYSTORE_KEY_PASSWORD_KEY = KEYSTORE + "key-password";
 
     private final String storePath;
     
@@ -41,6 +45,12 @@ class ConfigParameters
     
     private final String password;
     
+    private final String keystorePath;
+    
+    private final String keystorePassword;
+    
+    private final String keystoreKeyPassword;
+    
     public ConfigParameters(Properties properties)
     {
         storePath = properties.getProperty(STOREROOT_DIR_KEY);
@@ -48,6 +58,9 @@ class ConfigParameters
         serverURL = properties.getProperty(SERVER_URL_KEY);
         userName = properties.getProperty(USERNAME_KEY);
         password = properties.getProperty(PASSWORD_KEY);
+        keystorePath = properties.getProperty(KEYSTORE_PATH_KEY);
+        keystorePassword = properties.getProperty(KEYSTORE_PASSWORD_KEY);
+        keystoreKeyPassword = properties.getProperty(KEYSTORE_KEY_PASSWORD_KEY);
     }
 
     public final String getStorePath()
@@ -73,6 +86,21 @@ class ConfigParameters
     public final String getPassword()
     {
         return password;
+    }
+
+    public final String getKeystorePath()
+    {
+        return keystorePath;
+    }
+
+    public final String getKeystorePassword()
+    {
+        return keystorePassword;
+    }
+
+    public final String getKeystoreKeyPassword()
+    {
+        return keystoreKeyPassword;
     }
     
     
