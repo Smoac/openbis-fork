@@ -255,6 +255,8 @@ public class DatasetDownloadServlet extends HttpServlet
                 operationLog.info("Data set '" + dataSetCode + "' obtained from openBIS server.");
             }
             HttpSession session = request.getSession(true);
+            ConfigParameters configParameters = applicationContext.getConfigParameters();
+            session.setMaxInactiveInterval(configParameters.getSessionTimeout());
             session.setAttribute(DATA_SET_KEY, dataSet);
             session.setAttribute(DATA_SET_ROOT_DIR_KEY, dataSetRootDirectory);
         }

@@ -30,6 +30,7 @@ class ConfigParameters
     static final String SERVER_URL_KEY = "server-url";
     static final String PORT_KEY = "port";
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
+    static final String SESSION_TIMEOUT_KEY = "session-timeout";
     private static final String KEYSTORE = "keystore.";
     static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
     static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
@@ -45,6 +46,8 @@ class ConfigParameters
     
     private final String password;
     
+    private final int sessionTimeout;
+    
     private final String keystorePath;
     
     private final String keystorePassword;
@@ -58,6 +61,7 @@ class ConfigParameters
         serverURL = properties.getProperty(SERVER_URL_KEY);
         userName = properties.getProperty(USERNAME_KEY);
         password = properties.getProperty(PASSWORD_KEY);
+        sessionTimeout = Integer.parseInt(properties.getProperty(SESSION_TIMEOUT_KEY)) * 60;
         keystorePath = properties.getProperty(KEYSTORE_PATH_KEY);
         keystorePassword = properties.getProperty(KEYSTORE_PASSWORD_KEY);
         keystoreKeyPassword = properties.getProperty(KEYSTORE_KEY_PASSWORD_KEY);
@@ -86,6 +90,11 @@ class ConfigParameters
     public final String getPassword()
     {
         return password;
+    }
+
+    public final int getSessionTimeout()
+    {
+        return sessionTimeout;
     }
 
     public final String getKeystorePath()
