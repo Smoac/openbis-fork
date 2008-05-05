@@ -3,11 +3,12 @@
   <project-classpath name="ecp" classes="${classes}" />
 
   <property name="original.dist" value="dist" />
-  <property name="mainfolder" value="download-service" />
+  <property name="name" value="download-server"/>
+  <property name="mainfolder" value="${name}" />
   <property name="dist.download-service" value="${dist}/${mainfolder}" />
   <property name="dist.download-service.lib" value="${dist.download-service}/lib" />
-  <property name="jar.file" value="${dist.download-service.lib}/download-service.jar" />
-  <property name="dist.file.prefix" value="${dist}/download-service" />
+  <property name="jar.file" value="${dist.download-service.lib}/${name}.jar" />
+  <property name="dist.file.prefix" value="${dist}/${name}" />
   <property name="lib" value="../libraries" />
 
   <target name="clean">
@@ -32,9 +33,9 @@
         <include name="${build.info.filename}" />
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="ch.systemsx.cisd.datasetdownload.DatasetDownloadService" />
+        <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.datasetdownload.DatasetDownloadService" />
         <attribute name="Class-Path"
-                 value="jetty.jar jetty-util.jar servlet-api-2.5.jar log4j.jar commons-lang.jar commons-io.jar" />
+                 value="${name}.jar jetty.jar jetty-util.jar servlet-api-2.5.jar log4j.jar commons-codec.jar commons-logging.jar commons-httpclient.jar commons-lang.jar commons-io.jar activation.jar mail.jar spring.jar" />
         <attribute name="Version" value="${version.number}" />
         <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
       </manifest>
@@ -42,12 +43,18 @@
   </target>
 
   <target name="dist" depends="jar">
+    <copy file="${lib}/activation/activation.jar" todir="${dist.download-service.lib}" />
+    <copy file="${lib}/mail/mail.jar" todir="${dist.download-service.lib}" />
+    <copy file="${lib}/spring/spring.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/log4j/log4j.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/jetty/jetty.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/jetty/jetty-util.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/jetty/servlet-api-2.5.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.download-service.lib}" />
     <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.download-service.lib}" />
+    <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.download-service.lib}" />
+    <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.download-service.lib}" />
+    <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.download-service.lib}" />
     <property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
     <zip basedir="${dist}" destfile="${dist.file}">
       <zipfileset dir="${original.dist}" excludes="**.download-service.sh" prefix="${mainfolder}" />

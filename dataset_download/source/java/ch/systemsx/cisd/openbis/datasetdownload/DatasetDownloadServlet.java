@@ -126,6 +126,9 @@ public class DatasetDownloadServlet extends HttpServlet
             {
                 operationLog.error("Request " + request.getRequestURL() + "?"
                         + request.getQueryString() + " caused an exception: ", e);
+            } else if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("User failure: " + e.getMessage());
             }
             PrintWriter writer = response.getWriter();
             writer.println("<html><body><h1>Error</h1>");

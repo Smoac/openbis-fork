@@ -5,7 +5,7 @@
 
   <appender name="DEFAULT" class="org.apache.log4j.DailyRollingFileAppender">
 
-    <param name="File" value="log/etlserver_log.txt"/>
+    <param name="File" value="log/dataset_download_log.txt"/>
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
     <layout class="org.apache.log4j.PatternLayout">

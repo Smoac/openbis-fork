@@ -48,11 +48,12 @@ isPIDRunning()
 #
 
 PIDFILE=${DOWNLOAD_SERVICE_PID:-DOWNLOAD_SERVICE.pid}
-CONFFILE=etc/download-service.conf
-LOGFILE=log/download-service_log.txt
+CONFFILE=etc/dataset_download.conf
+LOGFILE=log/dataset_download_log.txt
 STARTUPLOG=log/startup_log.txt
-SUCCESS_MSG="Data set download service ready"
+SUCCESS_MSG="Data set download server ready"
 MAX_LOOPS=10
+JAR_FILE=lib/download-server.jar
 
 #
 # change to installation directory
@@ -76,18 +77,19 @@ else
 fi
 
 command=$1
+ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore $JAVA_OPTS"
 # ensure that we ignore a possible prefix "--" for any command 
 command="${command#--*}"
 case "$command" in
         start)
-	        echo -n "Starting Data Set Download Service "
+	        echo -n "Starting Data Set Download Server "
                 rm -f $LOGFILE.old
                 if [ -f $LOGFILE ]; then
                         mv $LOGFILE $LOGFILE.old
                 fi
    
 		shift 1
-		${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+		${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
 		if [ $? -eq 0 ]; then
 			# wait for initial self-test to finish
 			n=0
@@ -119,7 +121,7 @@ case "$command" in
 		fi
 		;;
         stop)
-        	echo -n "Stopping Data Set Download Service "
+        	echo -n "Stopping Data Set Download Server "
 		if [ -f $PIDFILE ]; then
 			PID=`cat $PIDFILE`
 			isPIDRunning $PID
@@ -144,12 +146,12 @@ case "$command" in
 			PID=`cat $PIDFILE`
 			isPIDRunning $PID
 			if [ $? -eq 0 ]; then
-				echo "Data Set Download Service is running (pid $PID)"
+				echo "Data Set Download Server is running (pid $PID)"
 			else
-				echo "Data Set Download Service is dead (stale pid $PID)"
+				echo "Data Set Download Server is dead (stale pid $PID)"
 			fi
 		else
-			echo "Data Set Download Service is not running"
+			echo "Data Set Download Server is not running"
 		fi
         ;;
         restart)
@@ -157,10 +159,10 @@ case "$command" in
 	        $SCRIPT start
         ;;
 	help)
-		${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar --help
+		${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --help
 	;;
 	version)
-                ${JAVA_BIN} ${JAVA_OPTS} -jar lib/download-service.jar --version
+                ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --version
 	;;
         *)
         echo $"Usage: $0 {start|stop|restart|status|help|version}"

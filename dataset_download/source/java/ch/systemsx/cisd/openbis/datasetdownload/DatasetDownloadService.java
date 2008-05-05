@@ -76,7 +76,7 @@ public class DatasetDownloadService
         selfTest(applicationContext);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Data set download service ready on port " + port);
+            operationLog.info("Data set download server ready on port " + port);
         }
     }
     
