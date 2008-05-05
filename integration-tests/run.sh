@@ -61,7 +61,7 @@ function run_lsof {
 # Tries to find PostgreSQL executable and returns its absolute path.
 # If not found, then exits the script with an appropriate error message.
 function run_psql {
-	for prg in psql psql83; do
+	for prg in psql psql82 psql83; do
 		exe=`locate_file $prg $BIN_PATHS`
 		if [ $exe ]; then
 			echo $exe
