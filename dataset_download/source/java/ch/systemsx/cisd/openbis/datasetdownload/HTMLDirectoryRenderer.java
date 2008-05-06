@@ -99,7 +99,7 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("path", urlPrefix + relativePath);
         template.bind("name", name);
         template.bind("size", fileSize);
-        writer.print(template.createText());
+        writer.println(template.createText());
     }
     
     private String renderFileSize(long size)

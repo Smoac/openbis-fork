@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -66,6 +68,19 @@ public class DatasetDownloadServlet extends HttpServlet
 
     protected static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DatasetDownloadServlet.class);
+    
+    private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>()
+        {
+            public int compare(File file1, File file2)
+            {
+                return createSortableName(file1).compareTo(createSortableName(file2));
+            }
+
+            private String createSortableName(File file)
+            {
+                return (file.isDirectory() ? "D" : "F") + file.getName().toUpperCase();
+            }
+        };
 
     private ApplicationContext applicationContext;
     
@@ -162,7 +177,7 @@ public class DatasetDownloadServlet extends HttpServlet
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set ' " + dataSet.getCode() + "' show directory "
+            operationLog.info("For data set '" + dataSet.getCode() + "' show directory "
                     + file.getAbsolutePath());
         }
         IDirectoryRenderer directoryRenderer = new HTMLDirectoryRenderer(renderingContext);
@@ -179,6 +194,7 @@ public class DatasetDownloadServlet extends HttpServlet
                 directoryRenderer.printLinkToParentDirectory(relativeParentPath);
             }
             File[] children = file.listFiles();
+            Arrays.sort(children, FILE_COMPARATOR);
             for (File child : children)
             {
                 String name = child.getName();
@@ -208,7 +224,7 @@ public class DatasetDownloadServlet extends HttpServlet
         long size = file.length();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set ' " + dataSet.getCode() + "' deliver file "
+            operationLog.info("For data set '" + dataSet.getCode() + "' deliver file "
                     + file.getAbsolutePath() + " (" + size + " bytes).");
         }
         response.setContentLength((int) size);
