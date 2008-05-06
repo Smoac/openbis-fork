@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -53,8 +55,6 @@ import ch.systemsx.cisd.lims.base.LocatorType;
  */
 public class DatasetDownloadServlet extends HttpServlet
 {
-    static final String DATA_SET_ROOT_DIR_KEY = "data-set-root-dir";
-
     static final String DATA_SET_KEY = "data-set";
 
     static final String DATASET_CODE_KEY = "dataSetCode";
@@ -115,7 +115,28 @@ public class DatasetDownloadServlet extends HttpServlet
     {
         try
         {
-            obtainDataSetFromServer(request);
+            String pathInfo = request.getPathInfo();
+            if (pathInfo == null)
+            {
+                throw new UserFailureException("Path not specified in URL.");
+            }
+            if (pathInfo.startsWith("/"))
+            {
+                pathInfo = pathInfo.substring(1);
+            }
+            int indexOfFirstSeparator = pathInfo.indexOf('/');
+            String dataSetCode;
+            if (indexOfFirstSeparator < 0)
+            {
+                dataSetCode = pathInfo;
+                pathInfo = "";
+            } else
+            {
+                dataSetCode = pathInfo.substring(0, indexOfFirstSeparator);
+                pathInfo = pathInfo.substring(indexOfFirstSeparator + 1);
+            }
+            
+            obtainDataSetFromServer(dataSetCode, request);
             
             HttpSession session = request.getSession(false);
             if (session == null)
@@ -123,13 +144,13 @@ public class DatasetDownloadServlet extends HttpServlet
                 printSessionExpired(response);
             } else
             {
-                ExternalData dataSet = (ExternalData) session.getAttribute(DATA_SET_KEY);
-                File rootDir = (File) session.getAttribute(DATA_SET_ROOT_DIR_KEY);
-                String pathInfo = request.getPathInfo();
-                if (pathInfo != null && pathInfo.startsWith("/"))
+                
+                ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
+                if (dataSet == null)
                 {
-                    pathInfo = pathInfo.substring(1);
+                    throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
                 }
+                File rootDir = createDataSetRootDirectory(dataSet);
                 String requestURI = request.getRequestURI();
                 RenderingContext context = new RenderingContext(rootDir, requestURI, pathInfo);
                 renderPage(response, dataSet, context);
@@ -137,22 +158,34 @@ public class DatasetDownloadServlet extends HttpServlet
             
         } catch (Exception e)
         {
-            if (e instanceof UserFailureException == false)
-            {
-                operationLog.error("Request " + request.getRequestURL() + "?"
-                        + request.getQueryString() + " caused an exception: ", e);
-            } else if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("User failure: " + e.getMessage());
-            }
-            PrintWriter writer = response.getWriter();
-            writer.println("<html><body><h1>Error</h1>");
-            String message = e.getMessage();
-            writer.println(StringUtils.isBlank(message) ? e.toString() : message);
-            writer.println("</body></html>");
-            writer.flush();
-            writer.close();
+            printError(request, response, e);
         }
+    }
+
+    private void printError(final HttpServletRequest request, final HttpServletResponse response,
+            Exception exception) throws IOException
+    {
+        if (exception instanceof UserFailureException == false)
+        {
+            StringBuffer url = request.getRequestURL();
+            String queryString = request.getQueryString();
+            if (StringUtils.isNotBlank(queryString))
+            {
+                url.append("?").append(queryString);
+            }
+            operationLog.error("Request " + url + " caused an exception: ", exception);
+        } else if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("User failure: " + exception.getMessage());
+        }
+        String message = exception.getMessage();
+        String errorText = StringUtils.isBlank(message) ? exception.toString() : message;
+        PrintWriter writer = response.getWriter();
+        writer.println("<html><body><h1>Error</h1>");
+        writer.println(errorText);
+        writer.println("</body></html>");
+        writer.flush();
+        writer.close();
     }
     
     private void renderPage(HttpServletResponse response, ExternalData dataSet,
@@ -200,7 +233,8 @@ public class DatasetDownloadServlet extends HttpServlet
                 String name = child.getName();
                 File rootDir = renderingContext.getRootDir();
                 String relativePath = FileUtilities.getRelativeFile(rootDir, child);
-                String normalizedRelativePath = relativePath.replace('\\', '/');
+                String normalizedRelativePath =
+                         relativePath.replace('\\', '/');
                 if (child.isDirectory())
                 {
                     directoryRenderer.printDirectory(name, normalizedRelativePath);
@@ -251,21 +285,13 @@ public class DatasetDownloadServlet extends HttpServlet
         writer.close();
     }
 
-    private void obtainDataSetFromServer(final HttpServletRequest request)
+    private void obtainDataSetFromServer(String dataSetCode, final HttpServletRequest request)
     {
-        final String dataSetCode = request.getParameter(DATASET_CODE_KEY);
         final String sessionID = request.getParameter(SESSION_ID_KEY);
-        if (dataSetCode != null && sessionID != null)
+        if (sessionID != null)
         {
             IDataSetService dataSetService = applicationContext.getDataSetService();
             ExternalData dataSet = dataSetService.getDataSet(sessionID, dataSetCode);
-            File dataSetRootDirectory = new File(createDataSetPath(dataSet));
-            if (dataSetRootDirectory.exists() == false)
-            {
-                throw new UserFailureException("Data set '" + dataSetCode
-                        + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath()
-                        + "'.");
-            }
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set '" + dataSetCode + "' obtained from openBIS server.");
@@ -273,19 +299,49 @@ public class DatasetDownloadServlet extends HttpServlet
             HttpSession session = request.getSession(true);
             ConfigParameters configParameters = applicationContext.getConfigParameters();
             session.setMaxInactiveInterval(configParameters.getSessionTimeout());
-            session.setAttribute(DATA_SET_KEY, dataSet);
-            session.setAttribute(DATA_SET_ROOT_DIR_KEY, dataSetRootDirectory);
+            putDataSetToMap(session, dataSetCode, dataSet);
         }
     }
 
-    private String createDataSetPath(ExternalData dataSet)
+    private File createDataSetRootDirectory(ExternalData dataSet)
     {
-        String location = dataSet.getLocation();
+        String path = dataSet.getLocation();
         LocatorType locatorType = dataSet.getLocatorType();
         if (locatorType.getCode().equals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE))
         {
-            return applicationContext.getConfigParameters().getStorePath() + "/" + location;
+            path = applicationContext.getConfigParameters().getStorePath() + "/" + path;
         }
-        return location;
+        File dataSetRootDirectory = new File(path);
+        if (dataSetRootDirectory.exists() == false)
+        {
+            throw new UserFailureException("Data set '" + dataSet.getCode()
+                    + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath()
+                    + "'.");
+        }
+        return dataSetRootDirectory;
     }
+    
+    private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalData dataSet)
+    {
+        getDataSets(session).put(dataSetCode, dataSet);
+    }
+    
+    private ExternalData tryToGetDataSet(HttpSession session, String dataSetCode)
+    {
+        return getDataSets(session).get(dataSetCode);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, ExternalData> getDataSets(HttpSession session)
+    {
+        Map<String, ExternalData> map =
+                (Map<String, ExternalData>) session.getAttribute(DATA_SET_KEY);
+        if (map == null)
+        {
+            map = new HashMap<String, ExternalData>();
+            session.setAttribute(DATA_SET_KEY, map);
+        }
+        return map;
+    }
+
 }
