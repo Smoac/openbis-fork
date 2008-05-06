@@ -120,6 +120,7 @@ public class DatasetDownloadServletTest
                     one(request).getSession(true);
                     will(returnValue(httpSession));
                     
+                    one(httpSession).setMaxInactiveInterval(120);
                     one(httpSession).setAttribute(DatasetDownloadServlet.DATA_SET_KEY, externalData);
                     one(httpSession).setAttribute(DatasetDownloadServlet.DATA_SET_ROOT_DIR_KEY, EXAMPLE_DATA_SET_FOLDER);
                     
@@ -161,6 +162,7 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.SERVER_URL_KEY, "http://localhost");
         properties.setProperty(ConfigParameters.USERNAME_KEY, "demo");
         properties.setProperty(ConfigParameters.PASSWORD_KEY, "pwd");
+        properties.setProperty(ConfigParameters.SESSION_TIMEOUT_KEY, "2");
         ConfigParameters configParameters = new ConfigParameters(properties);
         return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters));
     }
