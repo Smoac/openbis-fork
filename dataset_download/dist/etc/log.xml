@@ -26,7 +26,7 @@
 
     <param name="BufferSize" value="512" />
     <param name="SMTPHost" value="localhost" />
-    <param name="From" value="etlserver@localhost" />
+    <param name="From" value="dataset.download.server@localhost" />
     <param name="To" value="root@localhost" />
     <param name="Subject" value="ATTENTION: etl server" />
 
