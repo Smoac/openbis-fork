@@ -77,8 +77,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private final File extraCopyDirOrNull;
 
-    private LocalProcessor(Parameters parameters, File inputDir, File outputDir, File tempDir,
-            IFileSysOperationsFactory factory)
+    private LocalProcessor(final Parameters parameters, final File inputDir, final File outputDir,
+            final File tempDir, final IFileSysOperationsFactory factory)
     {
         this.parameters = parameters;
         this.inputDir = inputDir;
@@ -89,8 +89,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         this.mover = factory.getMover();
     }
 
-    public static final LocalProcessor create(Parameters parameters, File inputDir, File outputDir,
-            File bufferDir, IFileSysOperationsFactory factory)
+    public static final LocalProcessor create(final Parameters parameters, final File inputDir,
+            final File outputDir, final File bufferDir, final IFileSysOperationsFactory factory)
     {
         final LocalProcessor handlerAndRecoverable =
                 new LocalProcessor(parameters, inputDir, outputDir, bufferDir, factory);
@@ -134,7 +134,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
         for (int i = 0; i < files.length; i++)
         {
-            File file = files[i];
+            final File file = files[i];
             if (fileExists(inputDir, file))
             {
                 FileUtilities.deleteRecursively(file); // partial copy, delete it
@@ -154,14 +154,108 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         }
     }
 
-    private static boolean fileExists(File inputDir, File file)
+    private static boolean fileExists(final File inputDir, final File file)
     {
         return new File(inputDir, file.getName()).exists();
     }
 
-    // ----------------
+    // @return true if processing needs to continue, false otherwise
+    private boolean doMoveManualOrClean(final File file)
+    {
+        final EFileManipResult manualMoveStatus = doManualIntervention(file);
+        if (manualMoveStatus == EFileManipResult.FAILURE)
+        {
+            return false; // stop processing
+        } else if (manualMoveStatus == EFileManipResult.STOP)
+        {
+            return false; // stop processing
+        } else if (manualMoveStatus == EFileManipResult.CONTINUE)
+        {
+            // continue processing
+        }
+        final boolean wholeDeleted = doCleansing(file);
+        if (wholeDeleted)
+        {
+            return false; // stop processing
+        }
+        return true; // continue processing
 
-    public void handle(File path)
+    }
+
+    // @return true if the whole resource was deleted
+    private boolean doCleansing(final File resource)
+    {
+        final RegexFileFilter cleansingFilter = new RegexFileFilter();
+        final Pattern cleansingRegex = parameters.tryGetCleansingRegex();
+        if (cleansingRegex != null)
+        {
+            log(resource, "Doing cleansing");
+            cleansingFilter.add(PathType.FILE, cleansingRegex);
+        }
+        final ISimpleLogger logger =
+                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG)
+                        : null;
+        final boolean pathDeleted =
+                FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
+        return pathDeleted;
+    }
+
+    private enum EFileManipResult
+    {
+        CONTINUE, FAILURE, STOP
+    }
+
+    private EFileManipResult doManualIntervention(final File resource)
+    {
+        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
+        if (manualInterventionDir == null)
+        {
+            return EFileManipResult.CONTINUE;
+        }
+        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
+        final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
+        if (manualInterventionRegex != null)
+        {
+            manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
+        }
+
+        final boolean needsManualIntervention = manualInterventionFilter.accept(resource);
+        logManualIntervention(resource, needsManualIntervention);
+        if (needsManualIntervention)
+        {
+            log(resource, "Moving to manual intervention directory");
+            final File movedFile = mover.tryMove(resource, manualInterventionDir);
+            return (movedFile != null) ? EFileManipResult.STOP : EFileManipResult.FAILURE;
+        } else
+        {
+            return EFileManipResult.CONTINUE;
+        }
+    }
+
+    private static void log(final File path, final String description)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("%s on %s", description, path.getPath()));
+        }
+    }
+
+    private static void logManualIntervention(final File path, final boolean needsManualIntervention)
+    {
+        if (manualInterventionLog.isInfoEnabled())
+        {
+            manualInterventionLog.info(String.format(
+                    "%s %s [created: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS]",
+                    needsManualIntervention ? "ATTENTION" : "DEFAULT", path.getAbsolutePath(), path
+                            .lastModified()));
+        }
+    }
+
+    //
+    // IPathHandler
+    //
+
+    public final void handle(final File path)
     {
         final boolean continueProcessing = doMoveManualOrClean(path);
         if (continueProcessing == false)
@@ -205,7 +299,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         if (extraTmpCopy != null)
         {
             assert extraCopyDirOrNull != null;
-            File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
+            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
             if (extraCopy == null)
             {
                 notificationLog.error(String.format(
@@ -215,96 +309,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         }
     }
 
-    // @return true if processing needs to continue, false otherwise
-    private boolean doMoveManualOrClean(File file)
+    public final boolean mayHandle(final File path)
     {
-        final EFileManipResult manualMoveStatus = doManualIntervention(file);
-        if (manualMoveStatus == EFileManipResult.FAILURE)
-        {
-            return false; // stop processing
-        } else if (manualMoveStatus == EFileManipResult.STOP)
-        {
-            return false; // stop processing
-        } else if (manualMoveStatus == EFileManipResult.CONTINUE)
-        {
-            // continue processing
-        }
-        final boolean wholeDeleted = doCleansing(file);
-        if (wholeDeleted)
-        {
-            return false; // stop processing
-        }
-        return true; // continue processing
-
+        return true;
     }
-
-    // @return true if the whole resource was deleted
-    private boolean doCleansing(File resource)
-    {
-        final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        final Pattern cleansingRegex = parameters.tryGetCleansingRegex();
-        if (cleansingRegex != null)
-        {
-            log(resource, "Doing cleansing");
-            cleansingFilter.add(PathType.FILE, cleansingRegex);
-        }
-        final ISimpleLogger logger =
-                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG)
-                        : null;
-        final boolean pathDeleted =
-                FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
-        return pathDeleted;
-    }
-
-    private enum EFileManipResult
-    {
-        CONTINUE, FAILURE, STOP
-    }
-
-    private EFileManipResult doManualIntervention(File resource)
-    {
-        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
-        if (manualInterventionDir == null)
-        {
-            return EFileManipResult.CONTINUE;
-        }
-        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
-        if (manualInterventionRegex != null)
-        {
-            manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
-        }
-
-        final boolean needsManualIntervention = manualInterventionFilter.accept(resource);
-        logManualIntervention(resource, needsManualIntervention);
-        if (needsManualIntervention)
-        {
-            log(resource, "Moving to manual intervention directory");
-            File movedFile = mover.tryMove(resource, manualInterventionDir);
-            return (movedFile != null) ? EFileManipResult.STOP : EFileManipResult.FAILURE;
-        } else
-        {
-            return EFileManipResult.CONTINUE;
-        }
-    }
-
-    private static void log(File path, String description)
-    {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("%s on %s", description, path.getPath()));
-        }
-    }
-
-    private static void logManualIntervention(File path, boolean needsManualIntervention)
-    {
-        if (manualInterventionLog.isInfoEnabled())
-        {
-            manualInterventionLog.info(String.format(
-                    "%s %s [created: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS]",
-                    needsManualIntervention ? "ATTENTION" : "DEFAULT", path.getAbsolutePath(), path
-                            .lastModified()));
-        }
-    }
-
 }

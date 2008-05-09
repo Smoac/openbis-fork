@@ -22,11 +22,9 @@ import java.util.Timer;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
-import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
@@ -155,21 +153,8 @@ public class DataMover
 
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(readyToMoveDir, FileUtilities.ACCEPT_ALL_FILTER,
-                        asPathHandler(remoteStoreMover));
+                        remoteStoreMover);
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
-    }
-
-    // TODO 2007-10-10, Tomasz Pylak: remove this when DirectoryScanningTimerTask will work
-    // with IStoreHandler. This is a quick hack.
-    private static IPathHandler asPathHandler(final IStoreHandler storeHandler)
-    {
-        return new IPathHandler()
-            {
-                public void handle(File path)
-                {
-                    storeHandler.handle(new StoreItem(path.getName()));
-                }
-            };
     }
 
     private IStoreHandler createRemotePathMover(IFileStore source, FileStore destination)
