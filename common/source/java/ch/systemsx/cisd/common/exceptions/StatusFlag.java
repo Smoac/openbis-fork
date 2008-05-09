@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * The status of an operation. To be used whenever a failure of an operation is signalled back via a
+ * The status of an operation. To be used whenever a failure of an operation is signaled back via a
  * return value rather than an exception.
  * 
  * @author Bernd Rinn
@@ -27,9 +27,9 @@ public enum StatusFlag
 
     /** The operation has been successful. */
     OK,
-    /** An error has occured. Retrying the operation might remedy the problem. */
+    /** An error has occurred. Retrying the operation might remedy the problem. */
     RETRIABLE_ERROR,
-    /** A fatal error has occured. */
+    /** A fatal error has occurred. */
     FATAL_ERROR
 
 }
