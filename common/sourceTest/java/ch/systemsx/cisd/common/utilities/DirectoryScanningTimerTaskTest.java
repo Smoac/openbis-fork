@@ -73,7 +73,7 @@ public class DirectoryScanningTimerTaskTest
     /**
      * A mock implementation that stores the handled paths.
      */
-    public static class MockPathHandler implements IPathHandler
+    private static class MockPathHandler implements IPathHandler
     {
 
         final List<File> handledPaths = new ArrayList<File>();
@@ -83,10 +83,19 @@ public class DirectoryScanningTimerTaskTest
             handledPaths.clear();
         }
 
-        public void handle(File path)
+        //
+        // IPathHandler
+        //
+
+        public void handle(final File path)
         {
             handledPaths.add(path);
             path.delete();
+        }
+
+        public final boolean mayHandle(final File path)
+        {
+            return true;
         }
 
     }
@@ -157,7 +166,7 @@ public class DirectoryScanningTimerTaskTest
         assert someFile.exists();
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
-        String fileLocation = someFile.getPath();
+        final String fileLocation = someFile.getPath();
         CollectionIO.writeIterable(faultyPaths, Collections.singleton(fileLocation));
         scanner.run();
         assertEquals(0, mockPathHandler.handledPaths.size());
@@ -193,7 +202,7 @@ public class DirectoryScanningTimerTaskTest
         // See whether faulty_paths settings works.
         scanner.run();
         assertEquals(0, mockPathHandler.handledPaths.size());
-        List<String> faulty = CollectionIO.readList(faultyPaths);
+        final List<String> faulty = CollectionIO.readList(faultyPaths);
         assertEquals(1, faulty.size());
         assertEquals(someFile.getPath(), faulty.get(0));
         // See whether fault_paths resetting works.
