@@ -52,23 +52,6 @@ public final class DirectoryScanningTimerTask extends TimerTask
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DirectoryScanningTimerTask.class);
 
-    public static interface IScannedStore
-    {
-        /**
-         * List items in the scanned store in order in which they should be handled.
-         */
-        StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
-
-        boolean exists(StoreItem item);
-
-        /**
-         * returned description should give the user the idea about file location. You should not
-         * use the result for something else than printing it for user. It should not be especially
-         * assumed that the result is the path which could be used in java.io.File constructor.
-         */
-        String getLocationDescription(StoreItem item);
-    }
-
     private final IStoreHandler handler;
 
     private final IScannedStore sourceDirectory;
@@ -113,8 +96,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
     public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
             final IPathHandler handler, final int ignoredErrorCount)
     {
-        this(asScannedStore(sourceDirectory, filter), sourceDirectory, asScanningHandler(
-                sourceDirectory, handler), ignoredErrorCount);
+        this(asScannedStore(sourceDirectory, filter), sourceDirectory, PathHandlerAdapter
+                .asScanningHandler(sourceDirectory, handler), ignoredErrorCount);
     }
 
     public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
@@ -148,86 +131,21 @@ public final class DirectoryScanningTimerTask extends TimerTask
         faultyPathsFile.delete();
     }
 
-    private static IStoreHandler asScanningHandler(final File directory, final IPathHandler handler)
+    private final static IScannedStore asScannedStore(final File directory, final FileFilter filter)
     {
-        return new IStoreHandler()
-            {
-
-                //
-                // IStoreHandler
-                //
-
-                public final void handle(final StoreItem item)
-                {
-                    final File path = asFile(directory, item);
-                    if (handler.mayHandle(path))
-                    {
-                        handler.handle(path);
-                    }
-                }
-            };
+        return new DirectoryScannedStore(filter, directory);
     }
 
-    private static IScannedStore asScannedStore(final File directory, final FileFilter filter)
-    {
-        return new IScannedStore()
-            {
-                public String getLocationDescription(final StoreItem item)
-                {
-                    return DirectoryScanningTimerTask.getLocationDescription(asFile(item));
-                }
-
-                public boolean exists(final StoreItem item)
-                {
-                    return asFile(item).exists();
-                }
-
-                public StoreItem[] tryListSortedReadyToProcess(final ISimpleLogger loggerOrNull)
-                {
-                    final File[] files =
-                            FileUtilities.tryListFiles(directory, filter, loggerOrNull);
-                    if (files != null)
-                    {
-                        FileUtilities.sortByLastModified(files);
-                        return asItems(files);
-                    } else
-                    {
-                        return null;
-                    }
-                }
-
-                private StoreItem[] asItems(final File[] files)
-                {
-                    final StoreItem[] items = new StoreItem[files.length];
-                    for (int i = 0; i < items.length; i++)
-                    {
-                        items[i] = new StoreItem(files[i].getName());
-                    }
-                    return items;
-                }
-
-                private File asFile(final StoreItem item)
-                {
-                    return DirectoryScanningTimerTask.asFile(directory, item);
-                }
-            };
-    }
-
-    private static String getLocationDescription(final File file)
+    private final static String getLocationDescription(final File file)
     {
         return file.getPath();
-    }
-
-    private static File asFile(final File parentDirectory, final StoreItem item)
-    {
-        return new File(parentDirectory, item.getName());
     }
 
     /**
      * Handles all entries in the source directory that are picked by the filter.
      */
     @Override
-    public void run()
+    public final void run()
     {
         try
         {
@@ -264,7 +182,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
     }
 
-    private void printNotification(final Exception ex)
+    private final void printNotification(final Exception ex)
     {
         notificationLog.error("An exception has occurred. (thread still running)", ex);
     }
@@ -276,7 +194,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
         return itemLocation.equals(faultyPathsLocation);
     }
 
-    private void checkForFaultyPathsFileChanged()
+    private final void checkForFaultyPathsFileChanged()
     {
         if (faultyPathsFile.exists())
         {
@@ -300,7 +218,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
     }
 
-    private StoreItem[] listFiles()
+    private final StoreItem[] listFiles()
     {
         final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount); // Avoid
         // mailbox
@@ -330,11 +248,16 @@ public final class DirectoryScanningTimerTask extends TimerTask
         return (paths == null) ? new StoreItem[0] : paths;
     }
 
-    private ISimpleLogger createSimpleErrorLogger(final LogCategory category)
+    private final ISimpleLogger createSimpleErrorLogger(final LogCategory category)
     {
         return new ISimpleLogger()
             {
-                public void log(final LogLevel dummyLevel, final String message)
+
+                //
+                // ISimpleLogger
+                //
+
+                public final void log(final LogLevel dummyLevel, final String message)
                 {
                     if (category == LogCategory.NOTIFY)
                     {
@@ -347,7 +270,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
             };
     }
 
-    private void handle(final StoreItem item)
+    private final void handle(final StoreItem item)
     {
         if (isFaultyPath(item))
         { // Guard: skip faulty paths.
@@ -368,17 +291,66 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
     }
 
-    private boolean isFaultyPath(final StoreItem item)
+    private final boolean isFaultyPath(final StoreItem item)
     {
         final String path = sourceDirectory.getLocationDescription(item);
         return faultyPaths.contains(path);
     }
 
-    private void addToFaultyPaths(final StoreItem item)
+    private final void addToFaultyPaths(final StoreItem item)
     {
         final String path = sourceDirectory.getLocationDescription(item);
         faultyPaths.add(path);
+        refreshFaultyPathsFile();
+    }
+
+    private final void refreshFaultyPathsFile()
+    {
         CollectionIO.writeIterable(faultyPathsFile, faultyPaths);
         faultyPathsLastChanged = faultyPathsFile.lastModified();
+    }
+
+    /** Removes given <var>storeItems</var> from the set of faulty ones. */
+    public final void removeFaultyPaths(final StoreItem[] storeItems)
+    {
+        assert storeItems != null : "Unspecified store items.";
+        final int size = storeItems.length;
+        if (size == 0)
+        {
+            return;
+        }
+        final Set<String> paths = new HashSet<String>(size);
+        for (final StoreItem storeItem : storeItems)
+        {
+            paths.add(sourceDirectory.getLocationDescription(storeItem));
+        }
+        faultyPaths.removeAll(paths);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following paths %s have been removed from the from the faulty ones.", paths));
+        }
+        refreshFaultyPathsFile();
+    }
+
+    //
+    // Helper classes
+    //
+
+    public static interface IScannedStore
+    {
+        /**
+         * List items in the scanned store in order in which they should be handled.
+         */
+        StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
+
+        boolean exists(StoreItem item);
+
+        /**
+         * returned description should give the user the idea about file location. You should not
+         * use the result for something else than printing it for user. It should not be especially
+         * assumed that the result is the path which could be used in java.io.File constructor.
+         */
+        String getLocationDescription(StoreItem item);
     }
 }

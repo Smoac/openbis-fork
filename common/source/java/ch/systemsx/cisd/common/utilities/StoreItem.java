@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
+
 /**
  * Represents one entry (file or directory) in a file store
  * 
@@ -27,7 +29,7 @@ public class StoreItem
 
     private final String name;
 
-    public StoreItem(String name)
+    public StoreItem(final String name)
     {
         this.name = name;
     }
@@ -38,20 +40,29 @@ public class StoreItem
         return name;
     }
 
+    public final static File asFile(final File parentDirectory, final StoreItem item)
+    {
+        return new File(parentDirectory, item.getName());
+    }
+
+    //
+    // Object
+    //
+
     @Override
-    public String toString()
+    public final String toString()
     {
         return name;
     }
 
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
         return obj != null && obj instanceof StoreItem && name.equals(((StoreItem) obj).name);
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
         return name.hashCode();
     }
