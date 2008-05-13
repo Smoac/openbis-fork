@@ -25,17 +25,21 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.lims.base.Experiment;
 import ch.systemsx.cisd.lims.base.ExternalData;
+import ch.systemsx.cisd.lims.base.Group;
+import ch.systemsx.cisd.lims.base.Procedure;
+import ch.systemsx.cisd.lims.base.Project;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class HTMLDirectoryRenderer implements IDirectoryRenderer
 {
     private static final DecimalFormat FORMAT_KB = new DecimalFormat("0.0 KB");
+
     private static final DecimalFormat FORMAT_MB = new DecimalFormat("0.0 MB");
+
     private static final DecimalFormat FORMAT_GB = new DecimalFormat("0.0 GB");
 
     private static final int UNIT_KB = 1024;
@@ -44,9 +48,46 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final int UNIT_GB = UNIT_MB * UNIT_KB;
 
-    private static final Template ROW_TEMPLATE 
-        = new Template("<tr><td><a href='${path}'>${name}</td><td>${size}</td></tr>");
-    
+    private static final String DATASET_DESCRIPTION =
+            "${group}/${project}/${experiment}/${sample}/${dataset}";
+
+    private static final String DATASET_DOWNLOAD_SERVICE = "Data Set Download Service";
+
+    private static final String TITLE =
+            "<title> " + DATASET_DOWNLOAD_SERVICE + ": " + DATASET_DESCRIPTION + "</title>";
+
+    private static final String CSS =
+            "<style type='text/css'> "
+                    + "* { margin: 3px; }"
+                    + "html { height: 100%;  }"
+                    + "body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }"
+                    + "h1 { text-align: center; padding: 1em; color: #1E4E8F;}"
+                    + ".td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }"
+                    + ".div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }"
+                    + "table { border-collapse: collapse; padding: 1em; }"
+                    + "tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }"
+                    + ".td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }"
+                    + ".wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }"
+                    + ".footer { height: 4em; text-align: center; }" + "</style>";
+
+    private static final Template ROW_TEMPLATE =
+            new Template(
+                    "<tr><td class='td_file'><a href='${path}'>${name}</td><td>${size}</td></tr>");
+
+    private static final Template HEADER_TEMPLATE =
+            new Template("<html><head>" + TITLE + CSS + "</head>"
+                    + "<body><div class='wrapper'><h1>" + DATASET_DOWNLOAD_SERVICE + "</h1>"
+                    + "<div class='div_hd'>Information about data set</div>" + "<table>"
+                    + "<tr><td class='td_hd'>Group:</td><td>${group}</td></tr>"
+                    + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
+                    + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
+                    + "<tr><td class='td_hd'>Sample:</td><td>${sample}</td></tr>"
+                    + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
+                    + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
+
+    private static final Template FOOTER_TEMPLATE =
+            new Template("</table> </div> <div class='footer'>${footer} </div> </body></html>");
+
     private PrintWriter writer;
 
     private final String urlPrefix;
@@ -72,15 +113,32 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     public void printHeader(ExternalData dataSet)
     {
-        writer.println("<html><body>");
-        writer.println("<h1>Data Set " + dataSet.getCode() + "</h1>");
+        String datasetCode = dataSet.getCode();
+        String sampleCode = dataSet.getSampleCode();
+        Procedure procedure = dataSet.getProcedure();
+        Experiment experiment = procedure.getExperiment();
+        String experimentCode = experiment.getCode();
+        Project project = experiment.getProject();
+        String projectCode = project.getCode();
+        Group group = project.getGroup();
+        String groupCode = group.getCode();
+        Template template = HEADER_TEMPLATE.createFreshCopy();
+        template.bind("group", groupCode);
+        template.bind("project", projectCode);
+        template.bind("experiment", experimentCode);
+        template.bind("sample", sampleCode);
+        template.bind("dataset", datasetCode);
         if (StringUtils.isNotBlank(relativePathOrNull))
         {
-            writer.println("Folder: " + relativePathOrNull);
+            template.bind("folder", "<tr><td class='td_hd'>Folder:</td><td>" + relativePathOrNull
+                    + "</td></tr>");
+        } else
+        {
+            template.bind("folder", "");
         }
-        writer.println("<table border='0' cellpadding='5' cellspacing='0'>");
+        writer.println(template.createText());
     }
-    
+
     public void printLinkToParentDirectory(String relativePath)
     {
         printRow("..", relativePath, "");
@@ -90,7 +148,7 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
     {
         printRow(name, relativePath, "");
     }
-    
+
     public void printFile(String name, String relativePath, long size)
     {
         printRow(name, relativePath, renderFileSize(size));
@@ -104,7 +162,7 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("size", fileSize);
         writer.println(template.createText());
     }
-    
+
     private String encodeURL(String url)
     {
         try
@@ -115,7 +173,7 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private String renderFileSize(long size)
     {
         if (size < 10 * UNIT_KB)
@@ -135,7 +193,11 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     public void printFooter()
     {
-        writer.println("</table></body></html>");
+        Template template = FOOTER_TEMPLATE.createFreshCopy();
+        template
+                .bind("footer",
+                        "Copyright &copy; 2008 ETHZ - <a href='http://www.cisd.systemsx.ethz.ch/'>CISD</a>");
+        writer.println(template.createText());
     }
 
 }

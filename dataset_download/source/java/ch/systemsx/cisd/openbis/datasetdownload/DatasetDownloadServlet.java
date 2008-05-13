@@ -59,9 +59,9 @@ public class DatasetDownloadServlet extends HttpServlet
     static final String DATA_SET_KEY = "data-set";
 
     static final String DATASET_CODE_KEY = "dataSetCode";
-    
+
     static final String SESSION_ID_KEY = "sessionID";
-    
+
     private static final long serialVersionUID = 1L;
 
     protected static final Logger operationLog =
@@ -69,7 +69,7 @@ public class DatasetDownloadServlet extends HttpServlet
 
     protected static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DatasetDownloadServlet.class);
-    
+
     private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>()
         {
             public int compare(File file1, File file2)
@@ -84,7 +84,7 @@ public class DatasetDownloadServlet extends HttpServlet
         };
 
     private ApplicationContext applicationContext;
-    
+
     public DatasetDownloadServlet()
     {
     }
@@ -93,7 +93,7 @@ public class DatasetDownloadServlet extends HttpServlet
     {
         this.applicationContext = applicationContext;
     }
-    
+
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
     {
@@ -135,16 +135,16 @@ public class DatasetDownloadServlet extends HttpServlet
                 dataSetCode = pathInfo.substring(0, indexOfFirstSeparator);
                 pathInfo = pathInfo.substring(indexOfFirstSeparator + 1);
             }
-            
+
             obtainDataSetFromServer(dataSetCode, request);
-            
+
             HttpSession session = request.getSession(false);
             if (session == null)
             {
                 printSessionExpired(response);
             } else
             {
-                
+
                 ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
                 if (dataSet == null)
                 {
@@ -154,7 +154,7 @@ public class DatasetDownloadServlet extends HttpServlet
                 RenderingContext context = new RenderingContext(rootDir, requestURI, pathInfo);
                 renderPage(response, dataSet, context);
             }
-            
+
         } catch (Exception e)
         {
             printError(request, response, e);
@@ -186,7 +186,7 @@ public class DatasetDownloadServlet extends HttpServlet
         writer.flush();
         writer.close();
     }
-    
+
     private void renderPage(HttpServletResponse response, ExternalData dataSet,
             RenderingContext renderingContext) throws IOException
     {
@@ -232,8 +232,7 @@ public class DatasetDownloadServlet extends HttpServlet
                 String name = child.getName();
                 File rootDir = renderingContext.getRootDir();
                 String relativePath = FileUtilities.getRelativeFile(rootDir, child);
-                String normalizedRelativePath =
-                         relativePath.replace('\\', '/');
+                String normalizedRelativePath = relativePath.replace('\\', '/');
                 if (child.isDirectory())
                 {
                     directoryRenderer.printDirectory(name, normalizedRelativePath);
@@ -244,7 +243,7 @@ public class DatasetDownloadServlet extends HttpServlet
             }
             directoryRenderer.printFooter();
             writer.flush();
-            
+
         } finally
         {
             IOUtils.closeQuietly(writer);
@@ -314,17 +313,16 @@ public class DatasetDownloadServlet extends HttpServlet
         if (dataSetRootDirectory.exists() == false)
         {
             throw new UserFailureException("Data set '" + dataSet.getCode()
-                    + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath()
-                    + "'.");
+                    + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath() + "'.");
         }
         return dataSetRootDirectory;
     }
-    
+
     private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalData dataSet)
     {
         getDataSets(session).put(dataSetCode, dataSet);
     }
-    
+
     private ExternalData tryToGetDataSet(HttpSession session, String dataSetCode)
     {
         return getDataSets(session).get(dataSetCode);

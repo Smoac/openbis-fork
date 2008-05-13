@@ -45,20 +45,21 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.lims.base.Experiment;
 import ch.systemsx.cisd.lims.base.ExternalData;
+import ch.systemsx.cisd.lims.base.Group;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.LocatorType;
-
+import ch.systemsx.cisd.lims.base.Procedure;
+import ch.systemsx.cisd.lims.base.Project;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class DatasetDownloadServletTest 
+public class DatasetDownloadServletTest
 {
     private static final String APPLICATION_NAME = "download";
-    
+
     private static final String REQUEST_URI_PREFIX = "/" + APPLICATION_NAME + "/";
 
     private static final String EXPIRATION_MESSAGE =
@@ -68,34 +69,41 @@ public class DatasetDownloadServletTest
             "OPERATION.ch.systemsx.cisd.openbis.datasetdownload.DatasetDownloadServlet";
 
     private static final String LOG_INFO = "INFO  " + LOGGER_NAME + " - ";
-    
+
     private static final String LOG_ERROR = "ERROR " + LOGGER_NAME + " - ";
 
     private static final File TEST_FOLDER = new File("targets/unit-test/store");
-    
+
     private static final String EXAMPLE_DATA_SET_FOLDER_NAME = "data set #123";
 
     private static final File EXAMPLE_DATA_SET_FOLDER =
             new File(TEST_FOLDER, EXAMPLE_DATA_SET_FOLDER_NAME);
-    
+
     private static final String EXAMPLE_FILE_NAME = "read me @home.txt";
-    
+
     private static final File EXAMPLE_FILE = new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_FILE_NAME);
-    
+
     private static final String EXAMPLE_FILE_CONTENT = "Hello world!";
-    
+
     private static final String EXAMPLE_DATA_SET_SUB_FOLDER_NAME = "+ s % ! # @";
-    
+
     private static final String ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME =
             encode(EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
-    
-    
+
     private static final File EXAMPLE_DATA_SET_SUB_FOLDER =
             new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
-    
+
     private static final String EXAMPLE_SESSION_ID = "AV76CF";
 
     private static final String EXAMPLE_DATA_SET_CODE = "1234-1";
+
+    private static final String SAMPLE_CODE = "SAMPLE-S";
+
+    private static final String EXPERIMENT_CODE = "EPERIMENT-E";
+
+    private static final String GROUP_CODE = "GROUP-G";
+
+    private static final String PROJECT_CODE = "PROJECT-P";
 
     private static String encode(String url)
     {
@@ -107,8 +115,9 @@ public class DatasetDownloadServletTest
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
+
     private BufferedAppender logRecorder;
-    
+
     private Mockery context;
 
     private HttpServletRequest request;
@@ -118,7 +127,7 @@ public class DatasetDownloadServletTest
     private IDataSetService dataSetService;
 
     private HttpSession httpSession;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -143,7 +152,7 @@ public class DatasetDownloadServletTest
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testInitialDoGet() throws Exception
     {
@@ -152,24 +161,20 @@ public class DatasetDownloadServletTest
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
         prepareForCreatingHTML(writer);
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertEquals("<html><body>" + OSUtilities.LINE_SEPARATOR + "<h1>Data Set 1234-1</h1>"
-                + OSUtilities.LINE_SEPARATOR
-                + "<table border=\'0\' cellpadding=\'5\' cellspacing=\'0\'>"
-                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='/download/1234-1/"
-                + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "'>"
-                + EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "</td><td></td></tr>"
-                + OSUtilities.LINE_SEPARATOR
-                + "<tr><td><a href='/download/1234-1/read+me+%40home.txt'>read me @home.txt</td>"
-                + "<td>12 Bytes</td></tr>" + OSUtilities.LINE_SEPARATOR + "</table></body></html>"
-                + OSUtilities.LINE_SEPARATOR, writer.toString());
+        assertEquals(
+                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> \n"
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/%2B+s+%25+%21+%23+%40\'>+ s % ! # @</td><td></td></tr>\n"
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/read+me+%40home.txt\'>read me @home.txt</td><td>12 Bytes</td></tr>\n"
+                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>\n"
+                        + "", writer.toString());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "For data set '1234-1' show directory <wd>/data set #123",
                 getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -188,7 +193,7 @@ public class DatasetDownloadServletTest
                     will(returnValue(new PrintWriter(writer)));
                 }
             });
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         String pageContent = writer.toString();
@@ -198,11 +203,10 @@ public class DatasetDownloadServletTest
         String logContent = logRecorder.getLogContent();
         assertEquals("Text snippet >" + snippet + "< not found in following page content: "
                 + logContent, true, logContent.indexOf(snippet) > 0);
-        
+
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testDoGetButUnknownDataSetCode() throws Exception
     {
@@ -222,12 +226,12 @@ public class DatasetDownloadServletTest
                     one(request).getRequestURI();
                     String codeAndPath = externalData.getCode();
                     will(returnValue(REQUEST_URI_PREFIX + codeAndPath));
-                    
+
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
                 }
             });
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
@@ -237,10 +241,10 @@ public class DatasetDownloadServletTest
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "User failure: Unknown data set '1234-1'.", logContent);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoGetSubFolder() throws Exception
     {
@@ -249,22 +253,20 @@ public class DatasetDownloadServletTest
         prepareForNotObtainingDataSetFromServer();
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareForCreatingHTML(writer);
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertEquals("<html><body>" + OSUtilities.LINE_SEPARATOR + "<h1>Data Set 1234-1</h1>"
-                + OSUtilities.LINE_SEPARATOR + "Folder: " + EXAMPLE_DATA_SET_SUB_FOLDER_NAME
-                + OSUtilities.LINE_SEPARATOR
-                + "<table border=\'0\' cellpadding=\'5\' cellspacing=\'0\'>"
-                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='/download/1234-1/'>..</td><td></td></tr>"  
-                + OSUtilities.LINE_SEPARATOR + "</table></body></html>"
-                + OSUtilities.LINE_SEPARATOR, writer.toString());
+        assertEquals(
+                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> <tr><td class=\'td_hd\'>Folder:</td><td>+ s % ! # @</td></tr>\n"
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/\'>..</td><td></td></tr>\n"
+                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>\n",
+                writer.toString());
         assertEquals(LOG_INFO + "For data set '1234-1' show directory <wd>/data set #123/"
                 + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoGetFile() throws Exception
     {
@@ -289,16 +291,16 @@ public class DatasetDownloadServletTest
                         }));
                 }
             });
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("Hello world!", outputStream.toString());
         assertEquals(LOG_INFO + "For data set '1234-1' deliver file "
                 + "<wd>/data set #123/read me @home.txt (12 bytes).", getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoGetNonExistingFile() throws Exception
     {
@@ -311,7 +313,7 @@ public class DatasetDownloadServletTest
                 {
                     one(request).getRequestURL();
                     will(returnValue(new StringBuffer("requestURL")));
-                    
+
                     one(request).getQueryString();
                     will(returnValue("queryString"));
 
@@ -319,7 +321,7 @@ public class DatasetDownloadServletTest
                     will(returnValue(new PrintWriter(writer)));
                 }
             });
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
@@ -329,10 +331,10 @@ public class DatasetDownloadServletTest
         assertEquals("The following string does not start as expected: " + logContent, true,
                 logContent.startsWith(LOG_ERROR
                         + "Request requestURL?queryString caused an exception:"));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoGetForExpiredSession() throws Exception
     {
@@ -343,7 +345,7 @@ public class DatasetDownloadServletTest
                 {
                     one(request).getRequestURI();
                     will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
-                    
+
                     one(request).getSession(false);
                     will(returnValue(null));
 
@@ -351,12 +353,12 @@ public class DatasetDownloadServletTest
                     will(returnValue(new PrintWriter(writer)));
                 }
             });
-        
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(EXPIRATION_MESSAGE, writer.toString());
         assertEquals("", getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -365,22 +367,22 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         context.checking(new Expectations()
-        {
             {
-                one(request).getRequestURI();
-                will(returnValue("blabla"));
-                
-                one(request).getRequestURL();
-                will(returnValue(new StringBuffer("requestURL")));
-                
-                one(request).getQueryString();
-                will(returnValue("query"));
-                
-                one(response).getWriter();
-                will(returnValue(new PrintWriter(writer)));
-            }
-        });
-        
+                {
+                    one(request).getRequestURI();
+                    will(returnValue("blabla"));
+
+                    one(request).getRequestURL();
+                    will(returnValue(new StringBuffer("requestURL")));
+
+                    one(request).getQueryString();
+                    will(returnValue("query"));
+
+                    one(response).getWriter();
+                    will(returnValue(new PrintWriter(writer)));
+                }
+            });
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
@@ -389,12 +391,11 @@ public class DatasetDownloadServletTest
                 writer.toString());
         String logContent = getNormalizedLogContent();
         assertEquals("The following string does not start as expected: " + logContent, true,
-                logContent.startsWith(LOG_ERROR
-                        + "Request requestURL?query caused an exception:"));
-        
+                logContent.startsWith(LOG_ERROR + "Request requestURL?query caused an exception:"));
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDoGetForPathInfoStartingWithSeparator() throws Exception
     {
@@ -402,28 +403,28 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = createExternalData();
         prepareForObtainingDataSetFromServer(externalData);
         context.checking(new Expectations()
-        {
             {
-                one(request).getRequestURI();
-                will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
-                
-                one(request).getSession(false);
-                will(returnValue(null));
-                
-                one(response).getWriter();
-                will(returnValue(new PrintWriter(writer)));
-            }
-        });
-        
+                {
+                    one(request).getRequestURI();
+                    will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
+
+                    one(request).getSession(false);
+                    will(returnValue(null));
+
+                    one(response).getWriter();
+                    will(returnValue(new PrintWriter(writer)));
+                }
+            });
+
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(EXPIRATION_MESSAGE, writer.toString());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server.",
                 getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareForGettingDataSetFromSession(final ExternalData externalData,
             final String path)
     {
@@ -448,7 +449,7 @@ public class DatasetDownloadServletTest
                 }
             });
     }
-    
+
     private void prepareForNotObtainingDataSetFromServer()
     {
         context.checking(new Expectations()
@@ -473,17 +474,17 @@ public class DatasetDownloadServletTest
 
                     one(request).getSession(true);
                     will(returnValue(httpSession));
-                    
+
                     one(httpSession).setMaxInactiveInterval(120);
                     one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_KEY);
                     will(returnValue(null));
-                    
+
                     one(httpSession).setAttribute(DatasetDownloadServlet.DATA_SET_KEY,
                             new HashMap<String, ExternalData>());
                 }
             });
     }
-    
+
     private void prepareForCreatingHTML(final StringWriter writer) throws IOException
     {
         context.checking(new Expectations()
@@ -491,7 +492,7 @@ public class DatasetDownloadServletTest
                 {
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
-                    
+
                     one(response).setContentType("text/html");
                 }
             });
@@ -499,13 +500,25 @@ public class DatasetDownloadServletTest
 
     private ExternalData createExternalData()
     {
+        Group group = new Group();
+        group.setCode(GROUP_CODE);
+        Project project = new Project();
+        project.setCode(PROJECT_CODE);
+        project.setGroup(group);
+        Procedure procedure = new Procedure();
+        Experiment experiment = new Experiment();
+        experiment.setCode(EXPERIMENT_CODE);
+        experiment.setProject(project);
+        procedure.setExperiment(experiment);
         final ExternalData externalData = new ExternalData();
+        externalData.setProcedure(procedure);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
+        externalData.setSampleCode(SAMPLE_CODE);
         externalData.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
         externalData.setLocation(EXAMPLE_DATA_SET_FOLDER_NAME);
         return externalData;
     }
-    
+
     private DatasetDownloadServlet createServlet()
     {
         Properties properties = new Properties();
@@ -520,7 +533,7 @@ public class DatasetDownloadServletTest
         return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters,
                 APPLICATION_NAME));
     }
-    
+
     private String getNormalizedLogContent()
     {
         String logContent = logRecorder.getLogContent();

@@ -21,24 +21,22 @@ import java.io.PrintWriter;
 import ch.systemsx.cisd.lims.base.ExternalData;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IDirectoryRenderer
 {
     public String getContentType();
-    
+
     public void setWriter(PrintWriter writer);
-    
+
     public void printHeader(ExternalData dataSet);
-    
+
     public void printLinkToParentDirectory(String relativePath);
-    
+
     public void printDirectory(String name, String relativePath);
-    
+
     public void printFile(String name, String relativePath, long size);
-    
+
     public void printFooter();
-    
+
 }
