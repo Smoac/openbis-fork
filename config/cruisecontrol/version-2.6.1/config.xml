@@ -192,6 +192,7 @@
       <buildstatus logdir="logs/common"/>
       <buildstatus logdir="logs/authentication"/>
       <buildstatus logdir="logs/dbmigration"/>
+      <buildstatus logdir="logs/dataset_download"/>
       <buildstatus logdir="logs/lims_base"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
