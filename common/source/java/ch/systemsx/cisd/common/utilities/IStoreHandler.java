@@ -21,6 +21,7 @@ package ch.systemsx.cisd.common.utilities;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2008-05-13, Christian Ribeaud: very similar to IPathHandler. Should be merged with it.
 public interface IStoreHandler
 {
     void handle(StoreItem item);

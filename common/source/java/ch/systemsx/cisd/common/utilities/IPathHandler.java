@@ -24,6 +24,7 @@ import java.io.File;
  * 
  * @author Bernd Rinn
  */
+// TODO 2008-05-13, Christian Ribeaud: very similar to IStoreHandler. Should be merged with it.
 public interface IPathHandler
 {
     /**
