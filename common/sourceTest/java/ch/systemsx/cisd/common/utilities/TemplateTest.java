@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.fail;
 import org.testng.annotations.Test;
 
 /**
+ * Test cases for the {@link Template}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class TemplateTest
