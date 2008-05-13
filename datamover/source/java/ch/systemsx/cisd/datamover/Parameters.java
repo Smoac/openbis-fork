@@ -359,25 +359,6 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private static FileStore createStore(File directory, String kind, String hostOrNull,
-            boolean isRemote, IFileSysOperationsFactory factory)
-    {
-        if (hostOrNull != null)
-        {
-            assert isRemote == true;
-            return FileStoreFactory.createRemoteHost(directory, hostOrNull, kind, factory);
-        } else
-        {
-            if (isRemote)
-            {
-                return FileStoreFactory.createRemoteShare(directory, kind, factory);
-            } else
-            {
-                return FileStoreFactory.createLocal(directory, kind, factory);
-            }
-        }
-    }
-
     private void outputException(Exception ex)
     {
         if (ex instanceof HighLevelException || ex instanceof CmdLineException)
@@ -595,7 +576,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      */
     public FileStore getIncomingStore(IFileSysOperationsFactory factory)
     {
-        return createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
+        return FileStoreFactory.createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
                 treatIncomingAsRemote, factory);
     }
 
@@ -612,7 +593,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      */
     public FileStore getOutgoingStore(IFileSysOperationsFactory factory)
     {
-        return createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost, true, factory);
+        return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost, true, factory);
     }
 
     /**

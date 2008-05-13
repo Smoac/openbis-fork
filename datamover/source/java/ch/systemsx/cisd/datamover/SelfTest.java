@@ -44,14 +44,14 @@ public class SelfTest
         LogInitializer.init();
     }
 
-    private static void checkPathRecords(IFileStore[] pathRecords)
+    private static void checkPathRecords(final IFileStore[] pathRecords)
     {
         assert pathRecords != null;
 
         checkPathRecordsContainEachOther(pathRecords);
-        for (IFileStore pathRecord : pathRecords)
+        for (final IFileStore pathRecord : pathRecords)
         {
-            String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible(TIMEOUT_MILLIS);
+            final String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible(TIMEOUT_MILLIS);
             if (errorMessage != null)
             {
                 throw new ConfigurationFailureException(errorMessage);
@@ -59,7 +59,7 @@ public class SelfTest
         }
     }
 
-    private static void checkPathRecordsContainEachOther(IFileStore[] store)
+    private static void checkPathRecordsContainEachOther(final IFileStore[] store)
             throws ConfigurationFailureException
     {
         for (int i = 1; i < store.length; ++i)
@@ -81,7 +81,7 @@ public class SelfTest
      * what went wrong. This method performs failure logging of
      * {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
-    public static void check(IPathCopier copier, IFileStore... stores)
+    public static void check(final IPathCopier copier, final IFileStore... stores)
     {
         try
         {
@@ -92,12 +92,12 @@ public class SelfTest
             {
                 operationLog.info("Self test successfully completed.");
             }
-        } catch (HighLevelException e)
+        } catch (final HighLevelException e)
         {
             operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass()
                     .getSimpleName(), e.getMessage()));
             throw e;
-        } catch (RuntimeException e)
+        } catch (final RuntimeException e)
         {
             operationLog.error(String.format("Self test failed: [%s: %s]\n", e.getClass()
                     .getSimpleName(), e.getMessage()), e);

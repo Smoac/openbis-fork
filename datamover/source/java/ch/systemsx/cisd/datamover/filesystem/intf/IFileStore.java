@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  * 
  * @author Bernd Rinn
  */
+// TODO 2008-05-13, Christian Ribeaud: concrete classes seem to be more widely used than this
+// interface.
 public interface IFileStore
 {
 

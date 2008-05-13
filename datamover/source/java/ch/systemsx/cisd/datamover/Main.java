@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -81,7 +81,7 @@ public class Main
         {
             operationLog.info("Datamover is starting up.");
         }
-        for (String line : BuildAndEnvironmentInfo.INSTANCE.getEnvironmentInfo())
+        for (final String line : BuildAndEnvironmentInfo.INSTANCE.getEnvironmentInfo())
         {
             operationLog.info(line);
         }
@@ -97,36 +97,36 @@ public class Main
         final String msgStart = "Datamover self test failed:";
         try
         {
-            ArrayList<FileStore> stores = new ArrayList<FileStore>();
-            FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+            final ArrayList<IFileStore> stores = new ArrayList<IFileStore>();
+            final FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
             stores.add(parameters.getIncomingStore(factory));
-            FileStore buferStore =
+            final IFileStore bufferStore =
                     FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(),
                             Parameters.BUFFER_KIND_DESC, factory);
-            stores.add(buferStore);
+            stores.add(bufferStore);
             stores.add(parameters.getOutgoingStore(factory));
             if (parameters.tryGetManualInterventionDir() != null)
             {
-                FileStore dummyStore =
+                final IFileStore dummyStore =
                         FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(),
                                 "manual intervention", factory);
                 stores.add(dummyStore);
             }
             if (parameters.tryGetExtraCopyDir() != null)
             {
-                FileStore dummyStore =
+                final IFileStore dummyStore =
                         FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy",
                                 factory);
                 stores.add(dummyStore);
             }
-            IPathCopier copyProcess = factory.getCopier(false);
-            SelfTest.check(copyProcess, stores.toArray(new FileStore[] {}));
-        } catch (HighLevelException e)
+            final IPathCopier copyProcess = factory.getCopier(false);
+            SelfTest.check(copyProcess, stores.toArray(new IFileStore[] {}));
+        } catch (final HighLevelException e)
         {
             System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
                     .getMessage());
             System.exit(1);
-        } catch (RuntimeException e)
+        } catch (final RuntimeException e)
         {
             System.err.println(msgStart);
             e.printStackTrace();
@@ -135,19 +135,19 @@ public class Main
     }
 
     /** exposed for testing purposes */
-    static ITerminable startupServer(Parameters parameters, LocalBufferDirs bufferDirs)
+    static ITerminable startupServer(final Parameters parameters, final LocalBufferDirs bufferDirs)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return DataMover.start(parameters, factory, bufferDirs);
     }
 
-    private static void startupServer(Parameters parameters)
+    private static void startupServer(final Parameters parameters)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         DataMover.start(parameters, factory);
     }
 
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         initLog();
         final Parameters parameters = new Parameters(args);
