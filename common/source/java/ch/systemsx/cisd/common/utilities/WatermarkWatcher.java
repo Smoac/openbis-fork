@@ -42,10 +42,16 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public final class WatermarkWatcher implements Runnable
 {
 
+    private final static IFreeSpaceProvider DEFAULT_FREE_SPACE_PROVIDER =
+            new DefaultFreeSpaceProvider();
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, WatermarkWatcher.class);
 
-    private final long watermark;
+    /**
+     * The watermark value in <i>kilobytes</i>.
+     */
+    private final long watermarkInKb;
 
     private final EventListenerList listenerList = new EventListenerList();
 
@@ -55,13 +61,22 @@ public final class WatermarkWatcher implements Runnable
     /** The last {@link WatermarkState} computed. */
     private WatermarkState watermarkState;
 
+    private final IFreeSpaceProvider freeSpaceProvider;
+
     /**
      * @param watermark the watermark value in kilobytes. If negative, then {@link #run()} always
      *            returns without doing anything.
      */
     public WatermarkWatcher(final long watermark)
     {
-        this.watermark = watermark;
+        this(watermark, DEFAULT_FREE_SPACE_PROVIDER);
+    }
+
+    WatermarkWatcher(final long watermarkInKb, final IFreeSpaceProvider freeSpaceProvider)
+    {
+        assert freeSpaceProvider != null : "Unspecified IFreeSpaceProvider";
+        this.watermarkInKb = watermarkInKb;
+        this.freeSpaceProvider = freeSpaceProvider;
         addChangeListener(new NotificationLogChangeListener());
     }
 
@@ -74,11 +89,6 @@ public final class WatermarkWatcher implements Runnable
         }
     }
 
-    private final static long freeSpaceKb(final String canonicalPath) throws IOException
-    {
-        return FileSystemUtils.freeSpaceKb(canonicalPath);
-    }
-
     public final static String displayKilobyteValue(final long value)
     {
         return FileUtils.byteCountToDisplaySize(value * FileUtils.ONE_KB);
@@ -86,6 +96,7 @@ public final class WatermarkWatcher implements Runnable
 
     public final static boolean isBelow(final WatermarkState watermarkState)
     {
+        assert watermarkState != null : "Unspecified WatermarkState";
         return watermarkState.freeSpace < watermarkState.watermark;
     }
 
@@ -94,6 +105,7 @@ public final class WatermarkWatcher implements Runnable
      */
     public final synchronized void addChangeListener(final ChangeListener changeListener)
     {
+        assert changeListener != null : "Unspecified ChangeListener";
         listenerList.add(ChangeListener.class, changeListener);
     }
 
@@ -102,6 +114,7 @@ public final class WatermarkWatcher implements Runnable
      */
     public final synchronized void removeChangeListener(final ChangeListener changeListener)
     {
+        assert changeListener != null : "Unspecified ChangeListener";
         listenerList.remove(ChangeListener.class, changeListener);
     }
 
@@ -134,23 +147,21 @@ public final class WatermarkWatcher implements Runnable
     }
 
     /**
-     * Analyzes given <var>path</var> with given <var>watermark</var> and returns a
-     * {@link WatermarkState}.
+     * Analyzes given <var>path</var> and returns a {@link WatermarkState}.
      */
-    public final static WatermarkState getWatermarkState(final File path, final long watermark)
-            throws IOException
+    public final WatermarkState getWatermarkState(final File file) throws IOException
     {
-        final String canonicalPath = FileUtilities.getCanonicalPath(path);
-        final long freeSpace = freeSpaceKb(canonicalPath);
-        return new WatermarkState(path, watermark, freeSpace);
+        assert file != null : "Unspecified file";
+        final long freeSpaceInKb = freeSpaceProvider.freeSpaceKb(file);
+        return new WatermarkState(file, watermarkInKb, freeSpaceInKb);
     }
 
     /**
-     * Returns the watermark specified in the constructor.
+     * Returns the watermark (in <i>kilobytes</i>) specified in the constructor.
      */
     public final long getWatermark()
     {
-        return watermark;
+        return watermarkInKb;
     }
 
     //
@@ -160,14 +171,13 @@ public final class WatermarkWatcher implements Runnable
     public final synchronized void run()
     {
         assert path != null : "Unspecified path";
-        if (watermark < 0)
+        if (watermarkInKb < 0)
         {
             return;
         }
         try
         {
-            final WatermarkState state = getWatermarkState(path, watermark);
-            final String canonicalPath = FileUtilities.getCanonicalPath(state.path);
+            final WatermarkState state = getWatermarkState(path);
             final boolean newBelowValue = isBelow(state);
             final boolean stateChanged = isBelow() != newBelowValue;
             watermarkState = state;
@@ -178,7 +188,8 @@ public final class WatermarkWatcher implements Runnable
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Amount of available space on '%s' is: %s.",
-                        canonicalPath, displayKilobyteValue(state.freeSpace)));
+                        FileUtilities.getCanonicalPath(state.path),
+                        displayKilobyteValue(state.freeSpace)));
             }
         } catch (final IOException ex)
         {
@@ -190,6 +201,20 @@ public final class WatermarkWatcher implements Runnable
     //
     // Helper classes
     //
+
+    private final static class DefaultFreeSpaceProvider implements IFreeSpaceProvider
+    {
+
+        //
+        // IFreeSpaceProvider
+        //
+
+        public final long freeSpaceKb(final File path) throws IOException
+        {
+            final String canonicalPath = FileUtilities.getCanonicalPath(path);
+            return FileSystemUtils.freeSpaceKb(canonicalPath);
+        }
+    }
 
     public final static class WatermarkState
     {
@@ -211,13 +236,13 @@ public final class WatermarkWatcher implements Runnable
             return path;
         }
 
-        /** Returns the free space (in kilobytes). */
+        /** Returns the free space (in <i>kilobytes</i>). */
         public final long getFreeSpace()
         {
             return freeSpace;
         }
 
-        /** Returns the watermark (in kilobytes). */
+        /** Returns the watermark (in <i>kilobytes</i>). */
         public final long getWatermark()
         {
             return watermark;
@@ -263,10 +288,24 @@ public final class WatermarkWatcher implements Runnable
         }
     }
 
-    private final static class NotificationLogChangeListener implements ChangeListener
+    /**
+     * A <code>ChangeListener</code> implementation which informs the administrator when free
+     * space becomes tight or when free space is again "green".
+     * 
+     * @author Christian Ribeaud
+     */
+    final static class NotificationLogChangeListener implements ChangeListener
     {
+        static final String INFO_LOG_FORMAT =
+                "The amount of available space (%s) on '%s' "
+                        + "is again sufficient (greater than the specified watermark: %s).";
+
+        static final String WARNING_LOG_FORMAT =
+                "The amount of available space (%s) on '%s' "
+                        + "is lower than the specified watermark (%s).";
+
         private static final Logger notificationLog =
-                LogFactory.getLogger(LogCategory.NOTIFY, WatermarkWatcher.class);
+                LogFactory.getLogger(LogCategory.NOTIFY, NotificationLogChangeListener.class);
 
         NotificationLogChangeListener()
         {
@@ -284,15 +323,27 @@ public final class WatermarkWatcher implements Runnable
             final String freeSpaceDisplayed = displayKilobyteValue(event.getFreeSpace());
             if (event.isBelow())
             {
-                notificationLog.warn(String.format("The amount of available space (%s) on '%s' "
-                        + "is lower than the specified watermark (%s).", freeSpaceDisplayed, path,
+                notificationLog.warn(String.format(WARNING_LOG_FORMAT, freeSpaceDisplayed, path,
                         watermarkDisplayed));
             } else
             {
-                notificationLog.info(String.format("The amount of available space (%s) on '%s' "
-                        + "is again sufficient (greater than the specified watermark: %s).",
-                        freeSpaceDisplayed, path, watermarkDisplayed));
+                notificationLog.info(String.format(INFO_LOG_FORMAT, freeSpaceDisplayed, path,
+                        watermarkDisplayed));
             }
         }
+    }
+
+    /**
+     * Each implementation is able to return the free space on a drive or volume.
+     * 
+     * @author Christian Ribeaud
+     */
+    static interface IFreeSpaceProvider
+    {
+
+        /**
+         * Returns the free space on a drive or volume in kilobytes by invoking the command line.
+         */
+        long freeSpaceKb(final File path) throws IOException;
     }
 }
