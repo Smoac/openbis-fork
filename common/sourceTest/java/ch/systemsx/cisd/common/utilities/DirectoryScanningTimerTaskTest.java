@@ -76,11 +76,18 @@ public class DirectoryScanningTimerTaskTest
     private static class MockPathHandler implements IPathHandler
     {
 
-        final List<File> handledPaths = new ArrayList<File>();
+        private final List<File> handledPaths = new ArrayList<File>();
+
+        private boolean mayHandle = true;
 
         public void clear()
         {
             handledPaths.clear();
+        }
+
+        public final void setMayHandle(final boolean mayHandle)
+        {
+            this.mayHandle = mayHandle;
         }
 
         //
@@ -95,7 +102,7 @@ public class DirectoryScanningTimerTaskTest
 
         public final boolean mayHandle(final File path)
         {
-            return true;
+            return mayHandle;
         }
 
     }
@@ -117,11 +124,24 @@ public class DirectoryScanningTimerTaskTest
         mockPathHandler.clear();
     }
 
-    @Test
-    public void testFaultyPathsDeletion()
+    private final File getFaultyPathFile()
     {
         final File faultyPaths =
                 new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        return faultyPaths;
+    }
+
+    private final static void createNewFile(final File someFile) throws IOException
+    {
+        someFile.createNewFile();
+        assert someFile.exists() && someFile.isFile();
+        someFile.deleteOnExit();
+    }
+
+    @Test
+    public void testFaultyPathsDeletion()
+    {
+        final File faultyPaths = getFaultyPathFile();
         CollectionIO.writeIterable(faultyPaths, Collections.singleton("some_path"));
         new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assertEquals(0, faultyPaths.length());
@@ -131,8 +151,7 @@ public class DirectoryScanningTimerTaskTest
     public void testProcessOK() throws IOException
     {
         final File someFile = new File(workingDirectory, "some_file");
-        someFile.createNewFile();
-        someFile.deleteOnExit();
+        createNewFile(someFile);
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         assertEquals(0, mockPathHandler.handledPaths.size());
@@ -145,8 +164,7 @@ public class DirectoryScanningTimerTaskTest
     public void testFileFilterUsed() throws IOException
     {
         final File someFile = new File(workingDirectory, "some_file");
-        someFile.createNewFile();
-        someFile.deleteOnExit();
+        createNewFile(someFile);
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ALWAYS_FALSE_FILE_FILTER,
                         mockPathHandler);
@@ -158,12 +176,9 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testManipulateFaultyPaths() throws IOException
     {
-        final File faultyPaths =
-                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths = getFaultyPathFile();
         final File someFile = new File(workingDirectory, "some_file");
-        someFile.createNewFile();
-        someFile.deleteOnExit();
-        assert someFile.exists();
+        createNewFile(someFile);
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
         final String fileLocation = someFile.getPath();
@@ -175,8 +190,7 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testFaultyPaths() throws IOException
     {
-        final File faultyPaths =
-                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths = getFaultyPathFile();
         final File someFile = new File(workingDirectory, "some_file");
         final MockPathHandler myPathHandler = new MockPathHandler()
             {
@@ -193,9 +207,7 @@ public class DirectoryScanningTimerTaskTest
                     super.handle(path);
                 }
             };
-        someFile.createNewFile();
-        assert someFile.exists();
-        someFile.deleteOnExit();
+        createNewFile(someFile);
         final DirectoryScanningTimerTask scanner =
                 new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, myPathHandler);
 
@@ -225,14 +237,10 @@ public class DirectoryScanningTimerTaskTest
         final long now = System.currentTimeMillis();
         dir.mkdir();
         dir.deleteOnExit();
-        f1.createNewFile();
-        f1.deleteOnExit();
-        f2.createNewFile();
-        f2.deleteOnExit();
-        f3.createNewFile();
-        f3.deleteOnExit();
-        f4.createNewFile();
-        f4.deleteOnExit();
+        createNewFile(f1);
+        createNewFile(f2);
+        createNewFile(f3);
+        createNewFile(f4);
         // Order should be: 2, 4, 3, 1
         f2.setLastModified(now - 10000);
         f4.setLastModified(now - 5000);
@@ -287,9 +295,7 @@ public class DirectoryScanningTimerTaskTest
             final DirectoryScanningTimerTask scanner =
                     new DirectoryScanningTimerTask(dir, ACCEPT_ALL_FILTER, mockPathHandler);
             dir.delete();
-            dir.createNewFile();
-            dir.deleteOnExit();
-            assert dir.isFile();
+            createNewFile(dir);
             scanner.run();
             appender.verifyLogHasHappened();
             dir.delete();
@@ -306,8 +312,7 @@ public class DirectoryScanningTimerTaskTest
         dir.mkdir();
         dir.deleteOnExit();
         final File file = new File(dir, "some.file");
-        file.createNewFile();
-        file.deleteOnExit();
+        createNewFile(file);
         final LogMonitoringAppender appender1 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         "Failed to get listing of directory");
@@ -418,4 +423,34 @@ public class DirectoryScanningTimerTaskTest
         }
     }
 
+    @Test
+    public final void testRemoveFaultyPaths() throws IOException
+    {
+        final MockPathHandler pathHandler = new MockPathHandler();
+        pathHandler.setMayHandle(false);
+        final DirectoryScanningTimerTask directoryScanning =
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, pathHandler);
+        testPathOrder();
+        // No faulty file at this point.
+        assertEquals(1, workingDirectory.listFiles().length);
+        directoryScanning.run();
+        // One faulty file found (as mayHandle is set to false).
+        List<String> faulty = CollectionIO.readList(getFaultyPathFile());
+        assertEquals(1, faulty.size());
+        final File file = new File(faulty.get(0));
+        directoryScanning.removeFaultyPaths(DirectoryScannedStore.asItem(file));
+        faulty = CollectionIO.readList(getFaultyPathFile());
+        // Faulty file is empty.
+        assertEquals(0, faulty.size());
+        // Two files found (inclusive the faulty file).
+        assertEquals(2, workingDirectory.listFiles().length);
+        pathHandler.setMayHandle(true);
+        directoryScanning.run();
+        faulty = CollectionIO.readList(getFaultyPathFile());
+        assertEquals(0, faulty.size());
+        // Only the faulty file present now.
+        final File[] files = workingDirectory.listFiles();
+        assertEquals(1, files.length);
+        assertEquals(DirectoryScanningTimerTask.FAULTY_PATH_FILENAME, files[0].getName());
+    }
 }

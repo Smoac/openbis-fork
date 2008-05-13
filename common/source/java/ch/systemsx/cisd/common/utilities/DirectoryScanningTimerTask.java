@@ -311,7 +311,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
     }
 
     /** Removes given <var>storeItems</var> from the set of faulty ones. */
-    public final void removeFaultyPaths(final StoreItem[] storeItems)
+    public final void removeFaultyPaths(final StoreItem... storeItems)
     {
         assert storeItems != null : "Unspecified store items.";
         final int size = storeItems.length;
@@ -328,7 +328,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "Following paths %s have been removed from the from the faulty ones.", paths));
+                    "Following paths %s have been removed from the the faulty ones.", paths));
         }
         refreshFaultyPathsFile();
     }

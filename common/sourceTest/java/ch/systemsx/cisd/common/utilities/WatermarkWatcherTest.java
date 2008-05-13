@@ -61,7 +61,12 @@ public final class WatermarkWatcherTest
         context = new Mockery();
         logRecorder = new BufferedAppender("%m", Level.INFO);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
-        watermarkWatcher = new WatermarkWatcher(DEFAULT_WATERMARK, freeSpaceProvider);
+        watermarkWatcher = createWatermarkWatcher(DEFAULT_WATERMARK);
+    }
+
+    private final WatermarkWatcher createWatermarkWatcher(final long watermark)
+    {
+        return new WatermarkWatcher(watermark, freeSpaceProvider);
     }
 
     @AfterMethod
@@ -92,7 +97,7 @@ public final class WatermarkWatcherTest
     }
 
     @Test
-    public final void testRunFailed()
+    public final void testRun()
     {
         boolean fail = true;
         try
@@ -103,6 +108,10 @@ public final class WatermarkWatcherTest
             fail = false;
         }
         assertFalse(fail);
+        final WatermarkWatcher watcher = new WatermarkWatcher(-1);
+        watcher.setPath(DEFAULT_PATH);
+        // -1 means infinity, so no call to IFreeSpaceProvider
+        watcher.run();
     }
 
     @DataProvider(name = "freeSpaces")
@@ -129,6 +138,33 @@ public final class WatermarkWatcherTest
             });
         watermarkWatcher.run();
         assertEquals(isBelow, watermarkWatcher.isBelow());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testIsBelowWithNegativeValue() throws IOException
+    {
+        final WatermarkWatcher watcher = createWatermarkWatcher(-1);
+        watcher.setPath(DEFAULT_PATH);
+        watcher.run();
+        assertEquals(false, watermarkWatcher.isBelow());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testIsBelowWithZero() throws IOException
+    {
+        final WatermarkWatcher watcher = createWatermarkWatcher(0);
+        watcher.setPath(DEFAULT_PATH);
+        context.checking(new Expectations()
+            {
+                {
+                    one(freeSpaceProvider).freeSpaceKb(DEFAULT_PATH);
+                    will(returnValue(0L));
+                }
+            });
+        watcher.run();
+        assertEquals(false, watermarkWatcher.isBelow());
         context.assertIsSatisfied();
     }
 
@@ -199,6 +235,7 @@ public final class WatermarkWatcherTest
         assertEquals(watermarkState.getFreeSpace(), freeSpace);
         assertEquals(watermarkState.getPath(), DEFAULT_PATH);
         assertEquals(watermarkState.getWatermark(), DEFAULT_WATERMARK);
+        assertFalse(WatermarkWatcher.isBelow(watermarkState));
         context.assertIsSatisfied();
     }
 }
