@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -115,15 +116,14 @@ public class DatasetDownloadServlet extends HttpServlet
     {
         try
         {
-            String pathInfo = request.getPathInfo();
-            if (pathInfo == null)
+            String requestURI = URLDecoder.decode(request.getRequestURI(), "UTF-8");
+            String prefix = "/" + applicationContext.getApplicationName() + "/";
+            if (requestURI.startsWith(prefix) == false)
             {
-                throw new UserFailureException("Path not specified in URL.");
+                throw new EnvironmentFailureException("Request URI '" + requestURI
+                        + "' expected to start with '" + prefix + "'.");
             }
-            if (pathInfo.startsWith("/"))
-            {
-                pathInfo = pathInfo.substring(1);
-            }
+            String pathInfo = requestURI.substring(prefix.length());
             int indexOfFirstSeparator = pathInfo.indexOf('/');
             String dataSetCode;
             if (indexOfFirstSeparator < 0)
@@ -151,7 +151,6 @@ public class DatasetDownloadServlet extends HttpServlet
                     throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
                 }
                 File rootDir = createDataSetRootDirectory(dataSet);
-                String requestURI = request.getRequestURI();
                 RenderingContext context = new RenderingContext(rootDir, requestURI, pathInfo);
                 renderPage(response, dataSet, context);
             }

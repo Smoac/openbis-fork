@@ -70,7 +70,8 @@ public class DatasetDownloadService
         server.addConnector(socketConnector);
         Context context = new Context(server, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
-        context.addServlet(DatasetDownloadServlet.class, "/dataset-download/*");
+        context.addServlet(DatasetDownloadServlet.class, "/"
+                + applicationContext.getApplicationName() + "/*");
         server.start();
         
         selfTest(applicationContext);
@@ -99,7 +100,8 @@ public class DatasetDownloadService
     {
         ConfigParameters configParameters = getConfigParameters();
         IDataSetService dataSetService = new DataSetService(configParameters);
-        ApplicationContext applicationContext = new ApplicationContext(dataSetService, configParameters);
+        ApplicationContext applicationContext =
+                new ApplicationContext(dataSetService, configParameters, "dataset-download");
         return applicationContext;
     }
     

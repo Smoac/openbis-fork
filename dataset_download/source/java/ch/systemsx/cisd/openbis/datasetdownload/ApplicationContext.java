@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.datasetdownload;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 
 /**
- * 
+ *  Application context. It contains the object accessing the openBIS for retrieving the data set,
+ *  configuration parameters, and the name of the application which will be a part of its URL. 
  *
  * @author Franz-Josef Elmer
  */
@@ -28,11 +29,15 @@ class ApplicationContext
     private final IDataSetService dataSetService;
     
     private final ConfigParameters configParameters;
+
+    private final String applicationName;
     
-    ApplicationContext(IDataSetService service, ConfigParameters configParameters)
+    ApplicationContext(IDataSetService service, ConfigParameters configParameters,
+            String applicationName)
     {
         this.dataSetService = service;
         this.configParameters = configParameters;
+        this.applicationName = applicationName;
     }
 
     public final IDataSetService getDataSetService()
@@ -44,6 +49,10 @@ class ApplicationContext
     {
         return configParameters;
     }
-    
+
+    public final String getApplicationName()
+    {
+        return applicationName;
+    }
     
 }

@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.lims.base.ExternalData;
 
@@ -96,10 +99,22 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
     private void printRow(String name, String relativePath, String fileSize)
     {
         Template template = ROW_TEMPLATE.createFreshCopy();
-        template.bind("path", urlPrefix + relativePath);
+        System.out.println("url prefix:"+urlPrefix+" unescaped path:"+relativePath);
+        template.bind("path", urlPrefix + encodeURL(relativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
         writer.println(template.createText());
+    }
+    
+    private String encodeURL(String url)
+    {
+        try
+        {
+            return URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
     
     private String renderFileSize(long size)

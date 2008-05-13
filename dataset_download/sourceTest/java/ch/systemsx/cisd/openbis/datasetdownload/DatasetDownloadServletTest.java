@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +41,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -54,6 +57,10 @@ import ch.systemsx.cisd.lims.base.LocatorType;
  */
 public class DatasetDownloadServletTest 
 {
+    private static final String APPLICATION_NAME = "download";
+    
+    private static final String REQUEST_URI_PREFIX = "/" + APPLICATION_NAME + "/";
+
     private static final String EXPIRATION_MESSAGE =
             "<html><body>Download session expired.</body></html>";
 
@@ -66,18 +73,22 @@ public class DatasetDownloadServletTest
 
     private static final File TEST_FOLDER = new File("targets/unit-test/store");
     
-    private static final String EXAMPLE_DATA_SET_FOLDER_NAME = "data-set-123";
+    private static final String EXAMPLE_DATA_SET_FOLDER_NAME = "data set #123";
 
     private static final File EXAMPLE_DATA_SET_FOLDER =
             new File(TEST_FOLDER, EXAMPLE_DATA_SET_FOLDER_NAME);
     
-    private static final String EXAMPLE_FILE_NAME = "readme.txt";
+    private static final String EXAMPLE_FILE_NAME = "read me @home.txt";
     
     private static final File EXAMPLE_FILE = new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_FILE_NAME);
     
     private static final String EXAMPLE_FILE_CONTENT = "Hello world!";
     
-    private static final String EXAMPLE_DATA_SET_SUB_FOLDER_NAME = "sub";
+    private static final String EXAMPLE_DATA_SET_SUB_FOLDER_NAME = "+ s % ! # @";
+    
+    private static final String ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME =
+            encode(EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+    
     
     private static final File EXAMPLE_DATA_SET_SUB_FOLDER =
             new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
@@ -86,6 +97,16 @@ public class DatasetDownloadServletTest
 
     private static final String EXAMPLE_DATA_SET_CODE = "1234-1";
 
+    private static String encode(String url)
+    {
+        try
+        {
+            return URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
     private BufferedAppender logRecorder;
     
     private Mockery context;
@@ -137,14 +158,16 @@ public class DatasetDownloadServletTest
         assertEquals("<html><body>" + OSUtilities.LINE_SEPARATOR + "<h1>Data Set 1234-1</h1>"
                 + OSUtilities.LINE_SEPARATOR
                 + "<table border=\'0\' cellpadding=\'5\' cellspacing=\'0\'>"
-                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='download/1234-1/sub'>sub</td><td></td></tr>"
+                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='/download/1234-1/"
+                + ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "'>"
+                + EXAMPLE_DATA_SET_SUB_FOLDER_NAME + "</td><td></td></tr>"
                 + OSUtilities.LINE_SEPARATOR
-                + "<tr><td><a href='download/1234-1/readme.txt'>readme.txt</td><td>12 Bytes</td></tr>"
-                + OSUtilities.LINE_SEPARATOR + "</table></body></html>"
+                + "<tr><td><a href='/download/1234-1/read+me+%40home.txt'>read me @home.txt</td>"
+                + "<td>12 Bytes</td></tr>" + OSUtilities.LINE_SEPARATOR + "</table></body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory <wd>/data-set-123",
+                + "For data set '1234-1' show directory <wd>/data set #123",
                 getNormalizedLogContent());
         
         context.assertIsSatisfied();
@@ -196,9 +219,9 @@ public class DatasetDownloadServletTest
                     Map<String, ExternalData> map = new HashMap<String, ExternalData>();
                     will(returnValue(map));
 
-                    one(request).getPathInfo();
+                    one(request).getRequestURI();
                     String codeAndPath = externalData.getCode();
-                    will(returnValue(codeAndPath));
+                    will(returnValue(REQUEST_URI_PREFIX + codeAndPath));
                     
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
@@ -224,20 +247,20 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final ExternalData externalData = createExternalData();
         prepareForNotObtainingDataSetFromServer();
-        prepareForGettingDataSetFromSession(externalData, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+        prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareForCreatingHTML(writer);
         
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body>" + OSUtilities.LINE_SEPARATOR + "<h1>Data Set 1234-1</h1>"
-                + OSUtilities.LINE_SEPARATOR + "Folder: sub"
+                + OSUtilities.LINE_SEPARATOR + "Folder: " + EXAMPLE_DATA_SET_SUB_FOLDER_NAME
                 + OSUtilities.LINE_SEPARATOR
                 + "<table border=\'0\' cellpadding=\'5\' cellspacing=\'0\'>"
-                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='download/1234-1/'>..</td><td></td></tr>"  
+                + OSUtilities.LINE_SEPARATOR + "<tr><td><a href='/download/1234-1/'>..</td><td></td></tr>"  
                 + OSUtilities.LINE_SEPARATOR + "</table></body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
-        assertEquals(LOG_INFO + "For data set '1234-1' show directory <wd>/data-set-123/sub",
-                getNormalizedLogContent());
+        assertEquals(LOG_INFO + "For data set '1234-1' show directory <wd>/data set #123/"
+                + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
         
         context.assertIsSatisfied();
     }
@@ -270,9 +293,8 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("Hello world!", outputStream.toString());
-        assertEquals(LOG_INFO
-                + "For data set '1234-1' deliver file <wd>/data-set-123/readme.txt (12 bytes).",
-                getNormalizedLogContent());
+        assertEquals(LOG_INFO + "For data set '1234-1' deliver file "
+                + "<wd>/data set #123/read me @home.txt (12 bytes).", getNormalizedLogContent());
         
         context.assertIsSatisfied();
     }
@@ -319,8 +341,8 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getPathInfo();
-                    will(returnValue(EXAMPLE_DATA_SET_CODE));
+                    one(request).getRequestURI();
+                    will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
                     
                     one(request).getSession(false);
                     will(returnValue(null));
@@ -339,14 +361,20 @@ public class DatasetDownloadServletTest
     }
 
     @Test
-    public void testDoGetForNullPathInfo() throws Exception
+    public void testDoGetRquestURINotStartingWithApplicationName() throws Exception
     {
         final StringWriter writer = new StringWriter();
         context.checking(new Expectations()
         {
             {
-                one(request).getPathInfo();
-                will(returnValue(null));
+                one(request).getRequestURI();
+                will(returnValue("blabla"));
+                
+                one(request).getRequestURL();
+                will(returnValue(new StringBuffer("requestURL")));
+                
+                one(request).getQueryString();
+                will(returnValue("query"));
                 
                 one(response).getWriter();
                 will(returnValue(new PrintWriter(writer)));
@@ -356,10 +384,13 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("<html><body><h1>Error</h1>" + OSUtilities.LINE_SEPARATOR
-                + "Path not specified in URL." + OSUtilities.LINE_SEPARATOR + "</body></html>"
-                + OSUtilities.LINE_SEPARATOR, writer.toString());
-        assertEquals(LOG_INFO + "User failure: Path not specified in URL.",
-                getNormalizedLogContent());
+                + "Request URI 'blabla' expected to start with '/download/'."
+                + OSUtilities.LINE_SEPARATOR + "</body></html>" + OSUtilities.LINE_SEPARATOR,
+                writer.toString());
+        String logContent = getNormalizedLogContent();
+        assertEquals("The following string does not start as expected: " + logContent, true,
+                logContent.startsWith(LOG_ERROR
+                        + "Request requestURL?query caused an exception:"));
         
         context.assertIsSatisfied();
     }
@@ -373,8 +404,8 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
         {
             {
-                one(request).getPathInfo();
-                will(returnValue("/" + EXAMPLE_DATA_SET_CODE));
+                one(request).getRequestURI();
+                will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE));
                 
                 one(request).getSession(false);
                 will(returnValue(null));
@@ -407,12 +438,12 @@ public class DatasetDownloadServletTest
                     map.put(externalData.getCode(), externalData);
                     will(returnValue(map));
 
-                    one(request).getPathInfo();
-                    String codeAndPath = externalData.getCode() + "/" + path;
+                    one(request).getRequestURI();
+                    String codeAndPath = REQUEST_URI_PREFIX + externalData.getCode() + "/" + path;
                     will(returnValue(codeAndPath));
 
                     allowing(request).getRequestURI();
-                    will(returnValue("download/" + codeAndPath));
+                    will(returnValue(APPLICATION_NAME + "/" + codeAndPath));
 
                 }
             });
@@ -486,7 +517,8 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_PASSWORD_KEY, "");
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters));
+        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters,
+                APPLICATION_NAME));
     }
     
     private String getNormalizedLogContent()
