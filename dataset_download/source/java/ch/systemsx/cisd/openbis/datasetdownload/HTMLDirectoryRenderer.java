@@ -99,7 +99,6 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
     private void printRow(String name, String relativePath, String fileSize)
     {
         Template template = ROW_TEMPLATE.createFreshCopy();
-        System.out.println("url prefix:"+urlPrefix+" unescaped path:"+relativePath);
         template.bind("path", urlPrefix + encodeURL(relativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
