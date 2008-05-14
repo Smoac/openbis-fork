@@ -21,24 +21,25 @@ import java.io.IOException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.WatermarkWatcher.WatermarkState;
+import ch.systemsx.cisd.common.utilities.HighwaterMarkWatcher.HighwaterMarkState;
 
 /**
- * An <code>ISelfTestable</code> implementation based on {@link WatermarkWatcher}.
+ * An <code>ISelfTestable</code> implementation based on {@link HighwaterMarkWatcher}.
  * 
  * @author Christian Ribeaud
  */
-public final class WatermarkSelfTestable implements ISelfTestable
+public final class HighwaterMarkSelfTestable implements ISelfTestable
 {
 
     private final File path;
 
-    private final WatermarkWatcher watermarkWatcher;
+    private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    public WatermarkSelfTestable(final File path, final WatermarkWatcher watermarkWatcher)
+    public HighwaterMarkSelfTestable(final File path,
+            final HighwaterMarkWatcher highwaterMarkWatcher)
     {
         this.path = path;
-        this.watermarkWatcher = watermarkWatcher;
+        this.highwaterMarkWatcher = highwaterMarkWatcher;
     }
 
     //
@@ -49,16 +50,19 @@ public final class WatermarkSelfTestable implements ISelfTestable
     {
         try
         {
-            final WatermarkState watermarkState = watermarkWatcher.getWatermarkState(path);
-            if (WatermarkWatcher.isBelow(watermarkState))
+            final HighwaterMarkState highwaterMarkState =
+                    highwaterMarkWatcher.getHighwaterMarkState(path);
+            if (HighwaterMarkWatcher.isBelow(highwaterMarkState))
             {
                 final String freeSpaceDisplayed =
-                        WatermarkWatcher.displayKilobyteValue(watermarkState.getFreeSpace());
-                final String watermarkDisplayed =
-                        WatermarkWatcher.displayKilobyteValue(watermarkState.getWatermark());
+                        HighwaterMarkWatcher
+                                .displayKilobyteValue(highwaterMarkState.getFreeSpace());
+                final String highwaterMarkDisplayed =
+                        HighwaterMarkWatcher.displayKilobyteValue(highwaterMarkState
+                                .getHighwaterMark());
                 throw ConfigurationFailureException.fromTemplate(
-                        "Free space (%s) lies below given watermark (%s).", freeSpaceDisplayed,
-                        watermarkDisplayed);
+                        "Free space (%s) lies below given high water mark (%s).",
+                        freeSpaceDisplayed, highwaterMarkDisplayed);
             }
         } catch (IOException ex)
         {

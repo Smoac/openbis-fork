@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A watermark watcher.
+ * A high water mark watcher.
  * <p>
  * This class is thread-safe.
  * </p>
@@ -39,53 +39,53 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * @see FileSystemUtils
  * @author Christian Ribeaud
  */
-public final class WatermarkWatcher implements Runnable
+public final class HighwaterMarkWatcher implements Runnable
 {
 
     private final static IFreeSpaceProvider DEFAULT_FREE_SPACE_PROVIDER =
             new DefaultFreeSpaceProvider();
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, WatermarkWatcher.class);
+            LogFactory.getLogger(LogCategory.OPERATION, HighwaterMarkWatcher.class);
 
     /**
-     * The watermark value in <i>kilobytes</i>.
+     * The high water mark value in <i>kilobytes</i>.
      */
-    private final long watermarkInKb;
+    private final long highwaterMarkInKb;
 
     private final EventListenerList listenerList = new EventListenerList();
 
     /** The path to get free space for. Is not <code>null</code>, not empty on Unix. */
     private File path;
 
-    /** The last {@link WatermarkState} computed. */
-    private WatermarkState watermarkState;
+    /** The last {@link HighwaterMarkState} computed. */
+    private HighwaterMarkState highwaterMarkState;
 
     private final IFreeSpaceProvider freeSpaceProvider;
 
     /**
-     * @param watermark the watermark value in kilobytes. If negative, then {@link #run()} always
-     *            returns without doing anything.
+     * @param highwaterMarkInKb the high water mark value in kilobytes. If negative, then
+     *            {@link #run()} always returns without doing anything.
      */
-    public WatermarkWatcher(final long watermark)
+    public HighwaterMarkWatcher(final long highwaterMarkInKb)
     {
-        this(watermark, DEFAULT_FREE_SPACE_PROVIDER);
+        this(highwaterMarkInKb, DEFAULT_FREE_SPACE_PROVIDER);
     }
 
-    WatermarkWatcher(final long watermarkInKb, final IFreeSpaceProvider freeSpaceProvider)
+    HighwaterMarkWatcher(final long highwaterMarkInKb, final IFreeSpaceProvider freeSpaceProvider)
     {
         assert freeSpaceProvider != null : "Unspecified IFreeSpaceProvider";
-        this.watermarkInKb = watermarkInKb;
+        this.highwaterMarkInKb = highwaterMarkInKb;
         this.freeSpaceProvider = freeSpaceProvider;
         addChangeListener(new NotificationLogChangeListener());
     }
 
-    private final void fireChangeListeners(final WatermarkEvent watermarkEvent)
+    private final void fireChangeListeners(final HighwaterMarkEvent highwaterMarkEvent)
     {
         final ChangeListener[] listeners = listenerList.getListeners(ChangeListener.class);
         for (final ChangeListener changeListener : listeners)
         {
-            changeListener.stateChanged(watermarkEvent);
+            changeListener.stateChanged(highwaterMarkEvent);
         }
     }
 
@@ -94,14 +94,14 @@ public final class WatermarkWatcher implements Runnable
         return FileUtils.byteCountToDisplaySize(value * FileUtils.ONE_KB);
     }
 
-    public final static boolean isBelow(final WatermarkState watermarkState)
+    public final static boolean isBelow(final HighwaterMarkState highwaterMarkState)
     {
-        assert watermarkState != null : "Unspecified WatermarkState";
-        return watermarkState.freeSpace < watermarkState.watermark;
+        assert highwaterMarkState != null : "Unspecified WatermarkState";
+        return highwaterMarkState.freeSpace < highwaterMarkState.highwaterMark;
     }
 
     /**
-     * Adds a <code>ChangeListener</code> to this watermark watcher.
+     * Adds a <code>ChangeListener</code> to this high water mark watcher.
      */
     public final synchronized void addChangeListener(final ChangeListener changeListener)
     {
@@ -110,7 +110,7 @@ public final class WatermarkWatcher implements Runnable
     }
 
     /**
-     * Removes given <code>ChangeListener</code> from this watermark watcher.
+     * Removes given <code>ChangeListener</code> from this high water mark watcher.
      */
     public final synchronized void removeChangeListener(final ChangeListener changeListener)
     {
@@ -119,11 +119,11 @@ public final class WatermarkWatcher implements Runnable
     }
 
     /**
-     * Whether the free space is below the watermark or not.
+     * Whether the free space is below the high water mark or not.
      */
     public final synchronized boolean isBelow()
     {
-        return watermarkState == null ? false : isBelow(watermarkState);
+        return highwaterMarkState == null ? false : isBelow(highwaterMarkState);
     }
 
     /**
@@ -147,21 +147,21 @@ public final class WatermarkWatcher implements Runnable
     }
 
     /**
-     * Analyzes given <var>path</var> and returns a {@link WatermarkState}.
+     * Analyzes given <var>path</var> and returns a {@link HighwaterMarkState}.
      */
-    public final WatermarkState getWatermarkState(final File file) throws IOException
+    public final HighwaterMarkState getHighwaterMarkState(final File file) throws IOException
     {
         assert file != null : "Unspecified file";
         final long freeSpaceInKb = freeSpaceProvider.freeSpaceKb(file);
-        return new WatermarkState(file, watermarkInKb, freeSpaceInKb);
+        return new HighwaterMarkState(file, highwaterMarkInKb, freeSpaceInKb);
     }
 
     /**
-     * Returns the watermark (in <i>kilobytes</i>) specified in the constructor.
+     * Returns the high water mark (in <i>kilobytes</i>) specified in the constructor.
      */
-    public final long getWatermark()
+    public final long getHighwaterMark()
     {
-        return watermarkInKb;
+        return highwaterMarkInKb;
     }
 
     //
@@ -171,19 +171,19 @@ public final class WatermarkWatcher implements Runnable
     public final synchronized void run()
     {
         assert path != null : "Unspecified path";
-        if (watermarkInKb < 0)
+        if (highwaterMarkInKb < 0)
         {
             return;
         }
         try
         {
-            final WatermarkState state = getWatermarkState(path);
+            final HighwaterMarkState state = getHighwaterMarkState(path);
             final boolean newBelowValue = isBelow(state);
             final boolean stateChanged = isBelow() != newBelowValue;
-            watermarkState = state;
+            highwaterMarkState = state;
             if (stateChanged)
             {
-                fireChangeListeners(new WatermarkEvent(this, state));
+                fireChangeListeners(new HighwaterMarkEvent(this, state));
             }
             if (operationLog.isDebugEnabled())
             {
@@ -194,7 +194,8 @@ public final class WatermarkWatcher implements Runnable
         } catch (final IOException ex)
         {
             operationLog.error(
-                    "The watermark watcher can not work properly due to an I/O exception.", ex);
+                    "The high water mark watcher can not work properly due to an I/O exception.",
+                    ex);
         }
     }
 
@@ -216,18 +217,18 @@ public final class WatermarkWatcher implements Runnable
         }
     }
 
-    public final static class WatermarkState
+    public final static class HighwaterMarkState
     {
         private final File path;
 
         private final long freeSpace;
 
-        private final long watermark;
+        private final long highwaterMark;
 
-        WatermarkState(final File path, final long watermark, final long freeSpace)
+        HighwaterMarkState(final File path, final long highwaterMark, final long freeSpace)
         {
             this.path = path;
-            this.watermark = watermark;
+            this.highwaterMark = highwaterMark;
             this.freeSpace = freeSpace;
         }
 
@@ -242,49 +243,49 @@ public final class WatermarkWatcher implements Runnable
             return freeSpace;
         }
 
-        /** Returns the watermark (in <i>kilobytes</i>). */
-        public final long getWatermark()
+        /** Returns the high water mark (in <i>kilobytes</i>). */
+        public final long getHighwaterMark()
         {
-            return watermark;
+            return highwaterMark;
         }
 
     }
 
-    public final static class WatermarkEvent extends ChangeEvent
+    public final static class HighwaterMarkEvent extends ChangeEvent
     {
 
         private static final long serialVersionUID = 1L;
 
-        private final WatermarkState watermarkState;
+        private final HighwaterMarkState highwaterMarkState;
 
-        WatermarkEvent(final Object source, final WatermarkState watermarkState)
+        HighwaterMarkEvent(final Object source, final HighwaterMarkState highwaterMarkState)
         {
             super(source);
-            this.watermarkState = watermarkState;
+            this.highwaterMarkState = highwaterMarkState;
         }
 
         /**
-         * Whether the free space is below or reaches the watermark.
+         * Whether the free space is below or reaches the high water mark.
          */
         public final boolean isBelow()
         {
-            return WatermarkWatcher.isBelow(watermarkState);
+            return HighwaterMarkWatcher.isBelow(highwaterMarkState);
         }
 
         /** Returns the canonical path. */
         public final String getPath()
         {
-            return FileUtilities.getCanonicalPath(watermarkState.path);
+            return FileUtilities.getCanonicalPath(highwaterMarkState.path);
         }
 
         public final long getFreeSpace()
         {
-            return watermarkState.freeSpace;
+            return highwaterMarkState.freeSpace;
         }
 
-        public final long getWatermark()
+        public final long getHighwaterMark()
         {
-            return watermarkState.watermark;
+            return highwaterMarkState.highwaterMark;
         }
     }
 
@@ -298,11 +299,11 @@ public final class WatermarkWatcher implements Runnable
     {
         static final String INFO_LOG_FORMAT =
                 "The amount of available space (%s) on '%s' "
-                        + "is again sufficient (greater than the specified watermark: %s).";
+                        + "is again sufficient (greater than the specified high water mark: %s).";
 
         static final String WARNING_LOG_FORMAT =
                 "The amount of available space (%s) on '%s' "
-                        + "is lower than the specified watermark (%s).";
+                        + "is lower than the specified high water mark (%s).";
 
         private static final Logger notificationLog =
                 LogFactory.getLogger(LogCategory.NOTIFY, NotificationLogChangeListener.class);
@@ -317,18 +318,18 @@ public final class WatermarkWatcher implements Runnable
 
         public final void stateChanged(final ChangeEvent e)
         {
-            final WatermarkEvent event = (WatermarkEvent) e;
+            final HighwaterMarkEvent event = (HighwaterMarkEvent) e;
             final String path = event.getPath();
-            final String watermarkDisplayed = displayKilobyteValue(event.getWatermark());
+            final String highwaterMarkDisplayed = displayKilobyteValue(event.getHighwaterMark());
             final String freeSpaceDisplayed = displayKilobyteValue(event.getFreeSpace());
             if (event.isBelow())
             {
                 notificationLog.warn(String.format(WARNING_LOG_FORMAT, freeSpaceDisplayed, path,
-                        watermarkDisplayed));
+                        highwaterMarkDisplayed));
             } else
             {
                 notificationLog.info(String.format(INFO_LOG_FORMAT, freeSpaceDisplayed, path,
-                        watermarkDisplayed));
+                        highwaterMarkDisplayed));
             }
         }
     }
