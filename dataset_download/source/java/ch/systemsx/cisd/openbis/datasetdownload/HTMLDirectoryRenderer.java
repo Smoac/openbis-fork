@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.datasetdownload;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.DecimalFormat;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -32,22 +32,12 @@ import ch.systemsx.cisd.lims.base.Procedure;
 import ch.systemsx.cisd.lims.base.Project;
 
 /**
+ * An <code>IDirectoryRenderer</code> implementation which renders on HTML pages.
+ * 
  * @author Franz-Josef Elmer
  */
-class HTMLDirectoryRenderer implements IDirectoryRenderer
+final class HTMLDirectoryRenderer implements IDirectoryRenderer
 {
-    private static final DecimalFormat FORMAT_KB = new DecimalFormat("0.0 KB");
-
-    private static final DecimalFormat FORMAT_MB = new DecimalFormat("0.0 MB");
-
-    private static final DecimalFormat FORMAT_GB = new DecimalFormat("0.0 GB");
-
-    private static final int UNIT_KB = 1024;
-
-    private static final int UNIT_MB = UNIT_KB * UNIT_KB;
-
-    private static final int UNIT_GB = UNIT_MB * UNIT_KB;
-
     private static final String DATASET_DESCRIPTION =
             "${group}/${project}/${experiment}/${sample}/${dataset}";
 
@@ -94,14 +84,14 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
 
     private final String relativePathOrNull;
 
-    HTMLDirectoryRenderer(RenderingContext context)
+    HTMLDirectoryRenderer(final RenderingContext context)
     {
         this.relativePathOrNull = context.getRelativePathOrNull();
-        String prefix = context.getUrlPrefix();
+        final String prefix = context.getUrlPrefix();
         this.urlPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
     }
 
-    public void setWriter(PrintWriter writer)
+    public void setWriter(final PrintWriter writer)
     {
         this.writer = writer;
     }
@@ -111,18 +101,18 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
         return "text/html";
     }
 
-    public void printHeader(ExternalData dataSet)
+    public void printHeader(final ExternalData dataSet)
     {
-        String datasetCode = dataSet.getCode();
-        String sampleCode = dataSet.getSampleCode();
-        Procedure procedure = dataSet.getProcedure();
-        Experiment experiment = procedure.getExperiment();
-        String experimentCode = experiment.getCode();
-        Project project = experiment.getProject();
-        String projectCode = project.getCode();
-        Group group = project.getGroup();
-        String groupCode = group.getCode();
-        Template template = HEADER_TEMPLATE.createFreshCopy();
+        final String datasetCode = dataSet.getCode();
+        final String sampleCode = dataSet.getSampleCode();
+        final Procedure procedure = dataSet.getProcedure();
+        final Experiment experiment = procedure.getExperiment();
+        final String experimentCode = experiment.getCode();
+        final Project project = experiment.getProject();
+        final String projectCode = project.getCode();
+        final Group group = project.getGroup();
+        final String groupCode = group.getCode();
+        final Template template = HEADER_TEMPLATE.createFreshCopy();
         template.bind("group", groupCode);
         template.bind("project", projectCode);
         template.bind("experiment", experimentCode);
@@ -139,61 +129,49 @@ class HTMLDirectoryRenderer implements IDirectoryRenderer
         writer.println(template.createText());
     }
 
-    public void printLinkToParentDirectory(String relativePath)
+    public void printLinkToParentDirectory(final String relativePath)
     {
         printRow("..", relativePath, "");
     }
 
-    public void printDirectory(String name, String relativePath)
+    public void printDirectory(final String name, final String relativePath)
     {
         printRow(name, relativePath, "");
     }
 
-    public void printFile(String name, String relativePath, long size)
+    public void printFile(final String name, final String relativePath, final long size)
     {
         printRow(name, relativePath, renderFileSize(size));
     }
 
-    private void printRow(String name, String relativePath, String fileSize)
+    private void printRow(final String name, final String relativePath, final String fileSize)
     {
-        Template template = ROW_TEMPLATE.createFreshCopy();
+        final Template template = ROW_TEMPLATE.createFreshCopy();
         template.bind("path", urlPrefix + encodeURL(relativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
         writer.println(template.createText());
     }
 
-    private String encodeURL(String url)
+    private String encodeURL(final String url)
     {
         try
         {
             return URLEncoder.encode(url, "UTF-8");
-        } catch (UnsupportedEncodingException ex)
+        } catch (final UnsupportedEncodingException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private String renderFileSize(long size)
+    private final static String renderFileSize(final long size)
     {
-        if (size < 10 * UNIT_KB)
-        {
-            return Long.toString(size) + " Bytes";
-        }
-        if (size < 10 * UNIT_MB)
-        {
-            return FORMAT_KB.format(size / (double) UNIT_KB);
-        }
-        if (size < 10 * UNIT_GB)
-        {
-            return FORMAT_MB.format(size / (double) UNIT_MB);
-        }
-        return FORMAT_GB.format(size / (double) UNIT_GB);
+        return FileUtils.byteCountToDisplaySize(size);
     }
 
     public void printFooter()
     {
-        Template template = FOOTER_TEMPLATE.createFreshCopy();
+        final Template template = FOOTER_TEMPLATE.createFreshCopy();
         template
                 .bind("footer",
                         "Copyright &copy; 2008 ETHZ - <a href='http://www.cisd.systemsx.ethz.ch/'>CISD</a>");
