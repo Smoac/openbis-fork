@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -60,7 +61,7 @@ public class SelfTestTest
 
     private static final IPathCopier mockCopier = createMockCopier();
 
-    // ////////////////////////////////////////
+    //
     // Initialization methods.
     //
 
@@ -86,7 +87,7 @@ public class SelfTestTest
         outgoingDirectory.deleteOnExit();
     }
 
-    // ////////////////////////////////////////
+    // 
     // Mocks.
     //
 
@@ -129,11 +130,11 @@ public class SelfTestTest
             };
     }
 
-    // ////////////////////////////////////////
+    //
     // Test cases.
     //
 
-    @Test
+    @Test(expectedExceptions = NotImplementedException.class)
     public void testHappyCaseWithRemoteHost()
     {
         final String outgoingHost = "some_remote_host";

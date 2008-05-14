@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 
@@ -34,8 +35,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
  */
 public class SelfTest
 {
-    private static final long TIMEOUT_MILLIS = 3000L;
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
@@ -44,19 +43,14 @@ public class SelfTest
         LogInitializer.init();
     }
 
-    private static void checkPathRecords(final IFileStore[] pathRecords)
+    private static void checkPathRecords(final IFileStore[] fileStores)
     {
-        assert pathRecords != null;
-
-        checkPathRecordsContainEachOther(pathRecords);
-        for (final IFileStore pathRecord : pathRecords)
+        assert fileStores != null : "Unspecified file stores";
+        for (final ISelfTestable fileStore : fileStores)
         {
-            final String errorMessage = pathRecord.tryCheckDirectoryFullyAccessible(TIMEOUT_MILLIS);
-            if (errorMessage != null)
-            {
-                throw new ConfigurationFailureException(errorMessage);
-            }
+            fileStore.check();
         }
+        checkPathRecordsContainEachOther(fileStores);
     }
 
     private static void checkPathRecordsContainEachOther(final IFileStore[] store)

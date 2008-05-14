@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -26,9 +28,14 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
+ * A <code>FileStore</code> extension for remote paths mounted.
+ * <p>
+ * The works is mainly delegated to an internal {@link FileStoreLocal}.
+ * </p>
+ * 
  * @author Tomasz Pylak
  */
-public class FileStoreRemoteMounted extends FileStore
+public final class FileStoreRemoteMounted extends FileStore
 {
     private final FileStoreLocal localImpl;
 
@@ -44,64 +51,71 @@ public class FileStoreRemoteMounted extends FileStore
     //
 
     @Override
-    public IExtendedFileStore tryAsExtended()
+    public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
     @Override
-    public IStoreCopier getCopier(final FileStore destinationDirectory)
+    public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
         final String pathStr = getPath().getPath();
         return "[mounted remote fs]" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(final StoreItem item)
+    public final String getLocationDescription(final StoreItem item)
     {
         return localImpl.getLocationDescription(item);
     }
 
     @Override
-    public Status delete(final StoreItem item)
+    public final Status delete(final StoreItem item)
     {
         return localImpl.delete(item);
     }
 
     @Override
-    public boolean exists(final StoreItem item)
+    public final boolean exists(final StoreItem item)
     {
         return localImpl.exists(item);
     }
 
     @Override
-    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return localImpl.lastChanged(item, stopWhenFindYounger);
     }
 
     @Override
-    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
+    public final long lastChangedRelative(final StoreItem item,
+            final long stopWhenFindYoungerRelative)
     {
         return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
+    public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         return localImpl.tryListSortByLastModified(loggerOrNull);
+    }
+
+    @Override
+    public void check() throws EnvironmentFailureException, ConfigurationFailureException
+    {
+        localImpl.check();
     }
 }

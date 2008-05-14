@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
  * 
  * @author Tomasz Pylak
  */
-public class LocalBufferDirs
+public final class LocalBufferDirs
 {
     private final File copyInProgressDir;
 

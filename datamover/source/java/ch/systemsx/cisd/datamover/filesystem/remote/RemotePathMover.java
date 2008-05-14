@@ -41,7 +41,10 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 public final class RemotePathMover implements IStoreHandler
 {
 
-    private static final long TIMEOUT_DESTINATION_MILLIS = 3000L;
+    /**
+     * Number of milliseconds to wait before considering that the directory is not fully accessible.
+     */
+    public static final long DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS = 3000L;
 
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";
 
@@ -112,7 +115,7 @@ public final class RemotePathMover implements IStoreHandler
                 || destinationDirectory.tryAsExtended() != null;
 
         final String errorMsg =
-                destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS);
+                destinationDirectory.tryCheckDirectoryFullyAccessible(DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
         if (StringUtils.isNotBlank(errorMsg))
         {
             throw new ConfigurationFailureException(errorMsg);
@@ -225,7 +228,7 @@ public final class RemotePathMover implements IStoreHandler
     private boolean checkTargetAvailable()
     {
         final String msg =
-                destinationDirectory.tryCheckDirectoryFullyAccessible(TIMEOUT_DESTINATION_MILLIS);
+                destinationDirectory.tryCheckDirectoryFullyAccessible(DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
         if (msg != null)
         {
             machineLog.error(msg);

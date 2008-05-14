@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -33,9 +33,9 @@ import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter;
 import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
+import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
  * Processing of the files on the local machine. This class does not scan its input directory, all
@@ -76,33 +76,21 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     // destination as soon as they appear there.
     private final File tempDir;
 
-    private final FileWithHighwaterMark extraCopyDirOrNull;
+    private final File extraCopyDirOrNull;
 
-    @SuppressWarnings("unused")
-    private final long bufferDirWatermark;
+    private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    private LocalProcessor(final Parameters parameters, final File inputDir, final File outputDir,
-            final File tempDir, final IFileSysOperationsFactory factory,
-            final long bufferDirHighwaterMark)
+    LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
+            final IPathImmutableCopier copier, final IPathMover mover)
     {
         this.parameters = parameters;
-        this.inputDir = inputDir;
-        this.outputDir = outputDir;
-        this.tempDir = tempDir;
-        this.bufferDirWatermark = bufferDirHighwaterMark;
+        this.inputDir = bufferDirs.getCopyCompleteDir();
+        this.outputDir = bufferDirs.getReadyToMoveDir();
+        this.tempDir = bufferDirs.getTempDir();
+        highwaterMarkWatcher = new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
-        this.copier = factory.getImmutableCopier();
-        this.mover = factory.getMover();
-    }
-
-    public static final LocalProcessor create(final Parameters parameters, final File inputDir,
-            final File outputDir, final File tempDir, final IFileSysOperationsFactory factory,
-            final long bufferDirHighwaterMark)
-    {
-        final LocalProcessor handlerAndRecoverable =
-                new LocalProcessor(parameters, inputDir, outputDir, tempDir, factory,
-                        bufferDirHighwaterMark);
-        return handlerAndRecoverable;
+        this.copier = copier;
+        this.mover = mover;
     }
 
     // ----------------
@@ -156,9 +144,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                 // errors.
                 if (extraCopyDirOrNull != null)
                 {
-                    // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark
-                    // here.
-                    mover.tryMove(file, extraCopyDirOrNull.getFile());
+                    mover.tryMove(file, extraCopyDirOrNull);
                 }
             }
         }
@@ -210,15 +196,9 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         return pathDeleted;
     }
 
-    private enum EFileManipResult
-    {
-        CONTINUE, FAILURE, STOP
-    }
-
     private EFileManipResult doManualIntervention(final File resource)
     {
-        // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark here.
-        final File manualInterventionDir = parameters.tryGetManualInterventionDir().getFile();
+        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
         if (manualInterventionDir == null)
         {
             return EFileManipResult.CONTINUE;
@@ -310,8 +290,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         if (extraTmpCopy != null)
         {
             assert extraCopyDirOrNull != null;
-            // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark here.
-            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull.getFile());
+            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
             if (extraCopy == null)
             {
                 notificationLog.error(String.format(
@@ -323,6 +302,17 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     public final boolean mayHandle(final File path)
     {
-        return true;
+        highwaterMarkWatcher.setPathAndRun(outputDir);
+        return highwaterMarkWatcher.isBelow() == false;
     }
+
+    //
+    // Helper classes
+    //
+
+    private enum EFileManipResult
+    {
+        CONTINUE, FAILURE, STOP
+    }
+
 }

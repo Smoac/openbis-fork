@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -30,7 +33,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
  */
 // TODO 2007-10-09, Tomasz Pylak: Ssh tunneling mode should be implemented here. This class is a
 // dummy implementation.
-// Methods with NOTE should be written.
 public class FileStoreRemote extends FileStore
 {
     public FileStoreRemote(final FileWithHighwaterMark path, final String host, final String kind,
@@ -44,69 +46,71 @@ public class FileStoreRemote extends FileStore
     //
 
     @Override
-    public IExtendedFileStore tryAsExtended()
+    public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
     @Override
-    public Status delete(final StoreItem item)
+    public final Status delete(final StoreItem item)
     {
-        // NOTE: implement this
-        return Status.OK;
+        throw new NotImplementedException();
     }
 
     @Override
-    public boolean exists(final StoreItem item)
+    public final boolean exists(final StoreItem item)
     {
-        return factory.getCopier(false).existsRemotely(getPath(), hostOrNull);
+        return factory.getCopier(false).existsRemotely(getPath(), tryGetHost());
     }
 
     @Override
-    public IStoreCopier getCopier(final FileStore destinationDirectory)
+    public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
     @Override
-    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
-        // NOTE: implement this
-        return 0;
+        throw new NotImplementedException();
     }
 
     @Override
-    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
+    public final long lastChangedRelative(final StoreItem item,
+            final long stopWhenFindYoungerRelative)
     {
-        // NOTE: implement this
-        return 0;
+        throw new NotImplementedException();
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        // NOTE: implement this
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
         final String pathStr = getPath().getPath();
-        return "[remote fs]" + hostOrNull + ":" + pathStr;
+        return "[remote fs]" + tryGetHost() + ":" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(final StoreItem item)
+    public final String getLocationDescription(final StoreItem item)
     {
-        return hostOrNull + ":" + getChildFile(item).getPath();
+        return tryGetHost() + ":" + getChildFile(item).getPath();
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
+    public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
-        // NOTE: implement this
-        return null;
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public final void check() throws EnvironmentFailureException, ConfigurationFailureException
+    {
+        throw new NotImplementedException();
     }
 }

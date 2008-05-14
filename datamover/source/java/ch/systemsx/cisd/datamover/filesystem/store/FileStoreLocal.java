@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.DirectoryScannedStore;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
@@ -39,6 +40,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 
 /**
+ * An {@link IFileStore} implementation for local stores.
+ * 
  * @author Tomasz Pylak
  */
 public class FileStoreLocal extends ExtendedFileStore
@@ -63,32 +66,33 @@ public class FileStoreLocal extends ExtendedFileStore
     //
 
     @Override
-    public Status delete(final StoreItem item)
+    public final Status delete(final StoreItem item)
     {
         return remover.remove(getChildFile(item));
     }
 
     @Override
-    public boolean exists(final StoreItem item)
+    public final boolean exists(final StoreItem item)
     {
         return getChildFile(item).exists();
     }
 
     @Override
-    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
     }
 
     @Override
-    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
+    public final long lastChangedRelative(final StoreItem item,
+            final long stopWhenFindYoungerRelative)
     {
         return FileUtilities.lastChangedRelative(getChildFile(item), true,
                 stopWhenFindYoungerRelative);
     }
 
     @Override
-    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         final boolean available = FileUtilities.isAvailable(getPath(), timeOutMillis);
         if (available == false)
@@ -101,7 +105,7 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public IStoreCopier getCopier(final FileStore destinationDirectory)
+    public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
         final IStoreCopier simpleCopier =
@@ -117,13 +121,13 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public IExtendedFileStore tryAsExtended()
+    public final IExtendedFileStore tryAsExtended()
     {
         return this;
     }
 
     @Override
-    public boolean createNewFile(final StoreItem item)
+    public final boolean createNewFile(final StoreItem item)
     {
         try
         {
@@ -138,47 +142,37 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public File tryMoveLocal(final StoreItem sourceItem, final File destinationDir,
+    public final File tryMoveLocal(final StoreItem sourceItem, final File destinationDir,
             final String newFilePrefix)
     {
         return mover.tryMove(getChildFile(sourceItem), destinationDir, newFilePrefix);
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
         final String pathStr = getPath().getPath();
         return "[local fs]" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(final StoreItem item)
+    public final String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
+    public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final File[] files = FileUtilities.tryListFiles(getPath(), loggerOrNull);
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
-            return asItems(files);
+            return DirectoryScannedStore.asItems(files);
         } else
         {
             return null;
         }
-    }
-
-    private static StoreItem[] asItems(final File[] files)
-    {
-        final StoreItem[] items = new StoreItem[files.length];
-        for (int i = 0; i < items.length; i++)
-        {
-            items[i] = new StoreItem(files[i].getName());
-        }
-        return items;
     }
 
     // ------
@@ -188,7 +182,7 @@ public class FileStoreLocal extends ExtendedFileStore
      *         <var>destinationDirectory</var> resides requires deleting an existing file before it
      *         can be overwritten.
      */
-    protected boolean requiresDeletionBeforeCreation(final IFileStore destinationDirectory,
+    protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationDirectory,
             final IStoreCopier simpleCopier)
     {
         final StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
@@ -213,7 +207,7 @@ public class FileStoreLocal extends ExtendedFileStore
         return requiresDeletion;
     }
 
-    private static void logFIleSystemNeedsOverwrite(final IFileStore destinationDirectory)
+    private final static void logFIleSystemNeedsOverwrite(final IFileStore destinationDirectory)
     {
         if (machineLog.isInfoEnabled())
         {
@@ -223,7 +217,7 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    private static void logCopierOverwriteState(final IFileStore destinationDirectory,
+    private final static void logCopierOverwriteState(final IFileStore destinationDirectory,
             final boolean requiresDeletion)
     {
         if (machineLog.isInfoEnabled())

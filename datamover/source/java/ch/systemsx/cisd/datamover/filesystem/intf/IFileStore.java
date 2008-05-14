@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 // TODO 2008-05-13, Christian Ribeaud: concrete classes seem to be more widely used than this
 // interface.
-public interface IFileStore
+public interface IFileStore extends ISelfTestable
 {
 
     /**
@@ -101,5 +102,4 @@ public interface IFileStore
     public String getLocationDescription(StoreItem item);
 
     public IExtendedFileStore tryAsExtended();
-
 }

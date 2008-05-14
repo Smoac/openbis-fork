@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Timer;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.highwatermark.PathHandlerInterceptor;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
@@ -134,12 +135,14 @@ public class DataMover
     private DataMoverProcess createLocalProcessor()
     {
         final LocalProcessor localProcessor =
-                LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
-                        .getReadyToMoveDir(), bufferDirs.getTempDir(), factory, bufferDirs
-                        .getBufferDirHighwaterMark());
+                new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(), factory
+                        .getMover());
+        final PathHandlerInterceptor pathHandlerInterceptor =
+                new PathHandlerInterceptor(localProcessor);
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(),
-                        FileUtilities.ACCEPT_ALL_FILTER, localProcessor);
+                        FileUtilities.ACCEPT_ALL_FILTER, pathHandlerInterceptor);
+        pathHandlerInterceptor.setDirectoryScanning(localProcessingTask);
         return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
     }
 

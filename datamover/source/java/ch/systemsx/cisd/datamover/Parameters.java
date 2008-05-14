@@ -212,8 +212,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * the same file system than {@link #bufferDirectory}.
      */
     @Option(longName = PropertyNames.MANUAL_INTERVENTION_DIR, metaVar = "DIR", usage = "The local directory to "
-            + "store paths that need manual intervention.", handler = FileWithHighwaterMarkHandler.class)
-    private FileWithHighwaterMark manualInterventionDirectoryOrNull = null;
+            + "store paths that need manual intervention.")
+    private File manualInterventionDirectoryOrNull = null;
 
     /**
      * The directory on the remote side to move the paths to from the buffer directory.
@@ -233,8 +233,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * directory is specified)
      */
     @Option(longName = PropertyNames.EXTRA_COPY_DIR, metaVar = "DIR", usage = "The local directory where we create additional "
-            + "copy of the incoming data.", handler = FileWithHighwaterMarkHandler.class)
-    private FileWithHighwaterMark extraCopyDirectory = null;
+            + "copy of the incoming data.")
+    private File extraCopyDirectory = null;
 
     /**
      * The regular expression to use for cleansing on the incoming directory before moving it to the
@@ -408,11 +408,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote",
                         Boolean.toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
         prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "").trim();
-        if (serviceProperties.getProperty(PropertyNames.INCOMING_DIR) != null)
-        {
-            incomingDirectory =
-                    new File(serviceProperties.getProperty(PropertyNames.INCOMING_DIR).trim());
-        }
+        incomingDirectory = tryCreateFile(serviceProperties, PropertyNames.INCOMING_DIR);
         incomingHost = serviceProperties.getProperty("incoming-host");
         if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
@@ -420,12 +416,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                     FileWithHighwaterMark.fromProperties(serviceProperties,
                             PropertyNames.BUFFER_DIR);
         }
-        if (serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_DIR) != null)
-        {
-            manualInterventionDirectoryOrNull =
-                    FileWithHighwaterMark.fromProperties(serviceProperties,
-                            PropertyNames.MANUAL_INTERVENTION_DIR);
-        }
+        manualInterventionDirectoryOrNull =
+                tryCreateFile(serviceProperties, PropertyNames.MANUAL_INTERVENTION_DIR);
         if (serviceProperties.getProperty(PropertyNames.OUTGOING_DIR) != null)
         {
             outgoingDirectory =
@@ -433,12 +425,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                             PropertyNames.OUTGOING_DIR);
         }
         outgoingHost = serviceProperties.getProperty("outgoing-host");
-        if (serviceProperties.getProperty(PropertyNames.EXTRA_COPY_DIR) != null)
-        {
-            extraCopyDirectory =
-                    FileWithHighwaterMark.fromProperties(serviceProperties,
-                            PropertyNames.EXTRA_COPY_DIR);
-        }
+        extraCopyDirectory = tryCreateFile(serviceProperties, PropertyNames.EXTRA_COPY_DIR);
         if (serviceProperties.getProperty("cleansing-regex") != null)
         {
             cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
@@ -447,6 +434,18 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         {
             manualInterventionRegex =
                     Pattern.compile(serviceProperties.getProperty("manual-intervention-regex"));
+        }
+    }
+
+    private final File tryCreateFile(final Properties serviceProperties, final String propertyKey)
+    {
+        final String propertyValue = serviceProperties.getProperty(propertyKey);
+        if (propertyValue != null)
+        {
+            return new File(propertyValue.trim());
+        } else
+        {
+            return null;
         }
     }
 
@@ -600,7 +599,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         directory for long enough and that need manual intervention. Note that this directory
      *         needs to be on the same file system as {@link #getBufferDirectoryPath}.
      */
-    public FileWithHighwaterMark tryGetManualInterventionDir()
+    public File tryGetManualInterventionDir()
     {
         return manualInterventionDirectoryOrNull;
     }
@@ -610,7 +609,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         <code>null</code> if it is not specified. Note that this directory needs to be on
      *         the same file system as {@link #getBufferDirectoryPath}.
      */
-    public FileWithHighwaterMark tryGetExtraCopyDir()
+    public File tryGetExtraCopyDir()
     {
         return extraCopyDirectory;
     }
@@ -670,12 +669,12 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             if (null != tryGetManualInterventionDir())
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.",
-                        tryGetManualInterventionDir().getCanonicalPath()));
+                        tryGetManualInterventionDir().getAbsolutePath()));
             }
             if (null != extraCopyDirectory)
             {
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
-                        .getCanonicalPath()));
+                        .getAbsolutePath()));
             }
             operationLog.info(String.format("Check intervall (external): %d s.",
                     getCheckIntervalMillis() / 1000));

@@ -27,8 +27,14 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 /**
  * @author Tomasz Pylak
  */
-public class RemoteMonitoredMoverFactory
+public final class RemoteMonitoredMoverFactory
 {
+
+    private RemoteMonitoredMoverFactory()
+    {
+        // Can not be instantiated.
+    }
+
     /**
      * Creates a handler to move files remotely from source to destination and monitor the progress
      * 
@@ -36,8 +42,8 @@ public class RemoteMonitoredMoverFactory
      * @param destinationDirectory The directory to move paths to.
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
      */
-    public static final IStoreHandler create(IFileStore sourceDirectory,
-            FileStore destinationDirectory, ITimingParameters parameters)
+    public static final IStoreHandler create(final IFileStore sourceDirectory,
+            final FileStore destinationDirectory, final ITimingParameters parameters)
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
         final CopyActivityMonitor monitor =

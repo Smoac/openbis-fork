@@ -23,11 +23,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 
 /**
  * The abstract super-class of classes that represent a file store.
@@ -37,13 +41,13 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 public abstract class FileStore implements IFileStore
 {
-    private final FileWithHighwaterMark path;
+    private final FileWithHighwaterMark fileWithHighwaterMark;
 
-    protected final String hostOrNull;
+    private final String hostOrNull;
 
-    protected final String kind;
+    private final String kind;
 
-    protected final boolean remote;
+    private final boolean remote;
 
     protected final IFileSysOperationsFactory factory;
 
@@ -52,16 +56,32 @@ public abstract class FileStore implements IFileStore
     {
         assert path != null;
         assert kind != null;
-        this.path = path;
+        this.fileWithHighwaterMark = path;
         this.kind = kind;
         this.hostOrNull = hostOrNull;
         this.remote = remote;
         this.factory = factory;
     }
 
+    private final String getCanonicalPath(final File file)
+    {
+        if (hostOrNull != null)
+        {
+            return file.getPath();
+        }
+        try
+        {
+            return file.getCanonicalPath() + File.separator;
+        } catch (final IOException e)
+        {
+            throw EnvironmentFailureException.fromTemplate(e,
+                    "Cannot determine canonical form of path '%s'", file.getPath());
+        }
+    }
+
     protected final File getPath()
     {
-        return path.getFile();
+        return fileWithHighwaterMark.getFile();
     }
 
     protected final String tryGetHost()
@@ -129,7 +149,7 @@ public abstract class FileStore implements IFileStore
         return remote;
     }
 
-    public boolean isParentDirectory(final IFileStore child)
+    public final boolean isParentDirectory(final IFileStore child)
     {
         if (child instanceof FileStore == false)
         {
@@ -141,20 +161,16 @@ public abstract class FileStore implements IFileStore
                         getCanonicalPath(getPath()));
     }
 
-    private String getCanonicalPath(final File file)
+    public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
-        if (hostOrNull != null)
+        final String errorMessage =
+                tryCheckDirectoryFullyAccessible(RemotePathMover.DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
+        if (errorMessage != null)
         {
-            return file.getPath();
+            throw new ConfigurationFailureException(errorMessage);
         }
-        try
-        {
-            return file.getCanonicalPath() + File.separator;
-        } catch (final IOException e)
-        {
-            throw EnvironmentFailureException.fromTemplate(e,
-                    "Cannot determine canonical form of path '%s'", file.getPath());
-        }
+        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), new HighwaterMarkWatcher(
+                fileWithHighwaterMark.getHighwaterMark())).check();
     }
 
     //
@@ -176,7 +192,7 @@ public abstract class FileStore implements IFileStore
         final EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(hostOrNull, that.hostOrNull);
         equalsBuilder.append(kind, that.kind);
-        equalsBuilder.append(path, that.path);
+        equalsBuilder.append(fileWithHighwaterMark, that.fileWithHighwaterMark);
         return equalsBuilder.isEquals();
     }
 
@@ -186,7 +202,7 @@ public abstract class FileStore implements IFileStore
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(hostOrNull);
         builder.append(kind);
-        builder.append(path);
+        builder.append(fileWithHighwaterMark);
         return builder.toHashCode();
     }
 
