@@ -16,24 +16,16 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
-
-import ch.systemsx.cisd.lims.base.ExternalData;
-
 /**
- * Interface of a renderer of a directory.
- * 
+ * Interface of a factory of renderers.
+ *
  * @author Franz-Josef Elmer
  */
-public interface IDirectoryRenderer extends IWriterInjector
+public interface IRendererFactory
 {
-    public void printHeader(ExternalData dataSet);
+    public String getContentType();
 
-    public void printLinkToParentDirectory(String relativePath);
-
-    public void printDirectory(String name, String relativePath);
-
-    public void printFile(String name, String relativePath, long size);
-
-    public void printFooter();
-
+    public IDirectoryRenderer createDirectoryRenderer(RenderingContext context);
+    
+    public IErrorRenderer createErrorRenderer();
 }

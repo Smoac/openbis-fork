@@ -114,6 +114,7 @@ public class DatasetDownloadServlet extends HttpServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
+        IRendererFactory rendererFactory = new HTMLRendererFactory();
         try
         {
             String requestURI = URLDecoder.decode(request.getRequestURI(), "UTF-8");
@@ -152,17 +153,17 @@ public class DatasetDownloadServlet extends HttpServlet
                 }
                 File rootDir = createDataSetRootDirectory(dataSet);
                 RenderingContext context = new RenderingContext(rootDir, requestURI, pathInfo);
-                renderPage(response, dataSet, context);
+                renderPage(rendererFactory, response, dataSet, context);
             }
 
         } catch (Exception e)
         {
-            printError(request, response, e);
+            printError(rendererFactory, request, response, e);
         }
     }
 
-    private void printError(final HttpServletRequest request, final HttpServletResponse response,
-            Exception exception) throws IOException
+    private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
+            final HttpServletResponse response, Exception exception) throws IOException
     {
         if (exception instanceof UserFailureException == false)
         {
@@ -179,16 +180,17 @@ public class DatasetDownloadServlet extends HttpServlet
         }
         String message = exception.getMessage();
         String errorText = StringUtils.isBlank(message) ? exception.toString() : message;
+        IErrorRenderer errorRenderer = rendererFactory.createErrorRenderer();
+        response.setContentType(rendererFactory.getContentType());
         PrintWriter writer = response.getWriter();
-        writer.println("<html><body><h1>Error</h1>");
-        writer.println(errorText);
-        writer.println("</body></html>");
+        errorRenderer.setWriter(writer);
+        errorRenderer.printErrorMessage(errorText);
         writer.flush();
         writer.close();
     }
 
-    private void renderPage(HttpServletResponse response, ExternalData dataSet,
-            RenderingContext renderingContext) throws IOException
+    private void renderPage(IRendererFactory rendererFactory, HttpServletResponse response,
+            ExternalData dataSet, RenderingContext renderingContext) throws IOException
     {
         File file = renderingContext.getFile();
         if (file.exists() == false)
@@ -197,23 +199,24 @@ public class DatasetDownloadServlet extends HttpServlet
         }
         if (file.isDirectory())
         {
-            createPage(response, dataSet, renderingContext, file);
+            createPage(rendererFactory, response, dataSet, renderingContext, file);
         } else
         {
             deliverFile(response, dataSet, file);
         }
     }
 
-    private void createPage(HttpServletResponse response, ExternalData dataSet,
-            RenderingContext renderingContext, File file) throws IOException
+    private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
+            ExternalData dataSet, RenderingContext renderingContext, File file) throws IOException
     {
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("For data set '" + dataSet.getCode() + "' show directory "
                     + file.getAbsolutePath());
         }
-        IDirectoryRenderer directoryRenderer = new HTMLDirectoryRenderer(renderingContext);
-        response.setContentType(directoryRenderer.getContentType());
+        IDirectoryRenderer directoryRenderer =
+                rendererFactory.createDirectoryRenderer(renderingContext);
+        response.setContentType(rendererFactory.getContentType());
         PrintWriter writer = null;
         try
         {

@@ -165,10 +165,10 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(
-                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> \n"
-                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/%2B+s+%25+%21+%23+%40\'>+ s % ! # @</td><td></td></tr>\n"
-                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/read+me+%40home.txt\'>read me @home.txt</td><td>12 bytes</td></tr>\n"
-                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>\n"
+                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> " + OSUtilities.LINE_SEPARATOR
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/%2B+s+%25+%21+%23+%40\'>+ s % ! # @</td><td></td></tr>" + OSUtilities.LINE_SEPARATOR
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/read+me+%40home.txt\'>read me @home.txt</td><td>12 bytes</td></tr>" + OSUtilities.LINE_SEPARATOR
+                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>" + OSUtilities.LINE_SEPARATOR
                         + "", writer.toString());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
@@ -189,6 +189,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
+                    one(response).setContentType("text/html");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
                 }
@@ -227,6 +228,7 @@ public class DatasetDownloadServletTest
                     String codeAndPath = externalData.getCode();
                     will(returnValue(REQUEST_URI_PREFIX + codeAndPath));
 
+                    one(response).setContentType("text/html");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
                 }
@@ -257,9 +259,9 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(
-                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> <tr><td class=\'td_hd\'>Folder:</td><td>+ s % ! # @</td></tr>\n"
-                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/\'>..</td><td></td></tr>\n"
-                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>\n",
+                "<html><head><title> Data Set Download Service: GROUP-G/PROJECT-P/EPERIMENT-E/SAMPLE-S/1234-1</title><style type=\'text/css\'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><div class=\'wrapper\'><h1>Data Set Download Service</h1><div class=\'div_hd\'>Information about data set</div><table><tr><td class=\'td_hd\'>Group:</td><td>GROUP-G</td></tr><tr><td class=\'td_hd\'>Project:</td><td>PROJECT-P</td></tr><tr><td class=\'td_hd\'>Experiment:</td><td>EPERIMENT-E</td></tr><tr><td class=\'td_hd\'>Sample:</td><td>SAMPLE-S</td></tr><tr><td class=\'td_hd\'>Data Set Code:</td><td>1234-1</td></tr></table> <div class=\'div_hd\'>Files</div><table> <tr><td class=\'td_hd\'>Folder:</td><td>+ s % ! # @</td></tr>" + OSUtilities.LINE_SEPARATOR
+                        + "<tr><td class=\'td_file\'><a href=\'/download/1234-1/\'>..</td><td></td></tr>" + OSUtilities.LINE_SEPARATOR
+                        + "</table> </div> <div class=\'footer\'>Copyright &copy; 2008 ETHZ - <a href=\'http://www.cisd.systemsx.ethz.ch/\'>CISD</a> </div> </body></html>" + OSUtilities.LINE_SEPARATOR,
                 writer.toString());
         assertEquals(LOG_INFO + "For data set '1234-1' show directory <wd>/data set #123/"
                 + EXAMPLE_DATA_SET_SUB_FOLDER_NAME, getNormalizedLogContent());
@@ -317,6 +319,7 @@ public class DatasetDownloadServletTest
                     one(request).getQueryString();
                     will(returnValue("queryString"));
 
+                    one(response).setContentType("text/html");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
                 }
@@ -377,7 +380,8 @@ public class DatasetDownloadServletTest
 
                     one(request).getQueryString();
                     will(returnValue("query"));
-
+                    
+                    one(response).setContentType("text/html");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
                 }

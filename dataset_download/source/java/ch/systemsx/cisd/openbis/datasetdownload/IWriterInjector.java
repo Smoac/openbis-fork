@@ -16,24 +16,18 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
-
-import ch.systemsx.cisd.lims.base.ExternalData;
+import java.io.PrintWriter;
 
 /**
- * Interface of a renderer of a directory.
- * 
+ * Interface of objects which allows injection of a {@link PrintWriter}.
+ *
  * @author Franz-Josef Elmer
  */
-public interface IDirectoryRenderer extends IWriterInjector
+public interface IWriterInjector
 {
-    public void printHeader(ExternalData dataSet);
-
-    public void printLinkToParentDirectory(String relativePath);
-
-    public void printDirectory(String name, String relativePath);
-
-    public void printFile(String name, String relativePath, long size);
-
-    public void printFooter();
+    /**
+     * Sets the writer.
+     */
+    public void setWriter(PrintWriter writer);
 
 }

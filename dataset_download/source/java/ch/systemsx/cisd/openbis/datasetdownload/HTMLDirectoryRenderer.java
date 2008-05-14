@@ -96,11 +96,6 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         this.writer = writer;
     }
 
-    public String getContentType()
-    {
-        return "text/html";
-    }
-
     public void printHeader(final ExternalData dataSet)
     {
         final String datasetCode = dataSet.getCode();

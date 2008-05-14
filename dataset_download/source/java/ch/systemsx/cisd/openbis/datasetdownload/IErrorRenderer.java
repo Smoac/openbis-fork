@@ -16,24 +16,16 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
-
-import ch.systemsx.cisd.lims.base.ExternalData;
-
 /**
- * Interface of a renderer of a directory.
- * 
+ *  Interface for a renderer of an error messages. 
+ *
  * @author Franz-Josef Elmer
  */
-public interface IDirectoryRenderer extends IWriterInjector
+public interface IErrorRenderer extends IWriterInjector
 {
-    public void printHeader(ExternalData dataSet);
-
-    public void printLinkToParentDirectory(String relativePath);
-
-    public void printDirectory(String name, String relativePath);
-
-    public void printFile(String name, String relativePath, long size);
-
-    public void printFooter();
-
+    /**
+     * Prints the error message set by
+     * {@link IWriterInjector#setWriter(java.io.PrintWriter)}.
+     */
+    public void printErrorMessage(String errorMessage);
 }
