@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
 import java.io.IOException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.HighwaterMarkWatcher.HighwaterMarkState;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
+import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
  * An <code>ISelfTestable</code> implementation based on {@link HighwaterMarkWatcher}.

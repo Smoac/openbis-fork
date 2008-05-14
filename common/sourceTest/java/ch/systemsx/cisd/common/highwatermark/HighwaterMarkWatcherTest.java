@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.highwatermark;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -32,9 +32,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.utilities.HighwaterMarkWatcher.HighwaterMarkState;
-import ch.systemsx.cisd.common.utilities.HighwaterMarkWatcher.IFreeSpaceProvider;
 
 /**
  * Test cases for the {@link HighwaterMarkWatcher}.

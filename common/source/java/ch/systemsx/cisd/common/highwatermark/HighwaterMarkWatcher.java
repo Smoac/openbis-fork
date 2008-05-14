@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A high water mark watcher.
@@ -97,7 +98,7 @@ public final class HighwaterMarkWatcher implements Runnable
     public final static boolean isBelow(final HighwaterMarkState highwaterMarkState)
     {
         assert highwaterMarkState != null : "Unspecified WatermarkState";
-        return highwaterMarkState.freeSpace < highwaterMarkState.highwaterMark;
+        return highwaterMarkState.freeSpace < highwaterMarkState.getHighwaterMark();
     }
 
     /**
@@ -153,7 +154,8 @@ public final class HighwaterMarkWatcher implements Runnable
     {
         assert file != null : "Unspecified file";
         final long freeSpaceInKb = freeSpaceProvider.freeSpaceKb(file);
-        return new HighwaterMarkState(file, highwaterMarkInKb, freeSpaceInKb);
+        return new HighwaterMarkState(new FileWithHighwaterMark(file, highwaterMarkInKb),
+                freeSpaceInKb);
     }
 
     /**
@@ -188,7 +190,7 @@ public final class HighwaterMarkWatcher implements Runnable
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Amount of available space on '%s' is: %s.",
-                        FileUtilities.getCanonicalPath(state.path),
+                        state.fileWithHighwaterMark.getCanonicalPath(),
                         displayKilobyteValue(state.freeSpace)));
             }
         } catch (final IOException ex)
@@ -219,22 +221,19 @@ public final class HighwaterMarkWatcher implements Runnable
 
     public final static class HighwaterMarkState
     {
-        private final File path;
+        private final FileWithHighwaterMark fileWithHighwaterMark;
 
         private final long freeSpace;
 
-        private final long highwaterMark;
-
-        HighwaterMarkState(final File path, final long highwaterMark, final long freeSpace)
+        HighwaterMarkState(final FileWithHighwaterMark fileWithHighwaterMark, final long freeSpace)
         {
-            this.path = path;
-            this.highwaterMark = highwaterMark;
+            this.fileWithHighwaterMark = fileWithHighwaterMark;
             this.freeSpace = freeSpace;
         }
 
         public final File getPath()
         {
-            return path;
+            return fileWithHighwaterMark.getFile();
         }
 
         /** Returns the free space (in <i>kilobytes</i>). */
@@ -246,7 +245,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /** Returns the high water mark (in <i>kilobytes</i>). */
         public final long getHighwaterMark()
         {
-            return highwaterMark;
+            return fileWithHighwaterMark.getHighwaterMark();
         }
 
     }
@@ -275,7 +274,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /** Returns the canonical path. */
         public final String getPath()
         {
-            return FileUtilities.getCanonicalPath(highwaterMarkState.path);
+            return highwaterMarkState.fileWithHighwaterMark.getCanonicalPath();
         }
 
         public final long getFreeSpace()
@@ -285,7 +284,7 @@ public final class HighwaterMarkWatcher implements Runnable
 
         public final long getHighwaterMark()
         {
-            return highwaterMarkState.highwaterMark;
+            return highwaterMarkState.fileWithHighwaterMark.getHighwaterMark();
         }
     }
 
@@ -339,7 +338,7 @@ public final class HighwaterMarkWatcher implements Runnable
      * 
      * @author Christian Ribeaud
      */
-    static interface IFreeSpaceProvider
+    public static interface IFreeSpaceProvider
     {
 
         /**
