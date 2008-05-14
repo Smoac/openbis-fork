@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2008-05-13, Christian Ribeaud: this factory should return IFileStore and not the concrete
+// TODO 2008-05-13, Christian Ribeaud: This factory should return IFileStore and not the concrete
 // class FileStore.
 public final class FileStoreFactory
 {
@@ -38,18 +39,40 @@ public final class FileStoreFactory
         // This class can not be instantiated.
     }
 
-    /** use when file store is on a local host */
-    public static final FileStore createLocal(final File path, final String kind,
+    /**
+     * use when file store is on a local host.
+     */
+    public static final FileStore createLocal(final FileWithHighwaterMark path, final String kind,
             final IFileSysOperationsFactory factory)
     {
         return new FileStoreLocal(path, kind, factory);
     }
 
-    /** use when file store is on a remote share mounted on local host */
-    public static final FileStore createRemoteShare(final File path, final String kind,
+    /**
+     * use when file store is on a local host.
+     */
+    public static final FileStore createLocal(final File readyToMoveDir, final String string,
             final IFileSysOperationsFactory factory)
     {
+        return createLocal(new FileWithHighwaterMark(readyToMoveDir), string, factory);
+    }
+
+    /** use when file store is on a remote share mounted on local host */
+    public static final FileStore createRemoteShare(final FileWithHighwaterMark path,
+            final String kind, final IFileSysOperationsFactory factory)
+    {
         return new FileStoreRemoteMounted(path, kind, factory);
+    }
+
+    /**
+     * use when file store is on a remote share mounted on local host
+     * 
+     * @param factory
+     */
+    public static final FileStore createRemoteHost(final FileWithHighwaterMark path,
+            final String host, final String kind, final IFileSysOperationsFactory factory)
+    {
+        return new FileStoreRemote(path, host, kind, factory);
     }
 
     /**
@@ -60,27 +83,36 @@ public final class FileStoreFactory
     public static final FileStore createRemoteHost(final File path, final String host,
             final String kind, final IFileSysOperationsFactory factory)
     {
-        return new FileStoreRemote(path, host, kind, factory);
+        return createRemoteHost(new FileWithHighwaterMark(path), host, kind, factory);
     }
 
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      */
-    public final static FileStore createStore(final File directory, final String kind,
+    public final static FileStore createStore(final File path, final String kind,
+            final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
+    {
+        return createStore(new FileWithHighwaterMark(path), kind, hostOrNull, isRemote, factory);
+    }
+
+    /**
+     * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
+     */
+    public final static FileStore createStore(final FileWithHighwaterMark path, final String kind,
             final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
     {
         if (hostOrNull != null)
         {
             assert isRemote == true;
-            return createRemoteHost(directory, hostOrNull, kind, factory);
+            return createRemoteHost(path, hostOrNull, kind, factory);
         } else
         {
             if (isRemote)
             {
-                return createRemoteShare(directory, kind, factory);
+                return createRemoteShare(path, kind, factory);
             } else
             {
-                return createLocal(directory, kind, factory);
+                return createLocal(path, kind, factory);
             }
         }
     }

@@ -135,7 +135,8 @@ public class DataMover
     {
         final LocalProcessor localProcessor =
                 LocalProcessor.create(parameters, bufferDirs.getCopyCompleteDir(), bufferDirs
-                        .getReadyToMoveDir(), bufferDirs.getTempDir(), factory);
+                        .getReadyToMoveDir(), bufferDirs.getTempDir(), factory, bufferDirs
+                        .getBufferDirHighwaterMark());
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(),
                         FileUtilities.ACCEPT_ALL_FILTER, localProcessor);

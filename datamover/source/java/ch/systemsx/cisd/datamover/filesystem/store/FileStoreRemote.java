@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
-import java.io.File;
-
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -34,10 +33,15 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 // Methods with NOTE should be written.
 public class FileStoreRemote extends FileStore
 {
-    public FileStoreRemote(File path, String host, String kind, IFileSysOperationsFactory factory)
+    public FileStoreRemote(final FileWithHighwaterMark path, final String host, final String kind,
+            final IFileSysOperationsFactory factory)
     {
         super(path, host, true, kind, factory);
     }
+
+    //
+    // FileStore
+    //
 
     @Override
     public IExtendedFileStore tryAsExtended()
@@ -46,34 +50,34 @@ public class FileStoreRemote extends FileStore
     }
 
     @Override
-    public Status delete(StoreItem item)
+    public Status delete(final StoreItem item)
     {
         // NOTE: implement this
         return Status.OK;
     }
 
     @Override
-    public boolean exists(StoreItem item)
+    public boolean exists(final StoreItem item)
     {
-        return factory.getCopier(false).existsRemotely(path, hostOrNull);
+        return factory.getCopier(false).existsRemotely(getPath(), hostOrNull);
     }
 
     @Override
-    public IStoreCopier getCopier(FileStore destinationDirectory)
+    public IStoreCopier getCopier(final FileStore destinationDirectory)
     {
-        boolean requiresDeletion = false;
+        final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
     @Override
-    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         // NOTE: implement this
         return 0;
     }
 
     @Override
-    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
+    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
     {
         // NOTE: implement this
         return 0;
@@ -89,18 +93,18 @@ public class FileStoreRemote extends FileStore
     @Override
     public String toString()
     {
-        String pathStr = path.getPath();
+        final String pathStr = getPath().getPath();
         return "[remote fs]" + hostOrNull + ":" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(StoreItem item)
+    public String getLocationDescription(final StoreItem item)
     {
         return hostOrNull + ":" + getChildFile(item).getPath();
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         // NOTE: implement this
         return null;

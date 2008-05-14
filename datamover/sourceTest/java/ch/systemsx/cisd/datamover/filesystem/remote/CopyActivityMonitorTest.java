@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -169,8 +170,10 @@ public class CopyActivityMonitorTest
     private IFileStore asFileStore(File directory, final ILastChangedChecker checker,
             IFileSysOperationsFactory factory)
     {
-        final FileStoreLocal localImpl = new FileStoreLocal(directory, "input-test", factory);
-        return new FileStore(directory, null, false, "input-test", factory)
+        final FileWithHighwaterMark fileWithHighwaterMark = new FileWithHighwaterMark(directory);
+        final FileStoreLocal localImpl =
+                new FileStoreLocal(fileWithHighwaterMark, "input-test", factory);
+        return new FileStore(fileWithHighwaterMark, null, false, "input-test", factory)
             {
                 @Override
                 public Status delete(StoreItem item)

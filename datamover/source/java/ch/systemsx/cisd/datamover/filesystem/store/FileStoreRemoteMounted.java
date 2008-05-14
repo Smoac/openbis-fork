@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
-import java.io.File;
-
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -33,11 +32,16 @@ public class FileStoreRemoteMounted extends FileStore
 {
     private final FileStoreLocal localImpl;
 
-    public FileStoreRemoteMounted(File file, String desription, IFileSysOperationsFactory factory)
+    public FileStoreRemoteMounted(final FileWithHighwaterMark file, final String desription,
+            final IFileSysOperationsFactory factory)
     {
         super(file, null, true, desription, factory);
         this.localImpl = new FileStoreLocal(file, desription, factory);
     }
+
+    //
+    // FileStore
+    //
 
     @Override
     public IExtendedFileStore tryAsExtended()
@@ -46,45 +50,45 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public IStoreCopier getCopier(FileStore destinationDirectory)
+    public IStoreCopier getCopier(final FileStore destinationDirectory)
     {
-        boolean requiresDeletion = false;
+        final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
     @Override
     public String toString()
     {
-        String pathStr = path.getPath();
+        final String pathStr = getPath().getPath();
         return "[mounted remote fs]" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(StoreItem item)
+    public String getLocationDescription(final StoreItem item)
     {
         return localImpl.getLocationDescription(item);
     }
 
     @Override
-    public Status delete(StoreItem item)
+    public Status delete(final StoreItem item)
     {
         return localImpl.delete(item);
     }
 
     @Override
-    public boolean exists(StoreItem item)
+    public boolean exists(final StoreItem item)
     {
         return localImpl.exists(item);
     }
 
     @Override
-    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return localImpl.lastChanged(item, stopWhenFindYounger);
     }
 
     @Override
-    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
+    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
     {
         return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
@@ -96,7 +100,7 @@ public class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         return localImpl.tryListSortByLastModified(loggerOrNull);
     }

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -75,25 +76,31 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     // destination as soon as they appear there.
     private final File tempDir;
 
-    private final File extraCopyDirOrNull;
+    private final FileWithHighwaterMark extraCopyDirOrNull;
+
+    private final long bufferDirWatermark;
 
     private LocalProcessor(final Parameters parameters, final File inputDir, final File outputDir,
-            final File tempDir, final IFileSysOperationsFactory factory)
+            final File tempDir, final IFileSysOperationsFactory factory,
+            final long bufferDirHighwaterMark)
     {
         this.parameters = parameters;
         this.inputDir = inputDir;
         this.outputDir = outputDir;
         this.tempDir = tempDir;
+        this.bufferDirWatermark = bufferDirHighwaterMark;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = factory.getImmutableCopier();
         this.mover = factory.getMover();
     }
 
     public static final LocalProcessor create(final Parameters parameters, final File inputDir,
-            final File outputDir, final File bufferDir, final IFileSysOperationsFactory factory)
+            final File outputDir, final File tempDir, final IFileSysOperationsFactory factory,
+            final long bufferDirHighwaterMark)
     {
         final LocalProcessor handlerAndRecoverable =
-                new LocalProcessor(parameters, inputDir, outputDir, bufferDir, factory);
+                new LocalProcessor(parameters, inputDir, outputDir, tempDir, factory,
+                        bufferDirHighwaterMark);
         return handlerAndRecoverable;
     }
 
@@ -148,7 +155,9 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                 // errors.
                 if (extraCopyDirOrNull != null)
                 {
-                    mover.tryMove(file, extraCopyDirOrNull);
+                    // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark
+                    // here.
+                    mover.tryMove(file, extraCopyDirOrNull.getFile());
                 }
             }
         }
@@ -207,7 +216,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private EFileManipResult doManualIntervention(final File resource)
     {
-        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
+        // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark here.
+        final File manualInterventionDir = parameters.tryGetManualInterventionDir().getFile();
         if (manualInterventionDir == null)
         {
             return EFileManipResult.CONTINUE;
@@ -299,7 +309,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         if (extraTmpCopy != null)
         {
             assert extraCopyDirOrNull != null;
-            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
+            // TODO 2008-05-14, Christian Ribeaud: We should work with the high water mark here.
+            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull.getFile());
             if (extraCopy == null)
             {
                 notificationLog.error(String.format(

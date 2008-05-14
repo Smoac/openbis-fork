@@ -112,7 +112,7 @@ public class ParametersTest
     {
         final String localTempDir = "test_it_tmp";
         final Parameters parameters = parse("--buffer-dir", localTempDir);
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getPath());
+        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
     }
 
     @Test
@@ -240,7 +240,7 @@ public class ParametersTest
                         "--outgoing-dir", remoteDataDir);
         assertEquals(createIncomingStore(localDataDir, null, parameters),
                 getIncomingStore(parameters));
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getPath());
+        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
         assertEquals(createOutgoingStore(remoteDataDir, null, parameters),
                 getOutgoingStore(parameters));
     }
@@ -272,9 +272,9 @@ public class ParametersTest
         IFileStore outgoingStore = getOutgoingStore(parameters);
 
         assertEquals(incomingStoreExpected, incomingStore);
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getPath());
+        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
         assertEquals(outgoingStoreExpected, outgoingStore);
-        assertEquals(extraCopyDir, parameters.tryGetExtraCopyDir().getPath());
+        assertEquals(extraCopyDir, parameters.tryGetExtraCopyDir().getFile().getPath());
         assertEquals(1000 * checkIntervall, parameters.getCheckIntervalMillis());
         assertEquals(1000 * quietPeriod, parameters.getQuietPeriodMillis());
         assertTrue(incomingStore.isRemote());

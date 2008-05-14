@@ -29,10 +29,12 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.ExampleMode;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.LongOptionHandler;
+import org.kohsuke.args4j.spi.OptionHandler;
 import org.kohsuke.args4j.spi.Setter;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
@@ -194,30 +196,30 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
-    @Option(longName = "incoming-dir", metaVar = "DIR", usage = "The directory where the data producer writes to.")
+    @Option(longName = PropertyNames.INCOMING_DIR, metaVar = "DIR", usage = "The directory where the data producer writes to.")
     private File incomingDirectory = null;
 
     /**
      * The directory for local files and directories manipulations.
      */
-    @Option(longName = "buffer-dir", metaVar = "DIR", usage = "The local directory to "
-            + "store the paths to be transfered temporarily.")
-    private File bufferDirectory = null;
+    @Option(longName = PropertyNames.BUFFER_DIR, metaVar = "DIR", usage = "The local directory to "
+            + "store the paths to be transfered temporarily.", handler = FileWithHighwaterMarkHandler.class)
+    private FileWithHighwaterMark bufferDirectory = null;
 
     /**
      * The directory to move files and directories to that have been quiet in the incoming directory
      * for long enough and that need manual intervention. Note that this directory needs to be on
      * the same file system than {@link #bufferDirectory}.
      */
-    @Option(longName = "manual-intervention-dir", metaVar = "DIR", usage = "The local directory to "
-            + "store paths that need manual intervention.")
-    private File manualInterventionDirectoryOrNull = null;
+    @Option(longName = PropertyNames.MANUAL_INTERVENTION_DIR, metaVar = "DIR", usage = "The local directory to "
+            + "store paths that need manual intervention.", handler = FileWithHighwaterMarkHandler.class)
+    private FileWithHighwaterMark manualInterventionDirectoryOrNull = null;
 
     /**
      * The directory on the remote side to move the paths to from the buffer directory.
      */
-    @Option(longName = "outgoing-dir", metaVar = "DIR", usage = "The remote directory to move the data to.")
-    private File outgoingDirectory = null;
+    @Option(longName = PropertyNames.OUTGOING_DIR, metaVar = "DIR", usage = "The remote directory to move the data to.", handler = FileWithHighwaterMarkHandler.class)
+    private FileWithHighwaterMark outgoingDirectory = null;
 
     /**
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
@@ -230,9 +232,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The local directory where we create additional copy of the incoming data (if and only if the
      * directory is specified)
      */
-    @Option(longName = "extra-copy-dir", metaVar = "DIR", usage = "The local directory where we create additional "
-            + "copy of the incoming data.")
-    private File extraCopyDirectory = null;
+    @Option(longName = PropertyNames.EXTRA_COPY_DIR, metaVar = "DIR", usage = "The local directory where we create additional "
+            + "copy of the incoming data.", handler = FileWithHighwaterMarkHandler.class)
+    private FileWithHighwaterMark extraCopyDirectory = null;
 
     /**
      * The regular expression to use for cleansing on the incoming directory before moving it to the
@@ -264,7 +266,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     private final CmdLineParser parser = new CmdLineParser(this);
 
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
-    void printHelp(boolean exit)
+    void printHelp(final boolean exit)
     {
         parser.printHelp("Datamover", "<required options> [option [...]]", "", ExampleMode.ALL);
         if (exit)
@@ -274,7 +276,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
-    void printVersion(boolean exit)
+    void printVersion(final boolean exit)
     {
         System.err
                 .println("Datamover version " + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
@@ -286,7 +288,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
 
     @Option(longName = "test-notify", skipForExample = true, usage = "Tests the notify log (i.e. that an email is "
             + "sent out).")
-    void sendTestNotification(boolean exit)
+    void sendTestNotification(final boolean exit)
     {
         notificationLog
                 .info("This is a test notification given due to specifying the --test-notify option.");
@@ -294,24 +296,6 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         {
             System.exit(0);
         }
-    }
-
-    /**
-     * A class which converts <code>long</code> options given in seconds to milli-seconds.
-     */
-    public static class MillisecondConversionOptionHandler extends LongOptionHandler
-    {
-        public MillisecondConversionOptionHandler(Option option, Setter<? super Long> setter)
-        {
-            super(option, setter);
-        }
-
-        @Override
-        public void set(long value) throws CmdLineException
-        {
-            setter.addValue(value * 1000);
-        }
-
     }
 
     static final String INCOMING_KIND_DESC = "incoming";
@@ -322,12 +306,12 @@ public class Parameters implements ITimingParameters, IFileSysParameters
 
     static final String OUTGOING_KIND_DESC = "outgoing";
 
-    Parameters(String[] args)
+    Parameters(final String[] args)
     {
         this(args, SystemExit.SYSTEM_EXIT);
     }
 
-    Parameters(String[] args, IExitHandler systemExitHandler)
+    Parameters(final String[] args, final IExitHandler systemExitHandler)
     {
         initParametersFromProperties();
         try
@@ -335,22 +319,22 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             parser.parseArgument(args);
             if (incomingDirectory == null)
             {
-                throw new ConfigurationFailureException("No 'incoming-dir' defined.");
+                throw createConfigurationFailureException(PropertyNames.INCOMING_DIR);
             }
             if (bufferDirectory == null)
             {
-                throw new ConfigurationFailureException("No 'buffer-dir' defined.");
+                throw createConfigurationFailureException(PropertyNames.BUFFER_DIR);
             }
             if (outgoingDirectory == null)
             {
-                throw new ConfigurationFailureException("No 'outgoing-dir' defined.");
+                throw createConfigurationFailureException(PropertyNames.OUTGOING_DIR);
             }
             if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
             {
                 throw new ConfigurationFailureException(
                         "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
             }
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             outputException(ex);
             systemExitHandler.exit(1);
@@ -359,7 +343,13 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private void outputException(Exception ex)
+    private final static ConfigurationFailureException createConfigurationFailureException(
+            final String propertyKey)
+    {
+        return ConfigurationFailureException.fromTemplate("No '%s' defined.", propertyKey);
+    }
+
+    private void outputException(final Exception ex)
     {
         if (ex instanceof HighLevelException || ex instanceof CmdLineException)
         {
@@ -418,28 +408,36 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote",
                         Boolean.toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
         prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "").trim();
-        if (serviceProperties.getProperty("incoming-dir") != null)
+        if (serviceProperties.getProperty(PropertyNames.INCOMING_DIR) != null)
         {
-            incomingDirectory = new File(serviceProperties.getProperty("incoming-dir").trim());
+            incomingDirectory =
+                    new File(serviceProperties.getProperty(PropertyNames.INCOMING_DIR).trim());
         }
         incomingHost = serviceProperties.getProperty("incoming-host");
-        if (serviceProperties.getProperty("buffer-dir") != null)
+        if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
-            bufferDirectory = new File(serviceProperties.getProperty("buffer-dir").trim());
+            bufferDirectory =
+                    FileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.BUFFER_DIR);
         }
-        if (serviceProperties.getProperty("manual-intervention-dir") != null)
+        if (serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_DIR) != null)
         {
             manualInterventionDirectoryOrNull =
-                    new File(serviceProperties.getProperty("manual-intervention-dir").trim());
+                    FileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.MANUAL_INTERVENTION_DIR);
         }
-        if (serviceProperties.getProperty("outgoing-dir") != null)
+        if (serviceProperties.getProperty(PropertyNames.OUTGOING_DIR) != null)
         {
-            outgoingDirectory = new File(serviceProperties.getProperty("outgoing-dir").trim());
+            outgoingDirectory =
+                    FileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.OUTGOING_DIR);
         }
         outgoingHost = serviceProperties.getProperty("outgoing-host");
-        if (serviceProperties.getProperty("extra-copy-dir") != null)
+        if (serviceProperties.getProperty(PropertyNames.EXTRA_COPY_DIR) != null)
         {
-            extraCopyDirectory = new File(serviceProperties.getProperty("extra-copy-dir").trim());
+            extraCopyDirectory =
+                    FileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.EXTRA_COPY_DIR);
         }
         if (serviceProperties.getProperty("cleansing-regex") != null)
         {
@@ -472,7 +470,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             {
                 IOUtils.closeQuietly(is);
             }
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             final String msg =
                     "Could not load the service properties from resource '"
@@ -574,7 +572,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The store to monitor for new files and directories to move to the buffer.
      */
-    public FileStore getIncomingStore(IFileSysOperationsFactory factory)
+    public final FileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
                 treatIncomingAsRemote, factory);
@@ -583,7 +581,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The directory for local files and directories manipulations.
      */
-    public File getBufferDirectoryPath()
+    public final FileWithHighwaterMark getBufferDirectoryPath()
     {
         return bufferDirectory;
     }
@@ -591,9 +589,10 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The store to copy the data to.
      */
-    public FileStore getOutgoingStore(IFileSysOperationsFactory factory)
+    public final FileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
-        return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost, true, factory);
+        return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost,
+                true, factory);
     }
 
     /**
@@ -601,7 +600,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         directory for long enough and that need manual intervention. Note that this directory
      *         needs to be on the same file system as {@link #getBufferDirectoryPath}.
      */
-    public File tryGetManualInterventionDir()
+    public FileWithHighwaterMark tryGetManualInterventionDir()
     {
         return manualInterventionDirectoryOrNull;
     }
@@ -611,7 +610,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         <code>null</code> if it is not specified. Note that this directory needs to be on
      *         the same file system as {@link #getBufferDirectoryPath}.
      */
-    public File tryGetExtraCopyDir()
+    public FileWithHighwaterMark tryGetExtraCopyDir()
     {
         return extraCopyDirectory;
     }
@@ -629,7 +628,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The regular expression to use for deciding whether a path in the incoming directory
      *         requires manual intervention or <code>null</code>, if no regular expression for
-     *         manual interventionpaths has been provided.
+     *         manual intervention paths has been provided.
      */
     public Pattern tryGetManualInterventionRegex()
     {
@@ -661,9 +660,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             operationLog.info(String.format("Is incoming directory remote: %b.",
                     treatIncomingAsRemote));
             operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory
-                    .getAbsolutePath()));
+                    .getCanonicalPath()));
             operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory
-                    .getAbsolutePath()));
+                    .getCanonicalPath()));
             if (null != outgoingHost)
             {
                 operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
@@ -671,12 +670,12 @@ public class Parameters implements ITimingParameters, IFileSysParameters
             if (null != tryGetManualInterventionDir())
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.",
-                        tryGetManualInterventionDir().getAbsolutePath()));
+                        tryGetManualInterventionDir().getCanonicalPath()));
             }
             if (null != extraCopyDirectory)
             {
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
-                        .getAbsolutePath()));
+                        .getCanonicalPath()));
             }
             operationLog.info(String.format("Check intervall (external): %d s.",
                     getCheckIntervalMillis() / 1000));
@@ -706,4 +705,66 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
+    //
+    // Helper classes
+    //
+
+    /**
+     * A class which converts <code>long</code> options given in seconds to milli-seconds.
+     */
+    public final static class MillisecondConversionOptionHandler extends LongOptionHandler
+    {
+        public MillisecondConversionOptionHandler(final Option option,
+                final Setter<? super Long> setter)
+        {
+            super(option, setter);
+        }
+
+        //
+        // LongOptionHandler
+        //
+
+        @Override
+        public final void set(final long value) throws CmdLineException
+        {
+            setter.addValue(value * 1000);
+        }
+
+    }
+
+    public final static class FileWithHighwaterMarkHandler extends
+            OptionHandler<FileWithHighwaterMark>
+    {
+
+        public FileWithHighwaterMarkHandler(final Option option,
+                final Setter<FileWithHighwaterMark> setter)
+        {
+            super(option, setter);
+        }
+
+        //
+        // OptionHandler
+        //
+
+        @Override
+        public final String getDefaultMetaVariable()
+        {
+            return "FILE";
+        }
+
+        @Override
+        public final int parseArguments(final org.kohsuke.args4j.spi.Parameters params)
+                throws CmdLineException
+        {
+            set(params.getParameter(0));
+            return 1;
+        }
+
+        @Override
+        public final void set(final String value) throws CmdLineException
+        {
+            setter.addValue(new FileWithHighwaterMark(new File(value)));
+        }
+
+    }
 }

@@ -19,9 +19,14 @@ package ch.systemsx.cisd.datamover.utils;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 
 /**
  * Paths to different local buffer directories.
+ * <p>
+ * All these local directories are sub-directories of <code>bufferDir</code> specified in the
+ * constructor.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
@@ -35,47 +40,59 @@ public class LocalBufferDirs
 
     private final File tempDir;
 
-    public LocalBufferDirs(File bufferDir, String copyInProgressDirName,
-            String copyCompleteDirName, String readyToMoveDirName, String tempDirName)
+    private final long bufferDirHighwaterMark;
+
+    public LocalBufferDirs(final FileWithHighwaterMark bufferDir,
+            final String copyInProgressDirName, final String copyCompleteDirName,
+            final String readyToMoveDirName, final String tempDirName)
     {
-        this.copyInProgressDir = ensureDirectoryExists(bufferDir, copyInProgressDirName);
-        this.copyCompleteDir = ensureDirectoryExists(bufferDir, copyCompleteDirName);
-        this.readyToMoveDir = ensureDirectoryExists(bufferDir, readyToMoveDirName);
-        this.tempDir = ensureDirectoryExists(bufferDir, tempDirName);
+        final File bufferDirPath = bufferDir.getFile();
+        this.bufferDirHighwaterMark = bufferDir.getHighwaterMark();
+        this.copyInProgressDir = ensureDirectoryExists(bufferDirPath, copyInProgressDirName);
+        this.copyCompleteDir = ensureDirectoryExists(bufferDirPath, copyCompleteDirName);
+        this.readyToMoveDir = ensureDirectoryExists(bufferDirPath, readyToMoveDirName);
+        this.tempDir = ensureDirectoryExists(bufferDirPath, tempDirName);
+    }
+
+    private final static File ensureDirectoryExists(final File dir, final String newDirName)
+    {
+        final File dataDir = new File(dir, newDirName);
+        if (dataDir.exists() == false)
+        {
+            if (dataDir.mkdir() == false)
+            {
+                throw new EnvironmentFailureException("Could not create directory " + dataDir);
+            }
+        }
+        return dataDir;
     }
 
     /** here data are copied from incoming */
-    public File getCopyInProgressDir()
+    public final File getCopyInProgressDir()
     {
         return copyInProgressDir;
     }
 
     /** here data are moved when copy is complete */
-    public File getCopyCompleteDir()
+    public final File getCopyCompleteDir()
     {
         return copyCompleteDir;
     }
 
     /** from here data are moved to outgoing directory */
-    public File getReadyToMoveDir()
+    public final File getReadyToMoveDir()
     {
         return readyToMoveDir;
     }
 
     /** auxiliary directory used if we need to make a copy of incoming data */
-    public File getTempDir()
+    public final File getTempDir()
     {
         return tempDir;
     }
 
-    private static File ensureDirectoryExists(File dir, String newDirName)
+    public final long getBufferDirHighwaterMark()
     {
-        File dataDir = new File(dir, newDirName);
-        if (dataDir.exists() == false)
-        {
-            if (dataDir.mkdir() == false)
-                throw new EnvironmentFailureException("Could not create directory " + dataDir);
-        }
-        return dataDir;
+        return bufferDirHighwaterMark;
     }
 }

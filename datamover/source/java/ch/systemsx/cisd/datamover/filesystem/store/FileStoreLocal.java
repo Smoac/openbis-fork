@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -49,33 +50,38 @@ public class FileStoreLocal extends ExtendedFileStore
 
     private final IPathRemover remover;
 
-    public FileStoreLocal(File file, String desription, IFileSysOperationsFactory factory)
+    public FileStoreLocal(final FileWithHighwaterMark file, final String desription,
+            final IFileSysOperationsFactory factory)
     {
         super(file, null, false, desription, factory);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
     }
 
+    //
+    // ExtendedFileStore
+    //
+
     @Override
-    public Status delete(StoreItem item)
+    public Status delete(final StoreItem item)
     {
         return remover.remove(getChildFile(item));
     }
 
     @Override
-    public boolean exists(StoreItem item)
+    public boolean exists(final StoreItem item)
     {
         return getChildFile(item).exists();
     }
 
     @Override
-    public long lastChanged(StoreItem item, long stopWhenFindYounger)
+    public long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
     }
 
     @Override
-    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
+    public long lastChangedRelative(final StoreItem item, final long stopWhenFindYoungerRelative)
     {
         return FileUtilities.lastChangedRelative(getChildFile(item), true,
                 stopWhenFindYoungerRelative);
@@ -95,7 +101,7 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public IStoreCopier getCopier(FileStore destinationDirectory)
+    public IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
         final IStoreCopier simpleCopier =
@@ -117,14 +123,14 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public boolean createNewFile(StoreItem item)
+    public boolean createNewFile(final StoreItem item)
     {
         try
         {
-            File itemFile = getChildFile(item);
+            final File itemFile = getChildFile(item);
             itemFile.createNewFile();
             return itemFile.exists(); // success also when file existed before
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             ex.printStackTrace();
             return false;
@@ -132,7 +138,8 @@ public class FileStoreLocal extends ExtendedFileStore
     }
 
     @Override
-    public File tryMoveLocal(StoreItem sourceItem, File destinationDir, String newFilePrefix)
+    public File tryMoveLocal(final StoreItem sourceItem, final File destinationDir,
+            final String newFilePrefix)
     {
         return mover.tryMove(getChildFile(sourceItem), destinationDir, newFilePrefix);
     }
@@ -140,20 +147,20 @@ public class FileStoreLocal extends ExtendedFileStore
     @Override
     public String toString()
     {
-        String pathStr = super.path.getPath();
+        final String pathStr = getPath().getPath();
         return "[local fs]" + pathStr;
     }
 
     @Override
-    public String getLocationDescription(StoreItem item)
+    public String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
     }
 
     @Override
-    public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
+    public StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
-        File[] files = FileUtilities.tryListFiles(path, loggerOrNull);
+        final File[] files = FileUtilities.tryListFiles(getPath(), loggerOrNull);
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
@@ -164,9 +171,9 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    private static StoreItem[] asItems(File[] files)
+    private static StoreItem[] asItems(final File[] files)
     {
-        StoreItem[] items = new StoreItem[files.length];
+        final StoreItem[] items = new StoreItem[files.length];
         for (int i = 0; i < items.length; i++)
         {
             items[i] = new StoreItem(files[i].getName());
@@ -181,10 +188,10 @@ public class FileStoreLocal extends ExtendedFileStore
      *         <var>destinationDirectory</var> resides requires deleting an existing file before it
      *         can be overwritten.
      */
-    protected boolean requiresDeletionBeforeCreation(IFileStore destinationDirectory,
+    protected boolean requiresDeletionBeforeCreation(final IFileStore destinationDirectory,
             final IStoreCopier simpleCopier)
     {
-        StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
+        final StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
         simpleCopier.copy(item);
         boolean requiresDeletion;
@@ -193,7 +200,7 @@ public class FileStoreLocal extends ExtendedFileStore
             // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
             requiresDeletion = Status.OK.equals(simpleCopier.copy(item)) == false;
             logCopierOverwriteState(destinationDirectory, requiresDeletion);
-        } catch (Exception e)
+        } catch (final Exception e)
         {
             logFIleSystemNeedsOverwrite(destinationDirectory);
             requiresDeletion = true;
@@ -206,7 +213,7 @@ public class FileStoreLocal extends ExtendedFileStore
         return requiresDeletion;
     }
 
-    private static void logFIleSystemNeedsOverwrite(IFileStore destinationDirectory)
+    private static void logFIleSystemNeedsOverwrite(final IFileStore destinationDirectory)
     {
         if (machineLog.isInfoEnabled())
         {
@@ -216,8 +223,8 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    private static void logCopierOverwriteState(IFileStore destinationDirectory,
-            boolean requiresDeletion)
+    private static void logCopierOverwriteState(final IFileStore destinationDirectory,
+            final boolean requiresDeletion)
     {
         if (machineLog.isInfoEnabled())
         {

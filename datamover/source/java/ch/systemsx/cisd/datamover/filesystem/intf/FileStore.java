@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 public abstract class FileStore implements IFileStore
 {
-    protected final File path;
+    private final FileWithHighwaterMark path;
 
     protected final String hostOrNull;
 
@@ -46,8 +47,8 @@ public abstract class FileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(final File path, final String hostOrNull, final boolean remote,
-            final String kind, final IFileSysOperationsFactory factory)
+    protected FileStore(final FileWithHighwaterMark path, final String hostOrNull,
+            final boolean remote, final String kind, final IFileSysOperationsFactory factory)
     {
         assert path != null;
         assert kind != null;
@@ -60,7 +61,7 @@ public abstract class FileStore implements IFileStore
 
     protected final File getPath()
     {
-        return path;
+        return path.getFile();
     }
 
     protected final String tryGetHost()
@@ -75,7 +76,7 @@ public abstract class FileStore implements IFileStore
 
     protected final File getChildFile(final StoreItem item)
     {
-        return new File(path, item.getName());
+        return new File(getPath(), item.getName());
     }
 
     // does not take into account the fact, that the destination cannot be overwritten and must be
@@ -86,7 +87,7 @@ public abstract class FileStore implements IFileStore
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
         final String srcHostOrNull = hostOrNull;
         final String destHostOrNull = destinationDirectory.hostOrNull;
-        final File destPath = destinationDirectory.path;
+        final File destPath = destinationDirectory.getPath();
         return new IStoreCopier()
             {
                 public Status copy(final StoreItem item)
@@ -136,7 +137,8 @@ public abstract class FileStore implements IFileStore
         }
         final FileStore potentialChild = (FileStore) child;
         return StringUtils.equals(hostOrNull, potentialChild.hostOrNull)
-                && getCanonicalPath(potentialChild.path).startsWith(getCanonicalPath(path));
+                && getCanonicalPath(potentialChild.getPath()).startsWith(
+                        getCanonicalPath(getPath()));
     }
 
     private String getCanonicalPath(final File file)
@@ -250,13 +252,21 @@ public abstract class FileStore implements IFileStore
 
     public abstract IExtendedFileStore tryAsExtended();
 
+    //
+    // Helper classes
+    //
+
     public static abstract class ExtendedFileStore extends FileStore implements IExtendedFileStore
     {
-        protected ExtendedFileStore(final File path, final String hostOrNull, final boolean remote,
-                final String kind, final IFileSysOperationsFactory factory)
+        protected ExtendedFileStore(final FileWithHighwaterMark path, final String hostOrNull,
+                final boolean remote, final String kind, final IFileSysOperationsFactory factory)
         {
             super(path, hostOrNull, remote, kind, factory);
         }
+
+        //
+        // IExtendedFileStore
+        //
 
         public abstract boolean createNewFile(StoreItem item);
 
