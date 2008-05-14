@@ -78,6 +78,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private final FileWithHighwaterMark extraCopyDirOrNull;
 
+    @SuppressWarnings("unused")
     private final long bufferDirWatermark;
 
     private LocalProcessor(final Parameters parameters, final File inputDir, final File outputDir,
