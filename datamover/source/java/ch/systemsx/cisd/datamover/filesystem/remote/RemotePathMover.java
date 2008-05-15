@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
@@ -291,9 +292,13 @@ public final class RemotePathMover implements IStoreHandler
     // IStoreHandler
     //
 
-    public final boolean mayHandle(StoreItem item)
+    public final boolean mayHandle(final StoreItem item)
     {
-        return true;
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                destinationDirectory.getHighwaterMarkWatcher();
+        assert highwaterMarkWatcher.getPath() != null : "Remote path not set";
+        highwaterMarkWatcher.run();
+        return highwaterMarkWatcher.isBelow() == false;
     }
 
     public final void handle(final StoreItem item)
@@ -304,11 +309,8 @@ public final class RemotePathMover implements IStoreHandler
             // finish the job.
             if (operationLog.isInfoEnabled())
             {
-                operationLog
-                        .info(String
-                                .format(
-                                        "Detected recovery situation: '%s' has been interrupted in deletion phase, finishing up.",
-                                        getSrcPath(item)));
+                operationLog.info(String.format("Detected recovery situation: '%s' has been "
+                        + "interrupted in deletion phase, finishing up.", getSrcPath(item)));
             }
             removeAndMark(item);
             return;
@@ -371,7 +373,6 @@ public final class RemotePathMover implements IStoreHandler
                 // here.
             }
         } while (true);
-
         notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
                 getSrcPath(item), destinationDirectory));
     }

@@ -54,13 +54,22 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    public FileStoreLocal(final FileWithHighwaterMark file, final String desription,
-            final IFileSysOperationsFactory factory)
+    public FileStoreLocal(final FileWithHighwaterMark highwaterMarkWatcher,
+            final String desription, final IFileSysOperationsFactory factory)
     {
-        super(file, null, false, desription, factory);
+        super(highwaterMarkWatcher, null, false, desription, factory);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
-        this.highwaterMarkWatcher = new HighwaterMarkWatcher(file.getHighwaterMark());
+        this.highwaterMarkWatcher = createHighwaterMarkWatcher(highwaterMarkWatcher);
+    }
+
+    private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
+            final FileWithHighwaterMark fileWithHighwaterMark)
+    {
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                new HighwaterMarkWatcher(fileWithHighwaterMark.getHighwaterMark());
+        highwaterMarkWatcher.setPath(fileWithHighwaterMark.getFile());
+        return highwaterMarkWatcher;
     }
 
     public final Status delete(final StoreItem item)

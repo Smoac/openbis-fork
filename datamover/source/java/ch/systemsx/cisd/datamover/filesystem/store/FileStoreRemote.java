@@ -48,16 +48,17 @@ public class FileStoreRemote extends FileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    public FileStoreRemote(final FileWithHighwaterMark path, final String host, final String kind,
-            final IFileSysOperationsFactory factory)
+    public FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+            final String kind, final IFileSysOperationsFactory factory)
     {
-        super(path, host, true, kind, factory);
+        super(fileWithHighwaterMark, host, true, kind, factory);
         assert host != null : "Unspecified host";
-        highwaterMarkWatcher = createHighwaterMarkWatcher(path.getHighwaterMark(), host);
+        highwaterMarkWatcher = createHighwaterMarkWatcher(fileWithHighwaterMark, host, factory);
     }
 
-    private final HighwaterMarkWatcher createHighwaterMarkWatcher(final long highwaterMark,
-            final String host)
+    private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
+            final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+            final IFileSysOperationsFactory factory)
     {
         final File sshExecutable = factory.tryFindSshExecutable();
         final IFreeSpaceProvider freeSpaceProvider;
@@ -70,7 +71,11 @@ public class FileStoreRemote extends FileStore
                     + "('ssh' executable not found).");
             freeSpaceProvider = AlwaysAboveFreeSpaceProvider.INSTANCE;
         }
-        return new HighwaterMarkWatcher(highwaterMark, freeSpaceProvider);
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                new HighwaterMarkWatcher(fileWithHighwaterMark.getHighwaterMark(),
+                        freeSpaceProvider);
+        highwaterMarkWatcher.setPath(fileWithHighwaterMark.getFile());
+        return highwaterMarkWatcher;
     }
 
     //

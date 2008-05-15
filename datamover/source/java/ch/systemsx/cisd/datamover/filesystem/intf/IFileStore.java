@@ -41,15 +41,15 @@ public interface IFileStore extends ISelfTestable
      * share and mounted via NFS or CIFS.
      */
     public boolean isRemote();
-    
+
     /**
      * Returns the location of the specified store item.
      */
     public StoreItemLocation getStoreItemLocation(StoreItem item);
 
     /**
-     * Returns <code>true</code> if this file store is the parent directory of
-     * the specified file store.
+     * Returns <code>true</code> if this file store is the parent directory of the specified file
+     * store.
      */
     public boolean isParentDirectory(IFileStore child);
 
@@ -120,12 +120,15 @@ public interface IFileStore extends ISelfTestable
     /**
      * Returns this file store as an extended file store if possible.
      * 
-     *  @return <code>null</code> if this file store can not be returned as an extended file store.
+     * @return <code>null</code> if this file store can not be returned as an extended file store.
      */
     public IExtendedFileStore tryAsExtended();
 
     /**
      * Returns the <code>HighwaterMarkWatcher</code> for this implementation.
+     * <p>
+     * Note that we expect the path to be set in the returned <code>HighwaterMarkWatcher</code>.
+     * </p>
      */
     public HighwaterMarkWatcher getHighwaterMarkWatcher();
 }

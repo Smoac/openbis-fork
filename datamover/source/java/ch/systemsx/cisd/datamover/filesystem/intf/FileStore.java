@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 
@@ -49,12 +50,12 @@ public abstract class FileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(final FileWithHighwaterMark path, final String hostOrNull,
+    protected FileStore(final FileWithHighwaterMark fileWithHighwaterMark, final String hostOrNull,
             final boolean remote, final String kind, final IFileSysOperationsFactory factory)
     {
-        assert path != null;
+        assert fileWithHighwaterMark != null;
         assert kind != null;
-        this.fileWithHighwaterMark = path;
+        this.fileWithHighwaterMark = fileWithHighwaterMark;
         this.kind = kind;
         this.hostOrNull = hostOrNull;
         this.remote = remote;
@@ -79,7 +80,8 @@ public abstract class FileStore implements IFileStore
 
     public final StoreItemLocation getStoreItemLocation(StoreItem item)
     {
-        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item).getAbsolutePath());
+        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item)
+                .getAbsolutePath());
     }
 
     protected final File getPath()
@@ -172,7 +174,8 @@ public abstract class FileStore implements IFileStore
         {
             throw new ConfigurationFailureException(errorMessage);
         }
-        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), getHighwaterMarkWatcher())
+        final HighwaterMarkWatcher highwaterMarkWatcher = getHighwaterMarkWatcher();
+        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), highwaterMarkWatcher)
                 .check();
     }
 
