@@ -31,6 +31,10 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public final class PathPrefixPrepender
 {
+    private final File absolutePathsDirectoryOrNull;
+
+    private final File relativePathsDirectoryOrNull;
+
     private final String prefixForAbsolutePaths;
 
     private final String prefixForRelativePaths;
@@ -42,15 +46,21 @@ public final class PathPrefixPrepender
     public PathPrefixPrepender(final String prefixForAbsolutePathsOrNull,
             final String prefixForRelativePathsOrNull) throws ConfigurationFailureException
     {
-        this.prefixForAbsolutePaths = StringUtils.defaultString(prefixForAbsolutePathsOrNull);
-        assertValid(this.prefixForAbsolutePaths, "absolute");
-        this.prefixForRelativePaths = preparePrefix(prefixForRelativePathsOrNull);
-        assertValid(this.prefixForRelativePaths, "relative");
+        this.prefixForAbsolutePaths = defaultString(prefixForAbsolutePathsOrNull);
+        absolutePathsDirectoryOrNull = tryCreateFile(this.prefixForAbsolutePaths, "absolute");
+        this.prefixForRelativePaths = preparePrefix(defaultString(prefixForRelativePathsOrNull));
+        relativePathsDirectoryOrNull = tryCreateFile(this.prefixForRelativePaths, "relative");
+    }
+
+    private final static String defaultString(final String path)
+    {
+        return StringUtils.defaultString(path).trim();
     }
 
     private final static String preparePrefix(final String pathPrefix)
     {
-        if (StringUtils.isEmpty(pathPrefix))
+        assert pathPrefix != null : "Unspecified path prefix.";
+        if (pathPrefix.length() == 0)
         {
             return "";
         }
@@ -61,25 +71,44 @@ public final class PathPrefixPrepender
         return pathPrefix + "/";
     }
 
-    private void assertValid(final String prefix, final String type)
+    private final static File tryCreateFile(final String prefix, final String type)
             throws ConfigurationFailureException
     {
-        if (prefix.length() != 0)
+        assert prefix != null : "Unspecified path prefix.";
+        if (prefix.length() > 0)
         {
             final File file = new File(prefix);
-            if (file.exists() == false)
+            final String response =
+                    FileUtilities.checkDirectoryFullyAccessible(file, type + " prefix path");
+            if (response != null)
             {
-                throw ConfigurationFailureException.fromTemplate(
-                        "Invalid prefix for %s paths: given file '%s' does not exist.", type, file
-                                .getAbsolutePath());
+                throw new ConfigurationFailureException(response);
             }
+            return file;
         }
+        return null;
+    }
+
+    /**
+     * Returns the directory for absolute paths.
+     */
+    public final File tryGetDirectoryForAbsolutePaths()
+    {
+        return absolutePathsDirectoryOrNull;
+    }
+
+    /**
+     * Returns the directory for relative paths.
+     */
+    public final File tryGetDirectoryForRelativePaths()
+    {
+        return relativePathsDirectoryOrNull;
     }
 
     /**
      * Returns the specified path with the appropriated prefix.
      */
-    public String addPrefixTo(final String path)
+    public final String addPrefixTo(final String path)
     {
         assert path != null : "Undefined path.";
         return (FilenameUtils.getPrefixLength(path) > 0 ? prefixForAbsolutePaths
