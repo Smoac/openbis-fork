@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
+import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 
 /**
  * An <code>IScannedStore</code> implementation which is based on {@link IFileStore}.
@@ -33,12 +33,12 @@ final class FileScannedStore implements IScannedStore
 {
     private final IFileStore fileStore;
 
-    private final QuietPeriodFileFilter quietPeriodFileFilter;
+    private final IStoreItemFilter storeItemFilter;
 
-    FileScannedStore(final IFileStore fileStore, final QuietPeriodFileFilter quietPeriodFileFilter)
+    FileScannedStore(final IFileStore fileStore, final IStoreItemFilter storeItemFilter)
     {
         this.fileStore = fileStore;
-        this.quietPeriodFileFilter = quietPeriodFileFilter;
+        this.storeItemFilter = storeItemFilter;
     }
 
     private final StoreItem[] filterReadyToProcess(final StoreItem[] items)
@@ -60,7 +60,7 @@ final class FileScannedStore implements IScannedStore
         {
             return false;
         }
-        return quietPeriodFileFilter.accept(item);
+        return storeItemFilter.accept(item);
     }
 
     //

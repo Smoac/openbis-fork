@@ -41,6 +41,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
+import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 
@@ -72,7 +73,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final String prefixForIncoming;
 
-    private final QuietPeriodFileFilter quietPeriodFileFilter;
+    private final IStoreItemFilter storeItemFilter;
 
     public static final DataMoverProcess createMovingProcess(Parameters parameters,
             IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
@@ -99,7 +100,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
-        this.quietPeriodFileFilter = new QuietPeriodFileFilter(incomingStore, parameters, timeProvider);
+        this.storeItemFilter = new QuietPeriodFileFilter(incomingStore, parameters, timeProvider);
     }
     
     public TimerTask createRecoverableTimerTask()
@@ -112,7 +113,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(new FileScannedStore(incomingStore,
-                        quietPeriodFileFilter), bufferDirs.getCopyInProgressDir(), pathHandler,
+                        storeItemFilter), bufferDirs.getCopyInProgressDir(), pathHandler,
                         NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }

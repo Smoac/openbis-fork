@@ -45,7 +45,7 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  * 
  * @author Bernd Rinn
  */
-public class QuietPeriodFileFilter
+public class QuietPeriodFileFilter implements IStoreItemFilter
 {
     // @Private
     static final int CLEANUP_TO_QUIET_PERIOD_RATIO = 10;
