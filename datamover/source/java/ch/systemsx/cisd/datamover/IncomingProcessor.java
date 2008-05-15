@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover;
 
+import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+
 import java.io.File;
 import java.util.TimerTask;
 
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
@@ -71,16 +74,24 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final QuietPeriodFileFilter quietPeriodFileFilter;
 
-    public static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
+    public static final DataMoverProcess createMovingProcess(Parameters parameters,
+            IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
     {
-        final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
+        return createMovingProcess(parameters, factory, SYSTEM_TIME_PROVIDER, bufferDirs);
+    }
+
+    static final DataMoverProcess createMovingProcess(Parameters parameters,
+            IFileSysOperationsFactory factory, ITimeProvider timeProvider,
+            LocalBufferDirs bufferDirs)
+    {
+        final IncomingProcessor processor =
+                new IncomingProcessor(parameters, factory, timeProvider, bufferDirs);
 
         return processor.create();
     }
 
-    private IncomingProcessor(final Parameters parameters, final IFileSysOperationsFactory factory,
-            final LocalBufferDirs bufferDirs)
+    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory,
+            ITimeProvider timeProvider, LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
@@ -88,9 +99,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
-        this.quietPeriodFileFilter = new QuietPeriodFileFilter(incomingStore, parameters);
+        this.quietPeriodFileFilter = new QuietPeriodFileFilter(incomingStore, parameters, timeProvider);
     }
-
+    
     public TimerTask createRecoverableTimerTask()
     {
         return new IncomingProcessorRecoveryTask();

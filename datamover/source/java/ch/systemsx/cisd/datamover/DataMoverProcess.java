@@ -49,6 +49,12 @@ public class DataMoverProcess implements ITerminable
         this.timer = new Timer(taskName);
         this.terminable = TimerHelper.asTerminable(timer);
     }
+    
+    // @Private
+    TimerTask getDataMoverTimerTask()
+    {
+        return dataMoverTimerTask;
+    }
 
     /**
      * Starts up the process with a the given <var>delay</var> and <var>period</var> in milli
