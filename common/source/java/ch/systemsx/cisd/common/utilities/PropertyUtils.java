@@ -68,6 +68,30 @@ public final class PropertyUtils
     }
 
     /**
+     * Searches for the property with the specified key in this property list.
+     * 
+     * @return <code>null</code> or the value trimmed if found.
+     */
+    public final static String getProperty(final Properties properties, final String propertyKey)
+    {
+        assertParameters(properties, propertyKey);
+        final String property = properties.getProperty(propertyKey);
+        return property == null ? null : property.trim();
+    }
+
+    /**
+     * Searches for the property with the specified key in this property list.
+     * 
+     * @return <code>null</code> or the value trimmed if found.
+     */
+    public final static String getProperty(final Properties properties, final String propertyKey,
+            final String defaultValue)
+    {
+        final String property = getProperty(properties, propertyKey);
+        return property == null ? defaultValue : property;
+    }
+
+    /**
      * Looks up given mandatory <var>propertyKey</var> in given <var>properties</var>.
      * 
      * @throws ConfigurationFailureException if given <var>propertyKey</var> could not be found or
@@ -77,14 +101,13 @@ public final class PropertyUtils
             final String propertyKey) throws ConfigurationFailureException
     {
         assertParameters(properties, propertyKey);
-        String property = properties.getProperty(propertyKey);
+        String property = getProperty(properties, propertyKey);
         if (property == null)
         {
             throw ConfigurationFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT,
                     propertyKey, CollectionUtils.abbreviate(Collections.list(properties
                             .propertyNames()), 10));
         }
-        property = property.trim();
         if (property.length() == 0)
         {
             throw ConfigurationFailureException.fromTemplate(EMPTY_STRING_FORMAT, propertyKey);
@@ -101,7 +124,7 @@ public final class PropertyUtils
             final long defaultValue, final ISimpleLogger loggerOrNull)
     {
         assertParameters(properties, propertyKey);
-        final String longOrNull = properties.getProperty(propertyKey);
+        final String longOrNull = getProperty(properties, propertyKey);
         if (longOrNull == null)
         {
             return defaultValue;
@@ -139,7 +162,7 @@ public final class PropertyUtils
     {
         assertParameters(properties, propertyKey);
         assert defaultValue > -1 : "Negative default value (< 0).";
-        final String longOrNull = properties.getProperty(propertyKey);
+        final String longOrNull = getProperty(properties, propertyKey);
         if (longOrNull == null)
         {
             return defaultValue;
@@ -176,7 +199,7 @@ public final class PropertyUtils
             final int defaultValue, final ISimpleLogger loggerOrNull)
     {
         assertParameters(properties, propertyKey);
-        final String intOrNull = properties.getProperty(propertyKey);
+        final String intOrNull = getProperty(properties, propertyKey);
         if (intOrNull == null)
         {
             return defaultValue;
@@ -214,7 +237,7 @@ public final class PropertyUtils
     {
         assertParameters(properties, propertyKey);
         assert defaultValue > -1 : "Negative default value (< 0).";
-        final String intOrNull = properties.getProperty(propertyKey);
+        final String intOrNull = getProperty(properties, propertyKey);
         if (intOrNull == null)
         {
             return defaultValue;
@@ -251,7 +274,7 @@ public final class PropertyUtils
             final boolean defaultValue, final ISimpleLogger loggerOrNull)
     {
         assertParameters(properties, propertyKey);
-        final String booleanOrNull = properties.getProperty(propertyKey);
+        final String booleanOrNull = getProperty(properties, propertyKey);
         if (booleanOrNull == null)
         {
             return defaultValue;
@@ -289,7 +312,7 @@ public final class PropertyUtils
             final char defaultValue, final ISimpleLogger loggerOrNull)
     {
         assertParameters(properties, propertyKey);
-        final String charOrNull = properties.getProperty(propertyKey);
+        final String charOrNull = getProperty(properties, propertyKey);
         if (charOrNull == null)
         {
             return defaultValue;
