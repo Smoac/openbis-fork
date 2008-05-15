@@ -16,42 +16,43 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.utilities.IPathHandler;
+import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
- * An <code>IPathHandler</code> implementation which collects the unhandled paths before
+ * An <code>IStoreHandler</code> implementation which collects the unhandled store items before
  * delegating the calls.
  * 
  * @author Christian Ribeaud
  */
-public final class PathHandlerInterceptor extends DirectoryScanningChangeListener implements
-        IPathHandler
+public final class StoreHandlerInterceptor extends DirectoryScanningChangeListener implements
+        IStoreHandler
 {
-    private final IPathHandler pathHandler;
+    private final IStoreHandler storeHandler;
 
-    public PathHandlerInterceptor(final IPathHandler pathHandler)
+    public StoreHandlerInterceptor(final IStoreHandler storeHandler)
     {
-        this.pathHandler = pathHandler;
+        super();
+        this.storeHandler = storeHandler;
     }
 
     //
-    // IPathHandler
+    // IStoreHandler
     //
 
-    public final void handle(final File path)
+    public final void handle(final StoreItem item)
     {
-        pathHandler.handle(path);
+        storeHandler.handle(item);
     }
 
-    public final boolean mayHandle(final File path)
+    public final boolean mayHandle(final StoreItem item)
     {
-        final boolean mayHandle = pathHandler.mayHandle(path);
+        final boolean mayHandle = storeHandler.mayHandle(item);
         if (mayHandle == false)
         {
-            unhandledItems.add(asStoreItem(path));
+            unhandledItems.add(item);
         }
         return mayHandle;
     }
+
 }

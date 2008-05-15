@@ -24,8 +24,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkEvent;
-import ch.systemsx.cisd.common.utilities.DirectoryScannedStore;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * A <code>ChangeListener</code> implementation that informs the encapsulated
@@ -38,14 +38,20 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
  */
 public abstract class DirectoryScanningChangeListener implements ChangeListener
 {
-    private static final File[] EMPTY_FILE_ARRAY = new File[0];
-
     private DirectoryScanningTimerTask directoryScanning;
 
-    protected final Set<File> unhandledPaths = new HashSet<File>();
+    protected final Set<StoreItem> unhandledItems = new HashSet<StoreItem>();
 
     protected DirectoryScanningChangeListener()
     {
+    }
+
+    /**
+     * Encapsulates given <var>path</var> in a <code>StoreItem</code> and returns it.
+     */
+    protected final StoreItem asStoreItem(final File path)
+    {
+        return StoreItem.asItem(path);
     }
 
     /**
@@ -68,9 +74,8 @@ public abstract class DirectoryScanningChangeListener implements ChangeListener
         final HighwaterMarkEvent event = (HighwaterMarkEvent) e;
         if (event.isBelow() == false)
         {
-            directoryScanning.removeFaultyPaths(DirectoryScannedStore.asItems(unhandledPaths
-                    .toArray(EMPTY_FILE_ARRAY)));
-            unhandledPaths.clear();
+            directoryScanning.removeFaultyPaths(unhandledItems.toArray(StoreItem.EMPTY_ARRAY));
+            unhandledItems.clear();
         }
     }
 

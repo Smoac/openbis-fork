@@ -438,7 +438,7 @@ public class DirectoryScanningTimerTaskTest
         List<String> faulty = CollectionIO.readList(getFaultyPathFile());
         assertEquals(1, faulty.size());
         final File file = new File(faulty.get(0));
-        directoryScanning.removeFaultyPaths(DirectoryScannedStore.asItem(file));
+        directoryScanning.removeFaultyPaths(StoreItem.asItem(file));
         faulty = CollectionIO.readList(getFaultyPathFile());
         // Faulty file is empty.
         assertEquals(0, faulty.size());

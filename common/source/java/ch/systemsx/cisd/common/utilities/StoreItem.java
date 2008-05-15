@@ -23,7 +23,7 @@ import java.io.File;
  * 
  * @author Tomasz Pylak
  */
-public class StoreItem
+public final class StoreItem
 {
     public static final StoreItem[] EMPTY_ARRAY = new StoreItem[0];
 
@@ -40,9 +40,41 @@ public class StoreItem
         return name;
     }
 
+    /**
+     * Translates given {@link StoreItem} into a {@link File}.
+     */
     public final static File asFile(final File parentDirectory, final StoreItem item)
     {
+        assert item != null : "Unspecified item";
+        assert parentDirectory != null : "Unspecified parent directory";
         return new File(parentDirectory, item.getName());
+    }
+
+    /**
+     * Translates given {@link File}s into {@link StoreItem}s.
+     * <p>
+     * Never returns <code>null</code> but could return an empty array.
+     * </p>
+     */
+    public final static StoreItem[] asItems(final File[] files)
+    {
+        assert files != null : "Unspecified files";
+        final int len = files.length;
+        final StoreItem[] items = new StoreItem[len];
+        for (int i = 0; i < len; i++)
+        {
+            items[i] = asItem(files[i]);
+        }
+        return items;
+    }
+
+    /**
+     * Translates given {@link File} into a {@link StoreItem}.
+     */
+    public final static StoreItem asItem(final File file)
+    {
+        assert file != null : "Unspecified file";
+        return new StoreItem(file.getName());
     }
 
     //
@@ -66,4 +98,5 @@ public class StoreItem
     {
         return name.hashCode();
     }
+
 }

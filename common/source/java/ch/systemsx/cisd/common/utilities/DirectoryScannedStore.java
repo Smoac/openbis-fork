@@ -38,21 +38,6 @@ public final class DirectoryScannedStore implements IScannedStore
         this.directory = directory;
     }
 
-    public final static StoreItem[] asItems(final File[] files)
-    {
-        final StoreItem[] items = new StoreItem[files.length];
-        for (int i = 0; i < items.length; i++)
-        {
-            items[i] = asItem(files[i]);
-        }
-        return items;
-    }
-
-    public final static StoreItem asItem(final File file)
-    {
-        return new StoreItem(file.getName());
-    }
-
     //
     // IScannedStore
     //
@@ -73,7 +58,7 @@ public final class DirectoryScannedStore implements IScannedStore
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
-            return asItems(files);
+            return StoreItem.asItems(files);
         } else
         {
             return null;
