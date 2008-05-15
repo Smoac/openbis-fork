@@ -55,11 +55,20 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public final class Parameters implements ITimingParameters, IFileSysParameters
 {
+    private static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
+    
+    @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script which checks whether incoming data is complete or not.")
+    private String dataCompletedScript;
+    
+    @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) data completed script will be stopped "
+            + "[default: " + DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT + "]", handler = MillisecondConversionOptionHandler.class)
+    private long dataCompletedScriptTimeout = toMillis(DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT);
 
     /**
      * The name of the <code>rsync</code> executable to use for copy operations.
@@ -374,6 +383,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private final void initParametersFromProperties()
     {
         final Properties serviceProperties = loadServiceProperties();
+        dataCompletedScript =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.DATA_COMPLETED_SCRIPT, dataCompletedScript);
+        dataCompletedScriptTimeout =
+                PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, dataCompletedScriptTimeout);
         rsyncExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.RSYNC_EXECUTABLE,
                         rsyncExecutable);
@@ -483,6 +498,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             operationLog.warn(msg, ex);
             throw new ConfigurationFailureException(msg, ex);
         }
+    }
+
+    public final String getDataCompletedScript()
+    {
+        return dataCompletedScript;
+    }
+
+    public final long getDataCompletedScriptTimeout()
+    {
+        return dataCompletedScriptTimeout;
     }
 
     /**

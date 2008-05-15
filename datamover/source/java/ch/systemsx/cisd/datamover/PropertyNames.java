@@ -32,6 +32,10 @@ public final class PropertyNames
     static final String CHECK_INTERVAL = "check-interval";
 
     static final String CHECK_INTERVAL_INTERNAL = "check-interval-internal";
+    
+    static final String DATA_COMPLETED_SCRIPT = "data-completed-script";
+    
+    static final String DATA_COMPLETED_SCRIPT_TIMEOUT = "data-completed-script-timeout";
 
     static final String CLEANSING_REGEX = "cleansing-regex";
 

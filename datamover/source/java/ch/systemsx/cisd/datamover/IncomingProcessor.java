@@ -41,9 +41,11 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
+import ch.systemsx.cisd.datamover.utils.DataCompletedFilter;
 import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
+import ch.systemsx.cisd.datamover.utils.StoreItemFilterBank;
 
 /**
  * @author Tomasz Pylak
@@ -100,7 +102,20 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.pathMover = factory.getMover();
         this.factory = factory;
         this.bufferDirs = bufferDirs;
-        this.storeItemFilter = new QuietPeriodFileFilter(incomingStore, parameters, timeProvider);
+        this.storeItemFilter = createFilter(timeProvider);
+    }
+
+    private IStoreItemFilter createFilter(ITimeProvider timeProvider)
+    {
+        StoreItemFilterBank filterBank = new StoreItemFilterBank();
+        filterBank.add(new QuietPeriodFileFilter(incomingStore, parameters, timeProvider));
+        String dataCompletedScript = parameters.getDataCompletedScript();
+        if (dataCompletedScript != null)
+        {
+            long timeout = parameters.getDataCompletedScriptTimeout();
+            filterBank.add(new DataCompletedFilter(incomingStore, dataCompletedScript, timeout));
+        }
+        return filterBank;
     }
     
     public TimerTask createRecoverableTimerTask()

@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
@@ -48,20 +49,22 @@ public class IncomingProcessorTest
     private static final String COPY_COMPLETE_DIR = "copy-complete";
     private static final String READY_TO_MOVE_DIR = "ready-to-move";
     private static final String TEMP_DIR = "temp";
+    private static final String EXAMPLE_SCRIPT = "example-script";
 
     private Mockery context;
     private IFileSysOperationsFactory fileSysOpertationFactory;
     private IPathMover mover;
     private IPathRemover remover;
-    private DataMoverProcess process;
     private File incomingDir;
     private IExitHandler exitHandler;
     private File copyInProgressDir;
     private File copyCompleteDir;
+    private File exampleScript;
 
     @BeforeMethod
     public void setUp()
     {
+        LogInitializer.init();
         context = new Mockery();
         fileSysOpertationFactory = context.mock(IFileSysOperationsFactory.class);
         mover = context.mock(IPathMover.class);
@@ -70,6 +73,8 @@ public class IncomingProcessorTest
         
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
+        exampleScript = new File(TEST_FOLDER, "example");
+        FileUtilities.writeToFile(exampleScript, "echo hello world");
         incomingDir = new File(TEST_FOLDER, INCOMING_DIR);
         incomingDir.mkdir();
         copyInProgressDir = new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR);
@@ -78,10 +83,65 @@ public class IncomingProcessorTest
         copyCompleteDir.mkdir();
         new File(TEST_FOLDER, READY_TO_MOVE_DIR).mkdir();
         new File(TEST_FOLDER, TEMP_DIR).mkdir();
+    }
+    
+    @AfterMethod
+    public void tearDown()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testHappyCaseWithoutDataCompletedScript() throws IOException
+    {
+        final File testDataFile = new File(incomingDir, "test-data.txt");
+        testDataFile.createNewFile();
+        context.checking(new Expectations()
+            {
+                {
+                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+                }
+            });
         
-        String[] parameterArguments = new String[]
-            { "--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1" };
-        Parameters parameters = new Parameters(parameterArguments, exitHandler);
+        DataMoverProcess process =
+                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1");
+        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        dataMoverTimerTask.run(); // 1. round finds a file to process
+        dataMoverTimerTask.run(); // 2. round finds that quiet period is over
+        
+        context.assertIsSatisfied();
+    }
+    
+    
+    @Test
+    public void testHappyCaseWithDataCompletedScript() throws IOException
+    {
+        final File testDataFile = new File(incomingDir, "test-data.txt");
+        testDataFile.createNewFile();
+        context.checking(new Expectations()
+        {
+            {
+                one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+            }
+        });
+        
+        DataMoverProcess process =
+                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
+                        "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
+        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        dataMoverTimerTask.run(); // 1. round finds a file to process
+        dataMoverTimerTask.run(); // 2. round finds that quiet period is over
+        
+        context.assertIsSatisfied();
+    }
+    
+    private DataMoverProcess createProcess(String... args)
+    {
+        Parameters parameters = new Parameters(args, exitHandler);
         LocalBufferDirs localBufferDirs =
                 new LocalBufferDirs(new FileWithHighwaterMark(TEST_FOLDER), COPY_IN_PROGRESS_DIR,
                         COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
@@ -95,36 +155,8 @@ public class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        process =
-                IncomingProcessor.createMovingProcess(parameters, fileSysOpertationFactory,
+        return IncomingProcessor.createMovingProcess(parameters, fileSysOpertationFactory,
                         new MockTimeProvider(), localBufferDirs);
-    }
-    
-    @AfterMethod
-    public void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testHappyCase() throws IOException
-    {
-        final File testDataFile = new File(incomingDir, "test-data.txt");
-        testDataFile.createNewFile();
-        context.checking(new Expectations()
-            {
-                {
-                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
-                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
-                }
-            });
         
-        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
-        dataMoverTimerTask.run(); // 1. round finds a file to process
-        dataMoverTimerTask.run(); // 2. round finds that quiet period is over
-        
-        context.assertIsSatisfied();
     }
 }
