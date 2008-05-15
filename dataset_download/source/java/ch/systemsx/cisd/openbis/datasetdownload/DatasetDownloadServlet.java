@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -56,11 +57,15 @@ import ch.systemsx.cisd.lims.base.LocatorType;
  */
 public class DatasetDownloadServlet extends HttpServlet
 {
+    private static final String TEXT_MODE_DISPLAY = "txt";
+
     static final String DATA_SET_KEY = "data-set";
 
     static final String DATASET_CODE_KEY = "dataSetCode";
 
     static final String SESSION_ID_KEY = "sessionID";
+
+    static final String DISPLAY_MODE_KEY = "mode";
 
     private static final long serialVersionUID = 1L;
 
@@ -110,34 +115,68 @@ public class DatasetDownloadServlet extends HttpServlet
         }
     }
 
+    // helper class to store parsed URL request
+    private static class RequestParams
+    {
+        private final String dataSetCode;
+
+        private final String pathInfo;
+
+        private final String sessionIdOrNull;
+
+        private final boolean isPlainTextMode;
+
+        private final String urlPrefixWithDataset;
+
+        public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
+                String urlPrefixWithDataset, boolean isPlainTextMode)
+        {
+            this.dataSetCode = dataSetCode;
+            this.pathInfo = pathInfo;
+            this.sessionIdOrNull = sessionIdOrNull;
+            this.urlPrefixWithDataset = urlPrefixWithDataset;
+            this.isPlainTextMode = isPlainTextMode;
+        }
+
+        public String getDataSetCode()
+        {
+            return dataSetCode;
+        }
+
+        public String getPathInfo()
+        {
+            return pathInfo;
+        }
+
+        public String tryGetSessionId()
+        {
+            return sessionIdOrNull;
+        }
+
+        public boolean isPlainTextMode()
+        {
+            return isPlainTextMode;
+        }
+
+        public String getURLPrefix()
+        {
+            return urlPrefixWithDataset;
+        }
+    }
+
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        IRendererFactory rendererFactory = new HTMLRendererFactory();
+        IRendererFactory rendererFactory = null;
         try
         {
-            String requestURI = URLDecoder.decode(request.getRequestURI(), "UTF-8");
-            String prefix = "/" + applicationContext.getApplicationName() + "/";
-            if (requestURI.startsWith(prefix) == false)
-            {
-                throw new EnvironmentFailureException("Request URI '" + requestURI
-                        + "' expected to start with '" + prefix + "'.");
-            }
-            String pathInfo = requestURI.substring(prefix.length());
-            int indexOfFirstSeparator = pathInfo.indexOf('/');
-            String dataSetCode;
-            if (indexOfFirstSeparator < 0)
-            {
-                dataSetCode = pathInfo;
-                pathInfo = "";
-            } else
-            {
-                dataSetCode = pathInfo.substring(0, indexOfFirstSeparator);
-                pathInfo = pathInfo.substring(indexOfFirstSeparator + 1);
-            }
+            RequestParams requestParams =
+                    parseRequestURL(request, applicationContext.getApplicationName());
+            rendererFactory = createRendererFactory(requestParams.isPlainTextMode());
 
-            obtainDataSetFromServer(dataSetCode, request);
+            obtainDataSetFromServer(requestParams.getDataSetCode(),
+                    requestParams.tryGetSessionId(), request);
 
             HttpSession session = request.getSession(false);
             if (session == null)
@@ -145,21 +184,78 @@ public class DatasetDownloadServlet extends HttpServlet
                 printSessionExpired(response);
             } else
             {
-
-                ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
-                if (dataSet == null)
-                {
-                    throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
-                }
-                File rootDir = createDataSetRootDirectory(dataSet);
-                RenderingContext context = new RenderingContext(rootDir, requestURI, pathInfo);
-                renderPage(rendererFactory, response, dataSet, context);
+                printResponse(response, rendererFactory, requestParams, session);
             }
-
         } catch (Exception e)
         {
+            if (rendererFactory == null)
+            {
+                rendererFactory = new PlainTextRendererFactory();
+            }
             printError(rendererFactory, request, response, e);
         }
+    }
+
+    private void printResponse(final HttpServletResponse response,
+            IRendererFactory rendererFactory, RequestParams requestParams, HttpSession session)
+            throws UnsupportedEncodingException, IOException
+    {
+        String dataSetCode = requestParams.getDataSetCode();
+        ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
+        if (dataSet == null)
+        {
+            throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
+        }
+        File rootDir = createDataSetRootDirectory(dataSet);
+        RenderingContext context =
+                new RenderingContext(rootDir, requestParams.getURLPrefix(), requestParams
+                        .getPathInfo());
+        renderPage(rendererFactory, response, dataSet, context);
+    }
+
+    private IRendererFactory createRendererFactory(boolean plainTextMode)
+    {
+        if (plainTextMode)
+        {
+            return new PlainTextRendererFactory();
+        } else
+        {
+            return new HTMLRendererFactory();
+        }
+    }
+
+    private static RequestParams parseRequestURL(HttpServletRequest request, String applicationName)
+            throws UnsupportedEncodingException
+    {
+        final String urlPrefix = "/" + applicationName + "/";
+        final String requestURI = URLDecoder.decode(request.getRequestURI(), "UTF-8");
+        if (requestURI.startsWith(urlPrefix) == false)
+        {
+            throw new EnvironmentFailureException("Request URI '" + requestURI
+                    + "' expected to start with '" + urlPrefix + "'.");
+        }
+        final String fullPathInfo = requestURI.substring(urlPrefix.length());
+        final int indexOfFirstSeparator = fullPathInfo.indexOf('/');
+        final String dataSetCode;
+        final String pathInfo;
+        if (indexOfFirstSeparator < 0)
+        {
+            dataSetCode = fullPathInfo;
+            pathInfo = "";
+        } else
+        {
+            dataSetCode = fullPathInfo.substring(0, indexOfFirstSeparator);
+            pathInfo = fullPathInfo.substring(indexOfFirstSeparator + 1);
+        }
+        final String urlPrefixWithDataset =
+                requestURI.substring(0, requestURI.length() - pathInfo.length());
+
+        final String sessionIDOrNull = request.getParameter(SESSION_ID_KEY);
+        final String displayMode = request.getParameter(DISPLAY_MODE_KEY);
+        final boolean isTextMode = (displayMode != null && displayMode.equals(TEXT_MODE_DISPLAY));
+
+        return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
+                isTextMode);
     }
 
     private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
@@ -286,13 +382,13 @@ public class DatasetDownloadServlet extends HttpServlet
         writer.close();
     }
 
-    private void obtainDataSetFromServer(String dataSetCode, final HttpServletRequest request)
+    private void obtainDataSetFromServer(String dataSetCode, String sessionIdOrNull,
+            final HttpServletRequest request)
     {
-        final String sessionID = request.getParameter(SESSION_ID_KEY);
-        if (sessionID != null)
+        if (sessionIdOrNull != null)
         {
             IDataSetService dataSetService = applicationContext.getDataSetService();
-            ExternalData dataSet = dataSetService.getDataSet(sessionID, dataSetCode);
+            ExternalData dataSet = dataSetService.getDataSet(sessionIdOrNull, dataSetCode);
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set '" + dataSetCode + "' obtained from openBIS server.");

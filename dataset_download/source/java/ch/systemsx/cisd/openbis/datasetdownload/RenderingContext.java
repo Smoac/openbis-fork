@@ -23,21 +23,24 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 final class RenderingContext
 {
     private final File rootDir;
+
     private final String relativePathOrNull;
+
     private File file;
-    private String urlPrefix;
+
+    private final String urlPrefix;
+
     private String relativeParentPath;
 
-    RenderingContext(File rootDir, String requestURI, String relativePathOrNull)
+    RenderingContext(File rootDir, String urlPrefix, String relativePathOrNull)
     {
         this.rootDir = rootDir;
         this.relativePathOrNull = relativePathOrNull;
-        file = rootDir;
-        urlPrefix = requestURI;
+        this.file = rootDir;
+        this.urlPrefix = urlPrefix;
         if (relativePathOrNull != null && relativePathOrNull.length() > 0)
         {
             file = new File(rootDir, relativePathOrNull);
-            urlPrefix = requestURI.substring(0, requestURI.length() - relativePathOrNull.length());
             relativeParentPath = FileUtilities.getRelativeFile(rootDir, file.getParentFile());
             if (relativeParentPath == null)
             {
@@ -70,5 +73,5 @@ final class RenderingContext
     {
         return relativeParentPath;
     }
-    
+
 }

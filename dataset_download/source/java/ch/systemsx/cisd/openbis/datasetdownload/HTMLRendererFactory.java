@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
+import java.io.PrintWriter;
+
 /**
- * Renderer factory for HTML.
+ * Factory for rendering file system view in HTML.
  *
  * @author Franz-Josef Elmer
  */
@@ -39,4 +41,21 @@ public class HTMLRendererFactory implements IRendererFactory
         return new HTMLErrorRenderer();
     }
 
+    private static class HTMLErrorRenderer implements IErrorRenderer
+    {
+        private PrintWriter writer;
+
+        public void setWriter(PrintWriter writer)
+        {
+            this.writer = writer;
+        }
+        
+        public void printErrorMessage(String errorMessage)
+        {
+            writer.println("<html><body><h1>Error</h1>");
+            writer.println(errorMessage);
+            writer.println("</body></html>");
+        }
+
+    }
 }
