@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
@@ -169,8 +168,8 @@ public abstract class FileStore implements IFileStore
         {
             throw new ConfigurationFailureException(errorMessage);
         }
-        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), new HighwaterMarkWatcher(
-                fileWithHighwaterMark.getHighwaterMark())).check();
+        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), getHighwaterMarkWatcher())
+                .check();
     }
 
     //

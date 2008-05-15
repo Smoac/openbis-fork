@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
@@ -102,4 +103,9 @@ public interface IFileStore extends ISelfTestable
     public String getLocationDescription(StoreItem item);
 
     public IExtendedFileStore tryAsExtended();
+
+    /**
+     * Returns the <code>HighwaterMarkWatcher</code> for this implementation.
+     */
+    public HighwaterMarkWatcher getHighwaterMarkWatcher();
 }

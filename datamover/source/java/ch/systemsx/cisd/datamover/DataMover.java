@@ -22,6 +22,7 @@ import java.util.Timer;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.PathHandlerInterceptor;
+import ch.systemsx.cisd.common.highwatermark.StoreHandlerInterceptor;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
@@ -133,7 +134,7 @@ public class DataMover
         return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs);
     }
 
-    private DataMoverProcess createLocalProcessor()
+    private final DataMoverProcess createLocalProcessor()
     {
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
@@ -150,7 +151,7 @@ public class DataMover
         return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
     }
 
-    private DataMoverProcess createOutgoingMovingProcess()
+    private final DataMoverProcess createOutgoingMovingProcess()
     {
         final FileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
@@ -158,10 +159,13 @@ public class DataMover
                 FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
         final IStoreHandler remoteStoreMover =
                 createRemotePathMover(readyToMoveStore, outgoingStore);
-
+        final StoreHandlerInterceptor storeHandlerInterceptor =
+                new StoreHandlerInterceptor(remoteStoreMover);
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(readyToMoveDir, FileUtilities.ACCEPT_ALL_FILTER,
-                        remoteStoreMover);
+                        storeHandlerInterceptor);
+        outgoingStore.getHighwaterMarkWatcher().addChangeListener(storeHandlerInterceptor);
+        storeHandlerInterceptor.setDirectoryScanning(outgoingMovingTask);
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 

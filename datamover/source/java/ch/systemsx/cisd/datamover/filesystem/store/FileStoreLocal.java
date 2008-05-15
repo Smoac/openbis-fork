@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.DirectoryScannedStore;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
@@ -53,12 +53,15 @@ public class FileStoreLocal extends ExtendedFileStore
 
     private final IPathRemover remover;
 
+    private final HighwaterMarkWatcher highwaterMarkWatcher;
+
     public FileStoreLocal(final FileWithHighwaterMark file, final String desription,
             final IFileSysOperationsFactory factory)
     {
         super(file, null, false, desription, factory);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
+        this.highwaterMarkWatcher = new HighwaterMarkWatcher(file.getHighwaterMark());
     }
 
     //
@@ -168,11 +171,16 @@ public class FileStoreLocal extends ExtendedFileStore
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
-            return DirectoryScannedStore.asItems(files);
+            return StoreItem.asItems(files);
         } else
         {
             return null;
         }
+    }
+
+    public final HighwaterMarkWatcher getHighwaterMarkWatcher()
+    {
+        return highwaterMarkWatcher;
     }
 
     // ------

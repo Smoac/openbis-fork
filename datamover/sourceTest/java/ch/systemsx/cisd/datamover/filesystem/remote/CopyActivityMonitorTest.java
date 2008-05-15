@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -227,6 +228,11 @@ public class CopyActivityMonitorTest
                 public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
                 {
                     return localImpl.tryListSortByLastModified(loggerOrNull);
+                }
+
+                public final HighwaterMarkWatcher getHighwaterMarkWatcher()
+                {
+                    return localImpl.getHighwaterMarkWatcher();
                 }
             };
     }

@@ -20,6 +20,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -117,5 +118,10 @@ public final class FileStoreRemoteMounted extends FileStore
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         localImpl.check();
+    }
+
+    public final HighwaterMarkWatcher getHighwaterMarkWatcher()
+    {
+        return localImpl.getHighwaterMarkWatcher();
     }
 }
