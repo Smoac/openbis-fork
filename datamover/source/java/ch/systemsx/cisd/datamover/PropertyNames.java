@@ -24,27 +24,55 @@ package ch.systemsx.cisd.datamover;
 public final class PropertyNames
 {
 
-    private PropertyNames()
-    {
-        // This class can not be instantiated.
-    }
-
     /**
      * The directory for local files and directories manipulations.
      */
     static final String BUFFER_DIR = "buffer-dir";
 
+    static final String CHECK_INTERVAL = "check-interval";
+
+    static final String CHECK_INTERVAL_INTERNAL = "check-interval-internal";
+
     /** The local directory where we create additional copy of the incoming data. */
     static final String EXTRA_COPY_DIR = "extra-copy-dir";
+
+    static final String FAILURE_INTERVAL = "failure-interval";
+
+    static final String HARD_LINK_EXECUTABLE = "hard-link-executable";
+
+    static final String INACTIVITY_PERIOD = "inactivity-period";
 
     /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
     static final String INCOMING_DIR = "incoming-dir";
 
+    static final String INCOMING_HOST = "incoming-host";
+
     /** The local directory to store paths that need manual intervention. */
     static final String MANUAL_INTERVENTION_DIR = "manual-intervention-dir";
 
+    static final String MAX_RETRIES = "max-retries";
+
     /** The remote directory to move the data to. */
     static final String OUTGOING_DIR = "outgoing-dir";
+
+    static final String PREFIX_FOR_INCOMING = "prefix-for-incoming";
+
+    static final String QUIET_PERIOD = "quiet-period";
+
+    static final String RSYNC_EXECUTABLE = "rsync-executable";
+
+    static final String RSYNC_OVERWRITE = "rsync-overwrite";
+
+    static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
+
+    static final String SSH_EXECUTABLE = "ssh-executable";
+
+    static final String TREAT_INCOMING_AS_REMOTE = "treat-incoming-as-remote";
+
+    private PropertyNames()
+    {
+        // This class can not be instantiated.
+    }
 }

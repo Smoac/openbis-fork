@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -53,8 +55,6 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public class Parameters implements ITimingParameters, IFileSysParameters
 {
-    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
 
@@ -64,7 +64,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The name of the <code>rsync</code> executable to use for copy operations.
      */
-    @Option(longName = "rsync-executable", metaVar = "EXEC", usage = "The rsync executable to use for "
+    @Option(longName = PropertyNames.RSYNC_EXECUTABLE, metaVar = "EXEC", usage = "The rsync executable to use for "
             + "copy operations.")
     private String rsyncExecutable = null;
 
@@ -77,20 +77,20 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * If set to <code>true</code>, rsync is called in such a way to files that already exist are
      * overwritten rather than appended to.
      */
-    @Option(longName = "rsync-overwrite", usage = "If true, files that already exist on the remote side are always "
+    @Option(longName = PropertyNames.RSYNC_OVERWRITE, usage = "If true, files that already exist on the remote side are always "
             + "overwritten rather than appended.")
-    private boolean rsyncOverwrite;
+    private boolean rsyncOverwrite = DEFAULT_RSYNC_OVERWRITE;
 
     /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
-    @Option(longName = "ssh-executable", metaVar = "EXEC", usage = "The ssh executable to use for creating tunnels.")
+    @Option(longName = PropertyNames.SSH_EXECUTABLE, metaVar = "EXEC", usage = "The ssh executable to use for creating tunnels.")
     private String sshExecutable = null;
 
     /**
      * The path to the <code>ln</code> executable file for creating hard links.
      */
-    @Option(longName = "hard-link-executable", metaVar = "EXEC", usage = "The executable to use for creating hard links.")
+    @Option(longName = PropertyNames.HARD_LINK_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for creating hard links.")
     private String hardLinkExecutable = null;
 
     /**
@@ -101,9 +101,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The interval to wait between two checks for activity (in milliseconds).
      */
-    @Option(name = "c", longName = "check-interval", usage = "The interval to wait between two checks (in seconds) "
+    @Option(name = "c", longName = PropertyNames.CHECK_INTERVAL, usage = "The interval to wait between two checks (in seconds) "
             + "[default: 60]", handler = MillisecondConversionOptionHandler.class)
-    private long checkIntervalMillis;
+    private long checkIntervalMillis = toMillis(DEFAULT_CHECK_INTERVAL);
 
     /**
      * Default interval to wait between two checks for activity for the internal processing queues
@@ -115,9 +115,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The interval to wait between two checks for activity for the internal processing queues (in
      * milliseconds).
      */
-    @Option(longName = "check-interval-internal", usage = "The interval to wait between two checks for the internal processing queues (in seconds) "
+    @Option(longName = PropertyNames.CHECK_INTERVAL_INTERNAL, usage = "The interval to wait between two checks for the internal processing queues (in seconds) "
             + "[default: 10]", handler = MillisecondConversionOptionHandler.class)
-    private long checkIntervalInternalMillis;
+    private long checkIntervalInternalMillis = toMillis(DEFAULT_CHECK_INTERVAL_INTERNAL);
 
     /**
      * Default period to wait before a file or directory is considered "inactive" or "stalled" (in
@@ -130,9 +130,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * milliseconds). This setting is used when deciding whether a copy operation of a file or
      * directory is "stalled".
      */
-    @Option(name = "i", longName = "inactivity-period", usage = "The period to wait before a file or directory is "
+    @Option(name = "i", longName = PropertyNames.INACTIVITY_PERIOD, usage = "The period to wait before a file or directory is "
             + "considered \"inactive\" or \"stalled\" (in seconds) [default: 600].", handler = MillisecondConversionOptionHandler.class)
-    private long inactivityPeriodMillis;
+    private long inactivityPeriodMillis = toMillis(DEFAULT_INACTIVITY_PERIOD);
 
     /**
      * Default period to wait before a file or directory is considered "quiet" (in seconds).
@@ -144,9 +144,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * setting is used when deciding whether a file or directory is ready to be moved to the remote
      * side.
      */
-    @Option(name = "q", longName = "quiet-period", usage = "The period that needs to pass before a path item is "
+    @Option(name = "q", longName = PropertyNames.QUIET_PERIOD, usage = "The period that needs to pass before a path item is "
             + "considered quiet (in seconds) [default: 300].", handler = MillisecondConversionOptionHandler.class)
-    private long quietPeriodMillis;
+    private long quietPeriodMillis = toMillis(DEFAULT_QUIET_PERIOD);
 
     /**
      * Default period to wait before a file or directory is considered "quiet" (in seconds).
@@ -157,9 +157,10 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The time interval to wait after a failure has occurred before the operation is retried (in
      * milliseconds).
      */
-    @Option(name = "f", longName = "failure-interval", usage = "The interval to wait after a failure has occurred "
+    @Option(name = "f", longName = PropertyNames.FAILURE_INTERVAL, usage = "The interval to wait after a failure has occurred "
             + "before retrying the operation (in seconds) [default: 1800].", handler = MillisecondConversionOptionHandler.class)
-    private long intervalToWaitAfterFailureMillis;
+    private long intervalToWaitAfterFailureMillis =
+            toMillis(DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES);
 
     /**
      * Default treatment of the incoming data directory - should it be treated as on a remote share?
@@ -170,9 +171,9 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * If set to true, than directory with incoming data is supposed to be on a remote share. It
      * implies that a special care will be taken when coping is performed from that directory.
      */
-    @Option(name = "r", longName = "treat-incoming-as-remote", usage = "If flag is set, than directory with incoming data "
+    @Option(name = "r", longName = PropertyNames.TREAT_INCOMING_AS_REMOTE, usage = "If flag is set, than directory with incoming data "
             + "is supposed to be on a remote share.")
-    private boolean treatIncomingAsRemote;
+    private boolean treatIncomingAsRemote = DEFAULT_TREAT_INCOMING_AS_REMOTE;
 
     /**
      * Default number of retries after a failure has occurred.
@@ -183,14 +184,14 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The number of times a failed operation is retried (note that this means that the total number
      * that the operation is tried is one more).
      */
-    @Option(name = "m", longName = "max-retries", usage = "The number of retries of a failed operation before the "
+    @Option(name = "m", longName = PropertyNames.MAX_RETRIES, usage = "The number of retries of a failed operation before the "
             + "Datamover gives up on it. [default: 10].")
-    private int maximalNumberOfRetries;
+    private int maximalNumberOfRetries = DEFAULT_MAXIMAL_NUMBER_OF_RETRIES;
 
     /**
      * The remote host to copy the data from or null if data are available on a local/remote share
      */
-    @Option(longName = "incoming-host", metaVar = "HOST", usage = "The remote host to move the data from")
+    @Option(longName = PropertyNames.INCOMING_HOST, metaVar = "HOST", usage = "The remote host to move the data from")
     private String incomingHost = null;
 
     /**
@@ -256,7 +257,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * A prefix for all incoming items. Note that '%t' will be replaced with the current timestamp
      * in format 'yyyyMMddHHmmss'.
      */
-    @Option(longName = "prefix-for-incoming", usage = "A string that all incoming items will be prepended with, "
+    @Option(longName = PropertyNames.PREFIX_FOR_INCOMING, usage = "A string that all incoming items will be prepended with, "
             + "'%t' will be replaced with the current time stamp.")
     private String prefixForIncoming;
 
@@ -349,7 +350,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         return ConfigurationFailureException.fromTemplate("No '%s' defined.", propertyKey);
     }
 
-    private void outputException(final Exception ex)
+    private final void outputException(final Exception ex)
     {
         if (ex instanceof HighLevelException || ex instanceof CmdLineException)
         {
@@ -365,51 +366,47 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private void initParametersFromProperties()
+    private final static long toMillis(final int seconds)
+    {
+        return seconds * DateUtils.MILLIS_PER_SECOND;
+    }
+
+    private final void initParametersFromProperties()
     {
         final Properties serviceProperties = loadServiceProperties();
-        rsyncExecutable = serviceProperties.getProperty("rsync-executable");
-        if (rsyncExecutable != null)
-        {
-            rsyncExecutable = rsyncExecutable.trim();
-        }
+        rsyncExecutable =
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.RSYNC_EXECUTABLE,
+                        rsyncExecutable);
         rsyncOverwrite =
-                Boolean.parseBoolean(serviceProperties.getProperty("rsync-overwrite",
-                        Boolean.toString(DEFAULT_RSYNC_OVERWRITE)).trim());
-        sshExecutable = serviceProperties.getProperty("ssh-executable");
-        if (sshExecutable != null)
-        {
-            sshExecutable = sshExecutable.trim();
-        }
-        hardLinkExecutable = serviceProperties.getProperty("hard-link-executable");
-        if (hardLinkExecutable != null)
-        {
-            hardLinkExecutable = hardLinkExecutable.trim();
-        }
+                PropertyUtils.getBoolean(serviceProperties, PropertyNames.RSYNC_OVERWRITE,
+                        rsyncOverwrite);
+        sshExecutable =
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
+                        sshExecutable);
+        hardLinkExecutable =
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.HARD_LINK_EXECUTABLE,
+                        hardLinkExecutable);
         checkIntervalMillis =
-                Integer.parseInt(serviceProperties.getProperty("check-interval", Integer
-                        .toString(DEFAULT_CHECK_INTERVAL))) * 1000;
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL, checkIntervalMillis);
         checkIntervalInternalMillis =
-                Integer.parseInt(serviceProperties.getProperty("check-interval-internal", Integer
-                        .toString(DEFAULT_CHECK_INTERVAL_INTERNAL))) * 1000;
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL_INTERNAL,
+                        checkIntervalInternalMillis);
         inactivityPeriodMillis =
-                Integer.parseInt(serviceProperties.getProperty("inactivity-period", Integer
-                        .toString(DEFAULT_INACTIVITY_PERIOD))) * 1000;
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.INACTIVITY_PERIOD,
+                        inactivityPeriodMillis);
         quietPeriodMillis =
-                Integer.parseInt(serviceProperties.getProperty("quiet-period", Integer
-                        .toString(DEFAULT_QUIET_PERIOD))) * 1000;
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.QUIET_PERIOD, quietPeriodMillis);
         intervalToWaitAfterFailureMillis =
-                Integer.parseInt(serviceProperties.getProperty("failure-interval", Integer
-                        .toString(DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES))) * 1000;
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.FAILURE_INTERVAL,
+                        intervalToWaitAfterFailureMillis);
         maximalNumberOfRetries =
-                Integer.parseInt(serviceProperties.getProperty("max-retries", Integer
-                        .toString(DEFAULT_MAXIMAL_NUMBER_OF_RETRIES)));
+                PropertyUtils.getPosInt(serviceProperties, PropertyNames.MAX_RETRIES, maximalNumberOfRetries);
         treatIncomingAsRemote =
-                Boolean.parseBoolean(serviceProperties.getProperty("treat-incoming-as-remote",
-                        Boolean.toString(DEFAULT_TREAT_INCOMING_AS_REMOTE)).trim());
-        prefixForIncoming = serviceProperties.getProperty("prefix-for-incoming", "").trim();
+                PropertyUtils.getBoolean(serviceProperties, PropertyNames.TREAT_INCOMING_AS_REMOTE,
+                        treatIncomingAsRemote);
+        prefixForIncoming = serviceProperties.getProperty(PropertyNames.PREFIX_FOR_INCOMING, "").trim();
         incomingDirectory = tryCreateFile(serviceProperties, PropertyNames.INCOMING_DIR);
-        incomingHost = serviceProperties.getProperty("incoming-host");
+        incomingHost = serviceProperties.getProperty(PropertyNames.INCOMING_HOST);
         if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
             bufferDirectory =
@@ -455,12 +452,12 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @throws ConfigurationFailureException If an exception occurs when loading the service
      *             properties.
      */
-    private Properties loadServiceProperties()
+    private final static Properties loadServiceProperties()
     {
         final Properties properties = new Properties();
         try
         {
-            final InputStream is = new FileInputStream(SERVICE_PROPERTIES_FILE);
+            final InputStream is = new FileInputStream(PropertyNames.SERVICE_PROPERTIES_FILE);
             try
             {
                 properties.load(is);
@@ -473,7 +470,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
         {
             final String msg =
                     "Could not load the service properties from resource '"
-                            + SERVICE_PROPERTIES_FILE + "'.";
+                            + PropertyNames.SERVICE_PROPERTIES_FILE + "'.";
             operationLog.warn(msg, ex);
             throw new ConfigurationFailureException(msg, ex);
         }
@@ -482,7 +479,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The name of the <code>rsync</code> executable to use for copy operations.
      */
-    public String getRsyncExecutable()
+    public final String getRsyncExecutable()
     {
         return rsyncExecutable;
     }
@@ -491,7 +488,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return <code>true</code>, if rsync is called in such a way to files that already exist
      *         are overwritten rather than appended to.
      */
-    public boolean isRsyncOverwrite()
+    public final boolean isRsyncOverwrite()
     {
         return rsyncOverwrite;
     }
@@ -499,7 +496,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The name of the <code>ssh</code> executable to use for creating tunnels.
      */
-    public String getSshExecutable()
+    public final String getSshExecutable()
     {
         return sshExecutable;
     }
@@ -508,7 +505,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The name of the <code>ln</code> executable to use for creating hard links or
      *         <code>null</code> if not specified.
      */
-    public String getHardLinkExecutable()
+    public final String getHardLinkExecutable()
     {
         return hardLinkExecutable;
     }
@@ -516,7 +513,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The interval to wait between two checks for activity (in milliseconds).
      */
-    public long getCheckIntervalMillis()
+    public final long getCheckIntervalMillis()
     {
         return checkIntervalMillis;
     }
@@ -525,7 +522,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The interval to wait between two checks for activity for the internal threads (in
      *         milliseconds).
      */
-    public long getCheckIntervalInternalMillis()
+    public final long getCheckIntervalInternalMillis()
     {
         return checkIntervalInternalMillis;
     }
@@ -535,7 +532,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         milliseconds). This setting is used when deciding whether a copy operation of a file
      *         or directory is "stalled".
      */
-    public long getInactivityPeriodMillis()
+    public final long getInactivityPeriodMillis()
     {
         return inactivityPeriodMillis;
     }
@@ -545,7 +542,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         milliseconds). This setting is used when deciding whether a file or directory is
      *         ready to be moved to the remote side.
      */
-    public long getQuietPeriodMillis()
+    public final long getQuietPeriodMillis()
     {
         return quietPeriodMillis;
     }
@@ -554,7 +551,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The time interval to wait after a failure has occurred before the operation is
      *         retried.
      */
-    public long getIntervalToWaitAfterFailure()
+    public final long getIntervalToWaitAfterFailure()
     {
         return intervalToWaitAfterFailureMillis;
     }
@@ -563,7 +560,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The number of times a failed operation is retried (note that this means that the
      *         total number that the operation is tried is one more).
      */
-    public int getMaximalNumberOfRetries()
+    public final int getMaximalNumberOfRetries()
     {
         return maximalNumberOfRetries;
     }
@@ -599,7 +596,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         directory for long enough and that need manual intervention. Note that this directory
      *         needs to be on the same file system as {@link #getBufferDirectoryPath}.
      */
-    public File tryGetManualInterventionDir()
+    public final File tryGetManualInterventionDir()
     {
         return manualInterventionDirectoryOrNull;
     }
@@ -609,7 +606,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         <code>null</code> if it is not specified. Note that this directory needs to be on
      *         the same file system as {@link #getBufferDirectoryPath}.
      */
-    public File tryGetExtraCopyDir()
+    public final File tryGetExtraCopyDir()
     {
         return extraCopyDirectory;
     }
@@ -619,7 +616,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         it to the buffer or <code>null</code>, if no regular expression for cleansing has
      *         been provided.
      */
-    public Pattern tryGetCleansingRegex()
+    public final Pattern tryGetCleansingRegex()
     {
         return cleansingRegex;
     }
@@ -629,7 +626,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      *         requires manual intervention or <code>null</code>, if no regular expression for
      *         manual intervention paths has been provided.
      */
-    public Pattern tryGetManualInterventionRegex()
+    public final Pattern tryGetManualInterventionRegex()
     {
         return manualInterventionRegex;
     }
@@ -638,7 +635,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * @return The prefix string to put in front of all incoming items. Note that '%t' will be
      *         replaced with the current time stamp.
      */
-    public String getPrefixForIncoming()
+    public final String getPrefixForIncoming()
     {
         return prefixForIncoming;
     }
@@ -646,7 +643,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
      */
-    public void log()
+    public final void log()
     {
         if (operationLog.isInfoEnabled())
         {
