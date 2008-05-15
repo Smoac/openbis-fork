@@ -16,30 +16,38 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import static org.testng.AssertJUnit.assertNotNull;
-
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 
 /**
- * Test cases for {@link RemoteFreeSpaceProvider}.
+ * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free
+ * space value.
+ * <p>
+ * Therefore the free space available will never be below the <i>high water mark</i>.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
-public final class RemoteFreeSpaceProviderTest
+public final class AlwaysAboveFreeSpaceProvider implements IFreeSpaceProvider
 {
 
-    @Test(groups = "broken")
-    public final void testFreeSpaceKb() throws IOException
+    /** The only instance of this class. */
+    public final static IFreeSpaceProvider INSTANCE = new AlwaysAboveFreeSpaceProvider();
+
+    private AlwaysAboveFreeSpaceProvider()
     {
-        final File sshExecutable = OSUtilities.findExecutable("ssh");
-        assertNotNull(sshExecutable);
-        final RemoteFreeSpaceProvider freeSpaceProvider =
-                new RemoteFreeSpaceProvider("sprint-ob", sshExecutable);
-        System.out.println(freeSpaceProvider.freeSpaceKb(new File("/")));
+        // Can not be instantiated.
     }
+
+    //
+    // IFreeSpaceProvider
+    //
+
+    public final long freeSpaceKb(final File path) throws IOException
+    {
+        return Long.MAX_VALUE;
+    }
+
 }

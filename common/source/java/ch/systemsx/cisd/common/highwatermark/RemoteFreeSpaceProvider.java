@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 
@@ -35,29 +39,77 @@ import ch.systemsx.cisd.common.process.ProcessResult;
  */
 public final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
 {
+    private static final String DF_COMMAND_TEMPLATE = "df -k %s";
+
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RemoteFreeSpaceProvider.class);
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RemoteFreeSpaceProvider.class);
+
+    private static final long MILLIS_TO_WAIT_FOR_COMPLETION = 2 * DateUtils.MILLIS_PER_SECOND;
+
     private final File sshExecutable;
 
     private final String host;
 
+    private final long millisToWaitForCompletion = MILLIS_TO_WAIT_FOR_COMPLETION;
+
     public RemoteFreeSpaceProvider(final String host, final File sshExecutable)
     {
+        assert host != null : "Unspecified host";
+        assert sshExecutable != null : "Unspecified ssh executable";
         this.host = host;
         this.sshExecutable = sshExecutable;
+    }
+
+    private final static long parseKbytes(final String freeSpaceInKb, final String dfCommand)
+            throws IOException
+    {
+        try
+        {
+            final long kBytes = Long.parseLong(freeSpaceInKb);
+            if (kBytes < 0)
+            {
+                throw new IOException(String.format(
+                        "Command line '%s' did not find free space in response.", dfCommand));
+            }
+            return kBytes;
+        } catch (final NumberFormatException ex)
+        {
+            throw new IOException(String.format(
+                    "Command line '%s' did not return numeric data as expected.", dfCommand));
+        }
     }
 
     //
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File path) throws IOException
+    public final long freeSpaceKb(final File file) throws IOException
     {
-        final List<String> command =
-                Arrays.asList(sshExecutable.getPath(), host, "df -k " + path.getPath() + "");
-        Logger rootLogger = Logger.getRootLogger();
-        System.out.println(command);
+        assert file != null : "Unspecified remote file.";
+        final String path = file.getPath();
+        assert StringUtils.isNotEmpty(path) : "Empty path.";
+        final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
+        final List<String> command = Arrays.asList(sshExecutable.getPath(), host, dfCommand);
         final ProcessResult processResult =
-                ProcessExecutionHelper.run(command, 2000L, rootLogger, rootLogger);
-        System.out.println(processResult.getProcessOutput());
-        return 0L;
+                ProcessExecutionHelper.run(command, millisToWaitForCompletion, operationLog,
+                        machineLog);
+        processResult.log();
+        final List<String> processOutput = processResult.getProcessOutput();
+        if (processOutput.size() >= 2)
+        {
+            final String output = processOutput.get(1);
+            final String[] split = StringUtils.split(output, ' ');
+            if (split.length >= 4)
+            {
+                // The column 'avail' (3th column) interests us.
+                return parseKbytes(split[3], dfCommand);
+            }
+        }
+        throw new IOException(String.format(
+                "Command line '%s' did not return info as expected. Response was '%s'", dfCommand,
+                processOutput));
     }
 }
