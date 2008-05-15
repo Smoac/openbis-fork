@@ -53,7 +53,7 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  * 
  * @author Bernd Rinn
  */
-public class Parameters implements ITimingParameters, IFileSysParameters
+public final class Parameters implements ITimingParameters, IFileSysParameters
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
@@ -225,7 +225,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
      */
-    @Option(longName = "outgoing-host", metaVar = "HOST", usage = "The remote host to move the data to (only "
+    @Option(longName = PropertyNames.OUTGOING_HOST, metaVar = "HOST", usage = "The remote host to move the data to (only "
             + "with rsync).")
     private String outgoingHost = null;
 
@@ -241,7 +241,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The regular expression to use for cleansing on the incoming directory before moving it to the
      * buffer.
      */
-    @Option(longName = "cleansing-regex", usage = "The regular expression to use for cleansing before "
+    @Option(longName = PropertyNames.CLEANSING_REGEX, usage = "The regular expression to use for cleansing before "
             + "moving to outgoing.")
     private Pattern cleansingRegex = null;
 
@@ -249,7 +249,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      * The regular expression to use for deciding whether a path in the incoming directory needs
      * manual intervention.
      */
-    @Option(longName = "manual-intervention-regex", usage = "The regular expression to use for deciding whether an "
+    @Option(longName = PropertyNames.MANUAL_INTERVENTION_REGEX, usage = "The regular expression to use for deciding whether an "
             + "incoming paths needs manual intervention. ")
     private Pattern manualInterventionRegex = null;
 
@@ -259,7 +259,7 @@ public class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.PREFIX_FOR_INCOMING, usage = "A string that all incoming items will be prepended with, "
             + "'%t' will be replaced with the current time stamp.")
-    private String prefixForIncoming;
+    private String prefixForIncoming = "";
 
     /**
      * The command line parser.
@@ -387,7 +387,8 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.HARD_LINK_EXECUTABLE,
                         hardLinkExecutable);
         checkIntervalMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL, checkIntervalMillis);
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
+                        checkIntervalMillis);
         checkIntervalInternalMillis =
                 PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL_INTERNAL,
                         checkIntervalInternalMillis);
@@ -395,18 +396,23 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getPosLong(serviceProperties, PropertyNames.INACTIVITY_PERIOD,
                         inactivityPeriodMillis);
         quietPeriodMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.QUIET_PERIOD, quietPeriodMillis);
+                PropertyUtils.getPosLong(serviceProperties, PropertyNames.QUIET_PERIOD,
+                        quietPeriodMillis);
         intervalToWaitAfterFailureMillis =
                 PropertyUtils.getPosLong(serviceProperties, PropertyNames.FAILURE_INTERVAL,
                         intervalToWaitAfterFailureMillis);
         maximalNumberOfRetries =
-                PropertyUtils.getPosInt(serviceProperties, PropertyNames.MAX_RETRIES, maximalNumberOfRetries);
+                PropertyUtils.getPosInt(serviceProperties, PropertyNames.MAX_RETRIES,
+                        maximalNumberOfRetries);
         treatIncomingAsRemote =
                 PropertyUtils.getBoolean(serviceProperties, PropertyNames.TREAT_INCOMING_AS_REMOTE,
                         treatIncomingAsRemote);
-        prefixForIncoming = serviceProperties.getProperty(PropertyNames.PREFIX_FOR_INCOMING, "").trim();
-        incomingDirectory = tryCreateFile(serviceProperties, PropertyNames.INCOMING_DIR);
-        incomingHost = serviceProperties.getProperty(PropertyNames.INCOMING_HOST);
+        prefixForIncoming =
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.PREFIX_FOR_INCOMING,
+                        prefixForIncoming);
+        incomingDirectory =
+                tryCreateFile(serviceProperties, PropertyNames.INCOMING_DIR, incomingDirectory);
+        incomingHost = PropertyUtils.getProperty(serviceProperties, PropertyNames.INCOMING_HOST);
         if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
             bufferDirectory =
@@ -414,35 +420,38 @@ public class Parameters implements ITimingParameters, IFileSysParameters
                             PropertyNames.BUFFER_DIR);
         }
         manualInterventionDirectoryOrNull =
-                tryCreateFile(serviceProperties, PropertyNames.MANUAL_INTERVENTION_DIR);
+                tryCreateFile(serviceProperties, PropertyNames.MANUAL_INTERVENTION_DIR,
+                        manualInterventionDirectoryOrNull);
         if (serviceProperties.getProperty(PropertyNames.OUTGOING_DIR) != null)
         {
             outgoingDirectory =
                     FileWithHighwaterMark.fromProperties(serviceProperties,
                             PropertyNames.OUTGOING_DIR);
         }
-        outgoingHost = serviceProperties.getProperty("outgoing-host");
-        extraCopyDirectory = tryCreateFile(serviceProperties, PropertyNames.EXTRA_COPY_DIR);
-        if (serviceProperties.getProperty("cleansing-regex") != null)
+        outgoingHost = serviceProperties.getProperty(PropertyNames.OUTGOING_HOST);
+        extraCopyDirectory =
+                tryCreateFile(serviceProperties, PropertyNames.EXTRA_COPY_DIR, extraCopyDirectory);
+        if (serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX) != null)
         {
-            cleansingRegex = Pattern.compile(serviceProperties.getProperty("cleansing-regex"));
+            cleansingRegex = Pattern.compile(serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX));
         }
-        if (serviceProperties.getProperty("manual-intervention-regex") != null)
+        if (serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX) != null)
         {
             manualInterventionRegex =
-                    Pattern.compile(serviceProperties.getProperty("manual-intervention-regex"));
+                    Pattern.compile(serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX));
         }
     }
 
-    private final File tryCreateFile(final Properties serviceProperties, final String propertyKey)
+    private final File tryCreateFile(final Properties serviceProperties, final String propertyKey,
+            final File defaultValue)
     {
-        final String propertyValue = serviceProperties.getProperty(propertyKey);
+        final String propertyValue = PropertyUtils.getProperty(serviceProperties, propertyKey);
         if (propertyValue != null)
         {
-            return new File(propertyValue.trim());
+            return new File(propertyValue);
         } else
         {
-            return null;
+            return defaultValue;
         }
     }
 

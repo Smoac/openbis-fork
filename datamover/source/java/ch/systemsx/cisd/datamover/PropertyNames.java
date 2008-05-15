@@ -33,6 +33,8 @@ public final class PropertyNames
 
     static final String CHECK_INTERVAL_INTERNAL = "check-interval-internal";
 
+    static final String CLEANSING_REGEX = "cleansing-regex";
+
     /** The local directory where we create additional copy of the incoming data. */
     static final String EXTRA_COPY_DIR = "extra-copy-dir";
 
@@ -52,10 +54,14 @@ public final class PropertyNames
     /** The local directory to store paths that need manual intervention. */
     static final String MANUAL_INTERVENTION_DIR = "manual-intervention-dir";
 
+    static final String MANUAL_INTERVENTION_REGEX = "manual-intervention-regex";
+
     static final String MAX_RETRIES = "max-retries";
 
     /** The remote directory to move the data to. */
     static final String OUTGOING_DIR = "outgoing-dir";
+
+    static final String OUTGOING_HOST = "outgoing-host";
 
     static final String PREFIX_FOR_INCOMING = "prefix-for-incoming";
 

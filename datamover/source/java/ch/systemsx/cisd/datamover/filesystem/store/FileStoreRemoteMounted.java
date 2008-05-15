@@ -114,7 +114,7 @@ public final class FileStoreRemoteMounted extends FileStore
     }
 
     @Override
-    public void check() throws EnvironmentFailureException, ConfigurationFailureException
+    public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         localImpl.check();
     }

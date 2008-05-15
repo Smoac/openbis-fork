@@ -18,11 +18,9 @@ package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -31,7 +29,6 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
@@ -74,16 +71,16 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final QuietPeriodFileFilter quietPeriodFileFilter;
 
-    public static final DataMoverProcess createMovingProcess(Parameters parameters,
-            IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
+    public static final DataMoverProcess createMovingProcess(final Parameters parameters,
+            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
     {
         final IncomingProcessor processor = new IncomingProcessor(parameters, factory, bufferDirs);
 
         return processor.create();
     }
 
-    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs bufferDirs)
+    private IncomingProcessor(final Parameters parameters, final IFileSysOperationsFactory factory,
+            final LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
@@ -99,73 +96,33 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         return new IncomingProcessorRecoveryTask();
     }
 
-    private DataMoverProcess create()
+    private final DataMoverProcess create()
     {
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
-
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(createIncomingStoreScanner(), bufferDirs
-                        .getCopyInProgressDir(), pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
+                new DirectoryScanningTimerTask(new FileScannedStore(incomingStore,
+                        quietPeriodFileFilter), bufferDirs.getCopyInProgressDir(), pathHandler,
+                        NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
-    }
-
-    private IScannedStore createIncomingStoreScanner()
-    {
-        return new IScannedStore()
-            {
-                public boolean exists(StoreItem item)
-                {
-                    return incomingStore.exists(item);
-                }
-
-                public String getLocationDescription(StoreItem item)
-                {
-                    return incomingStore.getLocationDescription(item);
-                }
-
-                public StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull)
-                {
-                    // Older items will be handled before newer items.
-                    // This becomes important when doing online quality control of measurements.
-                    StoreItem[] items = incomingStore.tryListSortByLastModified(loggerOrNull);
-                    if (items == null)
-                    {
-                        return null;
-                    }
-                    return filterReadyToProcess(items);
-                }
-            };
-    }
-
-    private StoreItem[] filterReadyToProcess(StoreItem[] items)
-    {
-        Vector<StoreItem> result = new Vector<StoreItem>();
-        for (StoreItem item : items)
-        {
-            if (isReadyToProcess(item))
-            {
-                result.add(item);
-            }
-        }
-        return result.toArray(StoreItem.EMPTY_ARRAY);
-    }
-
-    private boolean isReadyToProcess(StoreItem item)
-    {
-        if (item.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX))
-        {
-            return false;
-        }
-        return quietPeriodFileFilter.accept(item);
     }
 
     private IStoreHandler createIncomingMovingPathHandler()
     {
         return new IStoreHandler()
             {
-                public void handle(StoreItem sourceItem)
+
+                //
+                // IStoreHandler
+                //
+
+                public final boolean mayHandle(final StoreItem item)
                 {
-                    IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
+                    return true;
+                }
+
+                public final void handle(final StoreItem sourceItem)
+                {
+                    final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
                     if (extendedFileStore == null)
                     {
                         moveFromRemoteIncoming(sourceItem);
@@ -177,13 +134,14 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             };
     }
 
-    private void moveFromLocalIncoming(IExtendedFileStore sourceStore, StoreItem sourceItem)
+    private void moveFromLocalIncoming(final IExtendedFileStore sourceStore,
+            final StoreItem sourceItem)
     {
         sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters
                 .getPrefixForIncoming());
     }
 
-    private void moveFromRemoteIncoming(StoreItem sourceItem)
+    private void moveFromRemoteIncoming(final StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
@@ -199,8 +157,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
     }
 
-    private File tryMoveFromInProgressToFinished(File copiedFile, File markerFileOrNull,
-            File copyCompleteDir)
+    private File tryMoveFromInProgressToFinished(final File copiedFile,
+            final File markerFileOrNull, final File copyCompleteDir)
     {
         final File finalFile = tryMoveLocal(copiedFile, copyCompleteDir, prefixForIncoming);
         if (finalFile != null)
@@ -223,48 +181,35 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(StoreItem sourceItem, IFileStore sourceStore,
-            File localDestDir)
+    private void moveFromRemoteToLocal(final StoreItem sourceItem, final IFileStore sourceStore,
+            final File localDestDir)
     {
         createRemotePathMover(sourceStore,
                 FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(sourceItem);
     }
 
-    private IStoreHandler createRemotePathMover(IFileStore sourceDirectory,
-            FileStore destinationDirectory)
+    private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
+            final FileStore destinationDirectory)
     {
         return RemoteMonitoredMoverFactory
                 .create(sourceDirectory, destinationDirectory, parameters);
     }
 
-    private File tryMoveLocal(File sourceFile, File destinationDir, String prefixTemplate)
+    private File tryMoveLocal(final File sourceFile, final File destinationDir,
+            final String prefixTemplate)
     {
         return pathMover.tryMove(sourceFile, destinationDir, prefixTemplate);
     }
 
-    // ------------------- recovery ------------------------
+    //
+    // Helper classes
+    //
 
-    class IncomingProcessorRecoveryTask extends TimerTask
+    private final class IncomingProcessorRecoveryTask extends TimerTask
     {
-        @Override
-        public void run()
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Recovery starts.");
-            }
-            if (incomingStore.isRemote())
-            {
-                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
-                        .getCopyCompleteDir());
-            }
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Recovery is finished.");
-            }
-        }
 
-        private void recoverIncomingInProgress(File copyInProgressDir, File copyCompleteDir)
+        private final void recoverIncomingInProgress(final File copyInProgressDir,
+                final File copyCompleteDir)
         {
             final File[] files = FileUtilities.tryListFiles(copyInProgressDir, simpleOperationLog);
             if (files == null || files.length == 0)
@@ -272,7 +217,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 return; // directory is empty, no recovery is needed
             }
 
-            for (File file : files)
+            for (final File file : files)
             {
                 if (MarkerFile.isDeletionInProgressMarker(file))
                 {
@@ -282,7 +227,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             }
         }
 
-        private void recoverIncomingAfterShutdown(File unfinishedFile, File copyCompleteDir)
+        private final void recoverIncomingAfterShutdown(final File unfinishedFile,
+                final File copyCompleteDir)
         {
             if (MarkerFile.isCopyFinishedMarker(unfinishedFile))
             {
@@ -317,6 +263,28 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                         tryMoveFromInProgressToFinished(localCopy, null, copyCompleteDir);
                     }
                 }
+            }
+        }
+
+        //
+        // TimerTask
+        //
+
+        @Override
+        public final void run()
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Recovery starts.");
+            }
+            if (incomingStore.isRemote())
+            {
+                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
+                        .getCopyCompleteDir());
+            }
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Recovery is finished.");
             }
         }
     }
