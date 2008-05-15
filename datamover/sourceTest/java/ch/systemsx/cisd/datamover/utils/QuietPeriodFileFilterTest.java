@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.datamover.utils;
 
-import static org.testng.AssertJUnit.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.regex.Pattern;
 
@@ -29,10 +31,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
-import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter.ICurrentTimeProvider;
 
 /**
  * Test cases for the quiet period file filter.
@@ -49,7 +51,7 @@ public class QuietPeriodFileFilterTest
 
     private Mockery context;
 
-    private QuietPeriodFileFilter.ICurrentTimeProvider timeProvider;
+    private ITimeProvider timeProvider;
 
     private ITimingParameters timingParameters;
 
@@ -61,7 +63,7 @@ public class QuietPeriodFileFilterTest
     public void setUp()
     {
         context = new Mockery();
-        timeProvider = context.mock(ICurrentTimeProvider.class);
+        timeProvider = context.mock(ITimeProvider.class);
         timingParameters = context.mock(ITimingParameters.class);
         fileStore = context.mock(IFileStore.class);
         context.checking(new Expectations()
@@ -110,7 +112,7 @@ public class QuietPeriodFileFilterTest
         context.checking(new Expectations()
             {
                 {
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis));
                     one(fileStore).lastChanged(ITEM, 0L);
                     will(returnValue(pathLastChangedMillis));
@@ -130,12 +132,12 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     one(fileStore).lastChanged(ITEM, 0L);
                     will(returnValue(pathLastChangedMillis));
                     // second call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis);
                     will(returnValue(pathLastChangedMillis));
@@ -155,13 +157,13 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis));
                     one(fileStore).lastChanged(ITEM, 0L);
                     will(returnValue(pathLastChangedMillis));
                     for (int i = 1; i <= 100; ++i)
                     {
-                        one(timeProvider).getCurrentTimeMillis();
+                        one(timeProvider).getTimeInMilliseconds();
                         will(returnValue(nowMillis + i));
                     }
                     // last call - will check only when last check is longer ago than the quiet
@@ -190,17 +192,17 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     one(fileStore).lastChanged(ITEM, 0L);
                     will(returnValue(pathLastChangedMillis1));
                     // second call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis1);
                     will(returnValue(pathLastChangedMillis2));
                     // third call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis3));
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis2);
                     will(returnValue(pathLastChangedMillis2));
@@ -224,17 +226,17 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     one(fileStore).lastChanged(ITEM, 0L);
                     will(returnValue(pathLastChangedMillis1));
                     // second call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis1);
                     will(returnValue(pathLastChangedMillis2));
                     // third call
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis3));
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis2);
                     will(returnValue(pathLastChangedMillis2));
@@ -264,12 +266,12 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call for the vanishing file
-                    one(timeProvider).getCurrentTimeMillis();
+                    one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     allowing(fileStore).lastChanged(vanishingItem, 0L);
                     will(returnValue(pathLastChangedMillis1));
                     // calls to get the required number of calls for clean up
-                    allowing(timeProvider).getCurrentTimeMillis();
+                    allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     allowing(fileStore).lastChanged(with(same(ITEM)),
                             with(greaterThanOrEqualTo(0L)));

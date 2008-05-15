@@ -26,7 +26,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
@@ -67,7 +69,7 @@ public class QuietPeriodFileFilter
 
     private final Map<StoreItem, PathCheckRecord> pathMap;
 
-    private final ICurrentTimeProvider timeProvider;
+    private final ITimeProvider timeProvider;
 
     private int callCounter;
 
@@ -104,15 +106,6 @@ public class QuietPeriodFileFilter
     }
 
     /**
-     * Provider for the current time in milli-seconds since the Epoch. Overwrite this in unit-tests.
-     */
-    // @Private
-    interface ICurrentTimeProvider
-    {
-        long getCurrentTimeMillis();
-    }
-
-    /**
      * Creates a <var>QuietPeriodFileFilter</var>.
      * 
      * @param fileStore Used to check when a pathname was changed.
@@ -120,13 +113,7 @@ public class QuietPeriodFileFilter
      */
     public QuietPeriodFileFilter(IFileStore fileStore, ITimingParameters timingParameters)
     {
-        this(fileStore, timingParameters, new ICurrentTimeProvider()
-            {
-                public long getCurrentTimeMillis()
-                {
-                    return System.currentTimeMillis();
-                }
-            });
+        this(fileStore, timingParameters, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     /**
@@ -137,7 +124,7 @@ public class QuietPeriodFileFilter
      * @param timeProvider A role that provides access to the current time.
      */
     public QuietPeriodFileFilter(IFileStore fileStore, ITimingParameters timingParameters,
-            ICurrentTimeProvider timeProvider)
+            ITimeProvider timeProvider)
     {
         assert timingParameters != null;
         assert timingParameters.getQuietPeriodMillis() > 0;
@@ -154,7 +141,7 @@ public class QuietPeriodFileFilter
 
     public boolean accept(StoreItem item)
     {
-        final long now = timeProvider.getCurrentTimeMillis();
+        final long now = timeProvider.getTimeInMilliseconds();
         try
         {
             final PathCheckRecord checkRecordOrNull = pathMap.get(item);
