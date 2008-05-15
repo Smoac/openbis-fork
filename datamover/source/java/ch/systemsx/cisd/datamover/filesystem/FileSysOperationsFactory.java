@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -49,41 +50,37 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
 
-    final private IFileSysParameters parameters;
+    private final IFileSysParameters parameters;
 
-    public FileSysOperationsFactory(IFileSysParameters parameters)
+    public FileSysOperationsFactory(final IFileSysParameters parameters)
     {
         assert parameters != null;
 
         this.parameters = parameters;
     }
 
-    public IPathRemover getRemover()
+    private final static File findRsyncExecutable(final String rsyncExecutablePath)
     {
-        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
+        final File rsyncExecutable;
+        if (rsyncExecutablePath != null)
+        {
+            rsyncExecutable = new File(rsyncExecutablePath);
+        } else if (OSUtilities.isWindows() == false)
+        {
+            rsyncExecutable = OSUtilities.findExecutable("rsync");
+        } else
+        {
+            rsyncExecutable = null;
+        }
+        if (rsyncExecutable != null && OSUtilities.executableExists(rsyncExecutable) == false)
+        {
+            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.",
+                    rsyncExecutable.getAbsoluteFile());
+        }
+        return rsyncExecutable;
     }
 
-    public IPathImmutableCopier getImmutableCopier()
-    {
-        String lnExec = parameters.getHardLinkExecutable();
-        if (lnExec != null)
-        {
-            return RecursiveHardLinkMaker.create(lnExec);
-        }
-
-        IPathImmutableCopier copier = null;
-        if (OSUtilities.isWindows() == false)
-        {
-            copier = RecursiveHardLinkMaker.tryCreate();
-            if (copier != null)
-            {
-                return copier;
-            }
-        }
-        return createFakedImmCopier();
-    }
-
-    private IPathImmutableCopier createFakedImmCopier()
+    private final IPathImmutableCopier createFakedImmCopier()
     {
         final IPathCopier normalCopier = getCopier(false);
         return new IPathImmutableCopier()
@@ -109,10 +106,39 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
             };
     }
 
-    public IPathCopier getCopier(boolean requiresDeletionBeforeCreation)
+    //
+    // IFileSysOperationsFactory
+    //
+
+    public final IPathRemover getRemover()
+    {
+        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
+    }
+
+    public final IPathImmutableCopier getImmutableCopier()
+    {
+        final String lnExec = parameters.getHardLinkExecutable();
+        if (lnExec != null)
+        {
+            return RecursiveHardLinkMaker.create(lnExec);
+        }
+
+        IPathImmutableCopier copier = null;
+        if (OSUtilities.isWindows() == false)
+        {
+            copier = RecursiveHardLinkMaker.tryCreate();
+            if (copier != null)
+            {
+                return copier;
+            }
+        }
+        return createFakedImmCopier();
+    }
+
+    public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
     {
         final File rsyncExecutable = findRsyncExecutable(parameters.getRsyncExecutable());
-        final File sshExecutable = findSshExecutable(parameters.getSshExecutable());
+        final File sshExecutable = tryFindSshExecutable();
         if (rsyncExecutable != null)
         {
             return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
@@ -123,40 +149,13 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         }
     }
 
-    private static File findRsyncExecutable(final String rsyncExecutablePath)
+    public final File tryFindSshExecutable()
     {
-        final File rsyncExecutable;
-        if (rsyncExecutablePath != null)
+        final String sshExecutablePath = parameters.getSshExecutable();
+        File sshExecutable = null;
+        if (StringUtils.isNotBlank(sshExecutablePath))
         {
-            rsyncExecutable = new File(rsyncExecutablePath);
-        } else if (OSUtilities.isWindows() == false)
-        {
-            rsyncExecutable = OSUtilities.findExecutable("rsync");
-        } else
-        {
-            rsyncExecutable = null;
-        }
-        if (rsyncExecutable != null && OSUtilities.executableExists(rsyncExecutable) == false)
-        {
-            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.",
-                    rsyncExecutable.getAbsoluteFile());
-        }
-        return rsyncExecutable;
-    }
-
-    private static File findSshExecutable(String sshExecutablePath)
-    {
-        final File sshExecutable;
-        if (sshExecutablePath != null)
-        {
-            if (sshExecutablePath.length() > 0)
-            {
-                sshExecutable = new File(sshExecutablePath);
-            } else
-            // Explicitly disable tunneling via ssh on the command line.
-            {
-                sshExecutable = null;
-            }
+            sshExecutable = new File(sshExecutablePath);
         } else
         {
             sshExecutable = OSUtilities.findExecutable("ssh");
@@ -169,7 +168,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         return sshExecutable;
     }
 
-    public IPathMover getMover()
+    public final IPathMover getMover()
     {
         return new RetryingPathMover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
     }

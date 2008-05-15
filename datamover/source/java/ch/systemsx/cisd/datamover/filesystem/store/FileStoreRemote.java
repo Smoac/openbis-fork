@@ -16,16 +16,23 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
+import java.io.File;
+
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.utils.RemoteFreeSpaceProvider;
 
 /**
  * @author Tomasz Pylak
@@ -34,10 +41,32 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 // dummy implementation.
 public class FileStoreRemote extends FileStore
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileStoreRemote.class);
+
+    private final HighwaterMarkWatcher highwaterMarkWatcher;
+
     public FileStoreRemote(final FileWithHighwaterMark path, final String host, final String kind,
             final IFileSysOperationsFactory factory)
     {
         super(path, host, true, kind, factory);
+        assert host != null : "Unspecified host";
+        highwaterMarkWatcher = createHighwaterMarkWatcher(path.getHighwaterMark(), host);
+    }
+
+    private final HighwaterMarkWatcher createHighwaterMarkWatcher(final long highwaterMark,
+            final String host)
+    {
+        final File sshExecutable = factory.tryFindSshExecutable();
+        if (sshExecutable != null)
+        {
+            return new HighwaterMarkWatcher(highwaterMark, new RemoteFreeSpaceProvider(host,
+                    sshExecutable));
+        }
+        // We set the "high water mark" to -1, meaning that the system will not be watching.
+        operationLog.warn("Impossible to remotely watch the 'high water mark' "
+                + "(ssh executable not found).");
+        return new HighwaterMarkWatcher(-1);
     }
 
     //
@@ -109,6 +138,7 @@ public class FileStoreRemote extends FileStore
 
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
     {
-        throw new NotImplementedException();
+        return highwaterMarkWatcher;
     }
+
 }

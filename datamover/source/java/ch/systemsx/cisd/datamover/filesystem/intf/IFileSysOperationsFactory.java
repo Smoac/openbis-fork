@@ -15,6 +15,8 @@
  */
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import java.io.File;
+
 import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 
 /**
@@ -31,4 +33,11 @@ public interface IFileSysOperationsFactory
     public IPathRemover getRemover();
 
     public IPathMover getMover();
+
+    /**
+     * Tries to find the <code>ssh</code> executable.
+     * 
+     * @return <code>null</code> if not found.
+     */
+    public File tryFindSshExecutable();
 }
