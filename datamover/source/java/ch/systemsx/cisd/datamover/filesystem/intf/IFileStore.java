@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
-import java.io.File;
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -45,16 +43,9 @@ public interface IFileStore extends ISelfTestable
     public boolean isRemote();
     
     /**
-     * Returns the path of this file store.
+     * Returns the location of the specified store item.
      */
-    public File getPath();
-    
-    /**
-     * Tries to return the host.
-     * 
-     * @return <code>null</code> if {@link #isRemote()} return <code>false</code>.
-     */
-    public String tryGetHost();
+    public StoreItemLocation getStoreItemLocation(StoreItem item);
 
     /**
      * Returns <code>true</code> if this file store is the parent directory of

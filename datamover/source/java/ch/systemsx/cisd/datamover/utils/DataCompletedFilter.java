@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
 
 /**
  * 
@@ -152,12 +153,12 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private List<String> createCommand(StoreItem item)
     {
-        String absolutePath = StoreItem.asFile(fileStore.getPath(), item).getAbsolutePath();
-        String host = fileStore.tryGetHost();
+        StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
         List<String> command = new ArrayList<String>();
         command.add("sh");
         command.add(dataCompletedScript);
-        command.add(absolutePath);
+        command.add(storeItemLocation.getAbsolutePath());
+        String host = storeItemLocation.getHost();
         if (host != null)
         {
             command.add(host);

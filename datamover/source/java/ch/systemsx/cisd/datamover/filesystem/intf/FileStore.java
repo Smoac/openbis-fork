@@ -77,12 +77,17 @@ public abstract class FileStore implements IFileStore
         }
     }
 
-    public final File getPath()
+    public final StoreItemLocation getStoreItemLocation(StoreItem item)
+    {
+        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item).getAbsolutePath());
+    }
+
+    protected final File getPath()
     {
         return fileWithHighwaterMark.getFile();
     }
 
-    public final String tryGetHost()
+    protected final String tryGetHost()
     {
         return hostOrNull;
     }

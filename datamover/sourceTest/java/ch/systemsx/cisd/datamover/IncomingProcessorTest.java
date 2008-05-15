@@ -49,7 +49,6 @@ public class IncomingProcessorTest
     private static final String COPY_COMPLETE_DIR = "copy-complete";
     private static final String READY_TO_MOVE_DIR = "ready-to-move";
     private static final String TEMP_DIR = "temp";
-    private static final String EXAMPLE_SCRIPT = "example-script";
 
     private Mockery context;
     private IFileSysOperationsFactory fileSysOpertationFactory;
