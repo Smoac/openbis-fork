@@ -37,14 +37,13 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore.ExtendedFileStore;
 
 /**
  * An {@link IFileStore} implementation for local stores.
  * 
  * @author Tomasz Pylak
  */
-public class FileStoreLocal extends ExtendedFileStore
+public class FileStoreLocal extends FileStore implements IExtendedFileStore
 {
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreLocal.class);
@@ -63,10 +62,6 @@ public class FileStoreLocal extends ExtendedFileStore
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = new HighwaterMarkWatcher(file.getHighwaterMark());
     }
-
-    //
-    // ExtendedFileStore
-    //
 
     public final Status delete(final StoreItem item)
     {
@@ -122,7 +117,6 @@ public class FileStoreLocal extends ExtendedFileStore
         return this;
     }
 
-    @Override
     public final boolean createNewFile(final StoreItem item)
     {
         try
@@ -137,7 +131,6 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    @Override
     public final File tryMoveLocal(final StoreItem sourceItem, final File destinationDir,
             final String newFilePrefix)
     {

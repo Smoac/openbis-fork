@@ -77,12 +77,12 @@ public abstract class FileStore implements IFileStore
         }
     }
 
-    protected final File getPath()
+    public final File getPath()
     {
         return fileWithHighwaterMark.getFile();
     }
 
-    protected final String tryGetHost()
+    public final String tryGetHost()
     {
         return hostOrNull;
     }
@@ -204,26 +204,4 @@ public abstract class FileStore implements IFileStore
         return builder.toHashCode();
     }
 
-
-    //
-    // Helper classes
-    //
-
-    public static abstract class ExtendedFileStore extends FileStore implements IExtendedFileStore
-    {
-        protected ExtendedFileStore(final FileWithHighwaterMark path, final String hostOrNull,
-                final boolean remote, final String kind, final IFileSysOperationsFactory factory)
-        {
-            super(path, hostOrNull, remote, kind, factory);
-        }
-
-        //
-        // IExtendedFileStore
-        //
-
-        public abstract boolean createNewFile(StoreItem item);
-
-        public abstract File tryMoveLocal(StoreItem sourceItem, File destinationDir,
-                String newFilePrefix);
-    }
 }

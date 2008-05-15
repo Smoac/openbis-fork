@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import java.io.File;
+
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -41,7 +43,23 @@ public interface IFileStore extends ISelfTestable
      * share and mounted via NFS or CIFS.
      */
     public boolean isRemote();
+    
+    /**
+     * Returns the path of this file store.
+     */
+    public File getPath();
+    
+    /**
+     * Tries to return the host.
+     * 
+     * @return <code>null</code> if {@link #isRemote()} return <code>false</code>.
+     */
+    public String tryGetHost();
 
+    /**
+     * Returns <code>true</code> if this file store is the parent directory of
+     * the specified file store.
+     */
     public boolean isParentDirectory(IFileStore child);
 
     /**
@@ -54,6 +72,9 @@ public interface IFileStore extends ISelfTestable
      */
     public String tryCheckDirectoryFullyAccessible(final long timeOutMillis);
 
+    /**
+     * Returns <code>true</code> if the specified store item exists in this file store.
+     */
     public boolean exists(StoreItem item);
 
     /**
@@ -86,6 +107,9 @@ public interface IFileStore extends ISelfTestable
      */
     public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull);
 
+    /**
+     * Deletes the specified item from this store.
+     */
     public Status delete(StoreItem item);
 
     /**
@@ -102,6 +126,11 @@ public interface IFileStore extends ISelfTestable
     // which could be used in java.io.File constructor.
     public String getLocationDescription(StoreItem item);
 
+    /**
+     * Returns this file store as an extended file store if possible.
+     * 
+     *  @return <code>null</code> if this file store can not be returned as an extended file store.
+     */
     public IExtendedFileStore tryAsExtended();
 
     /**
