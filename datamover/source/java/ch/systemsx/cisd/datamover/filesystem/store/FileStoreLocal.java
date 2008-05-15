@@ -68,25 +68,21 @@ public class FileStoreLocal extends ExtendedFileStore
     // ExtendedFileStore
     //
 
-    @Override
     public final Status delete(final StoreItem item)
     {
         return remover.remove(getChildFile(item));
     }
 
-    @Override
     public final boolean exists(final StoreItem item)
     {
         return getChildFile(item).exists();
     }
 
-    @Override
     public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
     }
 
-    @Override
     public final long lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
@@ -94,7 +90,6 @@ public class FileStoreLocal extends ExtendedFileStore
                 stopWhenFindYoungerRelative);
     }
 
-    @Override
     public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         final boolean available = FileUtilities.isAvailable(getPath(), timeOutMillis);
@@ -107,7 +102,6 @@ public class FileStoreLocal extends ExtendedFileStore
         return FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
     }
 
-    @Override
     public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
@@ -123,7 +117,6 @@ public class FileStoreLocal extends ExtendedFileStore
         }
     }
 
-    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return this;
@@ -158,13 +151,11 @@ public class FileStoreLocal extends ExtendedFileStore
         return "[local fs]" + pathStr;
     }
 
-    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
     }
 
-    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final File[] files = FileUtilities.tryListFiles(getPath(), loggerOrNull);

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 
@@ -205,67 +204,6 @@ public abstract class FileStore implements IFileStore
         return builder.toHashCode();
     }
 
-    // -------------------
-
-    /**
-     * Checks whether this store is a directory and is fully accessible to the program.
-     * 
-     * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available
-     *            if it is not initially.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
-     */
-    public abstract String tryCheckDirectoryFullyAccessible(final long timeOutMillis);
-
-    public abstract boolean exists(StoreItem item);
-
-    /**
-     * Returns the last time when there was a write access to <var>item</var>.
-     * 
-     * @param item The {@link StoreItem} to check.
-     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
-     *            when a file or directory is found that is younger than the time specified in this
-     *            parameter. Supposed to be used when one does not care about the absolutely
-     *            youngest entry, but only, if there are entries that are "young enough".
-     * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
-     *         last changed.
-     */
-    public abstract long lastChanged(StoreItem item, long stopWhenFindYounger);
-
-    /**
-     * Returns the last time when there was a write access to <var>item</var>.
-     * 
-     * @param item The {@link StoreItem} to check.
-     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
-     *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
-     * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
-     *         last changed.
-     */
-    public abstract long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
-
-    /**
-     * List files in the scanned store. Sort in order of "oldest first".
-     */
-    public abstract StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull);
-
-    public abstract Status delete(StoreItem item);
-
-    /**
-     * @param destinationDirectory The directory to use as a destination in the copy operation. It
-     *            must be readable and writable. Copier will override the destination item if it
-     *            already exists.
-     */
-    public abstract IStoreCopier getCopier(FileStore destinationDirectory);
-
-    // returned description should give the user the idea about file location. You should not use
-    // the result for
-    // something else than printing it for user. It should not be especially assumed that the result
-    // is the path
-    // which could be used in java.io.File constructor.
-    public abstract String getLocationDescription(StoreItem item);
-
-    public abstract IExtendedFileStore tryAsExtended();
 
     //
     // Helper classes

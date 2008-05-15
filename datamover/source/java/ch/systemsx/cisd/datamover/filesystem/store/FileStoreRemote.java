@@ -73,45 +73,38 @@ public class FileStoreRemote extends FileStore
     // FileStore
     //
 
-    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
-    @Override
     public final Status delete(final StoreItem item)
     {
         throw new NotImplementedException();
     }
 
-    @Override
     public final boolean exists(final StoreItem item)
     {
         return factory.getCopier(false).existsRemotely(getPath(), tryGetHost());
     }
 
-    @Override
     public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
-    @Override
     public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         throw new NotImplementedException();
     }
 
-    @Override
     public final long lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         throw new NotImplementedException();
     }
 
-    @Override
     public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         throw new NotImplementedException();
@@ -124,13 +117,11 @@ public class FileStoreRemote extends FileStore
         return "[remote fs]" + tryGetHost() + ":" + pathStr;
     }
 
-    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return tryGetHost() + ":" + getChildFile(item).getPath();
     }
 
-    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         throw new NotImplementedException();

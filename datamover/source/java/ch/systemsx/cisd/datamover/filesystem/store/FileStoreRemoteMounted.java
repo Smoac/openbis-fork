@@ -51,13 +51,11 @@ public final class FileStoreRemoteMounted extends FileStore
     // FileStore
     //
 
-    @Override
     public final IExtendedFileStore tryAsExtended()
     {
         return null;
     }
 
-    @Override
     public final IStoreCopier getCopier(final FileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
@@ -71,44 +69,37 @@ public final class FileStoreRemoteMounted extends FileStore
         return "[mounted remote fs]" + pathStr;
     }
 
-    @Override
     public final String getLocationDescription(final StoreItem item)
     {
         return localImpl.getLocationDescription(item);
     }
 
-    @Override
     public final Status delete(final StoreItem item)
     {
         return localImpl.delete(item);
     }
 
-    @Override
     public final boolean exists(final StoreItem item)
     {
         return localImpl.exists(item);
     }
 
-    @Override
     public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return localImpl.lastChanged(item, stopWhenFindYounger);
     }
 
-    @Override
     public final long lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
-    @Override
     public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
     }
 
-    @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         return localImpl.tryListSortByLastModified(loggerOrNull);

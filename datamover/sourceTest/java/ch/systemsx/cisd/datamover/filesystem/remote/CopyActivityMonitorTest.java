@@ -176,55 +176,46 @@ public class CopyActivityMonitorTest
                 new FileStoreLocal(fileWithHighwaterMark, "input-test", factory);
         return new FileStore(fileWithHighwaterMark, null, false, "input-test", factory)
             {
-                @Override
                 public Status delete(StoreItem item)
                 {
                     return localImpl.delete(item);
                 }
 
-                @Override
                 public boolean exists(StoreItem item)
                 {
                     return localImpl.exists(item);
                 }
 
-                @Override
                 public long lastChanged(StoreItem item, long stopWhenFindYounger)
                 {
                     throw new UnsupportedOperationException("lastChanged");
                 }
 
-                @Override
                 public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
                 {
                     return checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
                 }
 
-                @Override
                 public String tryCheckDirectoryFullyAccessible(long timeOutMillis)
                 {
                     return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
                 }
 
-                @Override
                 public IExtendedFileStore tryAsExtended()
                 {
                     return localImpl.tryAsExtended();
                 }
 
-                @Override
                 public IStoreCopier getCopier(FileStore destinationDirectory)
                 {
                     return localImpl.getCopier(destinationDirectory);
                 }
 
-                @Override
                 public String getLocationDescription(StoreItem item)
                 {
                     return localImpl.getLocationDescription(item);
                 }
 
-                @Override
                 public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
                 {
                     return localImpl.tryListSortByLastModified(loggerOrNull);
