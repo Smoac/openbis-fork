@@ -22,9 +22,11 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.highwatermark.AlwaysAboveFreeSpaceProvider;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.RemoteFreeSpaceProvider;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -58,15 +60,17 @@ public class FileStoreRemote extends FileStore
             final String host)
     {
         final File sshExecutable = factory.tryFindSshExecutable();
+        final IFreeSpaceProvider freeSpaceProvider;
         if (sshExecutable != null)
         {
-            return new HighwaterMarkWatcher(highwaterMark, new RemoteFreeSpaceProvider(host,
-                    sshExecutable));
+            freeSpaceProvider = new RemoteFreeSpaceProvider(host, sshExecutable);
+        } else
+        {
+            operationLog.warn("Impossible to remotely watch the 'high water mark' "
+                    + "('ssh' executable not found).");
+            freeSpaceProvider = AlwaysAboveFreeSpaceProvider.INSTANCE;
         }
-        // We set the "high water mark" to -1, meaning that the system will not be watching.
-        operationLog.warn("Impossible to remotely watch the 'high water mark' "
-                + "(ssh executable not found).");
-        return new HighwaterMarkWatcher(-1);
+        return new HighwaterMarkWatcher(highwaterMark, freeSpaceProvider);
     }
 
     //
