@@ -73,7 +73,8 @@ public final class HighwaterMarkWatcher implements Runnable
         this(highwaterMarkInKb, DEFAULT_FREE_SPACE_PROVIDER);
     }
 
-    HighwaterMarkWatcher(final long highwaterMarkInKb, final IFreeSpaceProvider freeSpaceProvider)
+    public HighwaterMarkWatcher(final long highwaterMarkInKb,
+            final IFreeSpaceProvider freeSpaceProvider)
     {
         assert freeSpaceProvider != null : "Unspecified IFreeSpaceProvider";
         this.highwaterMarkInKb = highwaterMarkInKb;
@@ -344,6 +345,6 @@ public final class HighwaterMarkWatcher implements Runnable
         /**
          * Returns the free space on a drive or volume in kilobytes by invoking the command line.
          */
-        long freeSpaceKb(final File path) throws IOException;
+        public long freeSpaceKb(final File path) throws IOException;
     }
 }
