@@ -140,6 +140,14 @@ public final class HighwaterMarkWatcher implements Runnable
     }
 
     /**
+     * Returns the path to get free space for.
+     */
+    public final synchronized File getPath()
+    {
+        return path;
+    }
+
+    /**
      * Sets the path and calls {@link #run()} at the same time.
      */
     public final synchronized void setPathAndRun(final File path)
@@ -347,4 +355,5 @@ public final class HighwaterMarkWatcher implements Runnable
          */
         public long freeSpaceKb(final File path) throws IOException;
     }
+
 }
