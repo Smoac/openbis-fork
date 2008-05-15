@@ -40,17 +40,23 @@ public class PathHandlerAdapter implements IStoreHandler
         return new PathHandlerAdapter(handler, directory);
     }
 
+    private final File asFile(final StoreItem item)
+    {
+        return StoreItem.asFile(directory, item);
+    }
+
     //
     // IStoreHandler
     //
 
-    public void handle(final StoreItem item)
+    public final boolean mayHandle(final StoreItem item)
     {
-        final File path = StoreItem.asFile(directory, item);
-        if (pathHandler.mayHandle(path))
-        {
-            pathHandler.handle(path);
-        }
+        return pathHandler.mayHandle(asFile(item));
+    }
+
+    public final void handle(final StoreItem item)
+    {
+        pathHandler.handle(asFile(item));
     }
 
 }

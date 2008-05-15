@@ -25,4 +25,6 @@ package ch.systemsx.cisd.common.utilities;
 public interface IStoreHandler
 {
     void handle(StoreItem item);
+
+    boolean mayHandle(StoreItem item);
 }
