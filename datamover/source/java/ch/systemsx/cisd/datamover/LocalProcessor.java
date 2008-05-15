@@ -81,13 +81,14 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
-            final IPathImmutableCopier copier, final IPathMover mover)
+            final IPathImmutableCopier copier, final IPathMover mover,
+            final HighwaterMarkWatcher highwaterMarkWatcher)
     {
         this.parameters = parameters;
         this.inputDir = bufferDirs.getCopyCompleteDir();
         this.outputDir = bufferDirs.getReadyToMoveDir();
         this.tempDir = bufferDirs.getTempDir();
-        highwaterMarkWatcher = new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
+        this.highwaterMarkWatcher = highwaterMarkWatcher;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = copier;
         this.mover = mover;

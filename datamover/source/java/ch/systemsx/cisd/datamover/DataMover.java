@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Timer;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.PathHandlerInterceptor;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -134,11 +135,14 @@ public class DataMover
 
     private DataMoverProcess createLocalProcessor()
     {
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
         final LocalProcessor localProcessor =
                 new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(), factory
-                        .getMover());
+                        .getMover(), highwaterMarkWatcher);
         final PathHandlerInterceptor pathHandlerInterceptor =
                 new PathHandlerInterceptor(localProcessor);
+        highwaterMarkWatcher.addChangeListener(pathHandlerInterceptor);
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(),
                         FileUtilities.ACCEPT_ALL_FILTER, pathHandlerInterceptor);
