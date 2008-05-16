@@ -39,6 +39,8 @@ import ch.systemsx.cisd.common.process.ProcessResult;
  */
 public final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
 {
+    private static final char SPACE = ' ';
+
     private static final String DF_COMMAND_TEMPLATE = "df -k %s";
 
     private static final Logger machineLog =
@@ -92,24 +94,25 @@ public final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final String path = file.getPath();
         assert StringUtils.isNotEmpty(path) : "Empty path.";
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
-        final List<String> command = Arrays.asList(sshExecutable.getPath(), host, dfCommand);
+        final List<String> command = Arrays.asList(sshExecutable.getPath(), "-T", host, dfCommand);
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, millisToWaitForCompletion, operationLog,
                         machineLog);
         processResult.log();
         final List<String> processOutput = processResult.getProcessOutput();
+        final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);
         if (processOutput.size() >= 2)
         {
             final String output = processOutput.get(1);
-            final String[] split = StringUtils.split(output, ' ');
+            final String[] split = StringUtils.split(output, SPACE);
             if (split.length >= 4)
             {
                 // The column 'avail' (3th column) interests us.
-                return parseKbytes(split[3], dfCommand);
+                return parseKbytes(split[3], commandLine);
             }
         }
         throw new IOException(String.format(
-                "Command line '%s' did not return info as expected. Response was '%s'", dfCommand,
-                processOutput));
+                "Command line '%s' did not return info as expected. Response was '%s'",
+                commandLine, processOutput));
     }
 }
