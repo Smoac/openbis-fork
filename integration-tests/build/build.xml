@@ -41,6 +41,14 @@
 		</antcall>
 	</target>
 
+	<target name="relaunch-local-dmv-rebuild"
+	        description="Runs integration tests again, rebuilds datamover from local sources.">
+		<antcall target="internal-launch">
+			<param name="arg1" value="--dmv" />
+			<param name="arg2" value="--local-source" />
+		</antcall>
+	</target>
+
 	<target name="integration-tests" description="Runs integration tests, rebuild everything from svn sources.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--all" />
