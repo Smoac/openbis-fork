@@ -36,6 +36,7 @@ import org.kohsuke.args4j.spi.Setter;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
@@ -62,10 +63,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
-    
+
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script which checks whether incoming data is complete or not.")
     private String dataCompletedScript;
-    
+
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) data completed script will be stopped "
             + "[default: " + DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT + "]", handler = MillisecondConversionOptionHandler.class)
     private long dataCompletedScriptTimeout = toMillis(DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT);
@@ -384,8 +385,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         final Properties serviceProperties = loadServiceProperties();
         dataCompletedScript =
-                PropertyUtils.getProperty(serviceProperties,
-                        PropertyNames.DATA_COMPLETED_SCRIPT, dataCompletedScript);
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
+                        dataCompletedScript);
         dataCompletedScriptTimeout =
                 PropertyUtils.getPosLong(serviceProperties,
                         PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, dataCompletedScriptTimeout);
@@ -448,12 +449,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 tryCreateFile(serviceProperties, PropertyNames.EXTRA_COPY_DIR, extraCopyDirectory);
         if (serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX) != null)
         {
-            cleansingRegex = Pattern.compile(serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX));
+            cleansingRegex =
+                    Pattern.compile(serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX));
         }
         if (serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX) != null)
         {
             manualInterventionRegex =
-                    Pattern.compile(serviceProperties.getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX));
+                    Pattern.compile(serviceProperties
+                            .getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX));
         }
     }
 
@@ -689,10 +692,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             operationLog.info(String.format("Is incoming directory remote: %b.",
                     treatIncomingAsRemote));
-            operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory
-                    .getCanonicalPath()));
-            operationLog.info(String.format("Outgoing directory: '%s'.", outgoingDirectory
-                    .getCanonicalPath()));
+            operationLog.info(String.format("Buffer directory: '%s' [high water mark: %s].",
+                    bufferDirectory.getCanonicalPath(), HighwaterMarkWatcher
+                            .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
+            operationLog.info(String.format("Outgoing directory: '%s' [high water mark: %s].",
+                    outgoingDirectory.getCanonicalPath(), HighwaterMarkWatcher
+                            .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
             if (null != outgoingHost)
             {
                 operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
