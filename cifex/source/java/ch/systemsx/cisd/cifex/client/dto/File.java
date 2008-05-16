@@ -36,6 +36,9 @@ public final class File implements IsSerializable
     /** File name. */
     private String name;
 
+    /** The comment that the uploader provided. */
+    private String comment;
+
     /**
      * Size of the file.
      * <p>
@@ -136,6 +139,16 @@ public final class File implements IsSerializable
     public final void setContentType(final String contentType)
     {
         this.contentType = contentType;
+    }
+
+    public String getComment()
+    {
+        return comment;
+    }
+
+    public void setComment(String comment)
+    {
+        this.comment = comment;
     }
 
 }

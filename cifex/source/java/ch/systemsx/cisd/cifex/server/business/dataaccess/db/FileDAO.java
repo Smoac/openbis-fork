@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
  */
 final public class FileDAO extends AbstractDAO implements IFileDAO
 {
+    private static final int MAX_COMMENT_LENGTH = 1000;
+
     private static final FileWithRegistererRowMapper FILE_WITH_REGISTERER_ROW_MAPPER =
             new FileWithRegistererRowMapper();
 
@@ -49,10 +52,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             new SharingUserRowMapper();
 
     private static final String SELECT =
-            "select f.ID as f_id, f.NAME as f_name, f.PATH as f_path, f.USER_ID as f_user_id, "
+            "select f.ID as f_id, f.NAME as f_name, f.PATH as f_path, f.COMMENT as f_comment, "
+                    + "f.USER_ID as f_user_id, "
                     + "f.REGISTRATION_TIMESTAMP as f_registration_timestamp, "
-                    + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, f.CONTENT_TYPE as f_content_type,"
-                    + "f.SIZE as f_size";
+                    + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, "
+                    + "f.CONTENT_TYPE as f_content_type," + "f.SIZE as f_size";
 
     private static final String FILES_JOIN_USERS =
             SELECT + ", u.* " + " from files as f "
@@ -95,9 +99,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final long id = createID();
         getSimpleJdbcTemplate()
                 .update(
-                        "insert into files (ID, NAME, PATH, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?)",
-                        id, file.getName(), file.getPath(), file.getRegistratorId(),
-                        file.getContentType(), file.getSize(), file.getExpirationDate());
+                        "insert into files (ID, NAME, PATH, COMMENT, USER_ID, CONTENT_TYPE, SIZE, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?,?)",
+                        id, file.getName(), file.getPath(),
+                        StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH),
+                        file.getRegistratorId(), file.getContentType(), file.getSize(),
+                        file.getExpirationDate());
         file.setID(id);
     }
 
@@ -111,8 +117,9 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
         template.update(
-                "update files set name = ?, path = ?, expiration_timestamp = ?, user_id = ?, content_type = ?,"
-                        + "size = ? where id = ?", file.getName(), file.getPath(), file
+                "update files set name = ?, path = ?, comment = ?, expiration_timestamp = ?, "
+                        + "user_id = ?, content_type = ?, size = ? where id = ?", file.getName(),
+                file.getPath(), StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH), file
                         .getExpirationDate(), file.getRegistratorId(), file.getContentType(), file
                         .getSize(), file.getID());
     }
@@ -206,6 +213,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             file.setID(rs.getLong("f_ID"));
             file.setName(rs.getString("f_NAME"));
             file.setPath(rs.getString("f_PATH"));
+            file.setComment(rs.getString("f_COMMENT"));
             file.setContentType(rs.getString("f_CONTENT_TYPE"));
             final long size = rs.getLong("f_SIZE");
             if (rs.wasNull() == false)

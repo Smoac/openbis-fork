@@ -103,7 +103,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             throws ServletException, IOException, InvalidSessionException
     {
         final UserDTO requestUser = getUserDTO(request); // Throws exception if session is not
-                                                            // valid.
+        // valid.
         final boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart == false)
         {
@@ -237,8 +237,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                                 .getFieldName(), item.getName()));
                     }
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, filenameInStream, item
-                                    .getContentType(), stream);
+                            fileManager.saveFile(requestUser, filenameInStream, comment.toString(),
+                                    item.getContentType(), stream);
                     files.add(file);
                 } else
                 {
@@ -262,6 +262,12 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))
                 {
                     comment.append(Streams.asString(stream));
+                    final String commentStr = comment.toString();
+                    for (FileDTO file : files)
+                    {
+                        file.setComment(commentStr);
+                        fileManager.updateFile(file);
+                    }
                 }
             }
         }

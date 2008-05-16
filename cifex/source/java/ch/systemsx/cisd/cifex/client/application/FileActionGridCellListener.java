@@ -25,6 +25,7 @@ import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -56,7 +57,9 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         final Record record = grid.getStore().getAt(rowIndex);
         final int id = record.getAsInteger(AbstractFileGridModel.ID);
         final String name = record.getAsString(AbstractFileGridModel.NAME);
-        if (grid.getColumnModel().getDataIndex(colindex).equals(AbstractFileGridModel.ACTION))
+        final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
+        if (dataIndex.equals(AbstractFileGridModel.ACTION)
+                || dataIndex.equals(AbstractFileGridModel.COMMENT))
         {
             final IMessageResources messageResources = viewContext.getMessageResources();
             final Element element = e.getTarget();
@@ -91,7 +94,19 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                 viewContext.getCifexService().updateFileExpiration(id, null,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid));
             }
-
+            // Show Comment
+            if (Constants.SHOW_COMMENT_ID.equals(targetId))
+            {
+                final String comment =
+                        DOM.getElementAttribute(e.getTarget(), "title").replaceAll("\n", "<br>");
+                final DefaultLayoutDialog layoutDialog =
+                        new DefaultLayoutDialog(viewContext.getMessageResources(), messageResources
+                                .getFileCommentTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
+                                DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
+                layoutDialog.addContentPanel();
+                layoutDialog.show();
+                layoutDialog.getContentPanel().setContent(comment);
+            }
         }
     }
 

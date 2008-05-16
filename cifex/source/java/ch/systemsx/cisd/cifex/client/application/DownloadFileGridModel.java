@@ -23,6 +23,7 @@ import com.gwtext.client.data.DateFieldDef;
 import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
+import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -44,6 +45,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         final List configs = new ArrayList();
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
+        configs.add(createCommentColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
         configs.add(createRegistererColumnConfig());
@@ -62,7 +64,9 @@ public class DownloadFileGridModel extends AbstractFileGridModel
             // We can not use 'Integer.valueOf' here as GWT does not support it.
             final Object[] objects =
                     new Object[]
-                        { new Integer((int) file.getID()), file.getName(), file.getContentType(),
+                        { new Integer((int) file.getID()), file.getName(),
+                                CommentRenderer.createCommentAnchor(file),
+                                file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
                                 file.getRegistrationDate(), file.getExpirationDate() };
@@ -76,6 +80,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new StringFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
+        fieldDefs.add(new StringFieldDef(COMMENT));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));
         fieldDefs.add(new StringFieldDef(REGISTERER));

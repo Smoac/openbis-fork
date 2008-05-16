@@ -30,6 +30,9 @@ public final class Constants
     /** The <code>id</code> attribute value for renew action. */
     public static final String RENEW_ID = "renew";
 
+    /** The <code>id</code> attribute value for "show comment" action. */
+    public static final String SHOW_COMMENT_ID = "showcomment";
+
     /** The <code>id</code> attribute value for edit action. */
     public static final String EDIT_ID = "edit";
 

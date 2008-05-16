@@ -23,6 +23,7 @@ import com.gwtext.client.data.DateFieldDef;
 import com.gwtext.client.data.IntegerFieldDef;
 import com.gwtext.client.data.StringFieldDef;
 
+import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
@@ -45,6 +46,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         final List configs = new ArrayList();
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig());
+        configs.add(createCommentColumnConfig());
         configs.add(createRegistererColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
@@ -67,6 +69,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
                         {
                                 new Integer((int) file.getID()),
                                 file.getName(),
+                                CommentRenderer.createCommentAnchor(file),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
                                 file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
@@ -87,6 +90,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         final List fieldDefs = new ArrayList();
         fieldDefs.add(new IntegerFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
+        fieldDefs.add(new StringFieldDef(COMMENT));
         fieldDefs.add(new StringFieldDef(REGISTERER));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));

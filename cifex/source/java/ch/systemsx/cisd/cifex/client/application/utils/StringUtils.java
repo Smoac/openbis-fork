@@ -44,6 +44,18 @@ public final class StringUtils
     {
         return value == null || value.trim().length() == 0;
     }
+    
+    public final static String abbreviate(final String value, final int maxLength)
+    {
+        assert maxLength > 4;
+        if (value.length() > maxLength)
+        {
+            return value.substring(0, maxLength - 3) + "...";
+        } else
+        {
+            return value;
+        }
+    }
 
     /**
      * Returns <code>null</code> if given <var>value</var> is blank.

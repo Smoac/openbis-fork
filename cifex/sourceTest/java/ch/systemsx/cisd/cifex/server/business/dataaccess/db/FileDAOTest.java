@@ -49,7 +49,7 @@ public final class FileDAOTest extends AbstractDAOTest
         return listUsers.get(0);
     }
 
-    private final FileDTO createFile(final String name, final String path,
+    private final FileDTO createFile(final String name, final String path, final String comment,
             final UserDTO registerer, final Date expirationDate)
     {
         final List<UserDTO> fileViewers = new ArrayList<UserDTO>();
@@ -58,6 +58,7 @@ public final class FileDAOTest extends AbstractDAOTest
         file.setExpirationDate(expirationDate);
         file.setName(name);
         file.setPath(path);
+        file.setComment(comment);
         file.setRegisterer(registerer);
         file.setSharingUsers(fileViewers);
         return file;
@@ -67,8 +68,9 @@ public final class FileDAOTest extends AbstractDAOTest
     {
         final String name = "file.txt";
         final String path = "/files/" + registerer.getUserFullName() + "/" + name;
+        final String comment = "A test comment.";
         final Date expirationDate = new Date(new Long("1222249782000").longValue());
-        return createFile(name, path, registerer, expirationDate);
+        return createFile(name, path, comment, registerer, expirationDate);
     }
 
     private final FileDTO createSampleFile()
@@ -281,8 +283,10 @@ public final class FileDAOTest extends AbstractDAOTest
 
         final Date newExpirationDate = DateUtils.addMinutes(new Date(), 42);
         final String newName = "AppendNewName_" + sampleFile.getName();
+        final String newComment = sampleFile.getComment() + "(1)";
         sampleFile.setExpirationDate(newExpirationDate);
         sampleFile.setName(newName);
+        sampleFile.setComment(newComment);
         fileDAO.updateFile(sampleFile);
 
         assertEquals(1, fileDAO.listFiles().size());

@@ -87,13 +87,14 @@ public interface IFileManager
      * 
      * @param user The owner of the file.
      * @param fileName The name of the file. May contain the full path.
+     * @param comment The comment that the uploader has provided.
      * @param contentType Content type passed by the browser or <code>null</code> if not defined.
      * @param inputStream Input stream of file content.
      * @return file DTO with id.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public FileDTO saveFile(final UserDTO user, final String fileName, final String contentType,
-            final InputStream inputStream);
+    public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
+            final String contentType, final InputStream inputStream);
 
     /**
      * Creates sharing links between the users specified by their e-mail addresses and the specified
@@ -132,5 +133,13 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void updateFileExpiration(final long fileId, final Date newExpirationDate);
+
+    /**
+     * Update the file DTO.
+     * 
+     * @param file The file DTO to update.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void updateFile(final FileDTO file);
 
 }

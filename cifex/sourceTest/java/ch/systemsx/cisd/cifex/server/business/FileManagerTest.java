@@ -398,6 +398,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     {
         final UserDTO user = userAlice;
         final String filePath = imageFile.getPath();
+        final String comment = "This is a test comment for a test file";
         final File inputFile = createRealFile(filePath + "_user");
         final InputStream inputStream = new FileInputStream(inputFile);
         File filePathIfFileNotExisted = new File(fileStore, filePath);
@@ -426,16 +427,17 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         final FileDTO createdFileDTO =
-                fileManager.saveFile(user, imageFile.getName(), imageFile.getContentType(),
-                        inputStream);
+                fileManager.saveFile(user, imageFile.getName(), comment,
+                        imageFile.getContentType(), inputStream);
         final File createdFile = new File(fileStore, createdFileDTO.getPath());
         assertTrue(createdFile.exists());
-        assertEquals(createdFile.getPath(), expectedFilePath.getPath());
-        assertEquals(createdFileDTO.getContentType(), imageFile.getContentType());
-        assertEquals(createdFileDTO.getRegistratorId(), imageFile.getRegistratorId());
-        assertEquals(createdFileDTO.getSharingUsers(), imageFile.getSharingUsers());
-        assertEquals(createdFileDTO.getName(), imageFile.getName());
-        assertEquals(createdFileDTO.getSize().longValue(), inputFile.length());
+        assertEquals(expectedFilePath.getPath(), createdFile.getPath());
+        assertEquals(imageFile.getContentType(), createdFileDTO.getContentType());
+        assertEquals(imageFile.getRegistratorId(), createdFileDTO.getRegistratorId());
+        assertEquals(imageFile.getSharingUsers(), createdFileDTO.getSharingUsers());
+        assertEquals(imageFile.getName(), createdFileDTO.getName());
+        assertEquals(comment, createdFileDTO.getComment());
+        assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
         context.assertIsSatisfied();
     }
 

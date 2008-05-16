@@ -197,6 +197,13 @@ public interface IMessageResources extends Messages
     public String getFileDeleteTitle();
 
     /**
+     * Returns the title for showing the comment.
+     * 
+     * @gwt.key file.comment.title
+     */
+    public String getFileCommentTitle();
+
+    /**
      * Returns the label of the file expiration date column.
      * 
      * @gwt.key file.expirationdate.label
@@ -209,6 +216,13 @@ public interface IMessageResources extends Messages
      * @gwt.key file.name.label
      */
     public String getFileNameLabel();
+
+    /**
+     * Returns the label of the comment name column.
+     * 
+     * @gwt.key file.comment.label
+     */
+    public String getFileCommentLabel();
 
     /**
      * Returns the label of the file registration date column.

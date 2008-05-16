@@ -33,7 +33,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 public class DAOFactory implements IDAOFactory
 {
     /** Current version of the database. */
-    public static final String DATABASE_VERSION = "002";
+    public static final String DATABASE_VERSION = "003";
 
     private final IUserDAO userDAO;
 

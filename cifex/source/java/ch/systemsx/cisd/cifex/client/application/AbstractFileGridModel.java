@@ -36,6 +36,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String NAME = "name";
 
+    protected static final String COMMENT = "comment";
+
     protected static final String CONTENT_TYPE = "contentType";
 
     protected static final String SIZE = "size";
@@ -66,6 +68,13 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
                 createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 140);
         nameConfig.setRenderer(LinkRenderer.LINK_RENDERER);
         return nameConfig;
+    }
+
+    protected final ColumnConfig createCommentColumnConfig()
+    {
+        final ColumnConfig commentConfig =
+                createSortableColumnConfig(COMMENT, messageResources.getFileCommentLabel(), 140);
+        return commentConfig;
     }
 
     protected final ColumnConfig createExpirationDateColumnConfig()

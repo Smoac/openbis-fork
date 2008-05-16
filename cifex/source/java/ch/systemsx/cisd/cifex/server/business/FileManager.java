@@ -269,7 +269,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     @Transactional
     public final FileDTO saveFile(final UserDTO user, final String fileName,
-            final String contentType, final InputStream input)
+            String comment, final String contentType, final InputStream input)
     {
         assert user != null : "Unspecified user.";
         assert user.getEmail() != null : "Unspecified email of user " + user;
@@ -301,6 +301,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     fileDTO.setContentType(contentType);
                     fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(),
                             file));
+                    fileDTO.setComment(comment);
                     fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
                             .getFileRetention()));
                     fileDTO.setSize(byteCount);
@@ -551,6 +552,11 @@ final class FileManager extends AbstractManager implements IFileManager
             throw new IllegalArgumentException(msg);
         }
         return file;
+    }
+
+    public void updateFile(FileDTO file)
+    {
+        daoFactory.getFileDAO().updateFile(file);
     }
 
 }

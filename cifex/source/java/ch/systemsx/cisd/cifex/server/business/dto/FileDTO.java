@@ -32,6 +32,9 @@ public final class FileDTO extends ID
 
     /** The relative location of this file. */
     private String path;
+    
+    /** The comment the uploader provided. */
+    private String comment;
 
     /**
      * Represents registrator of the file.
@@ -143,6 +146,16 @@ public final class FileDTO extends ID
     public final void setSize(final Long size)
     {
         this.basicFileDTO.setSize(size);
+    }
+
+    public String getComment()
+    {
+        return comment;
+    }
+
+    public void setComment(String comment)
+    {
+        this.comment = comment;
     }
 
 }

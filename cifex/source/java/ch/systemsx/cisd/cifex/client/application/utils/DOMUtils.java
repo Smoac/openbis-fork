@@ -62,7 +62,7 @@ public final class DOMUtils
     }
 
     /**
-     * Creates an email anchor with given <var>email</var>.
+     * Creates an anchor for an <var>email</var>.
      * 
      * @param innerText if blank, then given <var>email</var> is taken as inner text.
      */
@@ -73,6 +73,20 @@ public final class DOMUtils
         DOM.setElementAttribute(anchor, "href", "mailto:" + email);
         DOM.setElementAttribute(anchor, "title", email);
         DOM.setInnerText(anchor, innerText == null ? email : innerText);
+        return DOM.toString(anchor);
+    }
+
+    /**
+     * Creates an anchor for an <var>tooltip</var>.
+     * 
+     * @param innerText if blank, then given <var>tooltip</var> is taken as inner text.
+     */
+    public final static String createAnchorWithTooltip(final String tooltip, final String innerText)
+    {
+        assert tooltip != null : "Undefined tooltip.";
+        final Element anchor = DOMUtils.createBasicAnchorElement();
+        DOM.setElementAttribute(anchor, "title", tooltip);
+        DOM.setInnerText(anchor, innerText == null ? tooltip : innerText);
         return DOM.toString(anchor);
     }
 
@@ -87,27 +101,45 @@ public final class DOMUtils
     /** Creates an anchor with given <var>value</var>. */
     public final static String createAnchor(final String value)
     {
-        return createAnchor(value, null, null, null);
+        return createAnchor(null, value, null, null, null);
     }
 
     /** Creates an anchor with given <var>value</var> and given style <var>id</var>. */
     public final static String createAnchor(final String value, final String id)
     {
         assert value != null : "Undefined value.";
-        return createAnchor(value, null, null, id);
+        return createAnchor(null, value, null, null, id);
+    }
+
+    /** Creates an anchor with given <var>value</var> and given style <var>id</var>. */
+    public final static String createAnchor(final String title, final String value, final String id)
+    {
+        assert value != null : "Undefined value.";
+        return createAnchor(title, value, null, null, id);
     }
 
     /**
      * Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var>
      * and given <var>id</var>.
+     * 
+     * @param title TODO
      */
-    public final static String createAnchor(final String value, final String href,
+    private final static String createAnchor(String title, final String value, final String href,
             final String target, final String id)
     {
         assert value != null : "Undefined value.";
         final Element anchor = createBasicAnchorElement();
         DOM.setElementAttribute(anchor, "href", href == null ? "javascript:return void;" : href);
-        DOM.setElementAttribute(anchor, "title", href == null ? value : href);
+        if (title != null)
+        {
+            DOM.setElementAttribute(anchor, "title", title);
+        } else if (href == null)
+        {
+            DOM.setElementAttribute(anchor, "title", value);
+        } else
+        {
+            DOM.setElementAttribute(anchor, "title", href);
+        }
         if (target != null)
         {
             DOM.setElementAttribute(anchor, "target", target);
