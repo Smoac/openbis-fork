@@ -67,6 +67,8 @@ public class DatasetDownloadServlet extends HttpServlet
 
     static final String DISPLAY_MODE_KEY = "mode";
 
+    static final String BINARY_CONTENT_TYPE = "binary";
+
     private static final long serialVersionUID = 1L;
 
     protected static final Logger operationLog =
@@ -362,6 +364,7 @@ public class DatasetDownloadServlet extends HttpServlet
         response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
         ServletOutputStream outputStream = null;
         FileInputStream fileInputStream = null;
+        response.setContentType(BINARY_CONTENT_TYPE);
         try
         {
             outputStream = response.getOutputStream();

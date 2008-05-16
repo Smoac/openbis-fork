@@ -43,6 +43,7 @@ public class PlainTextRendererFactory implements IRendererFactory
 
                 public void printErrorMessage(String errorMessage)
                 {
+                    writer.println("Error:");
                     writer.println(errorMessage);
                 }
 
@@ -83,6 +84,7 @@ public class PlainTextRendererFactory implements IRendererFactory
 
         public void printHeader(ExternalData dataSet)
         {
+            writer.println("Directory content:");
         }
 
         public void printLinkToParentDirectory(String relativePath)
