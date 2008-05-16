@@ -54,6 +54,8 @@ final class FooterPanel extends HorizontalPanel
 
     private final Element disclaimerLink;
 
+    private final Element documentationLink;
+
     FooterPanel(final ViewContext context)
     {
         final Configuration configuration = context.getModel().getConfiguration();
@@ -66,10 +68,12 @@ final class FooterPanel extends HorizontalPanel
                 createContactAdministrator(configuration, messageResources);
         final String version = createVersionDiv(configuration);
         disclaimerLink = createDisclaimerLink(messageResources);
+        documentationLink = createDocumentationLink(messageResources);
         final HTML html =
                 new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version
                         + SEPARATOR + contactAdministrator + SEPARATOR
-                        + DOM.toString(disclaimerLink))
+                        + DOM.toString(disclaimerLink) + SEPARATOR
+                        + DOM.toString(documentationLink))
                     {
 
                         //
@@ -88,12 +92,27 @@ final class FooterPanel extends HorizontalPanel
                                     try
                                     {
                                         new RequestBuilder(RequestBuilder.GET, "disclaimer.html")
-                                                .sendRequest(null, new DisclaimerRequestCallback());
+                                                .sendRequest(null, new HTMLRequestCallback(
+                                                        messageResources
+                                                                .getFooterDisclaimerDialogTitle()));
+                                    } catch (final RequestException ex)
+                                    {
+                                        showErrorMessage(ex);
+                                    }
+                                } else if (documentationLink.toString().equals(target.toString()))
+                                {
+                                    try
+                                    {
+                                        new RequestBuilder(RequestBuilder.GET, "documentation.html")
+                                                .sendRequest(null, new HTMLRequestCallback(
+                                                        messageResources
+                                                                .getFooterDocumentationDialogTitle()));
                                     } catch (final RequestException ex)
                                     {
                                         showErrorMessage(ex);
                                     }
                                 }
+
                             }
                         }
                     };
@@ -106,6 +125,13 @@ final class FooterPanel extends HorizontalPanel
     {
         final Element element = DOMUtils.createBasicAnchorElement();
         DOM.setInnerHTML(element, messageResources.getFooterDisclaimerLinkLabel());
+        return element;
+    }
+
+    private final static Element createDocumentationLink(final IMessageResources messageResources)
+    {
+        final Element element = DOMUtils.createBasicAnchorElement();
+        DOM.setInnerHTML(element, messageResources.getFooterDocumentationLinkLabel());
         return element;
     }
 
@@ -146,8 +172,14 @@ final class FooterPanel extends HorizontalPanel
     /**
      * A {@link RequestCallback} that shows a legal disclaimer on success.
      */
-    private final class DisclaimerRequestCallback implements RequestCallback
+    private final class HTMLRequestCallback implements RequestCallback
     {
+        private String panelTitle;
+
+        public HTMLRequestCallback(String title)
+        {
+            this.panelTitle = title;
+        }
 
         //
         // RequestCallback
@@ -156,8 +188,7 @@ final class FooterPanel extends HorizontalPanel
         public final void onResponseReceived(final Request request, final Response response)
         {
             final DefaultLayoutDialog layoutDialog =
-                    new DefaultLayoutDialog(viewContext.getMessageResources(), viewContext
-                            .getMessageResources().getFooterDisclaimerDialogTitle(),
+                    new DefaultLayoutDialog(viewContext.getMessageResources(), this.panelTitle,
                             DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
                             true, true);
             layoutDialog.addContentPanel();

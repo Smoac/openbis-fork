@@ -85,13 +85,14 @@ final class MainPage extends AbstractMainPage
         verticalPanel.add(createExplanationPanel());
         verticalPanel.add(new FileUploadWidget(context));
         contentPanel.add(verticalPanel);
+        
+        createListFilesGrid(contentPanel, DOWNLOAD);
         if (user.isPermanent() && user.isAdmin() == false)
         {
             contentPanel.add(createUserPanel);
         }
-        contentPanel.add(listCreatedUserPanel);
         createListFilesGrid(contentPanel, UPLOAD);
-        createListFilesGrid(contentPanel, DOWNLOAD);
+        contentPanel.add(listCreatedUserPanel);
         return contentPanel;
     }
 

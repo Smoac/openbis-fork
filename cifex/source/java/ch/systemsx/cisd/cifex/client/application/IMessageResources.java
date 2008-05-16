@@ -314,7 +314,14 @@ public interface IMessageResources extends Messages
      * @gwt.key footer.disclaimer.dialog.title
      */
     public String getFooterDisclaimerDialogTitle();
-
+    
+    /**
+     * Returns title of the disclaimer window dialog.
+     * 
+     * @gwt.key footer.documentation.dialog.title
+     */
+    public String getFooterDocumentationDialogTitle();
+    
     /**
      * Returns disclaimer link label.
      * 
@@ -322,6 +329,13 @@ public interface IMessageResources extends Messages
      */
     public String getFooterDisclaimerLinkLabel();
 
+    /**
+     * Returns documentation link label.
+     * 
+     * @gwt.key footer.documentation.link.label
+     */
+    public String getFooterDocumentationLinkLabel();
+    
     /**
      * Returns the 'powered by' label.
      * 
