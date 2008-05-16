@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -69,7 +70,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) data completed script will be stopped "
             + "[default: " + DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT + "]", handler = MillisecondConversionOptionHandler.class)
-    private long dataCompletedScriptTimeout = toMillis(DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT);
+    private long dataCompletedScriptTimeout = DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT;
 
     /**
      * The name of the <code>rsync</code> executable to use for copy operations.
@@ -113,7 +114,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(name = "c", longName = PropertyNames.CHECK_INTERVAL, usage = "The interval to wait between two checks (in seconds) "
             + "[default: 60]", handler = MillisecondConversionOptionHandler.class)
-    private long checkIntervalMillis = toMillis(DEFAULT_CHECK_INTERVAL);
+    private long checkIntervalMillis = DEFAULT_CHECK_INTERVAL;
 
     /**
      * Default interval to wait between two checks for activity for the internal processing queues
@@ -127,7 +128,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.CHECK_INTERVAL_INTERNAL, usage = "The interval to wait between two checks for the internal processing queues (in seconds) "
             + "[default: 10]", handler = MillisecondConversionOptionHandler.class)
-    private long checkIntervalInternalMillis = toMillis(DEFAULT_CHECK_INTERVAL_INTERNAL);
+    private long checkIntervalInternalMillis = DEFAULT_CHECK_INTERVAL_INTERNAL;
 
     /**
      * Default period to wait before a file or directory is considered "inactive" or "stalled" (in
@@ -142,7 +143,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(name = "i", longName = PropertyNames.INACTIVITY_PERIOD, usage = "The period to wait before a file or directory is "
             + "considered \"inactive\" or \"stalled\" (in seconds) [default: 600].", handler = MillisecondConversionOptionHandler.class)
-    private long inactivityPeriodMillis = toMillis(DEFAULT_INACTIVITY_PERIOD);
+    private long inactivityPeriodMillis = DEFAULT_INACTIVITY_PERIOD;
 
     /**
      * Default period to wait before a file or directory is considered "quiet" (in seconds).
@@ -156,7 +157,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(name = "q", longName = PropertyNames.QUIET_PERIOD, usage = "The period that needs to pass before a path item is "
             + "considered quiet (in seconds) [default: 300].", handler = MillisecondConversionOptionHandler.class)
-    private long quietPeriodMillis = toMillis(DEFAULT_QUIET_PERIOD);
+    private long quietPeriodMillis = DEFAULT_QUIET_PERIOD;
 
     /**
      * Default period to wait before a file or directory is considered "quiet" (in seconds).
@@ -169,8 +170,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(name = "f", longName = PropertyNames.FAILURE_INTERVAL, usage = "The interval to wait after a failure has occurred "
             + "before retrying the operation (in seconds) [default: 1800].", handler = MillisecondConversionOptionHandler.class)
-    private long intervalToWaitAfterFailureMillis =
-            toMillis(DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES);
+    private long intervalToWaitAfterFailureMillis = DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES;
 
     /**
      * Default treatment of the incoming data directory - should it be treated as on a remote share?
@@ -376,7 +376,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private final static long toMillis(final int seconds)
+    private final static long toMillis(final long seconds)
     {
         return seconds * DateUtils.MILLIS_PER_SECOND;
     }
@@ -388,8 +388,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
                         dataCompletedScript);
         dataCompletedScriptTimeout =
-                PropertyUtils.getPosLong(serviceProperties,
-                        PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, dataCompletedScriptTimeout);
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, dataCompletedScriptTimeout));
         rsyncExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.RSYNC_EXECUTABLE,
                         rsyncExecutable);
@@ -403,20 +403,20 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.HARD_LINK_EXECUTABLE,
                         hardLinkExecutable);
         checkIntervalMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
-                        checkIntervalMillis);
+                toMillis(PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
+                        checkIntervalMillis));
         checkIntervalInternalMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL_INTERNAL,
-                        checkIntervalInternalMillis);
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.CHECK_INTERVAL_INTERNAL, checkIntervalInternalMillis));
         inactivityPeriodMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.INACTIVITY_PERIOD,
-                        inactivityPeriodMillis);
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.INACTIVITY_PERIOD, inactivityPeriodMillis));
         quietPeriodMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.QUIET_PERIOD,
-                        quietPeriodMillis);
+                toMillis(PropertyUtils.getPosLong(serviceProperties, PropertyNames.QUIET_PERIOD,
+                        quietPeriodMillis));
         intervalToWaitAfterFailureMillis =
-                PropertyUtils.getPosLong(serviceProperties, PropertyNames.FAILURE_INTERVAL,
-                        intervalToWaitAfterFailureMillis);
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.FAILURE_INTERVAL, intervalToWaitAfterFailureMillis));
         maximalNumberOfRetries =
                 PropertyUtils.getPosInt(serviceProperties, PropertyNames.MAX_RETRIES,
                         maximalNumberOfRetries);
@@ -712,15 +712,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
                         .getAbsolutePath()));
             }
-            operationLog.info(String.format("Check intervall (external): %d s.",
-                    getCheckIntervalMillis() / 1000));
-            operationLog.info(String.format("Check intervall (internal): %d s.",
-                    getCheckIntervalInternalMillis() / 1000));
-            operationLog.info(String.format("Quiet period: %d s.", getQuietPeriodMillis() / 1000));
-            operationLog.info(String.format("Inactivity (stall) period: %d s.",
-                    getInactivityPeriodMillis() / 1000));
-            operationLog.info(String.format("Intervall to wait after failure: %d s.",
-                    getIntervalToWaitAfterFailure() / 1000));
+            operationLog.info(String.format("Check intervall (external): %s s.",
+                    DurationFormatUtils.formatDuration(getCheckIntervalMillis(), "s")));
+            operationLog.info(String.format("Check intervall (internal): %s s.",
+                    DurationFormatUtils.formatDuration(getCheckIntervalInternalMillis(), "s")));
+            operationLog.info(String.format("Quiet period: %s s.", DurationFormatUtils
+                    .formatDuration(getQuietPeriodMillis(), "s")));
+            operationLog.info(String.format("Inactivity (stall) period: %s s.", DurationFormatUtils
+                    .formatDuration(getInactivityPeriodMillis(), "s")));
+            operationLog.info(String.format("Intervall to wait after failure: %s s.",
+                    DurationFormatUtils.formatDuration(getIntervalToWaitAfterFailure(), "s")));
             operationLog.info(String.format("Maximum number of retries: %d.",
                     getMaximalNumberOfRetries()));
             if (tryGetCleansingRegex() != null)
@@ -762,7 +763,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final void set(final long value) throws CmdLineException
         {
-            setter.addValue(value * 1000);
+            setter.addValue(toMillis(value));
         }
 
     }
