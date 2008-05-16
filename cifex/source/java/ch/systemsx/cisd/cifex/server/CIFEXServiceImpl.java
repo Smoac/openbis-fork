@@ -308,7 +308,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 {
                     operationLog.error(ex.getMessage(), ex);
                     // This is actually an environment failure since the user couldn't have done
-                    // anything differnt.
+                    // anything different.
                     throw new EnvironmentFailureException(ex.getMessage());
                 }
             } else
