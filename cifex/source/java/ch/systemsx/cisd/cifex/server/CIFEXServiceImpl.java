@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.server;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,7 +42,6 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
-import ch.systemsx.cisd.cifex.server.business.EMailBuilderForNewUser;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
@@ -55,9 +53,7 @@ import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
@@ -308,16 +304,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 try
                 {
                     userManager.createUser(userDTO);
-                } catch (final DataIntegrityViolationException ex)
+                } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
                 {
-                    final String msg =
-                            "User '"
-                                    + code
-                                    + "' with email '"
-                                    + email
-                                    + "' cannot be created because a user with this code already exists in the database.";
-                    operationLog.error(msg, ex);
-                    throw new EnvironmentFailureException(msg);
+                    operationLog.error(ex.getMessage(), ex);
+                    // This is actually an environment failure since the user couldn't have done
+                    // anything differnt.
+                    throw new EnvironmentFailureException(ex.getMessage());
                 }
             } else
             { // check whether name or email of the principal have changed, and update, if
@@ -361,8 +353,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    // TODO 2008-02-06, Basil Neff Move logic to UserManager: tryToCreateUser(User user, String
-    // encryptedPassword)
     public void createUser(final User user, final String password, final User registratorOrNull,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
@@ -371,53 +361,23 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IUserManager userManager = domainModel.getUserManager();
 
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
-        final String finalPassword = getFinalPassword(password);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
         final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registratorOrNull);
-        userDTO.setRegistrator(registratorDTO);
         try
         {
-            userManager.createUser(userDTO);
-        } catch (final DataIntegrityViolationException ex)
+            userManager.createUserAndSendEmail(userDTO, password, registratorDTO, comment,
+                    getBasicURL());
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
-            final String msg =
-                    "User with Username '" + user.getUserCode()
-                            + "' already exists in the database but email needs to be unique.";
-            operationLog.error(msg, ex);
-            throw new UserFailureException(msg);
-        }
-
-        try
+            throw new UserFailureException(ex.getMessage());
+        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
-            final IMailClient mailClient = domainModel.getMailClient();
-            final EMailBuilderForNewUser builder =
-                    new EMailBuilderForNewUser(mailClient, registratorDTO, userDTO);
-            builder.setURL(getURLForEmail(requestContextProvider.getHttpServletRequest()));
-            builder.setPassword(finalPassword);
-            if (comment != null && comment.equals("") == false)
-            {
-                builder.setComment(comment);
-            }
-            builder.sendEMail();
-        } catch (final Exception ex)
-        {
-            final String msg =
-                    "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
-            operationLog.error(msg, ex);
-            throw new EnvironmentFailureException(msg);
+            throw new EnvironmentFailureException(ex.getMessage());
         }
     }
 
-    private String getURLForEmail(HttpServletRequest request)
+    private String getBasicURL()
     {
-        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
-        if (StringUtils.isBlank(overrideURL))
-        {
-            return HttpUtils.getBasicURL(request);
-        } else
-        {
-            return overrideURL;
-        }
+        return HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest());
     }
 
     private void checkCreateUserAllowed(final User user) throws InvalidSessionException,
@@ -434,18 +394,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throw new InsufficientPrivilegesException(
                     "Method 'tryToCreateUser': insufficient privileges for "
                             + describeUser(currentUser) + ".");
-        }
-    }
-
-    private String getFinalPassword(final String password)
-    {
-        if (StringUtils.isBlank(password))
-        {
-            final PasswordGenerator passwordGenerator = domainModel.getPasswordGenerator();
-            return passwordGenerator.generatePassword(10);
-        } else
-        {
-            return password;
         }
     }
 

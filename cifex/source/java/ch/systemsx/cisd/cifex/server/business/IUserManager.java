@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -57,11 +58,32 @@ public interface IUserManager
     public List<UserDTO> listUsersRegisteredBy(final String userCode);
 
     /**
-     * Creates the specified user in the database. As a side effect the unqiue ID of
-     * <code>user</code> will be set.
+     * Creates the specified <var>user</var> in the database. The password and the registrator need
+     * already be set if this is desired.
+     * <p>
+     * As a side effect the unqiue ID of <code>user</code> will be set.
+     * 
+     * @throws UserFailureException If a user with that id already exists in the database
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createUser(UserDTO user);
+    public void createUser(UserDTO user) throws UserFailureException;
+
+    /**
+     * Creates the specified user in the database and sends an email to the new user with the
+     * credentials. As a side effect the unqiue ID , the password and the registrator of
+     * <code>user</code>will be set.
+     * 
+     * @param user The information about the user to create.
+     * @param password The password of the user, or a blank String, if a password should be created.
+     * @param registrator The information about the user who creates this user.
+     * @param basicURL The basic URL of the request, to be used for email creation.
+     * @throws UserFailureException If a user with that id already exists in the database
+     * @throws EnvironmentFailureException If the email to the new user could not be sent.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void createUserAndSendEmail(UserDTO user, String password, UserDTO registrator,
+            String comment, String basicURL) throws UserFailureException,
+            EnvironmentFailureException;
 
     /**
      * Removes expired users from user base.

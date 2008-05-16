@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
@@ -29,9 +30,12 @@ import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The only <code>IUserManager</code> implementation.
@@ -79,7 +83,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void createUser(final UserDTO user)
+    public final void createUser(final UserDTO user) throws UserFailureException
     {
         boolean success = false;
         try
@@ -88,9 +92,77 @@ class UserManager extends AbstractManager implements IUserManager
             userBO.define(user);
             userBO.save();
             success = true;
+        } catch (final DataIntegrityViolationException ex)
+        {
+            final String msg =
+                    "Cannot create user '" + user.getUserCode()
+                            + "' since a user with this id already exists in the database.";
+            operationLog.error(msg, ex);
+            throw new UserFailureException(msg);
         } finally
         {
             businessContext.getUserActionLog().logCreateUser(user, success);
+        }
+    }
+
+    @Transactional
+    public void createUserAndSendEmail(UserDTO user, String password, UserDTO registrator,
+            String comment, String basicURL) throws UserFailureException,
+            EnvironmentFailureException
+    {
+        final String finalPassword = getFinalPassword(password);
+        user.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
+        user.setRegistrator(registrator);
+        createUser(user);
+        sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
+    }
+
+    private void sendEmailToNewUser(UserDTO user, UserDTO registrator, String comment,
+            String basicURL, final String finalPassword)
+    {
+        try
+        {
+            final EMailBuilderForNewUser builder =
+                    new EMailBuilderForNewUser(businessContext.getMailClient(), registrator,
+                            user);
+            builder.setURL(getURLForEmail(basicURL));
+            builder.setPassword(finalPassword);
+            if (comment != null && comment.equals("") == false)
+            {
+                builder.setComment(comment);
+            }
+            builder.sendEMail();
+        } catch (final Exception ex)
+        {
+            final String msg =
+                    "Sending email to email '" + user.getEmail() + "' failed: "
+                            + ex.getMessage();
+            operationLog.error(msg, ex);
+            throw new EnvironmentFailureException(msg);
+        }
+    }
+
+    private String getURLForEmail(String basicURL)
+    {
+        final String overrideURL = businessContext.getOverrideURL();
+        if (StringUtils.isBlank(overrideURL))
+        {
+            return basicURL;
+        } else
+        {
+            return overrideURL;
+        }
+    }
+
+    private String getFinalPassword(final String password)
+    {
+        if (StringUtils.isBlank(password))
+        {
+            final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
+            return passwordGenerator.generatePassword(10);
+        } else
+        {
+            return password;
         }
     }
 
