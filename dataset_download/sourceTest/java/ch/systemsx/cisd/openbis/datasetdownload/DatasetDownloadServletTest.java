@@ -301,6 +301,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
+                    one(response).setContentType(DatasetDownloadServlet.BINARY_CONTENT_TYPE);
                     one(response).setContentLength(EXAMPLE_FILE_CONTENT.length());
                     one(response).setHeader("Content-Disposition",
                             "inline; filename=" + EXAMPLE_FILE_NAME);
@@ -411,7 +412,8 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        assertEquals("Request URI 'blabla' expected to start with '/download/'."
+        assertEquals("Error:" + OSUtilities.LINE_SEPARATOR
+                + "Request URI 'blabla' expected to start with '/download/'."
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = getNormalizedLogContent();
         assertEquals("The following string does not start as expected: " + logContent, true,
