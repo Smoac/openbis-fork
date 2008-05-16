@@ -303,7 +303,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     public final boolean mayHandle(final File path)
     {
-        highwaterMarkWatcher.setPathAndRun(outputDir);
+        highwaterMarkWatcher.run();
         return highwaterMarkWatcher.isBelow() == false;
     }
 

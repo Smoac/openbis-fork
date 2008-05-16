@@ -138,6 +138,7 @@ public class DataMover
     {
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
+        highwaterMarkWatcher.setPath(bufferDirs.getReadyToMoveDir());
         final LocalProcessor localProcessor =
                 new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(), factory
                         .getMover(), highwaterMarkWatcher);
