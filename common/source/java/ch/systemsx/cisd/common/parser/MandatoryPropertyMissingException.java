@@ -31,7 +31,7 @@ public final class MandatoryPropertyMissingException extends ParserException
 {
     private static final long serialVersionUID = 1L;
 
-    /** The mandatory property names that could not be found in the parsed file. */
+    /** The mandatory property codes that could not be found in the parsed file. */
     private final Set<String> missingMandatoryProperties;
 
     /** The fields that are mandatory. */

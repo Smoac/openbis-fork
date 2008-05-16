@@ -60,7 +60,7 @@ final class MappedProperty implements IPropertyModel
         return column;
     }
 
-    public final String getName()
+    public final String getCode()
     {
         return name;
     }

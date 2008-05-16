@@ -30,8 +30,8 @@ public interface IPropertyModel
     /** Returns the column number where the information regarding this property could be found. */
     public int getColumn();
 
-    /** Returns the property name as it has been found in the parsed file. */
-    public String getName();
+    /** Returns the property code as it has been found in the parsed file. */
+    public String getCode();
 
     /**
      * Returns the format of this property.

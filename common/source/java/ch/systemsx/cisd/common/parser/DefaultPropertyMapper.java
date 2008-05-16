@@ -48,7 +48,7 @@ public class DefaultPropertyMapper implements IPropertyMapper
 
                         public final String getKey(final IPropertyModel e)
                         {
-                            return e.getName().toLowerCase();
+                            return e.getCode().toLowerCase();
                         }
                     });
         tokensToMap(properties);
@@ -74,24 +74,24 @@ public class DefaultPropertyMapper implements IPropertyMapper
     // IPropertyMapper
     //
 
-    public final boolean containsPropertyName(final String propertyName)
+    public final boolean containsPropertyCode(final String propertyCode)
     {
-        return propertyModels.tryGet(propertyName.toLowerCase()) != null;
+        return propertyModels.tryGet(propertyCode.toLowerCase()) != null;
     }
 
-    public final Set<String> getAllPropertyNames()
+    public final Set<String> getAllPropertyCodes()
     {
         return new TreeSet<String>(propertyModels.keySet());
     }
 
-    public final IPropertyModel getPropertyModel(final String propertyName)
+    public final IPropertyModel getPropertyModel(final String propertyCode)
             throws IllegalArgumentException
     {
-        if (containsPropertyName(propertyName) == false)
+        if (containsPropertyCode(propertyCode) == false)
         {
-            throw new IllegalArgumentException(String.format(
-                    "Given property name '%s' does not exist.", propertyName));
+            throw new IllegalArgumentException(String.format("Given property '%s' does not exist.",
+                    propertyCode));
         }
-        return propertyModels.tryGet(propertyName.toLowerCase());
+        return propertyModels.tryGet(propertyCode.toLowerCase());
     }
 }

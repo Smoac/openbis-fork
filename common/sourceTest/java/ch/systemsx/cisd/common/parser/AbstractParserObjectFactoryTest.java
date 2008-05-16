@@ -101,7 +101,7 @@ public final class AbstractParserObjectFactoryTest
             final String[] lineTokens = new String[]
                 { "1. experiment" };
             beanFactory.createObject(lineTokens);
-            fail("Field/Property name 'name' is mandatory.");
+            fail("Field/Property code 'name' is mandatory.");
         } catch (final MandatoryPropertyMissingException ex)
         {
             AssertJUnit.assertTrue(ex.getMessage().indexOf("name") > 1);

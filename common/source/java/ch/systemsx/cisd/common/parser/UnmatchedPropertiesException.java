@@ -34,43 +34,43 @@ public final class UnmatchedPropertiesException extends ParserException
     /** The bean this is set during the parsing process. */
     private final Class<?> beanClass;
 
-    /** The property names found in the parsed file. */
-    private final Set<String> allPropertyNames;
+    /** The property codes found in the parsed file. */
+    private final Set<String> allPropertyCodes;
 
-    /** The mandatory property names found in the bean. */
-    private final Set<String> mandatoryNames;
+    /** The mandatory property codes found in the bean. */
+    private final Set<String> mandatoryCodes;
 
-    /** The optional property names found in the bean. */
-    private final Set<String> optionalNames;
+    /** The optional property codes found in the bean. */
+    private final Set<String> optionalCodes;
 
     /**
-     * The property names of {@link #allPropertyNames} that can neither be found in
-     * {@link #mandatoryNames} nor in {@link #optionalNames}.
+     * The property codes of {@link #allPropertyCodes} that can neither be found in
+     * {@link #mandatoryCodes} nor in {@link #optionalCodes}.
      */
-    private final Set<String> propertyNames;
+    private final Set<String> propertyCodes;
 
     public UnmatchedPropertiesException(final Class<?> beanClass,
-            final Set<String> allPropertyNames, final Set<String> mandatoryNames,
-            final Set<String> optionalNames, final Set<String> propertyNames)
+            final Set<String> allPropertyCodes, final Set<String> mandatoryCodes,
+            final Set<String> optionalCodes, final Set<String> propertyCodes)
     {
-        super(createMessage(propertyNames, mandatoryNames, optionalNames));
-        assert allPropertyNames != null : "All property names can not be null.";
-        assert mandatoryNames != null : "Mandatory names can not be null.";
-        assert optionalNames != null : "Optional names can not be null.";
+        super(createMessage(propertyCodes, mandatoryCodes, optionalCodes));
+        assert allPropertyCodes != null : "All property codes can not be null.";
+        assert mandatoryCodes != null : "Mandatory codes can not be null.";
+        assert optionalCodes != null : "Optional codes can not be null.";
         this.beanClass = beanClass;
-        this.allPropertyNames = allPropertyNames;
-        this.mandatoryNames = mandatoryNames;
-        this.optionalNames = optionalNames;
-        this.propertyNames = propertyNames;
+        this.allPropertyCodes = allPropertyCodes;
+        this.mandatoryCodes = mandatoryCodes;
+        this.optionalCodes = optionalCodes;
+        this.propertyCodes = propertyCodes;
     }
 
-    private final static String createMessage(Set<String> propertyNames,
+    private final static String createMessage(Set<String> propertyCodes,
             Set<String> mandatoryNames, Set<String> optionalNames)
     {
-        assert propertyNames != null : "Property names can not be null.";
-        assert propertyNames.size() > 0 : "There is no reason to throw this exception.";
+        assert propertyCodes != null : "Property codes can not be null.";
+        assert propertyCodes.size() > 0 : "There is no reason to throw this exception.";
         final StringBuilder builder = new StringBuilder();
-        builder.append("Columns ").append(toString(propertyNames)).append(
+        builder.append("Columns ").append(toString(propertyCodes)).append(
                 " specified in the header are not expected (");
         final boolean hasMandatory = mandatoryNames.size() > 0;
         if (hasMandatory)
@@ -102,24 +102,24 @@ public final class UnmatchedPropertiesException extends ParserException
         return beanClass;
     }
 
-    public final Set<String> getAllPropertyNames()
+    public final Set<String> getAllPropertyCodes()
     {
-        return Collections.unmodifiableSet(allPropertyNames);
+        return Collections.unmodifiableSet(allPropertyCodes);
     }
 
-    public final Set<String> getPropertyNames()
+    public final Set<String> getPropertyCodes()
     {
-        return Collections.unmodifiableSet(propertyNames);
+        return Collections.unmodifiableSet(propertyCodes);
     }
 
     public final Set<String> getMandatoryNames()
     {
-        return Collections.unmodifiableSet(mandatoryNames);
+        return Collections.unmodifiableSet(mandatoryCodes);
     }
 
     public final Set<String> getOptionalNames()
     {
-        return Collections.unmodifiableSet(optionalNames);
+        return Collections.unmodifiableSet(optionalCodes);
     }
 
 }

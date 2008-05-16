@@ -20,7 +20,7 @@ import java.util.Set;
 
 /**
  * The job of <code>PropertyMapper</code> is to return mapping informations regarding a given
- * property name.
+ * property code.
  * 
  * @author Christian Ribeaud
  */
@@ -28,23 +28,23 @@ public interface IPropertyMapper
 {
 
     /**
-     * Returns an <code>IPropertyModel</code> for a given property name.
+     * Returns an <code>IPropertyModel</code> for a given property code.
      * 
-     * @throws IllegalArgumentException if given <var>propertyName</var> does not exist.
+     * @throws IllegalArgumentException if given <var>propertyCode</var> does not exist.
      */
-    public IPropertyModel getPropertyModel(final String propertyName)
+    public IPropertyModel getPropertyModel(final String propertyCode)
             throws IllegalArgumentException;
 
     /**
-     * Returns a set of all property names.
+     * Returns a set of all property codes.
      * <p>
      * Note that changes applied to returned <code>Set</code> are not reflected in the backed
      * collection.
      * </p>
      */
-    public Set<String> getAllPropertyNames();
+    public Set<String> getAllPropertyCodes();
 
-    /** Whether there is a property with given <var>propertyName</var>. */
-    public boolean containsPropertyName(final String propertyName);
+    /** Whether there is a property with given <var>propertyCode</var>. */
+    public boolean containsPropertyCode(final String propertyCode);
 
 }

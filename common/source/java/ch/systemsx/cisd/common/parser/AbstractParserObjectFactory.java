@@ -85,12 +85,12 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         return converterPool.convert(value, type);
     }
 
-    /** For given property name returns corresponding <code>IPropertyModel</code>. */
-    private final IPropertyModel tryGetPropertyModel(final String name)
+    /** For given property code returns corresponding <code>IPropertyModel</code>. */
+    private final IPropertyModel tryGetPropertyModel(final String code)
     {
-        if (propertyMapper.containsPropertyName(name))
+        if (propertyMapper.containsPropertyCode(code))
         {
-            return propertyMapper.getPropertyModel(name);
+            return propertyMapper.getPropertyModel(code);
         }
         return null;
     }
@@ -107,31 +107,30 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     private final void checkPropertyMapper(final Class<E> clazz, final IPropertyMapper propMapper)
             throws ParserException
     {
-        final Set<String> allPropertyNames = propMapper.getAllPropertyNames();
-        final Set<String> propertyNames = new LinkedHashSet<String>(allPropertyNames);
+        final Set<String> allPropertyCodes = propMapper.getAllPropertyCodes();
+        final Set<String> propertyCodes = new LinkedHashSet<String>(allPropertyCodes);
         final Set<String> missingProperties = new LinkedHashSet<String>();
         final Set<String> fieldNames = beanAnalyzer.getLabelToWriteMethods().keySet();
         for (final String fieldName : fieldNames)
         {
             final String fieldNameInLowerCase = fieldName.toLowerCase();
-            if (propertyNames.contains(fieldNameInLowerCase))
+            if (propertyCodes.contains(fieldNameInLowerCase))
             {
-                propertyNames.remove(fieldNameInLowerCase);
+                propertyCodes.remove(fieldNameInLowerCase);
             } else if (beanAnalyzer.isMandatory(fieldName))
             {
                 missingProperties.add(fieldName);
             }
         }
-        final Set<String> mandatoryPropertyNames =
-                beanAnalyzer.getMandatoryProperties();
+        final Set<String> mandatoryPropertyCodes = beanAnalyzer.getMandatoryProperties();
         if (missingProperties.size() > 0)
         {
-            throw new MandatoryPropertyMissingException(mandatoryPropertyNames, missingProperties);
+            throw new MandatoryPropertyMissingException(mandatoryPropertyCodes, missingProperties);
         }
-        if (propertyNames.size() > 0)
+        if (propertyCodes.size() > 0)
         {
-            throw new UnmatchedPropertiesException(clazz, allPropertyNames, mandatoryPropertyNames,
-                    beanAnalyzer.getOptionalProperties(), propertyNames);
+            throw new UnmatchedPropertiesException(clazz, allPropertyCodes, mandatoryPropertyCodes,
+                    beanAnalyzer.getOptionalProperties(), propertyCodes);
         }
     }
 
