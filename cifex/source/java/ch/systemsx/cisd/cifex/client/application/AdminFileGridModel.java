@@ -67,7 +67,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
             final Object[] objects =
                     new Object[]
                         {
-                                new Integer((int) file.getID()),
+                                file.getIDStr(),
                                 file.getName(),
                                 CommentRenderer.createCommentAnchor(file),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
@@ -88,7 +88,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
-        fieldDefs.add(new IntegerFieldDef(ID));
+        fieldDefs.add(new StringFieldDef(ID));
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(COMMENT));
         fieldDefs.add(new StringFieldDef(REGISTERER));

@@ -59,4 +59,12 @@ public abstract class ID extends AbstractHashable implements Serializable
         this.id = id;
     }
 
+    /**
+     * Returns ID as a string.
+     */
+    public final String getIDStr()
+    {
+        return Long.toString(id);
+    }
+
 }

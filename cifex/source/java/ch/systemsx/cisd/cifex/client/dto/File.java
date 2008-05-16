@@ -29,9 +29,9 @@ public final class File implements IsSerializable
 {
 
     /**
-     * Unique identifier of the file.
+     * Unique identifier of the file as a string.
      */
-    private long id;
+    private String idStr;
 
     /** File name. */
     private String name;
@@ -68,17 +68,17 @@ public final class File implements IsSerializable
     /**
      * Returns ID.
      */
-    public final long getID()
+    public final String getIDStr()
     {
-        return id;
+        return idStr;
     }
 
     /**
      * Sets ID.
      */
-    public final void setID(final long id)
+    public final void setIDStr(final String idStr)
     {
-        this.id = id;
+        this.idStr = idStr;
     }
 
     public final String getName()

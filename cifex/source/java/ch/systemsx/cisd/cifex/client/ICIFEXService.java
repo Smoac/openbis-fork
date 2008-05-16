@@ -130,11 +130,11 @@ public interface ICIFEXService extends RemoteService
     public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Deletes file given by its <var>id</var>.
+     * Deletes file given by its <var>idStr</var>.
      * 
-     * @throws FileNotFoundException If the file defined by <var>id</var> could not be found.
+     * @throws FileNotFoundException If the file defined by <var>idStr</var> could not be found.
      */
-    public void deleteFile(final long id) throws InvalidSessionException,
+    public void deleteFile(final String idStr) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException;
 
     /**
@@ -156,12 +156,12 @@ public interface ICIFEXService extends RemoteService
     public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
 
     /**
-     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own
-     * ExpirationDate, for all the others, the default expiration Date is used.
+     * Update the Expiration Date of the file with the given <var>idStr</var>. Only an Admin can
+     * set an own ExpirationDate, for all the others, the default expiration Date is used.
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      */
-    public void updateFileExpiration(final long id, final Date newExpirationDate)
+    public void updateFileExpiration(final String idStr, final Date newExpirationDate)
             throws InvalidSessionException, InsufficientPrivilegesException;
 
 }

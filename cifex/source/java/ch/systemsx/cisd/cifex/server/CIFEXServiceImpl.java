@@ -505,12 +505,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    public void deleteFile(final long id) throws InvalidSessionException,
+    public void deleteFile(final String idStr) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInfo = fileManager.getFileInformation(id);
+        final FileInformation fileInfo = fileManager.getFileInformation(Long.parseLong(idStr));
         if (fileInfo.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
@@ -645,7 +645,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    public void updateFileExpiration(final long id, final Date newExpirationDate)
+    public void updateFileExpiration(final String idStr, final Date newExpirationDate)
             throws InvalidSessionException
     {
         final IFileManager fileManager = domainModel.getFileManager();
@@ -660,7 +660,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                             .getFileRetention());
         }
 
-        fileManager.updateFileExpiration(id, expirationDate);
+        fileManager.updateFileExpiration(Long.parseLong(idStr), expirationDate);
     }
 
 }

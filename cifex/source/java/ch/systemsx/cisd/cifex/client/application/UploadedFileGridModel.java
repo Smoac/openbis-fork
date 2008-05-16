@@ -65,7 +65,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
             final Object[] objects =
                     new Object[]
                         {
-                                new Integer((int) file.getID()),
+                                file.getIDStr(),
                                 file.getName(),
                                 CommentRenderer.createCommentAnchor(file),
                                 file.getContentType(),

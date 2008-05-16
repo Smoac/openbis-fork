@@ -155,10 +155,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void deleteFile(final long id) throws InvalidSessionException,
+    public void deleteFile(final String idStr) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
-        cifexServiceDelegate.deleteFile(id);
+        cifexServiceDelegate.deleteFile(idStr);
     }
 
     public void registerFilenamesForUpload(String[] filenamesForUpload)
@@ -211,10 +211,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
 
-    public void updateFileExpiration(final long id, final Date newExpirationDate)
+    public void updateFileExpiration(final String idStr, final Date newExpirationDate)
             throws InvalidSessionException, InsufficientPrivilegesException
     {
-        cifexServiceDelegate.updateFileExpiration(id, newExpirationDate);
+        cifexServiceDelegate.updateFileExpiration(idStr, newExpirationDate);
     }
 
 }

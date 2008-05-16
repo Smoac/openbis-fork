@@ -95,9 +95,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listFiles(final AsyncCallback fileAsyncCallback);
 
     /**
-     * Deletes file given by its <code>id</code>.
+     * Deletes file given by its <code>idStr</code>.
      */
-    public void deleteFile(final long id, final AsyncCallback callback);
+    public void deleteFile(final String idStr, final AsyncCallback callback);
 
     /**
      * Registers the file names for the next upload request in the session.
@@ -118,13 +118,13 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void getFileUploadFeedback(final AsyncCallback callback);
 
     /**
-     * Update the Expiration Date of the file with the given ID. Only an Admin can set an own
-     * ExpirationDate, for all the others, the default expiration Date is used.
+     * Update the Expiration Date of the file with the given <var>fileIdStr</var>. Only an Admin
+     * can set an own ExpirationDate, for all the others, the default expiration Date is used.
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
      *            <code>null</code> if the default expiration date should be used.
      */
-    public void updateFileExpiration(final long fileId, final Date newExpirationDate,
+    public void updateFileExpiration(final String fileIdStr, final Date newExpirationDate,
             final AsyncCallback callback);
 
 }

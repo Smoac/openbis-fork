@@ -55,7 +55,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             final EventObject e)
     {
         final Record record = grid.getStore().getAt(rowIndex);
-        final int id = record.getAsInteger(AbstractFileGridModel.ID);
+        final String idStr = record.getAsString(AbstractFileGridModel.ID);
         final String name = record.getAsString(AbstractFileGridModel.NAME);
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.ACTION)
@@ -82,7 +82,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
                         {
                             if (btnID.equals("yes"))
                             {
-                                viewContext.getCifexService().deleteFile(id,
+                                viewContext.getCifexService().deleteFile(idStr,
                                         new DeleteFileAsyncCallback((ModelBasedGrid) grid));
                             }
                         }
@@ -91,7 +91,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             // Renew
             if (Constants.RENEW_ID.equals(targetId))
             {
-                viewContext.getCifexService().updateFileExpiration(id, null,
+                viewContext.getCifexService().updateFileExpiration(idStr, null,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid));
             }
             // Show Comment

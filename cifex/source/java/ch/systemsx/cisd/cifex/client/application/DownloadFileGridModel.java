@@ -64,7 +64,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
             // We can not use 'Integer.valueOf' here as GWT does not support it.
             final Object[] objects =
                     new Object[]
-                        { new Integer((int) file.getID()), file.getName(),
+                        { file.getIDStr(), file.getName(),
                                 CommentRenderer.createCommentAnchor(file),
                                 file.getContentType(),
                                 size == null ? null : new Integer(size.intValue()),
