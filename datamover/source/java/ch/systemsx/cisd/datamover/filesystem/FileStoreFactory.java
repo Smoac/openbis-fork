@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
@@ -30,8 +31,6 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2008-05-13, Christian Ribeaud: This factory should return IFileStore and not the concrete
-// class FileStore.
 public final class FileStoreFactory
 {
     private FileStoreFactory()
@@ -42,7 +41,7 @@ public final class FileStoreFactory
     /**
      * use when file store is on a local host.
      */
-    public static final FileStore createLocal(final FileWithHighwaterMark path, final String kind,
+    public static final IFileStore createLocal(final FileWithHighwaterMark path, final String kind,
             final IFileSysOperationsFactory factory)
     {
         return new FileStoreLocal(path, kind, factory);
@@ -51,14 +50,14 @@ public final class FileStoreFactory
     /**
      * use when file store is on a local host.
      */
-    public static final FileStore createLocal(final File readyToMoveDir, final String string,
+    public static final IFileStore createLocal(final File readyToMoveDir, final String string,
             final IFileSysOperationsFactory factory)
     {
         return createLocal(new FileWithHighwaterMark(readyToMoveDir), string, factory);
     }
 
     /** use when file store is on a remote share mounted on local host */
-    public static final FileStore createRemoteShare(final FileWithHighwaterMark path,
+    public static final IFileStore createRemoteShare(final FileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory)
     {
         return new FileStoreRemoteMounted(path, kind, factory);
@@ -69,7 +68,7 @@ public final class FileStoreFactory
      * 
      * @param factory
      */
-    public static final FileStore createRemoteHost(final FileWithHighwaterMark path,
+    public static final IFileStore createRemoteHost(final FileWithHighwaterMark path,
             final String host, final String kind, final IFileSysOperationsFactory factory)
     {
         return new FileStoreRemote(path, host, kind, factory);
@@ -80,7 +79,7 @@ public final class FileStoreFactory
      * 
      * @param factory
      */
-    public static final FileStore createRemoteHost(final File path, final String host,
+    public static final IFileStore createRemoteHost(final File path, final String host,
             final String kind, final IFileSysOperationsFactory factory)
     {
         return createRemoteHost(new FileWithHighwaterMark(path), host, kind, factory);
@@ -89,7 +88,7 @@ public final class FileStoreFactory
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      */
-    public final static FileStore createStore(final File path, final String kind,
+    public final static IFileStore createStore(final File path, final String kind,
             final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
     {
         return createStore(new FileWithHighwaterMark(path), kind, hostOrNull, isRemote, factory);
@@ -98,7 +97,7 @@ public final class FileStoreFactory
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      */
-    public final static FileStore createStore(final FileWithHighwaterMark path, final String kind,
+    public final static IFileStore createStore(final FileWithHighwaterMark path, final String kind,
             final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
     {
         if (hostOrNull != null)

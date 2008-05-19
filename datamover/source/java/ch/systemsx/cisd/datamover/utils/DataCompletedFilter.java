@@ -31,8 +31,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataCompletedFilter implements IStoreItemFilter
@@ -40,13 +38,17 @@ public class DataCompletedFilter implements IStoreItemFilter
     private static final class Status extends AbstractHashable
     {
         static final Status NULL = new Status();
-        
+
         private final boolean ok;
+
         private final boolean run;
+
         private final boolean terminated;
+
         private final int exitValue;
+
         private final boolean blocked;
-        
+
         private Status()
         {
             ok = true;
@@ -56,7 +58,7 @@ public class DataCompletedFilter implements IStoreItemFilter
             exitValue = Integer.MAX_VALUE;
         }
 
-        Status(ProcessResult processResult)
+        Status(final ProcessResult processResult)
         {
             ok = processResult.isOK();
             run = processResult.isRun();
@@ -64,7 +66,7 @@ public class DataCompletedFilter implements IStoreItemFilter
             blocked = processResult.hasBlocked();
             exitValue = processResult.exitValue();
         }
-        
+
         public final boolean isOk()
         {
             return ok;
@@ -90,7 +92,7 @@ public class DataCompletedFilter implements IStoreItemFilter
             return blocked;
         }
     }
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataCompletedFilter.class);
 
@@ -99,15 +101,17 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private final static Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DataCompletedFilter.class);
-    
-    private final IFileStore fileStore;
-    private final String dataCompletedScript;
-    private final long dataCompletedScriptTimeout;
-    
-    private Status lastStatus = Status.NULL; 
 
-    public DataCompletedFilter(IFileStore fileStore, String dataCompletedScript,
-            long dataCompletedScriptTimeout)
+    private final IFileStore fileStore;
+
+    private final String dataCompletedScript;
+
+    private final long dataCompletedScriptTimeout;
+
+    private Status lastStatus = Status.NULL;
+
+    public DataCompletedFilter(final IFileStore fileStore, final String dataCompletedScript,
+            final long dataCompletedScriptTimeout)
     {
         if (dataCompletedScript == null)
         {
@@ -121,18 +125,18 @@ public class DataCompletedFilter implements IStoreItemFilter
         }
         this.fileStore = fileStore;
     }
-    
-    public boolean accept(StoreItem item)
+
+    public boolean accept(final StoreItem item)
     {
-        List<String> commandLine = createCommand(item);
-        ProcessResult result =
+        final List<String> commandLine = createCommand(item);
+        final ProcessResult result =
                 ProcessExecutionHelper.run(commandLine, dataCompletedScriptTimeout, operationLog,
                         machineLog);
-        Status status = new Status(result);
-        boolean ok = status.isOk();
+        final Status status = new Status(result);
+        final boolean ok = status.isOk();
         if (status.equals(lastStatus) == false)
         {
-            String message =
+            final String message =
                     "Processing status of data completed script has changed to " + status
                             + ". Command line: " + commandLine;
             if (ok)
@@ -151,14 +155,14 @@ public class DataCompletedFilter implements IStoreItemFilter
         return ok;
     }
 
-    private List<String> createCommand(StoreItem item)
+    private List<String> createCommand(final StoreItem item)
     {
-        StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
-        List<String> command = new ArrayList<String>();
+        final StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
+        final List<String> command = new ArrayList<String>();
         command.add("sh");
         command.add(dataCompletedScript);
         command.add(storeItemLocation.getAbsolutePath());
-        String host = storeItemLocation.getHost();
+        final String host = storeItemLocation.getHost();
         if (host != null)
         {
             command.add(host);

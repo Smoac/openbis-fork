@@ -206,7 +206,7 @@ public class CopyActivityMonitorTest
                     return localImpl.tryAsExtended();
                 }
 
-                public IStoreCopier getCopier(FileStore destinationDirectory)
+                public IStoreCopier getCopier(IFileStore destinationDirectory)
                 {
                     return localImpl.getCopier(destinationDirectory);
                 }

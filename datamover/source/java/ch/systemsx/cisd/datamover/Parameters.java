@@ -45,7 +45,7 @@ import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
@@ -605,7 +605,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The store to monitor for new files and directories to move to the buffer.
      */
-    public final FileStore getIncomingStore(final IFileSysOperationsFactory factory)
+    public final IFileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
                 treatIncomingAsRemote, factory);
@@ -622,7 +622,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * @return The store to copy the data to.
      */
-    public final FileStore getOutgoingStore(final IFileSysOperationsFactory factory)
+    public final IFileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost,
                 true, factory);

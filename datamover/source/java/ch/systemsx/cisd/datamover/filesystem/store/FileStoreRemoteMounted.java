@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
@@ -56,7 +57,7 @@ public final class FileStoreRemoteMounted extends FileStore
         return null;
     }
 
-    public final IStoreCopier getCopier(final FileStore destinationDirectory)
+    public final IStoreCopier getCopier(final IFileStore destinationDirectory)
     {
         final boolean requiresDeletion = false;
         return constructStoreCopier(destinationDirectory, requiresDeletion);

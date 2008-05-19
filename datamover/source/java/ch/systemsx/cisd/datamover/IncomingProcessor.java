@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -117,7 +116,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
         return filterBank;
     }
-    
+
     public TimerTask createRecoverableTimerTask()
     {
         return new IncomingProcessorRecoveryTask();
@@ -127,8 +126,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     {
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final DirectoryScanningTimerTask movingTask =
-                new DirectoryScanningTimerTask(new FileScannedStore(incomingStore,
-                        storeItemFilter), bufferDirs.getCopyInProgressDir(), pathHandler,
+                new DirectoryScanningTimerTask(
+                        new FileScannedStore(incomingStore, storeItemFilter), bufferDirs
+                                .getCopyInProgressDir(), pathHandler,
                         NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
@@ -216,7 +216,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     }
 
     private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
-            final FileStore destinationDirectory)
+            final IFileStore destinationDirectory)
     {
         return RemoteMonitoredMoverFactory
                 .create(sourceDirectory, destinationDirectory, parameters);

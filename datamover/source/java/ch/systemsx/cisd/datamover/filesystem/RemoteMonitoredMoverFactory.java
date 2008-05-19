@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor;
@@ -43,7 +42,7 @@ public final class RemoteMonitoredMoverFactory
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
      */
     public static final IStoreHandler create(final IFileStore sourceDirectory,
-            final FileStore destinationDirectory, final ITimingParameters parameters)
+            final IFileStore destinationDirectory, final ITimingParameters parameters)
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
         final CopyActivityMonitor monitor =

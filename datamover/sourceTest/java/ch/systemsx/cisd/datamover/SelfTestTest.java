@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
@@ -49,7 +48,7 @@ public class SelfTestTest
 
     private static final File incomingDirectory = new File(workingDirectory, "local/incoming");
 
-    private static final FileStore incomingStore = createLocalStore(incomingDirectory, "incoming");
+    private static final IFileStore incomingStore = createLocalStore(incomingDirectory, "incoming");
 
     private static final File bufferDirectory = new File(workingDirectory, "local/buffer");
 
@@ -138,7 +137,7 @@ public class SelfTestTest
     public void testHappyCaseWithRemoteHost()
     {
         final String outgoingHost = "some_remote_host";
-        final FileStore remoteHostOutgoingStore =
+        final IFileStore remoteHostOutgoingStore =
                 createRemoteStore(outgoingDirectory, outgoingHost, "outgoing");
         SelfTest.check(mockCopier, remoteHostOutgoingStore);
     }
@@ -161,18 +160,18 @@ public class SelfTestTest
     public void testNonExistentPaths()
     {
         final File nonExistentIncomingDirectory = new File(workingDirectory, "data");
-        final FileStore nonExistentIncomingStore =
+        final IFileStore nonExistentIncomingStore =
                 createLocalStore(nonExistentIncomingDirectory, "incoming");
         SelfTest.check(mockCopier, nonExistentIncomingStore, bufferStore, outgoingStore);
     }
 
-    private FileStore createRemoteStore(File path, String host, String description)
+    private final IFileStore createRemoteStore(File path, String host, String description)
     {
         return FileStoreFactory.createRemoteHost(path, host, description, FileOperationsUtil
                 .createTestFatory());
     }
 
-    private static FileStore createLocalStore(File path, String description)
+    private final static IFileStore createLocalStore(File path, String description)
     {
         return FileStoreFactory.createLocal(path, description, FileOperationsUtil
                 .createTestFatory());

@@ -106,7 +106,7 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         return FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
     }
 
-    public final IStoreCopier getCopier(final FileStore destinationDirectory)
+    public final IStoreCopier getCopier(final IFileStore destinationDirectory)
     {
         boolean requiresDeletion = false;
         final IStoreCopier simpleCopier =

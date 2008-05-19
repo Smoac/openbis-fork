@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -68,26 +67,26 @@ public class DataMover
      * 
      * @return object which can be used to terminate the process and all its threads
      */
-    public static final ITerminable start(Parameters parameters, IFileSysOperationsFactory factory)
+    public static final ITerminable start(final Parameters parameters, final IFileSysOperationsFactory factory)
     {
         return start(parameters, factory, createLocalBufferDirs(parameters));
     }
 
-    private static LocalBufferDirs createLocalBufferDirs(Parameters parameters)
+    private static LocalBufferDirs createLocalBufferDirs(final Parameters parameters)
     {
         return new LocalBufferDirs(parameters.getBufferDirectoryPath(), LOCAL_COPY_IN_PROGRESS_DIR,
                 LOCAL_COPY_COMPLETE_DIR, LOCAL_READY_TO_MOVE_DIR, LOCAL_TEMP_DIR);
     }
 
     /** Allows to specify buffer directories. Exposed for testing purposes. */
-    public static final ITerminable start(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs localBufferDirs)
+    public static final ITerminable start(final Parameters parameters, final IFileSysOperationsFactory factory,
+            final LocalBufferDirs localBufferDirs)
     {
         return new DataMover(parameters, factory, localBufferDirs).start();
     }
 
-    private DataMover(Parameters parameters, IFileSysOperationsFactory factory,
-            LocalBufferDirs bufferDirs)
+    private DataMover(final Parameters parameters, final IFileSysOperationsFactory factory,
+            final LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.factory = factory;
@@ -154,7 +153,7 @@ public class DataMover
 
     private final DataMoverProcess createOutgoingMovingProcess()
     {
-        final FileStore outgoingStore = parameters.getOutgoingStore(factory);
+        final IFileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
         final IFileStore readyToMoveStore =
                 FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
@@ -170,7 +169,7 @@ public class DataMover
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    private IStoreHandler createRemotePathMover(IFileStore source, FileStore destination)
+    private IStoreHandler createRemotePathMover(final IFileStore source, final IFileStore destination)
     {
         return RemoteMonitoredMoverFactory.create(source, destination, parameters);
     }
@@ -182,7 +181,7 @@ public class DataMover
                 public boolean terminate()
                 {
                     boolean ok = true;
-                    for (ITerminable terminable : terminables)
+                    for (final ITerminable terminable : terminables)
                     {
                         ok = ok && terminable.terminate();
                     }

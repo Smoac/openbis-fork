@@ -106,7 +106,7 @@ public interface IFileStore extends ISelfTestable
      *            must be readable and writable. Copier will override the destination item if it
      *            already exists.
      */
-    public IStoreCopier getCopier(FileStore destinationDirectory);
+    public IStoreCopier getCopier(IFileStore destinationDirectory);
 
     // returned description should give the user the idea about file location. You should not use
     // the result for

@@ -78,12 +78,6 @@ public abstract class FileStore implements IFileStore
         }
     }
 
-    public final StoreItemLocation getStoreItemLocation(StoreItem item)
-    {
-        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item)
-                .getAbsolutePath());
-    }
-
     protected final File getPath()
     {
         return fileWithHighwaterMark.getFile();
@@ -106,13 +100,13 @@ public abstract class FileStore implements IFileStore
 
     // does not take into account the fact, that the destination cannot be overwritten and must be
     // deleted beforehand
-    protected final IStoreCopier constructStoreCopier(final FileStore destinationDirectory,
+    protected final IStoreCopier constructStoreCopier(final IFileStore destinationDirectory,
             final boolean requiresDeletionBeforeCreation)
     {
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
         final String srcHostOrNull = hostOrNull;
-        final String destHostOrNull = destinationDirectory.hostOrNull;
-        final File destPath = destinationDirectory.getPath();
+        final String destHostOrNull = ((FileStore) destinationDirectory).hostOrNull;
+        final File destPath = ((FileStore) destinationDirectory).getPath();
         return new IStoreCopier()
             {
                 public Status copy(final StoreItem item)
@@ -141,6 +135,12 @@ public abstract class FileStore implements IFileStore
             };
     }
 
+    public final StoreItemLocation getStoreItemLocation(final StoreItem item)
+    {
+        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item)
+                .getAbsolutePath());
+    }
+
     /**
      * Returns <code>true</code>, if the file store resides on a remote computer and
      * <code>false</code> otherwise.
@@ -148,6 +148,7 @@ public abstract class FileStore implements IFileStore
      * Note that even if this method returns <code>true</code> paths on this file system might be
      * reached via local file system operation, if the remote file system is provided as a remote
      * share and mounted via NFS or CIFS.
+     * </p>
      */
     public final boolean isRemote()
     {

@@ -19,21 +19,22 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
- * Bean for the location of a {@link StoreItem} on a local or remote file system.  
- *
+ * Bean for the location of a {@link StoreItem} on a local or remote file system.
+ * 
  * @author Franz-Josef Elmer
  */
-public class StoreItemLocation
+public final class StoreItemLocation
 {
     private final String host;
+
     private final String absolutePath;
 
     /**
      * Creates a new instance for the specified host and absolute path.
-     *
+     * 
      * @param hostOrNull If not <code>null</code> the file is on a remote file system.
      */
-    public StoreItemLocation(String hostOrNull, String absolutePath)
+    public StoreItemLocation(final String hostOrNull, final String absolutePath)
     {
         if (absolutePath == null)
         {
