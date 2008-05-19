@@ -144,8 +144,8 @@ public class DataCompletedFilter implements IStoreItemFilter
             } else
             {
                 notificationLog.error(message);
-                result.log();
             }
+            result.log();
             lastStatus = status;
         }
         return ok;
