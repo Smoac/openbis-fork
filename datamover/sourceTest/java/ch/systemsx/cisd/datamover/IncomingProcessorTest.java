@@ -196,6 +196,7 @@ public class IncomingProcessorTest
         TEST_FILE.createNewFile();
         dataMoverTimerTask.run(); // 4. round finds changed status, thus log
         
+        boolean terminated = OSUtilities.isWindows();
         assertEquals(
                 LOG_DEBUG_PREFIX
                         + "Executing command: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
@@ -203,12 +204,13 @@ public class IncomingProcessorTest
                         + OSUtilities.LINE_SEPARATOR
                         + "ERROR NOTIFY.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "Processing status of data completed script has changed to "
-                        + "DataCompletedFilter.Status{ok=false,run=true,terminated=true,exitValue=1,blocked=false}. "
+                        + "DataCompletedFilter.Status{ok=false,run=true,terminated=" + terminated
+                                + ",exitValue=1,blocked=false}. "
                         + "Command line: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  OPERATION.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
-                        + "[sh] process was destroyed."
+                        + "[sh] process " + (terminated ? "was destroyed." : "returned with exits value 1.")
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "[sh] output:"
