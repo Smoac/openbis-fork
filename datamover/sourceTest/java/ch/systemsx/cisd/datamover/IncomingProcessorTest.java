@@ -210,7 +210,7 @@ public class IncomingProcessorTest
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  OPERATION.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
-                        + "[sh] process " + (terminated ? "was destroyed." : "returned with exits value 1.")
+                        + "[sh] process " + (terminated ? "was destroyed." : "returned with exit value 1.")
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "[sh] output:"
