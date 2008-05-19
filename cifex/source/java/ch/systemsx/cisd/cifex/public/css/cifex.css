@@ -25,3 +25,7 @@ body,div,td {
 .cifex-font-huge {
     font-size: 16px;
 }
+
+.cifex-ul{
+	style=list-style-type:disc;
+}
