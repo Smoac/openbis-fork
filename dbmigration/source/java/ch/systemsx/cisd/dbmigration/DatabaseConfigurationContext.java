@@ -37,7 +37,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 {
     private static final class BasicDataSourceFactory implements IDataSourceFactory
     {
-        public DataSource createDataSource(String driver, String url, String owner, String password)
+        public DataSource createDataSource(final String driver, final String url,
+                final String owner, final String password)
         {
             final BasicDataSource dataSource = new BasicDataSource();
             dataSource.setDriverClassName(driver);
@@ -84,23 +85,25 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String groupCode;
 
+    private String databaseInstance;
+
     public DatabaseConfigurationContext()
     {
         setOwner(null);
         setPassword("");
     }
 
-    public final void setDataSourceFactory(IDataSourceFactory dataSourceFactory)
+    public final void setDataSourceFactory(final IDataSourceFactory dataSourceFactory)
     {
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    public final String getGroupCode() throws ConfigurationFailureException
+    public final String getGroupCode()
     {
-        return groupCode;
+        return StringUtils.trim(groupCode);
     }
 
-    public final void setGroupCode(String groupCode) throws ConfigurationFailureException
+    public final void setGroupCode(final String groupCode)
     {
         this.groupCode = groupCode;
     }
@@ -150,7 +153,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * @param dsDatabaseName The name of the database to get the URL for.
      * @throws ConfigurationFailureException If undefined.
      */
-    private final String getUrl(String dsDatabaseName) throws ConfigurationFailureException
+    private final String getUrl(final String dsDatabaseName) throws ConfigurationFailureException
     {
         checkDatabaseEngine();
         return databaseEngine.getURL(urlHostPart, dsDatabaseName);
@@ -268,7 +271,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code>
      * or empty, the OS user running the VM will be set instead.
      */
-    public final void setOwner(String owner)
+    public final void setOwner(final String owner)
     {
         if (StringUtils.isBlank(owner))
         {
@@ -291,7 +294,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets the password part of the database credentials for the db owner. A <code>null</code>
      * password will be replaced by an empty string.
      */
-    public final void setPassword(String password)
+    public final void setPassword(final String password)
     {
         if (password == null)
         {
@@ -309,7 +312,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      *            Spring property place holders, an empty string will be replaced by
      *            <code>null</code>.
      */
-    public final void setAdminUser(String adminUser)
+    public final void setAdminUser(final String adminUser)
     {
         if (adminUser != null && adminUser.length() == 0)
         {
@@ -326,7 +329,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * 
      * @param basicDatabaseName The basic name of the database. Must not be <code>null</code>.
      */
-    public void setBasicDatabaseName(String basicDatabaseName)
+    public void setBasicDatabaseName(final String basicDatabaseName)
     {
         this.basicDatabaseName = StringUtils.trim(basicDatabaseName);
     }
@@ -345,7 +348,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * 
      * @param adminPassword New value. Can be <code>null</code>.
      */
-    public final void setAdminPassword(String adminPassword)
+    public final void setAdminPassword(final String adminPassword)
     {
         this.adminPassword = adminPassword;
     }
@@ -363,7 +366,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * convenience when using with Spring property place holders, an empty string will be replaced
      * by <code>null</code>.
      */
-    public final void setUrlHostPart(String urlHostPart)
+    public final void setUrlHostPart(final String urlHostPart)
     {
         if (urlHostPart != null && urlHostPart.length() == 0)
         {
@@ -373,7 +376,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             this.urlHostPart = StringUtils.trim(urlHostPart);
         }
     }
-    
+
     /**
      * Returns the URL of the database server which allows to create a new database.
      * 
@@ -418,7 +421,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets the mapper from table names to sequencer names.
      */
-    public final void setSequenceNameMapper(ISequenceNameMapper sequenceNameMapper)
+    public final void setSequenceNameMapper(final ISequenceNameMapper sequenceNameMapper)
     {
         this.sequenceNameMapper = sequenceNameMapper;
     }
@@ -437,7 +440,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets the database should be dropped and (re)created from scratch or not.
      */
-    public final void setCreateFromScratch(boolean createFromScratch)
+    public final void setCreateFromScratch(final boolean createFromScratch)
     {
         this.createFromScratch = createFromScratch;
     }
@@ -455,7 +458,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets the db migration engine to single step mode for scripts.
      */
-    public final void setScriptSingleStepMode(boolean singleStepMode)
+    public final void setScriptSingleStepMode(final boolean singleStepMode)
     {
         this.scriptSingleStepMode = singleStepMode;
     }
@@ -466,7 +469,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * 
      * @param databaseKind New value. Can be <code>null</code>.
      */
-    public final void setDatabaseKind(String databaseKind)
+    public final void setDatabaseKind(final String databaseKind)
     {
         this.databaseKind = StringUtils.trim(databaseKind);
     }
@@ -491,7 +494,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * @param databaseEngineCode New value.
      * @throws ConfigurationFailureException If there is no such database engine.
      */
-    public final void setDatabaseEngineCode(String databaseEngineCode)
+    public final void setDatabaseEngineCode(final String databaseEngineCode)
             throws ConfigurationFailureException
     {
         this.databaseEngine = DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
@@ -520,9 +523,19 @@ public class DatabaseConfigurationContext implements DisposableBean
      * 
      * @param scriptFolder New value. Can be <code>null</code>.
      */
-    public final void setScriptFolder(String scriptFolder)
+    public final void setScriptFolder(final String scriptFolder)
     {
         this.scriptFolder = scriptFolder;
+    }
+
+    public final String getDatabaseInstance()
+    {
+        return StringUtils.trim(databaseInstance);
+    }
+
+    public final void setDatabaseInstance(final String databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
     }
 
     /** Closes opened database connections. */
@@ -542,5 +555,4 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         closeConnections();
     }
-
 }
