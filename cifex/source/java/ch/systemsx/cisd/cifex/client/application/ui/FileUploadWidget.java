@@ -98,7 +98,7 @@ public final class FileUploadWidget extends Form
         end();
         end();
 
-        column(createMiddleColumnCongig());
+        column(createMiddleColumnConfig());
         fieldset(context.getMessageResources().getRecipientLegend());
         add(new TextArea(createEmailAreaConfig()));
         end();
@@ -135,7 +135,7 @@ public final class FileUploadWidget extends Form
         return columnConfig;
     }
 
-    private final static ColumnConfig createMiddleColumnCongig()
+    private final static ColumnConfig createMiddleColumnConfig()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setWidth(COLUMN_WIDTH);

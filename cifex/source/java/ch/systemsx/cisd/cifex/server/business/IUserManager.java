@@ -111,4 +111,12 @@ public interface IUserManager
     public void updateUser(UserDTO user, String encryptedPassword) throws UserFailureException,
             IllegalArgumentException;
 
+    /**
+     * Returns a list of users the file with given <var>fileId</var> has been shared with.
+     * 
+     * @throws UserFailureException If the <var>fileId</var> was not found in the database.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public List<UserDTO> listUsersFileSharedWith(long fileId) throws UserFailureException;
+
 }

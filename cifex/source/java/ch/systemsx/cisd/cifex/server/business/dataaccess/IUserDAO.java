@@ -78,4 +78,9 @@ public interface IUserDAO
 
     /** Update the fields of the given user. */
     public void updateUser(UserDTO user);
+
+    /**
+     * Returns a list of users the file with given <var>fileId</var> has been shared with.
+     */
+    public List<UserDTO> listUsersFileSharedWith(long fileId) throws DataAccessException;
 }

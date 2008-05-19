@@ -237,4 +237,19 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
                 .getExpirationDate(), user.getID());
     }
+
+    /**
+     * Doesn't fill registrator field in UserDTO.
+     */
+    public List<UserDTO> listUsersFileSharedWith(long fileId) throws DataAccessException
+    {
+
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        final List<UserDTO> list =
+                template
+                        .query(
+                                "select u.* from file_shares fs, users u where u.id=fs.user_id and fs.file_id= ?",
+                                new UserRowMapper(), fileId);
+        return list;
+    }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
+import com.gwtext.client.widgets.LayoutDialog;
 import com.gwtext.client.widgets.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
@@ -38,9 +39,17 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
 {
     private final ViewContext context;
 
+    private final LayoutDialog associatedDialogOrNull;
+
     public AbstractAsyncCallback(final ViewContext context)
     {
+        this(context, null);
+    }
+
+    public AbstractAsyncCallback(final ViewContext context, LayoutDialog dialog)
+    {
         this.context = context;
+        this.associatedDialogOrNull = dialog;
     }
 
     /** Gives access to internal <code>ViewContext</code>. */
@@ -80,6 +89,10 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
         MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg);
         if (caught instanceof InvalidSessionException)
         {
+            if (associatedDialogOrNull != null)
+            {
+                associatedDialogOrNull.hide();
+            }
             context.getPageController().createLoginPage();
         }
     }

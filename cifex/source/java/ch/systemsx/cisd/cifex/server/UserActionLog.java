@@ -420,4 +420,15 @@ public final class UserActionLog implements IUserActionLog
                     + String.format("download_file '%s': %s", getFileDescription(file), success));
         }
     }
+
+    public void logDeleteSharingLink(long fileId, String userCode, boolean success)
+    {
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("delete_sharing_link between file '%s' and user '%s': %s",
+                            fileId, userCode, success));
+        }
+
+    }
 }

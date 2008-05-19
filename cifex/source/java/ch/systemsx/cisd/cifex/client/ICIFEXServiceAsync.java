@@ -131,4 +131,20 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void updateFileExpiration(final String fileIdStr, final Date newExpirationDate,
             final AsyncCallback callback);
 
+    /**
+     * List users the file with given <var>fileId</var> has been shared with.
+     */
+    public void listUsersFileSharedWith(String fileId,
+            AsyncCallback showUsersFileSharedWithAsyncCallback);
+
+    /** Revokes user with given userCode access to file with fileId. */
+    public void deleteSharingLink(String fileId, String userCode,
+            AsyncCallback userGridRefresherCallback);
+
+    /**
+     * Creates a sharing link between file and users.
+     */
+    public void createSharingLink(String fileId, String emailsOfUsers,
+            AsyncCallback userGridRefresherCallback);
+
 }

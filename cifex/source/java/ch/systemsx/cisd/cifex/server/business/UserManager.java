@@ -334,4 +334,12 @@ class UserManager extends AbstractManager implements IUserManager
         return userDAO.listUsersRegisteredBy(userCode);
     }
 
+    @Transactional
+    public List<UserDTO> listUsersFileSharedWith(long fileId) throws UserFailureException
+    {
+
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        return userDAO.listUsersFileSharedWith(fileId);
+    }
+
 }

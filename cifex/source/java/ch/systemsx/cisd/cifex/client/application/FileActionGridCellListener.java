@@ -21,6 +21,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
+import com.gwtext.client.widgets.BaseExtWidget;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
@@ -28,9 +29,11 @@ import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
- * A <code>GridCellListenerAdapter</code> extension for deleting or renewing a <code>File</code>.
+ * A <code>GridCellListenerAdapter</code> extension for deleting, renewing or sharing with other
+ * users a <code>File</code>.
  * 
  * @author Christian Ribeaud
  */
@@ -93,6 +96,15 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             {
                 viewContext.getCifexService().updateFileExpiration(idStr, null,
                         new UpdateFileAsyncCallback((ModelBasedGrid) grid));
+            }
+            // Shared
+            if (Constants.SHARED_ID.equals(targetId))
+            {
+                viewContext.getCifexService()
+                        .listUsersFileSharedWith(
+                                idStr,
+                                new ShowUsersFileSharedWithAsyncCallback((ModelBasedGrid) grid,
+                                        name, idStr));
             }
             // Show Comment
             if (Constants.SHOW_COMMENT_ID.equals(targetId))
@@ -194,4 +206,37 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             }
         }
     }
+
+    /**
+     * An {@link AsyncCallback} that shows the list of users a file has been shared with.
+     */
+    private final class ShowUsersFileSharedWithAsyncCallback extends AbstractAsyncCallback
+    {
+
+        final String fileName;
+
+        final String fileId;
+
+        private BaseExtWidget modelBasedGrid;
+
+        ShowUsersFileSharedWithAsyncCallback(ModelBasedGrid modelBasedGrid, String name,
+                String idStr)
+        {
+            super(viewContext);
+            this.fileName = name;
+            this.fileId = idStr;
+            this.modelBasedGrid = modelBasedGrid;
+        }
+
+        public final void onSuccess(final Object result)
+        {
+            User[] users = (User[]) result;
+            FileShareUserDialog dialog =
+                    new FileShareUserDialog(viewContext, "File Shared With", users, fileName,
+                            fileId);
+            dialog.show(modelBasedGrid.getEl());
+
+        }
+    }
+
 }

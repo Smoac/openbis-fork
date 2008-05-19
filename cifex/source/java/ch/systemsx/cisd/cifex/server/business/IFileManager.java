@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
@@ -107,7 +107,8 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public List<String> shareFilesWith(String url, UserDTO requestUser,
-            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment);
+            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment)
+            throws UserFailureException;
 
     /**
      * Deletes file with given <code>fileId</code> from database and file system.
@@ -141,5 +142,11 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void updateFile(final FileDTO file);
+
+    /**
+     * Removes sharing link between file with given fileId and user with given userCode
+     */
+    @LogAnnotation(logCategory = LogCategory.TRACKING)
+    public void deleteSharingLink(long fileId, String userCode) throws UserFailureException;
 
 }

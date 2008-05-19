@@ -85,6 +85,13 @@ public interface ICIFEXService extends RemoteService
     public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
 
     /**
+     * Returns users the file with given <var>fileId</var> has been shared with.
+     * 
+     * @throws InvalidSessionException
+     */
+    public User[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException;
+
+    /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If
      * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
      * who creates the new user.
@@ -104,6 +111,14 @@ public interface ICIFEXService extends RemoteService
     public void updateUser(final User user, final String password,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException;
+
+    /**
+     * Revokes user with given userCode access to file with fileId.
+     * 
+     * @throws InvalidSessionException, InsufficientPrivilegesException
+     */
+    public void deleteSharingLink(String fileId, String userCode) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException;
 
     /**
      * Tries to delete the user given by its user <var>userCode</var>.
@@ -168,5 +183,12 @@ public interface ICIFEXService extends RemoteService
      */
     public void updateFileExpiration(final String idStr, final Date newExpirationDate)
             throws InvalidSessionException, InsufficientPrivilegesException;
+
+    /**
+     * Creates a sharing link between file and users.
+     */
+    public void createSharingLink(final String fileIdStr, final String emailsOfUsers)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
+            UserFailureException;
 
 }

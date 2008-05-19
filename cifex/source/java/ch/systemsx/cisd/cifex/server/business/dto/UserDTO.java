@@ -36,7 +36,7 @@ public class UserDTO extends ID
 
     private String encryptedPassword;
 
-    private UserDTO registrator;
+    private UserDTO registratorOrNull;
 
     /**
      * Whether this user is an administrator or not.
@@ -147,12 +147,12 @@ public class UserDTO extends ID
 
     public final UserDTO getRegistrator()
     {
-        return registrator;
+        return registratorOrNull;
     }
 
     public final void setRegistrator(UserDTO registrator)
     {
-        this.registrator = registrator;
+        this.registratorOrNull = registrator;
     }
 
     public String getUserCode()

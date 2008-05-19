@@ -218,4 +218,23 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.updateFileExpiration(idStr, newExpirationDate);
     }
 
+    public User[] listUsersFileSharedWith(String fileId) throws InvalidSessionException
+    {
+        return cifexServiceDelegate.listUsersFileSharedWith(fileId);
+    }
+
+    public void deleteSharingLink(String fileId, String userCode) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException
+    {
+        cifexServiceDelegate.deleteSharingLink(fileId, userCode);
+
+    }
+
+    public void createSharingLink(String fileId, String emailsOfUsers) throws UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    {
+
+        cifexServiceDelegate.createSharingLink(fileId, emailsOfUsers);
+    }
+
 }

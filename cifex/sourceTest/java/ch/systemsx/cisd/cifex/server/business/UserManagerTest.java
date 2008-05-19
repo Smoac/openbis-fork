@@ -236,6 +236,24 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test(dataProvider = "listsOfUsers")
+    public final void testListUsersFileSharedWith(final List<UserDTO> usersFromDAOFileSharedWith)
+    {
+        final long fileId = 1L;
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).listUsersFileSharedWith(fileId);
+                    will(returnValue(usersFromDAOFileSharedWith));
+                }
+            });
+        final List<UserDTO> users = userManager.listUsersFileSharedWith(fileId);
+        assertEquals(usersFromDAOFileSharedWith, users);
+        context.assertIsSatisfied();
+    }
+
     @Transactional
     @Test(dataProvider = "userCodesAndUsers")
     public final void testDeleteUser(final String userCode, final UserDTO user)

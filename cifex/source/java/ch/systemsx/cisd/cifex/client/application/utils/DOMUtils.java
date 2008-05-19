@@ -122,7 +122,7 @@ public final class DOMUtils
      * Creates an anchor with given <var>value</var>, given <var>href</var>, <var>target</var>
      * and given <var>id</var>.
      * 
-     * @param title TODO
+     * @param title
      */
     private final static String createAnchor(String title, final String value, final String href,
             final String target, final String id)

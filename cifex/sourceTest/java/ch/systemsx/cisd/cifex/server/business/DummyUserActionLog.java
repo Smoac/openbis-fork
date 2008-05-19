@@ -85,4 +85,7 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
+    public void logDeleteSharingLink(long fileId, String userCode, boolean success)
+    {
+    }
 }

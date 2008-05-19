@@ -39,6 +39,15 @@ public final class Constants
     /** The <code>id</code> attribute value for delete action. */
     public static final String DELETE_ID = "delete";
 
+    /** The <code>id</code> attribute value for 'shared' action. */
+    public static final String SHARED_ID = "shared";
+
+    /** The <code>id</code> attribute value for 'shared' action. */
+    public static final String ADD_USER_ID = "add_user";
+
+    /** The <code>id</code> attribute value for 'shared' action. */
+    public static final String STOP_SHARING_ID = "stop_sharing";
+
     private Constants()
     {
         // Can not be instantiated.

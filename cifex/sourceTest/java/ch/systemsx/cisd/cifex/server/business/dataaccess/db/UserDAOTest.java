@@ -23,10 +23,13 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
@@ -39,6 +42,8 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
     { "db", "user" })
 public final class UserDAOTest extends AbstractDAOTest
 {
+    private static final String MY_FILE_001_TXT = "my-file-001.txt";
+
     final static UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null);
 
     final static UserDTO testPermanentUser =
@@ -307,4 +312,34 @@ public final class UserDAOTest extends AbstractDAOTest
         assertEquals(listUsers.size() - 2, userDAO.listUsers().size());
     }
 
+    @Test(dependsOnGroups =
+        { "user.create" })
+    @Transactional
+    public final void testListUsersFileSharedWith()
+    {
+        IFileDAO fileDAO = daoFactory.getFileDAO();
+        IUserDAO userDAO = daoFactory.getUserDAO();
+        List<UserDTO> users = userDAO.listUsers();
+        Assert.assertTrue(users.size() > 0);
+        final UserDTO userDTO = users.get(0);
+
+        final FileDTO fileDTO = new FileDTO(userDTO.getID());
+        fileDTO.setName(MY_FILE_001_TXT);
+        fileDTO.setPath("/me/" + userDTO.getUserFullName() + "/" + MY_FILE_001_TXT);
+        fileDTO.setExpirationDate(new Date(new Long("1222249782000").longValue()));
+        fileDAO.createFile(fileDTO);
+        Assert.assertEquals(fileDAO.listUploadedFiles(userDTO.getID()).size(), 1);
+        List<UserDTO> shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
+        Assert.assertTrue(shared != null);
+        Assert.assertEquals(shared.size(), 0);
+
+        fileDAO.createSharingLink(fileDTO.getID(), userDTO.getID());
+        shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
+        Assert.assertEquals(shared.size(), 1);
+        Assert.assertEquals(shared.get(0).getEmail(), userDTO.getEmail());
+        Assert.assertEquals(shared.get(0).getUserCode(), userDTO.getUserCode());
+        Assert.assertEquals(shared.get(0).getUserFullName(), userDTO.getUserFullName());
+        Assert.assertEquals(shared.get(0).getID(), userDTO.getID());
+
+    }
 }

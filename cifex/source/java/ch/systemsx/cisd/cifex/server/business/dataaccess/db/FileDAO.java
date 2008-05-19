@@ -92,6 +92,18 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     }
 
+    public boolean deleteSharingLink(long fileID, String userCode) throws DataAccessException
+    {
+        String sql =
+                String
+                        .format(
+                                "delete from file_shares where file_id = %s and user_id in  (select id from users where user_id like '%s')",
+                                fileID, userCode);
+        final int affectedRows = getSimpleJdbcTemplate().update(sql);
+        return affectedRows > 0;
+
+    }
+
     public final void createFile(final FileDTO file) throws DataAccessException
     {
         assert file != null : "Given file cannot be null.";

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.Collection;
+
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -70,5 +71,7 @@ public interface IUserActionLog
     public void logRenewFile(FileDTO file, boolean success);
 
     public void logDownloadFile(FileDTO file, boolean success);
+
+    public void logDeleteSharingLink(long fileId, String userCode, boolean success);
 
 }

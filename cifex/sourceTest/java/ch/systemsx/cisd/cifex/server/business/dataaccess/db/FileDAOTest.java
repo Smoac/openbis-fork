@@ -41,12 +41,20 @@ public final class FileDAOTest extends AbstractDAOTest
 {
     private static final Long NOT_SET = null;
 
-    private final UserDTO getSampleUserFromDB()
+    private final UserDTO getFirstSampleUserFromDB()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         List<UserDTO> listUsers = userDAO.listUsers();
         assertTrue(listUsers.size() > 0);
         return listUsers.get(0);
+    }
+
+    private final UserDTO getSecondSampleUserFromDB()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        List<UserDTO> listUsers = userDAO.listUsers();
+        assertTrue(listUsers.size() > 1);
+        return listUsers.get(1);
     }
 
     private final FileDTO createFile(final String name, final String path, final String comment,
@@ -75,7 +83,7 @@ public final class FileDAOTest extends AbstractDAOTest
 
     private final FileDTO createSampleFile()
     {
-        return createSampleFile(getSampleUserFromDB());
+        return createSampleFile(getFirstSampleUserFromDB());
     }
 
     /** Test if the file is equal. */
@@ -151,18 +159,43 @@ public final class FileDAOTest extends AbstractDAOTest
 
     @Transactional
     @Test(groups = "file.create")
-    public final void testAddSharingUsers()
+    public final void testAddAndDeleteSharingUsers()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final FileDTO file1 = createSampleFile();
         fileDAO.createFile(file1);
         final Long fileId = file1.getID();
         assertNotNull(fileId);
-        fileDAO.createSharingLink(fileId, getSampleUserFromDB().getID());
+        final UserDTO firstSampleUserFromDB = getFirstSampleUserFromDB();
+        final UserDTO secondSampleUserFromDB = getSecondSampleUserFromDB();
+        final String firstUserCode = firstSampleUserFromDB.getUserCode();
+        assertFalse(firstUserCode == null);
+        assertFalse(0 == firstUserCode.compareTo(secondSampleUserFromDB.getUserCode()));
+        assertFalse(0 == firstSampleUserFromDB.getIDStr().compareTo(
+                secondSampleUserFromDB.getIDStr()));
+
+        fileDAO.createSharingLink(fileId, firstSampleUserFromDB.getID());
         final FileDTO file = fileDAO.tryGetFile(fileId);
         assertNotNull(file);
-        final List<UserDTO> users = file.getSharingUsers();
+        List<UserDTO> users = daoFactory.getUserDAO().listUsersFileSharedWith(fileId);
         assertEquals(1, users.size());
+        final UserDTO sharingUserDTO = users.get(0);
+        assertTrue(sharingUserDTO != null);
+        assertFalse(users.get(0).getUserCode() == null);
+        assertTrue(firstUserCode.compareTo(users.get(0).getUserCode()) == 0);
+
+        fileDAO.createSharingLink(fileId, secondSampleUserFromDB.getID());
+        users = daoFactory.getUserDAO().listUsersFileSharedWith(fileId);
+        assertEquals(2, users.size());
+        assertTrue(users.get(0).getUserCode().compareTo(firstUserCode) == 0
+                && users.get(1).getUserCode().compareTo(secondSampleUserFromDB.getUserCode()) == 0
+                || users.get(1).getUserCode().compareTo(firstUserCode) == 0
+                && users.get(0).getUserCode().compareTo(secondSampleUserFromDB.getUserCode()) == 0);
+
+        fileDAO.deleteSharingLink(fileId, firstUserCode);
+        users = daoFactory.getUserDAO().listUsersFileSharedWith(fileId);
+        assertEquals(1, users.size());
+        assertTrue(users.get(0).getUserCode().compareTo(secondSampleUserFromDB.getUserCode()) == 0);
     }
 
     //
@@ -218,7 +251,7 @@ public final class FileDAOTest extends AbstractDAOTest
     public final void testListDownloadFiles()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
-        final UserDTO user = getSampleUserFromDB();
+        final UserDTO user = getFirstSampleUserFromDB();
         final FileDTO newFile = createSampleFile(user);
         fileDAO.createFile(newFile);
         /* Existing user id */

@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpSession;
 
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
@@ -639,4 +642,80 @@ public final class CIFEXServiceImpl implements ICIFEXService
         fileManager.updateFileExpiration(Long.parseLong(idStr), expirationDate);
     }
 
+    public User[] listUsersFileSharedWith(String idStr) throws InvalidSessionException
+    {
+        privGetCurrentUser();
+        final IUserManager userManager = domainModel.getUserManager();
+
+        final List<UserDTO> users = userManager.listUsersFileSharedWith(Long.parseLong(idStr));
+
+        return BeanUtils.createBeanArray(User.class, users, null);
+    }
+
+    public void deleteSharingLink(String idStr, String userCode) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException
+    {
+        long fileId = Long.parseLong(idStr);
+        final UserDTO requestUser = privGetCurrentUser();
+        final IFileManager fileManager = domainModel.getFileManager();
+        final FileInformation fileInfo = fileManager.getFileInformation(fileId);
+        if (fileInfo.isFileAvailable() == false)
+        {
+            throw new FileNotFoundException(fileInfo.getErrorMessage());
+        }
+        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+        fileManager.deleteSharingLink(fileId, userCode);
+
+    }
+
+    public void createSharingLink(String idStr, String emailsOfUsers) throws UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    {
+        final UserDTO requestUser = privGetCurrentUser();
+        final IFileManager fileManager = domainModel.getFileManager();
+        final FileInformation fileInfo = fileManager.getFileInformation(Long.parseLong(idStr));
+        if (fileInfo.isFileAvailable() == false)
+        {
+            throw new FileNotFoundException(fileInfo.getErrorMessage());
+        }
+        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+        final StringTokenizer stringTokenizer = new StringTokenizer(emailsOfUsers, ", \t\n\r\f");
+        List<String> emails = new ArrayList<String>();
+        while (stringTokenizer.hasMoreTokens())
+        {
+            emails.add(stringTokenizer.nextToken());
+        }
+        List<FileDTO> files = new ArrayList<FileDTO>();
+        files.add(fileInfo.getFileDTO());
+        String url = domainModel.getBusinessContext().getOverrideURL();
+        if (StringUtils.isBlank(url))
+        {
+            url = getBasicURL();
+        }
+        List<String> invalidEmailAddresses;
+        try
+        {
+            invalidEmailAddresses =
+                    fileManager.shareFilesWith(url, requestUser, emails, files, fileInfo
+                            .getFileDTO().getComment());
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw new UserFailureException(e.getMessage());
+        }
+        if (invalidEmailAddresses.isEmpty() == false)
+        {
+            final String msg =
+                    "Some email addresses are invalid: "
+                            + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
+            throw new UserFailureException(msg);
+        }
+    }
 }

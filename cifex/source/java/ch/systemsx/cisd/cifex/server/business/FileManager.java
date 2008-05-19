@@ -36,6 +36,7 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
@@ -268,8 +269,8 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final FileDTO saveFile(final UserDTO user, final String fileName,
-            String comment, final String contentType, final InputStream input)
+    public final FileDTO saveFile(final UserDTO user, final String fileName, String comment,
+            final String contentType, final InputStream input)
     {
         assert user != null : "Unspecified user.";
         assert user.getEmail() != null : "Unspecified email of user " + user;
@@ -366,6 +367,7 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public List<String> shareFilesWith(String url, UserDTO requestUser,
             Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment)
+            throws UserFailureException
     {
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
@@ -409,12 +411,35 @@ final class FileManager extends AbstractManager implements IFileManager
                     // ensure that all database links are created before any email is sent (note
                     // that this method is
                     // @Transactional).
+                    List<String> alreadyExistingSharingLinks = new ArrayList<String>();
                     for (final UserDTO user : usersOrNull)
                     {
                         for (FileDTO file : files)
                         {
-                            fileDAO.createSharingLink(file.getID(), user.getID());
+
+                            try
+                            {
+
+                                fileDAO.createSharingLink(file.getID(), user.getID());
+                            } catch (DataIntegrityViolationException ex)
+                            {
+                                alreadyExistingSharingLinks.add(user.getUserCode());
+                                operationLog.error(String.format(
+                                        "Sharing file %s with user %s for the second time.", file
+                                                .getPath(), user.getUserCode()), ex);
+                            }
+
                         }
+                    }
+                    if (alreadyExistingSharingLinks.size() > 0)
+                    {
+                        final String msg =
+                                String
+                                        .format(
+                                                "Cannot share file with the users twice (%s). Operation failed.",
+                                                alreadyExistingSharingLinks);
+
+                        throw new UserFailureException(msg);
                     }
                     for (final UserDTO user : usersOrNull)
                     {
@@ -478,7 +503,7 @@ final class FileManager extends AbstractManager implements IFileManager
     private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
     {
         if (requestUser.isPermanent()) // Only permanent users are allowed to create new user
-                                        // accounts.
+        // accounts.
         {
             final UserDTO user = new UserDTO();
             user.setUserCode(email);
@@ -558,5 +583,20 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         daoFactory.getFileDAO().updateFile(file);
     }
+    
+    @Transactional
+    public void deleteSharingLink(long fileId, String userCode)
+    {
 
+        boolean success = false;
+        try
+        {
+            daoFactory.getFileDAO().deleteSharingLink(fileId, userCode);
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logDeleteSharingLink(fileId, userCode, success);
+        }
+
+    }
 }

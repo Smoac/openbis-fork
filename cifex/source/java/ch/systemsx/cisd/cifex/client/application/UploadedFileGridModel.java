@@ -76,7 +76,10 @@ public class UploadedFileGridModel extends AbstractFileGridModel
                                         Constants.RENEW_ID)
                                         + " | "
                                         + DOMUtils.createAnchor(messageResources
-                                                .getActionDeleteLabel(), Constants.DELETE_ID) };
+                                                .getActionDeleteLabel(), Constants.DELETE_ID)
+                                        + " | "
+                                        + DOMUtils.createAnchor(messageResources
+                                                .getActionSharedLabel(), Constants.SHARED_ID) };
             list.add(objects);
         }
         return list;

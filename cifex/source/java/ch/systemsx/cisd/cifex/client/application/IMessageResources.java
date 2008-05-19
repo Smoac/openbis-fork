@@ -33,6 +33,13 @@ public interface IMessageResources extends Messages
     public String getActionDeleteLabel();
 
     /**
+     * Returns the label for the share action.
+     * 
+     * @gwt.key action.shared.label
+     */
+    public String getActionSharedLabel();
+
+    /**
      * Returns the label for the edit action.
      * 
      * @gwt.key action.edit.label
@@ -603,6 +610,13 @@ public interface IMessageResources extends Messages
     public String getUserDeleteConfirmText(final String name);
 
     /**
+     * Returns the content the confirm MessageBox, to stop sharing file with user.
+     * 
+     * @gwt.key confirm.stop_sharing_file_with_user
+     */
+    public String getStopSharingFileWithUserConfirmText(String file, String user);
+
+    /**
      * Returns the title for user deletion.
      * 
      * @gwt.key user.delete.title
@@ -643,4 +657,11 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.password.validate.label
      */
     public String getValidatePasswordLabel();
+
+    /**
+     * Returns label for the 'stop sharing' field.
+     * 
+     * @gwt.key action.stop_sharing.label
+     */
+    public String getActionStopSharingLabel();
 }

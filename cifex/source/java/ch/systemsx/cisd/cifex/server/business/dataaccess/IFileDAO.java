@@ -71,6 +71,11 @@ public interface IFileDAO
      */
     public void createSharingLink(long fileID, long userID) throws DataAccessException;
 
+    /**
+     * Deletes a link between the specified file and user.
+     */
+    public boolean deleteSharingLink(long fileID, String userCode) throws DataAccessException;
+
     /** Returns a list of expired files */
     public List<FileDTO> getExpiredFiles();
 
