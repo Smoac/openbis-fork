@@ -81,7 +81,7 @@ public class EditUserWidget extends UserWidget
             }
             final ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getText()),
-                    new UpdateUserAsyncCallBack());
+                    sendUpdateInformation.getValue(), new UpdateUserAsyncCallBack());
         }
     }
 

@@ -195,10 +195,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         }
     }
 
-    public void updateUser(final User user, final String password) throws InvalidSessionException,
-            InsufficientPrivilegesException
+    public void updateUser(final User user, final String password,
+            final boolean sendUpdateInformationToUser) throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
     {
-        cifexServiceDelegate.updateUser(user, password);
+        cifexServiceDelegate.updateUser(user, password, sendUpdateInformationToUser);
     }
 
     public User tryFindUserByUserCode(String userCode) throws InvalidSessionException

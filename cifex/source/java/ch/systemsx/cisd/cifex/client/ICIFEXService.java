@@ -96,9 +96,14 @@ public interface ICIFEXService extends RemoteService
             final String comment) throws EnvironmentFailureException, UserFailureException,
             InvalidSessionException, InsufficientPrivilegesException;
 
-    /** Update the fields of the user in the database. */
-    public void updateUser(final User user, final String password) throws InvalidSessionException,
-            InsufficientPrivilegesException;
+    /**
+     * Update the fields of the user in the database.
+     * 
+     * @param sendUpdateInformationToUser Inform to user about the changes?
+     */
+    public void updateUser(final User user, final String password,
+            final boolean sendUpdateInformationToUser) throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException;
 
     /**
      * Tries to delete the user given by its user <var>userCode</var>.

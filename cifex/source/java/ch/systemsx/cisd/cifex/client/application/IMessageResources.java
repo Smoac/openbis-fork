@@ -101,7 +101,14 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.comment.label
      */
     public String getCommentLabel();
-
+    
+    /**
+     * Returns label for the Comment field.
+     * 
+     * @gwt.key edituser.sendUpdateInformation.label
+     */
+    public String getSendUserUpdateInformationLabel();
+    
     /**
      * Returns the label for creating new User
      * 

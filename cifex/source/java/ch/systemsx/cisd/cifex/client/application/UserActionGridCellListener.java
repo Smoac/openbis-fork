@@ -167,7 +167,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             final User user = (User) result;
             assert user.isPermanent() == false : "Regular user can not be renewed.";
             user.setExpirationDate(null);
-            viewContext.getCifexService().updateUser(user, null,
+            viewContext.getCifexService().updateUser(user, null, false,
                     new UserGridRefresherCallback(viewContext, modelBasedGrid));
         }
     }

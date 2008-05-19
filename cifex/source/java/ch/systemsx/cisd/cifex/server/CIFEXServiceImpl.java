@@ -42,6 +42,7 @@ import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.Message;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.server.business.EMailBuilderForUpdateUser;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
@@ -501,9 +503,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
     }
 
-    /** Update the fields of the user in the database. */
-    public void updateUser(final User user, final String password) throws InvalidSessionException,
-            InsufficientPrivilegesException
+    /**
+     * Update the fields of the user in the database.
+     */
+    public void updateUser(final User user, final String password,
+            final boolean sendUpdateInformationToUser) throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
     {
         assert user != null : "User can't be null";
         final IUserManager userManager = domainModel.getUserManager();
@@ -518,6 +523,29 @@ public final class CIFEXServiceImpl implements ICIFEXService
         }
 
         userManager.updateUser(userDTO, encryptedPassword);
+        if (sendUpdateInformationToUser)
+        {
+            try
+            {
+                final IMailClient mailClient = domainModel.getMailClient();
+                final EMailBuilderForUpdateUser builder =
+                        new EMailBuilderForUpdateUser(mailClient, this.privGetCurrentUser(),
+                                userDTO);
+                builder.setURL(getBasicURL());
+                if (encryptedPassword != null)
+                {
+                    builder.setPassword(password);
+                }
+                builder.sendEMail();
+            } catch (final Exception ex)
+            {
+                final String msg =
+                        "Sending email to email '" + user.getEmail() + "' failed: "
+                                + ex.getMessage();
+                operationLog.error(msg, ex);
+                throw new EnvironmentFailureException(msg);
+            }
+        }
     }
 
     /** Check if the current user is allowed to update the given user. */

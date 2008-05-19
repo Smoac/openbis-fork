@@ -23,6 +23,8 @@ import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.form.Checkbox;
+import com.gwtext.client.widgets.form.CheckboxConfig;
 import com.gwtext.client.widgets.form.ColumnConfig;
 import com.gwtext.client.widgets.form.ComboBox;
 import com.gwtext.client.widgets.form.ComboBoxConfig;
@@ -82,6 +84,8 @@ public abstract class UserWidget extends Form
 
     protected TextArea commentArea;
 
+    protected Checkbox sendUpdateInformation;
+
     /**
      * Status of the user.
      * <p>
@@ -139,6 +143,10 @@ public abstract class UserWidget extends Form
         {
             commentArea = createCommentArea();
             add(commentArea);
+        } else
+        {
+            sendUpdateInformation = createSendUserInformationCheckbox();
+            add(sendUpdateInformation);
         }
         end();
 
@@ -318,6 +326,16 @@ public abstract class UserWidget extends Form
         textAreaConfig.setWidth(FIELD_WIDTH);
         return new TextArea(textAreaConfig);
 
+    }
+
+    private final Checkbox createSendUserInformationCheckbox()
+    {
+        final CheckboxConfig checkboxConfig = new CheckboxConfig();
+        checkboxConfig.setChecked(false);
+        checkboxConfig.setName("send-user-information");
+        checkboxConfig.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
+        checkboxConfig.setWidth(FIELD_WIDTH);
+        return new Checkbox(checkboxConfig);
     }
 
     private final ComboBox createStatusComboBox()
