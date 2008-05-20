@@ -46,28 +46,28 @@ public final class ProcessResult
     private List<String> outputLines;
 
     // process finished or was terminated after timeout
-    public static ProcessResult create(Process process, List<String> commandLine,
-            Logger operationLog, Logger machineLog)
+    public static ProcessResult create(final Process process, final List<String> commandLine,
+            final Logger operationLog, final Logger machineLog)
     {
         return new ProcessResult(process, false, commandLine, operationLog, machineLog);
     }
 
     // process could not start at all
-    public static ProcessResult createNotStarted(List<String> commandLine, Logger operationLog,
-            Logger machineLog)
+    public static ProcessResult createNotStarted(final List<String> commandLine,
+            final Logger operationLog, final Logger machineLog)
     {
         return new ProcessResult(null, false, commandLine, operationLog, machineLog);
     }
 
     // process started, but was blocked and could not be terminated, so we stopped waiting for it
-    public static ProcessResult createWaitingInterrupted(Process process, List<String> commandLine,
-            Logger operationLog, Logger machineLog)
+    public static ProcessResult createWaitingInterrupted(final Process process,
+            final List<String> commandLine, final Logger operationLog, final Logger machineLog)
     {
         return new ProcessResult(process, true, commandLine, operationLog, machineLog);
     }
 
-    private ProcessResult(Process processOrNull, boolean hasBlocked, List<String> commandLine,
-            Logger operationLog, Logger machineLog)
+    private ProcessResult(final Process processOrNull, final boolean hasBlocked,
+            final List<String> commandLine, final Logger operationLog, final Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = new File(commandLine.get(0)).getName();
@@ -209,7 +209,7 @@ public final class ProcessResult
             return;
         }
         machineLog.log(logLevel, String.format("[%s] output:", commandName));
-        for (String ln : processOutputLines)
+        for (final String ln : processOutputLines)
         {
             if (ln.trim().length() > 0)
             {
