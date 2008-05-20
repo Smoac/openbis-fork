@@ -321,7 +321,28 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.legend
      */
     public String getFileUploadLegend();
+    
+    /**
+     * Returns the title of the file sharing user dialog.
+     * 
+     * @gwt.key filesharing.title
+     */
+    public String getFileSharingTitle(String fileName);
+    
+    /**
+     * Returns the label of the button for adding a new user for file sharing..
+     * 
+     * @gwt.key filesharing.addButton.label
+     */
+    public String getFileSharingAddButtonLabel();
 
+    /**
+     * Returns the title of the add user dialog for file sharing.
+     * 
+     * @gwt.key filesharing.adduser.title
+     */
+    public String getFileSharingAddUserTitle();
+    
     /**
      * Returns application description.
      * 

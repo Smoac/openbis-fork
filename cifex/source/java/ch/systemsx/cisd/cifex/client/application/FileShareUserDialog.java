@@ -43,10 +43,11 @@ public class FileShareUserDialog extends DefaultLayoutDialog
 
     final ViewContext viewContext;
 
-    public FileShareUserDialog(final ViewContext context, String title, User[] users, String name,
+    public FileShareUserDialog(final ViewContext context, User[] users, String name,
             String fileId)
     {
-        super(context.getMessageResources(), title, 700, 300);
+        super(context.getMessageResources(), context.getMessageResources()
+                .getFileSharingTitle(name), 700, 300);
         this.users = users;
         this.fileName = name;
         this.fileId = fileId;
@@ -57,15 +58,15 @@ public class FileShareUserDialog extends DefaultLayoutDialog
 
     private final void createAddUserButton(final ModelBasedGrid userGrid)
     {
-        final Button button = addButton("Add user");
+        final Button button = addButton(messageResources.getFileSharingAddButtonLabel());
         final FileShareUserDialog parent = this;
         button.addButtonListener(new ButtonListenerAdapter()
             {
                 public void onClick(final Button b, final EventObject e)
                 {
                     FileShareAddUserDialog addUserDialog =
-                            new FileShareAddUserDialog(viewContext, "Share file with user", fileId,
-                                    fileName, userGrid, parent);
+                            new FileShareAddUserDialog(viewContext, fileId, fileName, userGrid,
+                                    parent);
                     addUserDialog.show();
                 }
             });

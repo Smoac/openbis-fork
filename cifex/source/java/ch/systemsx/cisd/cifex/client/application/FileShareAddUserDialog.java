@@ -39,10 +39,11 @@ class FileShareAddUserDialog extends DefaultLayoutDialog
 
     final RecipientsEmailsForm emailsForm;
 
-    public FileShareAddUserDialog(ViewContext viewContext, String title, String fileId,
+    public FileShareAddUserDialog(ViewContext viewContext, String fileId,
             String fileName, ModelBasedGrid userGrid, LayoutDialog parent)
     {
-        super(viewContext.getMessageResources(), title, DEFAULT_WIDTH, 180);
+        super(viewContext.getMessageResources(), viewContext.getMessageResources()
+                .getFileSharingAddUserTitle(), DEFAULT_WIDTH, 180);
         this.viewContext = viewContext;
         this.emailsForm = new RecipientsEmailsForm(viewContext, userGrid, fileId, parent);
         createOkButton();
