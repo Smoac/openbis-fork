@@ -279,7 +279,7 @@ public abstract class UserWidget extends Form
         fieldConfig.setFieldLabel(getMessageResources().getUserFullNameLabel());
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setName(getMessageResources().getUserFullNameLabel());
-        fieldConfig.setAllowBlank(false);
+        fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         final TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getUserFullName() != null)
