@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
 
 /**
  * The abstract super-class of classes that represent a file store.
@@ -170,7 +170,7 @@ public abstract class FileStore implements IFileStore
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         final String errorMessage =
-                tryCheckDirectoryFullyAccessible(RemotePathMover.DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
+                tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (errorMessage != null)
         {
             throw new ConfigurationFailureException(errorMessage);

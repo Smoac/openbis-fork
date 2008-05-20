@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.filesystem.remote;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -41,11 +42,6 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public final class RemotePathMover implements IStoreHandler
 {
-
-    /**
-     * Number of milliseconds to wait before considering that the directory is not fully accessible.
-     */
-    public static final long DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS = 3000L;
 
     private static final String START_COPYING_PATH_TEMPLATE = "Start copying path '%s' to '%s'.";
 
@@ -117,7 +113,7 @@ public final class RemotePathMover implements IStoreHandler
 
         final String errorMsg =
                 destinationDirectory
-                        .tryCheckDirectoryFullyAccessible(DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
+                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (StringUtils.isNotBlank(errorMsg))
         {
             throw new ConfigurationFailureException(errorMsg);
@@ -151,7 +147,7 @@ public final class RemotePathMover implements IStoreHandler
     {
         final String msg =
                 destinationDirectory
-                        .tryCheckDirectoryFullyAccessible(DIRECTORY_ACCESSIBLE_TIMEOUT_MILLIS);
+                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (msg != null)
         {
             machineLog.error(msg);

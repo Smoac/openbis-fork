@@ -21,6 +21,7 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -43,9 +44,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {
     /** The maximal number of retries when the move operation fails. */
     private static final int MAX_RETRIES_ON_FAILURE = 12;
-
-    /** The time to sleep when the move operation has failed before retrying it. */
-    private static final long MILLIS_TO_SLEEP_ON_FAILURE = 5000;
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
@@ -112,7 +110,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathRemover getRemover()
     {
-        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
+        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
     public final IPathImmutableCopier getImmutableCopier()
@@ -170,6 +168,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathMover getMover()
     {
-        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE, MILLIS_TO_SLEEP_ON_FAILURE);
+        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 }
