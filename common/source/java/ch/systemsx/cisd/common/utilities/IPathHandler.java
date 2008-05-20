@@ -22,9 +22,9 @@ import java.io.File;
  * A role for handling paths. The paths are supposed to go away when they have been handled
  * successfully.
  * 
+ * @see IStoreHandler
  * @author Bernd Rinn
  */
-// TODO 2008-05-13, Christian Ribeaud: very similar to IStoreHandler. Should be merged with it.
 public interface IPathHandler
 {
     /**

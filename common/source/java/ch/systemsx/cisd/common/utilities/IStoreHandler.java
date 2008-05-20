@@ -16,15 +16,31 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
+
 /**
- * Handles items in the file store
+ * Handles items in the file store.
+ * <p>
+ * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
+ * {@link File}.
+ * </p>
  * 
+ * @see IPathHandler
  * @author Tomasz Pylak
  */
-// TODO 2008-05-13, Christian Ribeaud: very similar to IPathHandler. Should be merged with it.
 public interface IStoreHandler
 {
+    /**
+     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being
+     * gone when the method returns.
+     */
     void handle(StoreItem item);
 
+    /**
+     * Whether given <var>item</var> may be handled or not.
+     * <p>
+     * This method is called just before {@link #handle(StoreItem)}.
+     * </p>
+     */
     boolean mayHandle(StoreItem item);
 }
