@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common;
 
+import org.apache.commons.lang.time.DateUtils;
+
 /**
  * Constants common to more than one CISD project.
  * 
@@ -34,4 +36,9 @@ public class Constants
     public static final String DELETION_IN_PROGRESS_PREFIX =
             MARKER_PREFIX + "deletion_in_progress_";
 
+    /** The number of milliseconds to wait before considering timeout (<i>10s</i>). */
+    public static final long MILLIS_TO_WAIT_BEFORE_TIMEOUT = 10 * DateUtils.MILLIS_PER_SECOND;
+
+    /** The number of milliseconds to sleep before retrying (<i>3s</i>). */
+    public static final long MILLIS_TO_SLEEP_BEFORE_RETRYING = 3 * DateUtils.MILLIS_PER_SECOND;
 }

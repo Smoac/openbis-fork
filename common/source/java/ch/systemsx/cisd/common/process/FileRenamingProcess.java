@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -32,8 +33,6 @@ public final class FileRenamingProcess implements IProcess
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileRenamingProcess.class);
-
-    public static final long DEFAULT_MILLIS_TO_SLEEP = 5000L;
 
     public static final int DEFAULT_MAX_RETRIES = 12;
 
@@ -51,7 +50,7 @@ public final class FileRenamingProcess implements IProcess
 
     public FileRenamingProcess(final File sourceFile, final File destinationFile)
     {
-        this(DEFAULT_MAX_RETRIES, DEFAULT_MILLIS_TO_SLEEP, sourceFile, destinationFile);
+        this(DEFAULT_MAX_RETRIES, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING, sourceFile, destinationFile);
     }
 
     public FileRenamingProcess(final int maxRetries, final long millisToSleep,

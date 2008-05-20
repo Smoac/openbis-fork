@@ -23,6 +23,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import org.apache.commons.io.DestroyableFileSystemUtils;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -224,7 +225,7 @@ public final class HighwaterMarkWatcher implements Runnable
         public final long freeSpaceKb(final File path) throws IOException
         {
             final String canonicalPath = FileUtilities.getCanonicalPath(path);
-            return FileSystemUtils.freeSpaceKb(canonicalPath);
+            return DestroyableFileSystemUtils.freeSpaceKb(canonicalPath);
         }
     }
 

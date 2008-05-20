@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -49,13 +49,11 @@ public final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RemoteFreeSpaceProvider.class);
 
-    private static final long MILLIS_TO_WAIT_FOR_COMPLETION = 2 * DateUtils.MILLIS_PER_SECOND;
-
     private final File sshExecutable;
 
     private final String host;
 
-    private final long millisToWaitForCompletion = MILLIS_TO_WAIT_FOR_COMPLETION;
+    private final long millisToWaitForCompletion = Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
 
     public RemoteFreeSpaceProvider(final String host, final File sshExecutable)
     {
