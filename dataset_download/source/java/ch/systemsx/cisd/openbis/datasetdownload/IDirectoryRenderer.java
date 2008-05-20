@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 
-import ch.systemsx.cisd.lims.base.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExternalData;
 
 /**
  * Interface of a renderer of a directory.

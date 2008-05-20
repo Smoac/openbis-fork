@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.lims.base.ExternalData;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.ILIMSServiceFactory;
 import ch.systemsx.cisd.lims.base.ServiceRegistry;
+import ch.systemsx.cisd.lims.base.dto.ExternalData;
 
 /**
  * 

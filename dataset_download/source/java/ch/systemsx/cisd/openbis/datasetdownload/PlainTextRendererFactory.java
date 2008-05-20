@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.lims.base.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExternalData;
 
 /**
  * Factory for rendering file system view in plain text.
