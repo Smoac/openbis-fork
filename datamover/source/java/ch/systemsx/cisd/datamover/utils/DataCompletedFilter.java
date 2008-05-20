@@ -31,16 +31,13 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
 
 /**
-<<<<<<< .mine
- * Filter which executes a shell script in order to determine whether a {@link StoreItem} should
- * be passed (i.e. accepted) or not. The script will be provided with one or two arguments: The
+ * Filter which executes a shell script in order to determine whether a {@link StoreItem} should be
+ * passed (i.e. accepted) or not. The script will be provided with one or two arguments: The
  * absolute path to store item and optional the remote host where the store item is located.
  * <p>
- * The filter remembers the last status of script execution. Status changes are logged with
- * log category {@link LogCategory#NOTIFY}.
- *
-=======
->>>>>>> .r6153
+ * The filter remembers the last status of script execution. Status changes are logged with log
+ * category {@link LogCategory#NOTIFY}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataCompletedFilter implements IStoreItemFilter
