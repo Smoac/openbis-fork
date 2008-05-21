@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.common.process;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -62,6 +64,15 @@ public final class ProcessExecutionHelper
     private final Logger operationLog;
 
     private final Logger machineLog;
+
+    public static List<String> createSshCommand(String command, File sshExecutable, String host)
+    {
+        ArrayList<String> wrappedCmd = new ArrayList<String>();
+        List<String> sshCommand = Arrays.asList(sshExecutable.getPath(), "-T", host);
+        wrappedCmd.addAll(sshCommand);
+        wrappedCmd.add(command);
+        return wrappedCmd;
+    }
 
     /**
      * Runs an Operating System process, specified by <var>cmd</var>.

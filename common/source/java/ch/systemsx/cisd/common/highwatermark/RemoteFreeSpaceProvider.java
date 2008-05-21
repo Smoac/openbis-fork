@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -92,25 +91,43 @@ public final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final String path = file.getPath();
         assert StringUtils.isNotEmpty(path) : "Empty path.";
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
-        final List<String> command = Arrays.asList(sshExecutable.getPath(), "-T", host, dfCommand);
+        final List<String> command =
+                ProcessExecutionHelper.createSshCommand(dfCommand, sshExecutable, host);
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, millisToWaitForCompletion, operationLog,
                         machineLog);
         processResult.log();
         final List<String> processOutput = processResult.getProcessOutput();
         final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);
-        if (processOutput.size() >= 2)
+        String spaceOutputKb = tryParseFreeSpaceOutput(processOutput);
+        if (spaceOutputKb == null)
         {
-            final String output = processOutput.get(1);
+            throw new IOException(String.format(
+                    "Command line '%s' did not return info as expected. Response was '%s'",
+                    commandLine, processOutput));
+        }
+        return parseKbytes(spaceOutputKb, dfCommand);
+    }
+
+    // NOTE sometimes the line with results breaks if the value in the column is longer then the
+    // header. So we cannot take the 3rd token from the second line, we have to count tokens in all
+    // the lines which appear
+    private static String tryParseFreeSpaceOutput(final List<String> outputLines)
+    {
+        int line = 1;
+        int seenTokens = 0;
+        while (line < outputLines.size())
+        {
+            final String output = outputLines.get(line);
             final String[] split = StringUtils.split(output, SPACE);
-            if (split.length >= 4)
+            if (seenTokens + split.length >= 4)
             {
                 // The column 'avail' (3th column) interests us.
-                return parseKbytes(split[3], commandLine);
+                return split[3 - seenTokens];
             }
+            seenTokens += split.length;
+            line++;
         }
-        throw new IOException(String.format(
-                "Command line '%s' did not return info as expected. Response was '%s'",
-                commandLine, processOutput));
+        return null;
     }
 }
