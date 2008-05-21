@@ -380,7 +380,7 @@ public final class FileUtilities
 
     /**
      * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the
-     * program.
+     * program (it's a directory, you can read and write in it)
      * 
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
      *         message describing the problem with the <var>directory</var> otherwise.
