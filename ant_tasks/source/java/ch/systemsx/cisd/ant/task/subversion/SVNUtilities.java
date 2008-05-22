@@ -16,23 +16,19 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.ant.common.StringUtils;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.process.InputStreamReaderGobbler;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
@@ -103,56 +99,6 @@ class SVNUtilities
         public int getExitValue()
         {
             return exitValue;
-        }
-
-    }
-
-    private static final class StreamReaderGobbler
-    {
-        private final Semaphore waitForReadingFinishedSemaphore = new Semaphore(1);
-
-        private final List<String> lines = new ArrayList<String>();
-
-        StreamReaderGobbler(final InputStream stream) throws InterruptedException
-        {
-            waitForReadingFinishedSemaphore.acquire();
-            final Thread t = new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            final BufferedReader reader =
-                                    new BufferedReader(new InputStreamReader(stream));
-                            String line;
-                            while ((line = reader.readLine()) != null)
-                            {
-                                lines.add(line);
-                            }
-                        } catch (IOException ex)
-                        {
-                            throw new EnvironmentFailureException("Couldn't gobble stream content",
-                                    ex);
-                        } finally
-                        {
-                            waitForReadingFinishedSemaphore.release();
-                        }
-                    }
-                };
-            t.start();
-        }
-
-        List<String> getLines() throws InterruptedException
-        {
-            waitForReadingFinishedSemaphore.acquire();
-            try
-            {
-                return lines;
-            } finally
-            {
-                waitForReadingFinishedSemaphore.release();
-            }
         }
 
     }
@@ -284,10 +230,10 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            StreamReaderGobbler inputStreamGobbler =
-                    new StreamReaderGobbler(process.getInputStream());
-            StreamReaderGobbler errorStreamGobbler =
-                    new StreamReaderGobbler(process.getErrorStream());
+            InputStreamReaderGobbler inputStreamGobbler =
+                    new InputStreamReaderGobbler(process.getInputStream());
+            InputStreamReaderGobbler errorStreamGobbler =
+                    new InputStreamReaderGobbler(process.getErrorStream());
             final int exitValue = process.waitFor();
             List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
@@ -336,8 +282,8 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            StreamReaderGobbler inputStreamGobbler =
-                    new StreamReaderGobbler(process.getInputStream());
+            InputStreamReaderGobbler inputStreamGobbler =
+                    new InputStreamReaderGobbler(process.getInputStream());
             final int exitValue = process.waitFor();
             List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
