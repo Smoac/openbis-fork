@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.Collections;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionStyle;
@@ -31,46 +30,19 @@ public final class UnmatchedPropertiesException extends ParserException
 {
     private static final long serialVersionUID = 1L;
 
-    /** The bean this is set during the parsing process. */
-    private final Class<?> beanClass;
-
-    /** The property codes found in the parsed file. */
-    private final Set<String> allPropertyCodes;
-
-    /** The mandatory property codes found in the bean. */
-    private final Set<String> mandatoryCodes;
-
-    /** The optional property codes found in the bean. */
-    private final Set<String> optionalCodes;
-
-    /**
-     * The property codes of {@link #allPropertyCodes} that can neither be found in
-     * {@link #mandatoryCodes} nor in {@link #optionalCodes}.
-     */
-    private final Set<String> propertyCodes;
-
-    public UnmatchedPropertiesException(final Class<?> beanClass,
-            final Set<String> allPropertyCodes, final Set<String> mandatoryCodes,
-            final Set<String> optionalCodes, final Set<String> propertyCodes)
+    public UnmatchedPropertiesException(final Set<String> mandatoryNames,
+            final Set<String> optionalNames, final Set<String> propertyNames)
     {
-        super(createMessage(propertyCodes, mandatoryCodes, optionalCodes));
-        assert allPropertyCodes != null : "All property codes can not be null.";
-        assert mandatoryCodes != null : "Mandatory codes can not be null.";
-        assert optionalCodes != null : "Optional codes can not be null.";
-        this.beanClass = beanClass;
-        this.allPropertyCodes = allPropertyCodes;
-        this.mandatoryCodes = mandatoryCodes;
-        this.optionalCodes = optionalCodes;
-        this.propertyCodes = propertyCodes;
+        super(createMessage(propertyNames, mandatoryNames, optionalNames));
     }
 
-    private final static String createMessage(Set<String> propertyCodes,
+    private final static String createMessage(Set<String> propertyNames,
             Set<String> mandatoryNames, Set<String> optionalNames)
     {
-        assert propertyCodes != null : "Property codes can not be null.";
-        assert propertyCodes.size() > 0 : "There is no reason to throw this exception.";
+        assert propertyNames != null : "Property names can not be null.";
+        assert propertyNames.size() > 0 : "There is no reason to throw this exception.";
         final StringBuilder builder = new StringBuilder();
-        builder.append("Columns ").append(toString(propertyCodes)).append(
+        builder.append("Columns ").append(toString(propertyNames)).append(
                 " specified in the header are not expected (");
         final boolean hasMandatory = mandatoryNames.size() > 0;
         if (hasMandatory)
@@ -95,31 +67,6 @@ public final class UnmatchedPropertiesException extends ParserException
     private final static String toString(final Set<String> set)
     {
         return CollectionUtils.abbreviate(set, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY);
-    }
-
-    public final Class<?> getBeanClass()
-    {
-        return beanClass;
-    }
-
-    public final Set<String> getAllPropertyCodes()
-    {
-        return Collections.unmodifiableSet(allPropertyCodes);
-    }
-
-    public final Set<String> getPropertyCodes()
-    {
-        return Collections.unmodifiableSet(propertyCodes);
-    }
-
-    public final Set<String> getMandatoryNames()
-    {
-        return Collections.unmodifiableSet(mandatoryCodes);
-    }
-
-    public final Set<String> getOptionalNames()
-    {
-        return Collections.unmodifiableSet(optionalCodes);
     }
 
 }

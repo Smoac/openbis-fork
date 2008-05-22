@@ -129,8 +129,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
         if (propertyCodes.size() > 0)
         {
-            throw new UnmatchedPropertiesException(clazz, allPropertyCodes, mandatoryPropertyCodes,
-                    beanAnalyzer.getOptionalProperties(), propertyCodes);
+            throw new UnmatchedPropertiesException(mandatoryPropertyCodes, beanAnalyzer
+                    .getOptionalProperties(), propertyCodes);
         }
     }
 

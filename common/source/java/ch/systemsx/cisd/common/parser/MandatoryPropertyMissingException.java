@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.Collections;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionStyle;
@@ -29,21 +28,15 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
  */
 public final class MandatoryPropertyMissingException extends ParserException
 {
+    private static final String MESSAGE_FORMAT =
+            "Mandatory column(s) %s are missing (mandatory columns are %s).";
+
     private static final long serialVersionUID = 1L;
-
-    /** The mandatory property codes that could not be found in the parsed file. */
-    private final Set<String> missingMandatoryProperties;
-
-    /** The fields that are mandatory. */
-    private final Set<String> mandatoryFields;
 
     public MandatoryPropertyMissingException(final Set<String> mandatoryFields,
             final Set<String> missingMandatoryProperties)
     {
         super(createMessage(missingMandatoryProperties, mandatoryFields));
-        assert mandatoryFields != null && mandatoryFields.size() > 0 : "Unspecified mandatory fields.";
-        this.mandatoryFields = mandatoryFields;
-        this.missingMandatoryProperties = missingMandatoryProperties;
     }
 
     private final static String createMessage(final Set<String> missingMandatoryProperties,
@@ -51,8 +44,8 @@ public final class MandatoryPropertyMissingException extends ParserException
     {
         assert missingMandatoryProperties != null : "Missing mandatory properties can not be null.";
         assert missingMandatoryProperties.size() > 0 : "No reason to throw this exception.";
-        return String.format("Mandatory column(s) %s are missing (mandatory columns are %s).",
-                toString(missingMandatoryProperties), toString(mandatoryFields));
+        return String.format(MESSAGE_FORMAT, toString(missingMandatoryProperties),
+                toString(mandatoryFields));
     }
 
     final static String toString(final Set<String> set)
@@ -60,13 +53,4 @@ public final class MandatoryPropertyMissingException extends ParserException
         return CollectionUtils.abbreviate(set, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY);
     }
 
-    public final Set<String> getMissingMandatoryProperties()
-    {
-        return Collections.unmodifiableSet(missingMandatoryProperties);
-    }
-
-    public final Set<String> getMandatoryFields()
-    {
-        return Collections.unmodifiableSet(mandatoryFields);
-    }
 }

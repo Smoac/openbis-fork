@@ -28,38 +28,24 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public final class IndexOutOfBoundsException extends ParserException
 {
+    private static final String MESSAGE_FORMAT =
+            "Not enough columns available. Looking for %s column but we have only %d columns (%s).";
+
     private static final long serialVersionUID = 1L;
-
-    private final int column;
-
-    private final String[] lineTokens;
 
     public IndexOutOfBoundsException(final int index, final String[] lineTokens)
     {
         super(createMessage(index, lineTokens));
-        this.column = index;
-        this.lineTokens = lineTokens;
     }
 
     private final static String createMessage(final int index, final String[] lineTokens)
     {
         assert lineTokens != null : "Line tokens can not be null.";
-        assert index >= lineTokens.length : "Index must be out of range (otherwise no reason to call this exception).";
-        return String
-                .format(
-                        "Not enough columns available. Looking for %s column but we have only %d columns (%s).",
-                        StringUtilities.getOrdinal(index + 1), lineTokens.length, CollectionUtils
-                                .abbreviate(lineTokens, -1, CollectionStyle.SINGLE_QUOTE_BOUNDARY));
-    }
-
-    public final int getColumn()
-    {
-        return column;
-    }
-
-    public final String[] getLineTokens()
-    {
-        return lineTokens;
+        assert index >= lineTokens.length : "Index must be out of range (otherwise no reason "
+                + "to call this exception).";
+        return String.format(MESSAGE_FORMAT, StringUtilities.getOrdinal(index + 1),
+                lineTokens.length, CollectionUtils.abbreviate(lineTokens, -1,
+                        CollectionStyle.SINGLE_QUOTE_BOUNDARY));
     }
 
 }
