@@ -42,36 +42,52 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class IncomingProcessorTest
 {
-    private static final String LOG_DEBUG_MACHINE_PREFIX = "DEBUG MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - ";
+    private static final String LOG_DEBUG_MACHINE_PREFIX =
+            "DEBUG MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - ";
 
     private static final String LOG_DEBUG_PREFIX =
             "DEBUG OPERATION.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - ";
-    
+
     private static final File TEST_FOLDER = new File("targets/unit-test/IncomingProcessorTest");
+
     private static final String INCOMING_DIR = "incoming";
+
     private static final String COPY_IN_PROGRESS_DIR = "copy-in-progress";
+
     private static final String COPY_COMPLETE_DIR = "copy-complete";
+
     private static final String READY_TO_MOVE_DIR = "ready-to-move";
+
     private static final String TEMP_DIR = "temp";
+
     private static final String EXAMPLE_SCRIPT_NAME = "example-script.sh";
+
     private static final String EXAMPLE_SCRIPT = "echo hello world";
+
     private static final File TEST_FILE = new File(TEST_FOLDER, "blabla.txt");
 
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IFileSysOperationsFactory fileSysOpertationFactory;
+
     private IPathMover mover;
+
     private IPathRemover remover;
+
     private File incomingDir;
+
     private IExitHandler exitHandler;
+
     private File copyInProgressDir;
+
     private File copyCompleteDir;
+
     private File exampleScript;
 
     @BeforeMethod
@@ -84,7 +100,7 @@ public class IncomingProcessorTest
         mover = context.mock(IPathMover.class);
         remover = context.mock(IPathRemover.class);
         exitHandler = context.mock(IExitHandler.class);
-        
+
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
@@ -97,7 +113,7 @@ public class IncomingProcessorTest
         new File(TEST_FOLDER, READY_TO_MOVE_DIR).mkdir();
         new File(TEST_FOLDER, TEMP_DIR).mkdir();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -106,7 +122,7 @@ public class IncomingProcessorTest
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithoutDataCompletedScript() throws IOException
     {
@@ -119,18 +135,20 @@ public class IncomingProcessorTest
                     will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
                 }
             });
-        
+
         DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1");
         TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
-        
-        assertEquals("", getNormalizedLogContent());
-        
+
+        assertEquals(
+                "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item \'test-data.txt\' has been handled.",
+                getNormalizedLogContent());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithDataCompletedScript() throws IOException
     {
@@ -138,13 +156,13 @@ public class IncomingProcessorTest
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
         context.checking(new Expectations()
-        {
             {
-                one(mover).tryMove(testDataFile, copyCompleteDir, "");
-                will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
-            }
-        });
-        
+                {
+                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+                }
+            });
+
         DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
                         "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
@@ -152,7 +170,7 @@ public class IncomingProcessorTest
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
-        
+
         assertEquals(
                 LOG_DEBUG_PREFIX
                         + "Executing command: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
@@ -163,14 +181,22 @@ public class IncomingProcessorTest
                         + "DataCompletedFilter.Status{ok=true,run=true,terminated=false,exitValue=0,blocked=false}. "
                         + "Command line: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
-                        + OSUtilities.LINE_SEPARATOR + LOG_DEBUG_PREFIX
-                        + "[sh] process returned with exit value 0." + OSUtilities.LINE_SEPARATOR
-                        + LOG_DEBUG_MACHINE_PREFIX + "[sh] output:" + OSUtilities.LINE_SEPARATOR
-                        + LOG_DEBUG_MACHINE_PREFIX + "\"hello world\"", getNormalizedLogContent());
-        
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_PREFIX
+                        + "[sh] process returned with exit value 0."
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_MACHINE_PREFIX
+                        + "[sh] output:"
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_MACHINE_PREFIX
+                        + "\"hello world\""
+                        + OSUtilities.LINE_SEPARATOR
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled.",
+                getNormalizedLogContent());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
     {
@@ -179,23 +205,23 @@ public class IncomingProcessorTest
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
         context.checking(new Expectations()
-        {
             {
-                one(mover).tryMove(testDataFile, copyCompleteDir, "");
-                will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
-            }
-        });
-        
+                {
+                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+                }
+            });
+
         DataMoverProcess process =
-            createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
-                    "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
+                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
+                        "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
         TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
         TEST_FILE.createNewFile();
         dataMoverTimerTask.run(); // 4. round finds changed status, thus log
-        
+
         boolean terminated = OSUtilities.isWindows();
         assertEquals(
                 LOG_DEBUG_PREFIX
@@ -204,13 +230,15 @@ public class IncomingProcessorTest
                         + OSUtilities.LINE_SEPARATOR
                         + "ERROR NOTIFY.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "Processing status of data completed script has changed to "
-                        + "DataCompletedFilter.Status{ok=false,run=true,terminated=" + terminated
-                                + ",exitValue=1,blocked=false}. "
+                        + "DataCompletedFilter.Status{ok=false,run=true,terminated="
+                        + terminated
+                        + ",exitValue=1,blocked=false}. "
                         + "Command line: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  OPERATION.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
-                        + "[sh] process " + (terminated ? "was destroyed." : "returned with exit value 1.")
+                        + "[sh] process "
+                        + (terminated ? "was destroyed." : "returned with exit value 1.")
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "[sh] output:"
@@ -231,25 +259,34 @@ public class IncomingProcessorTest
                         + "DataCompletedFilter.Status{ok=true,run=true,terminated=false,exitValue=0,blocked=false}. "
                         + "Command line: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
-                        + OSUtilities.LINE_SEPARATOR + LOG_DEBUG_PREFIX
-                        + "[sh] process returned with exit value 0." + OSUtilities.LINE_SEPARATOR
-                        + LOG_DEBUG_MACHINE_PREFIX + "[sh] output:" + OSUtilities.LINE_SEPARATOR
-                        + LOG_DEBUG_MACHINE_PREFIX + "\"hello world\"" + OSUtilities.LINE_SEPARATOR
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_PREFIX
+                        + "[sh] process returned with exit value 0."
+                        + OSUtilities.LINE_SEPARATOR
                         + LOG_DEBUG_MACHINE_PREFIX
-                        + "\"removed `targets/unit-test/IncomingProcessorTest/blabla.txt'\"",
+                        + "[sh] output:"
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_MACHINE_PREFIX
+                        + "\"hello world\""
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_DEBUG_MACHINE_PREFIX
+                        + "\"removed `targets/unit-test/IncomingProcessorTest/blabla.txt'\""
+                        + OSUtilities.LINE_SEPARATOR
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled.",
                 getNormalizedLogContent());
-        
+
         context.assertIsSatisfied();
     }
 
     private String getNormalizedLogContent()
     {
         String content = logRecorder.getLogContent();
-        content = content.replace(new File(System.getProperty("user.dir")).getAbsolutePath(), "<wd>");
+        content =
+                content.replace(new File(System.getProperty("user.dir")).getAbsolutePath(), "<wd>");
         content = content.replace('\\', '/');
         return content;
     }
-    
+
     private DataMoverProcess createProcess(String... args)
     {
         Parameters parameters = new Parameters(args, exitHandler);
@@ -261,13 +298,13 @@ public class IncomingProcessorTest
                 {
                     allowing(fileSysOpertationFactory).getMover();
                     will(returnValue(mover));
-                    
+
                     allowing(fileSysOpertationFactory).getRemover();
                     will(returnValue(remover));
                 }
             });
         return IncomingProcessor.createMovingProcess(parameters, fileSysOpertationFactory,
-                        new MockTimeProvider(), localBufferDirs);
-        
+                new MockTimeProvider(), localBufferDirs);
+
     }
 }
