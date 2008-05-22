@@ -25,6 +25,7 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -278,9 +279,15 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
         try
         {
-            if (handler.mayHandle(item))
+            final boolean mayHandle = handler.mayHandle(item);
+            if (mayHandle)
             {
                 handler.handle(item);
+            }
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Following store item '%s' has %sbeen handled.",
+                        item, mayHandle ? "" : "NOT "));
             }
         } finally
         {
@@ -331,7 +338,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "Following paths %s have been removed from the the faulty ones.", paths));
+                    "Following paths %s have been removed from the the faulty ones.",
+                    CollectionUtils.abbreviate(paths, 10)));
         }
         refreshFaultyPathsFile();
     }
