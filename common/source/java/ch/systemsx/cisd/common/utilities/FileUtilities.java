@@ -31,6 +31,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
@@ -92,8 +95,8 @@ public final class FileUtilities
      *            <code>sourceFile</code> will be transfered to <code>destinationFile</code>.
      * @throws EnvironmentFailureException if a {@link IOException} occured.
      */
-    public static void copyFileTo(File sourceFile, File destinationFile,
-            boolean preservesLastModifiedDate) throws CheckedExceptionTunnel
+    public static void copyFileTo(final File sourceFile, final File destinationFile,
+            final boolean preservesLastModifiedDate) throws CheckedExceptionTunnel
     {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
@@ -102,7 +105,7 @@ public final class FileUtilities
             inputStream = new FileInputStream(sourceFile);
             outputStream = new FileOutputStream(destinationFile);
             IOUtils.copy(inputStream, outputStream);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '"
                     + destinationFile + "'.", ex);
@@ -114,7 +117,7 @@ public final class FileUtilities
         // In Windows last modified date can only be changed of the output stream is closed
         if (preservesLastModifiedDate)
         {
-            boolean successful = destinationFile.setLastModified(sourceFile.lastModified());
+            final boolean successful = destinationFile.setLastModified(sourceFile.lastModified());
             if (successful == false)
             {
                 throw new EnvironmentFailureException("Couldn't copy last modified date of file '"
@@ -133,7 +136,7 @@ public final class FileUtilities
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
      *             not exist.
      */
-    public static String loadToString(File file) throws CheckedExceptionTunnel
+    public static String loadToString(final File file) throws CheckedExceptionTunnel
     {
         assert file != null;
 
@@ -142,7 +145,7 @@ public final class FileUtilities
         {
             fileReader = new FileReader(file);
             return readString(new BufferedReader(fileReader));
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -166,7 +169,7 @@ public final class FileUtilities
         {
             fileWriter = new FileWriter(file);
             fileWriter.write(str);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -211,7 +214,7 @@ public final class FileUtilities
         {
             fileReader = new FileReader(file);
             return readStringList(new BufferedReader(fileReader), lineFilterOrNull);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -245,7 +248,7 @@ public final class FileUtilities
         {
             reader = tryGetBufferedReader(clazz, resource);
             return reader == null ? null : readString(reader);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -300,7 +303,7 @@ public final class FileUtilities
         {
             reader = tryGetBufferedReader(clazz, resource);
             return reader == null ? null : readStringList(reader, lineFilterOrNull);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -320,7 +323,7 @@ public final class FileUtilities
         try
         {
             return new BufferedReader(new FileReader(new File(url.toURI())));
-        } catch (URISyntaxException ex)
+        } catch (final URISyntaxException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
@@ -370,7 +373,7 @@ public final class FileUtilities
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
      *         message describing the problem with the <var>directory</var> otherwise.
      */
-    public static String checkPathFullyAccessible(File path, String kindOfPath)
+    public static String checkPathFullyAccessible(final File path, final String kindOfPath)
     {
         assert path != null;
         assert kindOfPath != null;
@@ -385,7 +388,8 @@ public final class FileUtilities
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
      *         message describing the problem with the <var>directory</var> otherwise.
      */
-    public static String checkDirectoryFullyAccessible(File directory, String kindOfDirectory)
+    public static String checkDirectoryFullyAccessible(final File directory,
+            final String kindOfDirectory)
     {
         assert directory != null;
         assert kindOfDirectory != null;
@@ -399,8 +403,8 @@ public final class FileUtilities
         return msg;
     }
 
-    private static String checkPathFullyAccessible(File path, String kindOfPath,
-            String directoryOrFile)
+    private static String checkPathFullyAccessible(final File path, final String kindOfPath,
+            final String directoryOrFile)
     {
         assert path != null;
         assert kindOfPath != null;
@@ -437,7 +441,7 @@ public final class FileUtilities
      * @return <code>true</code> if the path has been delete successfully, <code>false</code>
      *         otherwise.
      */
-    public static boolean deleteRecursively(File path)
+    public static boolean deleteRecursively(final File path)
     {
         assert path != null;
 
@@ -454,13 +458,13 @@ public final class FileUtilities
      * @return <code>true</code> if the path has been delete successfully, <code>false</code>
      *         otherwise.
      */
-    public static boolean deleteRecursively(File path, ISimpleLogger loggerOrNull)
+    public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull)
     {
         assert path != null;
 
         if (path.isDirectory())
         {
-            for (File file : path.listFiles())
+            for (final File file : path.listFiles())
             {
                 if (file.isDirectory())
                 {
@@ -496,7 +500,8 @@ public final class FileUtilities
      *            <code>null</code> if nothing should be logged.
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
      */
-    public static boolean deleteRecursively(File path, FileFilter filter, ISimpleLogger logger)
+    public static boolean deleteRecursively(final File path, final FileFilter filter,
+            final ISimpleLogger logger)
     {
         assert path != null;
         assert filter != null;
@@ -508,7 +513,7 @@ public final class FileUtilities
         {
             if (path.isDirectory())
             {
-                for (File file : path.listFiles())
+                for (final File file : path.listFiles())
                 {
                     deleteRecursively(file, filter, logger);
                 }
@@ -529,8 +534,8 @@ public final class FileUtilities
 
         private boolean terminated;
 
-        LastChangedWorker(File root, boolean subDirectoriesOnly, long reference,
-                boolean referenceIsRelative)
+        LastChangedWorker(final File root, final boolean subDirectoriesOnly, final long reference,
+                final boolean referenceIsRelative)
         {
             assert root != null;
 
@@ -546,7 +551,7 @@ public final class FileUtilities
             }
         }
 
-        private void updateLastChanged(File path)
+        private void updateLastChanged(final File path)
         {
             assert path != null;
 
@@ -563,7 +568,7 @@ public final class FileUtilities
             }
         }
 
-        private boolean isYoungEnough(long currentLastChanged)
+        private boolean isYoungEnough(final long currentLastChanged)
         {
             if (referenceIsRelative)
             {
@@ -574,7 +579,7 @@ public final class FileUtilities
             }
         }
 
-        private void traverse(File path)
+        private void traverse(final File path)
         {
             assert path != null;
 
@@ -582,7 +587,7 @@ public final class FileUtilities
             {
                 return;
             }
-            for (File entry : getEntries(path))
+            for (final File entry : getEntries(path))
             {
                 updateLastChanged(entry);
                 if (terminated)
@@ -598,7 +603,7 @@ public final class FileUtilities
             }
         }
 
-        private File[] getEntries(File directory)
+        private File[] getEntries(final File directory)
         {
             assert directory != null;
 
@@ -606,7 +611,7 @@ public final class FileUtilities
             {
                 return directory.listFiles(new FileFilter()
                     {
-                        public boolean accept(File pathname)
+                        public boolean accept(final File pathname)
                         {
                             return pathname.isDirectory();
                         }
@@ -646,7 +651,8 @@ public final class FileUtilities
      * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
      *             method runs in gets interrupted.
      */
-    public static long lastChanged(File path, boolean subDirectoriesOnly, long stopWhenFindYounger)
+    public static long lastChanged(final File path, final boolean subDirectoriesOnly,
+            final long stopWhenFindYounger)
     {
         return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYounger, false))
                 .getLastChanged();
@@ -673,8 +679,8 @@ public final class FileUtilities
      * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
      *             method runs in gets interrupted.
      */
-    public static long lastChangedRelative(File path, boolean subDirectoriesOnly,
-            long stopWhenFindYoungerRelative)
+    public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
+            final long stopWhenFindYoungerRelative)
     {
         return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYoungerRelative, true))
                 .getLastChanged();
@@ -688,7 +694,7 @@ public final class FileUtilities
      * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
      *             method runs in gets interrupted.
      */
-    public static long lastChanged(File path)
+    public static long lastChanged(final File path)
     {
         return lastChanged(path, false, 0L);
     }
@@ -704,10 +710,10 @@ public final class FileUtilities
      * @param file can not be <code>null</code>.
      * @param prefix prefix that should be removed from the file name. Can be <code>null</code>.
      */
-    public final static File removePrefixFromFileName(File file, String prefix)
+    public final static File removePrefixFromFileName(final File file, final String prefix)
     {
         assert file != null;
-        String name = file.getName();
+        final String name = file.getName();
         if (StringUtils.isEmpty(prefix))
         {
             return file;
@@ -722,7 +728,7 @@ public final class FileUtilities
     /** A <i>Java</i> pattern matching one or more digits. */
     private final static Pattern ONE_OR_MORE_DIGITS = Pattern.compile(".*(\\d+)$");
 
-    public final static File createNextNumberedFile(File path, Pattern regex)
+    public final static File createNextNumberedFile(final File path, final Pattern regex)
     {
         return createNextNumberedFile(path, regex, null);
     }
@@ -739,8 +745,8 @@ public final class FileUtilities
      *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or
      *            <code>([0-9]+)</code>.
      */
-    public final static File createNextNumberedFile(File path, Pattern regexOrNull,
-            String defaultFileNameOrNull)
+    public final static File createNextNumberedFile(final File path, final Pattern regexOrNull,
+            final String defaultFileNameOrNull)
     {
         assert path != null;
         if (path.exists() == false)
@@ -758,7 +764,7 @@ public final class FileUtilities
             pattern = regexOrNull;
         }
 
-        String pathName = path.getName();
+        final String pathName = path.getName();
         final Matcher matcher = pattern.matcher(pathName);
         boolean found = matcher.find();
         if (found == false)
@@ -774,18 +780,18 @@ public final class FileUtilities
             return createNextNumberedFile(new File(path.getParent(), fileName), pattern,
                     defaultFileNameOrNull);
         }
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         int nextStart = 0;
         while (found)
         {
-            String group = matcher.group(1);
+            final String group = matcher.group(1);
             final int newNumber = Integer.parseInt(group) + 1;
             builder.append(pathName.substring(nextStart, matcher.start(1))).append(newNumber);
             nextStart = matcher.end(1);
             found = matcher.find();
         }
         builder.append(pathName.substring(nextStart));
-        File newFile = new File(path.getParent(), builder.toString());
+        final File newFile = new File(path.getParent(), builder.toString());
         if (newFile.exists())
         {
             return createNextNumberedFile(newFile, pattern, defaultFileNameOrNull);
@@ -825,7 +831,7 @@ public final class FileUtilities
      * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var>
      *         does not exist or is not a directory.
      */
-    public static File[] tryListFiles(File directory, ISimpleLogger loggerOrNull)
+    public static File[] tryListFiles(final File directory, final ISimpleLogger loggerOrNull)
     {
         return tryListFiles(directory, ACCEPT_ALL_FILTER, loggerOrNull);
     }
@@ -839,14 +845,15 @@ public final class FileUtilities
      * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if
      *         <var>directory</var> does not exist or is not a directory.
      */
-    public static File[] tryListFiles(File directory, FileFilter filter, ISimpleLogger loggerOrNull)
+    public static File[] tryListFiles(final File directory, final FileFilter filter,
+            final ISimpleLogger loggerOrNull)
     {
         File[] paths = null;
         RuntimeException ex = null;
         try
         {
             paths = directory.listFiles(filter);
-        } catch (RuntimeException e)
+        } catch (final RuntimeException e)
         {
             ex = e;
         }
@@ -857,13 +864,13 @@ public final class FileUtilities
         return paths;
     }
 
-    public static void sortByLastModified(File[] files)
+    public static void sortByLastModified(final File[] files)
     {
         Arrays.sort(files, FileComparator.BY_LAST_MODIFIED);
     }
 
-    private static void logFailureInDirectoryListing(RuntimeException exOrNull, File directory,
-            ISimpleLogger logger)
+    private static void logFailureInDirectoryListing(final RuntimeException exOrNull,
+            final File directory, final ISimpleLogger logger)
     {
         if (exOrNull == null)
         {
@@ -883,7 +890,7 @@ public final class FileUtilities
             }
         } else
         {
-            StringWriter exStackWriter = new StringWriter();
+            final StringWriter exStackWriter = new StringWriter();
             exOrNull.printStackTrace(new PrintWriter(exStackWriter));
             logger.log(LogLevel.ERROR, String.format(
                     "Failed to get listing of directory '%s'. Exception: %s", directory,
@@ -901,7 +908,8 @@ public final class FileUtilities
      * @throws IllegalArgumentException If the resource cannot be found in the class path.
      * @throws CheckedExceptionTunnel If an {@link IOException} occurs.
      */
-    public final static String copyResourceToTempFile(String resource, String prefix, String postfix)
+    public final static String copyResourceToTempFile(final String resource, final String prefix,
+            final String postfix)
     {
         final InputStream resourceStream = FileUtilities.class.getResourceAsStream(resource);
         if (resourceStream == null)
@@ -912,7 +920,7 @@ public final class FileUtilities
         {
             final File tempFile = File.createTempFile(prefix, postfix);
             tempFile.deleteOnExit();
-            OutputStream fileStream = new FileOutputStream(tempFile);
+            final OutputStream fileStream = new FileOutputStream(tempFile);
             try
             {
                 IOUtils.copy(resourceStream, fileStream);
@@ -921,7 +929,7 @@ public final class FileUtilities
                 IOUtils.closeQuietly(fileStream);
             }
             return tempFile.getAbsolutePath();
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         } finally
@@ -939,13 +947,13 @@ public final class FileUtilities
      * @return The name of the temporary file, or <code>null</code>, if the resource could not be
      *         copied.
      */
-    public final static String tryCopyResourceToTempFile(String resource, String prefix,
-            String postfix)
+    public final static String tryCopyResourceToTempFile(final String resource,
+            final String prefix, final String postfix)
     {
         try
         {
             return copyResourceToTempFile(resource, prefix, postfix);
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             return null;
         }
@@ -984,7 +992,7 @@ public final class FileUtilities
         try
         {
             return file.getCanonicalFile();
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             return new File(FilenameUtils.normalize(file.getAbsolutePath()));
         }
@@ -1002,7 +1010,7 @@ public final class FileUtilities
         try
         {
             return file.getCanonicalPath();
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             return file.getAbsolutePath();
         }
@@ -1048,7 +1056,7 @@ public final class FileUtilities
                 t.interrupt();
             }
             return exists;
-        } catch (InterruptedException ex)
+        } catch (final InterruptedException ex)
         {
             // This is not expected to happen.
             return false;
@@ -1086,4 +1094,38 @@ public final class FileUtilities
         } while (result.exists());
         return result;
     }
+
+    private static final NumberFormat SIZE_FORMAT = new DecimalFormat("0.00");
+
+    /**
+     * Returns a human-readable version of the file size, where the input represents a specific
+     * number of bytes.
+     * <p>
+     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this
+     * version is more exact.
+     * </p>
+     * 
+     * @param size the number of bytes
+     * @return a human-readable display value (includes units)
+     * @see FileUtils#byteCountToDisplaySize(long)
+     */
+    public final static String byteCountToDisplaySize(final long size)
+    {
+        final String displaySize;
+        if (size / FileUtils.ONE_GB > 0)
+        {
+            displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_GB) + " GB";
+        } else if (size / FileUtils.ONE_MB > 0)
+        {
+            displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_MB) + " MB";
+        } else if (size / FileUtils.ONE_KB > 0)
+        {
+            displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_KB) + " KB";
+        } else
+        {
+            displaySize = SIZE_FORMAT.format(size) + " bytes";
+        }
+        return displaySize;
+    }
+
 }

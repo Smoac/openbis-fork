@@ -94,7 +94,7 @@ public final class HighwaterMarkWatcher implements Runnable
 
     public final static String displayKilobyteValue(final long value)
     {
-        return FileUtils.byteCountToDisplaySize(value * FileUtils.ONE_KB);
+        return FileUtilities.byteCountToDisplaySize(value * FileUtils.ONE_KB);
     }
 
     public final static boolean isBelow(final HighwaterMarkState highwaterMarkState)
@@ -199,9 +199,11 @@ public final class HighwaterMarkWatcher implements Runnable
             }
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("Amount of available space on '%s' is: %s.",
+                operationLog.debug(String.format(
+                        "Amount of available space on '%s' is %s (high water mark: %s).",
                         state.fileWithHighwaterMark.getCanonicalPath(),
-                        displayKilobyteValue(state.freeSpace)));
+                        displayKilobyteValue(state.freeSpace),
+                        displayKilobyteValue(highwaterMarkInKb)));
             }
         } catch (final IOException ex)
         {
@@ -312,7 +314,8 @@ public final class HighwaterMarkWatcher implements Runnable
 
         static final String WARNING_LOG_FORMAT =
                 "The amount of available space (%s) on '%s' "
-                        + "is lower than the specified high water mark (%s).";
+                        + "is lower than the specified high water mark (%s). "
+                        + "Missing space is %s.";
 
         private static final Logger notificationLog =
                 LogFactory.getLogger(LogCategory.NOTIFY, NotificationLogChangeListener.class);
@@ -333,8 +336,10 @@ public final class HighwaterMarkWatcher implements Runnable
             final String freeSpaceDisplayed = displayKilobyteValue(event.getFreeSpace());
             if (event.isBelow())
             {
+                final String missingSpace =
+                        displayKilobyteValue(event.getHighwaterMark() - event.getFreeSpace());
                 notificationLog.warn(String.format(WARNING_LOG_FORMAT, freeSpaceDisplayed, path,
-                        highwaterMarkDisplayed));
+                        highwaterMarkDisplayed, missingSpace));
             } else
             {
                 notificationLog.info(String.format(INFO_LOG_FORMAT, freeSpaceDisplayed, path,
