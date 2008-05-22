@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -202,45 +203,58 @@ public final class ProcessExecutionHelper
     {
         assert millisoWaitForCompletion > 0L : "Unspecified time out.";
         final ProcessWatchdog processWatchdog = new ProcessWatchdog(millisoWaitForCompletion);
+        Process process = null;
         try
         {
-            final Process process = launchProcess(commandLine);
+            process = launchProcess(commandLine);
             processWatchdog.start(process);
             try
             {
                 process.waitFor();
                 processWatchdog.stop();
+                return createResult(commandLine, process, processWatchdog.isProcessKilled(),
+                        readProcessOutputLines(process, machineLog));
             } catch (final InterruptedException e)
             {
-                process.destroy();
                 operationLog.warn(String.format("Execution of %s interrupted after timeout.",
                         commandLine));
+                return createResult(commandLine, process, processWatchdog.isProcessKilled(),
+                        Collections.<String> emptyList());
             }
-            return createResult(commandLine, process, processWatchdog.isProcessKilled());
         } catch (final IOException ex)
         {
             return createNotStartedResult(commandLine, ex);
+        } finally
+        {
+            closeStreams(process);
+            process.destroy();
         }
     }
 
     private final ProcessResult runWithoutWatchdog(final List<String> commandLine)
     {
+        Process process = null;
         try
         {
-            final Process process = launchProcess(commandLine);
+            process = launchProcess(commandLine);
             try
             {
                 process.waitFor();
+                return createResult(commandLine, process, false, readProcessOutputLines(process,
+                        machineLog));
             } catch (final InterruptedException e)
             {
-                process.destroy();
                 operationLog.warn(String.format("Execution of %s interrupted after timeout.",
                         commandLine));
+                return createResult(commandLine, process, true, Collections.<String> emptyList());
             }
-            return createResult(commandLine, process, false);
         } catch (final IOException ex)
         {
             return createNotStartedResult(commandLine, ex);
+        } finally
+        {
+            closeStreams(process);
+            process.destroy();
         }
     }
 
@@ -252,11 +266,7 @@ public final class ProcessExecutionHelper
         {
             operationLog.debug("Executing command: " + commandLine);
         }
-        // NOTE 2008-02-04, Tomasz Pylak: This operation can get blocked. I've observed it when ln
-        // was executed on NAS
-        // file system mounted locally.
-        final Process process = processBuilder.start();
-        return process;
+        return processBuilder.start();
     }
 
     private final ProcessResult createNotStartedResult(final List<String> commandLine,
@@ -267,20 +277,29 @@ public final class ProcessExecutionHelper
     }
 
     private final ProcessResult createResult(final List<String> commandLine,
-            final Process processOrNull, final boolean isInterrupted)
+            final Process processOrNull, final boolean isInterrupted, final List<String> outputLines)
     {
         if (processOrNull == null)
         {
             return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
         } else
         {
+            final List<String> lines;
+            if (outputLines == null)
+            {
+                lines = readProcessOutputLines(processOrNull, machineLog);
+            } else
+            {
+                lines = outputLines;
+            }
             if (isInterrupted)
             {
                 return ProcessResult.createWaitingInterrupted(processOrNull, commandLine,
-                        operationLog, machineLog);
+                        operationLog, machineLog, lines);
             } else
             {
-                return ProcessResult.create(processOrNull, commandLine, operationLog, machineLog);
+                return ProcessResult.create(processOrNull, commandLine, operationLog, machineLog,
+                        lines);
             }
         }
     }
@@ -296,7 +315,6 @@ public final class ProcessExecutionHelper
             result = runWithoutWatchdog(cmd);
         }
         result.log();
-        result.destroyProcess();
         return result.isOK();
     }
 
@@ -352,4 +370,19 @@ public final class ProcessExecutionHelper
             }
         }
     }
+
+    /**
+     * Close the streams belonging to given <var>Process</var>.
+     */
+    private final static void closeStreams(final Process processOrNull)
+    {
+        if (processOrNull == null)
+        {
+            return;
+        }
+        IOUtils.closeQuietly(processOrNull.getInputStream());
+        IOUtils.closeQuietly(processOrNull.getOutputStream());
+        IOUtils.closeQuietly(processOrNull.getErrorStream());
+    }
+
 }
