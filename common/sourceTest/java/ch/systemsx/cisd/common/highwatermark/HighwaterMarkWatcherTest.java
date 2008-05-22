@@ -32,7 +32,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -198,11 +197,12 @@ public final class HighwaterMarkWatcherTest
             });
         // Space becomes tight. So inform the administrator.
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
+        final long missingSpace = DEFAULT_WATERMARK - freeSpaces[i];
         assertEquals(String.format(
                 HighwaterMarkWatcher.NotificationLogChangeListener.WARNING_LOG_FORMAT,
                 HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i]), DEFAULT_PATH,
-                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK)), logRecorder
-                .getLogContent());
+                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
+                        .displayKilobyteValue(missingSpace)), logRecorder.getLogContent());
         // Space still "red". Do not inform the administrator. He already knows it.
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
