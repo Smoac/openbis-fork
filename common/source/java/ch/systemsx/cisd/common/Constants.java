@@ -23,8 +23,13 @@ import org.apache.commons.lang.time.DateUtils;
  * 
  * @author Bernd Rinn
  */
-public class Constants
+public final class Constants
 {
+
+    private Constants()
+    {
+        // This class can not be instantiated.
+    }
 
     /** String that indicates a marker file */
     public static final String MARKER_PREFIX = ".MARKER_";
