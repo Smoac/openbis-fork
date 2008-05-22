@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -133,10 +132,10 @@ public class SelfTestTest
     // Test cases.
     //
 
-    @Test(expectedExceptions = NotImplementedException.class)
+    @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testHappyCaseWithRemoteHost()
     {
-        final String outgoingHost = "some_remote_host";
+        final String outgoingHost = "unknown_remote_host";
         final IFileStore remoteHostOutgoingStore =
                 createRemoteStore(outgoingDirectory, outgoingHost, "outgoing");
         SelfTest.check(mockCopier, remoteHostOutgoingStore);
