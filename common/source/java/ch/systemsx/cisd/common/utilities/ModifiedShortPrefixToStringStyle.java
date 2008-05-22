@@ -28,6 +28,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class ModifiedShortPrefixToStringStyle extends ToStringStyle
 {
+    public static final String CONTENT_END = "}";
+
+    public static final String CONTENT_START = "{";
+
     private static final long serialVersionUID = 1L;
 
     /** The one and only one instance. */
@@ -38,8 +42,8 @@ public class ModifiedShortPrefixToStringStyle extends ToStringStyle
     {
         this.setUseShortClassName(true);
         this.setUseIdentityHashCode(false);
-        setContentStart("{");
-        setContentEnd("}");
+        setContentStart(CONTENT_START);
+        setContentEnd(CONTENT_END);
     }
 
     /**
