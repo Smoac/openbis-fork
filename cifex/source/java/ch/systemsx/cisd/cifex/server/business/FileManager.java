@@ -74,8 +74,8 @@ final class FileManager extends AbstractManager implements IFileManager
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
 
-    FileManager(IDAOFactory daoFactory, IBusinessObjectFactory boFactory,
-            IBusinessContext businessContext)
+    FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
+            final IBusinessContext businessContext)
     {
         super(daoFactory, boFactory, businessContext);
     }
@@ -175,7 +175,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 }
                 success &= deleteFromFileSystem(file.getPath());
                 businessContext.getUserActionLog().logExpireFile(file, success);
-            } catch (RuntimeException ex)
+            } catch (final RuntimeException ex)
             {
                 businessContext.getUserActionLog().logExpireFile(file, false);
                 operationLog.error("Error deleting file '" + file.getPath() + "'.", ex);
@@ -269,7 +269,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final FileDTO saveFile(final UserDTO user, final String fileName, String comment,
+    public final FileDTO saveFile(final UserDTO user, final String fileName, final String comment,
             final String contentType, final InputStream input)
     {
         assert user != null : "Unspecified user.";
@@ -315,7 +315,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     throwExceptionOnFileDoesNotExist(fileName);
                     return null; // never reached
                 }
-            } catch (IOException ex)
+            } catch (final IOException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(ex,
                         "Error saving file '%s' (Is it a file?).", fileName);
@@ -324,7 +324,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 IOUtils.closeQuietly(inputStream);
                 IOUtils.closeQuietly(outputStream);
             }
-        } catch (RuntimeException e)
+        } catch (final RuntimeException e)
         {
             deleteFromFileSystem(file);
             throw e;
@@ -365,9 +365,9 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public List<String> shareFilesWith(String url, UserDTO requestUser,
-            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment)
-            throws UserFailureException
+    public List<String> shareFilesWith(final String url, final UserDTO requestUser,
+            final Collection<String> emailsOfUsers, final Collection<FileDTO> files,
+            final String comment) throws UserFailureException
     {
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
@@ -411,17 +411,17 @@ final class FileManager extends AbstractManager implements IFileManager
                     // ensure that all database links are created before any email is sent (note
                     // that this method is
                     // @Transactional).
-                    List<String> alreadyExistingSharingLinks = new ArrayList<String>();
+                    final List<String> alreadyExistingSharingLinks = new ArrayList<String>();
                     for (final UserDTO user : usersOrNull)
                     {
-                        for (FileDTO file : files)
+                        for (final FileDTO file : files)
                         {
 
                             try
                             {
 
                                 fileDAO.createSharingLink(file.getID(), user.getID());
-                            } catch (DataIntegrityViolationException ex)
+                            } catch (final DataIntegrityViolationException ex)
                             {
                                 alreadyExistingSharingLinks.add(user.getUserCode());
                                 operationLog.error(String.format(
@@ -493,14 +493,15 @@ final class FileManager extends AbstractManager implements IFileManager
         return new TableMapNonUniqueKey<String, UserDTO>(userDAO.listUsers(),
                 new IKeyExtractor<String, UserDTO>()
                     {
-                        public String getKey(UserDTO user)
+                        public String getKey(final UserDTO user)
                         {
                             return user.getEmail();
                         }
                     });
     }
 
-    private UserDTO tryCreateUser(UserDTO requestUser, String email, String password)
+    private UserDTO tryCreateUser(final UserDTO requestUser, final String email,
+            final String password)
     {
         if (requestUser.isPermanent()) // Only permanent users are allowed to create new user
         // accounts.
@@ -510,7 +511,7 @@ final class FileManager extends AbstractManager implements IFileManager
             user.setEmail(email);
             user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
             user.setRegistrator(requestUser);
-            IUserBO userBO = boFactory.createUserBO();
+            final IUserBO userBO = boFactory.createUserBO();
             userBO.define(user);
             userBO.save();
             return user;
@@ -579,13 +580,13 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
-    public void updateFile(FileDTO file)
+    public void updateFile(final FileDTO file)
     {
         daoFactory.getFileDAO().updateFile(file);
     }
-    
+
     @Transactional
-    public void deleteSharingLink(long fileId, String userCode)
+    public void deleteSharingLink(final long fileId, final String userCode)
     {
 
         boolean success = false;

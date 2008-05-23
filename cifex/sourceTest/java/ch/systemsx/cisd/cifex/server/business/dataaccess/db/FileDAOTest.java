@@ -44,7 +44,7 @@ public final class FileDAOTest extends AbstractDAOTest
     private final UserDTO getFirstSampleUserFromDB()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> listUsers = userDAO.listUsers();
+        final List<UserDTO> listUsers = userDAO.listUsers();
         assertTrue(listUsers.size() > 0);
         return listUsers.get(0);
     }
@@ -52,7 +52,7 @@ public final class FileDAOTest extends AbstractDAOTest
     private final UserDTO getSecondSampleUserFromDB()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> listUsers = userDAO.listUsers();
+        final List<UserDTO> listUsers = userDAO.listUsers();
         assertTrue(listUsers.size() > 1);
         return listUsers.get(1);
     }
@@ -92,6 +92,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(expected.getID(), actual.getID());
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getPath(), actual.getPath());
+        assertEquals(expected.getComment(), actual.getComment());
         assertEquals(expected.getRegistratorId(), actual.getRegistratorId());
         assertNotNull(actual.getRegistrationDate());
         assertEquals(expected.getExpirationDate(), actual.getExpirationDate());
@@ -146,7 +147,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(0, files.size());
         // create new sample file
         final FileDTO sampleFile = createSampleFile();
-        assertNull(sampleFile.getID());
+                assertNull(sampleFile.getID());
         // save file in database
         fileDAO.createFile(sampleFile);
         assertNotNull(sampleFile.getID());

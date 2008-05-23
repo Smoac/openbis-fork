@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +34,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.dto.Message;
@@ -179,7 +181,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
-    private String getURLForEmail(HttpServletRequest request)
+    private String getURLForEmail(final HttpServletRequest request)
     {
         final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
         if (StringUtils.isBlank(overrideURL))
@@ -206,7 +208,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         for (int fileIndex = 0; iter.hasNext(); fileIndex++)
         {
             final String pathnameToUpload =
-                    (fileIndex < pathnamesToUpload.length) ? pathnamesToUpload[fileIndex] : null;
+                    fileIndex < pathnamesToUpload.length ? pathnamesToUpload[fileIndex] : null;
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
             final FileItemStream item = iter.next();
             final InputStream stream = item.openStream();
@@ -237,8 +239,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                                 .getFieldName(), item.getName()));
                     }
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, filenameInStream, comment.toString(),
-                                    item.getContentType(), stream);
+                            fileManager.saveFile(requestUser, filenameInStream, StringEscapeUtils
+                                    .escapeHtml(comment.toString()), item.getContentType(), stream);
                     files.add(file);
                 } else
                 {
@@ -262,8 +264,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))
                 {
                     comment.append(Streams.asString(stream));
-                    final String commentStr = comment.toString();
-                    for (FileDTO file : files)
+                    final String commentStr = StringEscapeUtils.escapeHtml(comment.toString());
+                    for (final FileDTO file : files)
                     {
                         file.setComment(commentStr);
                         fileManager.updateFile(file);
