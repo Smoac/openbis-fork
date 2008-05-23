@@ -143,7 +143,9 @@ public class IncomingProcessorTest
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
 
         assertEquals(
-                "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item \'test-data.txt\' has been handled.",
+                "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler - Following path 'targets/unit-test/IncomingProcessorTest/incoming/test-data.txt\' has been added to faulty paths file \'<wd>/targets/unit-test/IncomingProcessorTest/copy-in-progress/.faulty_paths'",
                 getNormalizedLogContent());
 
         context.assertIsSatisfied();
@@ -191,7 +193,9 @@ public class IncomingProcessorTest
                         + LOG_DEBUG_MACHINE_PREFIX
                         + "\"hello world\""
                         + OSUtilities.LINE_SEPARATOR
-                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled.",
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler - Following path 'targets/unit-test/IncomingProcessorTest/incoming/test-data.txt\' has been added to faulty paths file \'<wd>/targets/unit-test/IncomingProcessorTest/copy-in-progress/.faulty_paths'",
                 getNormalizedLogContent());
 
         context.assertIsSatisfied();
@@ -272,7 +276,9 @@ public class IncomingProcessorTest
                         + LOG_DEBUG_MACHINE_PREFIX
                         + "\"removed `targets/unit-test/IncomingProcessorTest/blabla.txt'\""
                         + OSUtilities.LINE_SEPARATOR
-                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled.",
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler - Following path 'targets/unit-test/IncomingProcessorTest/incoming/test-data.txt' has been added to faulty paths file '<wd>/targets/unit-test/IncomingProcessorTest/copy-in-progress/.faulty_paths'",
                 getNormalizedLogContent());
 
         context.assertIsSatisfied();
