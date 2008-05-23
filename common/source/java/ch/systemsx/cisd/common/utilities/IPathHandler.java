@@ -32,12 +32,4 @@ public interface IPathHandler
      * when the method returns.
      */
     public void handle(File path);
-
-    /**
-     * Whether given <var>path</var> may be handled or not.
-     * <p>
-     * This method is called just before {@link #handle(File)}.
-     * </p>
-     */
-    public boolean mayHandle(File path);
 }

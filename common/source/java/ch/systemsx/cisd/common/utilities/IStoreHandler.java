@@ -35,12 +35,4 @@ public interface IStoreHandler
      * gone when the method returns.
      */
     void handle(StoreItem item);
-
-    /**
-     * Whether given <var>item</var> may be handled or not.
-     * <p>
-     * This method is called just before {@link #handle(StoreItem)}.
-     * </p>
-     */
-    boolean mayHandle(StoreItem item);
 }

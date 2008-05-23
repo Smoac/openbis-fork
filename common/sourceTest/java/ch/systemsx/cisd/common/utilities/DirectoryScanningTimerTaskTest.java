@@ -78,16 +78,9 @@ public class DirectoryScanningTimerTaskTest
 
         private final List<File> handledPaths = new ArrayList<File>();
 
-        private boolean mayHandle = true;
-
         public void clear()
         {
             handledPaths.clear();
-        }
-
-        public final void setMayHandle(final boolean mayHandle)
-        {
-            this.mayHandle = mayHandle;
         }
 
         //
@@ -99,12 +92,6 @@ public class DirectoryScanningTimerTaskTest
             handledPaths.add(path);
             path.delete();
         }
-
-        public final boolean mayHandle(final File path)
-        {
-            return mayHandle;
-        }
-
     }
 
     @BeforeClass
@@ -126,8 +113,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final File getFaultyPathFile()
     {
-        final File faultyPaths =
-                new File(workingDirectory, DirectoryScanningTimerTask.FAULTY_PATH_FILENAME);
+        final File faultyPaths = new File(workingDirectory, FaultyPathHandler.FAULTY_PATH_FILENAME);
         return faultyPaths;
     }
 
@@ -421,36 +407,5 @@ public class DirectoryScanningTimerTaskTest
         {
             LogMonitoringAppender.removeAppender(appender);
         }
-    }
-
-    @Test
-    public final void testRemoveFaultyPaths() throws IOException
-    {
-        final MockPathHandler pathHandler = new MockPathHandler();
-        pathHandler.setMayHandle(false);
-        final DirectoryScanningTimerTask directoryScanning =
-                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, pathHandler);
-        testPathOrder();
-        // No faulty file at this point.
-        assertEquals(1, workingDirectory.listFiles().length);
-        directoryScanning.run();
-        // One faulty file found (as mayHandle is set to false).
-        List<String> faulty = CollectionIO.readList(getFaultyPathFile());
-        assertEquals(1, faulty.size());
-        final File file = new File(faulty.get(0));
-        directoryScanning.removeFaultyPaths(StoreItem.asItem(file));
-        faulty = CollectionIO.readList(getFaultyPathFile());
-        // Faulty file is empty.
-        assertEquals(0, faulty.size());
-        // Two files found (inclusive the faulty file).
-        assertEquals(2, workingDirectory.listFiles().length);
-        pathHandler.setMayHandle(true);
-        directoryScanning.run();
-        faulty = CollectionIO.readList(getFaultyPathFile());
-        assertEquals(0, faulty.size());
-        // Only the faulty file present now.
-        final File[] files = workingDirectory.listFiles();
-        assertEquals(1, files.length);
-        assertEquals(DirectoryScanningTimerTask.FAULTY_PATH_FILENAME, files[0].getName());
     }
 }
