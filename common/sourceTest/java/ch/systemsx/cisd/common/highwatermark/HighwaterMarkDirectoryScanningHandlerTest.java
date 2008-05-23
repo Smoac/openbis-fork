@@ -16,9 +16,23 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler;
+import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * Test cases for the {@link HighwaterMarkDirectoryScanningHandler}.
@@ -27,6 +41,44 @@ import org.testng.annotations.Test;
  */
 public final class HighwaterMarkDirectoryScanningHandlerTest
 {
+    private static final String STORE_NAME = "store-name";
+
+    private static final long HIGHWATER_MARK = 100L;
+
+    private Mockery context;
+
+    private IDirectoryScanningHandler directoryScanningHandler;
+
+    private IScannedStore scannedStore;
+
+    private HighwaterMarkWatcher highwaterMarkWatcher;
+
+    private IFreeSpaceProvider freeSpaceProvider;
+
+    @BeforeMethod
+    public void setUp()
+    {
+        context = new Mockery();
+        directoryScanningHandler = context.mock(IDirectoryScanningHandler.class);
+        scannedStore = context.mock(IScannedStore.class);
+        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        highwaterMarkWatcher = new HighwaterMarkWatcher(HIGHWATER_MARK, freeSpaceProvider);
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+
+    private final HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
+            final File... files)
+    {
+        return new HighwaterMarkDirectoryScanningHandler(directoryScanningHandler,
+                highwaterMarkWatcher, files);
+    }
 
     @Test
     public final void testConstructor()
@@ -40,5 +92,79 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
             fail = false;
         }
         assertFalse(fail);
+        context.assertIsSatisfied();
+    }
+
+    @DataProvider(name = "freeSpaceProvider")
+    public final Object[][] getFreeSpaces()
+    {
+        return new Object[][]
+            {
+                { HIGHWATER_MARK - 1 },
+                { HIGHWATER_MARK + 1 } };
+    }
+
+    @Test(dataProvider = "freeSpaceProvider")
+    public final void testWithoutFiles(final long freeSpace) throws IOException
+    {
+        final HighwaterMarkDirectoryScanningHandler scanningHandler =
+                createDirectoryScanningHandler();
+        final StoreItem storeItem = new StoreItem(STORE_NAME);
+        boolean fail = true;
+        try
+        {
+            scanningHandler.mayHandle(scannedStore, storeItem);
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        final File file = new File("temp");
+        highwaterMarkWatcher.setPath(file);
+        context.checking(new Expectations()
+            {
+                {
+                    one(freeSpaceProvider).freeSpaceKb(file);
+                    will(returnValue(freeSpace));
+
+                    if (freeSpace > HIGHWATER_MARK)
+                    {
+                        one(directoryScanningHandler).mayHandle(scannedStore, storeItem);
+                        will(returnValue(true));
+                    }
+                }
+            });
+        boolean mayHandle = scanningHandler.mayHandle(scannedStore, storeItem);
+        assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "freeSpaceProvider")
+    public final void testWithFiles(final long freeSpace) throws IOException
+    {
+        final File[] files = new File[]
+            { new File("a"), new File("b") };
+        final HighwaterMarkDirectoryScanningHandler scanningHandler =
+                createDirectoryScanningHandler(files);
+        final StoreItem storeItem = new StoreItem(STORE_NAME);
+        context.checking(new Expectations()
+            {
+                {
+                    one(freeSpaceProvider).freeSpaceKb(files[0]);
+                    will(returnValue(freeSpace));
+
+                    if (freeSpace > HIGHWATER_MARK)
+                    {
+                        one(freeSpaceProvider).freeSpaceKb(files[1]);
+                        will(returnValue(freeSpace));
+
+                        one(directoryScanningHandler).mayHandle(scannedStore, storeItem);
+                        will(returnValue(true));
+                    }
+                }
+            });
+        boolean mayHandle = scanningHandler.mayHandle(scannedStore, storeItem);
+        assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
+        context.assertIsSatisfied();
     }
 }

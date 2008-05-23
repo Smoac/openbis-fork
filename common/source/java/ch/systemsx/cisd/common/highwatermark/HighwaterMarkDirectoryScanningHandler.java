@@ -56,7 +56,7 @@ public final class HighwaterMarkDirectoryScanningHandler extends
     {
         if (files.length < 1)
         {
-            return isBelow();
+            return isBelow() == false;
         }
         for (final File file : files)
         {
