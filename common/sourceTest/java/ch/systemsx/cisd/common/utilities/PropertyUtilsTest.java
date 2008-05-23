@@ -79,7 +79,7 @@ public final class PropertyUtilsTest
             PropertyUtils.getMandatoryProperty(properties, propertyKey);
         } catch (final ConfigurationFailureException ex)
         {
-            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey, "[]"), ex
+            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey), ex
                     .getMessage());
         }
         final String value = "value";

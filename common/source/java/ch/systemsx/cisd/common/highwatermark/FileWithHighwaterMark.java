@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,8 +32,10 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class FileWithHighwaterMark extends AbstractHashable
+public final class FileWithHighwaterMark extends AbstractHashable implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * The property name under which you must find a <code>long</code> for the high water mark (in

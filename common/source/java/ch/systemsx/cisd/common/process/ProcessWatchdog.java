@@ -124,7 +124,7 @@ public final class ProcessWatchdog implements Runnable
     // Runnable
     //
 
-    public final void run()
+    public final synchronized void run()
     {
         try
         {

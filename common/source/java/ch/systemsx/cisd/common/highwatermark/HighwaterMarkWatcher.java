@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -231,8 +232,10 @@ public final class HighwaterMarkWatcher implements Runnable
         }
     }
 
-    public final static class HighwaterMarkState
+    public final static class HighwaterMarkState implements Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         private final FileWithHighwaterMark fileWithHighwaterMark;
 
         private final long freeSpace;

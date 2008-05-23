@@ -227,7 +227,10 @@ public final class ProcessExecutionHelper
         } finally
         {
             closeStreams(process);
-            process.destroy();
+            if (process != null)
+            {
+                process.destroy();
+            }
         }
     }
 
@@ -254,7 +257,10 @@ public final class ProcessExecutionHelper
         } finally
         {
             closeStreams(process);
-            process.destroy();
+            if (process != null)
+            {
+                process.destroy();
+            }
         }
     }
 
