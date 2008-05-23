@@ -80,23 +80,6 @@ public final class DirectoryScanningTimerTask extends TimerTask
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
-     * @param scannedStore The store which is scan for entries.
-     * @param sourceDirectory The directory to scan for entries.
-     * @param storeHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
-     */
-    public DirectoryScanningTimerTask(final IScannedStore scannedStore, final File sourceDirectory,
-            final IStoreHandler storeHandler, final int ignoredErrorCount)
-    {
-        this(scannedStore, new FaultyPathDirectoryScanningHandler(sourceDirectory), storeHandler,
-                ignoredErrorCount);
-    }
-
-    /**
-     * Creates a <var>DirectoryScanningTimerTask</var>.
-     * 
      * @param sourceDirectory The directory to scan for entries.
      * @param storeHandler The handler that is used for treating the matching paths.
      * @param directoryScanningHandler A directory scanning handler.
@@ -106,6 +89,44 @@ public final class DirectoryScanningTimerTask extends TimerTask
             final IDirectoryScanningHandler directoryScanningHandler)
     {
         this(asScannedStore(sourceDirectory, filter), directoryScanningHandler, storeHandler, 0);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param sourceDirectory The directory to scan for entries.
+     * @param filter The file filter that picks the entries to handle.
+     * @param pathHandler The handler that is used for treating the matching paths.
+     */
+    public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
+            final IPathHandler pathHandler)
+    {
+        this(sourceDirectory, filter, pathHandler, 0);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param scannedStore The store which is scan for entries.
+     * @param directoryScanningHandler A directory scanning handler.
+     * @param storeHandler The handler that is used for treating the matching paths.
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
+     *            to occur before the next error is logged (can be used to suppress error when the
+     *            directory is on a remote share and the server is flaky sometimes)
+     */
+    public DirectoryScanningTimerTask(final IScannedStore scannedStore,
+            final IDirectoryScanningHandler directoryScanningHandler,
+            final IStoreHandler storeHandler, final int ignoredErrorCount)
+    {
+        assert scannedStore != null;
+        assert storeHandler != null;
+        assert directoryScanningHandler != null : "Unspecified IDirectoryScanningHandler implementation";
+        assert ignoredErrorCount >= 0;
+
+        this.ignoredErrorCount = ignoredErrorCount;
+        this.sourceDirectory = scannedStore;
+        this.storeHandler = storeHandler;
+        this.directoryScanningHandler = directoryScanningHandler;
     }
 
     /**
@@ -124,44 +145,6 @@ public final class DirectoryScanningTimerTask extends TimerTask
         this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
                 sourceDirectory), PathHandlerAdapter
                 .asScanningHandler(sourceDirectory, pathHandler), ignoredErrorCount);
-    }
-
-    /**
-     * Creates a <var>DirectoryScanningTimerTask</var>.
-     * 
-     * @param sourceDirectory The directory to scan for entries.
-     * @param filter The file filter that picks the entries to handle.
-     * @param pathHandler The handler that is used for treating the matching paths.
-     */
-    DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
-            final IPathHandler pathHandler)
-    {
-        this(sourceDirectory, filter, pathHandler, 0);
-    }
-
-    /**
-     * Creates a <var>DirectoryScanningTimerTask</var>.
-     * 
-     * @param scannedStore The store which is scan for entries.
-     * @param directoryScanningHandler A directory scanning handler.
-     * @param storeHandler The handler that is used for treating the matching paths.
-     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
-     *            to occur before the next error is logged (can be used to suppress error when the
-     *            directory is on a remote share and the server is flaky sometimes)
-     */
-    private DirectoryScanningTimerTask(final IScannedStore scannedStore,
-            final IDirectoryScanningHandler directoryScanningHandler,
-            final IStoreHandler storeHandler, final int ignoredErrorCount)
-    {
-        assert scannedStore != null;
-        assert storeHandler != null;
-        assert directoryScanningHandler != null : "Unspecified IDirectoryScanningHandler implementation";
-        assert ignoredErrorCount >= 0;
-
-        this.ignoredErrorCount = ignoredErrorCount;
-        this.sourceDirectory = scannedStore;
-        this.storeHandler = storeHandler;
-        this.directoryScanningHandler = directoryScanningHandler;
     }
 
     private final static IScannedStore asScannedStore(final File directory, final FileFilter filter)
