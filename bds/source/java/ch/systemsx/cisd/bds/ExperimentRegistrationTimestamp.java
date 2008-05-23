@@ -61,7 +61,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
      */
     public final void saveTo(final IDirectory directory)
     {
-        directory.addKeyValuePair(FILE_NAME, Constants.DATE_FORMAT.format(date));
+        directory.addKeyValuePair(FILE_NAME, Constants.DATE_FORMAT.get().format(date));
     }
 
     //
@@ -91,7 +91,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
     @Override
     public final String toString()
     {
-        return Constants.DATE_FORMAT.format(date);
+        return Constants.DATE_FORMAT.get().format(date);
     }
 
 }

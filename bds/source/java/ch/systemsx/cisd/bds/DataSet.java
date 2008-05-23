@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.collections.CollectionIO;
@@ -203,7 +202,7 @@ public final class DataSet implements IStorable
         folder.addKeyValuePair(CODE, code);
         folder.addKeyValuePair(PRODUCTION_TIMESTAMP,
                 productionTimestamp == null ? StringUtils.EMPTY_STRING : Constants.DATE_FORMAT
-                        .format(productionTimestamp));
+                        .get().format(productionTimestamp));
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
         folder.addKeyValuePair(IS_MEASURED, Boolean.toString(isMeasured).toUpperCase());
         folder.addKeyValuePair(OBSERVABLE_TYPE, observableTypeCode);

@@ -189,7 +189,7 @@ public class Utilities
         }
         try
         {
-            return Constants.DATE_FORMAT.parse(value);
+            return Constants.DATE_FORMAT.get().parse(value);
         } catch (final ParseException ex)
         {
             throw new DataStructureException("Value of '" + name + "' version file is not a date: "
