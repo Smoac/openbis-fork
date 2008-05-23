@@ -113,7 +113,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final File getFaultyPathFile()
     {
-        final File faultyPaths = new File(workingDirectory, FaultyPathHandler.FAULTY_PATH_FILENAME);
+        final File faultyPaths = new File(workingDirectory, FaultyPathDirectoryScanningHandler.FAULTY_PATH_FILENAME);
         return faultyPaths;
     }
 

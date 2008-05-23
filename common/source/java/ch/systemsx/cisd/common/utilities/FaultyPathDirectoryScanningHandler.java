@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
@@ -36,11 +37,11 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStor
  * 
  * @author Christian Ribeaud
  */
-public final class FaultyPathHandler implements IDirectoryScanningHandler
+public final class FaultyPathDirectoryScanningHandler implements IDirectoryScanningHandler
 {
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FaultyPathHandler.class);
+            LogFactory.getLogger(LogCategory.OPERATION, FaultyPathDirectoryScanningHandler.class);
 
     private final Set<String> faultyPaths;
 
@@ -50,7 +51,7 @@ public final class FaultyPathHandler implements IDirectoryScanningHandler
 
     static final String FAULTY_PATH_FILENAME = ".faulty_paths";
 
-    public FaultyPathHandler(final File faultyPathDirectory)
+    public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory)
     {
         this.faultyPaths = new HashSet<String>();
         this.faultyPathsFile = new File(faultyPathDirectory, FAULTY_PATH_FILENAME);
@@ -70,8 +71,9 @@ public final class FaultyPathHandler implements IDirectoryScanningHandler
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(String.format(
-                            "Reread faulty paths file (%s), new set contains %d entries",
-                            getLocationDescription(faultyPathsFile), faultyPaths.size()));
+                            "Reread faulty paths file '%s'. New entries are '%s'.",
+                            getLocationDescription(faultyPathsFile), CollectionUtils.abbreviate(
+                                    faultyPaths, 10)));
                 }
             }
         } else
@@ -103,6 +105,12 @@ public final class FaultyPathHandler implements IDirectoryScanningHandler
     private final void addToFaultyPaths(final IScannedStore scannedStore, final StoreItem item)
     {
         final String path = scannedStore.getLocationDescription(item);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following path '%s' has been added to faulty paths file '%s'", path,
+                    faultyPathsFile.getAbsolutePath()));
+        }
         faultyPaths.add(path);
         refreshFaultyPathsFile();
     }

@@ -90,7 +90,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
     public DirectoryScanningTimerTask(final IScannedStore scannedStore, final File sourceDirectory,
             final IStoreHandler storeHandler, final int ignoredErrorCount)
     {
-        this(scannedStore, new FaultyPathHandler(sourceDirectory), storeHandler, ignoredErrorCount);
+        this(scannedStore, new FaultyPathDirectoryScanningHandler(sourceDirectory), storeHandler,
+                ignoredErrorCount);
     }
 
     /**
@@ -120,9 +121,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
     DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter fileFilter,
             final IPathHandler pathHandler, final int ignoredErrorCount)
     {
-        this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathHandler(sourceDirectory),
-                PathHandlerAdapter.asScanningHandler(sourceDirectory, pathHandler),
-                ignoredErrorCount);
+        this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
+                sourceDirectory), PathHandlerAdapter
+                .asScanningHandler(sourceDirectory, pathHandler), ignoredErrorCount);
     }
 
     /**
@@ -203,6 +204,14 @@ public final class DirectoryScanningTimerTask extends TimerTask
                     {
                         directoryScanningHandler.finishItemHandle(sourceDirectory, storeItem);
                     }
+                } else
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format(
+                                "Following store item '%s' has NOT been handled.", storeItem));
+                    }
+
                 }
             }
         } catch (final Exception ex)
