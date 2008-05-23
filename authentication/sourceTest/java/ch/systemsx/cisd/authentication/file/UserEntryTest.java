@@ -16,24 +16,26 @@
 
 package ch.systemsx.cisd.authentication.file;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.utilities.PasswordHasher;
 
-import static org.testng.AssertJUnit.*;
-
 /**
  * Test cases for {@link UserEntry}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class UserEntryTest
 {
     private static final String PASSWORD = "passw0rd";
-    
+
     private static final String PASSWORD_HASH = PasswordHasher.computeSaltedHash(PASSWORD);
-    
+
     private static final String PASSWORD_LINE = "id:email@dot.org:First:Last:" + PASSWORD_HASH;
 
     @Test
@@ -55,7 +57,7 @@ public class UserEntryTest
         assertTrue(entry.isPasswordCorrect(PASSWORD));
         assertFalse(entry.isPasswordCorrect(PASSWORD.replace('0', 'o')));
     }
-    
+
     @Test
     public void testConstructor()
     {
@@ -90,10 +92,10 @@ public class UserEntryTest
         entry.setPassword(PASSWORD.replace('0', 'o'));
         assertFalse(entry.isPasswordCorrect(PASSWORD));
         assertTrue(entry.isPasswordCorrect(PASSWORD.replace('0', 'o')));
-        final String line = String.format("%s:%s:%s:%s:", id, email, firstName, lastName, email);
+        final String line = String.format("%s:%s:%s:%s:", id, email, firstName, lastName);
         assertTrue(entry.asPasswordLine().startsWith(line));
     }
-    
+
     @Test
     public void testAsPrincial()
     {

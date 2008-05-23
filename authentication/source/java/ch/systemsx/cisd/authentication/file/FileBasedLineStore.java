@@ -125,8 +125,8 @@ final class FileBasedLineStore implements ILineStore
         if (file.canRead() == false)
         {
             final String msg =
-                    String.format(file.exists() ? "%s '%s' cannot be read."
-                            : "%s '%s' does not exist.", file.getAbsolutePath());
+                    String.format(file.exists() ? "File '%s' cannot be read."
+                            : "File '%s' does not exist.", file.getAbsolutePath());
             operationLog.error(msg);
             throw new ConfigurationFailureException(msg);
         }
