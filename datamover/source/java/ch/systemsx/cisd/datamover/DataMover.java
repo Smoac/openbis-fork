@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.utilities.FaultyPathHandler;
+import ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -143,7 +143,7 @@ public class DataMover
                         .getMover());
         final File sourceDirectory = bufferDirs.getCopyCompleteDir();
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
-                new HighwaterMarkDirectoryScanningHandler(new FaultyPathHandler(sourceDirectory),
+                new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(sourceDirectory),
                         highwaterMarkWatcher, bufferDirs.getReadyToMoveDir());
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
@@ -160,7 +160,7 @@ public class DataMover
         final IStoreHandler remoteStoreMover =
                 createRemotePathMover(readyToMoveStore, outgoingStore);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler = new HighwaterMarkDirectoryScanningHandler(
-                new FaultyPathHandler(sourceDirectory), readyToMoveStore
+                new FaultyPathDirectoryScanningHandler(sourceDirectory), readyToMoveStore
                         .getHighwaterMarkWatcher());
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
