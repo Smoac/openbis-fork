@@ -74,12 +74,12 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     }
 
     @Override
-    public String processCall(String payload) throws SerializationException
+    public String processCall(final String payload) throws SerializationException
     {
         try
         {
             return super.processCall(payload);
-        } catch (Throwable th)
+        } catch (final Throwable th)
         {
             operationLog.error("Error processing request for method '" + payload + "'.", th);
             if (th instanceof Error)
@@ -161,7 +161,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.deleteFile(idStr);
     }
 
-    public void registerFilenamesForUpload(String[] filenamesForUpload)
+    public void registerFilenamesForUpload(final String[] filenamesForUpload)
             throws InvalidSessionException
     {
         cifexServiceDelegate.registerFilenamesForUpload(filenamesForUpload);
@@ -202,7 +202,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.updateUser(user, password, sendUpdateInformationToUser);
     }
 
-    public User tryFindUserByUserCode(String userCode) throws InvalidSessionException
+    public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
         return cifexServiceDelegate.tryFindUserByUserCode(userCode);
     }
@@ -213,25 +213,26 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     }
 
     public void updateFileExpiration(final String idStr, final Date newExpirationDate)
-            throws InvalidSessionException, InsufficientPrivilegesException
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
         cifexServiceDelegate.updateFileExpiration(idStr, newExpirationDate);
     }
 
-    public User[] listUsersFileSharedWith(String fileId) throws InvalidSessionException
+    public User[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException
     {
         return cifexServiceDelegate.listUsersFileSharedWith(fileId);
     }
 
-    public void deleteSharingLink(String fileId, String userCode) throws InvalidSessionException,
-            InsufficientPrivilegesException, FileNotFoundException
+    public void deleteSharingLink(final String fileId, final String userCode)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
         cifexServiceDelegate.deleteSharingLink(fileId, userCode);
 
     }
 
-    public void createSharingLink(String fileId, String emailsOfUsers) throws UserFailureException,
-            InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    public void createSharingLink(final String fileId, final String emailsOfUsers)
+            throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
+            FileNotFoundException
     {
 
         cifexServiceDelegate.createSharingLink(fileId, emailsOfUsers);

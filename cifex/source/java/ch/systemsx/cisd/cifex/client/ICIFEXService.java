@@ -180,9 +180,10 @@ public interface ICIFEXService extends RemoteService
      * set an own ExpirationDate, for all the others, the default expiration Date is used.
      * 
      * @param newExpirationDate The new Expiration date, can only used from an admin.
+     * @throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
      */
     public void updateFileExpiration(final String idStr, final Date newExpirationDate)
-            throws InvalidSessionException, InsufficientPrivilegesException;
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException;
 
     /**
      * Creates a sharing link between file and users.

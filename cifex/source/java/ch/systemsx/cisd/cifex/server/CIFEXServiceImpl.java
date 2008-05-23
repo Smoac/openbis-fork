@@ -277,7 +277,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             {
                 principal =
                         externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-            } catch (IllegalArgumentException ex)
+            } catch (final IllegalArgumentException ex)
             {
                 operationLog.error(ex.getMessage());
                 throw new EnvironmentFailureException(ex.getMessage());
@@ -371,10 +371,10 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             userManager.createUserAndSendEmail(userDTO, password, registratorDTO, comment,
                     getBasicURL());
-        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserFailureException(ex.getMessage());
-        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
+        } catch (final ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
         }
@@ -463,7 +463,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInfo = fileManager.getFileInformation(Long.parseLong(idStr));
+        final FileInformation fileInfo =
+                fileManager.getFileInformationFilestoreUnimportant(Long.parseLong(idStr));
         if (fileInfo.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
@@ -588,7 +589,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 userManager.listUsersRegisteredBy(requestUser.getUserCode());
 
         // Check if the current user is the owner of the user to update.
-        for (UserDTO user : usersCreatedByRequestUser)
+        for (final UserDTO user : usersCreatedByRequestUser)
         {
             if (user.getUserCode().equals(userToUpdate.getUserCode()))
             {
@@ -625,7 +626,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     }
 
     public void updateFileExpiration(final String idStr, final Date newExpirationDate)
-            throws InvalidSessionException
+            throws InvalidSessionException, FileNotFoundException
     {
         final IFileManager fileManager = domainModel.getFileManager();
         Date expirationDate;
@@ -638,11 +639,16 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     DateUtils.addMinutes(new Date(), domainModel.getBusinessContext()
                             .getFileRetention());
         }
-
-        fileManager.updateFileExpiration(Long.parseLong(idStr), expirationDate);
+        final long fileId = Long.parseLong(idStr);
+        final FileInformation fileInformation = fileManager.getFileInformation(fileId);
+        if (fileInformation.isFileAvailable() == false)
+        {
+            throw new FileNotFoundException(fileInformation.getErrorMessage());
+        }
+        fileManager.updateFileExpiration(fileId, expirationDate);
     }
 
-    public User[] listUsersFileSharedWith(String idStr) throws InvalidSessionException
+    public User[] listUsersFileSharedWith(final String idStr) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
@@ -652,13 +658,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBeanArray(User.class, users, null);
     }
 
-    public void deleteSharingLink(String idStr, String userCode) throws InvalidSessionException,
-            InsufficientPrivilegesException, FileNotFoundException
+    public void deleteSharingLink(final String idStr, final String userCode)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
-        long fileId = Long.parseLong(idStr);
+        final long fileId = Long.parseLong(idStr);
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInfo = fileManager.getFileInformation(fileId);
+        final FileInformation fileInfo = fileManager.getFileInformationFilestoreUnimportant(fileId);
         if (fileInfo.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
@@ -672,8 +678,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     }
 
-    public void createSharingLink(String idStr, String emailsOfUsers) throws UserFailureException,
-            InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    public void createSharingLink(final String idStr, final String emailsOfUsers)
+            throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
+            FileNotFoundException
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
@@ -688,12 +695,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     + describeUser(requestUser) + ".");
         }
         final StringTokenizer stringTokenizer = new StringTokenizer(emailsOfUsers, ", \t\n\r\f");
-        List<String> emails = new ArrayList<String>();
+        final List<String> emails = new ArrayList<String>();
         while (stringTokenizer.hasMoreTokens())
         {
             emails.add(stringTokenizer.nextToken());
         }
-        List<FileDTO> files = new ArrayList<FileDTO>();
+        final List<FileDTO> files = new ArrayList<FileDTO>();
         files.add(fileInfo.getFileDTO());
         String url = domainModel.getBusinessContext().getOverrideURL();
         if (StringUtils.isBlank(url))
@@ -706,7 +713,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, emails, files, fileInfo
                             .getFileDTO().getComment());
-        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw new UserFailureException(e.getMessage());
         }

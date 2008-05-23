@@ -122,13 +122,14 @@ final class FileManager extends AbstractManager implements IFileManager
             } else
             {
                 notificationLog.error("File [" + file.getAbsolutePath() + "] can not be deleted.");
+                return false;
             }
         } else
         {
             operationLog.warn("File [" + file.getAbsolutePath()
                     + "] requested to be deleted, but doesn't exist.");
+            return true;
         }
-        return false;
     }
 
     //
@@ -195,12 +196,25 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final FileInformation getFileInformation(final long fileId)
     {
+        return getFileInformation(fileId, true);
+    }
+
+    @Transactional
+    public final FileInformation getFileInformationFilestoreUnimportant(final long fileId)
+    {
+        return getFileInformation(fileId, false);
+    }
+
+    @Transactional
+    private final FileInformation getFileInformation(final long fileId,
+            final boolean fileStoreImportant)
+    {
         final FileDTO fileDTOOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
         if (fileDTOOrNull == null)
         {
             return new FileInformation(fileId, "File [id=" + fileId
-                    + "] not found in the database.");
-        } else
+                    + "] not found in the database. Try to refresh the page.");
+        } else if (fileStoreImportant)
         {
             final File realFile =
                     new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());

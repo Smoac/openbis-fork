@@ -40,11 +40,21 @@ public interface IFileManager
     /**
      * Returns the file DTO for given <var>fileId</var>.
      * 
+     * @return The file DTO, or <code>null</code>, if no file object exists in the database or in
+     *         the file store for this <var>fileId</var>.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public FileInformation getFileInformation(final long fileId);
+
+    /**
+     * Returns the file DTO for given <var>fileId</var> even if the file does not exist in the file
+     * store.
+     * 
      * @return The file DTO, or <code>null</code>, if no file object exists in the database for
      *         this <var>fileId</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public FileInformation getFileInformation(final long fileId);
+    public FileInformation getFileInformationFilestoreUnimportant(final long fileId);
 
     /**
      * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed access to
