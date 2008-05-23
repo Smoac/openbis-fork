@@ -23,11 +23,14 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -124,12 +127,17 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final DataMoverProcess create()
     {
+        final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
+        final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
+                new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
+                        copyInProgressDir), highwaterMarkWatcher, copyInProgressDir);
         final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(
-                        new FileScannedStore(incomingStore, storeItemFilter), bufferDirs
-                                .getCopyInProgressDir(), pathHandler,
-                        NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
+                        new FileScannedStore(incomingStore, storeItemFilter),
+                        directoryScanningHandler, pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
     }
 
