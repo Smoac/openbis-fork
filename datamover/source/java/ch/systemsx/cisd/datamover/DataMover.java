@@ -20,10 +20,10 @@ import java.io.File;
 import java.util.Timer;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
-import ch.systemsx.cisd.common.highwatermark.PathHandlerInterceptor;
-import ch.systemsx.cisd.common.highwatermark.StoreHandlerInterceptor;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.utilities.FaultyPathHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -67,7 +67,8 @@ public class DataMover
      * 
      * @return object which can be used to terminate the process and all its threads
      */
-    public static final ITerminable start(final Parameters parameters, final IFileSysOperationsFactory factory)
+    public static final ITerminable start(final Parameters parameters,
+            final IFileSysOperationsFactory factory)
     {
         return start(parameters, factory, createLocalBufferDirs(parameters));
     }
@@ -79,8 +80,8 @@ public class DataMover
     }
 
     /** Allows to specify buffer directories. Exposed for testing purposes. */
-    public static final ITerminable start(final Parameters parameters, final IFileSysOperationsFactory factory,
-            final LocalBufferDirs localBufferDirs)
+    public static final ITerminable start(final Parameters parameters,
+            final IFileSysOperationsFactory factory, final LocalBufferDirs localBufferDirs)
     {
         return new DataMover(parameters, factory, localBufferDirs).start();
     }
@@ -137,39 +138,38 @@ public class DataMover
     {
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
-        highwaterMarkWatcher.setPath(bufferDirs.getReadyToMoveDir());
         final LocalProcessor localProcessor =
                 new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(), factory
-                        .getMover(), highwaterMarkWatcher);
-        final PathHandlerInterceptor pathHandlerInterceptor =
-                new PathHandlerInterceptor(localProcessor);
-        highwaterMarkWatcher.addChangeListener(pathHandlerInterceptor);
+                        .getMover());
+        final File sourceDirectory = bufferDirs.getCopyCompleteDir();
+        final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
+                new HighwaterMarkDirectoryScanningHandler(new FaultyPathHandler(sourceDirectory),
+                        highwaterMarkWatcher, bufferDirs.getReadyToMoveDir());
         final DirectoryScanningTimerTask localProcessingTask =
-                new DirectoryScanningTimerTask(bufferDirs.getCopyCompleteDir(),
-                        FileUtilities.ACCEPT_ALL_FILTER, pathHandlerInterceptor);
-        pathHandlerInterceptor.setDirectoryScanning(localProcessingTask);
+                new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
+                        localProcessor, directoryScanningHandler);
         return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
     }
 
     private final DataMoverProcess createOutgoingMovingProcess()
     {
         final IFileStore outgoingStore = parameters.getOutgoingStore(factory);
-        final File readyToMoveDir = bufferDirs.getReadyToMoveDir();
+        final File sourceDirectory = bufferDirs.getReadyToMoveDir();
         final IFileStore readyToMoveStore =
-                FileStoreFactory.createLocal(readyToMoveDir, "ready-to-move", factory);
+                FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory);
         final IStoreHandler remoteStoreMover =
                 createRemotePathMover(readyToMoveStore, outgoingStore);
-        final StoreHandlerInterceptor storeHandlerInterceptor =
-                new StoreHandlerInterceptor(remoteStoreMover);
+        final HighwaterMarkDirectoryScanningHandler directoryScanningHandler = new HighwaterMarkDirectoryScanningHandler(
+                new FaultyPathHandler(sourceDirectory), readyToMoveStore
+                        .getHighwaterMarkWatcher());
         final DirectoryScanningTimerTask outgoingMovingTask =
-                new DirectoryScanningTimerTask(readyToMoveDir, FileUtilities.ACCEPT_ALL_FILTER,
-                        storeHandlerInterceptor);
-        outgoingStore.getHighwaterMarkWatcher().addChangeListener(storeHandlerInterceptor);
-        storeHandlerInterceptor.setDirectoryScanning(outgoingMovingTask);
+                new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
+                        remoteStoreMover, directoryScanningHandler);
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    private IStoreHandler createRemotePathMover(final IFileStore source, final IFileStore destination)
+    private IStoreHandler createRemotePathMover(final IFileStore source,
+            final IFileStore destination)
     {
         return RemoteMonitoredMoverFactory.create(source, destination, parameters);
     }

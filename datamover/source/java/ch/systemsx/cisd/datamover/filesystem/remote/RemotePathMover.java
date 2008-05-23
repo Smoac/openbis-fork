@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
@@ -287,15 +286,6 @@ public final class RemotePathMover implements IStoreHandler
     //
     // IStoreHandler
     //
-
-    public final boolean mayHandle(final StoreItem item)
-    {
-        final HighwaterMarkWatcher highwaterMarkWatcher =
-                destinationDirectory.getHighwaterMarkWatcher();
-        assert highwaterMarkWatcher.getPath() != null : "Remote path not set";
-        highwaterMarkWatcher.run();
-        return highwaterMarkWatcher.isBelow() == false;
-    }
 
     public final void handle(final StoreItem item)
     {

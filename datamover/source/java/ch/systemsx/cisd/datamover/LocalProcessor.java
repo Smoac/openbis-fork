@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -78,17 +77,13 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     private final File extraCopyDirOrNull;
 
-    private final HighwaterMarkWatcher highwaterMarkWatcher;
-
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
-            final IPathImmutableCopier copier, final IPathMover mover,
-            final HighwaterMarkWatcher highwaterMarkWatcher)
+            final IPathImmutableCopier copier, final IPathMover mover)
     {
         this.parameters = parameters;
         this.inputDir = bufferDirs.getCopyCompleteDir();
         this.outputDir = bufferDirs.getReadyToMoveDir();
         this.tempDir = bufferDirs.getTempDir();
-        this.highwaterMarkWatcher = highwaterMarkWatcher;
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
         this.copier = copier;
         this.mover = mover;
@@ -299,12 +294,6 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                         extraTmpCopy, extraCopyDirOrNull));
             }
         }
-    }
-
-    public final boolean mayHandle(final File path)
-    {
-        highwaterMarkWatcher.run();
-        return highwaterMarkWatcher.isBelow() == false;
     }
 
     //

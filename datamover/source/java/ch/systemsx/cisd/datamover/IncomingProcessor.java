@@ -142,11 +142,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 // IStoreHandler
                 //
 
-                public final boolean mayHandle(final StoreItem item)
-                {
-                    return true;
-                }
-
                 public final void handle(final StoreItem sourceItem)
                 {
                     final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
