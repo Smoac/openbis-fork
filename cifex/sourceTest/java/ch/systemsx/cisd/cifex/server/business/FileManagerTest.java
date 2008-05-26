@@ -63,6 +63,10 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public class FileManagerTest extends AbstractFileSystemTestCase
 {
 
+    private static final long DEFAULT_FILE_ID = 1L;
+
+    private static final String NONEXISTENT_PATH = "nonexistentFilePath";
+
     private Mockery context;
 
     private IDAOFactory daoFactory;
@@ -83,6 +87,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 
     private FileDTO imageFile;
 
+    private BusinessContext businessContext;
+
     @Override
     @BeforeMethod
     public final void setUp() throws IOException
@@ -96,7 +102,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         userDAO = context.mock(IUserDAO.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
         fileStore = workingDirectory;
-        final BusinessContext businessContext = new BusinessContext();
+        businessContext = new BusinessContext();
         businessContext.setFileRetention(5);
         businessContext.setFileStore(fileStore);
         businessContext.setPasswordGenerator(new PasswordGenerator()
@@ -111,6 +117,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     return "newpasswd";
                 }
+
             });
         businessContext.setUserActionLog(new DummyUserActionLog());
         mailClient = context.mock(IMailClient.class);
@@ -230,6 +237,104 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             });
         fileManager.deleteFile(imageFile);
         assertFalse(realFile.exists());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testGetFileInformationForFileNotExistingInDB()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+
+                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                    will(returnValue(null));
+                }
+            });
+
+        final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
+        assertEquals(fileInformation.isFileAvailable(), false);
+        assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
+                + "] not found in the database. Try to refresh the page.");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testGetFileInformationForFileNotExistingInStore()
+    {
+        final FileDTO fileDTO = new FileDTO(DEFAULT_FILE_ID);
+        fileDTO.setPath(NONEXISTENT_PATH);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+
+                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                    will(returnValue(fileDTO));
+
+                }
+            });
+
+        final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
+        assertEquals(fileInformation.isFileAvailable(), false);
+        assertEquals(fileInformation.getErrorMessage(),
+                "File 'targets/unit-test-wd/ch.systemsx.cisd.cifex.server.business.FileManagerTest/"
+                        + NONEXISTENT_PATH + "' [id=" + DEFAULT_FILE_ID
+                        + "] not found in the file store.");
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void getFileInformationFilestoreUnimportantFileNotExistsInFilestore()
+    {
+        final FileDTO fileDTO = new FileDTO(DEFAULT_FILE_ID);
+        fileDTO.setPath(NONEXISTENT_PATH);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+
+                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                    will(returnValue(fileDTO));
+
+                }
+            });
+
+        final FileInformation fileInformation =
+                fileManager.getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
+        assertEquals(fileInformation.isFileAvailable(), true);
+        assertEquals(fileInformation.getFileDTO(), fileDTO);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void getFileInformationFilestoreUnimportantFileNotExistsInDB()
+    {
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+
+                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                    will(returnValue(null));
+
+                }
+            });
+
+        final FileInformation fileInformation =
+                fileManager.getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
+        assertEquals(fileInformation.isFileAvailable(), false);
+        assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
+                + "] not found in the database. Try to refresh the page.");
         context.assertIsSatisfied();
     }
 
