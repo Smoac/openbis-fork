@@ -45,6 +45,8 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public final class HighwaterMarkWatcher implements Runnable
 {
 
+    private static final String UNSPECIFIED = "unspecified";
+
     private final static IFreeSpaceProvider DEFAULT_FREE_SPACE_PROVIDER =
             new DefaultFreeSpaceProvider();
 
@@ -95,6 +97,10 @@ public final class HighwaterMarkWatcher implements Runnable
 
     public final static String displayKilobyteValue(final long value)
     {
+        if (value < 0)
+        {
+            return UNSPECIFIED;
+        }
         return FileUtilities.byteCountToDisplaySize(value * FileUtils.ONE_KB);
     }
 

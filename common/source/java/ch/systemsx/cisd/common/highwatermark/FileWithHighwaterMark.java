@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 public final class FileWithHighwaterMark extends AbstractHashable implements Serializable
 {
 
+    public static final int DEFAULT_HIGHWATER_MARK = -1;
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -45,17 +47,17 @@ public final class FileWithHighwaterMark extends AbstractHashable implements Ser
 
     private final File path;
 
-    private final long highwaterMark;
+    private final long highwaterMarkInKb;
 
     /**
      * @param file the file path.
-     * @param highwaterMark the high water mark. <code>-1</code> means that the system will not be
-     *            watching.
+     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means
+     *            that the system will not be watching.
      */
-    public FileWithHighwaterMark(final File file, final long highwaterMark)
+    public FileWithHighwaterMark(final File file, final long highwaterMarkInKb)
     {
         this.path = file;
-        this.highwaterMark = highwaterMark;
+        this.highwaterMarkInKb = highwaterMarkInKb;
     }
 
     /**
@@ -63,7 +65,7 @@ public final class FileWithHighwaterMark extends AbstractHashable implements Ser
      */
     public FileWithHighwaterMark(final File path)
     {
-        this(path, -1);
+        this(path, DEFAULT_HIGHWATER_MARK);
     }
 
     /**
@@ -79,10 +81,10 @@ public final class FileWithHighwaterMark extends AbstractHashable implements Ser
         assert properties != null : "Unspecified properties";
         assert StringUtils.isNotBlank(filePropertyKey) : "File property key is blank";
         final String filePath = PropertyUtils.getMandatoryProperty(properties, filePropertyKey);
-        final long highwaterMark =
+        final long highwaterMarkInKb =
                 PropertyUtils.getLong(properties, filePropertyKey.concat(".").concat(
                         HIGHWATER_MARK_PROPERTY_KEY), -1L);
-        return new FileWithHighwaterMark(new File(filePath), highwaterMark);
+        return new FileWithHighwaterMark(new File(filePath), highwaterMarkInKb);
     }
 
     /**
@@ -104,6 +106,6 @@ public final class FileWithHighwaterMark extends AbstractHashable implements Ser
      */
     public final long getHighwaterMark()
     {
-        return highwaterMark;
+        return highwaterMarkInKb;
     }
 }
