@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -30,8 +33,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
 import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter;
-import ch.systemsx.cisd.common.utilities.RegexFileFilter.PathType;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -43,7 +44,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  * 
  * @author Tomasz Pylak
  */
-public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactory
+public final class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactory
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, LocalProcessor.class);
@@ -55,55 +56,67 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
-    private final Parameters parameters;
-
     private final IPathImmutableCopier copier;
 
     private final IPathMover mover;
 
-    // input: where the data are moved from (for recovery).
+    // Input: where the data are moved from (for recovery).
     private final File inputDir;
 
-    // output: from here data are moved when processing is finished.
+    // Output: from here data are moved when processing is finished.
     private final File outputDir;
 
-    // auxiliary directory used if we need to make a copy of incoming data
-    // Making a copy can take some time, so we do that in the temporary directory. Than we move it
-    // from
-    // temporary the final destination. In this way external process can start moving data from
-    // final
-    // destination as soon as they appear there.
+    // Auxiliary directory used if we need to make a copy of incoming data. Making a copy can take
+    // some time, so we do that in the temporary directory. Than we move it from temporary the final
+    // destination. In this way external process can start moving data from final destination as
+    // soon as they appear there.
     private final File tempDir;
 
     private final File extraCopyDirOrNull;
 
+    private final FileFilter manualInterventionFileFilter;
+
+    private final FileFilter cleansingFileFilter;
+
+    private final File manualInterventionDir;
+
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
             final IPathImmutableCopier copier, final IPathMover mover)
     {
-        this.parameters = parameters;
         this.inputDir = bufferDirs.getCopyCompleteDir();
         this.outputDir = bufferDirs.getReadyToMoveDir();
         this.tempDir = bufferDirs.getTempDir();
         this.extraCopyDirOrNull = parameters.tryGetExtraCopyDir();
+        this.manualInterventionDir = parameters.tryGetManualInterventionDir();
+        this.manualInterventionFileFilter = tryCreateManualInterventionFileFilter(parameters);
+        this.cleansingFileFilter = tryCreateCleansingFileFilter(parameters);
         this.copier = copier;
         this.mover = mover;
     }
 
-    // ----------------
-
-    public TimerTask createRecoverableTimerTask()
+    private final static FileFilter tryCreateCleansingFileFilter(final Parameters parameters)
     {
-        return new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    recover();
-                }
-            };
+        final Pattern cleansingRegex = parameters.tryGetCleansingRegex();
+        if (cleansingRegex != null)
+        {
+            return FileFilterUtils.andFileFilter(new RegexFileFilter(cleansingRegex),
+                    FileFilterUtils.fileFileFilter());
+        }
+        return null;
     }
 
-    private void recover()
+    private final static FileFilter tryCreateManualInterventionFileFilter(
+            final Parameters parameters)
+    {
+        final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
+        if (manualInterventionRegex == null)
+        {
+            return null;
+        }
+        return new RegexFileFilter(manualInterventionRegex);
+    }
+
+    private final void recover()
     {
         if (operationLog.isDebugEnabled())
         {
@@ -116,28 +129,27 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         }
     }
 
-    private void recoverTemporaryExtraCopy()
+    private final void recoverTemporaryExtraCopy()
     {
         final File[] files = FileUtilities.tryListFiles(tempDir, simpleOperationLog);
         if (files == null || files.length == 0)
         {
-            return; // directory is empty, no recovery is needed
+            // Directory is empty, no recovery is needed
+            return;
         }
-
         for (int i = 0; i < files.length; i++)
         {
             final File file = files[i];
             if (fileExists(inputDir, file))
             {
-                FileUtilities.deleteRecursively(file); // partial copy, delete it
+                // Partial copy, delete it
+                FileUtilities.deleteRecursively(file);
             } else
             {
-                // if in previous run we were creating an extra copy, and now we do not, we leave
-                // the resource in tmp
-                // directory. If now we do create copies, it's not clear what to do, because the
-                // destination directory
-                // could change. We move the copy to that directory to ensure clean recovery from
-                // errors.
+                // If in previous run we were creating an extra copy, and now we do not, we leave
+                // the resource in tmp directory. If now we do create copies, it's not clear what to
+                // do, because the destination directory could change. We move the copy to that
+                // directory to ensure clean recovery from errors.
                 if (extraCopyDirOrNull != null)
                 {
                     mover.tryMove(file, extraCopyDirOrNull);
@@ -151,8 +163,10 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         return new File(inputDir, file.getName()).exists();
     }
 
-    // @return true if processing needs to continue, false otherwise
-    private boolean doMoveManualOrClean(final File file)
+    /**
+     * @return <code>true</code> if processing needs to continue, <code>false</code> otherwise.
+     */
+    private final boolean doMoveManualOrClean(final File file)
     {
         final EFileManipResult manualMoveStatus = doManualIntervention(file);
         if (manualMoveStatus == EFileManipResult.FAILURE)
@@ -174,39 +188,29 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
 
     }
 
-    // @return true if the whole resource was deleted
-    private boolean doCleansing(final File resource)
+    /**
+     * @return only returns <code>true</code> if the whole given <var>resource</var> was deleted.
+     */
+    private final boolean doCleansing(final File resource)
     {
-        final RegexFileFilter cleansingFilter = new RegexFileFilter();
-        final Pattern cleansingRegex = parameters.tryGetCleansingRegex();
-        if (cleansingRegex != null)
+        if (cleansingFileFilter != null)
         {
             log(resource, "Doing cleansing");
-            cleansingFilter.add(PathType.FILE, cleansingRegex);
+            final ISimpleLogger logger =
+                    operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG)
+                            : null;
+            return FileUtilities.deleteRecursively(resource, cleansingFileFilter, logger);
         }
-        final ISimpleLogger logger =
-                operationLog.isDebugEnabled() ? new Log4jSimpleLogger(operationLog, Level.DEBUG)
-                        : null;
-        final boolean pathDeleted =
-                FileUtilities.deleteRecursively(resource, cleansingFilter, logger);
-        return pathDeleted;
+        return false;
     }
 
-    private EFileManipResult doManualIntervention(final File resource)
+    private final EFileManipResult doManualIntervention(final File resource)
     {
-        final File manualInterventionDir = parameters.tryGetManualInterventionDir();
-        if (manualInterventionDir == null)
+        if (manualInterventionDir == null || manualInterventionFileFilter == null)
         {
             return EFileManipResult.CONTINUE;
         }
-        final RegexFileFilter manualInterventionFilter = new RegexFileFilter();
-        final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
-        if (manualInterventionRegex != null)
-        {
-            manualInterventionFilter.add(PathType.ALL, manualInterventionRegex);
-        }
-
-        final boolean needsManualIntervention = manualInterventionFilter.accept(resource);
+        final boolean needsManualIntervention = manualInterventionFileFilter.accept(resource);
         logManualIntervention(resource, needsManualIntervention);
         if (needsManualIntervention)
         {
@@ -219,7 +223,7 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         }
     }
 
-    private static void log(final File path, final String description)
+    private final static void log(final File path, final String description)
     {
         if (operationLog.isInfoEnabled())
         {
@@ -227,7 +231,8 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         }
     }
 
-    private static void logManualIntervention(final File path, final boolean needsManualIntervention)
+    private final static void logManualIntervention(final File path,
+            final boolean needsManualIntervention)
     {
         if (manualInterventionLog.isInfoEnabled())
         {
@@ -247,9 +252,9 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
         final boolean continueProcessing = doMoveManualOrClean(path);
         if (continueProcessing == false)
         {
-            return; // stop processing
+            // Stop processing
+            return;
         }
-
         File extraTmpCopy = null;
         if (extraCopyDirOrNull != null)
         {
@@ -294,6 +299,27 @@ public class LocalProcessor implements IPathHandler, IRecoverableTimerTaskFactor
                         extraTmpCopy, extraCopyDirOrNull));
             }
         }
+    }
+
+    //
+    // IRecoverableTimerTaskFactory
+    //
+
+    public final TimerTask createRecoverableTimerTask()
+    {
+        return new TimerTask()
+            {
+
+                //
+                // TimerTask
+                //
+
+                @Override
+                public final void run()
+                {
+                    recover();
+                }
+            };
     }
 
     //
