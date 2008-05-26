@@ -64,13 +64,13 @@ public final class FileWithHighwaterMarkTest
         assertEquals(new File(path), fileWithHighwaterMark.getFile());
         assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
         // 100Kb
-        properties.setProperty(filePropertyKey + "."
+        properties.setProperty(filePropertyKey + FileWithHighwaterMark.SEP
                 + FileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "100");
         fileWithHighwaterMark = FileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         assertEquals(new File(path), fileWithHighwaterMark.getFile());
         assertEquals(100, fileWithHighwaterMark.getHighwaterMark());
         // Meaningless value
-        properties.setProperty(filePropertyKey + "."
+        properties.setProperty(filePropertyKey + FileWithHighwaterMark.SEP
                 + FileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "notANumber");
         fileWithHighwaterMark = FileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         assertEquals(new File(path), fileWithHighwaterMark.getFile());

@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 public final class FileWithHighwaterMark extends AbstractHashable implements Serializable
 {
 
+    static final String SEP = "-";
+
     public static final int DEFAULT_HIGHWATER_MARK = -1;
 
     private static final long serialVersionUID = 1L;
@@ -82,7 +84,7 @@ public final class FileWithHighwaterMark extends AbstractHashable implements Ser
         assert StringUtils.isNotBlank(filePropertyKey) : "File property key is blank";
         final String filePath = PropertyUtils.getMandatoryProperty(properties, filePropertyKey);
         final long highwaterMarkInKb =
-                PropertyUtils.getLong(properties, filePropertyKey.concat(".").concat(
+                PropertyUtils.getLong(properties, filePropertyKey.concat(SEP).concat(
                         HIGHWATER_MARK_PROPERTY_KEY), -1L);
         return new FileWithHighwaterMark(new File(filePath), highwaterMarkInKb);
     }
