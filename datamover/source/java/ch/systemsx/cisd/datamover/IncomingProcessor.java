@@ -79,15 +79,15 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final IStoreItemFilter storeItemFilter;
 
-    public static final DataMoverProcess createMovingProcess(Parameters parameters,
-            IFileSysOperationsFactory factory, LocalBufferDirs bufferDirs)
+    public static final DataMoverProcess createMovingProcess(final Parameters parameters,
+            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
     {
         return createMovingProcess(parameters, factory, SYSTEM_TIME_PROVIDER, bufferDirs);
     }
 
-    static final DataMoverProcess createMovingProcess(Parameters parameters,
-            IFileSysOperationsFactory factory, ITimeProvider timeProvider,
-            LocalBufferDirs bufferDirs)
+    static final DataMoverProcess createMovingProcess(final Parameters parameters,
+            final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
+            final LocalBufferDirs bufferDirs)
     {
         final IncomingProcessor processor =
                 new IncomingProcessor(parameters, factory, timeProvider, bufferDirs);
@@ -95,8 +95,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         return processor.create();
     }
 
-    private IncomingProcessor(Parameters parameters, IFileSysOperationsFactory factory,
-            ITimeProvider timeProvider, LocalBufferDirs bufferDirs)
+    private IncomingProcessor(final Parameters parameters, final IFileSysOperationsFactory factory,
+            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
@@ -107,14 +107,14 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.storeItemFilter = createFilter(timeProvider);
     }
 
-    private IStoreItemFilter createFilter(ITimeProvider timeProvider)
+    private final IStoreItemFilter createFilter(final ITimeProvider timeProvider)
     {
-        StoreItemFilterBank filterBank = new StoreItemFilterBank();
+        final StoreItemFilterBank filterBank = new StoreItemFilterBank();
         filterBank.add(new QuietPeriodFileFilter(incomingStore, parameters, timeProvider));
-        String dataCompletedScript = parameters.getDataCompletedScript();
+        final String dataCompletedScript = parameters.getDataCompletedScript();
         if (dataCompletedScript != null)
         {
-            long timeout = parameters.getDataCompletedScriptTimeout();
+            final long timeout = parameters.getDataCompletedScriptTimeout();
             filterBank.add(new DataCompletedFilter(incomingStore, dataCompletedScript, timeout));
         }
         return filterBank;

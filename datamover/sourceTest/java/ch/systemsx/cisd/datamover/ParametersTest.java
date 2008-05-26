@@ -18,14 +18,24 @@ package ch.systemsx.cisd.datamover;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
@@ -38,12 +48,23 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  * 
  * @author Bernd Rinn
  */
-public class ParametersTest
+public final class ParametersTest extends AbstractFileSystemTestCase
 {
+    private ByteArrayOutputStream logRecorder;
 
-    private Parameters parse(String... args)
+    private PrintStream systemOut;
+
+    private PrintStream systemErr;
+
+    private final Parameters parse(String... args)
     {
         return new Parameters(args, SystemExit.SYSTEM_EXIT);
+    }
+
+    /** Returns the content of the log recorder. */
+    private final String getLogContent()
+    {
+        return logRecorder.toString().trim();
     }
 
     @BeforeClass
@@ -56,7 +77,30 @@ public class ParametersTest
     public void finish()
     {
         SystemExit.setThrowException(false);
+    }
 
+    @Override
+    @BeforeMethod
+    public final void setUp()
+    {
+        logRecorder = new ByteArrayOutputStream();
+        systemOut = System.out;
+        systemErr = System.err;
+        System.setErr(new PrintStream(logRecorder));
+        System.setOut(new PrintStream(logRecorder));
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        if (systemOut != null)
+        {
+            System.setOut(systemOut);
+        }
+        if (systemErr != null)
+        {
+            System.setErr(systemErr);
+        }
     }
 
     @Test
@@ -99,7 +143,7 @@ public class ParametersTest
     }
 
     @Test
-    public void testSetLocalDataDirLong() throws Exception
+    public void testIncomingDirectory() throws Exception
     {
         final String localDataDir = ".." + File.separator + "test_it_data";
         final Parameters parameters = parse("--incoming-dir", localDataDir);
@@ -107,12 +151,46 @@ public class ParametersTest
                 getIncomingStore(parameters));
     }
 
-    @Test
-    public void testSetLocalTempDirLong() throws Exception
+    @DataProvider(name = "directoryWithHighwaterMark")
+    public final Object[][] getDirectoryWithHighwaterMark()
+    {
+        return new Object[][]
+            {
+                { PropertyNames.BUFFER_DIR, 100 },
+                { PropertyNames.OUTGOING_DIR, 200 } };
+    }
+
+    @Test(dataProvider = "directoryWithHighwaterMark")
+    public final void testDirectoryWithHighwaterMark(final String optionName,
+            final long highwaterMark) throws Exception
     {
         final String localTempDir = "test_it_tmp";
-        final Parameters parameters = parse("--buffer-dir", localTempDir);
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
+        // Without highwater mark
+        Parameters parameters = parse("--" + optionName, localTempDir);
+        FileWithHighwaterMark fileWithHighwaterMark =
+                getFileWithHighwaterMark(optionName, parameters);
+        assertEquals(localTempDir, fileWithHighwaterMark.getFile().getPath());
+        assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
+        // With a highwater mark value
+        parameters =
+                parse("--" + optionName, localTempDir + Parameters.FileWithHighwaterMarkHandler.SEP
+                        + highwaterMark);
+        fileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
+        assertEquals(localTempDir, fileWithHighwaterMark.getFile().getPath());
+        assertEquals(highwaterMark, fileWithHighwaterMark.getHighwaterMark());
+    }
+
+    private final FileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
+            Parameters parameters)
+    {
+        if (optionName.equals(PropertyNames.BUFFER_DIR))
+        {
+            return parameters.getBufferDirectoryPath();
+        } else if (optionName.equals(PropertyNames.OUTGOING_DIR))
+        {
+            return parameters.outgoingDirectory;
+        }
+        throw new AssertionError();
     }
 
     @Test
@@ -120,6 +198,29 @@ public class ParametersTest
     {
         final Parameters parameters = parse();
         assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL, parameters.getCheckIntervalMillis());
+    }
+
+    @Test
+    public final void testDataCompletedScript() throws Exception
+    {
+        Parameters parameters = parse();
+        assertNull(parameters.getDataCompletedScript());
+        assertEquals(
+                Parameters.DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT * DateUtils.MILLIS_PER_SECOND,
+                parameters.getDataCompletedScriptTimeout());
+        final String scriptName = "run.sh";
+        try
+        {
+            parameters = parse("--" + PropertyNames.DATA_COMPLETED_SCRIPT, scriptName);
+        } catch (final RuntimeException ex)
+        {
+            assertEquals(String.format(Parameters.DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE,
+                    scriptName), getLogContent());
+        }
+        final File scriptFile = new File(workingDirectory, scriptName);
+        FileUtils.touch(scriptFile);
+        parameters = parse("--" + PropertyNames.DATA_COMPLETED_SCRIPT, scriptFile.getPath());
+        assertEquals(scriptFile.getPath(), parameters.getDataCompletedScript());
     }
 
     @Test

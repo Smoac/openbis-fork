@@ -59,7 +59,10 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public final class Parameters implements ITimingParameters, IFileSysParameters
 {
-    private static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
+    static final String DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE =
+            "Cannot find script '%s' for data completed filter.";
+
+    static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
 
     private final static String HIGHWATER_MARK_TEXT = "(high water mark in KB after the ':')";
 
@@ -236,7 +239,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.OUTGOING_DIR, usage = "The remote directory to move the data to "
             + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
-    private FileWithHighwaterMark outgoingDirectory = null;
+    FileWithHighwaterMark outgoingDirectory = null;
 
     /**
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
@@ -357,8 +360,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 if (OSUtilities.executableExists(dataCompletedScript) == false)
                 {
                     throw ConfigurationFailureException.fromTemplate(
-                            "Cannot find script '%s' for data completed filter.",
-                            dataCompletedScript);
+                            DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE, dataCompletedScript);
                 }
             }
         } catch (final Exception ex)
@@ -792,7 +794,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             OptionHandler<FileWithHighwaterMark>
     {
 
-        private static final char SEP = ':';
+        static final char SEP = ':';
 
         private String argument;
 
