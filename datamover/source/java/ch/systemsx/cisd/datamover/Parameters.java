@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
@@ -59,13 +61,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 {
     private static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
 
+    private final static String HIGHWATER_MARK_TEXT = "(high water mark in KB after the ':')";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
 
-    @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script which checks whether incoming data is complete or not.")
+    @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script "
+            + "which checks whether incoming data is complete or not.")
     private String dataCompletedScript;
 
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) after which data completed script will be stopped "
@@ -213,8 +218,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The directory for local files and directories manipulations.
      */
-    @Option(longName = PropertyNames.BUFFER_DIR, metaVar = "DIR", usage = "The local directory to "
-            + "store the paths to be transfered temporarily.", handler = FileWithHighwaterMarkHandler.class)
+    @Option(longName = PropertyNames.BUFFER_DIR, usage = "The local directory to "
+            + "store the paths to be transfered temporarily " + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
     private FileWithHighwaterMark bufferDirectory = null;
 
     /**
@@ -229,14 +234,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The directory on the remote side to move the paths to from the buffer directory.
      */
-    @Option(longName = PropertyNames.OUTGOING_DIR, metaVar = "DIR", usage = "The remote directory to move the data to.", handler = FileWithHighwaterMarkHandler.class)
+    @Option(longName = PropertyNames.OUTGOING_DIR, usage = "The remote directory to move the data to "
+            + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
     private FileWithHighwaterMark outgoingDirectory = null;
 
     /**
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
      */
-    @Option(longName = PropertyNames.OUTGOING_HOST, metaVar = "HOST", usage = "The remote host to move the data to (only "
-            + "with rsync).")
+    @Option(longName = PropertyNames.OUTGOING_HOST, metaVar = "HOST", usage = "The remote host to "
+            + "move the data to (only with rsync).")
     private String outgoingHost = null;
 
     /**
@@ -342,8 +348,18 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
             {
-                throw new ConfigurationFailureException(
-                        "No 'manual-intervention-dir' defined, but 'manual-intervention-regex'.");
+                throw ConfigurationFailureException.fromTemplate("No '%s' defined, but '%s'.",
+                        PropertyNames.MANUAL_INTERVENTION_DIR,
+                        PropertyNames.MANUAL_INTERVENTION_REGEX);
+            }
+            if (getDataCompletedScript() != null)
+            {
+                if (OSUtilities.executableExists(dataCompletedScript) == false)
+                {
+                    throw ConfigurationFailureException.fromTemplate(
+                            "Cannot find script '%s' for data completed filter.",
+                            dataCompletedScript);
+                }
             }
         } catch (final Exception ex)
         {
@@ -505,7 +521,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     public final String getDataCompletedScript()
     {
-        return dataCompletedScript;
+        return StringUtils.defaultIfEmpty(dataCompletedScript, null);
     }
 
     public final long getDataCompletedScriptTimeout()
@@ -697,7 +713,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                             .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
             operationLog.info(String.format("Outgoing directory: '%s' [high water mark: %s].",
                     outgoingDirectory.getCanonicalPath(), HighwaterMarkWatcher
-                            .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
+                            .displayKilobyteValue(outgoingDirectory.getHighwaterMark())));
             if (null != outgoingHost)
             {
                 operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
@@ -732,11 +748,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             if (tryGetManualInterventionRegex() != null)
             {
-                operationLog
-                        .info(String
-                                .format(
-                                        "Regular expression used for deciding whether a path needs manual intervention: '%s'",
-                                        tryGetManualInterventionRegex().pattern()));
+                operationLog.info(String.format(
+                        "Regular expression used for deciding whether a path "
+                                + "needs manual intervention: '%s'",
+                        tryGetManualInterventionRegex().pattern()));
+            }
+            if (getDataCompletedScript() != null)
+            {
+                operationLog.info(String.format("Data completed script: '%s' [timeout: %d s.].",
+                        getDataCompletedScript(), getDataCompletedScriptTimeout()));
             }
         }
     }
@@ -772,6 +792,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             OptionHandler<FileWithHighwaterMark>
     {
 
+        private static final char SEP = ':';
+
+        private String argument;
+
         public FileWithHighwaterMarkHandler(final Option option,
                 final Setter<FileWithHighwaterMark> setter)
         {
@@ -785,13 +809,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final String getDefaultMetaVariable()
         {
-            return "FILE";
+            return "DIR[" + SEP + "KB]";
         }
 
         @Override
         public final int parseArguments(final org.kohsuke.args4j.spi.Parameters params)
                 throws CmdLineException
         {
+            argument = params.getOptionName();
             set(params.getParameter(0));
             return 1;
         }
@@ -799,8 +824,29 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final void set(final String value) throws CmdLineException
         {
-            setter.addValue(new FileWithHighwaterMark(new File(value)));
+            final File file;
+            final long highwaterMark;
+            final int indexOf = value.indexOf(SEP);
+            if (indexOf > -1)
+            {
+                file = new File(value.substring(0, indexOf));
+                String substring = null;
+                try
+                {
+                    substring = value.substring(indexOf + 1);
+                    highwaterMark = Long.valueOf(substring);
+                } catch (final NumberFormatException ex)
+                {
+                    throw new CmdLineException(String.format(
+                            "Wrong format for argument '%s': '%s' is not a number.", argument,
+                            substring));
+                }
+            } else
+            {
+                file = new File(value);
+                highwaterMark = FileWithHighwaterMark.DEFAULT_HIGHWATER_MARK;
+            }
+            setter.addValue(new FileWithHighwaterMark(file, highwaterMark));
         }
-
     }
 }
