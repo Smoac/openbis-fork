@@ -42,9 +42,11 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
+ * Test cases for the {@link IncomingProcessor} class.
+ * 
  * @author Franz-Josef Elmer
  */
-public class IncomingProcessorTest
+public final class IncomingProcessorTest
 {
     private static final String LOG_DEBUG_MACHINE_PREFIX =
             "DEBUG MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - ";
@@ -136,9 +138,9 @@ public class IncomingProcessorTest
                 }
             });
 
-        DataMoverProcess process =
+        final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1");
-        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
 
@@ -165,10 +167,10 @@ public class IncomingProcessorTest
                 }
             });
 
-        DataMoverProcess process =
+        final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
                         "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
-        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
@@ -216,17 +218,18 @@ public class IncomingProcessorTest
                 }
             });
 
-        DataMoverProcess process =
+        final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
                         "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
-        TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
         TEST_FILE.createNewFile();
         dataMoverTimerTask.run(); // 4. round finds changed status, thus log
 
-        boolean terminated = OSUtilities.isWindows();
+        final boolean isWindows = OSUtilities.isWindows();
+        final boolean isMac = OSUtilities.isMacOS();
         assertEquals(
                 LOG_DEBUG_PREFIX
                         + "Executing command: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
@@ -235,14 +238,14 @@ public class IncomingProcessorTest
                         + "ERROR NOTIFY.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "Processing status of data completed script has changed to "
                         + "DataCompletedFilter.Status{ok=false,run=true,terminated="
-                        + terminated
+                        + isWindows
                         + ",exitValue=1,blocked=false}. "
                         + "Command line: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
                         + "<wd>/targets/unit-test/IncomingProcessorTest/incoming/test-data.txt]"
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  OPERATION.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "[sh] process "
-                        + (terminated ? "was destroyed." : "returned with exit value 1.")
+                        + (isWindows ? "was destroyed." : "returned with exit value 1.")
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
                         + "[sh] output:"
@@ -251,8 +254,9 @@ public class IncomingProcessorTest
                         + "\"hello world\""
                         + OSUtilities.LINE_SEPARATOR
                         + "WARN  MACHINE.ch.systemsx.cisd.datamover.utils.DataCompletedFilter - "
-                        + "\"rm: cannot remove `targets/unit-test/IncomingProcessorTest/blabla.txt': "
-                        + "No such file or directory\""
+                        + (isMac == false ? "\"rm: cannot remove `targets/unit-test/IncomingProcessorTest/blabla.txt':"
+                                : "\"rm: targets/unit-test/IncomingProcessorTest/blabla.txt:")
+                        + " No such file or directory\""
                         + OSUtilities.LINE_SEPARATOR
                         + LOG_DEBUG_PREFIX
                         + "Executing command: [sh, targets/unit-test/IncomingProcessorTest/example-script.sh, "
@@ -274,7 +278,8 @@ public class IncomingProcessorTest
                         + "\"hello world\""
                         + OSUtilities.LINE_SEPARATOR
                         + LOG_DEBUG_MACHINE_PREFIX
-                        + "\"removed `targets/unit-test/IncomingProcessorTest/blabla.txt'\""
+                        + (isMac == false ? "\"removed `targets/unit-test/IncomingProcessorTest/blabla.txt'\""
+                                : "\"targets/unit-test/IncomingProcessorTest/blabla.txt\"")
                         + OSUtilities.LINE_SEPARATOR
                         + "DEBUG OPERATION.ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask - Following store item 'test-data.txt' has been handled."
                         + OSUtilities.LINE_SEPARATOR
@@ -293,10 +298,10 @@ public class IncomingProcessorTest
         return content;
     }
 
-    private DataMoverProcess createProcess(String... args)
+    private DataMoverProcess createProcess(final String... args)
     {
-        Parameters parameters = new Parameters(args, exitHandler);
-        LocalBufferDirs localBufferDirs =
+        final Parameters parameters = new Parameters(args, exitHandler);
+        final LocalBufferDirs localBufferDirs =
                 new LocalBufferDirs(new FileWithHighwaterMark(TEST_FOLDER), COPY_IN_PROGRESS_DIR,
                         COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
         context.checking(new Expectations()
