@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -864,9 +865,10 @@ public final class FileUtilities
         return paths;
     }
 
-    public static void sortByLastModified(final File[] files)
+    @SuppressWarnings("unchecked")
+    public final static void sortByLastModified(final File[] files)
     {
-        Arrays.sort(files, FileComparator.BY_LAST_MODIFIED);
+        Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
     }
 
     private static void logFailureInDirectoryListing(final RuntimeException exOrNull,
@@ -1111,6 +1113,7 @@ public final class FileUtilities
      */
     public final static String byteCountToDisplaySize(final long size)
     {
+        assert size > -1 : "Negative size value";
         final String displaySize;
         if (size / FileUtils.ONE_GB > 0)
         {
