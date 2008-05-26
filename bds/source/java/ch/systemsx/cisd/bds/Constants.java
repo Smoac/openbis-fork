@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.bds;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
+import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
 
 /**
  * Some constants used inside the <i>BDS</i> library
@@ -34,16 +35,8 @@ public final class Constants
     public final static char PATH_SEPARATOR = '/';
 
     /** The uniformly date format used. */
-    // Note that DateFormats objects are not thread-safe.
-    public static final ThreadLocal<DateFormat> DATE_FORMAT =
-            new ThreadLocal<DateFormat>()
-            {
-                @Override
-                protected DateFormat initialValue()
-                {
-                    return new SimpleDateFormat(DATE_FORMAT_PATTERN);
-                }
-            };
+    public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            new DateFormatThreadLocal(DATE_FORMAT_PATTERN);
 
     private Constants()
     {
