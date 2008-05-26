@@ -57,25 +57,23 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         this.parameters = parameters;
     }
 
-    private final static File findRsyncExecutable(final String rsyncExecutablePath)
+    private final static File findExecutable(final String executablePath,
+            final String executableName)
     {
-        final File rsyncExecutable;
-        if (rsyncExecutablePath != null)
+        final File executableFile;
+        if (StringUtils.isNotBlank(executablePath))
         {
-            rsyncExecutable = new File(rsyncExecutablePath);
-        } else if (OSUtilities.isWindows() == false)
-        {
-            rsyncExecutable = OSUtilities.findExecutable("rsync");
+            executableFile = new File(executablePath);
         } else
         {
-            rsyncExecutable = null;
+            executableFile = OSUtilities.findExecutable(executableName);
         }
-        if (rsyncExecutable != null && OSUtilities.executableExists(rsyncExecutable) == false)
+        if (executableFile != null && OSUtilities.executableExists(executableFile) == false)
         {
-            throw ConfigurationFailureException.fromTemplate("Cannot find rsync executable '%s'.",
-                    rsyncExecutable.getAbsoluteFile());
+            throw ConfigurationFailureException.fromTemplate("Cannot find executable '%s'.",
+                    executableFile.getAbsoluteFile());
         }
-        return rsyncExecutable;
+        return executableFile;
     }
 
     private final IPathImmutableCopier createFakedImmCopier()
@@ -110,7 +108,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathRemover getRemover()
     {
-        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE,
+                Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
     public final IPathImmutableCopier getImmutableCopier()
@@ -135,7 +134,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
     {
-        final File rsyncExecutable = findRsyncExecutable(parameters.getRsyncExecutable());
+        final File rsyncExecutable = findExecutable(parameters.getRsyncExecutable(), "rsync");
         final File sshExecutable = tryFindSshExecutable();
         if (rsyncExecutable != null)
         {
@@ -149,25 +148,12 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final File tryFindSshExecutable()
     {
-        final String sshExecutablePath = parameters.getSshExecutable();
-        File sshExecutable = null;
-        if (StringUtils.isNotBlank(sshExecutablePath))
-        {
-            sshExecutable = new File(sshExecutablePath);
-        } else
-        {
-            sshExecutable = OSUtilities.findExecutable("ssh");
-        }
-        if (sshExecutable != null && OSUtilities.executableExists(sshExecutable) == false)
-        {
-            throw ConfigurationFailureException.fromTemplate("Cannot find ssh executable '%s'.",
-                    sshExecutable.getAbsoluteFile());
-        }
-        return sshExecutable;
+        return findExecutable(parameters.getSshExecutable(), "ssh");
     }
 
     public final IPathMover getMover()
     {
-        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE,
+                Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 }
