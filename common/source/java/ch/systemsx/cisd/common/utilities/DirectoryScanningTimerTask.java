@@ -52,13 +52,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final IScannedStore sourceDirectory;
 
-    /**
-     * The number of consecutive errors of reading a directory that need to occur before the event
-     * is logged.
-     */
-    private final int ignoredErrorCount;
-
     private final IDirectoryScanningHandler directoryScanningHandler;
+
+    private final ConditionalNotificationLogger notificationLogger;
 
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
@@ -121,10 +117,10 @@ public final class DirectoryScanningTimerTask extends TimerTask
         assert directoryScanningHandler != null : "Unspecified IDirectoryScanningHandler implementation";
         assert ignoredErrorCount >= 0;
 
-        this.ignoredErrorCount = ignoredErrorCount;
         this.sourceDirectory = scannedStore;
         this.storeHandler = storeHandler;
         this.directoryScanningHandler = directoryScanningHandler;
+        this.notificationLogger = new ConditionalNotificationLogger(getClass(), ignoredErrorCount);
     }
 
     /**
@@ -212,8 +208,6 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final StoreItem[] listStoreItems()
     {
-        final ConditionalNotificationLogger notificationLogger =
-                new ConditionalNotificationLogger(getClass(), ignoredErrorCount);
         final StoreItem[] storeItems =
                 sourceDirectory.tryListSortedReadyToProcess(notificationLogger);
         if (storeItems != null)
