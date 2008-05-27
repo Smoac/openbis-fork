@@ -25,13 +25,13 @@ import org.apache.log4j.Priority;
  * 
  * @author Bernd Rinn
  */
-public class Log4jSimpleLogger implements ISimpleLogger
+public final class Log4jSimpleLogger implements ISimpleLogger
 {
     private final Priority log4jOverridePriorityOrNull;
 
     private final Logger log4jLogger;
 
-    static final Level toLog4jPriority(LogLevel level)
+    static final Level toLog4jPriority(final LogLevel level)
     {
         switch (level)
         {
@@ -60,7 +60,7 @@ public class Log4jSimpleLogger implements ISimpleLogger
      *            the one provided to the
      *            {@link ISimpleLogger#log(ch.systemsx.cisd.common.logging.LogLevel, String)}.
      */
-    public Log4jSimpleLogger(Logger log4jLogger, Priority log4jOverridePriorityOrNull)
+    public Log4jSimpleLogger(final Logger log4jLogger, final Priority log4jOverridePriorityOrNull)
     {
         this.log4jOverridePriorityOrNull = log4jOverridePriorityOrNull;
         this.log4jLogger = log4jLogger;
@@ -71,12 +71,12 @@ public class Log4jSimpleLogger implements ISimpleLogger
      * 
      * @param log4jLogger The log4j logger to use.
      */
-    public Log4jSimpleLogger(Logger log4jLogger)
+    public Log4jSimpleLogger(final Logger log4jLogger)
     {
         this(log4jLogger, null);
     }
 
-    public void log(LogLevel level, String message)
+    public final void log(final LogLevel level, final String message)
     {
         if (log4jOverridePriorityOrNull != null)
         {

@@ -878,13 +878,8 @@ public final class FileUtilities
         {
             if (directory.isFile())
             {
-                logger
-                        .log(
-                                LogLevel.ERROR,
-                                String
-                                        .format(
-                                                "Failed to get listing of directory '%s' (path is file instead of directory).",
-                                                directory));
+                logger.log(LogLevel.ERROR, String.format("Failed to get listing of directory '%s' "
+                        + "(path is file instead of directory).", directory));
             } else
             {
                 logger.log(LogLevel.ERROR, String.format(

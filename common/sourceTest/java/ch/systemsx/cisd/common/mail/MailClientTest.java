@@ -27,12 +27,14 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * Test cases for corresponding {@link MailClient} class.
+ * 
  * @author Franz-Josef Elmer
  */
-public class MailClientTest extends AbstractFileSystemTestCase
+public final class MailClientTest extends AbstractFileSystemTestCase
 {
     @Test
-    public void test()
+    public final void test()
     {
         String path = workingDirectory.getPath() + "/emails";
         File emailFolder = new File(path);
