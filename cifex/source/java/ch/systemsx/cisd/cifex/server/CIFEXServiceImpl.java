@@ -234,19 +234,26 @@ public final class CIFEXServiceImpl implements ICIFEXService
             userManager.createUser(userDTO);
             return finishLogin(userDTO);
         }
-        UserDTO userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password);
-        if (userDTOOrNull == null)
+        UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
+        if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
+        {
+            userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password);
+            if (userDTOOrNull != null)
+            {
+                return finishLogin(userDTOOrNull);
+            }
+        } else
         {
             final String encryptedPassword = StringUtilities.computeMD5Hash(password);
-            userDTOOrNull = userManager.tryFindUserByCode(userCode);
-            if (userDTOOrNull == null || StringUtils.isBlank(userDTOOrNull.getEncryptedPassword())
-                    || encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()) == false)
+            if (StringUtils.isBlank(userDTOOrNull.getEncryptedPassword()) == false
+                    && encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()))
             {
-                userBehaviorLog.logFailedLoginAttempt(userCode);
-                return null;
+                return finishLogin(userDTOOrNull);
             }
+
         }
-        return finishLogin(userDTOOrNull);
+        userBehaviorLog.logFailedLoginAttempt(userCode);
+        return null;
     }
 
     private UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail,
@@ -551,6 +558,45 @@ public final class CIFEXServiceImpl implements ICIFEXService
             }
         }
     }
+
+    /**
+     * Changes the user code from <var>before</var> to <var>after</var>.
+     *//*
+    public void changeUserCode(final String before, final String after)
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+
+        final IUserManager userManager = domainModel.getUserManager();
+
+        final UserDTO requestUser = privGetCurrentUser();
+        if (requestUser.isAdmin() && requestUser.getUserCode().equals(before) == false)
+        {
+            userManager.changeUserCode(before, after);
+            final UserDTO user = userManager.tryFindUserByCode(after);
+            try
+            {
+                final IMailClient mailClient = domainModel.getMailClient();
+                final EMailBuilderForUpdateUser builder =
+                        new EMailBuilderForUpdateUser(mailClient, this.privGetCurrentUser(), user);
+                builder.setURL(getBasicURL());
+
+                builder.sendEMail();
+            } catch (final Exception ex)
+            {
+                final String msg =
+                        "Sending email to email '" + user.getEmail() + "' failed: "
+                                + ex.getMessage();
+                operationLog.error(msg, ex);
+                throw new EnvironmentFailureException(msg);
+            }
+        } else
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+
+    }*/
 
     /** Check if the current user is allowed to update the given user. */
     private final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate)
