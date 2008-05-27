@@ -1,0 +1,132 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.common.logging;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+/**
+ * Test cases for corresponding {@link ConditionalNotificationLogger} class.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class ConditionalNotificationLoggerTest
+{
+
+    private final ConditionalNotificationLogger createConditionalNotificationLogger(
+            final int ignoredErrorCountBeforeNotification)
+    {
+        final ConditionalNotificationLogger logger =
+                new ConditionalNotificationLogger(getClass(), ignoredErrorCountBeforeNotification);
+        return logger;
+    }
+
+    private BufferedAppender operationLogRecorder;
+
+    private BufferedAppender notificationLogRecorder;
+
+    @BeforeMethod
+    public final void setUp()
+    {
+        operationLogRecorder = new BufferedAppender("%m", Level.WARN);
+        notificationLogRecorder = new BufferedAppender("%m", Level.ERROR);
+    }
+
+    @Test
+    public final void testConstructor()
+    {
+        boolean fail = true;
+        try
+        {
+            new ConditionalNotificationLogger(null, -1);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        try
+        {
+            new ConditionalNotificationLogger(getClass(), -1);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
+
+    @DataProvider(name = "ignoredErrorCount")
+    public final Object[][] getIgnoredErrorCount()
+    {
+        return new Object[][]
+            {
+                { 0 },
+                { 1 },
+                { 2 }, };
+    }
+
+    @Test(dataProvider = "ignoredErrorCount")
+    public final void testLogWithErrorLevel(final int ignoredErrorCountBeforeNotification)
+    {
+        final ConditionalNotificationLogger logger =
+                createConditionalNotificationLogger(ignoredErrorCountBeforeNotification);
+        final String logMessage = "Some message";
+        for (int i = 0; i <= ignoredErrorCountBeforeNotification; i++)
+        {
+            logger.log(LogLevel.ERROR, logMessage);
+            assertEquals(StringUtils.repeat(logMessage, i + 1), operationLogRecorder
+                    .getLogContent());
+            if (i >= ignoredErrorCountBeforeNotification)
+            {
+                assertEquals(logMessage, notificationLogRecorder.getLogContent());
+            }
+        }
+        logger.log(null, logMessage);
+        assertEquals(logMessage, notificationLogRecorder.getLogContent());
+    }
+
+    @Test
+    public final void testLogWithNullLevel()
+    {
+        final ConditionalNotificationLogger logger = createConditionalNotificationLogger(0);
+        final String logMessage = "Some message";
+        logger.log(null, logMessage);
+        assertEquals("", operationLogRecorder.getLogContent());
+        assertEquals("", notificationLogRecorder.getLogContent());
+    }
+
+    @Test
+    public final void testReset()
+    {
+        final ConditionalNotificationLogger logger = createConditionalNotificationLogger(2);
+        final String logMessage = "Some message";
+        logger.log(LogLevel.ERROR, logMessage);
+        logger.log(LogLevel.ERROR, logMessage);
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals(logMessage, notificationLogRecorder.getLogContent());
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals(logMessage, notificationLogRecorder.getLogContent());
+        logger.reset("Green again");
+        notificationLogRecorder.resetLogContent();
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals("", notificationLogRecorder.getLogContent());
+    }
+}

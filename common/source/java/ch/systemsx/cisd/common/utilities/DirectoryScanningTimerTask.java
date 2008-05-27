@@ -22,10 +22,10 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A {@link TimerTask} that scans a source directory for entries that are accepted by some
@@ -57,8 +57,6 @@ public final class DirectoryScanningTimerTask extends TimerTask
      * is logged.
      */
     private final int ignoredErrorCount;
-
-    private int errorCountReadingDirectory;
 
     private final IDirectoryScanningHandler directoryScanningHandler;
 
@@ -214,52 +212,16 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final StoreItem[] listStoreItems()
     {
-        // Avoid mailbox flooding.
-        final boolean logNotifyError = (errorCountReadingDirectory == ignoredErrorCount);
-        final boolean logOperationError = (errorCountReadingDirectory < ignoredErrorCount);
-        final ISimpleLogger errorLogger =
-                logNotifyError ? createSimpleErrorLogger(LogCategory.NOTIFY)
-                        : (logOperationError ? createSimpleErrorLogger(LogCategory.OPERATION)
-                                : null);
-        final StoreItem[] storeItems = sourceDirectory.tryListSortedReadyToProcess(errorLogger);
-        if (errorCountReadingDirectory > ignoredErrorCount && storeItems != null)
+        final ConditionalNotificationLogger notificationLogger =
+                new ConditionalNotificationLogger(getClass(), ignoredErrorCount);
+        final StoreItem[] storeItems =
+                sourceDirectory.tryListSortedReadyToProcess(notificationLogger);
+        if (storeItems != null)
         {
-            if (notificationLog.isInfoEnabled())
-            {
-                notificationLog.info(String.format("Directory '%s' is available again.",
-                        sourceDirectory));
-            }
-        }
-        if (storeItems == null)
-        {
-            ++errorCountReadingDirectory;
-        } else
-        {
-            errorCountReadingDirectory = 0;
+            notificationLogger.reset(String.format("Directory '%s' is available again.",
+                    sourceDirectory));
         }
         return (storeItems == null) ? StoreItem.EMPTY_ARRAY : storeItems;
-    }
-
-    private final ISimpleLogger createSimpleErrorLogger(final LogCategory category)
-    {
-        return new ISimpleLogger()
-            {
-
-                //
-                // ISimpleLogger
-                //
-
-                public final void log(final LogLevel dummyLevel, final String message)
-                {
-                    if (category == LogCategory.NOTIFY)
-                    {
-                        notificationLog.log(org.apache.log4j.Level.ERROR, message);
-                    } else
-                    {
-                        operationLog.log(org.apache.log4j.Level.WARN, message);
-                    }
-                }
-            };
     }
 
     //
