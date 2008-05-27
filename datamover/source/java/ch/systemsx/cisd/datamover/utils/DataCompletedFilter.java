@@ -21,11 +21,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
@@ -115,6 +118,8 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private final long dataCompletedScriptTimeout;
 
+    private final ConditionalNotificationLogger notificationLogger;
+
     private Status lastStatus = Status.NULL;
 
     /**
@@ -128,6 +133,7 @@ public class DataCompletedFilter implements IStoreItemFilter
             throw new IllegalArgumentException("Data completed script not specified.");
         }
         this.dataCompletedScript = dataCompletedScript;
+        notificationLogger = new ConditionalNotificationLogger(getClass(), 0);
         this.dataCompletedScriptTimeout = dataCompletedScriptTimeout;
         if (fileStore == null)
         {
@@ -136,7 +142,40 @@ public class DataCompletedFilter implements IStoreItemFilter
         this.fileStore = fileStore;
     }
 
-    public boolean accept(final StoreItem item)
+    private final List<String> createCommand(final StoreItem item)
+    {
+        final StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
+        final List<String> command = new ArrayList<String>();
+        command.add("sh");
+        command.add(getDataCompletedScript());
+        command.add(storeItemLocation.getAbsolutePath());
+        final String host = storeItemLocation.getHost();
+        if (host != null)
+        {
+            command.add(host);
+        }
+        return command;
+    }
+
+    private final String getDataCompletedScript()
+    {
+        if (OSUtilities.executableExists(dataCompletedScript) == false)
+        {
+            notificationLogger.log(LogLevel.ERROR, String.format(
+                    "Cannot find specified script '%s'.", dataCompletedScript));
+        } else
+        {
+            notificationLogger.reset(String.format("Script '%s' is again accessible.",
+                    dataCompletedScript));
+        }
+        return dataCompletedScript;
+    }
+
+    //
+    // IStoreItemFilter
+    //
+
+    public final boolean accept(final StoreItem item)
     {
         final List<String> commandLine = createCommand(item);
         final ProcessResult result =
@@ -163,21 +202,6 @@ public class DataCompletedFilter implements IStoreItemFilter
             lastStatus = status;
         }
         return ok;
-    }
-
-    private List<String> createCommand(final StoreItem item)
-    {
-        final StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
-        final List<String> command = new ArrayList<String>();
-        command.add("sh");
-        command.add(dataCompletedScript);
-        command.add(storeItemLocation.getAbsolutePath());
-        final String host = storeItemLocation.getHost();
-        if (host != null)
-        {
-            command.add(host);
-        }
-        return command;
     }
 
 }
