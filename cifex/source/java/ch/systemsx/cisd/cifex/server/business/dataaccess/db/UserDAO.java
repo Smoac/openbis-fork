@@ -57,7 +57,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         /**
          * Requires <code>id</code>, <code>email</code>, <code>user_name</code>,
-         * <code>encrypted_password</code>, <code>is_externally_authenticated</code>,
+         * <code>password_hash</code>, <code>is_externally_authenticated</code>,
          * <code>is_admin</code>, <code>is_permanent</code>,
          * <code>registration_timestamp</code>, <code>expiration_timestamp</code> to be present
          * in the {@link ResultSet} <var>rs</var>.
@@ -70,7 +70,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setUserCode(rs.getString("user_id"));
             user.setEmail(rs.getString("email"));
             user.setUserFullName(rs.getString("full_name"));
-            user.setPasswordHash(rs.getString("encrypted_password"));
+            user.setPasswordHash(rs.getString("password_hash"));
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
             user.setPermanent(rs.getBoolean("is_permanent"));
@@ -168,7 +168,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         } else
         {
             template.update(
-                    "insert into users (id, user_id, email, full_name, encrypted_password, "
+                    "insert into users (id, user_id, email, full_name, password_hash, "
                             + "is_externally_authenticated, is_admin,"
                             + "is_permanent, user_id_registrator, expiration_timestamp) "
                             + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user
@@ -254,7 +254,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         } else
         {
             template.update("update users set email = ?, user_id = ?, full_name = ?, "
-                    + "encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
+                    + "password_hash = ?, is_externally_authenticated = ?, is_admin = ?,"
                     + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(),
                     user.getUserCode(), user.getUserFullName(), user.getPassword()
                             .createPasswordHash(), user.isExternallyAuthenticated(),
