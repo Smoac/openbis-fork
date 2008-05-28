@@ -106,9 +106,9 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void createUserAndSendEmail(UserDTO user, String password, UserDTO registrator,
-            String comment, String basicURL) throws UserFailureException,
-            EnvironmentFailureException
+    public void createUserAndSendEmail(final UserDTO user, final String password,
+            final UserDTO registrator, final String comment, final String basicURL)
+            throws UserFailureException, EnvironmentFailureException
     {
         final String finalPassword = getFinalPassword(password);
         user.setPassword(new Password(finalPassword));
@@ -117,14 +117,13 @@ class UserManager extends AbstractManager implements IUserManager
         sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
     }
 
-    private void sendEmailToNewUser(UserDTO user, UserDTO registrator, String comment,
-            String basicURL, final String finalPassword)
+    private void sendEmailToNewUser(final UserDTO user, final UserDTO registrator,
+            final String comment, final String basicURL, final String finalPassword)
     {
         try
         {
             final EMailBuilderForNewUser builder =
-                    new EMailBuilderForNewUser(businessContext.getMailClient(), registrator,
-                            user);
+                    new EMailBuilderForNewUser(businessContext.getMailClient(), registrator, user);
             builder.setURL(getURLForEmail(basicURL));
             builder.setPassword(finalPassword);
             if (comment != null && comment.equals("") == false)
@@ -135,14 +134,13 @@ class UserManager extends AbstractManager implements IUserManager
         } catch (final Exception ex)
         {
             final String msg =
-                    "Sending email to email '" + user.getEmail() + "' failed: "
-                            + ex.getMessage();
+                    "Sending email to email '" + user.getEmail() + "' failed: " + ex.getMessage();
             operationLog.error(msg, ex);
             throw new EnvironmentFailureException(msg);
         }
     }
 
-    private String getURLForEmail(String basicURL)
+    private String getURLForEmail(final String basicURL)
     {
         final String overrideURL = businessContext.getOverrideURL();
         if (StringUtils.isBlank(overrideURL))
@@ -306,7 +304,7 @@ class UserManager extends AbstractManager implements IUserManager
         final UserDTO existingUser = userDAO.tryFindUserByCode(userCode);
         if (existingUser == null)
         {
-            String msg = String.format("User '%s' does not exist in the database.", userCode);
+            final String msg = String.format("User '%s' does not exist in the database.", userCode);
             throw new UserFailureException(msg);
         }
         assert userCode.equals(existingUser.getUserCode()) : "Mismatch in user code";
@@ -332,11 +330,52 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public List<UserDTO> listUsersFileSharedWith(long fileId) throws UserFailureException
+    public List<UserDTO> listUsersFileSharedWith(final long fileId) throws UserFailureException
     {
 
         final IUserDAO userDAO = daoFactory.getUserDAO();
         return userDAO.listUsersFileSharedWith(fileId);
+    }
+
+    @Transactional
+    public void changeUserCode(final String before, final String after) throws UserFailureException
+    {
+        if (StringUtils.isBlank(before) || StringUtils.isBlank(after))
+        {
+            throw new UserFailureException("User code cannot be empty.");
+        }
+
+        boolean success = false;
+        UserDTO oldUserOrNull = null;
+        UserDTO newUserOrNull = null;
+        try
+        {
+            final IUserDAO userDAO = daoFactory.getUserDAO();
+            // Get old user entry
+            oldUserOrNull = userDAO.tryFindUserByCode(before);
+            if (oldUserOrNull == null)
+            {
+                throw new UserFailureException(String.format("User with code %s doesn't exist.",
+                        before));
+            }
+            if (oldUserOrNull.isExternallyAuthenticated())
+            {
+                throw new UserFailureException(String.format(
+                        "User with code %s is externally authenticated.", before));
+            }
+            newUserOrNull = userDAO.tryFindUserByCode(after);
+            if (newUserOrNull != null)
+            {
+                throw new UserFailureException(String.format("User with code %s already exist.",
+                        before));
+            }
+
+            userDAO.changeUserCode(before, after);
+            success = true;
+        } finally
+        {
+            businessContext.getUserActionLog().logChangeUserCodeUser(before, after, success);
+        }
     }
 
 }

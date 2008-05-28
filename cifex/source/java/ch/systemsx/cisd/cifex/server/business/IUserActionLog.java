@@ -74,4 +74,6 @@ public interface IUserActionLog
 
     public void logDeleteSharingLink(long fileId, String userCode, boolean success);
 
+    public void logChangeUserCodeUser(String before, String after, boolean success);
+
 }

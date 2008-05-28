@@ -22,7 +22,8 @@ import java.util.List;
 import com.gwtext.client.data.StringFieldDef;
 
 import ch.systemsx.cisd.cifex.client.application.Constants;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
@@ -35,9 +36,12 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public final class UserGridModel extends AbstractUserGridModel
 {
 
-    public UserGridModel(IMessageResources messageResources, User currentUser)
+    private final ViewContext context;
+
+    public UserGridModel(final ViewContext viewContext)
     {
-        super(messageResources, currentUser);
+        super(viewContext.getMessageResources(), viewContext.getModel().getUser());
+        this.context = viewContext;
     }
 
     public final List getColumnConfigs()
@@ -101,6 +105,16 @@ public final class UserGridModel extends AbstractUserGridModel
                     sep
                             + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
                                     Constants.DELETE_ID);
+        }
+        // Change user code
+        if (user.equals(currentUser) == false && currentUser.isAdmin()
+                && user.isExternallyAuthenticated() == false
+                && context.getHistoryController().getCurrentPage() == Page.ADMIN_PAGE)
+        {
+            actionLabel +=
+                    sep
+                            + DOMUtils.createAnchor(messageResources.getActionRenameLabel(),
+                                    Constants.CHANGE_USER_CODE_ID);
         }
         return actionLabel;
     }

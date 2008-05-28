@@ -79,6 +79,9 @@ public interface IUserDAO
     /** Update the fields of the given user. */
     public void updateUser(UserDTO user);
 
+    /** Change user code. */
+    public void changeUserCode(String before, String after);
+
     /**
      * Returns a list of users the file with given <var>fileId</var> has been shared with.
      */

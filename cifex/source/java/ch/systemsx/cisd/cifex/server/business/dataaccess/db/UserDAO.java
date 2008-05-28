@@ -109,7 +109,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
-    public List<UserDTO> listUsersRegisteredBy(String userCode) throws DataAccessException
+    public List<UserDTO> listUsersRegisteredBy(final String userCode) throws DataAccessException
     {
         assert userCode != null;
         final UserDTO registrator = tryFindUserByCode(userCode);
@@ -125,21 +125,21 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                                 "select * from users where user_id_registrator = (select id from users where user_id=?)",
                                 new UserRowMapper(), userCode);
 
-        for (UserDTO user : list)
+        for (final UserDTO user : list)
         {
             user.setRegistrator(registrator);
         }
         return list;
     }
 
-    private void fillInRegistrators(List<UserDTO> users)
+    private void fillInRegistrators(final List<UserDTO> users)
     {
         final Map<Long, UserDTO> idToUserMap = new HashMap<Long, UserDTO>();
-        for (UserDTO user : users)
+        for (final UserDTO user : users)
         {
             idToUserMap.put(user.getID(), user);
         }
-        for (UserDTO user : users)
+        for (final UserDTO user : users)
         {
             final UserDTO registratorDTO = idToUserMap.get(user.getRegistrator().getID());
             if (registratorDTO != null)
@@ -180,7 +180,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         user.setID(id);
     }
 
-    private Long tryGetRegistratorId(UserDTO user)
+    private Long tryGetRegistratorId(final UserDTO user)
     {
         assert user != null;
 
@@ -213,7 +213,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         try
         {
-            UserDTO user =
+            final UserDTO user =
                     template.queryForObject("select * from users where user_id = ?",
                             new UserRowMapper(), userCode);
             return user;
@@ -239,7 +239,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
-    public void updateUser(UserDTO user)
+    public void updateUser(final UserDTO user)
     {
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -265,7 +265,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     /**
      * Doesn't fill registrator field in UserDTO.
      */
-    public List<UserDTO> listUsersFileSharedWith(long fileId) throws DataAccessException
+    public List<UserDTO> listUsersFileSharedWith(final long fileId) throws DataAccessException
     {
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
@@ -275,5 +275,12 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                                 "select u.* from file_shares fs, users u where u.id=fs.user_id and fs.file_id= ?",
                                 new UserRowMapper(), fileId);
         return list;
+    }
+
+    public void changeUserCode(final String before, final String after)
+    {
+        getSimpleJdbcTemplate().update("update users set user_id = ? where user_id = ? ", after,
+                before);
+
     }
 }

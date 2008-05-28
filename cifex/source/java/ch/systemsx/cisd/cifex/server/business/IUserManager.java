@@ -113,6 +113,16 @@ public interface IUserManager
             IllegalArgumentException;
 
     /**
+     * Changes the user code.
+     * 
+     * @throws UserFailureException If the user with code <var>before</var> was not found in the
+     *             database, is externally authenticated or user with code <var>after</var> already
+     *             exists.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void changeUserCode(String before, String after) throws UserFailureException;
+
+    /**
      * Returns a list of users the file with given <var>fileId</var> has been shared with.
      * 
      * @throws UserFailureException If the <var>fileId</var> was not found in the database.

@@ -242,6 +242,7 @@ public abstract class UserWidget extends Form
         {
             textField.setValue(editUser.getUserCode());
             textField.setDisabled(true);
+
         }
         return textField;
     }
