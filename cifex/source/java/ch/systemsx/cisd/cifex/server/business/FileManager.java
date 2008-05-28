@@ -48,7 +48,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.server.util.Password;
+import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;

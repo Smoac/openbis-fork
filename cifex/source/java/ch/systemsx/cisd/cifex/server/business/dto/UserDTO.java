@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.server.business.dto;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.cifex.server.util.Password;
+import ch.systemsx.cisd.cifex.server.common.Password;
 
 /**
  * An <code>ID</code> extension which describes an user in the database.

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.server.util.Password;
+import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;

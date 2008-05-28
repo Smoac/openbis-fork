@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.*;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.common.utilities.PasswordHasher;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 

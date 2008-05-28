@@ -31,7 +31,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.server.util.Password;
+import ch.systemsx.cisd.cifex.server.common.Password;
 
 /**
  * Test cases for corresponding {@link UserDAO} class.
