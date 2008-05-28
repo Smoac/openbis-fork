@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.server.business.dto;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.cifex.server.util.Password;
+
 /**
  * An <code>ID</code> extension which describes an user in the database.
  * 
@@ -34,9 +36,11 @@ public class UserDTO extends ID
      */
     private String email;
 
-    private String encryptedPassword;
+    private Password password;
+    
+    private String passwordHash;
 
-    private UserDTO registratorOrNull;
+    private UserDTO registrator;
 
     /**
      * Whether this user is an administrator or not.
@@ -95,14 +99,24 @@ public class UserDTO extends ID
         this.email = email.toLowerCase();
     }
 
-    public final String getEncryptedPassword()
+    public final Password getPassword()
     {
-        return encryptedPassword;
+        return password;
     }
 
-    public final void setEncryptedPassword(final String encryptedPassword)
+    public final void setPassword(final Password password)
     {
-        this.encryptedPassword = encryptedPassword;
+        this.password = password;
+    }
+
+    public String getPasswordHash()
+    {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash)
+    {
+        this.passwordHash = passwordHash;
     }
 
     public final boolean isPermanent()
@@ -147,12 +161,12 @@ public class UserDTO extends ID
 
     public final UserDTO getRegistrator()
     {
-        return registratorOrNull;
+        return registrator;
     }
 
     public final void setRegistrator(UserDTO registrator)
     {
-        this.registratorOrNull = registrator;
+        this.registrator = registrator;
     }
 
     public String getUserCode()

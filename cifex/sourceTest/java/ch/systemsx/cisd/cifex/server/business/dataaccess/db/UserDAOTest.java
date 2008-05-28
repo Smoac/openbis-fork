@@ -31,7 +31,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.cifex.server.util.Password;
 
 /**
  * Test cases for corresponding {@link UserDAO} class.
@@ -57,20 +57,19 @@ public final class UserDAOTest extends AbstractDAOTest
         return "bneff";
     }
 
-    private void checkUser(final UserDTO expectedUser, final UserDTO actualUser)
+    private void checkUser(final UserDTO expectedUser, final UserDTO actualUserFromDB)
     {
-        assertNotNull(actualUser.getID());
-        assertTrue(actualUser.getID() > 0);
-        assertEquals(expectedUser.isAdmin(), actualUser.isAdmin());
-        assertEquals(expectedUser.isExternallyAuthenticated(), actualUser
+        assertNotNull(actualUserFromDB.getID());
+        assertTrue(actualUserFromDB.getID() > 0);
+        assertEquals(expectedUser.isAdmin(), actualUserFromDB.isAdmin());
+        assertEquals(expectedUser.isExternallyAuthenticated(), actualUserFromDB
                 .isExternallyAuthenticated());
-        assertEquals(expectedUser.isPermanent(), actualUser.isPermanent());
-        assertEquals(expectedUser.getEmail(), actualUser.getEmail());
-        assertEquals(expectedUser.getEncryptedPassword(), actualUser.getEncryptedPassword());
-        assertEquals(expectedUser.getExpirationDate(), actualUser.getExpirationDate());
-        assertEquals(expectedUser.getUserFullName(), actualUser.getUserFullName());
-        assertNotNull(actualUser.getID());
-        assertNotNull(actualUser.getRegistrationDate());
+        assertEquals(expectedUser.isPermanent(), actualUserFromDB.isPermanent());
+        assertTrue(expectedUser.getPassword().matches(actualUserFromDB.getPasswordHash()));
+        assertEquals(expectedUser.getExpirationDate(), actualUserFromDB.getExpirationDate());
+        assertEquals(expectedUser.getUserFullName(), actualUserFromDB.getUserFullName());
+        assertNotNull(actualUserFromDB.getID());
+        assertNotNull(actualUserFromDB.getRegistrationDate());
     }
 
     final static UserDTO createUser(final boolean permanent, final boolean admin,
@@ -80,7 +79,7 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setEmail(email);
         user.setUserCode(code);
         user.setUserFullName(getTestUserName());
-        user.setEncryptedPassword("9df6dafa014bb90272bcc6707a0eef87");
+        user.setPassword(new Password("the admin passw0rd"));
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
         if (registrator == null)
@@ -273,7 +272,7 @@ public final class UserDAOTest extends AbstractDAOTest
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
 
         // Try update Password
-        testPermanentUser.setEncryptedPassword(StringUtilities.computeMD5Hash("NewPassword"));
+        testPermanentUser.setPassword(new Password("NewPassword"));
         testPermanentUser.setAdmin(true);
         testPermanentUser.setExternallyAuthenticated(false);
         testPermanentUser.setUserFullName("User Full Name");

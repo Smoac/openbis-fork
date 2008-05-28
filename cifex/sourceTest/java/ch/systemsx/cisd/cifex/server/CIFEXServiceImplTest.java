@@ -52,8 +52,8 @@ import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Test cases for corresponding {@link CIFEXServiceImpl} class.
@@ -142,7 +142,7 @@ public class CIFEXServiceImplTest
         final String password = "pswd";
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPassword(new Password(password));
         prepareForFindUser("blabla", null);
 
         final CIFEXServiceImpl service = createService(null);
@@ -159,7 +159,7 @@ public class CIFEXServiceImplTest
         final String password = "pswd";
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPasswordHash(new Password(password).createPasswordHash());
         prepareForFindUser(userDTO.getUserCode(), userDTO);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
@@ -177,7 +177,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName(null);
         userDTO.setUserCode("user@users.org");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPassword(new Password(password));
         userDTO.setPermanent(true);
         userDTO.setAdmin(true);
         prepareForDBEmptyCheck(true);
@@ -206,7 +206,7 @@ public class CIFEXServiceImplTest
         final String password = "pswd";
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPasswordHash(new Password(password).createPasswordHash());
         prepareForFindUser(userDTO.getUserCode(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
@@ -229,7 +229,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
         userDTO.setAdmin(true);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPassword(new Password(password));
         prepareForFindUser(userDTO.getUserCode(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true, false);
 
@@ -329,7 +329,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
         userDTO.setAdmin(true);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPassword(new Password(password));
         prepareForFindUser(userDTO.getUserCode(), userDTO);
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
@@ -419,7 +419,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName(userName);
         userDTO.setEmail(email);
         userDTO.setExternallyAuthenticated(true);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPasswordHash(new Password(password).createPasswordHash());
         context.checking(new Expectations()
             {
                 {
@@ -494,7 +494,7 @@ public class CIFEXServiceImplTest
         userDTO.setExternallyAuthenticated(true);
         userDTO.setUserFullName(fullName);
         userDTO.setEmail(email);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPasswordHash(new Password(password).createPasswordHash());
         final Principal principal = new Principal(userCode, firstName, lastName, email);
         prepareForExternalAuthentication(userDTO.getUserCode(), password, principal);
         prepareForFindUser(principal.getUserId(), userDTO);
@@ -533,7 +533,7 @@ public class CIFEXServiceImplTest
         oldUserDTO.setUserCode(code);
         oldUserDTO.setUserFullName(oldFullName);
         oldUserDTO.setEmail(email);
-        oldUserDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        oldUserDTO.setPasswordHash(new Password(password).createPasswordHash());
         oldUserDTO.setExternallyAuthenticated(true);
         final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, oldUserDTO);
         newUserDTO.setUserFullName(newFullName);
@@ -575,7 +575,7 @@ public class CIFEXServiceImplTest
         oldUserDTO.setUserCode(code);
         oldUserDTO.setUserFullName(fullName);
         oldUserDTO.setEmail(oldEmail);
-        oldUserDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        oldUserDTO.setPasswordHash(new Password(password).createPasswordHash());
         oldUserDTO.setExternallyAuthenticated(true);
         final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, oldUserDTO);
         newUserDTO.setEmail(newEmail);
@@ -616,7 +616,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserCode(userName);
         userDTO.setUserFullName(firstName + " " + lastName);
         userDTO.setEmail(email);
-        userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+        userDTO.setPasswordHash(new Password(password).createPasswordHash());
         userDTO.setPermanent(true);
         userDTO.setExternallyAuthenticated(true);
         prepareForExternalAuthentication(userName, password, principal);
@@ -628,7 +628,7 @@ public class CIFEXServiceImplTest
                     will(returnValue(null));
                     // We do not store the password of externally authenticated users.
                     final UserDTO createdUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
-                    createdUserDTO.setEncryptedPassword(null);
+                    createdUserDTO.setPasswordHash(null);
                     one(userManager).createUser(createdUserDTO);
                 }
             });
@@ -708,9 +708,12 @@ public class CIFEXServiceImplTest
                     if (createFlag)
                     {
                         one(httpSession).setMaxInactiveInterval(60);
+                        final Password password = userDTO.getPassword();
+                        userDTO.setPassword(null);
                         final UserDTO transferredUserDTO =
                                 BeanUtils.createBean(UserDTO.class, userDTO);
-                        transferredUserDTO.setEncryptedPassword(null);
+                        userDTO.setPassword(password);
+                        transferredUserDTO.setPasswordHash(null);
                         if (resetAdmin)
                         {
                             transferredUserDTO.setAdmin(false);
@@ -768,7 +771,19 @@ public class CIFEXServiceImplTest
                     allowing(httpServletRequest).getRemoteAddr();
                     will(returnValue("someRemoteAddress"));
                     one(userManager).tryFindUserByCode(code);
-                    will(returnValue(userDTO));
+                    final UserDTO dbUserDTO;
+                    if (userDTO != null && Password.isEmpty(userDTO.getPassword()) == false)
+                    {
+                        final Password password = userDTO.getPassword();
+                        userDTO.setPassword(null);
+                        dbUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
+                        userDTO.setPassword(password);
+                        dbUserDTO.setPasswordHash(password.createPasswordHash());
+                    } else
+                    {
+                        dbUserDTO = userDTO;
+                    }
+                    will(returnValue(dbUserDTO));
                 }
             });
     }

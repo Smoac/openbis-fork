@@ -48,6 +48,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.BasicFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -523,7 +523,7 @@ final class FileManager extends AbstractManager implements IFileManager
             final UserDTO user = new UserDTO();
             user.setUserCode(email);
             user.setEmail(email);
-            user.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+            user.setPassword(new Password(password));
             user.setRegistrator(requestUser);
             final IUserBO userBO = boFactory.createUserBO();
             userBO.define(user);

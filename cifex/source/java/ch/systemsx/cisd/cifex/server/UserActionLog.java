@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
@@ -168,7 +169,7 @@ public final class UserActionLog implements IUserActionLog
             result.append(newState);
             result.append(", ");
         }
-        if (StringUtils.equals(oldUser.getEncryptedPassword(), newUser.getEncryptedPassword()) == false)
+        if (Password.equals(oldUser.getPassword(), newUser.getPassword()) == false)
         {
             result.append("PASSWORD, ");
         }

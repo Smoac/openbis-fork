@@ -53,13 +53,13 @@ import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The real <code>ICifexService</code> implementation.
@@ -152,8 +152,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private User finishLogin(final UserDTO userDTO)
     {
-        // Do not transfer the hash value to the client (security).
-        userDTO.setEncryptedPassword(null);
+        // Do not transfer the password or its hash value to the client (security).
+        userDTO.setPassword(null);
+        userDTO.setPasswordHash(null);
         final String sessionToken = createSession(userDTO);
         loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail()
                 + ", session start:" + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
@@ -215,7 +216,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
-    public final User tryLogin(final String userCode, final String password)
+    public final User tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {
         if (operationLog.isDebugEnabled())
@@ -228,7 +229,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             final UserDTO userDTO = new UserDTO();
             userDTO.setUserCode(userCode);
             userDTO.setEmail(userCode);
-            userDTO.setEncryptedPassword(StringUtilities.computeMD5Hash(password));
+            userDTO.setPassword(new Password(plainPassword));
             userDTO.setAdmin(true);
             userDTO.setPermanent(true);
             userManager.createUser(userDTO);
@@ -237,16 +238,15 @@ public final class CIFEXServiceImpl implements ICIFEXService
         UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
         if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
         {
-            userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, password);
+            userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
             if (userDTOOrNull != null)
             {
                 return finishLogin(userDTOOrNull);
             }
         } else
         {
-            final String encryptedPassword = StringUtilities.computeMD5Hash(password);
-            if (StringUtils.isBlank(userDTOOrNull.getEncryptedPassword()) == false
-                    && encryptedPassword.equals(userDTOOrNull.getEncryptedPassword()))
+            final Password password = new Password(plainPassword);
+            if (password.matches(userDTOOrNull.getPasswordHash()))
             {
                 return finishLogin(userDTOOrNull);
             }
@@ -309,7 +309,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 userDTO.setUserCode(code);
                 userDTO.setUserFullName(displayName);
                 userDTO.setEmail(email);
-                userDTO.setEncryptedPassword(null);
+                userDTO.setPassword(null);
                 userDTO.setExternallyAuthenticated(true);
                 userDTO.setAdmin(false);
                 userDTO.setPermanent(true);
@@ -517,7 +517,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     /**
      * Update the fields of the user in the database.
      */
-    public void updateUser(final User user, final String password,
+    public void updateUser(final User user, final String plainPassword,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
@@ -527,13 +527,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         checkUpdateOfUserIsAllowed(userDTO);
 
-        String encryptedPassword = null;
-        if (StringUtils.isNotBlank(password))
-        {
-            encryptedPassword = StringUtilities.computeMD5Hash(password);
-        }
 
-        userManager.updateUser(userDTO, encryptedPassword);
+        userManager.updateUser(userDTO, new Password(plainPassword));
         if (sendUpdateInformationToUser)
         {
             try
@@ -543,9 +538,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
                         new EMailBuilderForUpdateUser(mailClient, this.privGetCurrentUser(),
                                 userDTO);
                 builder.setURL(getBasicURL());
-                if (encryptedPassword != null)
+                if (StringUtils.isNotBlank(plainPassword))
                 {
-                    builder.setPassword(password);
+                    builder.setPassword(plainPassword);
                 }
                 builder.sendEMail();
             } catch (final Exception ex)

@@ -30,12 +30,12 @@ import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * The only <code>IUserManager</code> implementation.
@@ -111,7 +111,7 @@ class UserManager extends AbstractManager implements IUserManager
             EnvironmentFailureException
     {
         final String finalPassword = getFinalPassword(password);
-        user.setEncryptedPassword(StringUtilities.computeMD5Hash(finalPassword));
+        user.setPassword(new Password(finalPassword));
         user.setRegistrator(registrator);
         createUser(user);
         sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
@@ -259,7 +259,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void updateUser(final UserDTO userToUpdate, final String encryptedPassword)
+    public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull)
             throws UserFailureException, IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
@@ -283,13 +283,10 @@ class UserManager extends AbstractManager implements IUserManager
                         .getUserRetention()));
             }
 
-            // Password, renew it or leave it as it is
-            if (StringUtils.isNotBlank(encryptedPassword))
+            // Password, update it if it has been provided.
+            if (Password.isEmpty(passwordOrNull) == false)
             {
-                userToUpdate.setEncryptedPassword(encryptedPassword);
-            } else
-            {
-                userToUpdate.setEncryptedPassword(existingUser.getEncryptedPassword());
+                userToUpdate.setPassword(passwordOrNull);
             }
 
             userDAO.updateUser(userToUpdate);

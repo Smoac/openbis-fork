@@ -34,6 +34,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.db.DBUtils;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 
@@ -69,7 +70,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setUserCode(rs.getString("user_id"));
             user.setEmail(rs.getString("email"));
             user.setUserFullName(rs.getString("full_name"));
-            user.setEncryptedPassword(rs.getString("encrypted_password"));
+            user.setPasswordHash(rs.getString("encrypted_password"));
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
             user.setPermanent(rs.getBoolean("is_permanent"));
@@ -156,13 +157,26 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         final Long registratorIdOrNull = tryGetRegistratorId(user);
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        template.update("insert into users (id, user_id, email, full_name, encrypted_password, "
-                + "is_externally_authenticated, is_admin,"
-                + "is_permanent, user_id_registrator, expiration_timestamp) "
-                + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
-                .getUserFullName(), user.getEncryptedPassword(), user.isExternallyAuthenticated(),
-                user.isAdmin(), user.isPermanent(), registratorIdOrNull, user.getExpirationDate());
-
+        if (Password.isEmpty(user.getPassword()))
+        {
+            template.update("insert into users (id, user_id, email, full_name, "
+                    + "is_externally_authenticated, is_admin,"
+                    + "is_permanent, user_id_registrator, expiration_timestamp) "
+                    + "values (?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
+                    .getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
+                    .isPermanent(), registratorIdOrNull, user.getExpirationDate());
+        } else
+        {
+            template.update(
+                    "insert into users (id, user_id, email, full_name, encrypted_password, "
+                            + "is_externally_authenticated, is_admin,"
+                            + "is_permanent, user_id_registrator, expiration_timestamp) "
+                            + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user
+                            .getEmail(), user.getUserFullName(), user.getPassword()
+                            .createPasswordHash(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
+                            .getExpirationDate());
+        }
         user.setID(id);
     }
 
@@ -230,12 +244,22 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
-        template.update("update users set email = ?, user_id = ?, full_name = ?, "
-                + "encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
-                + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(), user
-                .getUserCode(), user.getUserFullName(), user.getEncryptedPassword(), user
-                .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
-                .getExpirationDate(), user.getID());
+        if (Password.isEmpty(user.getPassword()))
+        {
+            template.update("update users set email = ?, user_id = ?, full_name = ?, "
+                    + "is_externally_authenticated = ?, is_admin = ?,"
+                    + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(),
+                    user.getUserCode(), user.getUserFullName(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), user.getExpirationDate(), user.getID());
+        } else
+        {
+            template.update("update users set email = ?, user_id = ?, full_name = ?, "
+                    + "encrypted_password = ?, is_externally_authenticated = ?, is_admin = ?,"
+                    + "is_permanent = ?, expiration_timestamp = ? where id = ?", user.getEmail(),
+                    user.getUserCode(), user.getUserFullName(), user.getPassword()
+                            .createPasswordHash(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), user.getExpirationDate(), user.getID());
+        }
     }
 
     /**

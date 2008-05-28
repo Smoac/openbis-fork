@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.Password;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogAnnotation;
@@ -108,7 +109,7 @@ public interface IUserManager
      *             should be set temporary.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateUser(UserDTO user, String encryptedPassword) throws UserFailureException,
+    public void updateUser(UserDTO user, Password passwordOrNull) throws UserFailureException,
             IllegalArgumentException;
 
     /**
