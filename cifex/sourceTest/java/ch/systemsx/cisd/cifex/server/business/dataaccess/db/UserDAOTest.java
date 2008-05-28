@@ -316,9 +316,9 @@ public final class UserDAOTest extends AbstractDAOTest
     @Transactional
     public final void testListUsersFileSharedWith()
     {
-        IFileDAO fileDAO = daoFactory.getFileDAO();
-        IUserDAO userDAO = daoFactory.getUserDAO();
-        List<UserDTO> users = userDAO.listUsers();
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> users = userDAO.listUsers();
         Assert.assertTrue(users.size() > 0);
         final UserDTO userDTO = users.get(0);
 
@@ -341,4 +341,29 @@ public final class UserDAOTest extends AbstractDAOTest
         Assert.assertEquals(shared.get(0).getID(), userDTO.getID());
 
     }
+
+    @Test(dependsOnGroups =
+        { "user.create" })
+    @Transactional
+    public final void testChangeUserCode()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final List<UserDTO> users = userDAO.listUsers();
+        Assert.assertTrue(users.size() > 1);
+        final UserDTO userDTO = users.get(0);
+        final String oldCode = userDTO.getUserCode();
+        final String newCode = oldCode + "renamed";
+        final long oldId = userDTO.getID();
+        final UserDTO foundOldUser = userDAO.tryFindUserByCode(oldCode);
+        Assert.assertTrue(userDAO.tryFindUserByCode(newCode) == null);
+        Assert.assertTrue(foundOldUser != null);
+        Assert.assertEquals(foundOldUser.getUserCode(), oldCode);
+        Assert.assertEquals(foundOldUser.getID().longValue(), oldId);
+        userDAO.changeUserCode(oldCode, newCode);
+        final UserDTO foundNewUser = userDAO.tryFindUserByCode(newCode);
+        Assert.assertTrue(foundNewUser != null);
+        Assert.assertEquals(foundNewUser.getUserCode(), newCode);
+        Assert.assertEquals(foundNewUser.getID().longValue(), oldId);
+    }
+
 }

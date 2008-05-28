@@ -108,14 +108,14 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.comment.label
      */
     public String getCommentLabel();
-    
+
     /**
      * Returns label for the Comment field.
      * 
      * @gwt.key edituser.sendUpdateInformation.label
      */
     public String getSendUserUpdateInformationLabel();
-    
+
     /**
      * Returns the label for creating new User
      * 
@@ -321,14 +321,14 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.legend
      */
     public String getFileUploadLegend();
-    
+
     /**
      * Returns the title of the file sharing user dialog.
      * 
      * @gwt.key filesharing.title
      */
     public String getFileSharingTitle(String fileName);
-    
+
     /**
      * Returns the label of the button for adding a new user for file sharing..
      * 
@@ -342,7 +342,7 @@ public interface IMessageResources extends Messages
      * @gwt.key filesharing.adduser.title
      */
     public String getFileSharingAddUserTitle();
-    
+
     /**
      * Returns application description.
      * 
@@ -363,14 +363,14 @@ public interface IMessageResources extends Messages
      * @gwt.key footer.disclaimer.dialog.title
      */
     public String getFooterDisclaimerDialogTitle();
-    
+
     /**
      * Returns title of the disclaimer window dialog.
      * 
      * @gwt.key footer.documentation.dialog.title
      */
     public String getFooterDocumentationDialogTitle();
-    
+
     /**
      * Returns disclaimer link label.
      * 
@@ -384,7 +384,7 @@ public interface IMessageResources extends Messages
      * @gwt.key footer.documentation.link.label
      */
     public String getFooterDocumentationLinkLabel();
-    
+
     /**
      * Returns the 'powered by' label.
      * 
@@ -685,4 +685,25 @@ public interface IMessageResources extends Messages
      * @gwt.key action.stop_sharing.label
      */
     public String getActionStopSharingLabel();
+
+    /**
+     * Returns label for the 'rename' field.
+     * 
+     * @gwt.key action.rename.label
+     */
+    public String getActionRenameLabel();
+
+    /**
+     * Returns title for the 'rename' confirm box.
+     * 
+     * @gwt.key confirm.renaming.title
+     */
+    public String getConfirmRenamingTitle();
+
+    /**
+     * Returns text for the 'rename' confirm box.
+     * 
+     * @gwt.key confirm.renaming.text
+     */
+    public String getConfirmRenamingText(String before, String after);
 }

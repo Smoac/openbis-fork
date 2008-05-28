@@ -244,6 +244,95 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
+    @Test(expectedExceptions = InsufficientPrivilegesException.class)
+    public void testChangeUserCodeByNoAdmin() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
+    {
+        final String before = "before";
+        final String after = "after";
+        final UserDTO userDTO = new UserDTO();
+        final String email = "Email";
+        userDTO.setUserCode(after);
+        userDTO.setEmail(email);
+        userDTO.setAdmin(false);
+        prepareForGettingUserFromHTTPSession(userDTO, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(userManager).tryFindUserByCode(before);
+                    will(returnValue(userDTO));
+                }
+            });
+        final CIFEXServiceImpl service = createService(null);
+        service.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = InsufficientPrivilegesException.class)
+    public void testChangeUserCodeByAdminToHimself() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
+    {
+        final String before = "before";
+        final String after = "after";
+        final UserDTO userDTO = new UserDTO();
+        final String email = "Email";
+        userDTO.setUserCode(before);
+        userDTO.setEmail(email);
+        userDTO.setAdmin(true);
+        prepareForGettingUserFromHTTPSession(userDTO, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(userManager).tryFindUserByCode(before);
+                    will(returnValue(userDTO));
+                }
+            });
+        final CIFEXServiceImpl service = createService(null);
+        service.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = InsufficientPrivilegesException.class)
+    public void testChangeUserCodeByAdminForExternalUser() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
+    {
+        final String before = "before";
+        final String after = "after";
+        final UserDTO userDTO = new UserDTO();
+        final String email = "Email";
+        userDTO.setUserCode("Admin");
+        userDTO.setEmail(email);
+        userDTO.setAdmin(true);
+
+        final UserDTO userToChange = new UserDTO();
+        userToChange.setUserCode(before);
+        userToChange.setEmail(email);
+        userToChange.setExternallyAuthenticated(true);
+        prepareForGettingUserFromHTTPSession(userDTO, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(userManager).tryFindUserByCode(before);
+                    will(returnValue(userToChange));
+                }
+            });
+        final CIFEXServiceImpl service = createService(null);
+        service.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
     @Test
     public void testDeleteFile() throws InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException

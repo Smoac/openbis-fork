@@ -93,7 +93,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
             if (Constants.RENEW_ID.equals(targetId))
             {
                 viewContext.getCifexService().updateFileExpiration(idStr, null,
-                        new UpdateFileAsyncCallback((ModelBasedGrid) grid));
+                        new UpdateFileAsyncCallback((ModelBasedGrid) grid, viewContext, adminView));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
@@ -153,46 +153,6 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     }
 
     /**
-     * An {@link AsyncCallback} that updates the list of files after a file has been updated.
-     */
-    private final class UpdateFileAsyncCallback extends AbstractAsyncCallback
-    {
-        private final ModelBasedGrid modelBasedGrid;
-
-        UpdateFileAsyncCallback(final ModelBasedGrid modelBasedGrid)
-        {
-            super(viewContext);
-            this.modelBasedGrid = modelBasedGrid;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        public final void onSuccess(final Object result)
-        {
-            final AbstractAsyncCallback callback = new AbstractAsyncCallback(viewContext)
-                {
-                    //
-                    // AbstractAsyncCallback
-                    //
-
-                    public final void onSuccess(final Object res)
-                    {
-                        modelBasedGrid.reloadStore((File[]) res);
-                    }
-                };
-            if (adminView)
-            {
-                viewContext.getCifexService().listFiles(callback);
-            } else
-            {
-                viewContext.getCifexService().listUploadedFiles(callback);
-            }
-        }
-    }
-
-    /**
      * An {@link AsyncCallback} that shows the list of users a file has been shared with.
      */
     private final class ShowUsersFileSharedWithAsyncCallback extends AbstractAsyncCallback
@@ -202,10 +162,10 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         final String fileId;
 
-        private BaseExtWidget modelBasedGrid;
+        private final BaseExtWidget modelBasedGrid;
 
-        ShowUsersFileSharedWithAsyncCallback(ModelBasedGrid modelBasedGrid, String name,
-                String idStr)
+        ShowUsersFileSharedWithAsyncCallback(final ModelBasedGrid modelBasedGrid,
+                final String name, final String idStr)
         {
             super(viewContext);
             this.fileName = name;
@@ -215,8 +175,8 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            User[] users = (User[]) result;
-            FileShareUserDialog dialog =
+            final User[] users = (User[]) result;
+            final FileShareUserDialog dialog =
                     new FileShareUserDialog(viewContext, users, fileName, fileId);
             dialog.show(modelBasedGrid.getEl());
 

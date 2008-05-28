@@ -51,7 +51,7 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final static LayoutRegionConfig createCenterRegion()
     {
-        LayoutRegionConfig center = new LayoutRegionConfig();
+        final LayoutRegionConfig center = new LayoutRegionConfig();
         center.setTitlebar(false);
         center.setAutoScroll(true);
         return center;
@@ -59,7 +59,7 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final static LayoutRegionConfig createNorthRegion()
     {
-        LayoutRegionConfig north = new LayoutRegionConfig();
+        final LayoutRegionConfig north = new LayoutRegionConfig();
         north.setSplit(false);
         north.setInitialSize(30);
         north.setTitlebar(false);
@@ -69,7 +69,7 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final static LayoutRegionConfig createSouthRegion()
     {
-        LayoutRegionConfig south = new LayoutRegionConfig();
+        final LayoutRegionConfig south = new LayoutRegionConfig();
         south.setTitlebar(false);
         south.setAutoScroll(false);
         south.setInitialSize(20);
@@ -85,7 +85,7 @@ abstract class AbstractMainPage extends BorderLayout
 
     protected final ViewContext context;
 
-    AbstractMainPage(ViewContext context)
+    AbstractMainPage(final ViewContext context)
     {
         super("100%", "100%", createNorthRegion(), createSouthRegion(), null, null,
                 createCenterRegion());
@@ -93,17 +93,17 @@ abstract class AbstractMainPage extends BorderLayout
         this.messageResources = context.getMessageResources();
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
         add(LayoutRegionConfig.CENTER, createMainPanel());
-        FooterPanel footerPanel = new FooterPanel(context);
-        ContentPanel contentPanel = new ContentPanel();
+        final FooterPanel footerPanel = new FooterPanel(context);
+        final ContentPanel contentPanel = new ContentPanel();
         contentPanel.add(footerPanel);
         add(LayoutRegionConfig.SOUTH, contentPanel);
     }
 
     private ContentPanel createToolbarPanel()
     {
-        User user = context.getModel().getUser();
-        ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
-        Toolbar toolbar = new Toolbar(Ext.generateId());
+        final User user = context.getModel().getUser();
+        final ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
+        final Toolbar toolbar = new Toolbar(Ext.generateId());
         toolbar.addItem(createUserDescription(user));
         if (user.isPermanent() == true)
         {
@@ -128,10 +128,10 @@ abstract class AbstractMainPage extends BorderLayout
         return contentPanel;
     }
 
-    private ToolbarTextItem createUserDescription(User user)
+    private ToolbarTextItem createUserDescription(final User user)
     {
-        StringBuffer buffer = new StringBuffer();
-        String fullUserName = user.getUserFullName();
+        final StringBuffer buffer = new StringBuffer();
+        final String fullUserName = user.getUserFullName();
         if (fullUserName != null)
         {
             buffer.append(fullUserName);
@@ -173,7 +173,7 @@ abstract class AbstractMainPage extends BorderLayout
                 // ButtonListenerAdapter
                 //
 
-                public final void onClick(Button button, EventObject e)
+                public final void onClick(final Button button, final EventObject e)
                 {
                     context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
                     context.getModel().getUrlParams().clear();
@@ -199,7 +199,7 @@ abstract class AbstractMainPage extends BorderLayout
                 // ButtonListenerAdapter
                 //
 
-                public final void onClick(Button button, EventObject e)
+                public final void onClick(final Button button, final EventObject e)
                 {
                     context.getPageController().createMainPage();
                 }
@@ -223,7 +223,7 @@ abstract class AbstractMainPage extends BorderLayout
                 // ButtonListenerAdapter
                 //
 
-                public final void onClick(Button button, EventObject e)
+                public final void onClick(final Button button, final EventObject e)
                 {
                     context.getPageController().createEditCurrentUserPage();
                 }
@@ -247,7 +247,7 @@ abstract class AbstractMainPage extends BorderLayout
                 // ButtonListenerAdapter
                 //
 
-                public final void onClick(Button button, EventObject e)
+                public final void onClick(final Button button, final EventObject e)
                 {
                     context.getPageController().createAdminPage();
                 }
@@ -258,12 +258,13 @@ abstract class AbstractMainPage extends BorderLayout
     private final CreateUserWidget createCreateUserWidget(final boolean allowPermanentUsers)
     {
 
-        CreateUserWidget createUserWidget = new CreateUserWidget(context, allowPermanentUsers);
+        final CreateUserWidget createUserWidget =
+                new CreateUserWidget(context, allowPermanentUsers);
         return createUserWidget;
 
     }
 
-    final static VerticalPanel createVerticalPanelPart()
+    static VerticalPanel createVerticalPanelPart()
     {
         final VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.setWidth("100%");
@@ -286,4 +287,5 @@ abstract class AbstractMainPage extends BorderLayout
     }
 
     protected abstract ContentPanel createMainPanel();
+
 }

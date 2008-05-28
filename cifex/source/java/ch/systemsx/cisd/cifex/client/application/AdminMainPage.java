@@ -40,12 +40,14 @@ final class AdminMainPage extends AbstractMainPage
 
     private VerticalPanel listFilesPanel;
 
-    AdminMainPage(ViewContext context)
+    private ModelBasedGrid filesGrid;
+
+    AdminMainPage(final ViewContext context)
     {
         super(context);
     }
 
-    private final void createListFileGrid()
+    private final void loadListFileGrid()
     {
         context.getCifexService().listFiles(new FileAdminAsyncCallback());
     }
@@ -64,11 +66,15 @@ final class AdminMainPage extends AbstractMainPage
         final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
         createUserPanel(true);
 
+        listFilesPanel = createVerticalPanelPart();
+        filesGrid = createFileTable(new File[0]);
+        listFilesPanel.add(createPartTitle(context.getMessageResources().getFilesPartTitle()));
+        listFilesPanel.add(filesGrid);
+
         listUserPanel = createVerticalPanelPart();
         createListUserGrid();
 
-        listFilesPanel = createVerticalPanelPart();
-        createListFileGrid();
+        loadListFileGrid();
 
         mainPanel.add(createUserPanel);
         mainPanel.add(listUserPanel);
@@ -76,9 +82,16 @@ final class AdminMainPage extends AbstractMainPage
         return mainPanel;
     }
 
-    //
-    // Helper classes
-    //
+    private final ModelBasedGrid createFileTable(final File[] files)
+    {
+        final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
+        final ModelBasedGrid fileGrid =
+                new ModelBasedGrid(context.getMessageResources(), files, gridModel);
+        fileGrid.addGridCellListener(new FileDownloadGridCellListener());
+        fileGrid.addGridCellListener(new FileActionGridCellListener(true, context));
+        fileGrid.addGridCellListener(new FileCommentGridCellListener(context));
+        return fileGrid;
+    }
 
     /**
      * An {@link com.google.gwt.user.client.rpc.AsyncCallback} that creates a table with all users
@@ -94,18 +107,13 @@ final class AdminMainPage extends AbstractMainPage
 
         private Widget createUserTable(final User[] users)
         {
-            final IDataGridModel gridModel =
-                    new UserGridModel(context.getMessageResources(), context.getModel().getUser());
+            final IDataGridModel gridModel = new UserGridModel(context);
             final Grid userGrid =
                     new ModelBasedGrid(context.getMessageResources(), users, gridModel);
-            // Delete user function
-            userGrid.addGridCellListener(new UserActionGridCellListener(context));
+            // Delete user and change code function
+            userGrid.addGridCellListener(new UserActionGridCellListener(context, filesGrid));
             return userGrid;
         }
-
-        //
-        // AbstractAsyncCallback
-        //
 
         public final void onSuccess(final Object result)
         {
@@ -126,25 +134,9 @@ final class AdminMainPage extends AbstractMainPage
             super(context);
         }
 
-        private final Widget createFileTable(final File[] files)
-        {
-            final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
-            final ModelBasedGrid fileGrid =
-                    new ModelBasedGrid(context.getMessageResources(), files, gridModel);
-            fileGrid.addGridCellListener(new FileDownloadGridCellListener());
-            fileGrid.addGridCellListener(new FileActionGridCellListener(true, context));
-            fileGrid.addGridCellListener(new FileCommentGridCellListener(context));
-            return fileGrid;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
         public final void onSuccess(final Object result)
         {
-            listFilesPanel.add(createPartTitle(context.getMessageResources().getFilesPartTitle()));
-            listFilesPanel.add(createFileTable((File[]) result));
+            filesGrid.reloadStore((File[]) result);
         }
     }
 

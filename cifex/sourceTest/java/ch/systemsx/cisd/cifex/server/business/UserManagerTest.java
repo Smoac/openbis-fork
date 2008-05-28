@@ -204,6 +204,94 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void changeUserCode()
+    {
+        final String before = "before";
+        final String after = "after";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).tryFindUserByCode(before);
+                    will(returnValue(new UserDTO()));
+                    one(userDAO).tryFindUserByCode(after);
+                    will(returnValue(null));
+                    one(userDAO).changeUserCode(before, after);
+                    one(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public final void changeUserCodeOfNonexistenUser()
+    {
+        final String before = "before";
+        final String after = "after";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).tryFindUserByCode(before);
+                    will(returnValue(null));
+                    one(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public final void changeUserCodeToAlreadyExistingUser()
+    {
+        final String before = "before";
+        final String after = "after";
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).tryFindUserByCode(before);
+                    will(returnValue(new UserDTO()));
+                    one(userDAO).tryFindUserByCode(after);
+                    will(returnValue(new UserDTO()));
+                    one(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "userEmptyCodesBeforeAndAfter", expectedExceptions = UserFailureException.class)
+    public final void changeUserCodeEmpty(final String before, final String after)
+    {
+        userManager.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unused")
+    @DataProvider(name = "userEmptyCodesBeforeAndAfter")
+    private final Object[][] provideUserCodesBeforeAndAfter()
+    {
+
+        final Object[][] data =
+            {
+                { null, null },
+                { "before", null },
+                { null, "after" },
+                { "", "" },
+                { "before", "" },
+                { "", "after" } };
+        return data;
+    }
+
     @SuppressWarnings("unused")
     @DataProvider(name = "listsOfUsers")
     private final Object[][] provideListOfUsers()

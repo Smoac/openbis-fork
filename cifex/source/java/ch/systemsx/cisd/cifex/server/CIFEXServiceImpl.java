@@ -527,7 +527,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
         checkUpdateOfUserIsAllowed(userDTO);
 
-
         userManager.updateUser(userDTO, new Password(plainPassword));
         if (sendUpdateInformationToUser)
         {
@@ -556,7 +555,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     /**
      * Changes the user code from <var>before</var> to <var>after</var>.
-     *//*
+     */
     public void changeUserCode(final String before, final String after)
             throws InvalidSessionException, InsufficientPrivilegesException,
             EnvironmentFailureException
@@ -565,7 +564,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IUserManager userManager = domainModel.getUserManager();
 
         final UserDTO requestUser = privGetCurrentUser();
-        if (requestUser.isAdmin() && requestUser.getUserCode().equals(before) == false)
+        final UserDTO userBefore = userManager.tryFindUserByCode(before);
+        if (requestUser.isAdmin() && requestUser.getUserCode().equals(before) == false
+                && (userBefore == null || userBefore.isExternallyAuthenticated() == false))
         {
             userManager.changeUserCode(before, after);
             final UserDTO user = userManager.tryFindUserByCode(after);
@@ -591,7 +592,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
                     + describeUser(requestUser) + ".");
         }
 
-    }*/
+    }
 
     /** Check if the current user is allowed to update the given user. */
     private final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate)

@@ -85,7 +85,7 @@ final class MainPage extends AbstractMainPage
         verticalPanel.add(createExplanationPanel());
         verticalPanel.add(new FileUploadWidget(context));
         contentPanel.add(verticalPanel);
-        
+
         createListFilesGrid(contentPanel, DOWNLOAD);
         if (user.isPermanent() && user.isAdmin() == false)
         {
@@ -127,7 +127,7 @@ final class MainPage extends AbstractMainPage
 
         private Widget titleWidget;
 
-        private boolean showDownloaded;
+        private final boolean showDownloaded;
 
         FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel,
                 final boolean showDownload)
@@ -197,12 +197,11 @@ final class MainPage extends AbstractMainPage
 
         private Widget createUserTable(final User[] users)
         {
-            final IDataGridModel gridModel =
-                    new UserGridModel(context.getMessageResources(), context.getModel().getUser());
+            final IDataGridModel gridModel = new UserGridModel(context);
             final Grid userGrid =
                     new ModelBasedGrid(context.getMessageResources(), users, gridModel);
             // Delete user function
-            userGrid.addGridCellListener(new UserActionGridCellListener(context));
+            userGrid.addGridCellListener(new UserActionGridCellListener(context, null));
             return userGrid;
         }
 
