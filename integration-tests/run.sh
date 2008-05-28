@@ -588,8 +588,8 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
-    local bds_container=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Barcode_3VCP1/
-    bds_container=$bds_container`ls -1 $bds_container | grep -v '^Temp_' | head -1`/microX_200801011213_3VCP1
+    local bds_container=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_3VCP1/
+    bds_container=$bds_container`ls -1 $bds_container | head -1`/microX_200801011213_3VCP1
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
@@ -601,10 +601,10 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo ==== assert correct content of plate 3VCP1 in store ====
     
     local main_dir=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1
-    local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Barcode_3VCP1/
+    local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Sample_3VCP1/
     assert_dir_exists $raw_data_dir
     # Picks up the first directory found
-    raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir |  grep -v '^Temp_' | head -1`
+    raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir | head -1`
     assert_dir_exists $raw_data_dir
     local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
     assert_dir_exists $raw_data_set
@@ -683,17 +683,17 @@ function assert_correct_content_of_invalid_plate_in_store {
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
-    assert_dir_empty $DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Barcode_$cell_plate
+    assert_dir_empty $DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
     local cell_plate=$1
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local img_analysis=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Barcode_$cell_plate/
+    local img_analysis=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
     assert_dir_exists $img_analysis
     # Picks up the first directory found
-    img_analysis=$img_analysis`ls -1 $img_analysis | grep -v '^Temp_' | head -1`
+    img_analysis=$img_analysis`ls -1 $img_analysis | head -1`
     assert_dir_exists $img_analysis
     assert_same_content $TEST_DATA/$cell_plate $img_analysis/microX_200801011213_$cell_plate
 }
@@ -742,14 +742,15 @@ function assert_correct_content {
     assert_correct_content_of_image_analysis_data 3VCP3
     assert_correct_content_of_image_analysis_data 3VCP4
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
+    # id;procedure_type;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 1 "1;DATA_ACQUISITION;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 2 "2;IMAGE_ANALYSIS;20[0-9]*-2;f;1;U;;"
-    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-3;f;1;U;;"
-    assert_correct_dataset_content_in_database 4 "4;IMAGE_ANALYSIS;20[0-9]*-4;f;5;U;;"
-    assert_correct_dataset_content_in_database 5 "5;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 6 "6;IMAGE_ANALYSIS;20[0-9]*-6;f;7;U;;"
-    assert_correct_dataset_content_in_database 7 "7;UNKNOWN;MICROX-3VCP4;t;;;;"
-    assert_correct_dataset_content_in_database 8 "8;IMAGE_ANALYSIS;20[0-9]*-8;f;5;U;;"
+    assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-2;f;1;U;;"
+    assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-4;f;1;U;;"
+    assert_correct_dataset_content_in_database 7 "7;IMAGE_ANALYSIS;20[0-9]*-6;f;8;U;;"   
+    assert_correct_dataset_content_in_database 8 "8;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 10 "10;IMAGE_ANALYSIS;20[0-9]*-9;f;11;U;;"
+    assert_correct_dataset_content_in_database 11 "11;UNKNOWN;MICROX-3VCP4;t;;;;"
+    assert_correct_dataset_content_in_database 14 "14;IMAGE_ANALYSIS;20[0-9]*-13;f;8;U;;"
 }
 
 function integration_tests {
@@ -833,10 +834,10 @@ else
 		print_help
 		exit 0
 		;;
-            '--assert-content')
-                assert_correct_content
-                exit 0
-                ;;
+		'--assert-content')
+		assert_correct_content
+		exit 0
+		;;
 	    *)
 		echo "Illegal option $1."
 		print_help
