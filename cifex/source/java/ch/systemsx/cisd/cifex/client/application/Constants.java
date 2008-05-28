@@ -48,6 +48,9 @@ public final class Constants
     /** The <code>id</code> attribute value for 'shared' action. */
     public static final String STOP_SHARING_ID = "stop_sharing";
 
+    /** The <code>id</code> attribute value for 'change user code' action. */
+    public static final String CHANGE_USER_CODE_ID = "change_user_code";
+
     private Constants()
     {
         // Can not be instantiated.

@@ -25,6 +25,7 @@ import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -43,9 +44,12 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
     private final ViewContext viewContext;
 
-    UserActionGridCellListener(final ViewContext viewContext)
+    private final ModelBasedGrid fileGrid;
+
+    UserActionGridCellListener(final ViewContext viewContext, final ModelBasedGrid fileGrid)
     {
         this.viewContext = viewContext;
+        this.fileGrid = fileGrid;
     }
 
     private final static String getUserDescription(final Record record)
@@ -58,10 +62,6 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
         }
         return fullName;
     }
-
-    //
-    // GridCellListenerAdapter
-    //
 
     public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex,
             final EventObject e)
@@ -87,11 +87,6 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         .getUserDeleteConfirmText(userDescription),
                         new MessageBox.ConfirmCallback()
                             {
-
-                                //
-                                // ConfirmCallback
-                                //
-
                                 public final void execute(final String btnID)
                                 {
                                     if (btnID.equals("yes"))
@@ -116,16 +111,84 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                         new FindUserAsyncCallback(viewContext, userGrid));
             } else if (Constants.RENEW_ID.equals(targetId))
             {
-                // renew User
+                // Renew User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
                         new RenewUserAsyncCallback(viewContext, userGrid));
+            } else if (Constants.CHANGE_USER_CODE_ID.equals(targetId))
+            {
+                // Change users code
+                assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user cannot change his own code.";
+                MessageBox.prompt("rename user", userCode, new MessageBox.PromptCallback()
+                    {
+
+                        public void execute(final String btnIDPrompt,
+                                final String userCodeAfterRenaming)
+                        {
+                            if (btnIDPrompt.equals("ok"))
+                            {
+                                MessageBox.confirm(messageResources.getConfirmRenamingTitle(),
+                                        messageResources.getConfirmRenamingText(userCode,
+                                                userCodeAfterRenaming),
+                                        new MessageBox.ConfirmCallback()
+                                            {
+                                                public final void execute(final String btnIDConfirm)
+                                                {
+                                                    if (btnIDConfirm.equals("yes"))
+                                                    {
+                                                        viewContext
+                                                                .getCifexService()
+                                                                .changeUserCode(
+                                                                        userCode,
+                                                                        userCodeAfterRenaming,
+                                                                        new UsersFilesRefresherCallback(
+                                                                                viewContext,
+                                                                                userGrid, fileGrid));
+                                                    }
+                                                }
+                                            });
+                            }
+                        }
+
+                    });
+
             }
         }
     }
 
-    //
-    // Helper classes
-    //
+    private static final class UsersFilesRefresherCallback extends AbstractAsyncCallback
+    {
+        private final ModelBasedGrid userGrid;
+
+        private final ModelBasedGrid fileGrid;
+
+        private final ViewContext context;
+
+        public UsersFilesRefresherCallback(final ViewContext context,
+                final ModelBasedGrid userGrid, final ModelBasedGrid fileGrid)
+        {
+            super(context);
+            this.userGrid = userGrid;
+            this.fileGrid = fileGrid;
+            this.context = context;
+
+        }
+
+        public void onSuccess(final Object result)
+        {
+
+            boolean adminView = false;
+            if (context.getHistoryController().getCurrentPage() == Page.ADMIN_PAGE)
+            {
+                adminView = true;
+            }
+            new UserGridRefresherCallback(context, userGrid).onSuccess(result);
+            if (fileGrid != null)
+            {
+                new UpdateFileAsyncCallback(fileGrid, context, adminView).onSuccess(result);
+            }
+        }
+
+    }
 
     private final class FindUserAsyncCallback extends AbstractAsyncCallback
     {
@@ -136,10 +199,6 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             super(context);
             this.grid = grid;
         }
-
-        //
-        // AbstractAsyncCallback
-        //
 
         public final void onSuccess(final Object result)
         {
@@ -152,15 +211,11 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
     {
         final ModelBasedGrid modelBasedGrid;
 
-        public RenewUserAsyncCallback(ViewContext context, final ModelBasedGrid modelBasedGrid)
+        public RenewUserAsyncCallback(final ViewContext context, final ModelBasedGrid modelBasedGrid)
         {
             super(context);
             this.modelBasedGrid = modelBasedGrid;
         }
-
-        //
-        // AbstractAsyncCallback
-        //
 
         public final void onSuccess(final Object result)
         {

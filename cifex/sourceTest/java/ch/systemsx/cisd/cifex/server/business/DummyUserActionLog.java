@@ -31,45 +31,46 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 public class DummyUserActionLog implements IUserActionLog
 {
 
-    public void logCreateUser(UserDTO user, boolean success)
+    public void logCreateUser(final UserDTO user, final boolean success)
     {
     }
 
-    public void logDeleteFile(FileDTO file, boolean success)
+    public void logDeleteFile(final FileDTO file, final boolean success)
     {
     }
 
-    public void logDeleteUser(UserDTO user, boolean success)
+    public void logDeleteUser(final UserDTO user, final boolean success)
     {
     }
 
-    public void logDownloadFile(FileDTO file, boolean success)
+    public void logDownloadFile(final FileDTO file, final boolean success)
     {
     }
 
-    public void logExpireFile(FileDTO file, boolean success)
+    public void logExpireFile(final FileDTO file, final boolean success)
     {
     }
 
-    public void logExpireUser(UserDTO user, boolean success)
+    public void logExpireUser(final UserDTO user, final boolean success)
     {
     }
 
-    public void logFailedLoginAttempt(String userCode)
+    public void logFailedLoginAttempt(final String userCode)
     {
     }
 
-    public void logLogout(HttpSession httpSession)
+    public void logLogout(final HttpSession httpSession)
     {
     }
 
-    public void logRenewFile(FileDTO file, boolean success)
+    public void logRenewFile(final FileDTO file, final boolean success)
     {
     }
 
-    public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
-            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
-            boolean success)
+    public void logShareFiles(final Collection<FileDTO> files,
+            final Collection<UserDTO> usersToShareWith,
+            final Collection<String> emailsOfUsersToShareWith,
+            final Collection<String> invalidEmailAddresses, final boolean success)
     {
     }
 
@@ -77,15 +78,19 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logUpdateUser(UserDTO oldUser, UserDTO newUser, boolean success)
+    public void logUpdateUser(final UserDTO oldUser, final UserDTO newUser, final boolean success)
     {
     }
 
-    public void logUploadFile(String filename, boolean success)
+    public void logUploadFile(final String filename, final boolean success)
     {
     }
 
-    public void logDeleteSharingLink(long fileId, String userCode, boolean success)
+    public void logDeleteSharingLink(final long fileId, final String userCode, final boolean success)
+    {
+    }
+
+    public void logChangeUserCodeUser(final String before, final String after, final boolean success)
     {
     }
 }

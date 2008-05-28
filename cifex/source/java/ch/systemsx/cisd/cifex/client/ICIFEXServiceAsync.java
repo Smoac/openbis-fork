@@ -73,10 +73,16 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /**
      * Update the fields of the user in the database.
+     * 
      * @param sendUserNotification Should the user receive a mail with the new information?
      */
     public void updateUser(final User user, final String password,
             final boolean sendUserNotification, final AsyncCallback callback);
+
+    /**
+     * Changes the user code from <var>before</var> to <var>after</var>.
+     */
+    public void changeUserCode(final String before, final String after, final AsyncCallback callback);
 
     /**
      * Deletes an user given by its <var>userCode</var>.

@@ -238,4 +238,12 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.createSharingLink(fileId, emailsOfUsers);
     }
 
+    public void changeUserCode(final String before, final String after)
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        cifexServiceDelegate.changeUserCode(before, after);
+
+    }
+
 }

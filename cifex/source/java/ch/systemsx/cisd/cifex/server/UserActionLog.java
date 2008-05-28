@@ -67,7 +67,7 @@ public final class UserActionLog implements IUserActionLog
 
     private final IRemoteHostProvider remoteHostProvider;
 
-    public UserActionLog(IRequestContextProvider requestContextProvider)
+    public UserActionLog(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;
         this.remoteHostProvider = new RequestContextProviderAdapter(requestContextProvider);
@@ -81,7 +81,7 @@ public final class UserActionLog implements IUserActionLog
     // Login / Logout
     //
 
-    public void logFailedLoginAttempt(String userCode)
+    public void logFailedLoginAttempt(final String userCode)
     {
         if (authenticationLog.isInfoEnabled())
         {
@@ -101,7 +101,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logLogout(HttpSession httpSession)
+    public void logLogout(final HttpSession httpSession)
     {
         if (authenticationLog.isInfoEnabled())
         {
@@ -121,7 +121,7 @@ public final class UserActionLog implements IUserActionLog
     // Users
     //
 
-    public void logCreateUser(UserDTO user, boolean success)
+    public void logCreateUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -138,7 +138,7 @@ public final class UserActionLog implements IUserActionLog
     {
         TEMPORARY, REGULAR, ADMIN;
 
-        static UserState getState(UserDTO user)
+        static UserState getState(final UserDTO user)
         {
             if (user.isAdmin())
             {
@@ -200,7 +200,7 @@ public final class UserActionLog implements IUserActionLog
         return result.toString();
     }
 
-    public void logUpdateUser(UserDTO oldUser, UserDTO newUser, boolean success)
+    public void logUpdateUser(final UserDTO oldUser, final UserDTO newUser, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -211,7 +211,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logDeleteUser(UserDTO user, boolean success)
+    public void logDeleteUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -221,7 +221,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logExpireUser(UserDTO user, boolean success)
+    public void logExpireUser(final UserDTO user, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -248,12 +248,12 @@ public final class UserActionLog implements IUserActionLog
         return requestContextProvider.getHttpServletRequest().getSession(false);
     }
 
-    private static String getSuccessString(boolean success)
+    private static String getSuccessString(final boolean success)
     {
         return success ? OK : FAILED;
     }
 
-    private static String getUserDescription(UserDTO user)
+    private static String getUserDescription(final UserDTO user)
     {
         String state;
         if (user.isAdmin())
@@ -280,7 +280,7 @@ public final class UserActionLog implements IUserActionLog
     // Files
     //
 
-    public void logUploadFile(String filename, boolean success)
+    public void logUploadFile(final String filename, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -289,14 +289,15 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
-            Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
-            boolean success)
+    public void logShareFiles(final Collection<FileDTO> files,
+            final Collection<UserDTO> usersToShareWith,
+            final Collection<String> emailsOfUsersToShareWith,
+            final Collection<String> invalidEmailAddresses, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
             final String invalidEmailDesc =
-                    (invalidEmailAddresses.size() > 0) ? " [invalid: "
+                    invalidEmailAddresses.size() > 0 ? " [invalid: "
                             + getStringDescription(invalidEmailAddresses) + "]" : "";
             if (success)
             {
@@ -320,11 +321,11 @@ public final class UserActionLog implements IUserActionLog
         public String getDescription(T object);
     }
 
-    private <T> String getDescription(Iterable<T> objects, Descriptor<T> descriptor)
+    private <T> String getDescription(final Iterable<T> objects, final Descriptor<T> descriptor)
     {
         final StringBuilder b = new StringBuilder();
         b.append('{');
-        for (T object : objects)
+        for (final T object : objects)
         {
             b.append(descriptor.getDescription(object));
             b.append(',');
@@ -337,7 +338,7 @@ public final class UserActionLog implements IUserActionLog
         return b.toString();
     }
 
-    private String getFileDescription(FileDTO file)
+    private String getFileDescription(final FileDTO file)
     {
         assert file != null;
 
@@ -351,40 +352,40 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    private String getFileDescriptions(Iterable<FileDTO> files)
+    private String getFileDescriptions(final Iterable<FileDTO> files)
     {
         return getDescription(files, new Descriptor<FileDTO>()
             {
-                public String getDescription(FileDTO file)
+                public String getDescription(final FileDTO file)
                 {
                     return getFileDescription(file);
                 }
             });
     }
 
-    private String getUserDescription(Iterable<UserDTO> users)
+    private String getUserDescription(final Iterable<UserDTO> users)
     {
         return getDescription(users, new Descriptor<UserDTO>()
             {
-                public String getDescription(UserDTO user)
+                public String getDescription(final UserDTO user)
                 {
                     return user.getUserCode();
                 }
             });
     }
 
-    private String getStringDescription(Iterable<String> users)
+    private String getStringDescription(final Iterable<String> users)
     {
         return getDescription(users, new Descriptor<String>()
             {
-                public String getDescription(String str)
+                public String getDescription(final String str)
                 {
                     return str;
                 }
             });
     }
 
-    public void logDeleteFile(FileDTO file, boolean success)
+    public void logDeleteFile(final FileDTO file, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -394,7 +395,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logExpireFile(FileDTO file, boolean success)
+    public void logExpireFile(final FileDTO file, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -403,7 +404,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logRenewFile(FileDTO file, boolean success)
+    public void logRenewFile(final FileDTO file, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
@@ -413,7 +414,7 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logDownloadFile(FileDTO file, boolean success)
+    public void logDownloadFile(final FileDTO file, final boolean success)
     {
         if (accessLog.isInfoEnabled())
         {
@@ -422,13 +423,23 @@ public final class UserActionLog implements IUserActionLog
         }
     }
 
-    public void logDeleteSharingLink(long fileId, String userCode, boolean success)
+    public void logDeleteSharingLink(final long fileId, final String userCode, final boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
                     + String.format("delete_sharing_link between file '%s' and user '%s': %s",
                             fileId, userCode, success));
+        }
+
+    }
+
+    public void logChangeUserCodeUser(final String before, final String after, final boolean success)
+    {
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("change_user_code from '%s' to '%s'", before, after, success));
         }
 
     }

@@ -113,6 +113,16 @@ public interface ICIFEXService extends RemoteService
             InsufficientPrivilegesException, EnvironmentFailureException;
 
     /**
+     * Changes the user code from <var>before</var> to <var>after</var>.
+     * 
+     * @param before - code of the user before renaming
+     * @param after - code of the user after renaming
+     */
+    public void changeUserCode(final String before, final String after)
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException;
+
+    /**
      * Revokes user with given userCode access to file with fileId.
      * 
      * @throws InvalidSessionException, InsufficientPrivilegesException
