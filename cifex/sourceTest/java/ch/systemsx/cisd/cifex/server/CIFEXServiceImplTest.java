@@ -498,7 +498,9 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
-    // @Test FIXME: this test doesn't make sense hence the logic of the application has changed
+    // FIXME 2008-04-15, Bernd Rinn: this test doesn't make sense hence the logic of the application
+    // has changed
+    // @Test
     public void testFailedLoginAtExternalServiceAndInternalService() throws Exception
     {
         final String userName = "u";
