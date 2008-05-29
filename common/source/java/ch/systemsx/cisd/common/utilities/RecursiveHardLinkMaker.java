@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -241,14 +243,42 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
             {
                 public boolean run()
                 {
-                    return ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout
-                            .getMillisToWaitForCompletion(), operationLog, machineLog);
+                    boolean result =
+                            ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout
+                                    .getMillisToWaitForCompletion(), operationLog, machineLog);
+                    // NOTE: we have noticed that sometimes the result is false although the file
+                    // have been copied
+                    if (result == false && destFile.exists()
+                            && checkIfIdenticalContent(file, destFile))
+                    {
+                        machineLog
+                                .warn("Link creator reported failure, but the exact copy of the file '"
+                                        + file.getPath()
+                                        + "' seems to exist in '"
+                                        + destFile.getPath() + "'. Error will be ignored.");
+                        result = true;
+                    }
+                    return result;
                 }
             };
         boolean ok =
                 runRepeatableProcess(processTask, singleFileLinkTimeout.getMaxRetryOnFailure(),
                         singleFileLinkTimeout.getMillisToSleepOnFailure());
         return ok ? destFile : null;
+    }
+
+    private static boolean checkIfIdenticalContent(final File file1, final File file2)
+    {
+        try
+        {
+            return FileUtils.contentEquals(file1, file2);
+        } catch (IOException e)
+        {
+            machineLog
+                    .warn("It was not possible to compare the content of the file to check if creating links worked: "
+                            + e.getMessage());
+        }
+        return false;
     }
 
     private final List<String> createLnCmdLine(final File srcFile, final File destFile)
