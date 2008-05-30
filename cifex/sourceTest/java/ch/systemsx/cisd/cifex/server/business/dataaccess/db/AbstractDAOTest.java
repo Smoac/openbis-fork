@@ -16,41 +16,51 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+
+import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Abstract test case for <i>DAO</i>.
- * <p>
- * Note that the {@link Transactional} does not work with TestNG right now but we keep it anyway to
- * express intention. The real transactions are handled in {@link #beforeMethod()} and
- * {@link #afterMethod()}.
- * </p>
+ * Abstract test case for database related unit testing.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractDAOTest extends AbstractDbUnitTest
+@ContextConfiguration(locations = "file:source/java/applicationContext.xml")
+// In 'commonContext.xml', our transaction manager is called 'transaction-manager' (by default
+// Spring looks for 'transactionManager').
+@TransactionConfiguration(transactionManager = "transaction-manager")
+public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
-    static final String EXCEED_20_CHARACTERS = StringUtils.repeat("A", 21);
-
-    //
-    // TestNG annotations. We put '(alwaysRun = true)' so that these methods get called as well when
-    // we run the 'db'
-    // group for instance (by default, they do not when running groups).
-    //
-
-    @BeforeMethod(alwaysRun = true)
-    public void beforeMethod()
+    static
     {
-        startNewTransaction();
+        LogInitializer.init();
+        // Override default behavior defined in <code>applicationContext.xml</code> file.
+        System.setProperty("database.create-from-scratch", "true");
+        System.setProperty("database.kind", "test");
+        System.setProperty("script-folder", "source");
     }
 
-    @AfterMethod(alwaysRun = true)
-    public final void afterMethod()
+    protected IDAOFactory daoFactory;
+
+    private final void checkDaoFactory()
     {
-        endTransaction();
+        assert daoFactory != null;
+        assert daoFactory.getUserDAO() != null;
+        assert daoFactory.getFileDAO() != null;
+    }
+
+    /**
+     * Sets <code>daoFactory</code>.
+     */
+    @Autowired
+    public final void setDaoFactory(final IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+        checkDaoFactory();
     }
 }

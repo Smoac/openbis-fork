@@ -16,14 +16,20 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.Assert;
+import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -103,7 +109,6 @@ public final class UserDAOTest extends AbstractDAOTest
     //
 
     @Test(groups = "user.create", expectedExceptions = AssertionError.class)
-    @Transactional
     public final void testCreateUserRainyDay()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -123,7 +128,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(dataProvider = "userProvider", groups = "user.create")
-    @Transactional
+    @Rollback(false)
     public final void testCreateUser(final UserDTO userDTO)
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -132,12 +137,10 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.createUser(userDTO);
         assertNotNull(userDTO.getID());
         assertEquals(listUsers.size() + 1, userDAO.listUsers().size());
-        setComplete();
     }
 
     @Test(groups =
         { "user.create" }, dependsOnMethods = "testCreateUser", expectedExceptions = DataAccessException.class)
-    @Transactional
     public final void testCreateUserWithTooLong()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -147,7 +150,6 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "user.create", dependsOnMethods = "testCreateUser", expectedExceptions = DataIntegrityViolationException.class)
-    @Transactional
     public final void testCreateDuplicateUserID()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -160,7 +162,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
-    @Transactional
     public final void testTryFindUserByCode()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -197,7 +198,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
-    @Transactional
     public final void testListUserRegisteredBy()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -221,7 +221,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
-    @Transactional
     public final void testGetNumberOfUsers()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -230,7 +229,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
-    @Transactional
     public final void testListExpiredUsers()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -241,7 +239,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
-    @Transactional
     public final void testListUsers()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -254,7 +251,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.read" }, groups = "user.update")
-    @Transactional
     public final void testUpdateUser()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -295,7 +291,6 @@ public final class UserDAOTest extends AbstractDAOTest
     @Test(dependsOnGroups =
         { "user.update" }, groups =
         { "user.delete" })
-    @Transactional
     public final void testDeleteUser()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
@@ -313,13 +308,12 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" })
-    @Transactional
     public final void testListUsersFileSharedWith()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final List<UserDTO> users = userDAO.listUsers();
-        Assert.assertTrue(users.size() > 0);
+        assertTrue(users.size() > 0);
         final UserDTO userDTO = users.get(0);
 
         final FileDTO fileDTO = new FileDTO(userDTO.getID());
@@ -327,43 +321,42 @@ public final class UserDAOTest extends AbstractDAOTest
         fileDTO.setPath("/me/" + userDTO.getUserFullName() + "/" + MY_FILE_001_TXT);
         fileDTO.setExpirationDate(new Date(new Long("1222249782000").longValue()));
         fileDAO.createFile(fileDTO);
-        Assert.assertEquals(fileDAO.listUploadedFiles(userDTO.getID()).size(), 1);
+        assertEquals(fileDAO.listUploadedFiles(userDTO.getID()).size(), 1);
         List<UserDTO> shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
-        Assert.assertTrue(shared != null);
-        Assert.assertEquals(shared.size(), 0);
+        assertTrue(shared != null);
+        assertEquals(shared.size(), 0);
 
         fileDAO.createSharingLink(fileDTO.getID(), userDTO.getID());
         shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
-        Assert.assertEquals(shared.size(), 1);
-        Assert.assertEquals(shared.get(0).getEmail(), userDTO.getEmail());
-        Assert.assertEquals(shared.get(0).getUserCode(), userDTO.getUserCode());
-        Assert.assertEquals(shared.get(0).getUserFullName(), userDTO.getUserFullName());
-        Assert.assertEquals(shared.get(0).getID(), userDTO.getID());
+        assertEquals(shared.size(), 1);
+        assertEquals(shared.get(0).getEmail(), userDTO.getEmail());
+        assertEquals(shared.get(0).getUserCode(), userDTO.getUserCode());
+        assertEquals(shared.get(0).getUserFullName(), userDTO.getUserFullName());
+        assertEquals(shared.get(0).getID(), userDTO.getID());
 
     }
 
     @Test(dependsOnGroups =
         { "user.create" })
-    @Transactional
     public final void testChangeUserCode()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final List<UserDTO> users = userDAO.listUsers();
-        Assert.assertTrue(users.size() > 1);
+        assertTrue(users.size() > 1);
         final UserDTO userDTO = users.get(0);
         final String oldCode = userDTO.getUserCode();
         final String newCode = oldCode + "renamed";
         final long oldId = userDTO.getID();
         final UserDTO foundOldUser = userDAO.tryFindUserByCode(oldCode);
-        Assert.assertTrue(userDAO.tryFindUserByCode(newCode) == null);
-        Assert.assertTrue(foundOldUser != null);
-        Assert.assertEquals(foundOldUser.getUserCode(), oldCode);
-        Assert.assertEquals(foundOldUser.getID().longValue(), oldId);
+        assertTrue(userDAO.tryFindUserByCode(newCode) == null);
+        assertTrue(foundOldUser != null);
+        assertEquals(foundOldUser.getUserCode(), oldCode);
+        assertEquals(foundOldUser.getID().longValue(), oldId);
         userDAO.changeUserCode(oldCode, newCode);
         final UserDTO foundNewUser = userDAO.tryFindUserByCode(newCode);
-        Assert.assertTrue(foundNewUser != null);
-        Assert.assertEquals(foundNewUser.getUserCode(), newCode);
-        Assert.assertEquals(foundNewUser.getID().longValue(), oldId);
+        assertTrue(foundNewUser != null);
+        assertEquals(foundNewUser.getUserCode(), newCode);
+        assertEquals(foundNewUser.getID().longValue(), oldId);
     }
 
 }

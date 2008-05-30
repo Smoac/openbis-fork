@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -147,7 +154,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(0, files.size());
         // create new sample file
         final FileDTO sampleFile = createSampleFile();
-                assertNull(sampleFile.getID());
+        assertNull(sampleFile.getID());
         // save file in database
         fileDAO.createFile(sampleFile);
         assertNotNull(sampleFile.getID());

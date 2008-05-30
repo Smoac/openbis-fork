@@ -219,6 +219,9 @@
             <lib dir="${lib}/spring">
                 <include name="spring.jar" />
             </lib>
+            <lib dir="${lib}/spring/webmvc">
+                <include name="spring-webmvc.jar" />
+            </lib>
             <lib dir="${gwt.lib}">
                 <include name="gwt-servlet.jar" />
             </lib>

@@ -6,13 +6,12 @@
 	<classpathentry kind="lib" path="/libraries/gwt/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/h2-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/authentication"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
 	<classpathentry kind="lib" path="/libraries/commons-pool/commons-pool.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-mock.jar" sourcepath="/libraries/spring/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar"/>
@@ -32,5 +31,7 @@
 	<classpathentry kind="lib" path="/libraries/args4j/args4j.jar" sourcepath="/libraries/args4j/args4j-src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-java5-threadpool.jar" sourcepath="/libraries/jetty/src/jetty-java5-threadpool.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-sslengine.jar" sourcepath="/libraries/jetty/src/jetty-sslengine.zip"/>
+	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
