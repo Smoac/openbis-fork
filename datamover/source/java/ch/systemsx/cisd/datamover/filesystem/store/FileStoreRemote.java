@@ -22,12 +22,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
-import ch.systemsx.cisd.common.highwatermark.RemoteFreeSpaceProvider;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -39,7 +37,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 
 /**
@@ -57,31 +54,54 @@ public class FileStoreRemote extends FileStore
 
     private static final long LONG_SSH_TIMEOUT_MILIS = 15 * 1000;
 
-    private static final String DIRECTORY_AVAILABLE_RESULT = "ok";
+    // -- bash commands -------------
 
-    private final static String BASH_FIND_PRINT_TIME_FROM_EPOCHE = " -printf \"%T@\\n\" ";
+    // Creates bash command. The command returns the age of the most recently modified file as the
+    // number of seconds (note that it's not in miliseconds!) form the epoch
+    private static String mkFindYoungestModificationTimestampSecCommand(String path, String findExec)
+    {
+        return findExec + " " + path + " -printf \"%T@\\n\" | sort -n | head -1 ";
+    }
 
-    private final static String BASH_SELECT_YOUNGEST_TIMESTAMP = " | sort -n | head -1 ";
-
-    private final static String BASH_CHECK_IF_COMMAND_EXISTS = "type -p ";
-
+    // Creates bash command. The command deletes file or recursively deletes the whole directory.
+    // Be careful!
     private static String mkDeleteFileCommand(String pathString)
     {
         return "rm -fr " + pathString;
     }
 
+    // Creates bash command. The command returns 0 and its output is empty if the path is a readable
+    // and writable directory
     private static String mkCheckDirectoryFullyAccessibleCommand(String path)
     {
         // %1$s references always the first argument
         return String.format("if [ -d %1$s -a -w %1$s -a -r %1$s -a -x %1$s ]; then "
-                + "echo %2$s; else echo null; fi", path, DIRECTORY_AVAILABLE_RESULT);
+                + "exit 0; else echo false; fi", path);
+    }
+
+    // Creates bash command. The command returns 0 and its output is empty if the path is an
+    // existing file or directory
+    private static String mkCheckFileExistsCommand(String path)
+    {
+        return String.format("if [ -e %s ]; then exit 0; else echo false; fi", path);
+    }
+
+    // Creates bash command. The command returns 0 if the command exists and is a file
+    private static String mkCheckCommandExistsCommand(String commandName)
+    {
+        return "type -p " + commandName;
+    }
+
+    // Creates bash command. The command returns the list of files inside the directory, sorted by
+    // modification time, oldest first
+    private static String mkListByOldestModifiedCommand(String directoryPath)
+    {
+        return "ls -1 -t -r " + directoryPath;
     }
 
     // ---------------
 
-    private final File sshExecutable;
-
-    private final IStoreItemExistsChecker storeItemExistsChecker;
+    private final ISshCommandBuilder sshCommandBuilder;
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
@@ -90,13 +110,21 @@ public class FileStoreRemote extends FileStore
     public FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
             final String kind, final IFileSysOperationsFactory factory)
     {
-        super(fileWithHighwaterMark, host, true, kind, factory);
+        this(fileWithHighwaterMark, host, kind, createSshCommandBuilder(findSSHOrDie(factory)),
+                factory);
+    }
+
+    // exposed for tests
+    FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+            final String kind, final ISshCommandBuilder sshCommandBuilder,
+            final IFileSysOperationsFactory factory)
+    {
+        super(fileWithHighwaterMark, host, kind, factory);
         assert host != null : "Unspecified host";
-        this.sshExecutable = findSSHOrDie(factory);
+        this.sshCommandBuilder = sshCommandBuilder;
         this.highwaterMarkWatcher =
-                createHighwaterMarkWatcher(fileWithHighwaterMark, host, sshExecutable);
+                createHighwaterMarkWatcher(fileWithHighwaterMark, host, sshCommandBuilder);
         this.remoteFindExecutableOrNull = null;
-        this.storeItemExistsChecker = createStoreItemExistsChecker(factory, getPath(), host);
     }
 
     private static File findSSHOrDie(final IFileSysOperationsFactory factory)
@@ -111,10 +139,10 @@ public class FileStoreRemote extends FileStore
 
     private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
             final FileWithHighwaterMark fileWithHighwaterMark, final String host,
-            final File sshExecutable)
+            final ISshCommandBuilder sshCommandBuilder)
     {
         final IFreeSpaceProvider freeSpaceProvider =
-                new RemoteFreeSpaceProvider(host, sshExecutable);
+                new RemoteFreeSpaceProvider(host, sshCommandBuilder);
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(fileWithHighwaterMark.getHighwaterMark(),
                         freeSpaceProvider);
@@ -134,9 +162,8 @@ public class FileStoreRemote extends FileStore
     public final Status delete(final StoreItem item)
     {
         String pathString = StoreItem.asFile(getPath(), item).getPath();
-        String simpleCmd = mkDeleteFileCommand(pathString);
-        List<String> cmdLine = createSshCommand(simpleCmd);
-        ProcessResult result = tryExecuteCommand(cmdLine, QUICK_SSH_TIMEOUT_MILIS);
+        String cmd = mkDeleteFileCommand(pathString);
+        ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
         String errMsg = tryGetErrorMessage(result);
         if (errMsg == null)
         {
@@ -147,29 +174,17 @@ public class FileStoreRemote extends FileStore
         }
     }
 
-    private interface IStoreItemExistsChecker
-    {
-        boolean exists(final StoreItem item);
-    }
-
-    private static IStoreItemExistsChecker createStoreItemExistsChecker(
-            final IFileSysOperationsFactory factory, final File parentPath, final String host)
-    {
-        return new IStoreItemExistsChecker()
-            {
-                private final IPathCopier copier = factory.getCopier(false);
-
-                public boolean exists(StoreItem item)
-                {
-                    File itemFile = StoreItem.asFile(parentPath, item);
-                    return copier.existsRemotely(itemFile, host);
-                }
-            };
-    }
-
     public final boolean exists(final StoreItem item)
     {
-        return storeItemExistsChecker.exists(item);
+        File itemFile = StoreItem.asFile(getPath(), item);
+        String cmd = mkCheckFileExistsCommand(itemFile.getPath());
+        ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
+        return isSuccessfulCheck(result);
+    }
+
+    private boolean isSuccessfulCheck(ProcessResult result)
+    {
+        return result.isOK() && result.getProcessOutput().size() == 0;
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
@@ -188,22 +203,19 @@ public class FileStoreRemote extends FileStore
         String itemPath = StoreItem.asFile(getPath(), item).getPath();
 
         String findExec = getRemoteFindExecutableOrDie();
-        String localCmd =
-                findExec + " " + itemPath + BASH_FIND_PRINT_TIME_FROM_EPOCHE
-                        + BASH_SELECT_YOUNGEST_TIMESTAMP;
-        List<String> cmdLine = createSshCommand(localCmd);
-        ProcessResult result = tryExecuteCommand(cmdLine, LONG_SSH_TIMEOUT_MILIS);
+        String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
+        ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILIS);
         String errMsg = tryGetErrorMessage(result);
         if (errMsg == null)
         {
             String resultLine = result.getProcessOutput().get(0);
             try
             {
-                return Long.parseLong(resultLine);
+                return Long.parseLong(resultLine) * 1000;
             } catch (NumberFormatException e)
             {
-                throw new EnvironmentFailureException("The result of " + cmdLine
-                        + " should be a number but was: " + result.getProcessOutput());
+                throw new EnvironmentFailureException("The result of " + cmd + " on remote host "
+                        + getHost() + "should be a number but was: " + result.getProcessOutput());
             }
         } else
         {
@@ -269,8 +281,8 @@ public class FileStoreRemote extends FileStore
             { "gfind", "find" };
         for (String findExec : findExecutables)
         {
-            List<String> cmdLine = createSshCommand(BASH_CHECK_IF_COMMAND_EXISTS + findExec);
-            ProcessResult result = tryExecuteCommand(cmdLine, QUICK_SSH_TIMEOUT_MILIS);
+            String cmd = mkCheckCommandExistsCommand(findExec);
+            ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
             if (result.isOK())
             {
                 setFindExecutable(findExec);
@@ -287,35 +299,21 @@ public class FileStoreRemote extends FileStore
 
     private String tryCheckDirectoryAccessible(String pathString, final long timeOutMillis)
     {
-        String simpleCmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
-        List<String> cmdLine = createSshCommand(simpleCmd);
-        ProcessResult result = tryExecuteCommand(cmdLine, timeOutMillis);
-        String errMsg = tryGetErrorMessage(result);
-        if (errMsg == null)
-        {
-            return isDirectoryFullyAccessibleParseResult(result) ? null
-                    : "Directory not accesible: " + getHost() + ":" + pathString;
-        } else
-        {
-            return errMsg;
-        }
+        String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
+        ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
+        return isSuccessfulCheck(result) ? null
+                : ("Directory not accesible: " + getHost() + ":" + pathString);
     }
 
-    private List<String> createSshCommand(String cmd)
+    private static ISshCommandBuilder createSshCommandBuilder(final File sshExecutable)
     {
-        return ProcessExecutionHelper.createSshCommand(cmd, sshExecutable, getHost());
-    }
-
-    private boolean isDirectoryFullyAccessibleParseResult(ProcessResult result)
-    {
-        List<String> processOutput = result.getProcessOutput();
-        if (processOutput.size() != 1)
-        {
-            machineLog.error("Unexpected output of '" + result.getCommandLine() + "' command: "
-                    + processOutput);
-        }
-        String resultLine = processOutput.get(0);
-        return resultLine.equals(DIRECTORY_AVAILABLE_RESULT);
+        return new ISshCommandBuilder()
+            {
+                public List<String> createSshCommand(String cmd, String host)
+                {
+                    return ProcessExecutionHelper.createSshCommand(cmd, sshExecutable, host);
+                }
+            };
     }
 
     @Override
@@ -339,9 +337,27 @@ public class FileStoreRemote extends FileStore
 
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
-        // TODO 2008-05-22, Tomasz Pylak: implement this to have ssh tunelling for incoming
-        // directories too
-        throw new NotImplementedException();
+        String simpleCmd = mkListByOldestModifiedCommand(getPathString());
+        ProcessResult result = tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILIS);
+        if (result.isOK())
+        {
+            return asStoreItems(result.getProcessOutput());
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static StoreItem[] asStoreItems(List<String> lines)
+    {
+        StoreItem[] items = new StoreItem[lines.size()];
+        int i = 0;
+        for (String line : lines)
+        {
+            items[i] = new StoreItem(line);
+            i++;
+        }
+        return items;
     }
 
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
@@ -351,9 +367,9 @@ public class FileStoreRemote extends FileStore
 
     // -----------------------
 
-    // null if fails
-    private ProcessResult tryExecuteCommand(final List<String> cmdLine, final long timeOutMillis)
+    private ProcessResult tryExecuteCommandRemotely(String localCmd, long timeOutMillis)
     {
+        List<String> cmdLine = sshCommandBuilder.createSshCommand(localCmd, getHost());
         ProcessResult result =
                 ProcessExecutionHelper.run(cmdLine, timeOutMillis, operationLog, machineLog);
         result.log();

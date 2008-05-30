@@ -102,7 +102,6 @@ public final class FileStoreFactory
     {
         if (hostOrNull != null)
         {
-            assert isRemote == true;
             return createRemoteHost(path, hostOrNull, kind, factory);
         } else
         {

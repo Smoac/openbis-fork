@@ -46,19 +46,16 @@ public abstract class FileStore implements IFileStore
 
     private final String kind;
 
-    private final boolean remote;
-
     protected final IFileSysOperationsFactory factory;
 
     protected FileStore(final FileWithHighwaterMark fileWithHighwaterMark, final String hostOrNull,
-            final boolean remote, final String kind, final IFileSysOperationsFactory factory)
+            final String kind, final IFileSysOperationsFactory factory)
     {
         assert fileWithHighwaterMark != null;
         assert kind != null;
         this.fileWithHighwaterMark = fileWithHighwaterMark;
         this.kind = kind;
         this.hostOrNull = hostOrNull;
-        this.remote = remote;
         this.factory = factory;
     }
 
@@ -139,20 +136,6 @@ public abstract class FileStore implements IFileStore
     {
         return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item)
                 .getAbsolutePath());
-    }
-
-    /**
-     * Returns <code>true</code>, if the file store resides on a remote computer and
-     * <code>false</code> otherwise.
-     * <p>
-     * Note that even if this method returns <code>true</code> paths on this file system might be
-     * reached via local file system operation, if the remote file system is provided as a remote
-     * share and mounted via NFS or CIFS.
-     * </p>
-     */
-    public final boolean isRemote()
-    {
-        return remote;
     }
 
     public final boolean isParentDirectory(final IFileStore child)

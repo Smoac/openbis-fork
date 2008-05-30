@@ -174,7 +174,7 @@ public class CopyActivityMonitorTest
         final FileWithHighwaterMark fileWithHighwaterMark = new FileWithHighwaterMark(directory);
         final FileStoreLocal localImpl =
                 new FileStoreLocal(fileWithHighwaterMark, "input-test", factory);
-        return new FileStore(fileWithHighwaterMark, null, false, "input-test", factory)
+        return new FileStore(fileWithHighwaterMark, null, "input-test", factory)
             {
                 public Status delete(StoreItem item)
                 {

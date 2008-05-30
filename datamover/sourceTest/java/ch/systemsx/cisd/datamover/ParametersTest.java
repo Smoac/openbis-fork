@@ -378,7 +378,6 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         assertEquals(extraCopyDir, parameters.tryGetExtraCopyDir().getPath());
         assertEquals(1000 * checkIntervall, parameters.getCheckIntervalMillis());
         assertEquals(1000 * quietPeriod, parameters.getQuietPeriodMillis());
-        assertTrue(incomingStore.isRemote());
         assertTrue(parameters.isRsyncOverwrite());
     }
 

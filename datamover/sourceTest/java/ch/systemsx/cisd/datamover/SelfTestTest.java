@@ -110,11 +110,6 @@ public class SelfTestTest
                     throw new AssertionError();
                 }
 
-                public boolean existsRemotely(File destinationDirectory, String destinationHost)
-                {
-                    throw new AssertionError();
-                }
-
                 public boolean terminate()
                 {
                     return true;

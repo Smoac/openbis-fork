@@ -29,17 +29,6 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 public interface IFileStore extends ISelfTestable
 {
-
-    /**
-     * Returns <code>true</code>, if the file store resides on a remote computer and
-     * <code>false</code> otherwise.
-     * <p>
-     * Note that even if this method returns <code>true</code> paths on this file system might be
-     * reached via local file system operation, if the remote file system is provided as a remote
-     * share and mounted via NFS or CIFS.
-     */
-    public boolean isRemote();
-
     /**
      * Returns the location of the specified store item.
      */

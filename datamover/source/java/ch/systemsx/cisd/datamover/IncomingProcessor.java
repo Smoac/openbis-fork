@@ -307,11 +307,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 operationLog.debug("Recovery starts.");
             }
-            if (incomingStore.isRemote())
-            {
-                recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
-                        .getCopyCompleteDir());
-            }
+            recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
+                    .getCopyCompleteDir());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Recovery is finished.");

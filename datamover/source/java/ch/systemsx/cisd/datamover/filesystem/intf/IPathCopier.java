@@ -73,10 +73,4 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory);
-
-    /**
-     * @return <code>true</code> iff <var>destinationDirectory</var> on host <var>destinationHost</var>
-     *         exists.
-     */
-    public boolean existsRemotely(File destinationDirectory, String destinationHost);
 }

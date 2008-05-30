@@ -44,7 +44,7 @@ public final class FileStoreRemoteMounted extends FileStore
     public FileStoreRemoteMounted(final FileWithHighwaterMark file, final String desription,
             final IFileSysOperationsFactory factory)
     {
-        super(file, null, true, desription, factory);
+        super(file, null, desription, factory);
         this.localImpl = new FileStoreLocal(file, desription, factory);
     }
 
