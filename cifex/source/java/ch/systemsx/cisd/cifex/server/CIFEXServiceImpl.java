@@ -454,6 +454,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         checkCreateUserAllowed(user);
         final IUserManager userManager = domainModel.getUserManager();
 
+        ensureUserCodeNotReservedByExternalAuthenticationService(user);
+
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registratorOrNull);
         try
@@ -467,6 +469,42 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             throw new EnvironmentFailureException(ex.getMessage());
         }
+    }
+
+    private void ensureUserCodeNotReservedByExternalAuthenticationService(final User user)
+            throws EnvironmentFailureException
+    {
+        if (hasExternalAuthenticationService())
+        {
+            final String applicationToken = externalAuthenticationService.authenticateApplication();
+            final String userOrEmail = user.getUserCode();
+            if (applicationToken == null)
+            {
+                final String msg =
+                        "Authentication of the application at the external authentication service failed.";
+                throw new EnvironmentFailureException(msg);
+            }
+
+            if (userExistsInExternalService(applicationToken, userOrEmail))
+            {
+                throw new EnvironmentFailureException(String.format(
+                        "Username '%s' is reserved by external authentication service.",
+                        userOrEmail));
+            }
+        }
+    }
+
+    private boolean userExistsInExternalService(final String applicationToken,
+            final String userOrEmail)
+    {
+        try
+        {
+            externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
+        } catch (final IllegalArgumentException e)
+        {
+            return false;
+        }
+        return true;
     }
 
     private String getBasicURL()

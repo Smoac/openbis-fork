@@ -46,6 +46,7 @@ import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
+import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.cifex.server.business.DummyUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
@@ -281,6 +282,132 @@ public class CIFEXServiceImplTest
             });
         final CIFEXServiceImpl service = createService(null);
         service.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = EnvironmentFailureException.class)
+    public void testCreateUserExistingInExternalService() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException, UserFailureException
+    {
+        final User userToCreate = new User();
+        userToCreate.setEmail(DEFAULT_USER_EMAIL);
+        userToCreate.setUserCode(DEFAULT_USER_CODE);
+        userToCreate.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        final UserDTO admin = new UserDTO();
+        admin.setAdmin(true);
+        admin.setEmail("admin@admins.com");
+        admin.setUserCode("admin");
+        admin.setPermanent(true);
+        prepareForGettingUserFromHTTPSession(admin, false);
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
+
+                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
+                            userToCreate.getUserCode());
+
+                }
+            });
+        final CIFEXServiceImpl service = createService(authenticationService);
+        service.createUser(userToCreate, "pass", BeanUtils.createBean(User.class, admin),
+                "My great new user");
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateUserNotExistingInExternalService() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException, UserFailureException
+    {
+        final String password = "pass";
+        final User userToCreate = new User();
+        userToCreate.setEmail(DEFAULT_USER_EMAIL);
+        userToCreate.setUserCode(DEFAULT_USER_CODE);
+        userToCreate.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        final UserDTO admin = new UserDTO();
+        admin.setAdmin(true);
+        admin.setEmail("admin@admins.com");
+        admin.setUserCode("admin");
+        admin.setPermanent(true);
+        prepareForGettingUserFromHTTPSession(admin, false);
+        final String comment = "My great new user";
+        final String requestUrl = "http://cifex.org/cifex/file-upload";
+        final String basicUrl = "http://cifex.org/cifex";
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
+
+                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
+                            userToCreate.getUserCode());
+                    will(throwException(new IllegalArgumentException()));
+
+                    one(httpServletRequest).getRequestURL();
+                    will(returnValue(new StringBuffer(requestUrl)));
+
+                    one(userManager).createUserAndSendEmail(
+                            BeanUtils.createBean(UserDTO.class, userToCreate), password, admin,
+                            comment, basicUrl);
+
+                }
+            });
+        final CIFEXServiceImpl service = createService(authenticationService);
+        service
+                .createUser(userToCreate, password, BeanUtils.createBean(User.class, admin),
+                        comment);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateUserNoExternalAuthenticationServiceAvailable()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException, UserFailureException
+    {
+        final String password = "pass";
+        final User userToCreate = new User();
+        userToCreate.setEmail(DEFAULT_USER_EMAIL);
+        userToCreate.setUserCode(DEFAULT_USER_CODE);
+        userToCreate.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        final UserDTO admin = new UserDTO();
+        admin.setAdmin(true);
+        admin.setEmail("admin@admins.com");
+        admin.setUserCode("admin");
+        admin.setPermanent(true);
+        prepareForGettingUserFromHTTPSession(admin, false);
+        final String comment = "My great new user";
+        final String requestUrl = "http://cifex.org/cifex/file-upload";
+        final String basicUrl = "http://cifex.org/cifex";
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                    one(httpServletRequest).getRequestURL();
+                    will(returnValue(new StringBuffer(requestUrl)));
+
+                    one(userManager).createUserAndSendEmail(
+                            BeanUtils.createBean(UserDTO.class, userToCreate), password, admin,
+                            comment, basicUrl);
+
+                }
+            });
+        final CIFEXServiceImpl service = createService(null);
+        service
+                .createUser(userToCreate, password, BeanUtils.createBean(User.class, admin),
+                        comment);
         context.assertIsSatisfied();
     }
 
@@ -1199,4 +1326,5 @@ public class CIFEXServiceImplTest
 
         context.assertIsSatisfied();
     }
+
 }

@@ -28,13 +28,13 @@ public class HttpUtils
      */
     public static String getBasicURL(final HttpServletRequest request)
     {
-        StringBuffer requestURL = request.getRequestURL();
+        final StringBuffer requestURL = request.getRequestURL();
         String url = requestURL.toString();
         if (url.endsWith("/"))
         {
             url = url.substring(0, url.length() - 1);
         }
-        int indexOfLastSeparator = url.lastIndexOf("/");
+        final int indexOfLastSeparator = url.lastIndexOf("/");
         return url.substring(0, indexOfLastSeparator);
     }
 
