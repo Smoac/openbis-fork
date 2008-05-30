@@ -60,7 +60,7 @@
       <zipfileset dir="${original.dist}" excludes="**.download-service.sh" prefix="${mainfolder}" />
       <zipfileset file="${original.dist}.download-service.sh" filemode="755" prefix="${mainfolder}" />
     </zip>
-    <delete dir="${dist.download-service.lib}" />
+    <delete dir="${dist.download-service}" />
   </target>
 	
   <target name="ci" depends="run-tests, check-dependencies, dist"/>
