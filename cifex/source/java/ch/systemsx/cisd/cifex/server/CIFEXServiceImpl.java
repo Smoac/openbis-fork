@@ -216,6 +216,88 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, privGetCurrentUser());
     }
 
+    public final User trySwitchToExternalAuthentication(final String userCode,
+            final String plainPassword) throws EnvironmentFailureException,
+            InvalidSessionException, InsufficientPrivilegesException
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Try to switch to external authentication user '" + userCode + "'.");
+        }
+        ensureHasExternalAuthentication(userCode);
+
+        final IUserManager userManager = domainModel.getUserManager();
+        UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
+        ensureUserExistsInDatabase(userCode, userDTOOrNull);
+        ensureUserIsNotExternallyAuthenticated(userCode, userDTOOrNull);
+
+        userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
+
+        if (userDTOOrNull != null)
+        {
+            userDTOOrNull.setExternallyAuthenticated(true);
+            userDTOOrNull.setExpirationDate(null);
+            userDTOOrNull.setPermanent(true);
+            userDTOOrNull.setRegistrator(null);
+
+            userManager.updateUser(userDTOOrNull, null);
+
+            copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
+
+            userBehaviorLog.logSwitchToExternalAuthentication(userCode, true);
+            return BeanUtils.createBean(User.class, userDTOOrNull);
+        } else
+        {
+            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            throw new InsufficientPrivilegesException("Password incorrect.");
+        }
+
+    }
+
+    private void ensureUserIsNotExternallyAuthenticated(final String userCode,
+            final UserDTO userDTOOrNull) throws EnvironmentFailureException
+    {
+        if (userDTOOrNull.isExternallyAuthenticated())
+        {
+            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            throw new EnvironmentFailureException(String.format(
+                    "User with code '%s' is already authenticated externally.", userCode));
+        }
+    }
+
+    private void ensureUserExistsInDatabase(final String userCode, final UserDTO userDTOOrNull)
+            throws EnvironmentFailureException
+    {
+        if (userDTOOrNull == null)
+        {
+            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            throw new EnvironmentFailureException(String.format(
+                    "User with code '%s' does not exist.", userCode));
+        }
+    }
+
+    private void ensureHasExternalAuthentication(final String userCode)
+            throws EnvironmentFailureException
+    {
+        if (hasExternalAuthenticationService() == false)
+        {
+            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            throw new EnvironmentFailureException("No external authentication service available.");
+        }
+    }
+
+    private void copyUserDetailsExceptCode(final UserDTO to, final UserDTO from)
+    {
+        to.setAdmin(from.isAdmin());
+        to.setEmail(from.getEmail());
+        to.setExpirationDate(from.getExpirationDate());
+        to.setExternallyAuthenticated(from.isExternallyAuthenticated());
+        to.setPermanent(from.isPermanent());
+        to.setRegistrationDate(from.getRegistrationDate());
+        to.setRegistrator(from.getRegistrator());
+        to.setUserFullName(from.getUserFullName());
+    }
+
     public final User tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {

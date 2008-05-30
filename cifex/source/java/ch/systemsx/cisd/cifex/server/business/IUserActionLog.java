@@ -76,4 +76,6 @@ public interface IUserActionLog
 
     public void logChangeUserCodeUser(String before, String after, boolean success);
 
+    public void logSwitchToExternalAuthentication(String userCode, boolean success);
+
 }

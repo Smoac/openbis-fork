@@ -246,4 +246,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
+    public User trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
+            throws EnvironmentFailureException, InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        return cifexServiceDelegate.trySwitchToExternalAuthentication(userCode, plainPassword);
+    }
+
 }

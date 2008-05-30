@@ -117,6 +117,13 @@ public interface IMessageResources extends Messages
     public String getSendUserUpdateInformationLabel();
 
     /**
+     * Returns label for the Comment field.
+     * 
+     * @gwt.key edituser.switchToExternalAuthentication.label
+     */
+    public String getSwitchToExternalAuthenticationLabel();
+
+    /**
      * Returns the label for creating new User
      * 
      * @gwt.key usercreation.label
@@ -706,4 +713,18 @@ public interface IMessageResources extends Messages
      * @gwt.key confirm.renaming.text
      */
     public String getConfirmRenamingText(String before, String after);
+
+    /**
+     * Returns label of the external password field.
+     * 
+     * @gwt.key edituser.external_password.label
+     */
+    public String getExternalPasswordLabel();
+
+    /**
+     * Returns external authentication
+     * 
+     * @gwt.key edituser.external_authentication
+     */
+    public String getExternalAuthentication();
 }

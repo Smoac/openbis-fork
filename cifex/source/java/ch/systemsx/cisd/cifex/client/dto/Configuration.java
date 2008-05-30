@@ -39,12 +39,12 @@ public class Configuration implements IsSerializable
         return maxUploadRequestSizeInMB;
     }
 
-    public final void setMaxUploadRequestSizeInMB(int maxRequestSizeInMB)
+    public final void setMaxUploadRequestSizeInMB(final int maxRequestSizeInMB)
     {
         this.maxUploadRequestSizeInMB = maxRequestSizeInMB;
     }
 
-    public final void setAdministratorEmail(String administratorEmail)
+    public final void setAdministratorEmail(final String administratorEmail)
     {
         this.administratorEmail = administratorEmail;
     }

@@ -48,4 +48,10 @@ public interface IPageController
 
     /** Creates page specified by given <var>page</var>. */
     public void createPage(final Page page);
+
+    /**
+     * Instantiates <code>ExternalAuthenticationPage</code> and adds it to the
+     * <code>RootPanel</code>.
+     */
+    public void createExternalAuthenticationPage();
 }

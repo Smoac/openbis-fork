@@ -60,8 +60,10 @@ public interface IHistoryController
 
         public final static Page EDIT_PROFILE = new Page();
 
+        public static final Page EXTERNAL_AUTHENTICATION = new Page();
+
         public final static Page[] ALL_PAGES = new Page[]
-            { MAIN_PAGE, ADMIN_PAGE, LOGIN_PAGE, EDIT_PROFILE };
+            { MAIN_PAGE, ADMIN_PAGE, LOGIN_PAGE, EDIT_PROFILE, EXTERNAL_AUTHENTICATION };
 
         private Page()
         {

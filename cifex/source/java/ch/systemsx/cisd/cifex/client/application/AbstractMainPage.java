@@ -122,6 +122,13 @@ abstract class AbstractMainPage extends BorderLayout
             toolbar.addSeparator();
             toolbar.addButton(createEditProfileButton());
         }
+
+        if (user.isExternallyAuthenticated() == false /* && hasExternalService() */)
+        {
+            toolbar.addSeparator();
+            toolbar.addButton(createExternalAuthenticationButton());
+        }
+
         toolbar.addSeparator();
         toolbar.addButton(createLogoutButton());
         contentPanel.add(toolbar);
@@ -231,6 +238,29 @@ abstract class AbstractMainPage extends BorderLayout
         return editProfileButton;
     }
 
+    private final ToolbarButton createExternalAuthenticationButton()
+    {
+        final String externalAuthenticationTitle = messageResources.getExternalAuthentication();
+        // res
+        final ToolbarButton editProfileButton =
+                new ToolbarButton(externalAuthenticationTitle, new ButtonConfig()
+                    {
+                        {
+                            setTooltip(messageResources.getSwitchToExternalAuthenticationLabel());
+                            setToggleGroup(TOGGLE_GROUP);
+                        }
+                    });
+        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+            {
+                public final void onClick(final Button button, final EventObject e)
+                {
+
+                    context.getPageController().createExternalAuthenticationPage();
+                }
+            });
+        return editProfileButton;
+    }
+
     private final ToolbarButton createAdminViewButton()
     {
         final ToolbarButton adminViewButton =
@@ -243,10 +273,6 @@ abstract class AbstractMainPage extends BorderLayout
                     });
         adminViewButton.addButtonListener(new ButtonListenerAdapter()
             {
-                //
-                // ButtonListenerAdapter
-                //
-
                 public final void onClick(final Button button, final EventObject e)
                 {
                     context.getPageController().createAdminPage();

@@ -111,6 +111,9 @@ final class PageController implements IPageController, IHistoryController
         } else if (page == Page.MAIN_PAGE)
         {
             createMainPage();
+        } else if (page == Page.EXTERNAL_AUTHENTICATION)
+        {
+            createExternalAuthenticationPage();
         }
     }
 
@@ -132,5 +135,14 @@ final class PageController implements IPageController, IHistoryController
     {
         previousPage = currentPage;
         currentPage = page;
+    }
+
+    public void createExternalAuthenticationPage()
+    {
+        clearRootPanel();
+        final ExternalAuthenticationPage externalAuthenticationPage =
+                new ExternalAuthenticationPage(viewContext);
+        setCurrentPage(Page.EXTERNAL_AUTHENTICATION);
+        RootPanel.get().add(externalAuthenticationPage);
     }
 }

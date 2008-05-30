@@ -93,4 +93,8 @@ public class DummyUserActionLog implements IUserActionLog
     public void logChangeUserCodeUser(final String before, final String after, final boolean success)
     {
     }
+
+    public void logSwitchToExternalAuthentication(final String userCode, final boolean success)
+    {
+    }
 }

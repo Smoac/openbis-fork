@@ -202,4 +202,14 @@ public interface ICIFEXService extends RemoteService
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
             UserFailureException;
 
+    /**
+     * Try to change user type from internally authenticated to externally authenticated.
+     * 
+     * @throws EnvironmentFailureException if user is already externally authenticated or user with
+     *             given code does not exist
+     */
+    public User trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
+            throws EnvironmentFailureException, InvalidSessionException,
+            InsufficientPrivilegesException;
+
 }

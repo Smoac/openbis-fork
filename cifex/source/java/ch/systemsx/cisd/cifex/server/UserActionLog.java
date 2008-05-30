@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.server.IRemoteHostProvider;
  */
 public final class UserActionLog implements IUserActionLog
 {
+
     private static final String TEMPORARY_UNTIL_STR = "TEMPORARY until ";
 
     private static final String REGULAR_STR = "REGULAR";
@@ -443,4 +444,15 @@ public final class UserActionLog implements IUserActionLog
         }
 
     }
+
+    public void logSwitchToExternalAuthentication(final String userCode, final boolean success)
+    {
+        if (accessLog.isInfoEnabled())
+        {
+            accessLog.info(getUserHostSessionDescription()
+                    + String.format("switch_to_external_authentication user '%s': %s", userCode,
+                            success));
+        }
+    }
+
 }

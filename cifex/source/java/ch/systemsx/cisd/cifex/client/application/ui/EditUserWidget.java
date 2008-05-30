@@ -56,6 +56,8 @@ public class EditUserWidget extends UserWidget
 
     public final void submitForm()
     {
+
+        final ICIFEXServiceAsync cifexService = context.getCifexService();
         if (arePasswordsEqual() == false)
         {
             return;
@@ -79,9 +81,9 @@ public class EditUserWidget extends UserWidget
                 user.setAdmin(editUser.isAdmin());
                 user.setPermanent(editUser.isPermanent());
             }
-            final ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getText()),
-                    sendUpdateInformation.getValue(), new UpdateUserAsyncCallBack());
+                    (sendUpdateInformation != null && sendUpdateInformation.getValue()),
+                    new UpdateUserAsyncCallBack());
         }
     }
 

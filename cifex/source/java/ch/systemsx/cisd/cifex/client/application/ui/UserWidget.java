@@ -130,6 +130,7 @@ public abstract class UserWidget extends Form
         final ColumnConfig leftColumn = new ColumnConfig();
         leftColumn.setWidth(COLUMN_WIDTH);
         leftColumn.setLabelWidth(LABEL_WIDTH);
+
         column(leftColumn);
 
         userCodeField = createUserCodeField();
@@ -141,13 +142,18 @@ public abstract class UserWidget extends Form
         // only add it, if a new user is created, not when editing a user.
         if (editUser == null)
         {
+
             commentArea = createCommentArea();
             add(commentArea);
-        } else
+
+        } else if (editingMyself() == false)
         {
+
             sendUpdateInformation = createSendUserInformationCheckbox();
             add(sendUpdateInformation);
+
         }
+       
         end();
 
         final ColumnConfig rightColumn = new ColumnConfig();
@@ -169,9 +175,21 @@ public abstract class UserWidget extends Form
             statusField = createStatusComboBox();
             add(statusField);
         }
+
         end();
+
         createButton();
         render();
+        if (editUser != null && editUser.isExternallyAuthenticated())
+        {
+            disableInternalFields(true);
+        }
+    }
+
+    protected boolean editingMyself()
+    {
+        return editUser != null
+                && editUser.getUserCode().equals(context.getModel().getUser().getUserCode());
     }
 
     private final void createButton()
@@ -270,8 +288,19 @@ public abstract class UserWidget extends Form
         if (editUser != null && editUser.getEmail() != null)
         {
             textField.setValue(editUser.getEmail());
+
         }
         return textField;
+    }
+
+    private void disableInternalFields(final boolean disabled)
+    {
+
+        usernameField.setDisabled(disabled);
+        passwordField.setDisabled(disabled);
+        validatePasswordField.setDisabled(disabled);
+        emailField.setDisabled(disabled);
+
     }
 
     private final TextField createUsernameField()
@@ -300,7 +329,8 @@ public abstract class UserWidget extends Form
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setMinLength(4);
-        return new TextField(fieldConfig);
+        final TextField textField = new TextField(fieldConfig);
+        return textField;
     }
 
     private final TextField createValidatePasswordField()
@@ -313,7 +343,8 @@ public abstract class UserWidget extends Form
         fieldConfig.setAllowBlank(true);
         fieldConfig.setValidateOnBlur(false);
         fieldConfig.setMinLength(4);
-        return new TextField(fieldConfig);
+        final TextField textField = new TextField(fieldConfig);
+        return textField;
     }
 
     private final TextArea createCommentArea()
@@ -332,7 +363,7 @@ public abstract class UserWidget extends Form
     private final Checkbox createSendUserInformationCheckbox()
     {
         final CheckboxConfig checkboxConfig = new CheckboxConfig();
-        checkboxConfig.setChecked(false);
+        checkboxConfig.setChecked(true);
         checkboxConfig.setName("send-user-information");
         checkboxConfig.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
         checkboxConfig.setWidth(FIELD_WIDTH);
@@ -385,4 +416,5 @@ public abstract class UserWidget extends Form
 
     /** Submits given form. */
     abstract void submitForm();
+
 }

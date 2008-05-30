@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -70,6 +72,16 @@ public class CIFEXServiceImplTest
     private static final String SESSION_TOKEN_EXAMPLE = "session-token42";
 
     private static final String DEFAULT_FILE_ID = "1";
+
+    private static final String DEFAULT_USER_CODE = "alice";
+
+    private static final String DEFAULT_PLAIN_PASSWORD = "secret password";
+
+    private static final String DEFAULT_USER_LAST_NAME = "Wonderland";
+
+    private static final String DEFAULT_USER_FIRST_NAME = "Alice";
+
+    private static final String DEFAULT_USER_EMAIL = "alice@wonderland.com";
 
     private Mockery context;
 
@@ -498,7 +510,222 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
-    // FIXME 2008-04-15, Bernd Rinn: this test doesn't make sense hence the logic of the application
+    @Test
+    public void testTrySwichToExternalAuthenticationNoServisAvailable()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        final CIFEXServiceImpl service = createService(new NullAuthenticationService());
+        boolean exceptionThrown = false;
+        try
+        {
+            service.trySwitchToExternalAuthentication(DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+        } catch (final EnvironmentFailureException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrySwichToExternalAuthenticationUserDoesNotExistInDb()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+                    one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
+                    will(returnValue(null));
+                }
+            });
+        final CIFEXServiceImpl service = createService(authenticationService);
+        boolean exceptionThrown = false;
+        try
+        {
+            service.trySwitchToExternalAuthentication(DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+        } catch (final EnvironmentFailureException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrySwichToExternalAuthenticationUserExistsInDbAlreadyExternal()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        userDTO.setExternallyAuthenticated(true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+                    one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
+                    will(returnValue(userDTO));
+                }
+            });
+        final CIFEXServiceImpl service = createService(authenticationService);
+        boolean exceptionThrown = false;
+        try
+        {
+            service.trySwitchToExternalAuthentication(DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+        } catch (final EnvironmentFailureException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrySwichToExternalAuthenticationUserExistsInDbAndIsNotExternalNotAuthenticated()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        final UserDTO userDTO = new UserDTO();
+        userDTO.setExternallyAuthenticated(false);
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+                    one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
+                    will(returnValue(userDTO));
+
+                    one(authenticationService).check();
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                            DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+                    will(returnValue(false));
+                }
+            });
+
+        final CIFEXServiceImpl service = createService(authenticationService);
+        boolean exceptionThrown = false;
+        try
+        {
+            service.trySwitchToExternalAuthentication(DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+        } catch (final InsufficientPrivilegesException e)
+        {
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrySwichToExternalAuthenticationUserExistsInDbAndIsNotExternalAuthenticated()
+            throws InvalidSessionException, InsufficientPrivilegesException,
+            EnvironmentFailureException
+    {
+        final UserDTO oldUser = new UserDTO();
+        oldUser.setExternallyAuthenticated(false);
+        oldUser.setUserCode(DEFAULT_USER_CODE);
+        oldUser.setAdmin(false);
+        oldUser.setPermanent(false);
+        oldUser.setExpirationDate(new Date());
+        oldUser.setRegistrator(new UserDTO());
+        final String oldUserFullName = "Old Alice Name";
+        oldUser.setUserFullName(oldUserFullName);
+        final String oldUserEmail = "oldalice@users.com";
+        oldUser.setEmail(oldUserEmail);
+
+        final UserDTO externalyUpdatedUser = new UserDTO();
+        externalyUpdatedUser.setExternallyAuthenticated(false);
+        externalyUpdatedUser.setUserCode(DEFAULT_USER_CODE);
+        externalyUpdatedUser.setAdmin(oldUser.isAdmin());
+        externalyUpdatedUser.setPermanent(oldUser.isPermanent());
+        externalyUpdatedUser.setExpirationDate(oldUser.getExpirationDate());
+        externalyUpdatedUser.setRegistrator(oldUser.getRegistrator());
+        externalyUpdatedUser
+                .setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        externalyUpdatedUser.setEmail(DEFAULT_USER_EMAIL);
+
+        final UserDTO newUser = new UserDTO();
+        newUser.setExternallyAuthenticated(true);
+        newUser.setUserCode(DEFAULT_USER_CODE);
+        newUser.setAdmin(oldUser.isAdmin());
+        newUser.setPermanent(true);
+        newUser.setExpirationDate(null);
+        newUser.setRegistrator(null);
+        newUser.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
+        newUser.setEmail(DEFAULT_USER_EMAIL);
+
+        final Principal principal =
+                new Principal(DEFAULT_USER_CODE, DEFAULT_USER_FIRST_NAME, DEFAULT_USER_LAST_NAME,
+                        DEFAULT_USER_EMAIL);
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(2).of(domainModel).getUserManager();
+                    will(returnValue(userManager));
+                    exactly(2).of(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
+                    will(returnValue(oldUser));
+
+                    one(authenticationService).check();
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(APPLICATION_TOKEN_EXAMPLE));
+                    one(authenticationService).authenticateUser(APPLICATION_TOKEN_EXAMPLE,
+                            DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+                    will(returnValue(true));
+                    one(authenticationService).getPrincipal(APPLICATION_TOKEN_EXAMPLE,
+                            DEFAULT_USER_CODE);
+                    will(returnValue(principal));
+
+                    one(userManager).updateUser(externalyUpdatedUser, null);
+                    one(userManager).updateUser(newUser, null);
+
+                    one(requestContextProvider).getHttpServletRequest();
+                    will(returnValue(httpServletRequest));
+
+                    one(httpServletRequest).getSession(false);
+                    will(returnValue(httpSession));
+
+                    one(httpSession).getAttribute("cifex-user");
+                    will(returnValue(oldUser));
+                }
+            });
+        Assert.assertEquals(oldUser.getEmail(), oldUserEmail);
+        Assert.assertEquals(oldUser.isAdmin(), false);
+        Assert.assertEquals(oldUser.isExternallyAuthenticated(), false);
+        Assert.assertEquals(oldUser.getUserFullName(), oldUserFullName);
+        Assert.assertFalse(oldUser.getRegistrator() == null);
+        Assert.assertEquals(oldUser.isPermanent(), false);
+        Assert.assertFalse(oldUser.getExpirationDate() == null);
+
+        final CIFEXServiceImpl service = createService(authenticationService);
+
+        service.trySwitchToExternalAuthentication(DEFAULT_USER_CODE, DEFAULT_PLAIN_PASSWORD);
+        Assert.assertEquals(newUser.getEmail(), DEFAULT_USER_EMAIL);
+        Assert.assertEquals(newUser.isAdmin(), false);
+        Assert.assertEquals(newUser.isExternallyAuthenticated(), true);
+        Assert.assertEquals(newUser.getUserFullName(), newUser.getUserFullName());
+        Assert.assertEquals(newUser.getRegistrator(), null);
+        Assert.assertEquals(newUser.isPermanent(), true);
+        Assert.assertEquals(newUser.getExpirationDate(), null);
+
+        Assert.assertEquals(oldUser.getEmail(), DEFAULT_USER_EMAIL);
+        Assert.assertEquals(oldUser.isAdmin(), false);
+        Assert.assertEquals(oldUser.isExternallyAuthenticated(), true);
+        Assert.assertEquals(oldUser.getUserFullName(), newUser.getUserFullName());
+        Assert.assertEquals(oldUser.getRegistrator(), null);
+        Assert.assertEquals(oldUser.isPermanent(), true);
+        Assert.assertEquals(oldUser.getExpirationDate(), null);
+
+        context.assertIsSatisfied();
+    }
+
+      // FIXME 2008-04-15, Bernd Rinn: this test doesn't make sense hence the logic of the application
     // has changed
     // @Test
     public void testFailedLoginAtExternalServiceAndInternalService() throws Exception

@@ -153,4 +153,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void createSharingLink(String fileId, String emailsOfUsers,
             AsyncCallback userGridRefresherCallback);
 
+    /**
+     * Try to change user type from internally authenticated to externally authenticated.
+     */
+    public void trySwitchToExternalAuthentication(final String userCode,
+            final String plainPassword, final AsyncCallback callback);
 }
