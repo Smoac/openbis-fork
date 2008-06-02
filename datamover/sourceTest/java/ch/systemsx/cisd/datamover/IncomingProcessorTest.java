@@ -153,7 +153,7 @@ public final class IncomingProcessorTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testWithDataCompletedScript() throws IOException
     {
         FileUtilities.writeToFile(exampleScript, EXAMPLE_SCRIPT);
@@ -203,7 +203,7 @@ public final class IncomingProcessorTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
     {
         FileUtilities.writeToFile(exampleScript, EXAMPLE_SCRIPT + "\nrm -v "

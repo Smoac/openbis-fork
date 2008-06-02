@@ -93,10 +93,10 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
         final List<String> command = sshCommandBuilder.createSshCommand(dfCommand, host);
         final ProcessResult processResult =
-                ProcessExecutionHelper.run(command, millisToWaitForCompletion, operationLog,
-                        machineLog);
+                ProcessExecutionHelper.run(command, operationLog, machineLog,
+                        millisToWaitForCompletion);
         processResult.log();
-        final List<String> processOutput = processResult.getProcessOutput();
+        final List<String> processOutput = processResult.getOutput();
         final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);
         String spaceOutputKb = tryParseFreeSpaceOutput(processOutput);
         if (spaceOutputKb == null)

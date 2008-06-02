@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -40,69 +39,12 @@ import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
  * <p>
  * The filter remembers the last status of script execution. Status changes are logged with log
  * category {@link LogCategory#NOTIFY}.
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */
 public class DataCompletedFilter implements IStoreItemFilter
 {
-    private static final class Status extends AbstractHashable
-    {
-        static final Status NULL = new Status();
-
-        private final boolean ok;
-
-        private final boolean run;
-
-        private final boolean terminated;
-
-        private final int exitValue;
-
-        private final boolean blocked;
-
-        private Status()
-        {
-            ok = true;
-            run = false;
-            terminated = false;
-            blocked = false;
-            exitValue = Integer.MAX_VALUE;
-        }
-
-        Status(final ProcessResult processResult)
-        {
-            ok = processResult.isOK();
-            run = processResult.isRun();
-            terminated = processResult.isTerminated();
-            blocked = processResult.hasBlocked();
-            exitValue = processResult.exitValue();
-        }
-
-        public final boolean isOk()
-        {
-            return ok;
-        }
-
-        public final boolean isRun()
-        {
-            return run;
-        }
-
-        public final boolean isTerminated()
-        {
-            return terminated;
-        }
-
-        public final int getExitValue()
-        {
-            return exitValue;
-        }
-
-        public final boolean isBlocked()
-        {
-            return blocked;
-        }
-    }
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataCompletedFilter.class);
 
@@ -120,7 +62,7 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private final ConditionalNotificationLogger notificationLogger;
 
-    private Status lastStatus = Status.NULL;
+    private ProcessResult lastProcessResult;
 
     /**
      * Creates an instance for the specified file store, data completed script, and script time out.
@@ -171,6 +113,22 @@ public class DataCompletedFilter implements IStoreItemFilter
         return dataCompletedScript;
     }
 
+    private final static String describeProcessResult(final ProcessResult result)
+    {
+        assert result != null : "Unspecified process result";
+        final StringBuilder builder = new StringBuilder("[");
+        builder.append("interrupted=").append(result.isInterruped()).append(",");
+        builder.append("exitValue=").append(result.getExitValue()).append(",");
+        builder.append("ok=").append(result.isOK()).append(",");
+        builder.append("terminated=").append(result.isTerminated()).append(",");
+        builder.append("timedOut=").append(result.isTimedOut()).append(",");
+        builder.append("output=").append(result.getOutput()).append(",");
+        builder.append("run=").append(result.isRun()).append(",");
+        builder.append("startupFailureMessage=").append(result.getStartupFailureMessage());
+        builder.append("]");
+        return builder.toString();
+    }
+
     //
     // IStoreItemFilter
     //
@@ -179,15 +137,16 @@ public class DataCompletedFilter implements IStoreItemFilter
     {
         final List<String> commandLine = createCommand(item);
         final ProcessResult result =
-                ProcessExecutionHelper.run(commandLine, dataCompletedScriptTimeout, operationLog,
-                        machineLog);
-        final Status status = new Status(result);
-        final boolean ok = status.isOk();
-        if (status.equals(lastStatus) == false)
+                ProcessExecutionHelper.run(commandLine, operationLog, machineLog,
+                        dataCompletedScriptTimeout);
+        final boolean ok = result.isOK();
+        if (result.equals(lastProcessResult) == false)
         {
             final String message =
-                    "Processing status of data completed script has changed to " + status
-                            + ". Command line: " + commandLine;
+                    String
+                            .format(
+                                    "Processing status of data completed script has changed to '%s'. Command line: '%s'.",
+                                    describeProcessResult(result), commandLine);
             if (ok)
             {
                 if (notificationLog.isInfoEnabled())
@@ -199,7 +158,7 @@ public class DataCompletedFilter implements IStoreItemFilter
                 notificationLog.error(message);
             }
             result.log();
-            lastStatus = status;
+            lastProcessResult = result;
         }
         return ok;
     }

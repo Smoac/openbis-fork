@@ -17,13 +17,9 @@
 package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.RsyncVersion;
@@ -42,14 +39,8 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.Rs
  * 
  * @author Bernd Rinn
  */
-public class RsyncCopier implements IPathCopier
+public final class RsyncCopier implements IPathCopier
 {
-
-    /**
-     * The maximal period to wait for the <code>rsync</code> list process to finish before killing
-     * it.
-     */
-    private static final int MAX_INACTIVITY_PERIOD_RSYNC_LIST = 30 * 1000;
 
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
@@ -84,12 +75,6 @@ public class RsyncCopier implements IPathCopier
     private final boolean destinationDirectoryRequiresDeletionBeforeCreation;
 
     /**
-     * A reference to the {@link Process} that performs the copy. Note that the reference will be
-     * <code>null</code>, if currently no copy process is running.
-     */
-    private final AtomicReference<Process> copyProcessReference;
-
-    /**
      * Constructs an <code>RsyncCopier</code>.
      * 
      * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
@@ -99,9 +84,9 @@ public class RsyncCopier implements IPathCopier
      *            existing files and directories on the remote side will be deleted before starting
      *            the copy process (no overwriting of paths).
      */
-    public RsyncCopier(File rsyncExecutable, File sshExecutableOrNull,
-            boolean destinationDirectoryRequiresDeletionBeforeCreation, boolean overwrite,
-            String... cmdLineFlags)
+    public RsyncCopier(final File rsyncExecutable, final File sshExecutableOrNull,
+            final boolean destinationDirectoryRequiresDeletionBeforeCreation,
+            final boolean overwrite, final String... cmdLineFlags)
     {
         assert rsyncExecutable != null && rsyncExecutable.exists();
         assert sshExecutableOrNull == null || rsyncExecutable.exists();
@@ -111,7 +96,6 @@ public class RsyncCopier implements IPathCopier
         this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
         this.destinationDirectoryRequiresDeletionBeforeCreation =
                 destinationDirectoryRequiresDeletionBeforeCreation;
-        this.copyProcessReference = new AtomicReference<Process>(null);
         this.overwrite = overwrite;
         if (cmdLineFlags.length > 0)
         {
@@ -135,195 +119,44 @@ public class RsyncCopier implements IPathCopier
                 || (rsyncSupportsAppend() == false);
     }
 
-    public Status copy(File sourcePath, File destinationDirectory)
+    //
+    // IPathCopier
+    //
+
+    public final Status copy(final File sourcePath, final File destinationDirectory)
     {
         return copy(sourcePath, null, destinationDirectory, null);
     }
 
-    public Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory)
+    public final Status copyFromRemote(final File sourcePath, final String sourceHost,
+            final File destinationDirectory)
     {
         return copy(sourcePath, sourceHost, destinationDirectory, null);
     }
 
-    public Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost)
+    public final Status copyToRemote(final File sourcePath, final File destinationDirectory,
+            final String destinationHost)
     {
         return copy(sourcePath, null, destinationDirectory, destinationHost);
-    }
-
-    private Status copy(File sourcePath, String sourceHostOrNull, File destinationDirectory,
-            String destinationHostOrNull)
-    {
-        assert sourcePath != null;
-        assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
-        assert destinationDirectory != null;
-        assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
-        assert sourceHostOrNull == null || destinationHostOrNull == null; // only one side can be
-                                                                            // remote
-
-        try
-        {
-            final ProcessBuilder copyProcessBuilder =
-                    new ProcessBuilder(createCommandLine(sourcePath, sourceHostOrNull,
-                            destinationDirectory, destinationHostOrNull));
-            copyProcessBuilder.redirectErrorStream(true);
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Executing command: " + copyProcessBuilder.command().toString());
-            }
-            final Process copyProcess = copyProcessBuilder.start();
-            copyProcessReference.set(copyProcess);
-
-            final int exitValue = copyProcess.waitFor();
-            logRsyncExitValue(copyProcess);
-            return createStatus(exitValue);
-        } catch (IOException e)
-        {
-            machineLog.error(String.format("Cannot execute rsync binary %s", rsyncExecutable), e);
-            return new Status(StatusFlag.FATAL_ERROR, String.format("ProcessBuilder: %s", e
-                    .getMessage()));
-        } catch (InterruptedException e)
-        {
-            // Shouldn't happen because this is called in a timer, anyway, it's just another error
-            // condition.
-            return INTERRUPTED_STATUS;
-        } finally
-        {
-            copyProcessReference.set(null);
-        }
-    }
-
-    private String logNonExistent(File path)
-    {
-        if (path == null)
-        {
-            return "null";
-        } else
-        {
-            return "path '" + path.getAbsolutePath() + "' does not exist";
-        }
-    }
-
-    private List<String> createCommandLine(File sourcePath, String sourceHost,
-            File destinationDirectory, String destinationHost)
-    {
-        assert sourcePath != null && (sourceHost != null || sourcePath.exists());
-        assert destinationDirectory != null
-                && (destinationHost != null || destinationDirectory.isDirectory());
-        assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
-        assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
-
-        final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
-        final List<String> commandLineList = new ArrayList<String>();
-        commandLineList.add(rsyncExecutable);
-        commandLineList.addAll(standardParameters);
-        if (isOverwriteMode())
-        {
-            commandLineList.add("--whole-file");
-        } else
-        {
-            commandLineList.add("--append");
-        }
-        if (sshExecutable != null && destinationHost != null)
-        {
-            commandLineList.add("--rsh");
-            commandLineList.add(getSshExecutableArgument(sshExecutable));
-        }
-        if (additionalCmdLineFlags != null)
-        {
-            commandLineList.addAll(additionalCmdLineFlags);
-        }
-        commandLineList.add(buildPath(sourceHost, sourcePath, false));
-        commandLineList.add(buildPath(destinationHost, destinationDirectory, true));
-
-        return commandLineList;
-    }
-
-    private static String getSshExecutableArgument(String sshExecutable)
-    {
-        if (OSUtilities.isWindows())
-        {
-            return toUnix(sshExecutable) + " -oBatchMode=yes";
-        } else
-        {
-            return sshExecutable + " -oBatchMode=yes";
-        }
-    }
-
-    private static String buildPath(String host, File resource, boolean isDirectory)
-    {
-        if (null == host)
-        {
-            String path = resource.getAbsolutePath();
-            if (isDirectory)
-                path += File.separator;
-            return toUnix(path);
-        } else
-        {
-            String path = resource.getPath();
-            if (isDirectory)
-                path += File.separator;
-            // We must not use the absolute path here because that is the business of the
-            // destination host.
-            return host + ":" + toUnix(path);
-        }
-    }
-
-    /**
-     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a
-     * Cygwin path.
-     */
-    private static String toUnix(String path)
-    {
-        if (OSUtilities.isWindows() == false)
-        {
-            return path;
-        }
-        String resultPath = path.replace('\\', '/');
-        if (resultPath.charAt(1) == ':') // Get rid of drive letters.
-        {
-            resultPath = "/cygdrive/" + resultPath.charAt(0) + resultPath.substring(2);
-        }
-        return resultPath;
-    }
-
-    private static Status createStatus(final int exitValue)
-    {
-        if (ProcessExecutionHelper.isProcessTerminated(exitValue))
-        {
-            return TERMINATED_STATUS;
-        }
-        final StatusFlag flag = RsyncExitValueTranslator.getStatus(exitValue);
-        if (StatusFlag.OK.equals(flag))
-        {
-            return Status.OK;
-        }
-        return new Status(flag, RsyncExitValueTranslator.getMessage(exitValue));
-    }
-
-    private static void logRsyncExitValue(final Process copyProcess)
-    {
-        final int exitValue = copyProcess.exitValue();
-        final List<String> processOutput =
-                ProcessExecutionHelper.readProcessOutputLines(copyProcess, machineLog);
-        ProcessExecutionHelper.logProcessExecution("rsync", exitValue, processOutput, operationLog,
-                machineLog);
     }
 
     /**
      * Terminates the copy process by calling {@link Process#destroy()}, if a copy process is
      * currently running. If no copy process is running, the method will return immediately.
      */
-    public boolean terminate()
+    public final boolean terminate()
     {
-        final Process copyProcess = copyProcessReference.get();
-        if (copyProcess != null)
-        {
-            copyProcess.destroy();
-            return true;
-        } else
-        {
-            return false;
-        }
+        // FIXME 2008-06-02, Christian Ribeaud: Reimplement this.
+        // final Process copyProcess = copyProcessReference.get();
+        // if (copyProcess != null)
+        // {
+        // copyProcess.destroy();
+        // return true;
+        // } else
+        // {
+        // return false;
+        // }
+        return true;
     }
 
     /**
@@ -331,7 +164,7 @@ public class RsyncCopier implements IPathCopier
      * 
      * @throws ConfigurationFailureException If the check fails.
      */
-    public void check()
+    public final void check()
     {
         if (machineLog.isDebugEnabled())
         {
@@ -371,55 +204,140 @@ public class RsyncCopier implements IPathCopier
         }
     }
 
-    public boolean existsRemotely(File destinationDirectory, String destinationHost)
+    private final Status copy(final File sourcePath, final String sourceHostOrNull,
+            final File destinationDirectory, final String destinationHostOrNull)
     {
+        assert sourcePath != null;
+        assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
         assert destinationDirectory != null;
-        assert destinationHost != null;
-
-        final String destination = buildPath(destinationHost, destinationDirectory, true);
-        final ProcessBuilder listProcessBuilder =
-                new ProcessBuilder(rsyncExecutable, "--rsh",
-                        getSshExecutableArgument(sshExecutable), destination)
-                        .redirectErrorStream(true);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Executing command: " + listProcessBuilder.command().toString());
-        }
-        try
-        {
-            final Process listProcess = listProcessBuilder.start();
-            final Timer watchDogTimer = initWatchDog(listProcess);
-            final int exitValue = listProcess.waitFor();
-            watchDogTimer.cancel();
-            logRsyncExitValue(listProcess);
-            return Status.OK == createStatus(exitValue);
-        } catch (IOException ex)
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format("Error trying to list '%s'", destination), ex);
-            }
-            return false;
-        } catch (InterruptedException ex)
-        {
-            return false;
-        }
+        assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
+        // Only one side can be remote
+        assert sourceHostOrNull == null || destinationHostOrNull == null;
+        final List<String> commandLine =
+                createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
+                        destinationHostOrNull);
+        final ProcessResult processResult =
+                ProcessExecutionHelper.run(commandLine, operationLog, machineLog);
+        processResult.log();
+        return createStatus(processResult);
     }
 
-    private Timer initWatchDog(final Process listProcess)
+    private final String logNonExistent(final File path)
     {
-        TimerTask killer = new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    machineLog.warn("Destroying stalled rsync list process.");
-                    listProcess.destroy();
-                }
-            };
-        Timer watchDog = new Timer();
-        watchDog.schedule(killer, MAX_INACTIVITY_PERIOD_RSYNC_LIST);
-        return watchDog;
+        if (path == null)
+        {
+            return "null";
+        } else
+        {
+            return "path '" + path.getAbsolutePath() + "' does not exist";
+        }
     }
 
+    private final List<String> createCommandLine(final File sourcePath, final String sourceHost,
+            final File destinationDirectory, final String destinationHost)
+    {
+        assert sourcePath != null && (sourceHost != null || sourcePath.exists());
+        assert destinationDirectory != null
+                && (destinationHost != null || destinationDirectory.isDirectory());
+        assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
+        assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
+
+        final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
+        final List<String> commandLineList = new ArrayList<String>();
+        commandLineList.add(rsyncExecutable);
+        commandLineList.addAll(standardParameters);
+        if (isOverwriteMode())
+        {
+            commandLineList.add("--whole-file");
+        } else
+        {
+            commandLineList.add("--append");
+        }
+        if (sshExecutable != null && destinationHost != null)
+        {
+            commandLineList.add("--rsh");
+            commandLineList.add(getSshExecutableArgument(sshExecutable));
+        }
+        if (additionalCmdLineFlags != null)
+        {
+            commandLineList.addAll(additionalCmdLineFlags);
+        }
+        commandLineList.add(buildPath(sourceHost, sourcePath, false));
+        commandLineList.add(buildPath(destinationHost, destinationDirectory, true));
+
+        return commandLineList;
+    }
+
+    private final static String getSshExecutableArgument(final String sshExecutable)
+    {
+        if (OSUtilities.isWindows())
+        {
+            return toUnix(sshExecutable) + " -oBatchMode=yes";
+        } else
+        {
+            return sshExecutable + " -oBatchMode=yes";
+        }
+    }
+
+    private static String buildPath(final String host, final File resource,
+            final boolean isDirectory)
+    {
+        if (null == host)
+        {
+            String path = resource.getAbsolutePath();
+            if (isDirectory)
+            {
+                path += File.separator;
+            }
+            return toUnix(path);
+        } else
+        {
+            String path = resource.getPath();
+            if (isDirectory)
+            {
+                path += File.separator;
+            }
+            // We must not use the absolute path here because that is the business of the
+            // destination host.
+            return host + ":" + toUnix(path);
+        }
+    }
+
+    /**
+     * Since <code>rsync</code> under Windows is from Cygwin, we need to translate the path into a
+     * Cygwin path.
+     */
+    private static String toUnix(final String path)
+    {
+        if (OSUtilities.isWindows() == false)
+        {
+            return path;
+        }
+        String resultPath = path.replace('\\', '/');
+        // Get rid of drive letters.
+        if (resultPath.charAt(1) == ':')
+        {
+            resultPath = "/cygdrive/" + resultPath.charAt(0) + resultPath.substring(2);
+        }
+        return resultPath;
+    }
+
+    private final static Status createStatus(final ProcessResult processResult)
+    {
+        if (processResult.isTerminated())
+        {
+            return TERMINATED_STATUS;
+        }
+        if (processResult.isInterruped())
+        {
+            return INTERRUPTED_STATUS;
+        }
+        int exitValue = processResult.getExitValue();
+        final StatusFlag flag = RsyncExitValueTranslator.getStatus(exitValue);
+        if (StatusFlag.OK.equals(flag))
+        {
+            return Status.OK;
+        }
+        return new Status(flag, RsyncExitValueTranslator.getMessage(exitValue));
+    }
 }

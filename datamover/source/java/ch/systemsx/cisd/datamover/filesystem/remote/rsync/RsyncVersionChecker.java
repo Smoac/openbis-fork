@@ -21,10 +21,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * A class that helps checking an <code>rsync</code> binary for its version.
@@ -198,12 +200,12 @@ final class RsyncVersionChecker
 
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)
     {
-        final long timeToWaitForCompletion = 2 * 1000;
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(rsyncExecutableToCheck, "--version"),
-                        timeToWaitForCompletion, operationLog, machineLog);
+                        operationLog, machineLog, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
+                        OutputReadingStrategy.ALWAYS, false);
         result.log();
-        final List<String> processOutput = result.getProcessOutput();
+        final List<String> processOutput = result.getOutput();
         if (processOutput.size() == 0)
         {
             return null;

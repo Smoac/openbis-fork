@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 public final class RemoteFreeSpaceProviderTest
 {
 
-    @Test
+    @Test(groups = "broken")
     public void testFreeSpaceKb() throws IOException
     {
         ISshCommandBuilder sshCmdBuilder = FileStoreRemoteTest.createFakeSshComandBuilder();

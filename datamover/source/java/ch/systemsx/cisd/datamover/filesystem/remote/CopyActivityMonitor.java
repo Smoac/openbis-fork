@@ -21,9 +21,11 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -141,7 +143,7 @@ public class CopyActivityMonitor
                 "No progress on copying '%s' to '%s' for %f seconds - network connection might be stalled.";
 
         private final ExecutorService lastChangedExecutor =
-                ConcurrencyUtilities.newNamedPool("Last Changed Explorer", 1, Integer.MAX_VALUE);
+                new NamingThreadPoolExecutor("Last Changed Explorer", 1, Integer.MAX_VALUE);
 
         private final StoreItem itemToBeCopied;
 
@@ -201,7 +203,7 @@ public class CopyActivityMonitor
                         Math.max(lastChangedAsFoundByPathChecker, monitoredItemLastChanged);
                 final long now = System.currentTimeMillis();
                 if (lastChanged > now) // That can happen if the system clock of the data producer
-                                        // is screwed up.
+                // is screwed up.
                 {
                     machineLog.error(String.format(
                             "Found \"last changed time\" in the future (%1$tF %1$tT), "
@@ -244,8 +246,8 @@ public class CopyActivityMonitor
                             minusSafetyMargin(inactivityPeriodMillis)));
             final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
             final Long lastChanged =
-                    ConcurrencyUtilities.tryGetResult(lastChangedFuture, timeoutMillis,
-                            simpleMachineLog, "Check for recent paths");
+                    ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis,
+                            simpleMachineLog, "Check for recent paths").tryGetResult();
             if (lastChanged == null)
             {
                 operationLog.error(String.format(
