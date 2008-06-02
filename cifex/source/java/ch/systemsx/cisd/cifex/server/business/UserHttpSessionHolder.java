@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -45,7 +46,7 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
 
     public final static String USER_SESSION_HOLDER_BEAN_NAME = "user-session-holder";
 
-    private final List<HttpSession> activeSessions;
+    private final Map<HttpSession, Object> activeSessions;
 
     /**
      * A flag to avoid <code>ConcurrentModificationException</code> exception when session gets
@@ -55,13 +56,13 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
 
     public UserHttpSessionHolder()
     {
-        activeSessions = new ArrayList<HttpSession>();
+        activeSessions = new WeakHashMap<HttpSession, Object>();
     }
 
     public final synchronized void addUserSession(final HttpSession session)
     {
         assert session != null : "Unspecified HTTP session";
-        activeSessions.add(session);
+        activeSessions.put(session, ObjectUtils.NULL);
     }
 
     public final synchronized void removeUserSession(final HttpSession session)
@@ -81,14 +82,15 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
     {
         assert userDTO != null : "Unspecified user";
         isInvalidating = true;
-        for (final Iterator<HttpSession> iterator = activeSessions.iterator(); iterator.hasNext();)
+        for (final Iterator<HttpSession> iterator = activeSessions.keySet().iterator(); iterator
+                .hasNext(); /**/)
         {
             final HttpSession httpSession = iterator.next();
             try
             {
                 final UserDTO user =
                         (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-                if (user != null && user.getID().equals(userDTO))
+                if (user != null && user.getID().equals(userDTO.getID()))
                 {
                     // This unbinds all the attributes as well. So do not do clever cleaning here.
                     httpSession.invalidate();
