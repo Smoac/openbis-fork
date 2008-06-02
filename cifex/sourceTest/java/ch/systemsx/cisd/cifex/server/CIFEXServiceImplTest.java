@@ -321,6 +321,21 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
+    private void prepareForBasicURL(final Expectations expectations)
+    {
+        expectations.one(httpServletRequest).getScheme();
+        expectations.will(Expectations.returnValue("http"));
+
+        expectations.one(httpServletRequest).getServerName();
+        expectations.will(Expectations.returnValue("cifex.org"));
+
+        expectations.one(httpServletRequest).getServerPort();
+        expectations.will(Expectations.returnValue(8080));
+
+        expectations.one(httpServletRequest).getContextPath();
+        expectations.will(Expectations.returnValue(null));
+    }
+
     @Test
     public void testCreateUserNotExistingInExternalService() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException, UserFailureException
@@ -337,8 +352,7 @@ public class CIFEXServiceImplTest
         admin.setPermanent(true);
         prepareForGettingUserFromHTTPSession(admin, false);
         final String comment = "My great new user";
-        final String requestUrl = "http://cifex.org/cifex/file-upload";
-        final String basicUrl = "http://cifex.org/cifex";
+        final String basicUrl = "http://cifex.org:8080";
         context.checking(new Expectations()
             {
                 {
@@ -354,8 +368,7 @@ public class CIFEXServiceImplTest
                             userToCreate.getUserCode());
                     will(throwException(new IllegalArgumentException()));
 
-                    one(httpServletRequest).getRequestURL();
-                    will(returnValue(new StringBuffer(requestUrl)));
+                    prepareForBasicURL(this);
 
                     one(userManager).createUserAndSendEmail(
                             BeanUtils.createBean(UserDTO.class, userToCreate), password, admin,
@@ -387,16 +400,14 @@ public class CIFEXServiceImplTest
         admin.setPermanent(true);
         prepareForGettingUserFromHTTPSession(admin, false);
         final String comment = "My great new user";
-        final String requestUrl = "http://cifex.org/cifex/file-upload";
-        final String basicUrl = "http://cifex.org/cifex";
+        final String basicUrl = "http://cifex.org:8080";
         context.checking(new Expectations()
             {
                 {
                     one(domainModel).getUserManager();
                     will(returnValue(userManager));
 
-                    one(httpServletRequest).getRequestURL();
-                    will(returnValue(new StringBuffer(requestUrl)));
+                    prepareForBasicURL(this);
 
                     one(userManager).createUserAndSendEmail(
                             BeanUtils.createBean(UserDTO.class, userToCreate), password, admin,
