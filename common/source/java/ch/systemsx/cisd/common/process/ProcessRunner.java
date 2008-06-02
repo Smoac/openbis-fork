@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.common.process;
 
-import ch.systemsx.cisd.common.concurrent.StopException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.StopException;
 
 /**
  * This class takes cares of running encapsulated {@link IProcess}.

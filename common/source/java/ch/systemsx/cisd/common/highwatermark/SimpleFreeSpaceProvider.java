@@ -17,36 +17,28 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileSystemUtils;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
- * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free
- * space value.
- * <p>
- * Therefore the free space available will never be below the <i>high water mark</i>.
- * </p>
+ * A simple <code>IFreeSpaceProvider</code> implementation based on {@link FileSystemUtils}.
  * 
  * @author Christian Ribeaud
  */
-public final class AlwaysAboveFreeSpaceProvider implements IFreeSpaceProvider
+public final class SimpleFreeSpaceProvider implements IFreeSpaceProvider
 {
-
-    /** The only instance of this class. */
-    public final static IFreeSpaceProvider INSTANCE = new AlwaysAboveFreeSpaceProvider();
-
-    private AlwaysAboveFreeSpaceProvider()
-    {
-        // Can not be instantiated.
-    }
 
     //
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File path)
+    public final long freeSpaceKb(final File path) throws IOException
     {
-        return Long.MAX_VALUE;
+        final String canonicalPath = FileUtilities.getCanonicalPath(path);
+        return FileSystemUtils.freeSpaceKb(canonicalPath);
     }
-
 }

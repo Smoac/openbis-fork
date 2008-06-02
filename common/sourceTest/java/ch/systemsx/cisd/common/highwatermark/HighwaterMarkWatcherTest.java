@@ -200,8 +200,8 @@ public final class HighwaterMarkWatcherTest
         final long missingSpace = DEFAULT_WATERMARK - freeSpaces[i];
         assertEquals(String.format(
                 HighwaterMarkWatcher.NotificationLogChangeListener.WARNING_LOG_FORMAT,
-                HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i]), DEFAULT_PATH,
-                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
+                DEFAULT_PATH, HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK),
+                HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i]), HighwaterMarkWatcher
                         .displayKilobyteValue(missingSpace)), logRecorder.getLogContent());
         // Space still "red". Do not inform the administrator. He already knows it.
         logRecorder.resetLogContent();
@@ -212,10 +212,9 @@ public final class HighwaterMarkWatcherTest
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
         assertEquals(String.format(
-                HighwaterMarkWatcher.NotificationLogChangeListener.INFO_LOG_FORMAT,
-                HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i]), DEFAULT_PATH,
-                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK)), logRecorder
-                .getLogContent());
+                HighwaterMarkWatcher.NotificationLogChangeListener.INFO_LOG_FORMAT, DEFAULT_PATH,
+                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
+                        .displayKilobyteValue(freeSpaces[i])), logRecorder.getLogContent());
         // Space still OK. Do not inform the administrator.
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);

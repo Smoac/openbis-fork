@@ -17,36 +17,37 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
+import java.io.IOException;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 
 /**
- * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free
- * space value.
- * <p>
- * Therefore the free space available will never be below the <i>high water mark</i>.
- * </p>
+ * A <code>IFreeSpaceProvider</code> implementation which delegates its job to the encapsulated
+ * {@link IFreeSpaceProvider} implementation.
  * 
  * @author Christian Ribeaud
  */
-public final class AlwaysAboveFreeSpaceProvider implements IFreeSpaceProvider
+public class DelegateFreeSpaceProvider implements IFreeSpaceProvider
 {
 
-    /** The only instance of this class. */
-    public final static IFreeSpaceProvider INSTANCE = new AlwaysAboveFreeSpaceProvider();
+    private final IFreeSpaceProvider freeSpaceProvider;
 
-    private AlwaysAboveFreeSpaceProvider()
+    public DelegateFreeSpaceProvider(final IFreeSpaceProvider freeSpaceProvider)
     {
-        // Can not be instantiated.
+        this.freeSpaceProvider = freeSpaceProvider;
+    }
+
+    protected final IFreeSpaceProvider getFreeSpaceProvider()
+    {
+        return freeSpaceProvider;
     }
 
     //
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File path)
+    public long freeSpaceKb(final File path) throws IOException
     {
-        return Long.MAX_VALUE;
+        return freeSpaceProvider.freeSpaceKb(path);
     }
-
 }

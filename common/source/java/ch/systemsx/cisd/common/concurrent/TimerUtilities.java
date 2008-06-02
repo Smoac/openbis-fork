@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ch.systemsx.cisd.common.exceptions.StopException;
+
 /**
  * Utilities for {@link Timer}.
  * 

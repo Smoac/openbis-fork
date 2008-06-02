@@ -51,10 +51,12 @@ public final class CheckedExceptionTunnel extends RuntimeException
         if (exception instanceof RuntimeException)
         {
             return (RuntimeException) exception;
-        } else
-        {
-            return new CheckedExceptionTunnel(exception);
         }
+        if (exception instanceof InterruptedException)
+        {
+            return new StopException(exception);
+        }
+        return new CheckedExceptionTunnel(exception);
     }
 
     /**
@@ -66,7 +68,7 @@ public final class CheckedExceptionTunnel extends RuntimeException
         assert exception != null : "Exception not specified.";
         if (exception instanceof CheckedExceptionTunnel)
         {
-            // We are sur that the wrapped exception is an 'Exception'.
+            // We are sure that the wrapped exception is an 'Exception'.
             return (Exception) exception.getCause();
         } else
         {

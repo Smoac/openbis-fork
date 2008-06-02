@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.StopException;
+
 /**
  * Test cases for the {@link TimerUtilities}.
  * <p>

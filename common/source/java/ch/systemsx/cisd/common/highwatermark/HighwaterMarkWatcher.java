@@ -24,7 +24,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import org.apache.commons.io.DestroyableFileSystemUtils;
 import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -48,7 +47,7 @@ public final class HighwaterMarkWatcher implements Runnable
     private static final String UNSPECIFIED = "unspecified";
 
     private final static IFreeSpaceProvider DEFAULT_FREE_SPACE_PROVIDER =
-            new DefaultFreeSpaceProvider();
+            new NonHangingFreeSpaceProvider(new SimpleFreeSpaceProvider());
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, HighwaterMarkWatcher.class);
@@ -224,20 +223,6 @@ public final class HighwaterMarkWatcher implements Runnable
     // Helper classes
     //
 
-    private final static class DefaultFreeSpaceProvider implements IFreeSpaceProvider
-    {
-
-        //
-        // IFreeSpaceProvider
-        //
-
-        public final long freeSpaceKb(final File path) throws IOException
-        {
-            final String canonicalPath = FileUtilities.getCanonicalPath(path);
-            return DestroyableFileSystemUtils.freeSpaceKb(canonicalPath);
-        }
-    }
-
     public final static class HighwaterMarkState implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -246,7 +231,7 @@ public final class HighwaterMarkWatcher implements Runnable
 
         private final long freeSpace;
 
-        HighwaterMarkState(final FileWithHighwaterMark fileWithHighwaterMark, final long freeSpace)
+        HighwaterMarkState(final FileWithHighwaterMark fileWithHighwaterMark, final Long freeSpace)
         {
             this.fileWithHighwaterMark = fileWithHighwaterMark;
             this.freeSpace = freeSpace;
@@ -285,7 +270,7 @@ public final class HighwaterMarkWatcher implements Runnable
         }
 
         /**
-         * Whether the free space is below or reaches the high water mark.
+         * Whether the free space is below the high water mark.
          */
         public final boolean isBelow()
         {
@@ -318,13 +303,10 @@ public final class HighwaterMarkWatcher implements Runnable
     final static class NotificationLogChangeListener implements ChangeListener
     {
         static final String INFO_LOG_FORMAT =
-                "The amount of available space (%s) on '%s' "
-                        + "is again sufficient (greater than the specified high water mark: %s).";
+                "Low space condition resolved on '%s', required: %s, found: %s, resuming operation.";
 
         static final String WARNING_LOG_FORMAT =
-                "The amount of available space (%s) on '%s' "
-                        + "is lower than the specified high water mark (%s). "
-                        + "Missing space is %s.";
+                "Highwater mark reached on '%s', required: %s, found: %s, missing: %s, suspending operation.";
 
         private static final Logger notificationLog =
                 LogFactory.getLogger(LogCategory.NOTIFY, NotificationLogChangeListener.class);
@@ -347,12 +329,12 @@ public final class HighwaterMarkWatcher implements Runnable
             {
                 final String missingSpace =
                         displayKilobyteValue(event.getHighwaterMark() - event.getFreeSpace());
-                notificationLog.warn(String.format(WARNING_LOG_FORMAT, freeSpaceDisplayed, path,
-                        highwaterMarkDisplayed, missingSpace));
+                notificationLog.warn(String.format(WARNING_LOG_FORMAT, path,
+                        highwaterMarkDisplayed, freeSpaceDisplayed, missingSpace));
             } else
             {
-                notificationLog.info(String.format(INFO_LOG_FORMAT, freeSpaceDisplayed, path,
-                        highwaterMarkDisplayed));
+                notificationLog.info(String.format(INFO_LOG_FORMAT, path, highwaterMarkDisplayed,
+                        freeSpaceDisplayed));
             }
         }
     }

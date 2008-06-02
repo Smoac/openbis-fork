@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.NamedCallable;
 import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.concurrent.StopException;
+import ch.systemsx.cisd.common.exceptions.StopException;
 
 /**
  * Utility to execute a command from a command line and log all events.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.concurrent;
+package ch.systemsx.cisd.common.exceptions;
 
 /**
  * Exception that signals that whoever gets it should stop its current work.
@@ -24,26 +24,30 @@ package ch.systemsx.cisd.common.concurrent;
  * 
  * @author Bernd Rinn
  */
-public class StopException extends RuntimeException
+public final class StopException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Checks whether the current thread has been interrupted and, if it has, throw a
-     * {@link StopException}.
-     */
-    public static void check() throws StopException
-    {
-        if (Thread.interrupted())
-        {
-            throw new StopException();
-        }
-    }
 
     public StopException()
     {
         super();
     }
 
+    public StopException(final Throwable cause)
+    {
+        super(cause);
+    }
+
+    /**
+     * Checks whether the current thread has been interrupted and, if it has, throw a
+     * {@link StopException}.
+     */
+    public final static void check() throws StopException
+    {
+        if (Thread.interrupted())
+        {
+            throw new StopException();
+        }
+    }
 }
