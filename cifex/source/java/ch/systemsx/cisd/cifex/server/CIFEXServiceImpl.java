@@ -507,7 +507,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return true;
     }
 
-    private String getBasicURL()
+    private final String getBasicURL()
     {
         return HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest());
     }

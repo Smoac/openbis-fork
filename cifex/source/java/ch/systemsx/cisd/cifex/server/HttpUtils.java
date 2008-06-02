@@ -16,30 +16,51 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+
 /**
+ * Some utilities around <i>Http</i>.
+ * 
  * @author Franz-Josef Elmer
  */
-public class HttpUtils
+public final class HttpUtils
 {
     /**
      * Extracts the basic URL from the request URL.
+     * <p>
+     * The basic URL is composed of the scheme (<i>http</i>,...), the host and the port.
+     * Additionally it contains the context path it not empty.
+     * </p>
      */
-    public static String getBasicURL(final HttpServletRequest request)
+    // requestURI: /cifex/file-upload
+    // servletPath: /cifex
+    // pathInfo: /file-upload
+    // requestURL: http://localhost:8888/cifex/file-upload
+    public final static String getBasicURL(final HttpServletRequest request)
     {
-        final StringBuffer requestURL = request.getRequestURL();
-        String url = requestURL.toString();
-        if (url.endsWith("/"))
+        final String scheme = request.getScheme();
+        final String serverName = request.getServerName();
+        final int port = request.getServerPort();
+        final String contextPath = StringUtils.defaultString(request.getContextPath());
+        try
         {
-            url = url.substring(0, url.length() - 1);
+            return new URL(scheme, serverName, port, contextPath).toString();
+        } catch (final MalformedURLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        final int indexOfLastSeparator = url.lastIndexOf("/");
-        return url.substring(0, indexOfLastSeparator);
     }
 
     private HttpUtils()
     {
+        // Can not be instantiated.
     }
 
 }
