@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
  * An <code>IFreeSpaceProvider</code> implementation for computing the free space on a remote
@@ -94,7 +95,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         final List<String> command = sshCommandBuilder.createSshCommand(dfCommand, host);
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
-                        millisToWaitForCompletion);
+                        millisToWaitForCompletion, OutputReadingStrategy.ALWAYS, false);
         processResult.log();
         final List<String> processOutput = processResult.getOutput();
         final String commandLine = StringUtils.join(processResult.getCommandLine(), SPACE);
