@@ -21,10 +21,8 @@ import static org.testng.AssertJUnit.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,39 +40,52 @@ public class ConcurrencyUtilitiesTest
 
     private final static String name = "This is the pool name";
 
-    private ThreadPoolExecutor eservice;
-
     @BeforeClass
     public void init()
     {
         LogInitializer.init();
-        eservice = (ThreadPoolExecutor) ConcurrencyUtilities.newNamedPool(name, 1, 2);
     }
 
     @Test
-    public void testNewNamedPool() throws Throwable
+    public void testTryGetFutureOK()
     {
-        assertEquals(1, eservice.getCorePoolSize());
-        assertEquals(2, eservice.getMaximumPoolSize());
-        final Future<?> future = eservice.submit(new Runnable()
+        final String valueProvided = "This is the execution return value";
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Future<String> future = eservice.submit(new Callable<String>()
             {
-                public void run()
+                public String call() throws Exception
                 {
-                    assertEquals(name + " 1", Thread.currentThread().getName());
+                    return valueProvided;
                 }
             });
-        try
-        {
-            future.get(200L, TimeUnit.MILLISECONDS);
-        } catch (ExecutionException ex)
-        {
-            throw ex.getCause();
-        }
+        final String valueObtained = ConcurrencyUtilities.tryGetResult(future, 200L);
+        assertEquals(valueProvided, valueObtained);
+        assertTrue(future.isDone());
     }
 
     @Test
+    public void testGetExecutionResultOK()
+    {
+        final String valueProvided = "This is the execution return value";
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    return valueProvided;
+                }
+            });
+        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 200L);
+        assertEquals(ExecutionStatus.COMPLETE, result.getStatus());
+        assertNull(result.tryGetException());
+        assertEquals(valueProvided, result.tryGetResult());
+        assertTrue(future.isDone());
+    }
+
+    @Test(groups = "slow")
     public void testTryGetFutureTimeout()
     {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -94,9 +105,63 @@ public class ConcurrencyUtilitiesTest
         assertTrue(future.isDone());
     }
 
+    @Test(groups = "slow")
+    public void testGetExecutionResultTimeout()
+    {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    try
+                    {
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
+                    return null;
+                }
+            });
+        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 20L);
+        assertEquals(ExecutionStatus.TIMED_OUT, result.getStatus());
+        assertNull(result.tryGetResult());
+        assertNull(result.tryGetException());
+        assertTrue(future.isDone());
+        assertTrue(future.isCancelled());
+    }
+
+    @Test(groups = "slow")
+    public void testGetExecutionResultTimeoutWithoutCancelation()
+    {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    try
+                    {
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
+                    return null;
+                }
+            });
+        final ExecutionResult<String> result =
+                ConcurrencyUtilities.getResult(future, 20L, false, null, null);
+        assertEquals(ExecutionStatus.TIMED_OUT, result.getStatus());
+        assertNull(result.tryGetResult());
+        assertNull(result.tryGetException());
+        assertFalse(future.isDone());
+        assertFalse(future.isCancelled());
+    }
+
     @Test
     public void testTryGetFutureInterrupted()
     {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -121,9 +186,78 @@ public class ConcurrencyUtilitiesTest
                     thread.interrupt();
                 }
             }, 20L);
-        final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 200L);
+        final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 200L, false);
         t.cancel();
         assertNull(shouldBeNull);
+        assertTrue(future.isCancelled());
+        assertFalse(Thread.interrupted());
+    }
+
+    @Test(expectedExceptions = { StopException.class })
+    public void testTryGetFutureStop()
+    {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Thread thread = Thread.currentThread();
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    try
+                    {
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
+                    return null;
+                }
+            });
+        final Timer t = new Timer();
+        t.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    thread.interrupt();
+                }
+            }, 20L);
+        // Supposed to throw a StopException
+        ConcurrencyUtilities.tryGetResult(future, 200L);
+    }
+
+    @Test
+    public void testGetExecutionResultInterrupted()
+    {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Thread thread = Thread.currentThread();
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    try
+                    {
+                        Thread.sleep(200L);
+                    } catch (InterruptedException ex)
+                    {
+                        throw new CheckedExceptionTunnel(ex);
+                    }
+                    return null;
+                }
+            });
+        final Timer t = new Timer();
+        t.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    thread.interrupt();
+                }
+            }, 20L);
+        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 200L);
+        t.cancel();
+        assertEquals(ExecutionStatus.INTERRUPTED, result.getStatus());
+        assertNull(result.tryGetResult());
+        assertNull(result.tryGetException());
         assertTrue(future.isCancelled());
         assertFalse(Thread.interrupted());
     }
@@ -134,8 +268,27 @@ public class ConcurrencyUtilitiesTest
     }
 
     @Test
+    public void testGetExecutionResultException()
+    {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    throw new TaggedException();
+                }
+            });
+        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 100L);
+        assertEquals(ExecutionStatus.EXCEPTION, result.getStatus());
+        assertTrue(result.tryGetException() instanceof TaggedException);
+        assertNull(result.tryGetResult());
+        assertTrue(future.isDone());
+    }
+
+    @Test
     public void testTryGetFutureException()
     {
+        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception

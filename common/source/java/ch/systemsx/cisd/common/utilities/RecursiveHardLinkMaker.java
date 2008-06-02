@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.concurrent.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.IProcess;
@@ -187,6 +188,7 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
             {
                 for (final File file : files)
                 {
+                    StopException.check();
                     if (tryMakeCopy(file, dir, null) == null)
                     {
                         return null;
@@ -244,8 +246,8 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
                 public boolean run()
                 {
                     boolean result =
-                            ProcessExecutionHelper.runAndLog(cmd, singleFileLinkTimeout
-                                    .getMillisToWaitForCompletion(), operationLog, machineLog);
+                            ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog,
+                                    singleFileLinkTimeout.getMillisToWaitForCompletion());
                     // NOTE: we have noticed that sometimes the result is false although the file
                     // have been copied
                     if (result == false && destFile.exists()
@@ -269,6 +271,7 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
 
     private static boolean checkIfIdenticalContent(final File file1, final File file2)
     {
+        StopException.check();
         try
         {
             return FileUtils.contentEquals(file1, file2);

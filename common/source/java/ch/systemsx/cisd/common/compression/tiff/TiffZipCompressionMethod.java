@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -41,12 +42,11 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
 
     private static String getImageMagickVersion(String convertExecutableToCheck)
     {
-        final long timeToWaitForCompletionMillis = 2 * 1000L;
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(convertExecutableToCheck, "--version"),
-                        timeToWaitForCompletionMillis, operationLog, machineLog);
+                        operationLog, machineLog, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         result.log();
-        final String versionString = extractImageMagickVersion(result.getProcessOutput().get(0));
+        final String versionString = extractImageMagickVersion(result.getOutput().get(0));
         return versionString;
     }
 

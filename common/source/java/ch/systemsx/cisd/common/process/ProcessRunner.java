@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.process;
 
+import ch.systemsx.cisd.common.concurrent.StopException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -39,6 +40,7 @@ public final class ProcessRunner
         int counter = 0;
         do
         {
+            StopException.check();
             process.run();
             if (counter > 0 && millisToSleepOnFailure > 0)
             {

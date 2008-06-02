@@ -16,95 +16,115 @@
 
 package ch.systemsx.cisd.common.process;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * Class that keeps around the result of running an Operating System process.
  * <p>
  * Since the process output can only ever be read once from a process, it need to be kept around if
  * it is needed more than once. This is what this class is good for.
- * </p>
  */
 public final class ProcessResult
 {
-    private final boolean hasBlocked;
+    /**
+     * The value indicating the process execution went OK.
+     */
+    public static final int EXIT_VALUE_OK = 0;
+
+    /**
+     * The value indicating that there is no exit value available for a process execution.
+     */
+    public static final int NO_EXIT_VALUE = -1;
+
+    /**
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
+     * {@link Process#destroy()} on a MS Windows machine.
+     */
+    private static final int EXIT_VALUE_FOR_TERMINATION_WINDOWS = 1;
+
+    /**
+     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
+     * {@link Process#destroy()} on a UNIX machine.
+     */
+    private static final int EXIT_VALUE_FOR_TERMINATION_UNIX = 143;
+
+    private final ExecutionStatus status;
+
+    private final String startupFailureMessage;
+
+    private final int exitValue;
 
     private final List<String> commandLine;
 
     private final String commandName;
 
+    private final int processNumber;
+
     private final Logger operationLog;
 
     private final Logger machineLog;
 
-    private final int exitValue;
+    private final boolean outputAvailable;
 
-    private final List<String> outputLines;
-
-    private final boolean run;
+    private final List<String> output;
 
     /**
-     * Creates a <code>ProcessResult</code> for a process which normally terminates.
+     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
+     * terminated on the Operating System level.
      */
-    public final static ProcessResult create(final Process process, final List<String> commandLine,
-            final Logger operationLog, final Logger machineLog, final List<String> outputLines)
+    public static boolean isProcessTerminated(final int exitValue)
     {
-        return new ProcessResult(process, false, commandLine, operationLog, machineLog, outputLines);
+        if (OSUtilities.isWindows())
+        {
+            return exitValue == ProcessResult.EXIT_VALUE_FOR_TERMINATION_WINDOWS;
+        } else
+        {
+            return exitValue == ProcessResult.EXIT_VALUE_FOR_TERMINATION_UNIX;
+        }
     }
 
-    /**
-     * Creates a <code>ProcessResult</code> for a process which did not start at all.
-     */
-    public static ProcessResult createNotStarted(final List<String> commandLine,
+    public static boolean isProcessOK(final int exitValue)
+    {
+        return (exitValue == EXIT_VALUE_OK);
+    }
+
+    ProcessResult(final List<String> commandLine, final int processNumber, final ExecutionStatus status,
+            final String startupFailureMessageOrNull, final int exitValue, final List<String> processOutputOrNull,
             final Logger operationLog, final Logger machineLog)
     {
-        return new ProcessResult(null, false, commandLine, operationLog, machineLog, Collections
-                .<String> emptyList());
-    }
-
-    /**
-     * Creates a <code>ProcessResult</code> for a process which blocked and could not be
-     * terminated. So we stopped waiting for it.
-     */
-    public static ProcessResult createWaitingInterrupted(final Process process,
-            final List<String> commandLine, final Logger operationLog, final Logger machineLog,
-            final List<String> outputLines)
-    {
-        return new ProcessResult(process, true, commandLine, operationLog, machineLog, outputLines);
-    }
-
-    private ProcessResult(final Process processOrNull, final boolean hasBlocked,
-            final List<String> commandLine, final Logger operationLog, final Logger machineLog,
-            final List<String> outputLines)
-    {
         this.commandLine = commandLine;
-        this.commandName = new File(commandLine.get(0)).getName();
-        this.hasBlocked = hasBlocked;
+        this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
+        this.processNumber = processNumber;
+        this.status = status;
+        this.startupFailureMessage =
+                (startupFailureMessageOrNull == null) ? "" : startupFailureMessageOrNull;
+        this.exitValue = exitValue;
+        this.outputAvailable = (processOutputOrNull != null);
+        if (outputAvailable)
+        {
+            this.output = Collections.unmodifiableList(processOutputOrNull);
+
+        } else
+        {
+            this.output = Collections.emptyList();
+
+        }
         this.operationLog = operationLog;
         this.machineLog = machineLog;
-        this.exitValue = getExitValue(processOrNull, hasBlocked);
-        this.outputLines = outputLines;
-        this.run = processOrNull != null;
-    }
-
-    private final static int getExitValue(final Process processOrNull, final boolean hasBlocked)
-    {
-        if (processOrNull != null && hasBlocked == false)
-        {
-            return processOrNull.exitValue();
-        }
-        return ProcessExecutionHelper.NO_EXIT_VALUE;
     }
 
     /**
      * Returns the command line that belongs to this process.
      */
-    public final List<String> getCommandLine()
+    public List<String> getCommandLine()
     {
         return commandLine;
     }
@@ -112,57 +132,102 @@ public final class ProcessResult
     /**
      * Returns the name of the command that belongs to this process.
      */
-    public final String getCommandName()
+    public String getCommandName()
     {
         return commandName;
     }
 
     /**
-     * Returns the lines of the process output.
+     * Returns a number identifying the process that this result is for.
      */
-    public final List<String> getProcessOutput()
+    public int getProcessNumber()
     {
-        return outputLines;
+        return processNumber;
     }
 
-    public final int exitValue()
+    /**
+     * Returns <code>true</code> if the output (<code>stdout</code> and <code>stderr</code>)
+     * is available (note that even if it available it may still be empty).
+     */
+    public boolean isOutputAvailable()
+    {
+        return outputAvailable;
+    }
+
+    /**
+     * Returns the output of the process (<code>stdout</code> and <code>stderr</code>). If it
+     * not available (see {@link #isOutputAvailable()}, an empty list is returned.
+     */
+    public List<String> getOutput()
+    {
+        return output;
+    }
+
+    /**
+     * Returns the exit value of the process, or {@link #NO_EXIT_VALUE}, if the value is not
+     * available.
+     */
+    public int getExitValue()
     {
         return exitValue;
     }
 
-    public final boolean isOK()
+    /**
+     * Returns the message that was given when the process failed to startup. If the process didn't
+     * fail on startup, an empty String is returned.
+     */
+    public String getStartupFailureMessage()
     {
-        return exitValue() == ProcessExecutionHelper.EXIT_VALUE_OK;
+        return startupFailureMessage;
+    }
+
+    /**
+     * Returns <code>true</code>, if the process has completed successfully.
+     */
+    public boolean isOK()
+    {
+        return isProcessOK(exitValue);
     }
 
     /**
      * Returns <code>true</code> if the process has been run at all.
      */
-    public final boolean isRun()
+    public boolean isRun()
     {
-        return run;
+        return StringUtils.isBlank(startupFailureMessage);
     }
 
     /**
-     * Returns <code>true</code> if the process could not been terminated after the timeout and we
-     * stopped waiting for it.
+     * Returns <code>true</code> if the process has been terminated on the Operating System level.
      */
-    public final boolean hasBlocked()
+    public boolean isTerminated()
     {
-        return hasBlocked;
+        return ProcessResult.isProcessTerminated(getExitValue());
     }
 
     /**
-     * Returns <code>true</code> if the process has been terminated on the <i>Operating System</i>
-     * level.
+     * Returns <code>true</code>, if the process has timed out on the Java level.
      */
-    public final boolean isTerminated()
+    public boolean isTimedOut()
     {
-        return ProcessExecutionHelper.isProcessTerminated(exitValue());
+        return ExecutionStatus.TIMED_OUT.equals(status);
     }
 
-    public final void log()
+    /**
+     * Returns <code>true</code>, if the Java thread that the process was running in got
+     * interrupted.
+     */
+    public boolean isInterruped()
     {
+        return ExecutionStatus.INTERRUPTED.equals(status);
+    }
+
+    /**
+     * Logs the outcome of the process execution.
+     */
+    public void log()
+    {
+
         if (isOK() == false)
         {
             logProcessExitValue(Level.WARN);
@@ -174,31 +239,37 @@ public final class ProcessResult
         }
     }
 
-    private final void logProcessExitValue(final Level logLevel)
+    private void logProcessExitValue(final Level logLevel)
     {
         if (isRun() == false)
         {
-            operationLog
-                    .log(logLevel, String.format("[%s] process could not be run.", commandName));
+            operationLog.log(logLevel, String.format("P%d-{%s} process has not started up: '%s'.",
+                    processNumber, commandName, startupFailureMessage));
+        } else if (isTimedOut())
+        {
+            operationLog.log(logLevel, String.format("P%d-{%s} process has timed out.",
+                    processNumber, commandName));
+        } else if (isInterruped())
+        {
+            operationLog.log(logLevel, String.format("P%d-{%s} thread was interrupted.",
+                    processNumber, commandName));
         } else if (isTerminated())
         {
-            operationLog.log(logLevel, String.format("[%s] process was destroyed.", commandName));
-        } else if (hasBlocked())
-        {
-            operationLog.log(logLevel, String.format(
-                    "[%s] process has blocked and could not be destroyed.", commandName));
+            operationLog.log(logLevel, String.format("P%d-{%s} process was terminated.",
+                    processNumber, commandName));
         } else
         {
-            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.",
-                    commandName, exitValue()));
+            operationLog.log(logLevel, String.format(
+                    "P%d-{%s} process returned with exit value %d.", processNumber, commandName,
+                    getExitValue()));
         }
     }
 
-    private final void logProcessOutput(final Level logLevel)
+    private void logProcessOutput(final Level logLevel)
     {
         assert logLevel != null;
 
-        final List<String> processOutputLines = getProcessOutput();
+        final List<String> processOutputLines = getOutput();
         if (processOutputLines.size() == 0)
         {
             return;

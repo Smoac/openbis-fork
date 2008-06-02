@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author Christian Ribeaud
  */
+@Deprecated
 public final class ProcessWatchdog implements Runnable
 {
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);

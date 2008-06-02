@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.process.ProcessWatchdog;
  * 
  * @author Christian Ribeaud
  */
+@Deprecated
 public final class DestroyableFileSystemUtils extends FileSystemUtils
 {
 

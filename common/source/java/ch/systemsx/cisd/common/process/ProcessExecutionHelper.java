@@ -21,165 +21,248 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Level;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.concurrent.NamedCallable;
+import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
+import ch.systemsx.cisd.common.concurrent.StopException;
 
 /**
  * Utility to execute a command from a command line and log all events.
  * 
- * @author Tomasz Pylak
  * @author Bernd Rinn
  */
-public final class ProcessExecutionHelper
+public class ProcessExecutionHelper
 {
 
     /**
-     * The value indicating that there is no exit value available for a process execution.
+     * Strategy on whether to read the process output or not.
      */
-    public static final int NO_EXIT_VALUE = -1;
+    public enum OutputReadingStrategy
+    {
+        /** Never read the output. */
+        NEVER,
+
+        /** Read the output if the process failed in some way. */
+        ON_ERROR,
+
+        /** Always read the output. */
+        ALWAYS;
+    }
 
     /**
-     * The value indicating the process execution went OK.
+     * The default strategy for when to read the process output.
      */
-    public static final int EXIT_VALUE_OK = 0;
+    public static final OutputReadingStrategy DEFAULT_OUTPUT_READING_STRATEGY =
+            OutputReadingStrategy.ON_ERROR;
 
-    /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
-     * {@link Process#destroy()} on a UNIX machine.
-     */
-    private static final int EXIT_VALUE_FOR_TERMINATION_UNIX = 143;
+    /** Corresponds to no timeout at all for the process execution. */
+    public static final long NO_TIMEOUT = ConcurrencyUtilities.NO_TIMEOUT;
 
-    /**
-     * The exit value returned by {@link Process#waitFor()} if the process was terminated by
-     * {@link Process#destroy()} on a MS Windows machine.
-     */
-    private static final int EXIT_VALUE_FOR_TERMINATION_WINDOWS = 1;
+    /** Corresponds to a short timeout of 1/10 s. */
+    private static final long SHORT_TIMEOUT = 100;
+
+    /** Corresponds to an immediate timeout for the process execution. */
+    private static final long IMMEDIATE_TIMEOUT = ConcurrencyUtilities.IMMEDIATE_TIMEOUT;
+
+    /** The executor service handling the threads that OS processes are spawned in. */
+    private static final ExecutorService executor = new NamingThreadPoolExecutor("osproc", 10);
+
+    /** The counter to draw the <var>processNumber</var> from. */
+    private static final AtomicInteger processCounter = new AtomicInteger();
 
     private final Logger operationLog;
 
     private final Logger machineLog;
 
-    public static List<String> createSshCommand(String command, File sshExecutable, String host)
-    {
-        ArrayList<String> wrappedCmd = new ArrayList<String>();
-        List<String> sshCommand = Arrays.asList(sshExecutable.getPath(), "-T", host);
-        wrappedCmd.addAll(sshCommand);
-        wrappedCmd.add(command);
-        return wrappedCmd;
-    }
+    /** Read-only! */
+    private final List<String> commandLine;
+
+    private final long millisToWaitForCompletion;
+
+    private final OutputReadingStrategy outputReadingStrategy;
+
+    /** The number used in thread names to distinguish the process. */
+    private final int processNumber;
+
+    // Use this reference to make sure the process is as dead as you can get it to be.
+    private final AtomicReference<Process> processWrapper;
 
     /**
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
-     * @param commandLine The command line to run.
+     * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code>
      *         otherwise.
+     * @throws StopException If the thread got interrupted.
      */
-    public static boolean runAndLog(final List<String> commandLine, final Logger operationLog,
-            final Logger machineLog)
+    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(commandLine, 0L);
-    }
-
-    /**
-     * Runs an Operating System process, specified by <var>cmd</var>.
-     * 
-     * @param commandLine The command line to run.
-     * @param operationLog The {@link Logger} to use for all message on the higher level.
-     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return The process result.
-     */
-    public static ProcessResult run(final List<String> commandLine, final Logger operationLog,
-            final Logger machineLog)
-    {
-        return new ProcessExecutionHelper(operationLog, machineLog).runWithoutWatchdog(commandLine);
+        return new ProcessExecutionHelper(cmd, NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
+                operationLog, machineLog).runAndLog();
     }
 
     /**
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
      * @param cmd The command line to run.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
-     *         otherwise.
+     * @return The process result.
+     * @throws StopException If the thread got interrupted.
      */
-    public static boolean runAndLog(final List<String> cmd, final long millisToWaitForCompletion,
-            final Logger operationLog, final Logger machineLog)
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).runAndLog(cmd,
-                millisToWaitForCompletion);
+        return new ProcessExecutionHelper(cmd, NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
+                operationLog, machineLog).run(true);
     }
 
     /**
      * Runs an Operating System process, specified by <var>cmd</var>.
      * 
      * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in
+     *            milli-seconds. If the process is not finished after that time, it will be
+     *            terminated by a watch dog.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
+     * @throws StopException If the thread got interrupted.
+     */
+    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion) throws StopException
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @param millisToWaitForCompletion The time to wait for the process to complete in milli
      *            seconds. If the process is not finished after that time, it will be terminated by
      *            a watch dog.
+     * @return The process result.
+     * @throws StopException If the thread got interrupted.
+     */
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion) throws StopException
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in
+     *            milli-seconds. If the process is not finished after that time, it will be
+     *            terminated by a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both
+     *            <code>stdout</code> and <code>sterr</code>) of the process.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
+     * @throws StopException If the thread got interrupted.
+     */
+    public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion,
+            final OutputReadingStrategy outputReadingStrategy) throws StopException
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
+                operationLog, machineLog).runAndLog();
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @param outputReadingStrategy The strategy for when to read the output (both
+     *            <code>stdout</code> and <code>sterr</code>) of the process.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
+     *            gets interrupted while waiting on the future.
      * @return The process result.
+     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
+     *             <code>true</code>.
      */
-    public static ProcessResult run(final List<String> cmd, final long millisToWaitForCompletion,
-            final Logger operationLog, final Logger machineLog)
+    public static ProcessResult run(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion,
+            final OutputReadingStrategy outputReadingStrategy, final boolean stopOnInterrupt)
+            throws StopException
     {
-        return new ProcessExecutionHelper(operationLog, machineLog).runWithWatchdog(cmd,
-                millisToWaitForCompletion);
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
+                operationLog, machineLog).run(stopOnInterrupt);
     }
 
     /**
-     * Returns <code>true</code> if the <var>exitValue</var> indicates that the process has been
-     * terminated on the Operating System level.
+     * Returns the name of the command represented by <var>commandLine</var>.
      */
-    public static boolean isProcessTerminated(final int exitValue)
+    static String getCommandName(final List<String> commandLine)
     {
-        if (OSUtilities.isWindows())
-        {
-            return exitValue == EXIT_VALUE_FOR_TERMINATION_WINDOWS;
-        } else
-        {
-            return exitValue == EXIT_VALUE_FOR_TERMINATION_UNIX;
-        }
+        return new File(commandLine.get(0)).getName();
     }
 
     /**
-     * Returns the stdout (and stderr if {@link ProcessBuilder#redirectErrorStream(boolean)} has
-     * been called with <code>true</code>).
+     * Returns the command represented by <var>commandLine</var>.
      */
-    public static List<String> readProcessOutputLines(final Process processOrNull,
-            final Logger machineLog)
+    private static String getCommand(final List<String> commandLine)
     {
+        return StringUtils.join(commandLine, ' ');
+    }
+
+    /**
+     * Returns the <code>stdout</code> (and <code>stderr</code> of the <var>process</var>.
+     */
+    private final static List<String> readProcessOutputLines(final Process process,
+            final Logger machineLog, final boolean wait)
+    {
+        assert process != null;
+        assert machineLog != null;
+
         final List<String> processOutput = new ArrayList<String>();
-        if (processOrNull == null)
-        {
-            return processOutput;
-        }
         final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(processOrNull.getInputStream()));
+                new BufferedReader(new InputStreamReader(process.getInputStream()));
         try
         {
-            String ln;
-            while ((ln = reader.readLine()) != null)
+            while ((wait || reader.ready()))
             {
-                processOutput.add(ln);
+                final String line = reader.readLine();
+                if (line == null)
+                {
+                    break;
+                }
+                processOutput.add(line);
             }
         } catch (final IOException e)
         {
-            machineLog.warn(String.format("IOException when reading stdout, msg='%s'.", e
+            machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.", e
                     .getMessage()));
         } finally
         {
@@ -192,203 +275,185 @@ public final class ProcessExecutionHelper
     // Implementation
     //
 
-    private ProcessExecutionHelper(final Logger operationLog, final Logger machineLog)
+    /**
+     * The class that performs the actual calling and interaction with the Operating System process.
+     * Since we observed hangs of several process-related methods we call all of this in a separate
+     * thread.
+     */
+    private class ProcessRunner implements NamedCallable<ProcessResult>
     {
-        this.operationLog = operationLog;
-        this.machineLog = machineLog;
-    }
-
-    private final ProcessResult runWithWatchdog(final List<String> commandLine,
-            final long millisoWaitForCompletion)
-    {
-        assert millisoWaitForCompletion > 0L : "Unspecified time out.";
-        final ProcessWatchdog processWatchdog = new ProcessWatchdog(millisoWaitForCompletion);
-        Process process = null;
-        try
+        private Process launch() throws IOException
         {
-            process = launchProcess(commandLine);
-            processWatchdog.start(process);
+            final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
+            processBuilder.redirectErrorStream(true);
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Running command: " + getCommand(commandLine));
+            }
+            final Process process = processBuilder.start();
+            return process;
+        }
+
+        public ProcessResult call() throws Exception
+        {
             try
             {
-                process.waitFor();
-                processWatchdog.stop();
-                return createResult(commandLine, process, processWatchdog.isProcessKilled(),
-                        readProcessOutputLines(process, machineLog));
-            } catch (final InterruptedException e)
+                final Process process = launch();
+                try
+                {
+                    processWrapper.set(process);
+                    final int exitValue = process.waitFor();
+                    if (processWrapper.getAndSet(null) == null)
+                    {
+                        // Value is irrelevant, the ProcessKiller got us.
+                        return null;
+                    }
+                    List<String> processOutput = null;
+                    if (OutputReadingStrategy.ALWAYS.equals(outputReadingStrategy)
+                            || (OutputReadingStrategy.ON_ERROR.equals(outputReadingStrategy) && ProcessResult
+                                    .isProcessOK(exitValue) == false))
+                    {
+                        processOutput = readProcessOutputLines(process, machineLog, true);
+                    }
+                    return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
+                            "", exitValue, processOutput, operationLog, machineLog);
+                } finally
+                {
+                    IOUtils.closeQuietly(process.getErrorStream());
+                    IOUtils.closeQuietly(process.getInputStream());
+                    IOUtils.closeQuietly(process.getOutputStream());
+                }
+            } catch (final Exception ex)
             {
-                operationLog.warn(String.format("Execution of %s interrupted after timeout.",
-                        commandLine));
-                return createResult(commandLine, process, processWatchdog.isProcessKilled(),
-                        Collections.<String> emptyList());
-            }
-        } catch (final IOException ex)
-        {
-            return createNotStartedResult(commandLine, ex);
-        } finally
-        {
-            closeStreams(process);
-            if (process != null)
-            {
-                process.destroy();
-            }
-        }
-    }
-
-    private final ProcessResult runWithoutWatchdog(final List<String> commandLine)
-    {
-        Process process = null;
-        try
-        {
-            process = launchProcess(commandLine);
-            try
-            {
-                process.waitFor();
-                return createResult(commandLine, process, false, readProcessOutputLines(process,
-                        machineLog));
-            } catch (final InterruptedException e)
-            {
-                operationLog.warn(String.format("Execution of %s interrupted after timeout.",
-                        commandLine));
-                return createResult(commandLine, process, true, Collections.<String> emptyList());
-            }
-        } catch (final IOException ex)
-        {
-            return createNotStartedResult(commandLine, ex);
-        } finally
-        {
-            closeStreams(process);
-            if (process != null)
-            {
-                process.destroy();
+                machineLog.error("Exception when launching: " + ex.getMessage());
+                throw ex;
             }
         }
-    }
 
-    private final Process launchProcess(final List<String> commandLine) throws IOException
-    {
-        final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
-        processBuilder.redirectErrorStream(true);
-        if (operationLog.isDebugEnabled())
+        public String getCallableName()
         {
-            operationLog.debug("Executing command: " + commandLine);
-        }
-        return processBuilder.start();
-    }
-
-    private final ProcessResult createNotStartedResult(final List<String> commandLine,
-            final IOException ex)
-    {
-        machineLog.error(String.format("Cannot execute executable %s", commandLine), ex);
-        return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
-    }
-
-    private final ProcessResult createResult(final List<String> commandLine,
-            final Process processOrNull, final boolean isInterrupted, final List<String> outputLines)
-    {
-        if (processOrNull == null)
-        {
-            return ProcessResult.createNotStarted(commandLine, operationLog, machineLog);
-        } else
-        {
-            final List<String> lines;
-            if (outputLines == null)
-            {
-                lines = readProcessOutputLines(processOrNull, machineLog);
-            } else
-            {
-                lines = outputLines;
-            }
-            if (isInterrupted)
-            {
-                return ProcessResult.createWaitingInterrupted(processOrNull, commandLine,
-                        operationLog, machineLog, lines);
-            } else
-            {
-                return ProcessResult.create(processOrNull, commandLine, operationLog, machineLog,
-                        lines);
-            }
-        }
-    }
-
-    private final boolean runAndLog(final List<String> cmd, final long millisToWaitForCompletion)
-    {
-        final ProcessResult result;
-        if (millisToWaitForCompletion > 0L)
-        {
-            result = runWithWatchdog(cmd, millisToWaitForCompletion);
-        } else
-        {
-            result = runWithoutWatchdog(cmd);
-        }
-        result.log();
-        return result.isOK();
-    }
-
-    public final static void logProcessExecution(final String commandName, final int exitValue,
-            final List<String> processOutput, final Logger operationLog, final Logger machineLog)
-    {
-        if (exitValue != EXIT_VALUE_OK)
-        {
-            logProcessExitValue(Level.WARN, operationLog, commandName, exitValue);
-            logProcessOutput(Level.WARN, machineLog, commandName, processOutput);
-        } else if (operationLog.isDebugEnabled())
-        {
-            logProcessExitValue(Level.DEBUG, operationLog, commandName, exitValue);
-            logProcessOutput(Level.DEBUG, machineLog, commandName, processOutput);
-        }
-    }
-
-    private final static void logProcessExitValue(final Level logLevel, final Logger operationLog,
-            final String commandName, final int exitValue)
-    {
-        assert logLevel != null;
-        assert operationLog != null;
-        assert commandName != null;
-
-        if (isProcessTerminated(exitValue))
-        {
-            operationLog.log(logLevel, String.format("[%s] process was destroyed.", commandName));
-        } else
-        {
-            operationLog.log(logLevel, String.format("[%s] process returned with exit value %d.",
-                    commandName, exitValue));
-        }
-    }
-
-    private final static void logProcessOutput(final Level logLevel, final Logger machineLog,
-            final String commandName, final List<String> processOutputLines)
-    {
-        assert logLevel != null;
-        assert machineLog != null;
-        assert commandName != null;
-        assert processOutputLines != null;
-
-        if (processOutputLines.size() == 0)
-        {
-            return;
-        }
-        machineLog.log(logLevel, String.format("[%s] output:", commandName));
-        for (final String ln : processOutputLines)
-        {
-            if (ln.trim().length() > 0)
-            {
-                machineLog.log(logLevel, String.format("\"%s\"", ln));
-            }
+            return "run-P" + processNumber + "-{" + getCommandName(commandLine) + "}";
         }
     }
 
     /**
-     * Close the streams belonging to given <var>Process</var>.
+     * The class that performs the destruction of a process that has timed-out. We do this in a
+     * separate thread because we have observed that, depending on the operating system and Java
+     * version, processes can hang indefinitely on launching.
      */
-    private final static void closeStreams(final Process processOrNull)
+    private class ProcessKiller implements NamedCallable<ProcessResult>
     {
-        if (processOrNull == null)
+        public ProcessResult call()
         {
-            return;
+            final Process process = processWrapper.getAndSet(null);
+            if (process != null)
+            {
+                List<String> processOutput = null;
+                if (OutputReadingStrategy.NEVER.equals(outputReadingStrategy) == false)
+                {
+                    processOutput = readProcessOutputLines(process, machineLog, false);
+                }
+                process.destroy(); // Note: this also closes the I/O streams.
+                if (machineLog.isInfoEnabled())
+                {
+                    machineLog.info(String.format("Killed '" + getCommand(commandLine)) + "'.");
+                }
+                final int exitValue = getExitValue(process);
+                return new ProcessResult(commandLine, processNumber, ExecutionStatus.TIMED_OUT, "",
+                        exitValue, processOutput, operationLog, machineLog);
+            } else
+            {
+                return null; // Value signals that the ProcessRunner got us.
+            }
         }
-        IOUtils.closeQuietly(processOrNull.getInputStream());
-        IOUtils.closeQuietly(processOrNull.getOutputStream());
-        IOUtils.closeQuietly(processOrNull.getErrorStream());
+
+        private int getExitValue(final Process process)
+        {
+            try
+            {
+                return process.exitValue();
+            } catch (final IllegalThreadStateException ex)
+            {
+                return ProcessResult.NO_EXIT_VALUE;
+            }
+        }
+
+        public String getCallableName()
+        {
+            return "kill-P" + processNumber + "-{" + getCommandName(commandLine) + "}";
+        }
+    }
+
+    private ProcessExecutionHelper(final List<String> commandLine,
+            final long millisToWaitForCompletion,
+            final OutputReadingStrategy outputReadingStrategy, final Logger operationLog,
+            final Logger machineLog)
+    {
+        this.processNumber = processCounter.getAndIncrement();
+        this.operationLog = operationLog;
+        this.machineLog = machineLog;
+        // Backward compatibility.
+        if (millisToWaitForCompletion == IMMEDIATE_TIMEOUT)
+        {
+            this.millisToWaitForCompletion = NO_TIMEOUT;
+        } else
+        {
+            this.millisToWaitForCompletion = millisToWaitForCompletion;
+        }
+        this.outputReadingStrategy = outputReadingStrategy;
+        this.commandLine = Collections.unmodifiableList(commandLine);
+        this.processWrapper = new AtomicReference<Process>();
+    }
+
+    private ProcessResult run(final boolean stopOnInterrupt)
+    {
+        final Future<ProcessResult> runnerFuture = executor.submit(new ProcessRunner());
+        ExecutionResult<ProcessResult> result =
+                ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false,
+                        null, null);
+        if (result.getStatus() == ExecutionStatus.TIMED_OUT)
+        {
+            final Future<ProcessResult> killerFuture = executor.submit(new ProcessKiller());
+            result = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+            if (result.tryGetResult() == null)
+            {
+                result = ConcurrencyUtilities.getResult(runnerFuture, IMMEDIATE_TIMEOUT);
+            }
+        }
+        if (result.tryGetResult() != null)
+        {
+            return result.tryGetResult();
+        } else if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(result.getStatus()))
+        {
+            throw new StopException();
+        } else
+        {
+            return new ProcessResult(commandLine, processNumber, result.getStatus(),
+                    tryGetStartupFailureMessage(result.tryGetException()),
+                    ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
+        }
+    }
+
+    private static String tryGetStartupFailureMessage(final Throwable throwableOrNull)
+    {
+        if (throwableOrNull != null && throwableOrNull instanceof IOException)
+        {
+            return throwableOrNull.getMessage();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private boolean runAndLog() throws StopException
+    {
+        final ProcessResult result = run(false);
+        result.log();
+        if (result.isInterruped())
+        {
+            throw new StopException();
+        }
+        return result.isOK();
     }
 
 }
