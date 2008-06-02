@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -59,11 +60,13 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
 
     public final synchronized void addUserSession(final HttpSession session)
     {
+        assert session != null : "Unspecified HTTP session";
         activeSessions.add(session);
     }
 
     public final synchronized void removeUserSession(final HttpSession session)
     {
+        assert session != null : "Unspecified HTTP session";
         if (isInvalidating == false)
         {
             activeSessions.remove(session);
@@ -76,23 +79,37 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
 
     public final synchronized void invalidateSessionWithUser(final UserDTO userDTO)
     {
+        assert userDTO != null : "Unspecified user";
         isInvalidating = true;
-        for (final HttpSession httpSession : activeSessions)
+        for (final Iterator<HttpSession> iterator = activeSessions.iterator(); iterator.hasNext();)
         {
-            final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-            if (user != null && user.getID().longValue() == userDTO.getID().longValue())
+            final HttpSession httpSession = iterator.next();
+            try
             {
-                // This unbinds all the attributes as well. So do not do clever cleaning here.
-                httpSession.invalidate();
-                if (operationLog.isInfoEnabled())
+                final UserDTO user =
+                        (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
+                if (user != null && user.getID().equals(userDTO))
                 {
-                    final String fullName = user.getUserFullName();
-                    String description =
-                            StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
-                    description += " <" + user.getEmail() + ">";
-                    operationLog.info("Currently logged in user [" + description
-                            + "] has been logged out.");
+                    // This unbinds all the attributes as well. So do not do clever cleaning here.
+                    httpSession.invalidate();
+                    // As removeUserSession will not remove it from the list, we have to do it
+                    // manually here.
+                    iterator.remove();
+                    if (operationLog.isInfoEnabled())
+                    {
+                        final String fullName = user.getUserFullName();
+                        String description =
+                                StringUtils.isBlank(fullName) ? user.getUserCode() : fullName;
+                        description += " <" + user.getEmail() + ">";
+                        operationLog.info("Currently logged in user [" + description
+                                + "] has been logged out.");
+                    }
                 }
+            } catch (final IllegalStateException ex)
+            {
+                // For some reason, the current httpSession has already been invalidated but still
+                // present in the list. So remove it and ignore this exception.
+                iterator.remove();
             }
         }
         isInvalidating = false;
