@@ -345,9 +345,12 @@ public class CopyActivityMonitorTest
 
     private final static class PathLastChangedCheckerStalled implements ILastChangedChecker
     {
+        private final long MAX_TIME = System.currentTimeMillis() + INACTIVITY_PERIOD_MILLIS * 2;
+
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
-            return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS * 2;
+            long now = System.currentTimeMillis();
+            return now < MAX_TIME ? now : MAX_TIME;
         }
     }
 
@@ -399,6 +402,7 @@ public class CopyActivityMonitorTest
         StoreItem item = new StoreItem("some-directory");
         final File directory = new File(parentDir, item.getName());
         directory.mkdir();
+        assert directory.isDirectory() : "directory could not be created: " + directory;
         directory.deleteOnExit();
         return item;
     }

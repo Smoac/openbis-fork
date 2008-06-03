@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
 
 /**
  * An {@link IFileStore} implementation for local stores.
@@ -84,7 +86,22 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
 
     public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
-        return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
+        try
+        {
+            return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
+        } catch (CheckedExceptionTunnel tunnelEx)
+        {
+            if (tunnelEx.getCause() instanceof IOException)
+            {
+                String errorMsg =
+                        String.format("Could not determine \"last changed time\" of %s: %s", item,
+                                tunnelEx.getCause());
+                throw new UnknownLastChangedException(errorMsg);
+            } else
+            {
+                throw tunnelEx;
+            }
+        }
     }
 
     public final long lastChangedRelative(final StoreItem item,

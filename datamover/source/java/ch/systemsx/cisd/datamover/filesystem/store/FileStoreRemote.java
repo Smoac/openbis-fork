@@ -41,6 +41,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
 
 /**
  * @author Tomasz Pylak
@@ -100,7 +101,10 @@ public class FileStoreRemote extends FileStore
     // modification time, oldest first
     private static String mkListByOldestModifiedCommand(final String directoryPath)
     {
-        return "ls -1 -t -r " + directoryPath;
+        // -A: show all entries except of . and ..
+        // -1: show one entry per line, nams only
+        // -t -r: sort by modification time (the oldest forst thanx to -r)
+        return "ls -1 -A -t -r " + directoryPath;
     }
 
     // ---------------
@@ -218,13 +222,20 @@ public class FileStoreRemote extends FileStore
                 return Long.parseLong(resultLine) * 1000;
             } catch (final NumberFormatException e)
             {
-                throw new EnvironmentFailureException("The result of " + cmd + " on remote host "
+                throw createLastChangeException(item, "The result of " + cmd + " on remote host "
                         + getHost() + "should be a number but was: " + result.getOutput());
             }
         } else
         {
-            throw new EnvironmentFailureException(errMsg);
+            throw createLastChangeException(item, errMsg);
         }
+    }
+
+    private static UnknownLastChangedException createLastChangeException(StoreItem item,
+            String errorMsg)
+    {
+        return new UnknownLastChangedException("Cannot obtain last change time of the item " + item
+                + ". Reason: " + errorMsg);
     }
 
     private String getRemoteFindExecutableOrDie()

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -118,7 +119,9 @@ public class CopyActivityMonitor
 
         activityMonitoringTimer = new Timer(threadNamePrefix + "Activity Monitor", true);
         activityMonitoringTimerTask = new ActivityMonitoringTimerTask(itemToBeCopied);
-        activityMonitoringTimer.schedule(activityMonitoringTimerTask, 0, checkIntervallMillis);
+        // we start the timer after some delay to let the copy process be started
+        activityMonitoringTimer.schedule(activityMonitoringTimerTask, checkIntervallMillis / 2,
+                checkIntervallMillis);
     }
 
     /**
@@ -128,6 +131,44 @@ public class CopyActivityMonitor
     public void stop()
     {
         activityMonitoringTimer.cancel();
+    }
+
+    private static interface LastChangeItemChecker
+    {
+        // returns 0 when an error or timeout occurs during the check
+        long lastChanged(long previousCheck);
+    }
+
+    /**
+     * A value object that holds the information about the last check performed for a path.
+     */
+    public static final class PathCheckRecord
+    {
+        final private long timeChecked;
+
+        final private long timeOfLastModification;
+
+        public PathCheckRecord(final long timeChecked, final long timeLastChanged)
+        {
+            this.timeChecked = timeChecked;
+            this.timeOfLastModification = timeLastChanged;
+        }
+
+        /**
+         * The time when the entry was checked.
+         */
+        public long getTimeChecked()
+        {
+            return timeChecked;
+        }
+
+        /**
+         * The newest last modification time found during the check.
+         */
+        public long getTimeOfLastModification()
+        {
+            return timeOfLastModification;
+        }
     }
 
     /**
@@ -147,7 +188,9 @@ public class CopyActivityMonitor
 
         private final StoreItem itemToBeCopied;
 
-        private long monitoredItemLastChanged;
+        private final LastChangeItemChecker lastChangeChecker;
+
+        private PathCheckRecord lastCheckOrNull;
 
         private ActivityMonitoringTimerTask(StoreItem itemToBeCopied)
         {
@@ -155,9 +198,9 @@ public class CopyActivityMonitor
             assert itemToBeCopied != null;
             assert destinationStore != null;
 
-            // Ensure the alarm won't be run before the copier has a chance to get active.
-            this.monitoredItemLastChanged = System.currentTimeMillis();
+            this.lastCheckOrNull = null;
             this.itemToBeCopied = itemToBeCopied;
+            this.lastChangeChecker = createLastChangedChecker();
         }
 
         @Override
@@ -183,38 +226,13 @@ public class CopyActivityMonitor
                             itemToBeCopied, destinationStore));
                     return;
                 }
-                final long lastChangedAsFoundByPathChecker =
-                        lastChanged(destinationStore, itemToBeCopied, monitoredItemLastChanged);
-                if (operationLog.isTraceEnabled())
-                {
-                    operationLog
-                            .trace(String
-                                    .format(
-                                            "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.",
-                                            itemToBeCopied, destinationStore,
-                                            lastChangedAsFoundByPathChecker));
-                }
-                // This catches the case where since the last check copying a files has been
-                // finished (and consequently
-                // the "last changed" time has been set to that of the source file), but copying of
-                // the next file has
-                // not yet been started.
-                final long lastChanged =
-                        Math.max(lastChangedAsFoundByPathChecker, monitoredItemLastChanged);
                 final long now = System.currentTimeMillis();
-                if (lastChanged > now) // That can happen if the system clock of the data producer
-                // is screwed up.
+                if (isQuietFor(inactivityPeriodMillis, now))
                 {
-                    machineLog.error(String.format(
-                            "Found \"last changed time\" in the future (%1$tF %1$tT), "
-                                    + "check system clock of data producer.", lastChanged));
-                }
-                monitoredItemLastChanged = lastChanged;
-                final long noProgressSinceMillis = now - lastChanged;
-                if (noProgressSinceMillis > inactivityPeriodMillis)
-                {
+                    final long noProgressSinceMillis = now - lastCheckOrNull.getTimeChecked();
                     machineLog.error(String.format(INACTIVITY_REPORT_TEMPLATE, itemToBeCopied,
                             destinationStore, noProgressSinceMillis / 1000.0f));
+
                     operationLog.warn(String.format(TERMINATION_LOG_TEMPLATE, terminable.getClass()
                             .getName()));
                     terminable.terminate();
@@ -238,23 +256,107 @@ public class CopyActivityMonitor
             }
         }
 
-        private long lastChanged(IFileStore store, StoreItem item, long lastLastChanged)
+        private LastChangeItemChecker createLastChangedChecker()
+        {
+            return new LastChangeItemChecker()
+                {
+                    public long lastChanged(long previousCheck)
+                    {
+                        final Long lastChanged = tryLastChanged(destinationStore, itemToBeCopied);
+                        if (operationLog.isTraceEnabled() && lastChanged != null)
+                        {
+                            String msgTemplate =
+                                    "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.";
+                            String msg =
+                                    String.format(msgTemplate, itemToBeCopied, destinationStore,
+                                            lastChanged);
+                            operationLog.trace(msg);
+                        }
+                        return (lastChanged != null) ? lastChanged : 0;
+                    }
+                };
+        }
+
+        // true if nothing has changed during the specified period
+        private boolean isQuietFor(long quietPeriodMillis, long now)
+        {
+            if (lastCheckOrNull == null) // never checked before
+            {
+                setFirstModificationDate(now);
+                return false;
+            } else
+            {
+                final boolean oldIsUnknown = (lastCheckOrNull.getTimeOfLastModification() == 0);
+                // no need to check yet
+                if (now - lastCheckOrNull.getTimeChecked() < quietPeriodMillis)
+                {
+                    // if last check finished with an error, try to redo it and save it with the
+                    // previous check time
+                    if (oldIsUnknown)
+                    {
+                        setFirstModificationDate(lastCheckOrNull.getTimeChecked());
+                    }
+                    return false;
+                } else if (oldIsUnknown)
+                {
+                    // during the whole period modification time could not be fetched. It could be
+                    // unchanged, trying to fetch it now will give us no information.
+                    return true;
+                } else
+                {
+                    return checkIfModifiedAndSet(now);
+                }
+            }
+        }
+
+        // check if item has been modified since last check by comparing its current modification
+        // time to the one acquired in the past
+        private boolean checkIfModifiedAndSet(long now)
+        {
+            final long prevModificationTime = lastCheckOrNull.getTimeOfLastModification();
+            final long newModificationTime = lastChangeChecker.lastChanged(prevModificationTime);
+            boolean newIsKnown = (newModificationTime != 0);
+            if (newIsKnown && newModificationTime != prevModificationTime)
+            {
+                lastCheckOrNull = new PathCheckRecord(now, newModificationTime);
+                return false;
+            } else
+            {
+                return true; // item unchanged or we could not fetch this information
+            }
+        }
+
+        private void setFirstModificationDate(final long timeChecked)
+        {
+            long lastChanged = lastChangeChecker.lastChanged(0L); // 0 if error
+            lastCheckOrNull = new PathCheckRecord(timeChecked, lastChanged);
+        }
+
+        private Long tryLastChanged(IFileStore store, StoreItem item)
         {
             final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
             final Future<Long> lastChangedFuture =
                     lastChangedExecutor.submit(createCheckerCallable(store, item,
                             minusSafetyMargin(inactivityPeriodMillis)));
             final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
-            final Long lastChanged =
-                    ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis,
-                            simpleMachineLog, "Check for recent paths").tryGetResult();
-            if (lastChanged == null)
+            try
+            {
+                final Long lastChanged =
+                        ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis,
+                                simpleMachineLog, "Check for recent paths").tryGetResult();
+                if (lastChanged == null)
+                {
+                    operationLog.error(String.format(
+                            "Could not determine \"last changed time\" of %s: time out.", item));
+                    return null;
+                }
+                return lastChanged;
+            } catch (UnknownLastChangedException ex)
             {
                 operationLog.error(String.format(
-                        "Could not determine \"last changed time\" of %s: time out.", item));
-                return lastLastChanged;
+                        "Could not determine \"last changed time\" of %s: %s", item, ex));
+                return null;
             }
-            return lastChanged;
         }
 
         private long minusSafetyMargin(long period)

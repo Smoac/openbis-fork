@@ -76,13 +76,13 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
     /**
      * A value object that holds the information about the last check performed for a path.
      */
-    private static final class PathCheckRecord
+    public static final class PathCheckRecord
     {
         final private long timeChecked;
 
         final private long timeOfLastModification;
 
-        PathCheckRecord(final long timeChecked, final long timeLastChanged)
+        public PathCheckRecord(final long timeChecked, final long timeLastChanged)
         {
             this.timeChecked = timeChecked;
             this.timeOfLastModification = timeLastChanged;
@@ -151,7 +151,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                 return false;
             }
             if (now - checkRecordOrNull.getTimeChecked() < quietPeriodMillis) // no need to check
-                                                                                // yet
+            // yet
             {
                 return false;
             }
@@ -160,9 +160,18 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             if (newLastChanged != oldLastChanged)
             {
                 pathMap.put(item, new PathCheckRecord(now, newLastChanged));
-                if (newLastChanged < oldLastChanged) // that is not supposed to happen
+                /**
+                 * in general value of lastChanged time stamp should increase, because the
+                 * modification time of file which is currently copied is set to the current time.
+                 * However there can be jump back in time, when the copy is finished and the
+                 * original modification time is restored. It can also happen when one of many files
+                 * in the directory has been copied and the coping of the next one has not started.
+                 * The jump back in time should never occur if the observed item is not copied, but
+                 * is being generated.
+                 */
+                if (newLastChanged < oldLastChanged)
                 {
-                    machineLog.error(getClockProblemLogMessage(item.getName(), checkRecordOrNull
+                    machineLog.warn(getClockProblemLogMessage(item.getName(), checkRecordOrNull
                             .getTimeChecked(), oldLastChanged, now, newLastChanged));
                 }
                 return false;
@@ -200,11 +209,13 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
     static String getClockProblemLogMessage(final String pathname, final long oldCheck,
             final long oldLastChanged, final long newCheck, final long newLastChanged)
     {
-        return String.format("Last modification time of path '%1$s' jumped back: check at "
-                + getTimeFormat(2) + " -> last modification time " + getTimeFormat(3)
-                + ", check at later time " + getTimeFormat(4) + " -> last modification time "
-                + getTimeFormat(5) + " (which is %6$d ms younger)", pathname, oldCheck,
-                oldLastChanged, newCheck, newLastChanged, (oldLastChanged - newLastChanged));
+        return String.format(
+                "Last modification time of path '%1$s' jumped back: check at "
+                        + getTimeFormat(2) + " -> last modification time " + getTimeFormat(3)
+                        + ", check at later time " + getTimeFormat(4)
+                        + " -> last modification time " + getTimeFormat(5)
+                        + " (which is %6$d ms younger)", pathname, oldCheck, oldLastChanged,
+                newCheck, newLastChanged, (oldLastChanged - newLastChanged));
     }
 
     // @Private

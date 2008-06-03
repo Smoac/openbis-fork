@@ -65,6 +65,7 @@ public interface IFileStore extends ISelfTestable
      *            youngest entry, but only, if there are entries that are "young enough".
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed.
+     * @throws UnknownLastChangedException when reading modification time failed
      */
     public long lastChanged(StoreItem item, long stopWhenFindYounger);
 
@@ -77,6 +78,7 @@ public interface IFileStore extends ISelfTestable
      *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed.
+     * @throws UnknownLastChangedException when reading modification time failed
      */
     public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
 
