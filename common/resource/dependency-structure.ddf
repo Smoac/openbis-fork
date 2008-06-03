@@ -36,9 +36,9 @@ check sets [io]
 [mail] = ${package}.mail.*
 check sets [mail]
 
-layer layer0 = [io] [annotation] [exceptions] [logging] [test] [converter]
+layer layer0 = [io] [annotation] [exceptions] [logging] [converter]
 layer layer1 = [process] [mail] [collections]
-layer layer2 = [compression]
+layer layer2 = [compression] [test]
 layer layer3 = [db] [parser]
 
 check layeringOf layer0 layer1 layer2
