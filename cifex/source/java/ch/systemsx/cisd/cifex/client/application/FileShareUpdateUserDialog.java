@@ -90,7 +90,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 
         for (int i = 0; i < newUsers.size(); i++)
         {
-            String userIdentifier = ((User) existingUsers.get(i)).getEmail();
+            String userIdentifier = ((User) newUsers.get(i)).getEmail();
             if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
             {
                 if (usersToAdd.contains(userIdentifier))
