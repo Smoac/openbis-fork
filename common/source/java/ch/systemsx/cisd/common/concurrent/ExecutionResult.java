@@ -19,13 +19,17 @@ package ch.systemsx.cisd.common.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+
 /**
  * A class that contains the result of the execution of a {@link Runnable} (or {@link Callable}) in
  * an {@link ExecutorService}.
  * 
  * @author Bernd Rinn
  */
-public class ExecutionResult<T>
+public final class ExecutionResult<T>
 {
     private final ExecutionStatus status;
 
@@ -33,7 +37,8 @@ public class ExecutionResult<T>
 
     private final Throwable exceptionOrNull;
 
-    private ExecutionResult(final ExecutionStatus status, final T resultOrNull, final Throwable exceptionOrNull)
+    private ExecutionResult(final ExecutionStatus status, final T resultOrNull,
+            final Throwable exceptionOrNull)
     {
         this.status = status;
         this.resultOrNull = resultOrNull;
@@ -45,7 +50,7 @@ public class ExecutionResult<T>
      * {@link Runnable} can also provide a <code>null</code> result, <code>null</code> is an
      * accepted value for the result.
      */
-    static <T> ExecutionResult<T> create(final T resultOrNull)
+    static final <T> ExecutionResult<T> create(final T resultOrNull)
     {
         return new ExecutionResult<T>(ExecutionStatus.COMPLETE, resultOrNull, null);
     }
@@ -53,7 +58,7 @@ public class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to an exception.
      */
-    static <T> ExecutionResult<T> createExceptional(final Throwable exception)
+    static final <T> ExecutionResult<T> createExceptional(final Throwable exception)
     {
         assert exception != null;
 
@@ -63,7 +68,7 @@ public class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to a time out.
      */
-    static <T> ExecutionResult<T> createTimedOut()
+    static final <T> ExecutionResult<T> createTimedOut()
     {
         return new ExecutionResult<T>(ExecutionStatus.TIMED_OUT, null, null);
     }
@@ -71,7 +76,7 @@ public class ExecutionResult<T>
     /**
      * Creates an {@link ExecutionResult} that corresponds to an interruption.
      */
-    static <T> ExecutionResult<T> createInterrupted()
+    static final <T> ExecutionResult<T> createInterrupted()
     {
         return new ExecutionResult<T>(ExecutionStatus.INTERRUPTED, null, null);
     }
@@ -79,7 +84,7 @@ public class ExecutionResult<T>
     /**
      * Returns the {@link ExecutionStatus} of the execution.
      */
-    public ExecutionStatus getStatus()
+    public final ExecutionStatus getStatus()
     {
         return status;
     }
@@ -88,7 +93,7 @@ public class ExecutionResult<T>
      * Returns the returned result of the execution, or <code>null</code>, if either the status
      * is not {@link ExecutionStatus#COMPLETE} or if the execution didn't provide a result.
      */
-    public T tryGetResult()
+    public final T tryGetResult()
     {
         return resultOrNull;
     }
@@ -97,9 +102,19 @@ public class ExecutionResult<T>
      * Returns the thrown exception (or error) of the execution, or <code>null</code>, if the
      * status is not {@link ExecutionStatus#EXCEPTION}.
      */
-    public Throwable tryGetException()
+    public final Throwable tryGetException()
     {
         return exceptionOrNull;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+    }
 }

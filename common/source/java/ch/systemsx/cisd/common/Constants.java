@@ -47,6 +47,9 @@ public final class Constants
     /** The number of milliseconds to sleep before retrying (<i>3s</i>). */
     public static final long MILLIS_TO_SLEEP_BEFORE_RETRYING = 3 * DateUtils.MILLIS_PER_SECOND;
 
+    /** The number of retries when a given process failed. */
+    public static final int MAXIMUM_RETRY_COUNT = 12;
+
     /** The prefix of marker files that indicate that a directory is currently being processed. */
     public static final String PROCESSING_PREFIX = MARKER_PREFIX + "processing_";
 }

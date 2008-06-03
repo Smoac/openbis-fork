@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -27,9 +28,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.IProcess;
+import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessRunner;
 
 /**
  * Utility to create a hard link of a file or copy recursively a directories structure, creating a
@@ -241,9 +241,13 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         assert file.isFile() : String.format("Given file '%s' must be a file and is not.", file);
         final File destFile = new File(destDir, nameOrNull == null ? file.getName() : nameOrNull);
         final List<String> cmd = createLnCmdLine(file, destFile);
-        IProcessTask processTask = new IProcessTask()
+        final Callable<Boolean> processTask = new Callable<Boolean>()
             {
-                public boolean run()
+                //
+                // Callable
+                //
+
+                public final Boolean call()
                 {
                     boolean result =
                             ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog,
@@ -293,39 +297,9 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return tokens;
     }
 
-    interface IProcessTask
-    {
-        boolean run(); // returns true if operation succeeded
-    }
-
-    private static boolean runRepeatableProcess(final IProcessTask task,
+    private static boolean runRepeatableProcess(final Callable<Boolean> task,
             final int maxRetryOnFailure, final long millisToSleepOnFailure)
     {
-        IProcess process = new IProcess()
-            {
-                private boolean succeded;
-
-                public int getMaxRetryOnFailure()
-                {
-                    return maxRetryOnFailure;
-                }
-
-                public long getMillisToSleepOnFailure()
-                {
-                    return millisToSleepOnFailure;
-                }
-
-                public boolean succeeded()
-                {
-                    return succeded;
-                }
-
-                public void run()
-                {
-                    succeded = task.run();
-                }
-            };
-        new ProcessRunner(process);
-        return process.succeeded();
+        return new CallableExecutor(maxRetryOnFailure, millisToSleepOnFailure).executeCallable(task);
     }
 }

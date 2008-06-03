@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
-import java.io.IOException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -31,6 +30,8 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public final class HighwaterMarkSelfTestable implements ISelfTestable
 {
+    static final String EXCEPTION_FORMAT =
+            "Highwater mark reached on '%s', required: %s, found: %s.";
 
     private final File path;
 
@@ -49,25 +50,17 @@ public final class HighwaterMarkSelfTestable implements ISelfTestable
 
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
-        try
+        final HighwaterMarkState highwaterMarkState =
+                highwaterMarkWatcher.getHighwaterMarkState(path);
+        if (HighwaterMarkWatcher.isBelow(highwaterMarkState))
         {
-            final HighwaterMarkState highwaterMarkState =
-                    highwaterMarkWatcher.getHighwaterMarkState(path);
-            if (HighwaterMarkWatcher.isBelow(highwaterMarkState))
-            {
-                final String freeSpaceDisplayed =
-                        HighwaterMarkWatcher
-                                .displayKilobyteValue(highwaterMarkState.getFreeSpace());
-                final String highwaterMarkDisplayed =
-                        HighwaterMarkWatcher.displayKilobyteValue(highwaterMarkState
-                                .getHighwaterMark());
-                throw ConfigurationFailureException.fromTemplate(
-                        "Free space (%s) lies below given high water mark (%s).",
-                        freeSpaceDisplayed, highwaterMarkDisplayed);
-            }
-        } catch (IOException ex)
-        {
-            throw new EnvironmentFailureException(ex.getMessage());
+            final String freeSpaceDisplayed =
+                    HighwaterMarkWatcher.displayKilobyteValue(highwaterMarkState.getFreeSpace());
+            final String highwaterMarkDisplayed =
+                    HighwaterMarkWatcher
+                            .displayKilobyteValue(highwaterMarkState.getHighwaterMark());
+            throw ConfigurationFailureException.fromTemplate(EXCEPTION_FORMAT, path,
+                    highwaterMarkDisplayed, freeSpaceDisplayed);
         }
     }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.highwatermark;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.Callable;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -28,8 +29,11 @@ import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -166,10 +170,36 @@ public final class HighwaterMarkWatcher implements Runnable
     /**
      * Analyzes given <var>path</var> and returns a {@link HighwaterMarkState}.
      */
-    public final HighwaterMarkState getHighwaterMarkState(final File file) throws IOException
+    public final HighwaterMarkState getHighwaterMarkState(final File file)
+            throws EnvironmentFailureException
     {
         assert file != null : "Unspecified file";
-        final long freeSpaceInKb = freeSpaceProvider.freeSpaceKb(file);
+        final String errorMsg =
+                String.format("Could not compute available free space for '%s'.", file);
+        final Long freeSpaceInKb =
+                new CallableExecutor(5, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING)
+                        .executeCallable(new Callable<Long>()
+                            {
+
+                                //
+                                // Callable
+                                //
+
+                                public Long call() throws Exception
+                                {
+                                    try
+                                    {
+                                        return freeSpaceProvider.freeSpaceKb(file);
+                                    } catch (final IOException ex)
+                                    {
+                                        return null;
+                                    }
+                                }
+                            });
+        if (freeSpaceInKb == null)
+        {
+            throw new EnvironmentFailureException(errorMsg);
+        }
         return new HighwaterMarkState(new FileWithHighwaterMark(file, highwaterMarkInKb),
                 freeSpaceInKb);
     }
@@ -205,17 +235,15 @@ public final class HighwaterMarkWatcher implements Runnable
             }
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format(
-                        "Amount of available space on '%s' is %s (high water mark: %s).",
+                operationLog.debug(String.format("Free space on '%s': %s, highwater mark: %s.",
                         state.fileWithHighwaterMark.getCanonicalPath(),
                         displayKilobyteValue(state.freeSpace),
                         displayKilobyteValue(highwaterMarkInKb)));
             }
-        } catch (final IOException ex)
+        } catch (final EnvironmentFailureException ex)
         {
-            operationLog.error(
-                    "The high water mark watcher can not work properly due to an I/O exception.",
-                    ex);
+            operationLog.error("The highwater mark watcher can not work properly "
+                    + "due to an environment exception.", ex);
         }
     }
 

@@ -60,9 +60,8 @@ public final class NonHangingFreeSpaceProvider extends DelegateFreeSpaceProvider
             return resultOrNull;
         } else
         {
-            final Throwable cause = executionResult.tryGetException();
-            throw new IOException(cause == null ? String.format(
-                    "Computing free space on '%s' failed.", path) : cause.getMessage());
+            throw new IOException(String.format("Computing free space on '%s' failed: %s", path,
+                    executionResult));
         }
     }
 
