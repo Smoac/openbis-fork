@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.FileRenamingProcess;
-import ch.systemsx.cisd.common.process.ProcessRunner;
+import ch.systemsx.cisd.common.process.CallableExecutor;
+import ch.systemsx.cisd.common.process.FileRenamingCallable;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 
@@ -73,11 +73,10 @@ class RetryingPathMover implements IPathMover
                     destinationPath));
         }
         File destFile = new File(destinationPath);
-        final FileRenamingProcess process =
-                new FileRenamingProcess(maxRetriesOnFailure, millisToSleepOnFailure, sourcePath,
-                        destFile);
-        new ProcessRunner(process);
-        if (process.isRenamed() == false)
+        final Boolean renamed =
+                new CallableExecutor(maxRetriesOnFailure, millisToSleepOnFailure)
+                        .executeCallable(new FileRenamingCallable(sourcePath, destFile));
+        if (renamed == null || renamed == false)
         {
             notificationLog.error(String.format(
                     "Moving path '%s' to directory '%s' failed, giving up.", sourcePath,
