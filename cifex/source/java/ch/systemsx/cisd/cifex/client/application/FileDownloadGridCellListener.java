@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Record;
 import com.gwtext.client.widgets.grid.Grid;
@@ -47,10 +49,20 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
         final String dataIndex = grid.getColumnModel().getDataIndex(colIndex);
         if (dataIndex.equals(AbstractFileGridModel.NAME))
         {
-            final Record record = grid.getStore().getAt(rowIndex);
-            final int id = record.getAsInteger(AbstractFileGridModel.ID);
-            final String url = FileDownloadHelper.createDownloadUrl(id);
-            WindowUtils.openNewDependentWindow(url);
+            final Element element = e.getTarget();
+            if (element == null)
+            {
+                return;
+            }
+            final String targetId = DOM.getElementAttribute(element, "class");
+            if ("cifex-a".equals(targetId))
+            {
+                final Record record = grid.getStore().getAt(rowIndex);
+                final int id = record.getAsInteger(AbstractFileGridModel.ID);
+                final String url = FileDownloadHelper.createDownloadUrl(id);
+                WindowUtils.openNewDependentWindow(url);
+            }
+
         }
     }
 }
