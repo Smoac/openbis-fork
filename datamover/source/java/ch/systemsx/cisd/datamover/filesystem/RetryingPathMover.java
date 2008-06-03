@@ -46,18 +46,18 @@ class RetryingPathMover implements IPathMover
 
     private final long millisToSleepOnFailure;
 
-    RetryingPathMover(int maxRetriesOnFailure, long millisToSleepOnFailure)
+    RetryingPathMover(final int maxRetriesOnFailure, final long millisToSleepOnFailure)
     {
         this.maxRetriesOnFailure = maxRetriesOnFailure;
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
-    public File tryMove(File sourceFile, File destinationDir)
+    public File tryMove(final File sourceFile, final File destinationDir)
     {
         return tryMove(sourceFile, destinationDir, "");
     }
 
-    public File tryMove(File sourcePath, File destinationDirectory, String prefixTemplate)
+    public File tryMove(final File sourcePath, final File destinationDirectory, final String prefixTemplate)
     {
         assert destinationDirectory != null;
         assert FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination") == null : "Directory is not fully accessible "
@@ -72,7 +72,7 @@ class RetryingPathMover implements IPathMover
             operationLog.info(String.format("Moving path '%s' to '%s'", sourcePath.getPath(),
                     destinationPath));
         }
-        File destFile = new File(destinationPath);
+        final File destFile = new File(destinationPath);
         final Boolean renamed =
                 new CallableExecutor(maxRetriesOnFailure, millisToSleepOnFailure)
                         .executeCallable(new FileRenamingCallable(sourcePath, destFile));
@@ -93,8 +93,8 @@ class RetryingPathMover implements IPathMover
      * with prefix defined by <var>prefixTemplate</var>. Note that '%t' in <var>prefixTemplate</var>
      * will be replaced by the current time stamp in format YYYYmmddhhMMss.
      */
-    private static String createDestinationPath(File sourcePath, String destinationHostOrNull,
-            File destinationDirectory, String prefixTemplate)
+    private static String createDestinationPath(final File sourcePath, final String destinationHostOrNull,
+            final File destinationDirectory, final String prefixTemplate)
     {
         assert sourcePath != null;
         assert destinationDirectory != null;
@@ -112,7 +112,7 @@ class RetryingPathMover implements IPathMover
         }
     }
 
-    private static String createPrefix(String prefixTemplate)
+    private static String createPrefix(final String prefixTemplate)
     {
         return StringUtils.replace(prefixTemplate, "%t", DateFormatUtils.format(System
                 .currentTimeMillis(), "yyyyMMddHHmmss"));
