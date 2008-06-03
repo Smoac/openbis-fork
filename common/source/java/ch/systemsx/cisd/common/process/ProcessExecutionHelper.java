@@ -107,8 +107,8 @@ public class ProcessExecutionHelper
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
             final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
-                operationLog, machineLog).runAndLog();
+        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
     }
 
     /**
@@ -123,8 +123,8 @@ public class ProcessExecutionHelper
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
-                operationLog, machineLog).run(true);
+        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
     }
 
     /**
@@ -393,7 +393,14 @@ public class ProcessExecutionHelper
         this.processNumber = processCounter.getAndIncrement();
         this.operationLog = operationLog;
         this.machineLog = machineLog;
-        this.millisToWaitForCompletion = millisToWaitForCompletion;
+        // Backward compatibility. Do not remove this!!!
+        if (millisToWaitForCompletion == ConcurrencyUtilities.IMMEDIATE_TIMEOUT)
+        {
+            this.millisToWaitForCompletion = ConcurrencyUtilities.NO_TIMEOUT;
+        } else
+        {
+            this.millisToWaitForCompletion = millisToWaitForCompletion;
+        }
         this.outputReadingStrategy = outputReadingStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.processWrapper = new AtomicReference<Process>();
