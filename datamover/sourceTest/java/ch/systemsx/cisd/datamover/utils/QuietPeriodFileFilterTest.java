@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
+import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;

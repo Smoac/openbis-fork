@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.logging.LogMonitoringAppender;
+import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
