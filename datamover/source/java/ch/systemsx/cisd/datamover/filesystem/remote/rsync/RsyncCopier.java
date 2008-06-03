@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -41,6 +42,12 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.Rs
  */
 public final class RsyncCopier implements IPathCopier
 {
+
+    /**
+     * The maximal period to wait for the <code>rsync</code> list process to finish before killing
+     * it (<i>30s</i>).
+     */
+    private static final long MILLIS_TO_WAIT_BEFORE_TIMEOUT = 30 * DateUtils.MILLIS_PER_SECOND;
 
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
@@ -156,8 +163,8 @@ public final class RsyncCopier implements IPathCopier
         // {
         // return false;
         // }
-        return true;
-    }
+            return true;
+        }
 
     /**
      * Checks whether the <code>rsync</code> can be executed and has a version >= 2.6.0.
@@ -217,7 +224,8 @@ public final class RsyncCopier implements IPathCopier
                 createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull);
         final ProcessResult processResult =
-                ProcessExecutionHelper.run(commandLine, operationLog, machineLog);
+                ProcessExecutionHelper.run(commandLine, operationLog, machineLog,
+                        MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         processResult.log();
         return createStatus(processResult);
     }

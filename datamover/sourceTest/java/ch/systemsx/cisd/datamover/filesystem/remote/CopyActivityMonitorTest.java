@@ -345,7 +345,8 @@ public class CopyActivityMonitorTest
 
     private final static class PathLastChangedCheckerStalled implements ILastChangedChecker
     {
-        private final long MAX_TIME = System.currentTimeMillis() + INACTIVITY_PERIOD_MILLIS * 2;
+        private final static long MAX_TIME =
+                System.currentTimeMillis() + INACTIVITY_PERIOD_MILLIS * 2;
 
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {

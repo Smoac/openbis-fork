@@ -19,6 +19,8 @@ package ch.systemsx.cisd.datamover.filesystem.store;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -113,7 +115,7 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
 
     public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        final boolean available = FileUtilities.isAvailable(getPath(), timeOutMillis);
+        final boolean available = FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
         if (available == false)
         {
             return String.format(
