@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
@@ -54,8 +55,8 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
             {
                 return;
             }
-            final String targetId = DOM.getElementAttribute(element, "class");
-            if ("cifex-a".equals(targetId))
+            final String targetId = DOM.getElementAttribute(element, "href");
+            if (StringUtils.isBlank(targetId) == false)
             {
                 final Record record = grid.getStore().getAt(rowIndex);
                 final int id = record.getAsInteger(AbstractFileGridModel.ID);
