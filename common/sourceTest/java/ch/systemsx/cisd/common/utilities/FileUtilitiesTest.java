@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -396,54 +394,6 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertTrue(Arrays.equals(resourceToByteArray(resourceName),
                 fileToByteArray(absoluteTempFileName)));
 
-    }
-
-    @Test
-    public final void testIsAvailableFileHappyCase() throws IOException
-    {
-        final File f = new File(workingDirectory, "this_file_is_available");
-        f.createNewFile();
-        f.deleteOnExit();
-        assertTrue(FileUtilities.isAvailable(f, 500L));
-    }
-
-    @Test
-    public final void testIsAvailableDirHappyCase() throws IOException
-    {
-        final File d = new File(workingDirectory, "this_dir_is_available");
-        d.mkdir();
-        d.deleteOnExit();
-        assertTrue(FileUtilities.isAvailable(d, 500L));
-    }
-
-    @Test(groups = "slow")
-    public final void testIsAvailableDoesntExist() throws IOException
-    {
-        final File f = new File(workingDirectory, "this_file_is_unavailable");
-        assertFalse(FileUtilities.isAvailable(f, 500L));
-    }
-
-    @Test(groups = "slow")
-    public final void testIsAvailableBecomesAvailableInTime() throws IOException
-    {
-        final File f = new File(workingDirectory, "this_file_will_become_available");
-        f.deleteOnExit();
-        Timer t = new Timer();
-        t.schedule(new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        f.createNewFile();
-                    } catch (IOException ex)
-                    {
-                        throw new CheckedExceptionTunnel(ex);
-                    }
-                }
-            }, 250L);
-        assertTrue(FileUtilities.isAvailable(f, 500L));
     }
 
     private byte[] resourceToByteArray(String resourcename)

@@ -36,8 +36,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1010,53 +1008,6 @@ public final class FileUtilities
         } catch (final IOException ex)
         {
             return file.getAbsolutePath();
-        }
-    }
-
-    /**
-     * Returns <code>true</code>, if the (remote resource) <var>path</var> becomes available
-     * within <var>timeOutMillis</var> milli-seconds.
-     */
-    public final static boolean isAvailable(final File path, final long timeOutMillis)
-    {
-        final Semaphore sem = new Semaphore(1);
-        sem.acquireUninterruptibly();
-        final Thread t = new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    boolean pathExists = false;
-                    do
-                    {
-                        pathExists = path.exists();
-                        if (pathExists)
-                        {
-                            sem.release();
-                            return;
-                        }
-                        try
-                        {
-                            Thread.sleep(timeOutMillis / 10L);
-                        } catch (InterruptedException ex)
-                        {
-                            return;
-                        }
-                    } while (true);
-                }
-            }, "Path Availability Checker: " + path.getPath());
-        t.start();
-        try
-        {
-            final boolean exists = sem.tryAcquire(timeOutMillis, TimeUnit.MILLISECONDS);
-            if (exists == false)
-            {
-                t.interrupt();
-            }
-            return exists;
-        } catch (final InterruptedException ex)
-        {
-            // This is not expected to happen.
-            return false;
         }
     }
 

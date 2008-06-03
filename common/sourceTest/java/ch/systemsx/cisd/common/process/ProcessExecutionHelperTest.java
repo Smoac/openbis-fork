@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -247,7 +248,7 @@ public class ProcessExecutionHelperTest
                         + stdout2, "echo " + stderr2);
         final ProcessResult result =
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
-                        operationLog, machineLog, ProcessExecutionHelper.NO_TIMEOUT,
+                        operationLog, machineLog, ConcurrencyUtilities.NO_TIMEOUT,
                         OutputReadingStrategy.ALWAYS, false);
         final int exitValue = result.getExitValue();
         assertEquals(0, exitValue);

@@ -68,14 +68,8 @@ public class ProcessExecutionHelper
     public static final OutputReadingStrategy DEFAULT_OUTPUT_READING_STRATEGY =
             OutputReadingStrategy.ON_ERROR;
 
-    /** Corresponds to no timeout at all for the process execution. */
-    public static final long NO_TIMEOUT = ConcurrencyUtilities.NO_TIMEOUT;
-
     /** Corresponds to a short timeout of 1/10 s. */
     private static final long SHORT_TIMEOUT = 100;
-
-    /** Corresponds to an immediate timeout for the process execution. */
-    private static final long IMMEDIATE_TIMEOUT = ConcurrencyUtilities.IMMEDIATE_TIMEOUT;
 
     /** The executor service handling the threads that OS processes are spawned in. */
     private static final ExecutorService executor = new NamingThreadPoolExecutor("osproc", 10);
@@ -113,7 +107,7 @@ public class ProcessExecutionHelper
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
             final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(cmd, NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
+        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
                 operationLog, machineLog).runAndLog();
     }
 
@@ -129,7 +123,7 @@ public class ProcessExecutionHelper
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog) throws StopException
     {
-        return new ProcessExecutionHelper(cmd, NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
+        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT, DEFAULT_OUTPUT_READING_STRATEGY,
                 operationLog, machineLog).run(true);
     }
 
@@ -224,7 +218,7 @@ public class ProcessExecutionHelper
     /**
      * Returns the name of the command represented by <var>commandLine</var>.
      */
-    static String getCommandName(final List<String> commandLine)
+    final static String getCommandName(final List<String> commandLine)
     {
         return new File(commandLine.get(0)).getName();
     }
@@ -232,7 +226,7 @@ public class ProcessExecutionHelper
     /**
      * Returns the command represented by <var>commandLine</var>.
      */
-    private static String getCommand(final List<String> commandLine)
+    private final static String getCommand(final List<String> commandLine)
     {
         return StringUtils.join(commandLine, ' ');
     }
@@ -282,7 +276,7 @@ public class ProcessExecutionHelper
      */
     private class ProcessRunner implements NamedCallable<ProcessResult>
     {
-        private Process launch() throws IOException
+        private final Process launch() throws IOException
         {
             final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
             processBuilder.redirectErrorStream(true);
@@ -290,11 +284,14 @@ public class ProcessExecutionHelper
             {
                 operationLog.debug("Running command: " + getCommand(commandLine));
             }
-            final Process process = processBuilder.start();
-            return process;
+            return processBuilder.start();
         }
 
-        public ProcessResult call() throws Exception
+        //
+        // NamedCallable
+        //
+
+        public final ProcessResult call() throws Exception
         {
             try
             {
@@ -341,9 +338,24 @@ public class ProcessExecutionHelper
      * separate thread because we have observed that, depending on the operating system and Java
      * version, processes can hang indefinitely on launching.
      */
-    private class ProcessKiller implements NamedCallable<ProcessResult>
+    private final class ProcessKiller implements NamedCallable<ProcessResult>
     {
-        public ProcessResult call()
+        private final int getExitValue(final Process process)
+        {
+            try
+            {
+                return process.exitValue();
+            } catch (final IllegalThreadStateException ex)
+            {
+                return ProcessResult.NO_EXIT_VALUE;
+            }
+        }
+
+        //
+        // NamedCallable
+        //
+
+        public final ProcessResult call()
         {
             final Process process = processWrapper.getAndSet(null);
             if (process != null)
@@ -356,7 +368,7 @@ public class ProcessExecutionHelper
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
                 {
-                    machineLog.info(String.format("Killed '" + getCommand(commandLine)) + "'.");
+                    machineLog.info(String.format("Killed '%s'.", getCommand(commandLine)));
                 }
                 final int exitValue = getExitValue(process);
                 return new ProcessResult(commandLine, processNumber, ExecutionStatus.TIMED_OUT, "",
@@ -367,18 +379,7 @@ public class ProcessExecutionHelper
             }
         }
 
-        private int getExitValue(final Process process)
-        {
-            try
-            {
-                return process.exitValue();
-            } catch (final IllegalThreadStateException ex)
-            {
-                return ProcessResult.NO_EXIT_VALUE;
-            }
-        }
-
-        public String getCallableName()
+        public final String getCallableName()
         {
             return "kill-P" + processNumber + "-{" + getCommandName(commandLine) + "}";
         }
@@ -392,49 +393,45 @@ public class ProcessExecutionHelper
         this.processNumber = processCounter.getAndIncrement();
         this.operationLog = operationLog;
         this.machineLog = machineLog;
-        // Backward compatibility.
-        if (millisToWaitForCompletion == IMMEDIATE_TIMEOUT)
-        {
-            this.millisToWaitForCompletion = NO_TIMEOUT;
-        } else
-        {
-            this.millisToWaitForCompletion = millisToWaitForCompletion;
-        }
+        this.millisToWaitForCompletion = millisToWaitForCompletion;
         this.outputReadingStrategy = outputReadingStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.processWrapper = new AtomicReference<Process>();
     }
 
-    private ProcessResult run(final boolean stopOnInterrupt)
+    private final ProcessResult run(final boolean stopOnInterrupt)
     {
         final Future<ProcessResult> runnerFuture = executor.submit(new ProcessRunner());
-        ExecutionResult<ProcessResult> result =
+        ExecutionResult<ProcessResult> processResult =
                 ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false,
                         null, null);
-        if (result.getStatus() == ExecutionStatus.TIMED_OUT)
+        if (processResult.getStatus() == ExecutionStatus.TIMED_OUT)
         {
             final Future<ProcessResult> killerFuture = executor.submit(new ProcessKiller());
-            result = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
-            if (result.tryGetResult() == null)
+            processResult = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+            if (processResult.tryGetResult() == null)
             {
-                result = ConcurrencyUtilities.getResult(runnerFuture, IMMEDIATE_TIMEOUT);
+                processResult =
+                        ConcurrencyUtilities.getResult(runnerFuture,
+                                ConcurrencyUtilities.IMMEDIATE_TIMEOUT);
             }
         }
-        if (result.tryGetResult() != null)
+        final ProcessResult result = processResult.tryGetResult();
+        if (result != null)
         {
-            return result.tryGetResult();
-        } else if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(result.getStatus()))
+            return result;
+        } else if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(processResult.getStatus()))
         {
             throw new StopException();
         } else
         {
-            return new ProcessResult(commandLine, processNumber, result.getStatus(),
-                    tryGetStartupFailureMessage(result.tryGetException()),
+            return new ProcessResult(commandLine, processNumber, processResult.getStatus(),
+                    tryGetStartupFailureMessage(processResult.tryGetException()),
                     ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
         }
     }
 
-    private static String tryGetStartupFailureMessage(final Throwable throwableOrNull)
+    private final static String tryGetStartupFailureMessage(final Throwable throwableOrNull)
     {
         if (throwableOrNull != null && throwableOrNull instanceof IOException)
         {
@@ -445,7 +442,7 @@ public class ProcessExecutionHelper
         }
     }
 
-    private boolean runAndLog() throws StopException
+    private final boolean runAndLog() throws StopException
     {
         final ProcessResult result = run(false);
         result.log();
