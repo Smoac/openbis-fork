@@ -555,12 +555,13 @@ public final class FileUtilities
         {
             assert path != null;
 
-            if (path.canRead() == false)
+            final long lastModified = path.lastModified();
+            if (lastModified == 0)
             {
                 throw new CheckedExceptionTunnel(new IOException(String.format(
-                        "Path '%s' cannot be read.", path.getPath())));
+                        "Cannot get the last modification date of '%s'.", path.getPath())));
             }
-            final long lastModified = path.lastModified();
+
             lastChanged = Math.max(lastModified, lastChanged);
             if (isYoungEnough(lastChanged))
             {
