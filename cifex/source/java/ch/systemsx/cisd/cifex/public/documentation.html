@@ -7,6 +7,7 @@
 <h1><a name="FAQ"></a>FAQ</h1>
 
 
+<div>
 <ul>
     <li><a href='#FAQ-Iforgotmypassword%2ChowcanIreceiveanewone%3F'>I forgot my password, how can I receive a new one?</a></li>
     <li><a href='#FAQ-Ihavenotreceivedthemailwithmyloginandpassword%2CwerecanIgetitfrom%3F'>I have not received the mail with my login and password, were can I get it from?</a></li>
@@ -17,7 +18,10 @@
     <li><a href='#FAQ-HowcanIgetsure%2CthattherightusergetsmyfileIhaveuploaded%3F'>How can I get sure, that the right user gets my file I have uploaded?</a></li>
     <li><a href='#FAQ-Auserwiththisemailadressealreadyexist%2CbutitisnottheoneIwanttosharethefilewith%21'>A user with this email adresse already exist, but it is not the one I want to share the file with!</a></li>
     <li><a href='#FAQ-Iwanttoshareafilewithuserwithaspecificemailaddress%2Cbutforthisemailaddressseveralusersexist%21'>I want to share a file with user with a specific email address, but for this email address several users exist!</a></li>
-</ul>
+    <li><a href='#FAQ-I%27mtryingtologinusingmyLDAP%2FUniversity%2Fotherexternalaccount%2Cbutthesystemdoesnotletmein.'>I'm trying to log in using my LDAP/University/other external account, but the system does not let me in.</a></li>
+
+    <li><a href='#FAQ-IalreadyhaveaCIFEXaccount%2CbutwouldliketousethesamepasswordthatIuseforLDAP%2FUniversity%2Fotherexternalaccount.'>I already have a CIFEX account, but would like to use the same password that I use for LDAP/University/other external account.</a></li>
+</ul></div>
 
 <h2><a name="FAQ-Iforgotmypassword%2ChowcanIreceiveanewone%3F"></a>I forgot my password, how can I receive a new one?</h2>
 
@@ -49,21 +53,32 @@
 
 <h2><a name="FAQ-HowcanIgetsure%2CthattherightusergetsmyfileIhaveuploaded%3F"></a>How can I get sure, that the right user gets my file I have uploaded?</h2>
 
-<p>In our system, the email address is not unique. So it can be, that several user exist with the same email adress and all of them get the file you uploaded to the email address.</p>
+<p>In our system, the email address is not unique. So it can be, that several user exist with the same email address and all of them get the file you uploaded to the email address.</p>
 
 <p>For this reason you can also specify the user name in the file upload with the prefix 'id:'. So if you want to upload a file to user 'a' with the mail a@abc.com, you can specify 'id:a' in the Recipients field and only user 'a' receives the file.</p>
 
-<p>If you don't know what the user name but the mail address, you can add the email adress into the Recipients field and 'Validate users'. Then a DialogBox opens which shows you all user information of the users, which users belong to the email adresses you entered into the field. Here you can add more users and select only the users you want to share the file with.</p>
+<p>If you don't know what the user name but the mail address, you can add the email address into the Recipients field and 'Validate users'. Then a DialogBox opens which shows you all user information of the users, which users belong to the email addresses you entered into the field. Here you can add more users and select only the users you want to share the file with.</p>
 
-<h2><a name="FAQ-Auserwiththisemailadressealreadyexist%2CbutitisnottheoneIwanttosharethefilewith%21"></a>A user with this email adresse already exist, but it is not the one I want to share the file with!</h2>
+<h2><a name="FAQ-Auserwiththisemailadressealreadyexist%2CbutitisnottheoneIwanttosharethefilewith%21"></a>A user with this email address already exist, but it is not the one I want to share the file with!</h2>
 
-<p>If you want to upload a file for a email adress which already exist in Cifex but does not belong to the user you want to share the file with, you should create a new temporary user account with this email address. Due to the fact, that the mail addresses are not unique, this is possible. Now you can specify the user name in the upload field with the prefix 'id:' or just enter the email address and do 'Validate Users' and only select the temporary user you created.</p>
+<p>If you want to upload a file for a email address which already exist in Cifex but does not belong to the user you want to share the file with, you should create a new temporary user account with this email address. Due to the fact, that the mail addresses are not unique, this is possible. Now you can specify the user name in the upload field with the prefix 'id:' or just enter the email address and do 'Validate Users' and only select the temporary user you created.</p>
 
 <h2><a name="FAQ-Iwanttoshareafilewithuserwithaspecificemailaddress%2Cbutforthisemailaddressseveralusersexist%21"></a>I want to share a file with user with a specific email address, but for this email address several users exist!</h2>
 
-<p>It can realy hapen, that for a email address several users exist, due to the fact the the mail address is not unique.</p>
+<p>It can really happen, that for a email address several users exist, due to the fact the the mail address is not unique.</p>
 
-<p>For this you can add the email address into the 'Recepients' field and 'Validate Users'. A Dialog Box opens and you can only select the users you want to share the file with.</p>
+<p>For this you can add the email address into the 'Recipients' field and 'Validate Users'. A Dialog Box opens and you can only select the users you want to share the file with.</p>
+
+<h2><a name="FAQ-I%27mtryingtologinusingmyLDAP%2FUniversity%2Fotherexternalaccount%2Cbutthesystemdoesnotletmein."></a>I'm trying to log in using my LDAP/University/other external account, but the system does not let me in.</h2>
+
+<p>In certain configurations CIFEX allows logging in through <em>external</em> systems (like LDAP) as well as with <em>internal</em> authentication system (mostly used for temporary accounts). Not being able to log in using external username and password is a sign, that account with your username has already been taken by some temporary user. In such cases, please contact the administrator of your CIFEX installation.</p>
+
+<h2><a name="FAQ-IalreadyhaveaCIFEXaccount%2CbutwouldliketousethesamepasswordthatIuseforLDAP%2FUniversity%2Fotherexternalaccount."></a>I already have a CIFEX account, but would like to use the same password that I use for LDAP/University/other external account. </h2>
+
+<p>Just log in with your temporary password, click <em>External authentication</em> option and type your password.</p>
+                            </div>
+
+
 
 </body>
 </html>
