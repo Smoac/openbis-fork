@@ -21,6 +21,7 @@ package ch.systemsx.cisd.common.exceptions;
  * <p>
  * This is usually triggered by interrupting the thread that the work package is processed in and
  * regularly checking with {@link #check()}.
+ * </p>
  * 
  * @author Bernd Rinn
  */

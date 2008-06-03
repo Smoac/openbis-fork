@@ -59,19 +59,22 @@ public final class FileRenamingCallable implements Callable<Boolean>
             operationLog.error(String.format(
                     "Path '%s' doesn't exist, so it can't be moved to '%s'.", sourceFile,
                     destinationFile));
-            // Nothing to do here. So exit the looping by returning true.
-            return true;
+            return false;
         }
         if (destinationFile.exists())
         {
             operationLog.error(String.format("Destination path '%s' already exists.",
                     destinationFile));
-            // Nothing to do here. So exit the looping by returning true.
-            return true;
+            return false;
         }
-        operationLog.warn(String.format("Moving path '%s' to directory '%s' failed (attempt %d).",
-                sourceFile, destinationFile, ++failures));
         final boolean renamed = sourceFile.renameTo(destinationFile);
-        return renamed ? true : null;
+        if (renamed == false)
+        {
+            operationLog.warn(String.format(
+                    "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
+                    destinationFile, ++failures));
+            return null;
+        }
+        return true;
     }
 }
