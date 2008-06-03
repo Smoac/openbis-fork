@@ -39,6 +39,11 @@ public interface IUserDAO
     public UserDTO tryFindUserByCode(String userCode) throws DataAccessException;
 
     /**
+     * Returns a list with all users, which have the given email address.
+     */
+    public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException;
+    
+    /**
      * Inserts given <code>User</code> into the database.
      * <p>
      * As side effect the <i>unique identifier</i> returned by the database is set to given

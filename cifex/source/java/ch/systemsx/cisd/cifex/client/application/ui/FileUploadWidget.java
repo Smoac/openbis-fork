@@ -32,14 +32,15 @@ import com.gwtext.client.widgets.form.TextArea;
 import com.gwtext.client.widgets.form.TextAreaConfig;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
-import com.gwtext.client.widgets.form.ValidationException;
-import com.gwtext.client.widgets.form.Validator;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -63,14 +64,19 @@ public final class FileUploadWidget extends Form
 
     private static final String FILE_UPLOAD_PREFIX = "FileUpload-";
 
+    private final UserTextArea userTextArea;
+
     private final ViewContext context;
 
-    private Button button;
+    private Button submitButton;
+
+    private Button validateButton;
 
     public FileUploadWidget(final ViewContext context)
     {
         super(Ext.generateId(FILE_UPLOAD_PREFIX), createFormConfig());
         this.context = context;
+        userTextArea = new UserTextArea(createEmailAreaConfig());
         createForm();
     }
 
@@ -100,7 +106,8 @@ public final class FileUploadWidget extends Form
 
         column(createMiddleColumnConfig());
         fieldset(context.getMessageResources().getRecipientLegend());
-        add(new TextArea(createEmailAreaConfig()));
+
+        add(userTextArea);
         end();
         end();
 
@@ -110,8 +117,11 @@ public final class FileUploadWidget extends Form
         end();
         end();
 
-        button = addButton(context.getMessageResources().getFileUploadButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+        validateButton = addButton(context.getMessageResources().getValidateUsersButtonLabel());
+        validateButton.addButtonListener(getUserValidateButtonListener());
+
+        submitButton = addButton(context.getMessageResources().getFileUploadButtonLabel());
+        submitButton.addButtonListener(new ButtonListenerAdapter()
             {
 
                 //
@@ -125,6 +135,83 @@ public final class FileUploadWidget extends Form
 
             });
         render();
+    }
+
+    private final ButtonListenerAdapter getUserValidateButtonListener()
+    {
+        final ButtonListenerAdapter buttonListener = new ButtonListenerAdapter()
+            {
+                public final void onClick(final Button but, final EventObject e)
+                {
+                    final List existingUsers = new ArrayList();
+                    final List newUsers = new ArrayList();
+                    final String[] userEntries = userTextArea.getUserEntries();
+                    final FileShareUploadDialog dialog =
+                            new FileShareUploadDialog(context, existingUsers, newUsers,
+                                    "Upload New Files", userTextArea);
+                    for (int i = 0; i < userEntries.length; i++)
+                    {
+                        if (userEntries[i].startsWith(StringUtils.USER_ID_PREFIX))
+                        {
+                            String userCode =
+                                    userEntries[i].substring(StringUtils.USER_ID_PREFIX.length());
+                            tryFindUserByUserCode(userCode, dialog, existingUsers);
+                        } else
+                        {
+                            tryFindUserByEmail(userEntries[i], dialog, existingUsers, newUsers);
+                        }
+                    }
+                    dialog.show();
+                }
+
+            };
+        return buttonListener;
+    }
+
+    private final void tryFindUserByEmail(final String email, final FileShareUploadDialog dialog,
+            final List existingUsers, final List newUsers)
+    {
+        context.getCifexService().tryFindUserByEmail(email, new AbstractAsyncCallback(context)
+            {
+                public void onSuccess(Object result)
+                {
+                    User[] users = (User[]) result;
+                    if (users.length > 0)
+                    {
+                        for (int j = 0; j < users.length; j++)
+                        {
+                            existingUsers.add(users[j]);
+                            dialog.refresh();
+                        }
+                    } else
+                    {
+                        final User user = new User();
+                        user.setEmail(email);
+                        newUsers.add(user);
+                        dialog.refresh();
+                    }
+
+                }
+
+            });
+    }
+
+    private final void tryFindUserByUserCode(final String userCode,
+            final FileShareUploadDialog dialog, final List existingUsers)
+    {
+        context.getCifexService().tryFindUserByUserCode(userCode,
+                new AbstractAsyncCallback(context)
+                    {
+                        public void onSuccess(Object result)
+                        {
+                            User existingUser = (User) result;
+                            if (existingUser != null)
+                            {
+                                existingUsers.add(existingUser);
+                                dialog.refresh();
+                            }
+                        }
+                    });
     }
 
     private final static ColumnConfig createLeftColumnConfig()
@@ -162,33 +249,7 @@ public final class FileUploadWidget extends Form
         textAreaConfig.setName("email-addresses");
         textAreaConfig.setPreventScrollbars(false);
         textAreaConfig.setWidth(FIELD_WIDTH);
-        textAreaConfig.setValidator(new Validator()
-            {
-
-                //
-                // Validator
-                //
-
-                public final boolean validate(final String value) throws ValidationException
-                {
-                    final String[] result = value.split("[,\\s]+");
-                    if (result.length == 0)
-                    {
-                        return false;
-                    }
-                    for (int i = 0; i < result.length; i++)
-                    {
-                        assert result[i] != null : "Must not be null.";
-                        final String item = result[i].trim();
-                        if (item.length() > 0
-                                && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            });
+        textAreaConfig.setValidator(CifexValidator.getUserFieldValidator());
         textAreaConfig.setInvalidText(messageResources.getRecipientFieldInvalidText());
         return textAreaConfig;
     }
@@ -248,10 +309,11 @@ public final class FileUploadWidget extends Form
         {
             return;
         }
-        button.disable();
+        submitButton.disable();
         final String[] filenames = getFilePaths();
         if (filenames.length == 0)
         {
+            submitButton.enable();
             return;
         }
         context.getCifexService().registerFilenamesForUpload(filenames,
@@ -271,7 +333,7 @@ public final class FileUploadWidget extends Form
                         public final void onFailure(final Throwable caught)
                         {
                             super.onFailure(caught);
-                            button.enable();
+                            submitButton.enable();
                         }
                     });
     }

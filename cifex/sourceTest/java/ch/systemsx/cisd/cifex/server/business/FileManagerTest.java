@@ -43,6 +43,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
@@ -370,7 +371,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    one(userDAO).listUsers();
+                    allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));
@@ -386,6 +387,130 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final List<String> invalidUsers =
                 fileManager.shareFilesWith(url, requestUser, Collections
                         .singleton(emailOfUserToShareWith), Collections.singleton(file), comment);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithExistingUserWithUserID()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long receivingUserId = 43;
+        final String receivingUserCode = "receivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setPermanent(true);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfUserToShareWith = "receiving.user@organization.edu";
+        final UserDTO receivingUser = new UserDTO();
+        receivingUser.setID(receivingUserId);
+        receivingUser.setUserCode(receivingUserCode);
+        receivingUser.setEmail(emailOfUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    allowing(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser, receivingUser)));
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    one(mailClient).sendMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                            receivingUserCode))), with(equal(new String[]
+                                { emailOfUserToShareWith })));
+                }
+            });
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, Collections
+                        .singleton(Constants.USER_ID_PREFIX + receivingUserCode), Collections
+                        .singleton(file), comment);
+        assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithTwoExistingUser()
+    {
+        final String url = "https://server/instance";
+        // TODO 2008-06-03, Basil Neff: Extract user generation to local method (fpr all test cases)
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long firstReceivingUserId = 43;
+        final long secondReceivingUserId = 44;
+        final String firstReceivingUserCode = "firstreceivinguser";
+        final String secondReceivingUserCode = "secondreceivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setPermanent(true);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfFirstUserToShareWith = "first.receiving.user@organization.edu";
+        final UserDTO firstReceivingUser = new UserDTO();
+        firstReceivingUser.setID(firstReceivingUserId);
+        firstReceivingUser.setUserCode(firstReceivingUserCode);
+        firstReceivingUser.setEmail(emailOfFirstUserToShareWith);
+        final String emailOfSecondUserToShareWith = "second.receiving.user@organization.edu";
+        final UserDTO secondReceivingUser = new UserDTO();
+        secondReceivingUser.setID(secondReceivingUserId);
+        secondReceivingUser.setUserCode(secondReceivingUserCode);
+        secondReceivingUser.setEmail(emailOfSecondUserToShareWith);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    allowing(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser, firstReceivingUser,
+                            secondReceivingUser)));
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                    one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
+                    one(mailClient).sendMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                            firstReceivingUserCode))), with(equal(new String[]
+                                { emailOfFirstUserToShareWith })));
+                    one(fileDAO).createSharingLink(fileId, secondReceivingUserId);
+                    one(mailClient).sendMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/index.html?fileId=%d&user=%s", fileId,
+                                            secondReceivingUserCode))), with(equal(new String[]
+                                { emailOfSecondUserToShareWith })));
+                }
+            });
+        List<String> users = new ArrayList<String>();
+        users.add(Constants.USER_ID_PREFIX + firstReceivingUserCode);
+        users.add(emailOfSecondUserToShareWith);
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser, users, Collections.singleton(file),
+                        comment);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -424,7 +549,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    one(userDAO).listUsers();
+                    allowing(userDAO).listUsers();
                     will(returnValue(Arrays.asList(requestUser, receivingUser)));
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));

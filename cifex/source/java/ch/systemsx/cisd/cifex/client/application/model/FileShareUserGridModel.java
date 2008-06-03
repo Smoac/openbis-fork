@@ -19,12 +19,16 @@ package ch.systemsx.cisd.cifex.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gwtext.client.data.BooleanFieldDef;
+import com.gwtext.client.data.Record;
+import com.gwtext.client.data.Store;
 import com.gwtext.client.data.StringFieldDef;
+import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.ColumnConfig;
+import com.gwtext.client.widgets.grid.Renderer;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -35,43 +39,46 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public final class FileShareUserGridModel extends AbstractUserGridModel
 {
 
-    private final String fileName;
+    public static final String SHARE_FILE = "shareFile";
 
-    private final String fileId;
-
-    public FileShareUserGridModel(IMessageResources messageResources, User currentUser,
-            String fileName, String fileId)
+    public FileShareUserGridModel(final IMessageResources messageResources, final User currentUser)
     {
         super(messageResources, currentUser);
-        this.fileName = fileName;
-        this.fileId = fileId;
     }
 
     public final List getColumnConfigs()
     {
         final List configs = new ArrayList();
+        configs.add(createShareFileCheckboxColumnConfig());
         configs.add(createUserCodeColumnConfig());
         configs.add(createUserEmailColumnConfig());
         configs.add(createFullNameColumnConfig());
-        configs.add(createActionColumnConfig());
-        configs.add(createFileNameColumnConfig());
-        configs.add(createFileIdColumnConfig());
+        configs.add(createRegistratorColumnConfig());
+        configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 200));
         return configs;
     }
 
     public final List getData(final Object[] data)
     {
         final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
+        if (data != null)
         {
-            final User user = (User) data[i];
-            final String actions = listActionsForUser(user);
-
-            final Object[] objects =
-                    new Object[]
-                        { user.getUserCode(), user.getEmail(), user.getUserFullName(), actions,
-                                fileName, fileId + "" };
-            list.add(objects);
+            for (int i = 0; i < data.length; i++)
+            {
+                final User user = (User) data[i];
+                boolean checkedUser = true;
+                String registratorAnchor = null;
+                if (user.getRegistrator() != null)
+                {
+                    registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
+                }
+                final Object[] objects =
+                        new Object[]
+                            { new Boolean(checkedUser), user.getUserCode(), user.getEmail(),
+                                    user.getUserFullName(), registratorAnchor,
+                                    getUserRoleDescription(user) };
+                list.add(objects);
+            }
         }
         return list;
     }
@@ -79,38 +86,31 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
     public final List getFieldDefs()
     {
         final List fieldDefs = new ArrayList();
+        fieldDefs.add(new BooleanFieldDef(SHARE_FILE));
         fieldDefs.add(new StringFieldDef(USER_CODE));
         fieldDefs.add(new StringFieldDef(USER_EMAIL));
         fieldDefs.add(new StringFieldDef(FULL_NAME));
-        fieldDefs.add(new StringFieldDef(ACTION));
-        fieldDefs.add(new StringFieldDef(FILE_NAME));
-        fieldDefs.add(new StringFieldDef(FILE_ID));
+        fieldDefs.add(new StringFieldDef(REGISTRATOR));
+        fieldDefs.add(new StringFieldDef(STATUS));
         return fieldDefs;
     }
 
-    protected String listActionsForUser(final User user)
+    private final ColumnConfig createShareFileCheckboxColumnConfig()
     {
-        String actionLabel =
-                DOMUtils.createAnchor(messageResources.getActionStopSharingLabel(),
-                        Constants.STOP_SHARING_ID);
-        return actionLabel;
-    }
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(SHARE_FILE, messageResources.getShareLabel(), 15);
+        columnConfig.setFixed(true);
+        columnConfig.setRenderer(new Renderer()
+            {
 
-    private final ColumnConfig createFileNameColumnConfig()
-    {
-        return hiddenColumn(FILE_NAME);
+                public String render(Object value, CellMetadata cellMetadata, Record record,
+                        int rowIndex, int colNum, Store store)
+                {
+                    boolean checked = ((Boolean) value).booleanValue();
+                    return "<img class=\"checkbox\" src=\"js/ext/resources/images/default/menu/"
+                            + (checked ? "checked.gif" : "unchecked.gif") + "\"/>";
+                }
+            });
+        return columnConfig;
     }
-
-    private final ColumnConfig createFileIdColumnConfig()
-    {
-        return hiddenColumn(FILE_ID);
-    }
-
-    private final ColumnConfig hiddenColumn(String name)
-    {
-        final ColumnConfig column = createSortableColumnConfig(name, "", 0);
-        column.setHidden(true);
-        return column;
-    }
-
 }

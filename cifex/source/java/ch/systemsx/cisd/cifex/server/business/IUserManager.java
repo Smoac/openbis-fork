@@ -46,6 +46,13 @@ public interface IUserManager
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public UserDTO tryFindUserByCode(String code);
 
+
+    /**
+     * Returns a list with all users, which have the given email address.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public List<UserDTO> tryFindUserByEmail(final String email);
+
     /**
      * Returns a list of all users.
      */

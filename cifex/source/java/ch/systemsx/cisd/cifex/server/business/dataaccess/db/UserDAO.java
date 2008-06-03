@@ -132,6 +132,37 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
+    private void fillInRegistrators(final List<UserDTO> usersToFill, final List<UserDTO> allUsers)
+    {
+        final Map<Long, UserDTO> idToUserMap = new HashMap<Long, UserDTO>();
+        for (final UserDTO user : allUsers)
+        {
+            idToUserMap.put(user.getID(), user);
+        }
+        for (final UserDTO user : usersToFill)
+        {
+            final UserDTO registratorDTO = idToUserMap.get(user.getRegistrator().getID());
+            if (registratorDTO != null)
+            {
+                user.setRegistrator(registratorDTO);
+            }
+        }
+    }
+
+    private void fillInRegistrator(final UserDTO user)
+    {
+        assert user != null : "User can not be null";
+        assert user.getRegistrator() != null : "Registrator can not be null";
+        if (StringUtils.isNotBlank(user.getRegistrator().getUserCode()))
+        {
+            UserDTO registrator = this.tryFindUserByCode(user.getRegistrator().getUserCode());
+            if (registrator != null)
+            {
+                user.setRegistrator(registrator);
+            }
+        }
+    }
+
     private void fillInRegistrators(final List<UserDTO> users)
     {
         final Map<Long, UserDTO> idToUserMap = new HashMap<Long, UserDTO>();
@@ -167,15 +198,13 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                     .isPermanent(), registratorIdOrNull, user.getExpirationDate());
         } else
         {
-            template.update(
-                    "insert into users (id, user_id, email, full_name, password_hash, "
-                            + "is_externally_authenticated, is_admin,"
-                            + "is_permanent, user_id_registrator, expiration_timestamp) "
-                            + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user
-                            .getEmail(), user.getUserFullName(), user.getPassword()
-                            .createPasswordHash(), user.isExternallyAuthenticated(),
-                    user.isAdmin(), user.isPermanent(), registratorIdOrNull, user
-                            .getExpirationDate());
+            template.update("insert into users (id, user_id, email, full_name, password_hash, "
+                    + "is_externally_authenticated, is_admin,"
+                    + "is_permanent, user_id_registrator, expiration_timestamp) "
+                    + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
+                    .getUserFullName(), user.getPassword().createPasswordHash(), user
+                    .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(),
+                    registratorIdOrNull, user.getExpirationDate());
         }
         user.setID(id);
     }
@@ -216,7 +245,26 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO user =
                     template.queryForObject("select * from users where user_id = ?",
                             new UserRowMapper(), userCode);
+            fillInRegistrator(user);
             return user;
+        } catch (final EmptyResultDataAccessException e)
+        {
+            return null;
+        }
+    }
+
+    public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException
+    {
+        assert StringUtils.isNotBlank(email) : "No email specified!";
+
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        try
+        {
+            final List<UserDTO> list =
+                    template.query("select * from users where email = ?", new UserRowMapper(),
+                            email);
+            fillInRegistrators(list, this.listUsers());
+            return list;
         } catch (final EmptyResultDataAccessException e)
         {
             return null;
@@ -274,6 +322,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                         .query(
                                 "select u.* from file_shares fs, users u where u.id=fs.user_id and fs.file_id= ?",
                                 new UserRowMapper(), fileId);
+        fillInRegistrators(list, this.listUsers());
         return list;
     }
 

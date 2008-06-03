@@ -153,20 +153,20 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                         maxUploadSizeInBytes);
             }
             final List<FileDTO> files = new ArrayList<FileDTO>();
-            final List<String> userEmails = new ArrayList<String>();
+            final List<String> userIdentifier = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
             extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files,
-                    userEmails, comment);
+                    userIdentifier, comment);
             final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
-            final List<String> invalidEmailAddresses =
-                    fileManager.shareFilesWith(url, requestUser, userEmails, files, comment
+            final List<String> invalidUserIdentifiers =
+                    fileManager.shareFilesWith(url, requestUser, userIdentifier, files, comment
                             .toString());
-            if (invalidEmailAddresses.isEmpty() == false)
+            if (invalidUserIdentifiers.isEmpty() == false)
             {
                 final String msg =
-                        "Some email addresses are invalid: "
-                                + CollectionUtils.abbreviate(invalidEmailAddresses, 10);
+                        "Some user identifiers are invalid: "
+                                + CollectionUtils.abbreviate(invalidUserIdentifiers, 10);
                 feedbackProvider.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
             } else
             {
@@ -195,7 +195,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
             final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
-            final List<String> userEmails, final StringBuffer comment) throws FileUploadException,
+            final List<String> userIdentifier, final StringBuffer comment) throws FileUploadException,
             IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
@@ -258,7 +258,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                             new StringTokenizer(Streams.asString(stream), ", \t\n\r\f");
                     while (stringTokenizer.hasMoreTokens())
                     {
-                        userEmails.add(stringTokenizer.nextToken());
+                        userIdentifier.add(stringTokenizer.nextToken());
                     }
                 }
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))

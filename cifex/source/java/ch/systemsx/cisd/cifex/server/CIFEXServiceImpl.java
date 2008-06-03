@@ -777,6 +777,14 @@ public final class CIFEXServiceImpl implements ICIFEXService
         return BeanUtils.createBean(User.class, userDTO);
     }
 
+    public User[] tryFindUserByEmail(final String email) throws InvalidSessionException
+    {
+        privGetCurrentUser();
+        final IUserManager userManager = domainModel.getUserManager();
+        final List<UserDTO> users = userManager.tryFindUserByEmail(email);
+        return BeanUtils.createBeanArray(User.class, users);
+    }
+
     public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
@@ -840,7 +848,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     }
 
-    public void createSharingLink(final String idStr, final String emailsOfUsers)
+    public void createSharingLink(final String idStr, final String userIdentifiers)
             throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException
     {
@@ -856,11 +864,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
         }
-        final StringTokenizer stringTokenizer = new StringTokenizer(emailsOfUsers, ", \t\n\r\f");
-        final List<String> emails = new ArrayList<String>();
+        final StringTokenizer stringTokenizer = new StringTokenizer(userIdentifiers, ", \t\n\r\f");
+        final List<String> userIdentifierList = new ArrayList<String>();
         while (stringTokenizer.hasMoreTokens())
         {
-            emails.add(stringTokenizer.nextToken());
+            userIdentifierList.add(stringTokenizer.nextToken());
         }
         final List<FileDTO> files = new ArrayList<FileDTO>();
         files.add(fileInfo.getFileDTO());
@@ -873,7 +881,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         try
         {
             invalidEmailAddresses =
-                    fileManager.shareFilesWith(url, requestUser, emails, files, fileInfo
+                    fileManager.shareFilesWith(url, requestUser, userIdentifierList, files, fileInfo
                             .getFileDTO().getComment());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

@@ -52,6 +52,14 @@ public interface IMessageResources extends Messages
      * @gwt.key action.label
      */
     public String getActionLabel();
+    
+    /**
+     * Returns the share label.
+     * 
+     * @gwt.key file.share.label
+     */
+
+    public String getShareLabel();
 
     /**
      * Returns the label for the renew action.
@@ -638,13 +646,6 @@ public interface IMessageResources extends Messages
     public String getUserDeleteConfirmText(final String name);
 
     /**
-     * Returns the content the confirm MessageBox, to stop sharing file with user.
-     * 
-     * @gwt.key confirm.stop_sharing_file_with_user
-     */
-    public String getStopSharingFileWithUserConfirmText(String file, String user);
-
-    /**
      * Returns the title for user deletion.
      * 
      * @gwt.key user.delete.title
@@ -713,6 +714,54 @@ public interface IMessageResources extends Messages
      * @gwt.key confirm.renaming.text
      */
     public String getConfirmRenamingText(String before, String after);
+    
+    /**
+     * Returns the title for the existing user table
+     * 
+     * @gwt.key share.user.existing.title
+     */
+    public String getExistingUserTableTitle();
+    
+    /**
+     * Returns the title for the new user table
+     * 
+     * @gwt.key share.user.new.label
+     */
+    public String getNewUserTableTitle();
+
+    /**
+     * Returns the title for the Form to add user.
+     * 
+     * @gwt.key share.user.add.title
+     */
+    public String getAddUserFormTitle();
+
+    /**
+     * Returns the label for the Add User button.
+     * 
+     * @gwt.key share.user.add.button.label
+     */
+    public String getAddUserButtonLabel();
+    
+    /**
+     * Returns the label of the submit button of the Dialog
+     * 
+     * @gwt.key share.submit.button.label
+     */
+    public String getShareSubmitDialogButtonLabel();
+    
+    /**
+     * Returns the label of the field, to add new Email Adresses.
+     * 
+     * @gwt.key share.email.field.label
+     */
+    public String getEmailFielLabel();
+    
+    /**
+     * Returns the label of the button to validate the users 
+     * @gwt.key fileupload.validate.button.label
+     */
+    public String getValidateUsersButtonLabel();
 
     /**
      * Returns label of the external password field.

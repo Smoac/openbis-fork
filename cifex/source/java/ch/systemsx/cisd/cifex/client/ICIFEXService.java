@@ -78,6 +78,11 @@ public interface ICIFEXService extends RemoteService
     public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
 
     /**
+     * Returns a list with all users, which have the given email address.
+     */
+    public User[] tryFindUserByEmail(final String email) throws InvalidSessionException;
+
+    /**
      * Returns a list of users, which where registered by the given user.
      * 
      * @throws InvalidSessionException
@@ -196,9 +201,10 @@ public interface ICIFEXService extends RemoteService
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException;
 
     /**
-     * Creates a sharing link between file and users.
+     * Creates a sharing link between file and users. The user identifyer can either be a email
+     * addess (which can be ambiguous) or a usercode (specified with the prefix 'id:')
      */
-    public void createSharingLink(final String fileIdStr, final String emailsOfUsers)
+    public void createSharingLink(final String fileIdStr, final String userIdentifier)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
             UserFailureException;
 

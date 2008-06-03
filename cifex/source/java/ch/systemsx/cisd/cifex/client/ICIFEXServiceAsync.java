@@ -62,6 +62,9 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /** Gets the user by the userCode. */
     public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
+    
+    /** Returns a list of users with the given email.*/
+    public void tryFindUserByEmail(final String email, final AsyncCallback callback);
 
     /**
      * Creates a new <code>User</code> with the given <var>password</var>. If
@@ -145,13 +148,13 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /** Revokes user with given userCode access to file with fileId. */
     public void deleteSharingLink(String fileId, String userCode,
-            AsyncCallback userGridRefresherCallback);
+            AsyncCallback callback);
 
     /**
      * Creates a sharing link between file and users.
      */
     public void createSharingLink(String fileId, String emailsOfUsers,
-            AsyncCallback userGridRefresherCallback);
+            AsyncCallback callback);
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.

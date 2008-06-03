@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
+
 /**
  * Some utilities around <code>String</code>.
  * 
@@ -27,6 +29,10 @@ public final class StringUtils
     /** A regular expression that match email addresses. */
     public static final String EMAIL_REGEX =
             "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
+
+    public final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
+
+    public static final String USER_ID_REGEX = "^" + USER_ID_PREFIX + "([a-zA-Z0-9_\\.\\-\\@])+$";
 
     public static final String EMPTY_STRING = "";
 
@@ -44,7 +50,7 @@ public final class StringUtils
     {
         return value == null || value.trim().length() == 0;
     }
-    
+
     public final static String abbreviate(final String value, final int maxLength)
     {
         assert maxLength > 4;
@@ -75,7 +81,7 @@ public final class StringUtils
      * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      */
     public final native static boolean matches(final String regExp, final String value) /*-{
-             var re = new RegExp(regExp);
-             return value.search(re) > -1;
-          }-*/;
+                   var re = new RegExp(regExp);
+                   return value.search(re) > -1;
+                }-*/;
 }

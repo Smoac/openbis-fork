@@ -82,6 +82,13 @@ class UserManager extends AbstractManager implements IUserManager
         return daoFactory.getUserDAO().tryFindUserByCode(code);
     }
 
+    public List<UserDTO> tryFindUserByEmail(final String email)
+    {
+        assert email != null : "Given Email Adress is null";
+        
+        return daoFactory.getUserDAO().tryFindUserByEmail(email);
+    }
+
     @Transactional
     public final void createUser(final UserDTO user) throws UserFailureException
     {

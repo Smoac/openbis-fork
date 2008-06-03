@@ -107,17 +107,19 @@ public interface IFileManager
             final String contentType, final InputStream inputStream);
 
     /**
-     * Creates sharing links between the users specified by their e-mail addresses and the specified
-     * files. For users not known a temporary account is created. Each user will be informed by an
-     * e-mail.
+     * Creates sharing links between the users specified by their e-mail addresses or user id (with
+     * the prefix 'id:') and the specified files. For users specified with an Email address not
+     * known a temporary account is created. Each user will be informed by an e-mail.
      * 
      * @param url URL for creating the links in the e-mails.
+     * @param userIdentifiers An Identifier for the user, either a email address (which can be
+     *            ambiguous) or the user code with the prefix 'id:'.
      * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary
      *         users.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public List<String> shareFilesWith(String url, UserDTO requestUser,
-            Collection<String> emailsOfUsers, Collection<FileDTO> files, String comment)
+            Collection<String> userIdentifiers, Collection<FileDTO> files, String comment)
             throws UserFailureException;
 
     /**

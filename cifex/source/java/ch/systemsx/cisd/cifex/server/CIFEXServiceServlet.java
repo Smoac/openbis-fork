@@ -206,6 +206,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         return cifexServiceDelegate.tryFindUserByUserCode(userCode);
     }
+    
+    public User[] tryFindUserByEmail(final String email) throws InvalidSessionException
+    {
+        return cifexServiceDelegate.tryFindUserByEmail(email);
+    }
 
     public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
     {

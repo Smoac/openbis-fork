@@ -116,15 +116,16 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             stateField += messageResources.getPermanentRoleName() + " User";
         } else
         {
-            stateField +=
-                    messageResources.getTemporaryRoleName()
-                            + " User expires on ".concat(DateTimeUtils.formatDate(user
-                                    .getExpirationDate()));
+            stateField += messageResources.getTemporaryRoleName();
+            if (user.getExpirationDate() != null)
+            {
+                stateField +=
+                        " User expires on ".concat(DateTimeUtils.formatDate(user
+                                .getExpirationDate()));
+            }
         }
         return stateField;
     }
-
-    protected abstract String listActionsForUser(final User user);
 
     public abstract List getColumnConfigs();
 

@@ -176,8 +176,8 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         public final void onSuccess(final Object result)
         {
             final User[] users = (User[]) result;
-            final FileShareUserDialog dialog =
-                    new FileShareUserDialog(viewContext, users, fileName, fileId);
+            final FileShareUpdateUserDialog dialog =
+                    new FileShareUpdateUserDialog(viewContext, users, fileName, fileId);
             dialog.show(modelBasedGrid.getEl());
 
         }
