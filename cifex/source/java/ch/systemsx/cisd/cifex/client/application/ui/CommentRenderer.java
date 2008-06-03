@@ -35,7 +35,13 @@ public class CommentRenderer
     public final static String createCommentAnchor(final File file)
     {
         final String comment = StringUtils.isBlank(file.getComment()) ? "-" : file.getComment();
-        final String abbreviatedComment = StringUtils.abbreviate(comment, COMMENT_MAX_LENGTH);
-        return DOMUtils.createAnchor(comment, abbreviatedComment, Constants.SHOW_COMMENT_ID);
+        if (StringUtils.isBlank(file.getComment()))
+        {
+            return comment;
+        } else
+        {
+            final String abbreviatedComment = StringUtils.abbreviate(comment, COMMENT_MAX_LENGTH);
+            return DOMUtils.createAnchor(comment, abbreviatedComment, Constants.SHOW_COMMENT_ID);
+        }
     }
 }
