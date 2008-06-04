@@ -52,7 +52,7 @@ public interface IMessageResources extends Messages
      * @gwt.key action.label
      */
     public String getActionLabel();
-    
+
     /**
      * Returns the share label.
      * 
@@ -704,24 +704,31 @@ public interface IMessageResources extends Messages
     /**
      * Returns title for the 'rename' confirm box.
      * 
-     * @gwt.key confirm.renaming.title
+     * @gwt.key rename.confirm.title
      */
-    public String getConfirmRenamingTitle();
+    public String getRenameConfirmTitle();
+
+    /**
+     * Returns title for the 'rename' prompt box.
+     * 
+     * @gwt.key rename.prompt.title
+     */
+    public String getRenamePromptTitle();
 
     /**
      * Returns text for the 'rename' confirm box.
      * 
-     * @gwt.key confirm.renaming.text
+     * @gwt.key rename.confirm.text
      */
-    public String getConfirmRenamingText(String before, String after);
-    
+    public String getRenameConfirmText(String before, String after);
+
     /**
      * Returns the title for the existing user table
      * 
      * @gwt.key share.user.existing.title
      */
     public String getExistingUserTableTitle();
-    
+
     /**
      * Returns the title for the new user table
      * 
@@ -742,23 +749,24 @@ public interface IMessageResources extends Messages
      * @gwt.key share.user.add.button.label
      */
     public String getAddUserButtonLabel();
-    
+
     /**
      * Returns the label of the submit button of the Dialog
      * 
      * @gwt.key share.submit.button.label
      */
     public String getShareSubmitDialogButtonLabel();
-    
+
     /**
      * Returns the label of the field, to add new Email Adresses.
      * 
      * @gwt.key share.email.field.label
      */
     public String getEmailFielLabel();
-    
+
     /**
-     * Returns the label of the button to validate the users 
+     * Returns the label of the button to validate the users
+     * 
      * @gwt.key fileupload.validate.button.label
      */
     public String getValidateUsersButtonLabel();

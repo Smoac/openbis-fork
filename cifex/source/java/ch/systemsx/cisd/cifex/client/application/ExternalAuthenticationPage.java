@@ -32,6 +32,8 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
  * An <code>AbstractMainPage</code> allowing to change authentication method to external service.
+ * 
+ * @author Izabela Adamczyk
  */
 final class ExternalAuthenticationPage extends AbstractMainPage
 {

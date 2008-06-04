@@ -118,39 +118,65 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             {
                 // Change users code
                 assert userCode.equals(viewContext.getModel().getUser().getUserCode()) == false : "An user cannot change his own code.";
-                MessageBox.prompt("rename user", userCode, new MessageBox.PromptCallback()
-                    {
-
-                        public void execute(final String btnIDPrompt,
-                                final String userCodeAfterRenaming)
-                        {
-                            if (btnIDPrompt.equals("ok"))
+                MessageBox.prompt(messageResources.getRenamePromptTitle(), userCode,
+                        new MessageBox.PromptCallback()
                             {
-                                MessageBox.confirm(messageResources.getConfirmRenamingTitle(),
-                                        messageResources.getConfirmRenamingText(userCode,
-                                                userCodeAfterRenaming),
-                                        new MessageBox.ConfirmCallback()
-                                            {
-                                                public final void execute(final String btnIDConfirm)
-                                                {
-                                                    if (btnIDConfirm.equals("yes"))
-                                                    {
-                                                        viewContext
-                                                                .getCifexService()
-                                                                .changeUserCode(
-                                                                        userCode,
-                                                                        userCodeAfterRenaming,
-                                                                        new UsersFilesRefresherCallback(
-                                                                                viewContext,
-                                                                                userGrid, fileGrid));
-                                                    }
-                                                }
-                                            });
-                            }
-                        }
 
-                    });
+                                //
+                                // MessageBox.PromptCallback
+                                //
 
+                                public final void execute(final String btnIDPrompt,
+                                        final String userCodeAfterRenaming)
+                                {
+                                    if (btnIDPrompt.equals("ok")
+                                            && StringUtils.isBlank(userCodeAfterRenaming) == false)
+                                    {
+                                        MessageBox.confirm(
+                                                messageResources.getRenameConfirmTitle(),
+                                                messageResources.getRenameConfirmText(userCode,
+                                                        userCodeAfterRenaming),
+                                                new RenamingConfirmCallback(userCode,
+                                                        userCodeAfterRenaming, userGrid));
+                                    }
+                                }
+
+                            });
+
+            }
+        }
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class RenamingConfirmCallback implements MessageBox.ConfirmCallback
+    {
+        private final String userCode;
+
+        private final String userCodeAfterRenaming;
+
+        private final ModelBasedGrid userGrid;
+
+        private RenamingConfirmCallback(String userCode, String userCodeAfterRenaming,
+                ModelBasedGrid userGrid)
+        {
+            this.userCode = userCode;
+            this.userCodeAfterRenaming = userCodeAfterRenaming;
+            this.userGrid = userGrid;
+        }
+
+        //
+        // MessageBox.ConfirmCallback
+        //
+
+        public final void execute(final String btnIDConfirm)
+        {
+            if (btnIDConfirm.equals("yes"))
+            {
+                viewContext.getCifexService().changeUserCode(userCode, userCodeAfterRenaming,
+                        new UsersFilesRefresherCallback(viewContext, userGrid, fileGrid));
             }
         }
     }
@@ -172,6 +198,10 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             this.context = context;
 
         }
+
+        //
+        // AbstractAsyncCallback
+        //
 
         public void onSuccess(final Object result)
         {
@@ -200,6 +230,10 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             this.grid = grid;
         }
 
+        //
+        // AbstractAsyncCallback
+        //
+
         public final void onSuccess(final Object result)
         {
             final LayoutDialog dialog = new EditUserDialog(viewContext, (User) result, grid);
@@ -216,6 +250,10 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
             super(context);
             this.modelBasedGrid = modelBasedGrid;
         }
+
+        //
+        // AbstractAsyncCallback
+        //
 
         public final void onSuccess(final Object result)
         {
