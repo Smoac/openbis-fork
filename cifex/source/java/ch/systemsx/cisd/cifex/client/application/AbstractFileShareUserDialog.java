@@ -94,7 +94,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         existingUserGrid.reloadStore(existingUsers.toArray());
     }
 
-    private static ArrayList getArrayList(User[] users)
+    static ArrayList getArrayList(User[] users)
     {
         ArrayList list = new ArrayList();
         if (users != null)

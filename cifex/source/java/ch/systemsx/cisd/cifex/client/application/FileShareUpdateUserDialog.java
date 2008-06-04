@@ -33,15 +33,18 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 {
     private final List usersToAdd = new ArrayList();
-    
+
+    private final List initialSharingUsers;
+
     private final List usersToRemove = new ArrayList();
-    
+
     private final String fileId;
 
     public FileShareUpdateUserDialog(final ViewContext context, final List existingUsers,
             final List newUsers, final String name, final String fileId)
     {
         super(context, existingUsers, newUsers, name);
+        initialSharingUsers = new ArrayList(existingUsers);
         createUpdateButton();
         this.fileId = fileId;
     }
@@ -56,41 +59,58 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
             final User[] newUsers, final String name, final String fileId)
     {
         super(context, existingUsers, newUsers, name);
+        initialSharingUsers = getArrayList(existingUsers);
         createUpdateButton();
         this.fileId = fileId;
     }
 
+    // Remembers which users should be removed from the share and which one added.
     void checkboxChangeAction()
     {
-        // Remembers which users should be removed from the share and which one added.
         for (int i = 0; i < existingUsers.size(); i++)
         {
-            String userIdentifierWithPrefix =
-                    StringUtils.USER_ID_PREFIX + ((User) existingUsers.get(i)).getUserCode();
+            // User in the loop
+            User tmpUser = ((User) existingUsers.get(i));
+            String userIdentifierWithPrefix = StringUtils.USER_ID_PREFIX + tmpUser.getUserCode();
             String userIdentifier = ((User) existingUsers.get(i)).getUserCode();
+            // Checkbox is unchecked
             if (existingUserGrid.getStore().getAt(i)
                     .getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
             {
+                // If user is marked to add to the fileshare, remove him from the list
                 if (usersToAdd.contains(userIdentifierWithPrefix) == true)
                 {
                     usersToAdd.remove(userIdentifierWithPrefix);
-                } else if (usersToRemove.contains(userIdentifier) == false)
+                } else
+                // If the user is not marked to be removed from the file share, add him
+                if (usersToRemove.contains(userIdentifier) == false)
                 {
                     usersToRemove.add(userIdentifier);
                 }
             } else
+            // If the checkbox is checked
             {
-                if (usersToRemove.contains(userIdentifier))
+                // If the user is marked to be removed from the file share, remove him from the list
+                if (usersToRemove.contains(userIdentifier) == true)
                 {
                     usersToRemove.remove(userIdentifier);
+                }
+                // If the user is not initialy sharing the file and not yet on the list,
+                // add him to the list
+                if (initialSharingUsers.contains(tmpUser) == false
+                        && usersToAdd.contains(userIdentifierWithPrefix) == false)
+                {
+                    usersToAdd.add(userIdentifierWithPrefix);
                 }
             }
 
         }
 
+        // Loop for new generated users
         for (int i = 0; i < newUsers.size(); i++)
         {
             String userIdentifier = ((User) newUsers.get(i)).getEmail();
+            // If checkbox of the user is checked
             if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
             {
                 if (usersToAdd.contains(userIdentifier))
@@ -120,7 +140,8 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 
     private final void createUpdateButton()
     {
-        final Button button = addButton(viewContext.getMessageResources().getShareSubmitDialogButtonLabel());
+        final Button button =
+                addButton(viewContext.getMessageResources().getShareSubmitDialogButtonLabel());
         button.addButtonListener(new ButtonListenerAdapter()
             {
                 public final void onClick(final Button but, final EventObject e)
