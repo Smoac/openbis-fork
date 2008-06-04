@@ -31,7 +31,7 @@ final class RsyncExitValueTranslator
      * Returns the error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i>
      * be called for <code>exitValue=0</code>.
      */
-    public static String getMessage(int exitValue)
+    public static String getMessage(final int exitValue)
     {
         assert exitValue > 0;
 
@@ -42,9 +42,9 @@ final class RsyncExitValueTranslator
      * Returns the raw error message of rsync as indicated by the <var>exitValue</var>. Must <i>not</i>
      * be called for <code>exitValue=0</code>.
      */
-    private static String getRawMessage(int exitValue)
+    private static String getRawMessage(final int exitValue)
     {
-        assert exitValue > 0;
+        assert exitValue > 0 : "Exit value must be > 0";
 
         switch (exitValue)
         {
@@ -96,9 +96,9 @@ final class RsyncExitValueTranslator
     }
 
     /** Returns the {@link StatusFlag} of the rsync operation as indicated by the <var>exitValue</var>. */
-    public static StatusFlag getStatus(int exitValue)
+    public static StatusFlag getStatus(final int exitValue)
     {
-        assert exitValue >= 0;
+        assert exitValue >= 0 : "Negative exit value: " + exitValue;
 
         switch (exitValue)
         {
