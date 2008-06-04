@@ -411,7 +411,8 @@ public final class UserActionLog implements IUserActionLog
         {
             trackingLog.info(getUserHostSessionDescription()
                     + String.format("renew_file '%s' until %s: %s", getFileDescription(file),
-                            dateTimeFormat.format(file.getExpirationDate()), success));
+                            dateTimeFormat.format(file.getExpirationDate()),
+                            getSuccessString(success)));
         }
     }
 
@@ -420,7 +421,8 @@ public final class UserActionLog implements IUserActionLog
         if (accessLog.isInfoEnabled())
         {
             accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file '%s': %s", getFileDescription(file), success));
+                    + String.format("download_file '%s': %s", getFileDescription(file),
+                            getSuccessString(success)));
         }
     }
 
@@ -430,7 +432,7 @@ public final class UserActionLog implements IUserActionLog
         {
             trackingLog.info(getUserHostSessionDescription()
                     + String.format("delete_sharing_link between file '%s' and user '%s': %s",
-                            fileId, userCode, success));
+                            fileId, userCode, getSuccessString(success)));
         }
 
     }
@@ -440,7 +442,8 @@ public final class UserActionLog implements IUserActionLog
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("change_user_code from '%s' to '%s'", before, after, success));
+                    + String.format("change_user_code from '%s' to '%s': %s", before, after,
+                            getSuccessString(success)));
         }
 
     }
@@ -451,7 +454,7 @@ public final class UserActionLog implements IUserActionLog
         {
             accessLog.info(getUserHostSessionDescription()
                     + String.format("switch_to_external_authentication user '%s': %s", userCode,
-                            success));
+                            getSuccessString(success)));
         }
     }
 
