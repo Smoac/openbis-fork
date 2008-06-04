@@ -81,14 +81,14 @@ function build_zips {
 
     if [ $build_etl == "true" -o $build_dmv == "true" -o $build_lims == "true" ]; then
         mkdir -p $INSTALL
-	if [ "$use_local_source" = "true" ]; then
-    	    build_zips_from_local $build_etl $build_dmv $build_lims
-        else
-	    build_zips_from_svn $build_etl $build_dmv $build_lims
-	fi
+		if [ "$use_local_source" = "true" ]; then
+    		build_zips_from_local $build_etl $build_dmv $build_lims
+    	else
+	    	build_zips_from_svn $build_etl $build_dmv $build_lims
+		fi
     else
-	echo "No components to build were specified (--help explains how to do this)."
-	echo "Build process skipped."
+		echo "No components to build were specified (--help explains how to do this)."
+		echo "Build process skipped."
     fi
     assert_file_exists_or_die "$INSTALL/openBIS-server*.zip"
     assert_file_exists_or_die "$INSTALL/openBIS-client*.zip"
@@ -266,13 +266,15 @@ function install_datamovers {
     local install_dmv=$1
     if [ $install_dmv == "true" ]; then
         unpack datamover
-	prepare datamover datamover-raw
-        prepare datamover datamover-analysis
-	remove_unpacked datamover
-	cp -fR $TEMPLATE/dummy-img-analyser $WORK
+		prepare datamover datamover-raw
+    	prepare datamover datamover-analysis
+		remove_unpacked datamover
+		cp -fR $TEMPLATE/dummy-img-analyser $WORK
+		copy_templates datamover-raw
+		copy_templates datamover-analysis
     else 
-	copy_templates datamover-raw
-	copy_templates datamover-analysis
+		copy_templates datamover-raw
+		copy_templates datamover-analysis
     fi
 }
 
@@ -288,13 +290,20 @@ function install {
     local install_etl=$1
     local install_dmv=$2
     local install_lims=$3
+    local reinstall_all=$4
 
     mkdir -p $WORK
-    
-    install_etls $install_etl
-    install_datamovers $install_dmv
-    install_lims_client $install_lims
-    install_lims_server	$install_lims
+    if [ $reinstall_all == "true" ];then
+	    install_etls "true"
+	    install_datamovers "true"
+	    install_lims_client "true"
+	    install_lims_server	"true"
+    else
+	    install_etls $install_etl
+	    install_datamovers $install_dmv
+	    install_lims_client $install_lims
+	    install_lims_server	$install_lims
+    fi
 
     register_cell_plates
 }
@@ -758,6 +767,7 @@ function integration_tests {
     install_dmv=$2
     install_lims=$3
     use_local_source=$4
+    reinstall_all=$5
     
     init_log
     build_zips $install_etl $install_dmv $install_lims $use_local_source
@@ -768,7 +778,7 @@ function integration_tests {
     cp -R $TEMPLATE/data $WORK
     clean_svn $DATA
 
-    install $install_etl $install_dmv $install_lims
+    install $install_etl $install_dmv $install_lims $reinstall_all
     launch_tests
     
     assert_correct_content
@@ -788,7 +798,8 @@ function print_help {
     echo "Usage: $0 [ (--etl | --lims | --dmv)* | --all [ --local-source ]]"
     echo "	--etl, --lims, --dmv	build chosen components only"
     echo "	--all 			build all components"
-    echo "	--local-source		use local source code during building process instead of downloading it from svn"  
+    echo "	--local-source		use local source code during building process instead of downloading it from svn"
+    echo "	--reinstall-all		reinstalls all packeges new from the zip file which is in the installation direcory (also reinstall the packages which are not build)"  
     echo "	--assert-content	only checks content"
     echo "	--clean			clean and exit"
     echo "	--help			displays this help"
@@ -811,6 +822,7 @@ else
     install_dmv=false
     install_lims=false
     use_local_source=false
+    reinstall_all=false
     while [ ! "$1" = "" ]; do
 	case "$1" in
 	    '-e'|'--etl')
@@ -829,6 +841,9 @@ else
 		;;
 	    '--local-source')
 		use_local_source=true
+		;;
+		'--reinstall-all')
+		reinstall_all=true
 		;;			
 	    '--help')
 		print_help
@@ -846,5 +861,5 @@ else
          esac
 	 shift
     done
-    integration_tests $install_etl $install_dmv $install_lims $use_local_source
+    integration_tests $install_etl $install_dmv $install_lims $use_local_source $reinstall_all
 fi
