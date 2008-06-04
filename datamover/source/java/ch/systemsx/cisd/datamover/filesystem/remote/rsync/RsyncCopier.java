@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -80,6 +81,15 @@ public final class RsyncCopier implements IPathCopier
      * started.
      */
     private final boolean destinationDirectoryRequiresDeletionBeforeCreation;
+
+    /**
+     * Informs that a process has been started (and, in this case, is finished or not) or not.
+     * <p>
+     * Gets initialized to <code>false</code> just before {@link ProcessExecutionHelper} gets
+     * called.
+     * </p>
+     */
+    private AtomicBoolean terminated = new AtomicBoolean(false);
 
     /**
      * Constructs an <code>RsyncCopier</code>.
@@ -153,7 +163,8 @@ public final class RsyncCopier implements IPathCopier
      */
     public final boolean terminate()
     {
-        // FIXME 2008-06-02, Christian Ribeaud: Reimplement this.
+        // FIXME 2008-06-02, Christian Ribeaud: Reimplement this once it is possible to run the
+        // killer process NOW in ProcessExecutionHelper.
         // final Process copyProcess = copyProcessReference.get();
         // if (copyProcess != null)
         // {
@@ -163,8 +174,8 @@ public final class RsyncCopier implements IPathCopier
         // {
         // return false;
         // }
-            return true;
-        }
+        return terminated.get();
+    }
 
     /**
      * Checks whether the <code>rsync</code> can be executed and has a version >= 2.6.0.
@@ -223,9 +234,11 @@ public final class RsyncCopier implements IPathCopier
         final List<String> commandLine =
                 createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull);
+        terminated.set(false);
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(commandLine, operationLog, machineLog,
                         MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+        terminated.set(true);
         processResult.log();
         return createStatus(processResult);
     }

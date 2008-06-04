@@ -182,14 +182,18 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "requires_unix", "broken" })
+        { "requires_unix", "slow" })
     public void testRsyncTermination() throws IOException, InterruptedException
     {
         final File sleepyRsyncBinary = createRsync("2.6.9", "/bin/sleep 100");
         final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false, false);
-        (new Thread(new Runnable()
+        final Thread thread = new Thread(new Runnable()
             {
-                public void run()
+                //
+                // Runnable
+                //
+
+                public final void run()
                 {
                     final long sleepMillis = 20;
                     final int maxCount = 50;
@@ -208,7 +212,8 @@ public final class RsyncCopierTest
                         ok = copier.terminate();
                     }
                 }
-            })).start();
+            });
+        thread.start();
         final Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(RsyncCopier.TERMINATED_STATUS, status);
     }
