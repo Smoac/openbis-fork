@@ -28,8 +28,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkSelfTestable;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
@@ -158,9 +156,6 @@ public abstract class FileStore implements IFileStore
         {
             throw new ConfigurationFailureException(errorMessage);
         }
-        final HighwaterMarkWatcher highwaterMarkWatcher = getHighwaterMarkWatcher();
-        new HighwaterMarkSelfTestable(fileWithHighwaterMark.getFile(), highwaterMarkWatcher)
-                .check();
     }
 
     //
