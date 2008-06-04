@@ -44,7 +44,9 @@ import ch.systemsx.cisd.common.exceptions.StopException;
  * 
  * @author Bernd Rinn
  */
-public class ProcessExecutionHelper
+// TODO 2008-06-04, Christian Ribeaud: It should be possible to kill a process NOW, resetting the
+// process timeout to 0 so that the killer thread can process as soon as possible.
+public final class ProcessExecutionHelper
 {
 
     /**
