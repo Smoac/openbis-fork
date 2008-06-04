@@ -27,11 +27,11 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class ExperimentRegistrator implements IStorable
 {
-    static final String FOLDER = "experiment_registrator";
+    static final String EXPERIMENT_REGISTRATOR = "experiment_registrator";
 
     static final String FIRST_NAME = "first_name";
 
-    static final String SECOND_NAME = "last_name";
+    static final String LAST_NAME = "last_name";
 
     static final String EMAIL = "email";
 
@@ -40,18 +40,18 @@ public final class ExperimentRegistrator implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    static ExperimentRegistrator loadFrom(IDirectory directory)
+    static final ExperimentRegistrator loadFrom(final IDirectory directory)
     {
-        IDirectory folder = Utilities.getSubDirectory(directory, FOLDER);
-        String firstName = Utilities.getTrimmedString(folder, FIRST_NAME);
-        String secondName = Utilities.getTrimmedString(folder, SECOND_NAME);
-        String email = Utilities.getTrimmedString(folder, EMAIL);
+        final IDirectory folder = Utilities.getSubDirectory(directory, EXPERIMENT_REGISTRATOR);
+        final String firstName = Utilities.getTrimmedString(folder, FIRST_NAME);
+        final String secondName = Utilities.getTrimmedString(folder, LAST_NAME);
+        final String email = Utilities.getTrimmedString(folder, EMAIL);
         return new ExperimentRegistrator(firstName, secondName, email);
     }
 
     private final String firstName;
 
-    private final String secondName;
+    private final String lastName;
 
     private final String email;
 
@@ -59,15 +59,15 @@ public final class ExperimentRegistrator implements IStorable
      * Creates an instance for the specified name and e-mail of the registrator.
      * 
      * @param firstName A non-empty string of the first name.
-     * @param secondName A non-empty string of the second name.
+     * @param lastName A non-empty string of the second name.
      * @param email A non-empty string of the email.
      */
-    public ExperimentRegistrator(String firstName, String secondName, String email)
+    public ExperimentRegistrator(final String firstName, final String lastName, final String email)
     {
         assert firstName != null && firstName.length() > 0 : "Undefined first name";
         this.firstName = firstName;
-        assert secondName != null && secondName.length() > 0 : "Undefined second name";
-        this.secondName = secondName;
+        assert lastName != null && lastName.length() > 0 : "Undefined second name";
+        this.lastName = lastName;
         assert email != null && email.length() > 0 : "Undefined email";
         this.email = email;
     }
@@ -83,9 +83,9 @@ public final class ExperimentRegistrator implements IStorable
     /**
      * Returns the second name.
      */
-    public final String getSecondName()
+    public final String getLastName()
     {
-        return secondName;
+        return lastName;
     }
 
     /**
@@ -105,14 +105,14 @@ public final class ExperimentRegistrator implements IStorable
      */
     public final void saveTo(final IDirectory directory)
     {
-        IDirectory folder = directory.makeDirectory(FOLDER);
+        final IDirectory folder = directory.makeDirectory(EXPERIMENT_REGISTRATOR);
         folder.addKeyValuePair(FIRST_NAME, firstName);
-        folder.addKeyValuePair(SECOND_NAME, secondName);
+        folder.addKeyValuePair(LAST_NAME, lastName);
         folder.addKeyValuePair(EMAIL, email);
     }
 
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -122,21 +122,25 @@ public final class ExperimentRegistrator implements IStorable
         {
             return false;
         }
-        ExperimentRegistrator registrator = (ExperimentRegistrator) obj;
-        return registrator.firstName.equals(firstName) && registrator.secondName.equals(secondName)
+        final ExperimentRegistrator registrator = (ExperimentRegistrator) obj;
+        return registrator.firstName.equals(firstName) && registrator.lastName.equals(lastName)
                 && registrator.email.equals(email);
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return (firstName.hashCode() * 37 + secondName.hashCode()) * 37 + email.hashCode();
+        return (firstName.hashCode() * 37 + lastName.hashCode()) * 37 + email.hashCode();
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
-        return firstName + " " + secondName + ", e-mail:" + email;
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(EMAIL, email);
+        builder.append(FIRST_NAME, firstName);
+        builder.append(LAST_NAME, lastName);
+        return builder.toString();
     }
 
 }

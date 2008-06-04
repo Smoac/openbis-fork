@@ -110,7 +110,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.FOLDER);
+        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
         assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
@@ -126,7 +126,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.FOLDER);
+        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
         assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
@@ -143,7 +143,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
             fail("DataStructureException expected.");
         } catch (final DataStructureException e)
         {
-            assertPartOfString(ExperimentIdentifier.FOLDER, e.getMessage());
+            assertPartOfString(ExperimentIdentifier.EXPERIMENT_IDENTIFIER, e.getMessage());
         }
     }
 

@@ -294,19 +294,19 @@ public class DataStructureV1_0 extends AbstractDataStructure
     {
         super.assertValid();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
-        if (metaDataDirectory.tryGetNode(Format.FOLDER) == null && format == null)
+        if (metaDataDirectory.tryGetNode(Format.FORMAT) == null && format == null)
         {
             throw new DataStructureException("Unspecified format.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentIdentifier.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentIdentifier.EXPERIMENT_IDENTIFIER) == null)
         {
             throw new DataStructureException("Unspecified experiment identifier.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentRegistrationTimestamp.FILE_NAME) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentRegistrationTimestamp.EXPERIMENT_REGISTRATION_TIMESTAMP) == null)
         {
             throw new DataStructureException("Unspecified experiment registration timestamp.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentRegistrator.FOLDER) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentRegistrator.EXPERIMENT_REGISTRATOR) == null)
         {
             throw new DataStructureException("Unspecified experiment registrator.");
         }
@@ -339,7 +339,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         super.performClosing();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         formatParameters.saveTo(getParametersDirectory());
-        if (metaDataDirectory.tryGetNode(Format.FOLDER) == null && format != null)
+        if (metaDataDirectory.tryGetNode(Format.FORMAT) == null && format != null)
         {
             format.saveTo(metaDataDirectory);
         }

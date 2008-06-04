@@ -153,7 +153,7 @@ public class Utilities
         } catch (final IllegalArgumentException ex)
         {
             throw new DataStructureException("Value of '" + name
-                    + "' version file is not a boolean (TRUE or FALSE): " + value);
+                    + "' version file is not a boolean (TRUE or FALSE): '" + value + "'.");
         }
     }
 
@@ -169,7 +169,7 @@ public class Utilities
         } catch (final NumberFormatException ex)
         {
             throw new DataStructureException("Value of '" + name
-                    + "' version file is not a number: " + value);
+                    + "' version file is not a number: '" + value + "'.");
         }
     }
 
@@ -192,8 +192,8 @@ public class Utilities
             return Constants.DATE_FORMAT.get().parse(value);
         } catch (final ParseException ex)
         {
-            throw new DataStructureException("Value of '" + name + "' version file is not a date: "
-                    + value);
+            throw new DataStructureException("Value of '" + name
+                    + "' version file is not a date: '" + value + "'.");
         }
     }
 

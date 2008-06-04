@@ -35,7 +35,7 @@ public final class Sample implements IStorable
     static final String CODE = "code";
 
     /**
-     * Loads the enity from the specified directory.
+     * Loads the entity from the specified directory.
      * 
      * @throws DataStructureException if file missing.
      */
@@ -142,7 +142,10 @@ public final class Sample implements IStorable
     @Override
     public final String toString()
     {
-        return "[code:" + code + ",type:" + typeCode + ",typeDescription:" + typeDescription + "]";
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(CODE, code);
+        builder.append(TYPE_CODE, typeCode);
+        builder.append(TYPE_DESCRIPTION, typeDescription);
+        return builder.toString();
     }
-
 }

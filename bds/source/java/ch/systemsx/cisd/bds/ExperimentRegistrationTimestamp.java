@@ -27,14 +27,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class ExperimentRegistrationTimestamp implements IStorable
 {
-    static final String FILE_NAME = "experiment_registration_timestamp";
-
-    final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
-    {
-        return new ExperimentRegistrationTimestamp(Utilities.getDateOrNull(directory, FILE_NAME));
-    }
-
-    private final Date date;
+    static final String EXPERIMENT_REGISTRATION_TIMESTAMP = "experiment_registration_timestamp";
 
     /**
      * Creates an instance for the specified date.
@@ -42,6 +35,19 @@ public final class ExperimentRegistrationTimestamp implements IStorable
     public ExperimentRegistrationTimestamp(final Date date)
     {
         this.date = date;
+    }
+
+    final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
+    {
+        return new ExperimentRegistrationTimestamp(Utilities.getDateOrNull(directory,
+                EXPERIMENT_REGISTRATION_TIMESTAMP));
+    }
+
+    private final Date date;
+
+    private final String getFormattedDate()
+    {
+        return Constants.DATE_FORMAT.get().format(date);
     }
 
     /**
@@ -61,7 +67,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
      */
     public final void saveTo(final IDirectory directory)
     {
-        directory.addKeyValuePair(FILE_NAME, Constants.DATE_FORMAT.get().format(date));
+        directory.addKeyValuePair(EXPERIMENT_REGISTRATION_TIMESTAMP, getFormattedDate());
     }
 
     //
@@ -91,7 +97,8 @@ public final class ExperimentRegistrationTimestamp implements IStorable
     @Override
     public final String toString()
     {
-        return Constants.DATE_FORMAT.get().format(date);
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(EXPERIMENT_REGISTRATION_TIMESTAMP, getFormattedDate());
+        return builder.toString();
     }
-
 }

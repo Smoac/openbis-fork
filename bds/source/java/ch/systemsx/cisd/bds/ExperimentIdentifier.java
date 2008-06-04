@@ -27,8 +27,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class ExperimentIdentifier implements IStorable
 {
-    static final String FOLDER = "experiment_identifier";
-    
+    static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
+
     static final String INSTANCE_CODE = "instance_code";
 
     static final String GROUP_CODE = "group_code";
@@ -44,7 +44,7 @@ public class ExperimentIdentifier implements IStorable
      */
     final static ExperimentIdentifier loadFrom(final IDirectory directory)
     {
-        final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
+        final IDirectory idFolder = Utilities.getSubDirectory(directory, EXPERIMENT_IDENTIFIER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);
         final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
         final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
@@ -53,7 +53,7 @@ public class ExperimentIdentifier implements IStorable
     }
 
     private final String instanceCode;
-    
+
     private final String groupCode;
 
     private final String projectCode;
@@ -68,8 +68,8 @@ public class ExperimentIdentifier implements IStorable
      * @param projectCode A non-empty string of the project code.
      * @param experimentCode A non-empty string of the experiment code.
      */
-    public ExperimentIdentifier(final String instanceCode, final String groupCode, final String projectCode,
-            final String experimentCode)
+    public ExperimentIdentifier(final String instanceCode, final String groupCode,
+            final String projectCode, final String experimentCode)
     {
         assert StringUtils.isEmpty(instanceCode) == false : "Undefined instance code";
         this.instanceCode = instanceCode;
@@ -122,7 +122,7 @@ public class ExperimentIdentifier implements IStorable
      */
     public final void saveTo(final IDirectory directory)
     {
-        final IDirectory folder = directory.makeDirectory(FOLDER);
+        final IDirectory folder = directory.makeDirectory(EXPERIMENT_IDENTIFIER);
         folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
         folder.addKeyValuePair(PROJECT_CODE, projectCode);
@@ -163,8 +163,12 @@ public class ExperimentIdentifier implements IStorable
     @Override
     public final String toString()
     {
-        return "[instance:" + instanceCode + ",group:" + groupCode + ",project:" + projectCode
-                + ",experiment:" + experimentCode + "]";
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(INSTANCE_CODE, instanceCode);
+        builder.append(GROUP_CODE, groupCode);
+        builder.append(PROJECT_CODE, projectCode);
+        builder.append(EXPERIMENT_CODE, experimentCode);
+        return builder.toString();
     }
 
 }

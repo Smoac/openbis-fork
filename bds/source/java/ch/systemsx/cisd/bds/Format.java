@@ -32,7 +32,7 @@ import ch.systemsx.cisd.bds.storage.INode;
 public class Format implements IStorable
 {
 
-    static final String FOLDER = "format";
+    static final String FORMAT = "format";
 
     static final String CODE = "code";
 
@@ -45,7 +45,7 @@ public class Format implements IStorable
      */
     final static Format loadFrom(final IDirectory directory)
     {
-        final INode dir = directory.tryGetNode(FOLDER);
+        final INode dir = directory.tryGetNode(FORMAT);
         if (dir instanceof IDirectory == false)
         {
             throw new DataStructureException("Not a directory: " + dir);
@@ -87,7 +87,7 @@ public class Format implements IStorable
     {
         return tryToCreateFormatFromString(value, false);
     }
-    
+
     static Format tryToCreateFormatFromString(final String value, final boolean createIfWellFormed)
     {
         assert value != null : "Format string is not expected to be null.";
@@ -191,7 +191,7 @@ public class Format implements IStorable
 
     public final void saveTo(final IDirectory directory)
     {
-        final IDirectory dir = directory.makeDirectory(FOLDER);
+        final IDirectory dir = directory.makeDirectory(FORMAT);
         dir.addKeyValuePair(CODE, code);
         version.saveTo(dir);
         if (variant != null)
@@ -205,7 +205,7 @@ public class Format implements IStorable
     //
 
     @Override
-    public boolean equals(final Object obj)
+    public final boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -221,14 +221,14 @@ public class Format implements IStorable
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
         return (code.hashCode() * 37 + version.hashCode()) * 37
                 + (variant == null ? 0 : variant.hashCode());
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
         return "Format: " + code + " " + version + (variant == null ? "" : " [" + variant + "]");
     }

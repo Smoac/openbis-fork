@@ -246,4 +246,18 @@ public final class DataSet implements IStorable
         result = 37 * result + code.hashCode();
         return result;
     }
+
+    @Override
+    public final String toString()
+    {
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(CODE, code);
+        builder.append(IS_COMPLETE, isComplete);
+        builder.append(IS_MEASURED, isMeasured);
+        builder.append(OBSERVABLE_TYPE, observableTypeCode);
+        builder.append(PARENT_CODES, parentCodes);
+        builder.append(PRODUCER_CODE, producerCode);
+        builder.append(PRODUCTION_TIMESTAMP, productionTimestamp);
+        return builder.toString();
+    }
 }
