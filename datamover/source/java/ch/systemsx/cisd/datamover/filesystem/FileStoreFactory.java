@@ -65,13 +65,12 @@ public final class FileStoreFactory
 
     /**
      * use when file store is on a remote share mounted on local host
-     * 
-     * @param factory
      */
     public static final IFileStore createRemoteHost(final FileWithHighwaterMark path,
-            final String host, final String kind, final IFileSysOperationsFactory factory)
+            final String host, final String kind, final IFileSysOperationsFactory factory,
+            String findExecutableOrNull)
     {
-        return new FileStoreRemote(path, host, kind, factory);
+        return new FileStoreRemote(path, host, kind, factory, findExecutableOrNull);
     }
 
     /**
@@ -82,27 +81,32 @@ public final class FileStoreFactory
     public static final IFileStore createRemoteHost(final File path, final String host,
             final String kind, final IFileSysOperationsFactory factory)
     {
-        return createRemoteHost(new FileWithHighwaterMark(path), host, kind, factory);
+        return createRemoteHost(new FileWithHighwaterMark(path), host, kind, factory, null);
     }
 
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      */
     public final static IFileStore createStore(final File path, final String kind,
-            final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
+            final String hostOrNull, final boolean isRemote,
+            final IFileSysOperationsFactory factory, String findExecutableOrNull)
     {
-        return createStore(new FileWithHighwaterMark(path), kind, hostOrNull, isRemote, factory);
+        return createStore(new FileWithHighwaterMark(path), kind, hostOrNull, isRemote, factory,
+                findExecutableOrNull);
     }
 
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
+     * 
+     * @param findExecutableOrNull
      */
     public final static IFileStore createStore(final FileWithHighwaterMark path, final String kind,
-            final String hostOrNull, final boolean isRemote, final IFileSysOperationsFactory factory)
+            final String hostOrNull, final boolean isRemote,
+            final IFileSysOperationsFactory factory, final String findExecutableOrNull)
     {
         if (hostOrNull != null)
         {
-            return createRemoteHost(path, hostOrNull, kind, factory);
+            return createRemoteHost(path, hostOrNull, kind, factory, findExecutableOrNull);
         } else
         {
             if (isRemote)

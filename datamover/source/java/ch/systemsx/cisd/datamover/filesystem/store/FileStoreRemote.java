@@ -54,9 +54,9 @@ public class FileStoreRemote extends FileStore
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreRemote.class);
 
-    private static final long QUICK_SSH_TIMEOUT_MILIS = 5 * 1000;
+    private static final long QUICK_SSH_TIMEOUT_MILIS = 15 * 1000;
 
-    private static final long LONG_SSH_TIMEOUT_MILIS = 15 * 1000;
+    private static final long LONG_SSH_TIMEOUT_MILIS = 120 * 1000;
 
     // -- bash commands -------------
 
@@ -115,24 +115,44 @@ public class FileStoreRemote extends FileStore
 
     private String remoteFindExecutableOrNull;
 
+    /**
+     * @param remoteFindExecutableOrNull The executable to use for checking the last modification
+     *            time of files on the remote outgoing host. It should be a GNU find supporting
+     *            -printf option.
+     * @param kind Description of the directory used in logs
+     */
     public FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
-            final String kind, final IFileSysOperationsFactory factory)
+            final String kind, final IFileSysOperationsFactory factory,
+            String remoteFindExecutableOrNull)
     {
         this(fileWithHighwaterMark, host, kind, createSshCommandBuilder(findSSHOrDie(factory)),
-                factory);
+                factory, remoteFindExecutableOrNull);
     }
 
     // exposed for tests
     FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
             final String kind, final ISshCommandBuilder sshCommandBuilder,
-            final IFileSysOperationsFactory factory)
+            final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull)
     {
         super(fileWithHighwaterMark, host, kind, factory);
         assert host != null : "Unspecified host";
         this.sshCommandBuilder = sshCommandBuilder;
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(fileWithHighwaterMark, host, sshCommandBuilder);
-        this.remoteFindExecutableOrNull = null;
+        this.remoteFindExecutableOrNull = remoteFindExecutableOrNull;
+        if (remoteFindExecutableOrNull != null)
+        {
+            ensureSpecifiedFindExists(host, remoteFindExecutableOrNull);
+        }
+    }
+
+    private void ensureSpecifiedFindExists(final String host, final String remoteFindExecutable)
+    {
+        if (checkFindExecutable(remoteFindExecutableOrNull) == false)
+        {
+            throw new EnvironmentFailureException("Cannot find specified find executable '"
+                    + remoteFindExecutableOrNull + "' on the remote host '" + host + "'.");
+        }
     }
 
     private static File findSSHOrDie(final IFileSysOperationsFactory factory)
@@ -296,15 +316,21 @@ public class FileStoreRemote extends FileStore
             { "gfind", "find" };
         for (final String findExec : findExecutables)
         {
-            final String cmd = mkCheckCommandExistsCommand(findExec);
-            final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
-            if (result.isOK())
+            boolean ok = checkFindExecutable(findExec);
+            if (ok)
             {
                 setFindExecutable(findExec);
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean checkFindExecutable(final String findExec)
+    {
+        final String cmd = mkCheckCommandExistsCommand(findExec);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
+        return result.isOK();
     }
 
     private void setFindExecutable(final String findExecutable)

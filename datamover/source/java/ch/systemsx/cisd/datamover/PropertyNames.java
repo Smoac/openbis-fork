@@ -32,9 +32,9 @@ public final class PropertyNames
     static final String CHECK_INTERVAL = "check-interval";
 
     static final String CHECK_INTERVAL_INTERNAL = "check-interval-internal";
-    
+
     static final String DATA_COMPLETED_SCRIPT = "data-completed-script";
-    
+
     static final String DATA_COMPLETED_SCRIPT_TIMEOUT = "data-completed-script-timeout";
 
     static final String CLEANSING_REGEX = "cleansing-regex";
@@ -45,6 +45,10 @@ public final class PropertyNames
     static final String FAILURE_INTERVAL = "failure-interval";
 
     static final String HARD_LINK_EXECUTABLE = "hard-link-executable";
+
+    static final String INCOMING_HOST_FIND_EXECUTABLE = "incoming-host-find-executable";
+
+    static final String OUTGOING_HOST_FIND_EXECUTABLE = "outgoing-host-find-executable";
 
     static final String INACTIVITY_PERIOD = "inactivity-period";
 

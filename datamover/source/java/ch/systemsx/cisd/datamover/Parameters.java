@@ -113,6 +113,22 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private String hardLinkExecutable = null;
 
     /**
+     * The path to the <code>find</code> executable file on the incoming host.
+     */
+    @Option(longName = PropertyNames.INCOMING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote incoming host."
+            + " It should be a GNU find supporting -printf option."
+            + " Useful only in SSH tunneling mode when incoming-host is specified.")
+    private String incomingHostFindExecutableOrNull = null;
+
+    /**
+     * The path to the <code>find</code> executable file on the incoming host.
+     */
+    @Option(longName = PropertyNames.OUTGOING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote outgoing host."
+            + " It should be a GNU find supporting -printf option."
+            + " Useful only in SSH tunneling mode when outgoing-host is specified.")
+    private String outgoingHostFindExecutableOrNull = null;
+
+    /**
      * Default interval to wait between two checks for activity (in seconds)
      */
     static final int DEFAULT_CHECK_INTERVAL = 60;
@@ -189,7 +205,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * If set to true, than directory with incoming data is supposed to be on a remote share. It
      * implies that a special care will be taken when coping is performed from that directory.
      */
-    @Option(name = "r", longName = PropertyNames.TREAT_INCOMING_AS_REMOTE, usage = "If flag is set, than directory with incoming data "
+    @Option(name = "r", longName = PropertyNames.TREAT_INCOMING_AS_REMOTE, usage = "If flag is set, then directory with incoming data "
             + "is supposed to be on a remote share.")
     private boolean treatIncomingAsRemote = DEFAULT_TREAT_INCOMING_AS_REMOTE;
 
@@ -209,7 +225,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The remote host to copy the data from or null if data are available on a local/remote share
      */
-    @Option(longName = PropertyNames.INCOMING_HOST, metaVar = "HOST", usage = "The remote host to move the data from")
+    @Option(longName = PropertyNames.INCOMING_HOST, metaVar = "HOST", usage = "The remote host to move the data from  using ssh tunneling")
     private String incomingHost = null;
 
     /**
@@ -245,7 +261,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
      */
     @Option(longName = PropertyNames.OUTGOING_HOST, metaVar = "HOST", usage = "The remote host to "
-            + "move the data to (only with rsync).")
+            + "move the data to using ssh tunneling.")
     private String outgoingHost = null;
 
     /**
@@ -420,6 +436,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         hardLinkExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.HARD_LINK_EXECUTABLE,
                         hardLinkExecutable);
+        incomingHostFindExecutableOrNull =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.INCOMING_HOST_FIND_EXECUTABLE,
+                        incomingHostFindExecutableOrNull);
+        outgoingHostFindExecutableOrNull =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.OUTGOING_HOST_FIND_EXECUTABLE,
+                        outgoingHostFindExecutableOrNull);
         checkIntervalMillis =
                 toMillis(PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
                         checkIntervalMillis));
@@ -626,7 +650,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final IFileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
-                treatIncomingAsRemote, factory);
+                treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull);
     }
 
     /**
@@ -643,7 +667,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final IFileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost,
-                true, factory);
+                true, factory, outgoingHostFindExecutableOrNull);
     }
 
     /**

@@ -104,7 +104,7 @@ public class FileStoreRemoteTest
     {
         ISshCommandBuilder fakeSshBuilder = createFakeSshComandBuilder();
         return new FileStoreRemote(new FileWithHighwaterMark(dir), "fake-host", "remote-dir-desc",
-                fakeSshBuilder, fileSysOpertationFactory);
+                fakeSshBuilder, fileSysOpertationFactory, null);
     }
 
     static ISshCommandBuilder createFakeSshComandBuilder()
