@@ -418,6 +418,8 @@ public final class ProcessExecutionHelper
         {
             final Future<ProcessResult> killerFuture = executor.submit(new ProcessKiller());
             processResult = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+            // If the process killer did not find anything to kill, then try to get the original
+            // process result. We could have had a raise condition here.
             if (processResult.tryGetResult() == null)
             {
                 processResult =
