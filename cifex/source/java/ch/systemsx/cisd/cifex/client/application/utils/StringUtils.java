@@ -81,7 +81,7 @@ public final class StringUtils
      * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      */
     public final native static boolean matches(final String regExp, final String value) /*-{
-                   var re = new RegExp(regExp);
-                   return value.search(re) > -1;
-                }-*/;
+       var re = new RegExp(regExp);
+       return value.search(re) > -1;
+    }-*/;
 }

@@ -22,26 +22,32 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
+ * Takes care of rendering a comment field.
+ * 
  * @author Bernd Rinn
  */
-public class CommentRenderer
+public final class CommentRenderer
 {
 
     private static final int COMMENT_MAX_LENGTH = 20;
+
+    private CommentRenderer()
+    {
+        // Can not be instantiated.
+    }
 
     /**
      * Nicely renders given <code>comment</code>.
      */
     public final static String createCommentAnchor(final File file)
     {
-        final String comment = StringUtils.isBlank(file.getComment()) ? "-" : file.getComment();
-        if (StringUtils.isBlank(file.getComment()))
+        String fileComment = file.getComment();
+        if (StringUtils.isBlank(fileComment))
         {
-            return comment;
-        } else
-        {
-            final String abbreviatedComment = StringUtils.abbreviate(comment, COMMENT_MAX_LENGTH);
-            return DOMUtils.createAnchor(comment, abbreviatedComment, Constants.SHOW_COMMENT_ID);
+            return Constants.TABLE_NULL_VALUE;
         }
+        final String abbreviatedComment = StringUtils.abbreviate(fileComment, COMMENT_MAX_LENGTH);
+        return DOMUtils.createAnchor(fileComment, abbreviatedComment, Constants.SHOW_COMMENT_ID,
+                false);
     }
 }

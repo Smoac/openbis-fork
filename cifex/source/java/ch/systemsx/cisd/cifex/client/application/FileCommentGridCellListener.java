@@ -19,12 +19,19 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.util.Format;
 import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 
 /**
+ * A <code>GridCellListenerAdapter</code> extension which opens a {@link DefaultLayoutDialog} for
+ * showing the comment.
+ * <p>
+ * Note that the comment should be HTML encoded to avoid a potential security issue.
+ * </p>
+ * 
  * @author Basil Neff
  */
 public class FileCommentGridCellListener extends GridCellListenerAdapter
@@ -35,6 +42,10 @@ public class FileCommentGridCellListener extends GridCellListenerAdapter
     {
         this.viewContext = viewContext;
     }
+
+    //
+    // GridCellListenerAdapter
+    //
 
     public final void onCellClick(final Grid grid, final int rowIndex, final int colindex,
             final EventObject e)
@@ -60,7 +71,7 @@ public class FileCommentGridCellListener extends GridCellListenerAdapter
                                 DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
                 layoutDialog.addContentPanel();
                 layoutDialog.show();
-                layoutDialog.getContentPanel().setContent(comment);
+                layoutDialog.getContentPanel().setContent(Format.htmlEncode(comment));
             }
         }
     }

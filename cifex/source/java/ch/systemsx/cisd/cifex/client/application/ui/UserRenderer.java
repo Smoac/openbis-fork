@@ -59,7 +59,7 @@ public final class UserRenderer implements Renderer
         final String userDescription = StringUtils.isBlank(fullName) ? userCode : fullName;
         if (StringUtils.isBlank(userDescription))
         {
-            return "-";
+            return Constants.TABLE_NULL_VALUE;
         }
         if (StringUtils.isBlank(email))
         {

@@ -34,7 +34,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.client.dto.Message;
@@ -195,8 +194,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
             final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
-            final List<String> userIdentifier, final StringBuffer comment) throws FileUploadException,
-            IOException
+            final List<String> userIdentifier, final StringBuffer comment)
+            throws FileUploadException, IOException
     {
         final ServletFileUpload upload = new ServletFileUpload();
         upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
@@ -239,8 +238,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                                 .getFieldName(), item.getName()));
                     }
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, filenameInStream, StringEscapeUtils
-                                    .escapeHtml(comment.toString()), item.getContentType(), stream);
+                            fileManager.saveFile(requestUser, filenameInStream, comment.toString(),
+                                    item.getContentType(), stream);
                     files.add(file);
                 } else
                 {
@@ -264,10 +263,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))
                 {
                     comment.append(Streams.asString(stream));
-                    final String commentStr = StringEscapeUtils.escapeHtml(comment.toString());
                     for (final FileDTO file : files)
                     {
-                        file.setComment(commentStr);
+                        file.setComment(comment.toString());
                         fileManager.updateFile(file);
                     }
                 }

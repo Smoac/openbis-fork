@@ -101,21 +101,22 @@ public final class DOMUtils
     /** Creates an anchor with given <var>value</var>. */
     public final static String createAnchor(final String value)
     {
-        return createAnchor(null, value, null, null, null);
+        return createAnchor(null, value, null, null, null, false);
     }
 
     /** Creates an anchor with given <var>value</var> and given style <var>id</var>. */
     public final static String createAnchor(final String value, final String id)
     {
         assert value != null : "Undefined value.";
-        return createAnchor(null, value, null, null, id);
+        return createAnchor(null, value, null, null, id, false);
     }
 
     /** Creates an anchor with given <var>value</var> and given style <var>id</var>. */
-    public final static String createAnchor(final String title, final String value, final String id)
+    public final static String createAnchor(final String title, final String value,
+            final String id, final boolean html)
     {
         assert value != null : "Undefined value.";
-        return createAnchor(title, value, null, null, id);
+        return createAnchor(title, value, null, null, id, html);
     }
 
     /**
@@ -124,8 +125,8 @@ public final class DOMUtils
      * 
      * @param title
      */
-    private final static String createAnchor(String title, final String value, final String href,
-            final String target, final String id)
+    private final static String createAnchor(final String title, final String value, final String href,
+            final String target, final String id, final boolean html)
     {
         assert value != null : "Undefined value.";
         final Element anchor = createBasicAnchorElement();
@@ -148,7 +149,13 @@ public final class DOMUtils
         {
             DOM.setElementAttribute(anchor, "id", id);
         }
-        DOM.setInnerText(anchor, value);
+        if (html)
+        {
+            DOM.setInnerHTML(anchor, value);
+        } else
+        {
+            DOM.setInnerText(anchor, value);
+        }
         return DOM.toString(anchor);
     }
 }
