@@ -52,14 +52,6 @@ public final class ExposablePropertyPaceholderConfigurer extends PropertyPlaceho
             final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
             throws BeansException
     {
-        // -- Trim leading and trailing whitespaces
-        for (final Object key : props.keySet())
-        {
-            final String keyStr = key.toString();
-            props.setProperty(keyStr, org.springframework.util.StringUtils.trimWhitespace(props
-                    .getProperty(keyStr)));
-        }
-        // --
         super.processProperties(beanFactoryToProcess, props);
         resolvedProps = new HashMap<String, String>();
         for (final Object key : props.keySet())
