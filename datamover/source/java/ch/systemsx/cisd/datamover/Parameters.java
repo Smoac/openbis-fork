@@ -64,7 +64,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
 
-    private final static String HIGHWATER_MARK_TEXT = "(high water mark in KB after the ':')";
+    private final static String HIGHWATER_MARK_TEXT =
+            "(optional high water mark in KB specified after a ':')";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
