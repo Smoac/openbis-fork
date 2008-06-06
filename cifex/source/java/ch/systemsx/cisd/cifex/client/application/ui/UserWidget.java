@@ -36,8 +36,10 @@ import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.form.VType;
 
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -153,7 +155,7 @@ public abstract class UserWidget extends Form
             add(sendUpdateInformation);
 
         }
-       
+
         end();
 
         final ColumnConfig rightColumn = new ColumnConfig();
@@ -254,6 +256,8 @@ public abstract class UserWidget extends Form
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setName(getMessageResources().getUserCodeLabel());
         fieldConfig.setAllowBlank(false);
+        fieldConfig.setValidator(CifexValidator.getUserCodeFieldValidator());
+        fieldConfig.setInvalidText(Constants.VALID_USER_CODE_DESCRIPTION);
         fieldConfig.setValidateOnBlur(false);
         final TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getUserCode() != null)

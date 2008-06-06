@@ -46,8 +46,8 @@ public class CifexValidator
                         assert result[i] != null : "Must not be null.";
                         final String item = result[i].trim();
                         if (item.length() > 0
-                                && (StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false && StringUtils
-                                        .matches(StringUtils.USER_ID_REGEX, item) == false))
+                                && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false
+                                && StringUtils.matches(StringUtils.USER_CODE_WITH_ID_PREFIX_REGEX, item) == false)
                         {
                             return false;
                         }
@@ -74,6 +74,30 @@ public class CifexValidator
                         return false;
                     }
                     if (StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+            };
+    }
+
+    /**
+     * Returns a validator for a user code field. Available user codes are defined by
+     * <code>StringUtils.USER_CODE_REGEX</code>.
+     */
+    public static Validator getUserCodeFieldValidator()
+    {
+        return new Validator()
+            {
+                public final boolean validate(final String value) throws ValidationException
+                {
+                    assert value != null : "Must not be null";
+                    if (value.length() == 0)
+                    {
+                        return false;
+                    }
+                    if (StringUtils.matches(StringUtils.USER_CODE_REGEX, value) == false)
                     {
                         return false;
                     }

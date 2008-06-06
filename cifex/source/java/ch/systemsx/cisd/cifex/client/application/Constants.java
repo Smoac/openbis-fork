@@ -47,9 +47,15 @@ public final class Constants
 
     /** The <code>id</code> attribute value for 'change user code' action. */
     public static final String CHANGE_USER_CODE_ID = "change_user_code";
-    
-    /** Prefix to specify a user in a textfield.*/
+
+    /** Prefix to specify a user in a textfield. */
     public static final String USER_ID_PREFIX = "id:";
+
+    /** Regular expression for allowed user codes */
+    public static final String USER_CODE_REGEX = "^([a-zA-Z0-9_\\.\\-\\@])+$";
+
+    public static final String VALID_USER_CODE_DESCRIPTION =
+            "User code must not be empty and must contain only allowed characters: [a-zA-Z0-9_.-@]. Whitespaces are not allowed.";
 
     private Constants()
     {

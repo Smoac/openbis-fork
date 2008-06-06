@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
+import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
@@ -457,6 +459,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
             InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
+        ensureCodeIsValid(user.getUserCode());
         final IUserManager userManager = domainModel.getUserManager();
 
         ensureUserCodeNotReservedByExternalAuthenticationService(user);
@@ -473,6 +476,16 @@ public final class CIFEXServiceImpl implements ICIFEXService
         } catch (final ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
+        }
+    }
+
+    private void ensureCodeIsValid(final String code)
+    {
+        final Pattern userCodePattern = Pattern.compile("^" + Constants.USER_CODE_REGEX);
+        if (code == null || code.length() == 0 || userCodePattern.matcher(code).matches() == false)
+        {
+            throw new IllegalArgumentException("Invalid user code. "
+                    + Constants.VALID_USER_CODE_DESCRIPTION);
         }
     }
 
@@ -689,6 +702,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
         final IUserManager userManager = domainModel.getUserManager();
 
         final UserDTO requestUser = privGetCurrentUser();
+        ensureCodeIsValid(after);
         final UserDTO userBefore = userManager.tryFindUserByCode(before);
         if (requestUser.isAdmin() && requestUser.getUserCode().equals(before) == false
                 && (userBefore == null || userBefore.isExternallyAuthenticated() == false))

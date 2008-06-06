@@ -132,12 +132,20 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
                                     if (btnIDPrompt.equals("ok")
                                             && StringUtils.isBlank(userCodeAfterRenaming) == false)
                                     {
-                                        MessageBox.confirm(
-                                                messageResources.getRenameConfirmTitle(),
-                                                messageResources.getRenameConfirmText(userCode,
-                                                        userCodeAfterRenaming),
-                                                new RenamingConfirmCallback(userCode,
-                                                        userCodeAfterRenaming, userGrid));
+                                        if (StringUtils.matches(Constants.USER_CODE_REGEX,
+                                                userCodeAfterRenaming) == false)
+                                        {
+                                            MessageBox.alert("Invalid user code",
+                                                    Constants.VALID_USER_CODE_DESCRIPTION);
+                                        } else
+                                        {
+                                            MessageBox.confirm(messageResources
+                                                    .getRenameConfirmTitle(), messageResources
+                                                    .getRenameConfirmText(userCode,
+                                                            userCodeAfterRenaming),
+                                                    new RenamingConfirmCallback(userCode,
+                                                            userCodeAfterRenaming, userGrid));
+                                        }
                                     }
                                 }
 
@@ -159,8 +167,8 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
         private final ModelBasedGrid userGrid;
 
-        private RenamingConfirmCallback(String userCode, String userCodeAfterRenaming,
-                ModelBasedGrid userGrid)
+        private RenamingConfirmCallback(final String userCode, final String userCodeAfterRenaming,
+                final ModelBasedGrid userGrid)
         {
             this.userCode = userCode;
             this.userCodeAfterRenaming = userCodeAfterRenaming;

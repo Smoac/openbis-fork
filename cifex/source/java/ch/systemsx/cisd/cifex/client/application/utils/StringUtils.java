@@ -32,7 +32,11 @@ public final class StringUtils
 
     public final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
 
-    public static final String USER_ID_REGEX = "^" + USER_ID_PREFIX + "([a-zA-Z0-9_\\.\\-\\@])+$";
+    public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
+            "^" + USER_ID_PREFIX + Constants.USER_CODE_REGEX.substring(1);
+
+	/** A regular expression that match user code. */
+    public static final String USER_CODE_REGEX = Constants.USER_CODE_REGEX;
 
     public static final String EMPTY_STRING = "";
 
@@ -81,7 +85,7 @@ public final class StringUtils
      * Returns <code>true</code> if given <var>regExp</var> could be found in given <var>value</var>.
      */
     public final native static boolean matches(final String regExp, final String value) /*-{
-       var re = new RegExp(regExp);
-       return value.search(re) > -1;
-    }-*/;
+                var re = new RegExp(regExp);
+                return value.search(re) > -1;
+             }-*/;
 }

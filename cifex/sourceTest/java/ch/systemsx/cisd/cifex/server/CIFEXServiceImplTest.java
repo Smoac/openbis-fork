@@ -483,6 +483,36 @@ public class CIFEXServiceImplTest
         context.assertIsSatisfied();
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testChangeUserCodeByAdminIllegalCode() throws InvalidSessionException,
+            InsufficientPrivilegesException, EnvironmentFailureException
+    {
+        final String before = "before";
+        final String after = "af ter";
+        final UserDTO userDTO = new UserDTO();
+        final String email = "Email";
+        userDTO.setUserCode("Admin");
+        userDTO.setEmail(email);
+        userDTO.setAdmin(true);
+
+        final UserDTO userToChange = new UserDTO();
+        userToChange.setUserCode(before);
+        userToChange.setEmail(email);
+        prepareForGettingUserFromHTTPSession(userDTO, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
+                }
+            });
+        final CIFEXServiceImpl service = createService(null);
+        service.changeUserCode(before, after);
+        context.assertIsSatisfied();
+    }
+
     @Test
     public void testDeleteFile() throws InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException
