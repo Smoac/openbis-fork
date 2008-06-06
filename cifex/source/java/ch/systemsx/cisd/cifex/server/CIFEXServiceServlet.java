@@ -206,7 +206,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         return cifexServiceDelegate.tryFindUserByUserCode(userCode);
     }
-    
+
     public User[] tryFindUserByEmail(final String email) throws InvalidSessionException
     {
         return cifexServiceDelegate.tryFindUserByEmail(email);
@@ -256,6 +256,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
             InsufficientPrivilegesException
     {
         return cifexServiceDelegate.trySwitchToExternalAuthentication(userCode, plainPassword);
+    }
+
+    public boolean showSwitchToExternalOption(final User user)
+    {
+        return cifexServiceDelegate.showSwitchToExternalOption(user);
     }
 
 }

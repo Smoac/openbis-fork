@@ -25,6 +25,7 @@ import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.ButtonConfig;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.ToolbarSeparator;
 import com.gwtext.client.widgets.ToolbarTextItem;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.BorderLayout;
@@ -48,6 +49,10 @@ abstract class AbstractMainPage extends BorderLayout
     protected IMessageResources messageResources;
 
     protected VerticalPanel createUserPanel;
+
+    private final ToolbarSeparator externalSeparator;
+
+    private final ToolbarButton eXternalAuthenticationButton;
 
     private final static LayoutRegionConfig createCenterRegion()
     {
@@ -91,12 +96,38 @@ abstract class AbstractMainPage extends BorderLayout
                 createCenterRegion());
         this.context = context;
         this.messageResources = context.getMessageResources();
+        eXternalAuthenticationButton = createExternalAuthenticationButton();
+        externalSeparator = new ToolbarSeparator();
         add(LayoutRegionConfig.NORTH, createToolbarPanel());
         add(LayoutRegionConfig.CENTER, createMainPanel());
         final FooterPanel footerPanel = new FooterPanel(context);
         final ContentPanel contentPanel = new ContentPanel();
         contentPanel.add(footerPanel);
         add(LayoutRegionConfig.SOUTH, contentPanel);
+        maybeSetExternalAuthenticationVisible();
+    }
+
+    private void maybeSetExternalAuthenticationVisible()
+    {
+        setExternalAuthenticationVisible(false);
+        context.getCifexService().showSwitchToExternalOption(context.getModel().getUser(),
+                new AbstractAsyncCallback(context)
+                    {
+
+                        public void onSuccess(final Object result)
+                        {
+                            final Boolean resultAsBoolean = (Boolean) result;
+                            final boolean visible =
+                                    resultAsBoolean != null && resultAsBoolean.booleanValue();
+                            setExternalAuthenticationVisible(visible);
+                        }
+                    });
+    }
+
+    private void setExternalAuthenticationVisible(final boolean visible)
+    {
+        eXternalAuthenticationButton.setVisible(visible);
+        externalSeparator.setVisible(visible);
     }
 
     private ContentPanel createToolbarPanel()
@@ -123,12 +154,8 @@ abstract class AbstractMainPage extends BorderLayout
             toolbar.addButton(createEditProfileButton());
         }
 
-        if (user.isExternallyAuthenticated() == false /* && hasExternalService() */)
-        {
-            toolbar.addSeparator();
-            toolbar.addButton(createExternalAuthenticationButton());
-        }
-
+        toolbar.addItem(externalSeparator);
+        toolbar.addButton(eXternalAuthenticationButton);
         toolbar.addSeparator();
         toolbar.addButton(createLogoutButton());
         contentPanel.add(toolbar);
@@ -241,7 +268,7 @@ abstract class AbstractMainPage extends BorderLayout
     private final ToolbarButton createExternalAuthenticationButton()
     {
         final String externalAuthenticationTitle = messageResources.getExternalAuthentication();
-        // res
+
         final ToolbarButton editProfileButton =
                 new ToolbarButton(externalAuthenticationTitle, new ButtonConfig()
                     {

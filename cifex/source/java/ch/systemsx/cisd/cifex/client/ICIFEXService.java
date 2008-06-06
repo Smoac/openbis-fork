@@ -221,4 +221,10 @@ public interface ICIFEXService extends RemoteService
             throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
 
+    /**
+     * Checks if 'switch to external authentication' option should be available for given
+     * <code>User<code>.
+     */
+    public boolean showSwitchToExternalOption(User user);
+
 }

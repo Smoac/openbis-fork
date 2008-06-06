@@ -62,8 +62,8 @@ public interface ICIFEXServiceAsync extends RemoteService
 
     /** Gets the user by the userCode. */
     public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
-    
-    /** Returns a list of users with the given email.*/
+
+    /** Returns a list of users with the given email. */
     public void tryFindUserByEmail(final String email, final AsyncCallback callback);
 
     /**
@@ -147,18 +147,22 @@ public interface ICIFEXServiceAsync extends RemoteService
             AsyncCallback showUsersFileSharedWithAsyncCallback);
 
     /** Revokes user with given userCode access to file with fileId. */
-    public void deleteSharingLink(String fileId, String userCode,
-            AsyncCallback callback);
+    public void deleteSharingLink(String fileId, String userCode, AsyncCallback callback);
 
     /**
      * Creates a sharing link between file and users.
      */
-    public void createSharingLink(String fileId, String emailsOfUsers,
-            AsyncCallback callback);
+    public void createSharingLink(String fileId, String emailsOfUsers, AsyncCallback callback);
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.
      */
     public void trySwitchToExternalAuthentication(final String userCode,
             final String plainPassword, final AsyncCallback callback);
+
+    /**
+     * Checks if 'switch to external authentication' option should be available for given
+     * <code>User<code>.
+     */
+    public void showSwitchToExternalOption(User user, AsyncCallback callback);
 }

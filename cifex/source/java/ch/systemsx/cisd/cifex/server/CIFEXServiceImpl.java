@@ -129,6 +129,11 @@ public final class CIFEXServiceImpl implements ICIFEXService
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
 
+    public final boolean showSwitchToExternalOption(final User user)
+    {
+        return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
+    }
+
     private final boolean hasExternalAuthenticationService()
     {
         return externalAuthenticationService != null
@@ -881,8 +886,8 @@ public final class CIFEXServiceImpl implements ICIFEXService
         try
         {
             invalidEmailAddresses =
-                    fileManager.shareFilesWith(url, requestUser, userIdentifierList, files, fileInfo
-                            .getFileDTO().getComment());
+                    fileManager.shareFilesWith(url, requestUser, userIdentifierList, files,
+                            fileInfo.getFileDTO().getComment());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw new UserFailureException(e.getMessage());
