@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
  * Utilities for {@link Timer}.
@@ -33,17 +34,10 @@ public class TimerUtilities
 
     private static Field tryGetTimerThreadField()
     {
-        try
+        final Field field = ClassUtils.tryGetDeclaredField(Timer.class, "thread");
+        if (Thread.class.isAssignableFrom(field.getType()))
         {
-            final Field field = Timer.class.getDeclaredField("thread");
-            field.setAccessible(true);
-            if (Thread.class.isAssignableFrom(field.getType()))
-            {
-                return field;
-            }
-        } catch (Exception ex)
-        {
-            // Nothing to do here.
+            return field;
         }
         return null;
     }

@@ -306,7 +306,6 @@ public final class ClassUtils
             final Field field = tryGetDeclaredField(clazz, fieldName);
             if (field != null)
             {
-                field.setAccessible(true);
                 field.set(object, newValue);
                 return true;
             }
@@ -322,10 +321,13 @@ public final class ClassUtils
 
     /**
      * Gets declared field named <var>fieldName</var> in given class or superclass of it.
+     * <p>
+     * Before returning it, it call {@link Field#setAccessible(boolean)} with <code>true</code>.
+     * </p>
      * 
      * @return <code>null</code> if given <var>fieldName</var> could not be found.
      */
-    private final static Field tryGetDeclaredField(final Class<?> c, final String fieldName)
+    public final static Field tryGetDeclaredField(final Class<?> c, final String fieldName)
     {
         assert c != null : "Unspecified class.";
         assert StringUtils.isNotBlank(fieldName) : "Blank field name.";
@@ -343,6 +345,10 @@ public final class ClassUtils
             }
             clazz = clazz.getSuperclass();
         } while (field == null && clazz != null);
+        if (field != null)
+        {
+            field.setAccessible(true);
+        }
         return field;
     }
 }
