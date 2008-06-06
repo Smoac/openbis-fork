@@ -163,7 +163,7 @@ public final class RsyncCopier implements IPathCopier
      */
     public final boolean terminate()
     {
-        // FIXME 2008-06-02, Christian Ribeaud: Reimplement this once it is possible to run the
+        // TODO 2008-06-02, Christian Ribeaud: Reimplement this once it is possible to run the
         // killer process NOW in ProcessExecutionHelper.
         // final Process copyProcess = copyProcessReference.get();
         // if (copyProcess != null)
