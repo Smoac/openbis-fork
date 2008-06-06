@@ -72,6 +72,10 @@ public class EditUserWidget extends UserWidget
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
+            if (editUser != null)
+            {
+                user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
+            }
             if (addStatusField)
             {
                 user.setAdmin(isAdminStatus());
