@@ -7,19 +7,6 @@ body, p{
 	align: left;
 }
 
-body {
-  background-color: #f0f0f0;
-  font-family: verdana, tahoma, helvetica;
-}
-
-@media print {
-
-	body {
-	    background-color: #fff;
-	}
-
-}
-
 pre {
     padding: 0;
     margin-top: 5px;
