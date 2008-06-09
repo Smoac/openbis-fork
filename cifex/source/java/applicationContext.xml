@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="
        			http://www.springframework.org/schema/beans
@@ -11,7 +12,8 @@
         // Replaces ${...} with corresponding values found in 'location' property. A value
         // can be overridden by setting a corresponding system property.
     -->
-    <bean id="propertyConfigurer" class="ch.systemsx.cisd.cifex.server.ExposablePropertyPaceholderConfigurer">
+    <bean id="propertyConfigurer"
+        class="ch.systemsx.cisd.cifex.server.ExposablePropertyPaceholderConfigurer">
         <property name="location" value="classpath:service.properties" />
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
@@ -21,15 +23,26 @@
         // Authentication
     -->
 
-    <bean id="dummy-authentication-service" class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
+    <bean id="dummy-authentication-service"
+        class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
 
-    <bean id="no-authentication-service" class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
+    <bean id="no-authentication-service"
+        class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
 
-    <bean id="crowd-authentication-service" class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
+    <bean id="crowd-authentication-service"
+        class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
         <constructor-arg value="crowd.systemsx.ch" />
         <constructor-arg value="8443" />
         <constructor-arg value="${crowd.application.name}" />
         <constructor-arg value="${crowd.application.password}" />
+    </bean>
+
+    <!--
+        // Useful for testing. Does not make sense to use it in productive environment.
+    -->
+    <bean id="file-authentication-service"
+        class="ch.systemsx.cisd.authentication.file.FileAuthenticationService">
+        <constructor-arg value="etc/passwd" />
     </bean>
 
     <!-- 
@@ -62,12 +75,14 @@
         <property name="fileRetention" value="${file-retention}" />
         <property name="userRetention" value="${user-retention}" />
         <property name="maxRequestUploadSizeInMB" value="${max-upload-size}" />
-        <property name="administratorEmail" value="${administrator.email}"/>
+        <property name="administratorEmail" value="${administrator.email}" />
     </bean>
 
-    <bean id="user-session-holder" class="ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder" />
+    <bean id="user-session-holder"
+        class="ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder" />
 
-    <bean id="request-context-provider" class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
+    <bean id="request-context-provider"
+        class="ch.systemsx.cisd.cifex.server.SpringRequestContextProvider" />
 
     <bean id="user-action-log" class="ch.systemsx.cisd.cifex.server.UserActionLog">
         <constructor-arg ref="request-context-provider" />
@@ -81,11 +96,13 @@
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
 
-    <bean id="transaction-manager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <bean id="transaction-manager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <constructor-arg ref="data-source" />
     </bean>
 
-    <bean id="dao-factory" class="ch.systemsx.cisd.cifex.server.business.dataaccess.db.DAOFactory">
+    <bean id="dao-factory"
+        class="ch.systemsx.cisd.cifex.server.business.dataaccess.db.DAOFactory">
         <constructor-arg ref="db-configuration-context" />
     </bean>
 
@@ -93,16 +110,19 @@
         // Transaction
     -->
 
-    <bean id="bean-post-processor" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+    <bean id="bean-post-processor"
+        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
 
     <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
         <property name="transactionInterceptor" ref="transactionInterceptor" />
     </bean>
 
-    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <bean id="transactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
         <property name="transactionManager" ref="transaction-manager" />
         <property name="transactionAttributeSource">
-            <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+            <bean
+                class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
         </property>
     </bean>
 
