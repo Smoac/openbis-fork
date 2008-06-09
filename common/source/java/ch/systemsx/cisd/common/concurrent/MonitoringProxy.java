@@ -69,7 +69,7 @@ public class MonitoringProxy<T>
 
     private final DelegatingInvocationHandler<T> delegate;
 
-    private final Map<Class, Object> errorTypeValueMap;
+    private final Map<Class<?>, Object> errorTypeValueMap;
 
     private final Map<Method, Object> errorMethodValueMap;
 
@@ -130,9 +130,9 @@ public class MonitoringProxy<T>
         return builder.toString();
     }
 
-    private static Map<Class, Object> createDefaultErrorTypeValueMap()
+    private static Map<Class<?>, Object> createDefaultErrorTypeValueMap()
     {
-        final Map<Class, Object> result = new HashMap<Class, Object>();
+        final Map<Class<?>, Object> result = new HashMap<Class<?>, Object>();
         result.put(Void.TYPE, Void.TYPE.cast(null));
         result.put(Boolean.TYPE, false);
         result.put(Byte.TYPE, (byte) 0);
