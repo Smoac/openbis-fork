@@ -51,7 +51,8 @@ public class ConcurrencyUtilitiesTest
     public void testTryGetFutureOK()
     {
         final String valueProvided = "This is the execution return value";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -68,7 +69,8 @@ public class ConcurrencyUtilitiesTest
     public void testGetExecutionResultOK()
     {
         final String valueProvided = "This is the execution return value";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -86,7 +88,8 @@ public class ConcurrencyUtilitiesTest
     @Test(groups = "slow")
     public void testTryGetFutureTimeout()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -109,7 +112,8 @@ public class ConcurrencyUtilitiesTest
     @Test(groups = "slow")
     public void testGetExecutionResultTimeout()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -135,7 +139,8 @@ public class ConcurrencyUtilitiesTest
     @Test(groups = "slow")
     public void testGetExecutionResultTimeoutWithoutCancelation()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -162,7 +167,8 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testTryGetFutureInterrupted()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -194,10 +200,12 @@ public class ConcurrencyUtilitiesTest
         assertFalse(Thread.interrupted());
     }
 
-    @Test(expectedExceptions = { StopException.class })
+    @Test(expectedExceptions =
+        { StopException.class })
     public void testTryGetFutureStop()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -229,7 +237,8 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultInterrupted()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -271,7 +280,8 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultException()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
@@ -289,7 +299,8 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testTryGetFutureException()
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception

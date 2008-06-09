@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.concurrent;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +38,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for the {@link NamingThreadPoolExecutor}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class NamingThreadPoolExecutorTest
@@ -53,7 +55,8 @@ public class NamingThreadPoolExecutorTest
     @Test
     public void testNamedPool() throws Throwable
     {
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 2);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(2, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new Runnable()
@@ -72,11 +75,58 @@ public class NamingThreadPoolExecutorTest
         }
     }
 
+    @Test
+    public void testDaemonize()
+    {
+        final NamingThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        assertFalse(eservice.getThreadFactory().isCreateDaemonThreads());
+        eservice.daemonize();
+        assertTrue(eservice.getThreadFactory().isCreateDaemonThreads());
+    }
+
+    @Test
+    public void testSetNamedThreadFactory()
+    {
+        final NamingThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final NamingThreadFactory factory = new NamingThreadFactory("name");
+        eservice.setThreadFactory(factory);
+        assertEquals(factory, eservice.getThreadFactory());
+    }
+
+    @Test
+    public void testSetThreadFactory()
+    {
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final ThreadFactory factory = new NamingThreadFactory("name");
+        eservice.setThreadFactory(factory);
+        assertEquals(factory, eservice.getThreadFactory());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testSetThreadFactoryFailed()
+    {
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final ThreadFactory factory = new ThreadFactory()
+            {
+                public Thread newThread(Runnable r)
+                {
+                    return null; // Doesn't matter, never used
+                }
+            };
+        // It needs to be NamingThreadFactory, thus it will throw an IllegalArgumentException.
+        eservice.setThreadFactory(factory);
+    }
+
     @Test(groups = "slow")
     public void testThreadDefaultNames() throws Throwable
     {
         final int max = 10;
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, max, max);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(max).maximumPoolSize(max);
         assertEquals(max, eservice.getCorePoolSize());
         assertEquals(max, eservice.getMaximumPoolSize());
         final Set<String> expectedThreadNameSet = new HashSet<String>();
@@ -120,7 +170,8 @@ public class NamingThreadPoolExecutorTest
     public void testSubmitNamedRunnable() throws Throwable
     {
         final String runnableName = "This is the special runnable name";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 1);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedRunnable()
@@ -148,7 +199,8 @@ public class NamingThreadPoolExecutorTest
     public void testExecuteNamedRunnable() throws Throwable
     {
         final String runnableName = "This is the special runnable name";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 1);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Semaphore sem = new Semaphore(0);
@@ -172,7 +224,8 @@ public class NamingThreadPoolExecutorTest
     public void testSubmitNamedCallable() throws Throwable
     {
         final String callableName = "This is the special callable name";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 1);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedCallable<Object>()
@@ -201,7 +254,8 @@ public class NamingThreadPoolExecutorTest
     public void testSubmitNamedCallables() throws Throwable
     {
         final String callableName1 = "This is the first special callable name";
-        final ThreadPoolExecutor eservice = new NamingThreadPoolExecutor(name, 1, 1);
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future1 = eservice.submit(new NamedCallable<Object>()
@@ -226,25 +280,25 @@ public class NamingThreadPoolExecutorTest
         }
         final String callableName2 = "This is the second special callable name";
         final Future<?> future2 = eservice.submit(new NamedCallable<Object>()
+            {
+                public Object call() throws Exception
                 {
-                    public Object call() throws Exception
-                    {
-                        assertEquals(name + "-T1::" + callableName2, Thread.currentThread().getName());
-                        return null;
-                    }
+                    assertEquals(name + "-T1::" + callableName2, Thread.currentThread().getName());
+                    return null;
+                }
 
-                    public String getCallableName()
-                    {
-                        return callableName2;
-                    }
-                });
-            try
-            {
-                future2.get(200L, TimeUnit.MILLISECONDS);
-            } catch (ExecutionException ex)
-            {
-                throw ex.getCause();
-            }
+                public String getCallableName()
+                {
+                    return callableName2;
+                }
+            });
+        try
+        {
+            future2.get(200L, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException ex)
+        {
+            throw ex.getCause();
+        }
     }
 
 }

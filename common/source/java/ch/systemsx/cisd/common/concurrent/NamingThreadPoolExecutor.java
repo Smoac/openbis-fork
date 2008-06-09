@@ -20,8 +20,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,62 +42,15 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
     public final static long DEFAULT_KEEP_ALIVE_TIME_MILLIS = 10000L;
 
     /**
-     * Creates a new <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
+     * Creates a new (caching) <tt>NamingThreadPoolExecutor</tt> with the given initial
+     * parameters. This executor will create new threads as needed.
      * 
      * @param poolName the default name for new threads
      */
     public NamingThreadPoolExecutor(String poolName)
     {
         super(1, Integer.MAX_VALUE, DEFAULT_KEEP_ALIVE_TIME_MILLIS, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NamingThreadFactory(poolName));
-    }
-
-    /**
-     * Creates a new <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
-     * 
-     * @param poolName the default name for new threads
-     * @param corePoolSize the number of threads to keep in the pool, even if they are idle.
-     * @throws IllegalArgumentException if corePoolSize less than zero.
-     */
-    public NamingThreadPoolExecutor(String poolName, int corePoolSize)
-    {
-        super(corePoolSize, Integer.MAX_VALUE, DEFAULT_KEEP_ALIVE_TIME_MILLIS, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NamingThreadFactory(poolName));
-    }
-
-    /**
-     * Creates a new <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
-     * 
-     * @param poolName the default name for new threads
-     * @param corePoolSize the number of threads to keep in the pool, even if they are idle.
-     * @param maximumPoolSize the maximum number of threads to allow in the pool.
-     * @param keepAliveTimeMillis when the number of threads is greater than the core, this is the
-     *            maximum time in milliseconds that excess idle threads will wait for new tasks
-     *            before terminating.
-     * @throws IllegalArgumentException if corePoolSize, or keepAliveTime less than zero, or if
-     *             maximumPoolSize less than or equal to zero, or if corePoolSize greater than
-     *             maximumPoolSize.
-     */
-    public NamingThreadPoolExecutor(String poolName, int corePoolSize, int maximumPoolSize,
-            long keepAliveTimeMillis)
-    {
-        super(corePoolSize, maximumPoolSize, keepAliveTimeMillis, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NamingThreadFactory(poolName));
-    }
-
-    /**
-     * Creates a new <tt>NamingThreadPoolExecutor</tt> with the given initial parameters.
-     * 
-     * @param poolName the default name for new threads
-     * @param corePoolSize the number of threads to keep in the pool, even if they are idle.
-     * @param maximumPoolSize the maximum number of threads to allow in the pool.
-     * @throws IllegalArgumentException if corePoolSize less than zero, or if maximumPoolSize less
-     *             than or equal to zero, or if corePoolSize greater than maximumPoolSize.
-     */
-    public NamingThreadPoolExecutor(String poolName, int corePoolSize, int maximumPoolSize)
-    {
-        super(corePoolSize, maximumPoolSize, DEFAULT_KEEP_ALIVE_TIME_MILLIS, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NamingThreadFactory(poolName));
+                new SynchronousQueue<Runnable>(), new NamingThreadFactory(poolName));
     }
 
     /**
@@ -199,6 +153,91 @@ public class NamingThreadPoolExecutor extends ThreadPoolExecutor
             TimeUnit unit, BlockingQueue<Runnable> workQueue, NamingThreadFactory threadFactory)
     {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+    }
+
+    /**
+     * Sets the thread factory of this pool executor to daemon creation mode.
+     * <p>
+     * This method is supposed to be used in chaining mode, i.e.
+     * 
+     * <pre>
+     * final ExecutorService executor = new NamingThreadPoolExecutor(&quot;name&quot;).daemonize();
+     * </pre>
+     * 
+     * @return This class itself.
+     */
+    public NamingThreadPoolExecutor daemonize()
+    {
+        getThreadFactory().setCreateDaemonThreads(true);
+        return this;
+    }
+
+    /**
+     * Same as {@link #setCorePoolSize(int)}, but returns the object itself for chaining.
+     */
+    public NamingThreadPoolExecutor corePoolSize(int corePoolSize)
+    {
+        setCorePoolSize(corePoolSize);
+        return this;
+    }
+
+    /**
+     * Same as {@link #setMaximumPoolSize(int)}, but returns the object itself for chaining.
+     */
+    public NamingThreadPoolExecutor maximumPoolSize(int maximumPoolSize)
+    {
+        setMaximumPoolSize(maximumPoolSize);
+        return this;
+    }
+
+    /**
+     * Same as {@link #setKeepAliveTime(long, TimeUnit)}, but uses always
+     * {@link TimeUnit#MILLISECONDS} and returns the object itself for chaining.
+     */
+    public NamingThreadPoolExecutor keepAliveTime(long keepAliveTimeMillis)
+    {
+        setKeepAliveTime(keepAliveTimeMillis, TimeUnit.MILLISECONDS);
+        return this;
+    }
+
+    /**
+     * If <var>addPoolName</var> is <code>true</code>, the threads will contain the pool name as
+     * the first part of the thread names.
+     */
+    public NamingThreadPoolExecutor addPoolName(boolean addPoolName)
+    {
+        getThreadFactory().setAddPoolName(addPoolName);
+        return this;
+    }
+
+    @Override
+    public NamingThreadFactory getThreadFactory()
+    {
+        return (NamingThreadFactory) super.getThreadFactory();
+    }
+
+    /**
+     * Sets the thread factory of this pool executor.
+     */
+    public void setThreadFactory(NamingThreadFactory threadFactory)
+    {
+        super.setThreadFactory(threadFactory);
+    }
+
+    /**
+     * @deprecated Use {@link #setThreadFactory(NamingThreadFactory)} instead!
+     */
+    @Override
+    @Deprecated
+    public void setThreadFactory(ThreadFactory threadFactory)
+    {
+        if (threadFactory instanceof NamingThreadFactory == false)
+        {
+            throw new IllegalArgumentException("thread factory is of type '"
+                    + threadFactory.getClass().getCanonicalName() + ", but needs to be of type "
+                    + NamingThreadFactory.class.getCanonicalName());
+        }
+        super.setThreadFactory(threadFactory);
     }
 
     @Override

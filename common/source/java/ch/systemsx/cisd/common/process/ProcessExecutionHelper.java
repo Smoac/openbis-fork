@@ -74,7 +74,8 @@ public final class ProcessExecutionHelper
     private static final long SHORT_TIMEOUT = 100;
 
     /** The executor service handling the threads that OS processes are spawned in. */
-    private static final ExecutorService executor = new NamingThreadPoolExecutor("osproc", 10);
+    private static final ExecutorService executor =
+            new NamingThreadPoolExecutor("osproc").corePoolSize(10).daemonize();
 
     /** The counter to draw the <var>processNumber</var> from. */
     private static final AtomicInteger processCounter = new AtomicInteger();

@@ -25,19 +25,28 @@ public class PoolNameThread extends Thread
 {
     private final String poolName;
 
-    public PoolNameThread(Runnable target, String poolName)
+    private final boolean addPoolName;
+
+    public PoolNameThread(Runnable target, String poolName, boolean addPoolName)
     {
         super(target, poolName);
         this.poolName = poolName;
+        this.addPoolName = addPoolName;
     }
 
     /**
-     * Sets the thread's name to be a combination of the name of the thread in the pool and the name
-     * of the runnable, separated by '::'.
+     * Sets the thread's name to the <var>runnableName</var>, possibly adding the pool name if
+     * <var>addPoolName</var> has been set to <code>true</code> in the constructor.
      */
     public void setRunnableName(String runnableName)
     {
-        setName(poolName + "::" + runnableName);
+        if (addPoolName)
+        {
+            setName(poolName + "::" + runnableName);
+        } else
+        {
+            setName(runnableName);
+        }
     }
 
     /** Clears the name of the runnable, setting the name of the thread to the pool name. */

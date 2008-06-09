@@ -31,22 +31,56 @@ public class NamingThreadFactory implements ThreadFactory
 
     private final String poolName;
 
+    private boolean createDaemonThreads;
+    
+    private boolean addPoolName;
+    
     private int threadCount;
 
     public NamingThreadFactory(String poolName)
     {
         this.poolName = poolName;
-        this.threadCount = 1;
+        this.addPoolName = true;
+        this.createDaemonThreads = false;
+        this.threadCount = 0;
     }
 
     public Thread newThread(Runnable r)
     {
-        final String completePoolName = poolName + "-T" + threadCount++;
-        return new PoolNameThread(r, completePoolName);
+        ++threadCount;
+        final String completePoolName = poolName + "-T" + threadCount;
+        final Thread thread = new PoolNameThread(r, completePoolName, addPoolName);
+        thread.setDaemon(createDaemonThreads);
+        return thread;
     }
 
     String getPoolName()
     {
         return poolName;
+    }
+
+    public final boolean isCreateDaemonThreads()
+    {
+        return createDaemonThreads;
+    }
+
+    public final void setCreateDaemonThreads(boolean createDaemonThreads)
+    {
+        this.createDaemonThreads = createDaemonThreads;
+    }
+
+    public final int getThreadCount()
+    {
+        return threadCount;
+    }
+
+    public final boolean isAddPoolName()
+    {
+        return addPoolName;
+    }
+
+    public final void setAddPoolName(boolean addPoolName)
+    {
+        this.addPoolName = addPoolName;
     }
 }
