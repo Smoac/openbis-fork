@@ -52,8 +52,7 @@ public final class ConcurrencyUtilities
      *         available within <var>timeoutMillis</var> ms.
      * @throws StopException If the thread got interrupted.
      */
-    public static <T> T tryGetResult(Future<T> future, long timeoutMillis)
-            throws StopException
+    public static <T> T tryGetResult(Future<T> future, long timeoutMillis) throws StopException
     {
         return tryGetResult(future, timeoutMillis, null, null, true);
     }
@@ -68,8 +67,8 @@ public final class ConcurrencyUtilities
      *            it is smaller than 0, no time-out will apply.
      * @return The result of the future, or <code>null</code>, if the result does not become
      *         available within <var>timeoutMillis</var> ms.
-     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var>
-     *             is <code>true</code>.
+     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
+     *             <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis, boolean stopOnInterrupt)
             throws StopException
@@ -90,13 +89,13 @@ public final class ConcurrencyUtilities
      *            <code>null</code>, if nothing should be logged.
      * @param operationNameOrNull The name of the operation performed, for log messages, or
      *            <code>null</code>, if it is not known or deemed unimportant.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if
-     *            the thread gets interrupted while waiting on the future.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
+     *            gets interrupted while waiting on the future.
      * @return The result of the future, or <code>null</code>, if the result does not become
      *         available within <var>timeoutMillis</var> ms or if the waiting thread gets
      *         interrupted.
-     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var>
-     *             is <code>true</code>.
+     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
+     *             <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
             ISimpleLogger loggerOrNull, String operationNameOrNull, boolean stopOnInterrupt)
@@ -104,6 +103,44 @@ public final class ConcurrencyUtilities
     {
         final ExecutionResult<T> result =
                 getResult(future, timeoutMillis, loggerOrNull, operationNameOrNull);
+        return tryDealWithResult(result, stopOnInterrupt);
+    }
+
+    /**
+     * Convenience wrapper for {@link #tryDealWithResult(ExecutionResult, boolean)} with
+     * <var>stopOnInterrupt</var> set to <code>true</code>.
+     */
+    public static <T> T tryDealWithResult(ExecutionResult<T> result)
+    {
+        return tryDealWithResult(result, true);
+    }
+
+    /**
+     * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
+     * for the result to become available. Any {@link ExecutionException} that might occur in the
+     * future task is unwrapped and re-thrown (wrapped in a {@link CheckedExceptionTunnel} if
+     * necessary.
+     * <p>
+     * This method is meant to be used if the an {@link ExecutionResult} should <i>mostly</i> be
+     * treated the way {@link #tryGetResult(Future, long, boolean)} does it but not quite. Just deal
+     * with the deviant cases yourself, then call this method to deal with the rest.
+     * 
+     * @param result A
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
+     *            gets interrupted while waiting on the future.
+     * @return The value of the <var>result</var> of the future, or <code>null</code>, if the
+     *         result status is {@link ExecutionStatus#TIMED_OUT} or
+     *         {@link ExecutionStatus#INTERRUPTED} and <var>stopOnInterrupt</var> is
+     *         <code>false</code>.
+     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
+     *             <code>true</code>.
+     * @throws RuntimeException If the result status is {@link ExecutionStatus#EXCEPTION} and the
+     *             exception is derived from {@link RuntimeException}.
+     * @throws CheckedExceptionTunnel If the result status is {@link ExecutionStatus#EXCEPTION} and
+     *             the exception is not derived from {@link RuntimeException}.
+     */
+    public static <T> T tryDealWithResult(ExecutionResult<T> result, boolean stopOnInterrupt)
+    {
         switch (result.getStatus())
         {
             case COMPLETE:
@@ -265,6 +302,81 @@ public final class ConcurrencyUtilities
                         "%s has caused an exception: %s [%s]", operationName, message, className));
             }
             return ExecutionResult.createExceptional(cause == null ? ex : cause);
+        }
+    }
+
+    /**
+     * The same as {@link Thread#sleep(long)} but throws a {@link StopException} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    public static void sleep(long millis) throws StopException
+    {
+        try
+        {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex)
+        {
+            throw new StopException(ex);
+        }
+    }
+
+    /**
+     * The same as {@link Thread#join()} but throws a {@link StopException} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    public static void join(Thread thread) throws StopException
+    {
+        try
+        {
+            thread.join();
+        } catch (InterruptedException ex)
+        {
+            throw new StopException(ex);
+        }
+    }
+
+    /**
+     * The same as {@link Thread#join(long)} but throws a {@link StopException} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    public static void join(Thread thread, long millis) throws StopException
+    {
+        try
+        {
+            thread.join(millis);
+        } catch (InterruptedException ex)
+        {
+            throw new StopException(ex);
+        }
+    }
+
+    /**
+     * The same as {@link Object#wait()} but throws a {@link StopException} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    public static void wait(Object obj) throws StopException
+    {
+        try
+        {
+            obj.wait();
+        } catch (InterruptedException ex)
+        {
+            throw new StopException(ex);
+        }
+    }
+
+    /**
+     * The same as {@link Object#wait(long)} but throws a {@link StopException} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    public static void wait(Object obj, long millis) throws StopException
+    {
+        try
+        {
+            obj.wait(millis);
+        } catch (InterruptedException ex)
+        {
+            throw new StopException(ex);
         }
     }
 
