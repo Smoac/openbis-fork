@@ -1,0 +1,312 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.common.concurrent;
+
+import static org.testng.AssertJUnit.*;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.regex.Pattern;
+
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.TimeoutException;
+
+/**
+ * Test cases for the {@link MonitoringProxy}.
+ * 
+ * @author Bernd Rinn
+ */
+public class MonitoringProxyTest
+{
+
+    private static final String THREAD_NAME = "Some Flaky Stuff";
+
+    private static final String THE_STRING = "some string";
+
+    private static final boolean THE_BOOLEAN = true;
+
+    private static final int THE_INTEGER = 17;
+
+    private static final Status THE_STATUS = Status.TWO;
+
+    private static final long TIMEOUT_MILLIS = 50L;
+
+    private ITest defaultReturningProxy;
+
+    private ITest exceptionThrowingProxy;
+
+    private static class SignalException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+    }
+
+    enum Status
+    {
+        ONE, TWO, THREE, UUUPS, SPECIAL_UUUPS
+    }
+
+    interface ITest
+    {
+        void idle(boolean hang);
+
+        String getString(boolean hang);
+
+        boolean getBoolean(boolean hang);
+
+        int getInteger(boolean hang);
+
+        Status getStatus(boolean hang);
+
+        Status getSpecialStatus(boolean hang);
+
+        void throwSignalException() throws SignalException;
+    }
+
+    private static class TestImpl implements ITest
+    {
+        private final static Pattern THREAD_NAME_PATTERN =
+                Pattern.compile("Monitoring Proxy-T[0-9]+::" + THREAD_NAME);
+
+        private void hang(boolean hang)
+        {
+            if (hang)
+            {
+                while (true)
+                {
+                }
+            }
+        }
+
+        private void checkThreadName()
+        {
+            final String name = Thread.currentThread().getName();
+            assertTrue(name, THREAD_NAME_PATTERN.matcher(name).matches());
+        }
+
+        public void idle(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+        }
+
+        public boolean getBoolean(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+            return THE_BOOLEAN;
+        }
+
+        public int getInteger(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+            return THE_INTEGER;
+        }
+
+        public String getString(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+            return THE_STRING;
+        }
+
+        public Status getStatus(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+            return THE_STATUS;
+        }
+
+        public Status getSpecialStatus(boolean hang)
+        {
+            checkThreadName();
+            hang(hang);
+            return THE_STATUS;
+        }
+
+        public void throwSignalException() throws SignalException
+        {
+            checkThreadName();
+            throw new SignalException();
+        }
+    }
+
+    @BeforeTest
+    public void testCreateMonitoringProxy() throws NoSuchMethodException
+    {
+        defaultReturningProxy =
+                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(TIMEOUT_MILLIS)
+                        .errorValueOnTimeout().name(THREAD_NAME).errorTypeValueMapping(
+                                Status.class, Status.UUUPS).errorMethodValueMapping(
+                                ITest.class.getMethod("getSpecialStatus", new Class<?>[]
+                                    { Boolean.TYPE }), Status.SPECIAL_UUUPS).get();
+        exceptionThrowingProxy =
+                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(TIMEOUT_MILLIS)
+                        .name(THREAD_NAME).get();
+    }
+
+    @Test
+    public void testVoid()
+    {
+        defaultReturningProxy.idle(false);
+    }
+
+    @Test
+    public void testVoidTimeoutNoException()
+    {
+        defaultReturningProxy.idle(true);
+    }
+
+    @Test(expectedExceptions = SignalException.class)
+    public void testThrowExceptionNullReturningPolicy()
+    {
+        defaultReturningProxy.throwSignalException();
+    }
+
+    @Test(expectedExceptions = SignalException.class)
+    public void testThrowExceptionExceptionThrowsPolicy()
+    {
+        exceptionThrowingProxy.throwSignalException();
+    }
+
+    @Test(expectedExceptions = TimeoutException.class)
+    public void testVoidTimeoutWithException()
+    {
+        exceptionThrowingProxy.idle(true);
+    }
+
+    @Test
+    public void testGetStringNullReturningPolicy()
+    {
+        assertEquals(THE_STRING, defaultReturningProxy.getString(false));
+    }
+
+    @Test
+    public void testGetStringExceptionThrowingPolicy()
+    {
+        assertEquals(THE_STRING, exceptionThrowingProxy.getString(false));
+    }
+
+    @Test
+    public void testGetStringTimeoutNoException()
+    {
+        assertNull(defaultReturningProxy.getString(true));
+    }
+
+    @Test(expectedExceptions = TimeoutException.class)
+    public void testGetStringTimeoutWithException()
+    {
+        exceptionThrowingProxy.getString(true);
+    }
+
+    @Test
+    public void testGetIntNullReturningPolicy()
+    {
+        assertEquals(THE_INTEGER, defaultReturningProxy.getInteger(false));
+    }
+
+    @Test
+    public void testGetIntExceptionThrowingPolicy()
+    {
+        assertEquals(THE_INTEGER, exceptionThrowingProxy.getInteger(false));
+    }
+
+    @Test
+    public void testGetBoolTimeoutReturnsDefault()
+    {
+        assertEquals(false, defaultReturningProxy.getBoolean(true));
+    }
+
+    @Test
+    public void testGetStatus()
+    {
+        assertEquals(THE_STATUS, defaultReturningProxy.getStatus(false));
+    }
+
+    @Test
+    public void testGetStatusTimeoutReturnsDefault()
+    {
+        assertEquals(Status.UUUPS, defaultReturningProxy.getStatus(true));
+    }
+
+    @Test
+    public void testGetSpecialStatusTimeoutReturnsMethodDefault()
+    {
+        assertEquals(Status.SPECIAL_UUUPS, defaultReturningProxy.getSpecialStatus(true));
+    }
+
+    @Test
+    public void testGetIntTimeoutReturnsDefault()
+    {
+        assertEquals(0, defaultReturningProxy.getInteger(true));
+    }
+
+    @Test(expectedExceptions = TimeoutException.class)
+    public void testGetIntTimeoutWithException()
+    {
+        exceptionThrowingProxy.getInteger(true);
+    }
+
+    @Test(expectedExceptions = StopException.class)
+    public void testInterruptTheUninterruptableThrowsException()
+    {
+        final ITest proxy =
+                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(1000L).name(
+                        THREAD_NAME).get();
+        final Thread currentThread = Thread.currentThread();
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    currentThread.interrupt();
+                }
+            }, 50L);
+        // This call would not be interruptable if it wasn't proxied, but we get a StopException
+        // from the proxy.
+        proxy.idle(true);
+        timer.cancel();
+    }
+
+    @Test
+    public void testInterruptTheUninterruptableReturnsDefaultValue()
+    {
+        final String defaultReturnValue = "That's the default return value.";
+        final ITest proxy =
+                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(1000L).name(
+                        THREAD_NAME).errorValueOnInterrupt().errorTypeValueMapping(String.class,
+                        defaultReturnValue).get();
+        final Thread currentThread = Thread.currentThread();
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    currentThread.interrupt();
+                }
+            }, 50L);
+        // This call would not be interruptable if it wasn't proxied, but we get the default return
+        // value for Strings here.
+        assertEquals(defaultReturnValue, proxy.getString(true));
+        timer.cancel();
+    }
+}
