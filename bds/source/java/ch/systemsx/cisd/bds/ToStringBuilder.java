@@ -75,9 +75,7 @@ public final class ToStringBuilder
 
     public final void append(final Object object)
     {
-        appendFieldSeparator();
-        builder.append(object.getClass().getSimpleName()).append(FIELD_NAME_VALUE_SEPARATOR)
-                .append(object);
+        append(object.getClass().getSimpleName(), object);
     }
 
     @Override
