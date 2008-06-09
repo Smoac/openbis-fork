@@ -727,8 +727,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Incoming directory: '%s'.", incomingDirectory
-                    .getAbsolutePath()));
+            operationLog.info(String.format("Incoming directory: '%s'.", getStorePath(
+                    incomingDirectory, incomingHost)));
             if (null != incomingHost)
             {
                 operationLog.info(String.format("Incoming host: '%s'.", incomingHost));
@@ -739,7 +739,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     bufferDirectory.getCanonicalPath(), HighwaterMarkWatcher
                             .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
             operationLog.info(String.format("Outgoing directory: '%s' [high water mark: %s].",
-                    outgoingDirectory.getCanonicalPath(), HighwaterMarkWatcher
+                    getStorePath(outgoingDirectory.getFile(), outgoingHost), HighwaterMarkWatcher
                             .displayKilobyteValue(outgoingDirectory.getHighwaterMark())));
             if (null != outgoingHost)
             {
@@ -785,6 +785,17 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 operationLog.info(String.format("Data completed script: '%s' [timeout: %d s.].",
                         getDataCompletedScript(), getDataCompletedScriptTimeout()));
             }
+        }
+    }
+
+    private static String getStorePath(File dir, String hostOrNull)
+    {
+        if (hostOrNull == null)
+        {
+            return dir.getAbsolutePath();
+        } else
+        {
+            return dir.getPath();
         }
     }
 
