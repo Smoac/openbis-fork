@@ -278,6 +278,8 @@ public class NamingThreadPoolExecutorTest
         {
             throw ex.getCause();
         }
+        // On Linux x64, Java 1.6 we get a RejectedExecutionException if we continue immediately.
+        ConcurrencyUtilities.sleep(200L);
         final String callableName2 = "This is the second special callable name";
         final Future<?> future2 = eservice.submit(new NamedCallable<Object>()
             {
