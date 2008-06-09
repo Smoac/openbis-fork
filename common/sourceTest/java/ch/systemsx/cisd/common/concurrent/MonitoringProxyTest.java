@@ -88,9 +88,7 @@ public class MonitoringProxyTest
         {
             if (hang)
             {
-                while (true)
-                {
-                }
+                ConcurrencyUtilities.sleep(Long.MAX_VALUE);
             }
         }
 
@@ -186,7 +184,7 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.throwSignalException();
     }
 
-    @Test(expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
     public void testVoidTimeoutWithException()
     {
         exceptionThrowingProxy.idle(true);
@@ -204,13 +202,13 @@ public class MonitoringProxyTest
         assertEquals(THE_STRING, exceptionThrowingProxy.getString(false));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testGetStringTimeoutNoException()
     {
         assertNull(defaultReturningProxy.getString(true));
     }
 
-    @Test(expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
     public void testGetStringTimeoutWithException()
     {
         exceptionThrowingProxy.getString(true);
@@ -228,7 +226,7 @@ public class MonitoringProxyTest
         assertEquals(THE_INTEGER, exceptionThrowingProxy.getInteger(false));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testGetBoolTimeoutReturnsDefault()
     {
         assertEquals(false, defaultReturningProxy.getBoolean(true));
@@ -240,31 +238,31 @@ public class MonitoringProxyTest
         assertEquals(THE_STATUS, defaultReturningProxy.getStatus(false));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testGetStatusTimeoutReturnsDefault()
     {
         assertEquals(Status.UUUPS, defaultReturningProxy.getStatus(true));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testGetSpecialStatusTimeoutReturnsMethodDefault()
     {
         assertEquals(Status.SPECIAL_UUUPS, defaultReturningProxy.getSpecialStatus(true));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testGetIntTimeoutReturnsDefault()
     {
         assertEquals(0, defaultReturningProxy.getInteger(true));
     }
 
-    @Test(expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
     public void testGetIntTimeoutWithException()
     {
         exceptionThrowingProxy.getInteger(true);
     }
 
-    @Test(expectedExceptions = StopException.class)
+    @Test(groups = "slow", expectedExceptions = StopException.class)
     public void testInterruptTheUninterruptableThrowsException()
     {
         final ITest proxy =
@@ -286,7 +284,7 @@ public class MonitoringProxyTest
         timer.cancel();
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testInterruptTheUninterruptableReturnsDefaultValue()
     {
         final String defaultReturnValue = "That's the default return value.";
