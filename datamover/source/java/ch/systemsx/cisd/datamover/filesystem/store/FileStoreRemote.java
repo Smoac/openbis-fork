@@ -343,7 +343,7 @@ public class FileStoreRemote extends FileStore
         final String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
         final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
         return isSuccessfulCheck(result) ? null
-                : ("Directory not accesible: " + getHost() + ":" + pathString);
+                : ("Directory not accesible: '" + getHost() + ":" + pathString + "'. Check that it exists and that you have read and write rights to it.");
     }
 
     private final static List<String> createSshCommand(final String command,
