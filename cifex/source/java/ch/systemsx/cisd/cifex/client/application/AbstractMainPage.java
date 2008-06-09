@@ -267,13 +267,14 @@ abstract class AbstractMainPage extends BorderLayout
 
     private final ToolbarButton createExternalAuthenticationButton()
     {
-        final String externalAuthenticationTitle = messageResources.getExternalAuthentication();
+        final String externalAuthenticationTitle =
+                messageResources.getExternalAuthenticationLabel();
 
         final ToolbarButton editProfileButton =
                 new ToolbarButton(externalAuthenticationTitle, new ButtonConfig()
                     {
                         {
-                            setTooltip(messageResources.getSwitchToExternalAuthenticationLabel());
+                            setTooltip(messageResources.getExternalAuthenticationButtonTooltip());
                             setToggleGroup(TOGGLE_GROUP);
                         }
                     });

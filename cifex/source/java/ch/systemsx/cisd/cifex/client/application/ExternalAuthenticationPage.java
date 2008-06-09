@@ -17,14 +17,17 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
+import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.form.Form;
+import com.gwtext.client.widgets.form.FormConfig;
+import com.gwtext.client.widgets.form.TextField;
+import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
@@ -38,9 +41,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
 final class ExternalAuthenticationPage extends AbstractMainPage
 {
 
-    private static final String WIDTH = "700";
-
-    private static final int SPACING = 10;
+    private Button okButton;
 
     ExternalAuthenticationPage(final ViewContext context)
     {
@@ -56,98 +57,114 @@ final class ExternalAuthenticationPage extends AbstractMainPage
         pageController.createPage(previousPage);
     }
 
-    protected ContentPanel createMainPanel()
+    //
+    // AbstractMainPage
+    //
+
+    protected final ContentPanel createMainPanel()
     {
         final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-        final VerticalPanel externalAuthenticationPanel = createVerticalPanelPart();
-
-        externalAuthenticationPanel.setSpacing(SPACING);
-        externalAuthenticationPanel.setWidth(WIDTH);
-        externalAuthenticationPanel.add(getExplanationWidget());
-        final HorizontalPanel buttonPanel = new HorizontalPanel();
-        buttonPanel.setSpacing(SPACING);
-        buttonPanel.add(getCancelButton());
-        final HorizontalPanel passwordPanel = new HorizontalPanel();
-        passwordPanel.setHorizontalAlignment(HorizontalPanel.ALIGN_LEFT);
-        passwordPanel.setSpacing(SPACING);
-        if (context.getModel().getUser().isExternallyAuthenticated() == false)
-        {
-            final PasswordTextBox externalPasswordField = new PasswordTextBox();
-            externalPasswordField.setTitle("External password");
-            passwordPanel.add(new HTML("Password in external authentication service:"));
-            passwordPanel.add(externalPasswordField);
-            externalAuthenticationPanel.add(passwordPanel);
-            buttonPanel.add(getOkButton(externalPasswordField));
-        }
-
-        externalAuthenticationPanel.add(buttonPanel);
-        mainPanel.add(createPartTitle("External authentication"));
-        mainPanel.add(externalAuthenticationPanel);
+        final VerticalPanel verticalPanel = createVerticalPanelPart();
+        verticalPanel.add(createPartTitle(context.getMessageResources()
+                .getExternalAuthenticationLabel()));
+        verticalPanel.add(getExplanationWidget());
+        final Form form = new Form(createFormConfig());
+        final TextField passwordField = createPasswordField();
+        form.add(passwordField);
+        addCancelButton(form);
+        addOKButton(form, passwordField);
+        verticalPanel.add(form);
+        mainPanel.add(verticalPanel);
+        form.render();
         return mainPanel;
     }
 
-    private HTML getExplanationWidget()
+    private final TextField createPasswordField()
     {
-        final HTML widget = new HTML(getExplanation());
-        return widget;
+        final TextFieldConfig fieldConfig = new TextFieldConfig();
+        fieldConfig.setFieldLabel(context.getMessageResources()
+                .getExternalAuthenticationPasswordLabel());
+        fieldConfig.setPassword(true);
+        fieldConfig.setAllowBlank(false);
+        fieldConfig.setValidateOnBlur(false);
+        return new TextField(fieldConfig);
     }
 
-    private String getExplanation()
+    private final static FormConfig createFormConfig()
     {
-        String explanation;
-        if (context.getModel().getUser().isExternallyAuthenticated())
-        {
-            explanation =
-                    "Your account is already synchronized with external authentication service.";
-        } else
-        {
-            explanation =
-
-                    "<ul>"
-                            + "<li>If you want to login to CIFEX using external authentication service put your external password into the field below.</li>"
-                            + "<li><b>Note:</b> You will not be able to revert this operation.</li>"
-                            + "</ul>";
-        }
-        return explanation;
+        final FormConfig formConfig = new FormConfig();
+        formConfig.setLabelAlign(Position.LEFT);
+        formConfig.setButtonAlign(Position.LEFT);
+        formConfig.setLabelWidth(250);
+        return formConfig;
     }
 
-    private Button getOkButton(final PasswordTextBox passwordBox)
+    private final HTML getExplanationWidget()
     {
-        final Button okButton = new Button("OK");
+        return new HTML(getExplanation());
+    }
+
+    private final String getExplanation()
+    {
+        return context.getMessageResources().getExternalAuthenticationExplanation();
+    }
+
+    private final void addOKButton(final Form form, final TextField textField)
+    {
+        okButton = form.addButton(context.getMessageResources().getActionOKLabel());
         okButton.addButtonListener(new ButtonListenerAdapter()
             {
-                public void onClick(final Button button, final EventObject e)
-                {
-                    context.getCifexService().trySwitchToExternalAuthentication(
-                            context.getModel().getUser().getUserCode(), passwordBox.getText(),
-                            new FinishEditingAssyncCallback(context));
-                    return;
 
+                //
+                // ButtonListenerAdapter
+                //
+
+                public final void onClick(final Button button, final EventObject e)
+                {
+                    if (form.isValid())
+                    {
+                        okButton.disable();
+                        context.getCifexService().trySwitchToExternalAuthentication(
+                                context.getModel().getUser().getUserCode(), textField.getText(),
+                                new FinishEditingAssyncCallback(context));
+                    }
                 }
 
             });
-        return okButton;
     }
 
-    /** Call <code>finishEditing</code> method after cifexService returned the answer. */
-    class FinishEditingAssyncCallback extends AbstractAsyncCallback
+    private final void addCancelButton(final Form form)
     {
-        public FinishEditingAssyncCallback(final ViewContext context)
+        final Button cancelButton =
+                form.addButton(context.getMessageResources().getActionCancelLabel());
+        cancelButton.addButtonListener(new ButtonListenerAdapter()
+            {
+
+                //
+                // ButtonListenerAdapter
+                //
+
+                public final void onClick(final Button button, final EventObject e)
+                {
+                    finishEditing();
+                }
+            });
+    }
+
+    //
+    // Helper classes
+    //
+
+    /** Call <code>finishEditing</code> method after cifexService returned the answer. */
+    private final class FinishEditingAssyncCallback extends AbstractAsyncCallback
+    {
+
+        FinishEditingAssyncCallback(final ViewContext context)
         {
             super(context);
         }
 
-        public void onSuccess(final Object result)
-        {
-            final User user = (User) result;
-            updateUserInViewContext(user);
-            MessageBox.alert(messageResources.getMessageBoxInfoTitle(),
-                    "Switching to external authentication completed.<br/>"
-                            + "You can now use your external password to login to CIFEX.");
-            finishEditing();
-        }
-
-        private void updateUserInViewContext(final User user)
+        private final void updateUserInViewContext(final User user)
         {
             context.getModel().getUser().setEmail(user.getEmail());
             context.getModel().getUser().setUserFullName(user.getUserFullName());
@@ -158,26 +175,24 @@ final class ExternalAuthenticationPage extends AbstractMainPage
             context.getModel().getUser().setRegistrator(user.getRegistrator());
         }
 
-        public void onFailure(final Throwable throwable)
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Object result)
         {
-            MessageBox.alert(messageResources.getMessageBoxErrorTitle(),
-                    "Switching to external authentication failed.<br/> " + throwable.getMessage());
+            final User user = (User) result;
+            updateUserInViewContext(user);
+            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
+                    .getExternalAuthenticationSuccessful());
+            finishEditing();
         }
 
+        public final void onFailure(final Throwable throwable)
+        {
+            okButton.enable();
+            MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
+                    .getExternalAuthenticationFail(throwable.getMessage()));
+        }
     }
-
-    private Button getCancelButton()
-    {
-        final Button cancelButton = new Button("Cancel");
-        cancelButton.addButtonListener(new ButtonListenerAdapter()
-            {
-
-                public void onClick(final Button button, final EventObject e)
-                {
-                    finishEditing();
-                }
-            });
-        return cancelButton;
-    }
-
 }

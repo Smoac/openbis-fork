@@ -26,18 +26,18 @@ import com.google.gwt.i18n.client.Messages;
 public interface IMessageResources extends Messages
 {
     /**
+     * Returns the label for cancelling action.
+     * 
+     * @gwt.key action.cancel.label
+     */
+    public String getActionCancelLabel();
+
+    /**
      * Returns the label for the delete action.
      * 
      * @gwt.key action.delete.label
      */
     public String getActionDeleteLabel();
-
-    /**
-     * Returns the label for the share action.
-     * 
-     * @gwt.key action.shared.label
-     */
-    public String getActionSharedLabel();
 
     /**
      * Returns the label for the edit action.
@@ -54,12 +54,18 @@ public interface IMessageResources extends Messages
     public String getActionLabel();
 
     /**
-     * Returns the share label.
+     * Returns the label for OK action.
      * 
-     * @gwt.key file.share.label
+     * @gwt.key action.ok.label
      */
+    public String getActionOKLabel();
 
-    public String getShareLabel();
+    /**
+     * Returns label for the 'rename' field.
+     * 
+     * @gwt.key action.rename.label
+     */
+    public String getActionRenameLabel();
 
     /**
      * Returns the label for the renew action.
@@ -69,11 +75,32 @@ public interface IMessageResources extends Messages
     public String getActionRenewLabel();
 
     /**
-     * Returns the label for cancelling action.
+     * Returns the label for the share action.
      * 
-     * @gwt.key action.cancel.label
+     * @gwt.key action.shared.label
      */
-    public String getActionCancelLabel();
+    public String getActionSharedLabel();
+
+    /**
+     * Returns label for the 'stop sharing' field.
+     * 
+     * @gwt.key action.stop_sharing.label
+     */
+    public String getActionStopSharingLabel();
+
+    /**
+     * Returns the label for the Add User button.
+     * 
+     * @gwt.key share.user.add.button.label
+     */
+    public String getAddUserButtonLabel();
+
+    /**
+     * Returns the title for the Form to add user.
+     * 
+     * @gwt.key share.user.add.title
+     */
+    public String getAddUserFormTitle();
 
     /**
      * Returns the label for creating new User
@@ -116,20 +143,6 @@ public interface IMessageResources extends Messages
      * @gwt.key usercreation.comment.label
      */
     public String getCommentLabel();
-
-    /**
-     * Returns label for the Comment field.
-     * 
-     * @gwt.key edituser.sendUpdateInformation.label
-     */
-    public String getSendUserUpdateInformationLabel();
-
-    /**
-     * Returns label for the Comment field.
-     * 
-     * @gwt.key edituser.switchToExternalAuthentication.label
-     */
-    public String getSwitchToExternalAuthenticationLabel();
 
     /**
      * Returns the label for creating new User
@@ -195,6 +208,13 @@ public interface IMessageResources extends Messages
     public String getEditUserTooltipLabel();
 
     /**
+     * Returns the label of the field, to add new Email Adresses.
+     * 
+     * @gwt.key share.email.field.label
+     */
+    public String getEmailFielLabel();
+
+    /**
      * Returns a default message for exception that does not contain any message.
      * <p>
      * The returned error message will contain the type of the exception thrown.
@@ -203,6 +223,69 @@ public interface IMessageResources extends Messages
      * @gwt.key exception.without.message
      */
     public String getExceptionWithoutMessage(final String typeName);
+
+    /**
+     * Returns the title for the existing user table
+     * 
+     * @gwt.key share.user.existing.title
+     */
+    public String getExistingUserTableTitle();
+
+    /**
+     * Returns the label for external authentication button.
+     * 
+     * @gwt.key external.authentication.button.tooltip
+     */
+    public String getExternalAuthenticationButtonTooltip();
+
+    /**
+     * Returns the explanation for external authentication.
+     * 
+     * @gwt.key external.authentication.explanation
+     */
+    public String getExternalAuthenticationExplanation();
+
+    /**
+     * Returns the message for external authentication failure.
+     * 
+     * @gwt.key external.authentication.fail
+     */
+    public String getExternalAuthenticationFail(final String errorMsg);
+
+    /**
+     * Returns external authentication label.
+     * 
+     * @gwt.key external.authentication.label
+     */
+    public String getExternalAuthenticationLabel();
+
+    /**
+     * Returns external authentication password button label.
+     * 
+     * @gwt.key external.authentication.password.label
+     */
+    public String getExternalAuthenticationPasswordLabel();
+
+    /**
+     * Returns the message for successful external authentication.
+     * 
+     * @gwt.key external.authentication.successful
+     */
+    public String getExternalAuthenticationSuccessful();
+
+    /**
+     * Returns the label of the comment name column.
+     * 
+     * @gwt.key file.comment.label
+     */
+    public String getFileCommentLabel();
+
+    /**
+     * Returns the title for showing the comment.
+     * 
+     * @gwt.key file.comment.title
+     */
+    public String getFileCommentTitle();
 
     /**
      * Returns the label of the file content type column.
@@ -226,13 +309,6 @@ public interface IMessageResources extends Messages
     public String getFileDeleteTitle();
 
     /**
-     * Returns the title for showing the comment.
-     * 
-     * @gwt.key file.comment.title
-     */
-    public String getFileCommentTitle();
-
-    /**
      * Returns the label of the file expiration date column.
      * 
      * @gwt.key file.expirationdate.label
@@ -247,13 +323,6 @@ public interface IMessageResources extends Messages
     public String getFileNameLabel();
 
     /**
-     * Returns the label of the comment name column.
-     * 
-     * @gwt.key file.comment.label
-     */
-    public String getFileCommentLabel();
-
-    /**
      * Returns the label of the file registration date column.
      * 
      * @gwt.key file.registrationdate.label
@@ -266,6 +335,27 @@ public interface IMessageResources extends Messages
      * @gwt.key file.registrator.label
      */
     public String getFileRegistratorLabel();
+
+    /**
+     * Returns the label of the button for adding a new user for file sharing..
+     * 
+     * @gwt.key filesharing.addButton.label
+     */
+    public String getFileSharingAddButtonLabel();
+
+    /**
+     * Returns the title of the add user dialog for file sharing.
+     * 
+     * @gwt.key filesharing.adduser.title
+     */
+    public String getFileSharingAddUserTitle();
+
+    /**
+     * Returns the title of the file sharing user dialog.
+     * 
+     * @gwt.key filesharing.title
+     */
+    public String getFileSharingTitle(String fileName);
 
     /**
      * Returns the label of the file size column.
@@ -338,27 +428,6 @@ public interface IMessageResources extends Messages
     public String getFileUploadLegend();
 
     /**
-     * Returns the title of the file sharing user dialog.
-     * 
-     * @gwt.key filesharing.title
-     */
-    public String getFileSharingTitle(String fileName);
-
-    /**
-     * Returns the label of the button for adding a new user for file sharing..
-     * 
-     * @gwt.key filesharing.addButton.label
-     */
-    public String getFileSharingAddButtonLabel();
-
-    /**
-     * Returns the title of the add user dialog for file sharing.
-     * 
-     * @gwt.key filesharing.adduser.title
-     */
-    public String getFileSharingAddUserTitle();
-
-    /**
      * Returns application description.
      * 
      * @gwt.key footer.application.description
@@ -380,18 +449,18 @@ public interface IMessageResources extends Messages
     public String getFooterDisclaimerDialogTitle();
 
     /**
-     * Returns title of the disclaimer window dialog.
-     * 
-     * @gwt.key footer.documentation.dialog.title
-     */
-    public String getFooterDocumentationDialogTitle();
-
-    /**
      * Returns disclaimer link label.
      * 
      * @gwt.key footer.disclaimer.link.label
      */
     public String getFooterDisclaimerLinkLabel();
+
+    /**
+     * Returns title of the disclaimer window dialog.
+     * 
+     * @gwt.key footer.documentation.dialog.title
+     */
+    public String getFooterDocumentationDialogTitle();
 
     /**
      * Returns documentation link label.
@@ -513,6 +582,13 @@ public interface IMessageResources extends Messages
     public String getMessageBoxWarningTitle();
 
     /**
+     * Returns the title for the new user table
+     * 
+     * @gwt.key share.user.new.label
+     */
+    public String getNewUserTableTitle();
+
+    /**
      * Returns the title of Own User Table.
      * 
      * @gwt.key userlist.ownusers.part.title
@@ -567,6 +643,49 @@ public interface IMessageResources extends Messages
      * @gwt.key userlist.registrator.label
      */
     public String getRegistratorLabel();
+
+    /**
+     * Returns text for the 'rename' confirm box.
+     * 
+     * @gwt.key rename.confirm.text
+     */
+    public String getRenameConfirmText(String before, String after);
+
+    /**
+     * Returns title for the 'rename' confirm box.
+     * 
+     * @gwt.key rename.confirm.title
+     */
+    public String getRenameConfirmTitle();
+
+    /**
+     * Returns title for the 'rename' prompt box.
+     * 
+     * @gwt.key rename.prompt.title
+     */
+    public String getRenamePromptTitle();
+
+    /**
+     * Returns label for the Comment field.
+     * 
+     * @gwt.key edituser.sendUpdateInformation.label
+     */
+    public String getSendUserUpdateInformationLabel();
+
+    /**
+     * Returns the share label.
+     * 
+     * @gwt.key file.share.label
+     */
+
+    public String getShareLabel();
+
+    /**
+     * Returns the label of the submit button of the Dialog
+     * 
+     * @gwt.key share.submit.button.label
+     */
+    public String getShareSubmitDialogButtonLabel();
 
     /**
      * Returns the label of the user Status column.
@@ -688,100 +807,9 @@ public interface IMessageResources extends Messages
     public String getValidatePasswordLabel();
 
     /**
-     * Returns label for the 'stop sharing' field.
-     * 
-     * @gwt.key action.stop_sharing.label
-     */
-    public String getActionStopSharingLabel();
-
-    /**
-     * Returns label for the 'rename' field.
-     * 
-     * @gwt.key action.rename.label
-     */
-    public String getActionRenameLabel();
-
-    /**
-     * Returns title for the 'rename' confirm box.
-     * 
-     * @gwt.key rename.confirm.title
-     */
-    public String getRenameConfirmTitle();
-
-    /**
-     * Returns title for the 'rename' prompt box.
-     * 
-     * @gwt.key rename.prompt.title
-     */
-    public String getRenamePromptTitle();
-
-    /**
-     * Returns text for the 'rename' confirm box.
-     * 
-     * @gwt.key rename.confirm.text
-     */
-    public String getRenameConfirmText(String before, String after);
-
-    /**
-     * Returns the title for the existing user table
-     * 
-     * @gwt.key share.user.existing.title
-     */
-    public String getExistingUserTableTitle();
-
-    /**
-     * Returns the title for the new user table
-     * 
-     * @gwt.key share.user.new.label
-     */
-    public String getNewUserTableTitle();
-
-    /**
-     * Returns the title for the Form to add user.
-     * 
-     * @gwt.key share.user.add.title
-     */
-    public String getAddUserFormTitle();
-
-    /**
-     * Returns the label for the Add User button.
-     * 
-     * @gwt.key share.user.add.button.label
-     */
-    public String getAddUserButtonLabel();
-
-    /**
-     * Returns the label of the submit button of the Dialog
-     * 
-     * @gwt.key share.submit.button.label
-     */
-    public String getShareSubmitDialogButtonLabel();
-
-    /**
-     * Returns the label of the field, to add new Email Adresses.
-     * 
-     * @gwt.key share.email.field.label
-     */
-    public String getEmailFielLabel();
-
-    /**
      * Returns the label of the button to validate the users
      * 
      * @gwt.key fileupload.validate.button.label
      */
     public String getValidateUsersButtonLabel();
-
-    /**
-     * Returns label of the external password field.
-     * 
-     * @gwt.key edituser.external_password.label
-     */
-    public String getExternalPasswordLabel();
-
-    /**
-     * Returns external authentication
-     * 
-     * @gwt.key edituser.external_authentication
-     */
-    public String getExternalAuthentication();
 }
