@@ -164,7 +164,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
             if (invalidUserIdentifiers.isEmpty() == false)
             {
                 final String msg =
-                        "Some user identifiers are invalid: "
+                        "Some user identifiers are invalid:<br>"
                                 + CollectionUtils.abbreviate(invalidUserIdentifiers, 10);
                 feedbackProvider.setMessage(new Message(Message.WARNING, UPLOAD_FINISHED + msg));
             } else
