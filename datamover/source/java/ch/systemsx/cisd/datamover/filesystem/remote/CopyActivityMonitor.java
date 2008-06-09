@@ -184,7 +184,7 @@ public class CopyActivityMonitor
                 "No progress on copying '%s' to '%s' for %f seconds - network connection might be stalled.";
 
         private final ExecutorService lastChangedExecutor =
-                new NamingThreadPoolExecutor("Last Changed Explorer", 1, Integer.MAX_VALUE);
+                new NamingThreadPoolExecutor("Last Changed Explorer").daemonize();
 
         private final StoreItem itemToBeCopied;
 
