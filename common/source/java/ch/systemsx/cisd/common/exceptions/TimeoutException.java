@@ -17,39 +17,29 @@
 package ch.systemsx.cisd.common.exceptions;
 
 /**
- * Exception that signals that whoever gets it should stop its current work. This is an unchecked
- * equivalent to an {@link InterruptedException}.
- * <p>
- * This is usually triggered by interrupting the thread that the work package is processed in and
- * regularly checking with {@link #check()}.
- * </p>
+ * Exception thrown when a blocking operation times out. This is an unchecked equivalent of
+ * {@link java.util.concurrent.TimeoutException}, i.e. it is derived from {@link RuntimeException}.
  * 
  * @author Bernd Rinn
  */
-public final class StopException extends RuntimeException
+public class TimeoutException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;
 
-    public StopException()
+    public TimeoutException()
     {
         super();
     }
 
-    public StopException(InterruptedException cause)
+    public TimeoutException(String msg)
+    {
+        super(msg);
+    }
+    
+    public TimeoutException(java.util.concurrent.TimeoutException cause)
     {
         super(cause);
     }
 
-    /**
-     * Checks whether the current thread has been interrupted and, if it has, throw a
-     * {@link StopException}.
-     */
-    public final static void check() throws StopException
-    {
-        if (Thread.interrupted())
-        {
-            throw new StopException();
-        }
-    }
 }
