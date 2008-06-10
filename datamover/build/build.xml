@@ -1,62 +1,72 @@
 <project name="datamover" default="dist" basedir="..">
-  <import file="../../build_resources/ant/build-common.xml" />
-  <project-classpath name="ecp" classes="${classes}" />
+	<import file="../../build_resources/ant/build-common.xml" />
+	<project-classpath name="ecp" classes="${classes}" />
 
-  <property name="original.dist" value="dist" />
-  <property name="mainfolder" value="datamover" />
-  <property name="dist.datamover" value="${dist}/${mainfolder}" />
-  <property name="dist.datamover.lib" value="${dist.datamover}/lib" />
-  <property name="jar.file" value="${dist.datamover.lib}/datamover.jar" />
-  <property name="dist.file.prefix" value="${dist}/datamover" />
-  <property name="lib" value="../libraries" />
+	<property name="original.dist" value="dist" />
+	<property name="mainfolder" value="datamover" />
+	<property name="dist.datamover" value="${dist}/${mainfolder}" />
+	<property name="dist.datamover.lib" value="${dist.datamover}/lib" />
+	<property name="jar.file" value="${dist.datamover.lib}/datamover.jar" />
+	<property name="dist.file.prefix" value="${dist}/datamover" />
+	<property name="lib" value="../libraries" />
 
-  <target name="clean">
-    <delete dir="${dist}" />
-  </target>
+	<target name="clean">
+		<delete dir="${dist}" />
+	</target>
 
-  <target name="compile" depends="build-common.compile, clean"/>
+	<target name="compile" depends="build-common.compile, clean"/>
 
-  <target name="run-tests">
-    <antcall target="build-common.run-tests">
-      <param name="test.suite" value="tests_fast.xml"/> 
-    </antcall>
-  </target> 
-  
-  <target name="jar" depends="compile">
-    <mkdir dir="${dist.datamover.lib}" />
-    <build-info revision="revision.number" version="version.number" clean="clean.flag"/>
-    <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-    <recursive-jar destfile="${jar.file}">
-      <fileset dir="${classes}">
-        <include name="**/*.class" />
-        <include name="${build.info.filename}" />
-      </fileset>
-      <manifest>
-        <attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
-        <attribute name="Class-Path"
+	<target name="run-tests">
+		<antcall target="build-common.run-tests">
+			<param name="test.suite" value="tests_fast.xml"/>
+		</antcall>
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${dist.datamover.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag"/>
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<recursive-jar destfile="${jar.file}">
+			<fileset dir="${classes}">
+				<include name="**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
+				<attribute name="Class-Path"
                    value="log4j.jar args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar" />
-        <attribute name="Version" value="${version.number}" />
-        <attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
-      </manifest>
-    </recursive-jar>
-  </target>
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+	</target>
 
-  <target name="dist" depends="jar">
-    <copy file="${lib}/activation/activation.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/mail/mail.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/log4j/log4j.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/args4j/args4j.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datamover.lib}" />
-    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datamover.lib}" />
-    <property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />   
-    <zip basedir="${dist}" destfile="${dist.file}">
-      <zipfileset dir="${original.dist}" excludes="**/datamover.sh" prefix="${mainfolder}" />
-      <zipfileset file="${original.dist}/datamover.sh" filemode="755" prefix="${mainfolder}" />
-    </zip>
-    <delete dir="${dist.datamover.lib}" /> 
-  </target>
- 
-  <target name="ci" depends="run-tests, check-dependencies, dist">
-  </target> 
+	<target name="dist" depends="jar">
+		<copy file="${lib}/activation/activation.jar" todir="${dist.datamover.lib}" />
+		<copy file="${lib}/mail/mail.jar" todir="${dist.datamover.lib}" />
+		<copy file="${lib}/log4j/log4j.jar" todir="${dist.datamover.lib}" />
+		<copy file="${lib}/args4j/args4j.jar" todir="${dist.datamover.lib}" />
+		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datamover.lib}" />
+		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datamover.lib}" />
+		<property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist}" destfile="${dist.file}">
+			<zipfileset dir="${original.dist}" excludes="**/datamover.sh" prefix="${mainfolder}" />
+			<zipfileset file="${original.dist}/datamover.sh" filemode="755" prefix="${mainfolder}" />
+		</zip>
+		<delete dir="${dist.datamover.lib}" />
+	</target>
 
+	<target name="ci" depends="check-restrictions, run-tests, check-dependencies, dist">
+	</target>
+
+	<target name="check-restrictions" depends="compile, compile-tests">
+		<exec executable="sh" dir="${lib}" failonerror="true">
+			<arg value="restrictionchecker/jrc"/>
+			<arg value="-jd"/>
+			<arg value="."/>
+			<arg value="-r"/>
+			<arg value="../common/${classes}"/>
+			<arg value="../datamover/${classes}"/>
+		</exec>
+	</target>
 </project>

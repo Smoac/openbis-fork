@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-api-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-library-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
