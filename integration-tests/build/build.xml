@@ -6,6 +6,18 @@
 
 	<!-- Parameter: arg1, arg2, arg3, arg4 - arguments passed to integration test script -->
 	<target name="internal-launch" description="Runs integration tests with given arguments">
+		<condition property="arg1" value="arg1" else="">
+			<isset property="arg1" />
+		</condition>
+		<condition property="arg2" value="arg21" else="">
+			<isset property="arg2" />
+		</condition>
+		<condition property="arg3" value="arg3" else="">
+			<isset property="arg3" />
+		</condition>
+		<condition property="arg4" value="arg4" else="">
+			<isset property="arg4" />
+		</condition>
 		<delete dir="${work.dir}" failonerror="true" />
 		<exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./run.sh" />
@@ -28,42 +40,48 @@
 		Runs integration tests again (WITHOUT rebuilding everything). 
 		It assumes that it will find all the distributions already installed by the previous integration tests.
 	-->
-	<target name="run" description="Launches integration tests again (WITHOUT rebuilding everything).">
+	<target name="run"
+	        description="Launches integration tests again (WITHOUT rebuilding everything).">
 		<antcall target="internal-launch">
 			<param name="arg1" value="" />
 			<param name="arg2" value="" />
 		</antcall>
 	</target>
 
-	<target name="relaunch-local-etl-rebuild" description="Runs integration tests again, rebuilds etl server from local sources.">
+	<target name="relaunch-local-etl-rebuild"
+	        description="Runs integration tests again, rebuilds etl server from local sources.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--etl" />
 			<param name="arg2" value="--local-source" />
 		</antcall>
 	</target>
 
-	<target name="relaunch-local-dmv-rebuild" description="Runs integration tests again, rebuilds datamover from local sources.">
+	<target name="relaunch-local-dmv-rebuild"
+	        description="Runs integration tests again, rebuilds datamover from local sources.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--dmv" />
 			<param name="arg2" value="--local-source" />
 		</antcall>
 	</target>
 
-	<target name="integration-tests" description="Runs integration tests, rebuild everything from svn sources.">
+	<target name="integration-tests"
+	        description="Runs integration tests, rebuild everything from svn sources.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--all" />
 			<param name="arg2" value="" />
 		</antcall>
 	</target>
 
-	<target name="integration-tests-local" description="Runs integration tests, rebuild everything from local workspace.">
+	<target name="integration-tests-local"
+	        description="Runs integration tests, rebuild everything from local workspace.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--all" />
 			<param name="arg2" value="--local-source" />
 		</antcall>
 	</target>
 
-	<target name="integration-tests-local-with-reinstall" description="Runs integration tests, rebuild etl and openbis from local workspace. The Datamover distribution needs to be in the target directory">
+	<target name="integration-tests-local-with-reinstall"
+	        description="Runs integration tests, rebuild etl and openbis from local workspace. The Datamover distribution needs to be in the target directory">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--etl" />
 			<param name="arg2" value="--lims" />
