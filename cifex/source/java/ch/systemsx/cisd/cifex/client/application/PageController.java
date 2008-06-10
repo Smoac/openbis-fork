@@ -97,6 +97,9 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(editUserPage);
     }
 
+    /**
+     * Creates the given Page to the root panel. If the page is not known, it creates the main page.
+     */
     public final void createPage(final Page page)
     {
         if (page == Page.ADMIN_PAGE)
@@ -108,12 +111,12 @@ final class PageController implements IPageController, IHistoryController
         } else if (page == Page.LOGIN_PAGE)
         {
             createLoginPage();
-        } else if (page == Page.MAIN_PAGE)
-        {
-            createMainPage();
         } else if (page == Page.EXTERNAL_AUTHENTICATION)
         {
             createExternalAuthenticationPage();
+        } else
+        {
+            createMainPage();
         }
     }
 
@@ -131,10 +134,23 @@ final class PageController implements IPageController, IHistoryController
         return previousPage;
     }
 
+    /**
+     * Sets the given page to the current page, if it differ from the the current page and moves the
+     * current page to the previous page. If the given page is the same as the current page,
+     * everything stays as it is.
+     */
     public final void setCurrentPage(final Page page)
     {
-        previousPage = currentPage;
-        currentPage = page;
+        if (previousPage == null)
+        {
+            previousPage = currentPage;
+            currentPage = page;
+
+        } else if (previousPage != page)
+        {
+            previousPage = currentPage;
+            currentPage = page;
+        }
     }
 
     public void createExternalAuthenticationPage()
