@@ -99,11 +99,12 @@ public interface IFileStore extends ISelfTestable
      */
     public IStoreCopier getCopier(IFileStore destinationDirectory);
 
-    // returned description should give the user the idea about file location. You should not use
-    // the result for
-    // something else than printing it for user. It should not be especially assumed that the result
-    // is the path
-    // which could be used in java.io.File constructor.
+    /**
+     * @return description which should give the user the idea about item location in sthe store. It
+     *         should not be used for something else than printing it for user. In particular it
+     *         should not be assumed that the result is the path which could be used in java.io.File
+     *         constructor.
+     */
     public String getLocationDescription(StoreItem item);
 
     /**
