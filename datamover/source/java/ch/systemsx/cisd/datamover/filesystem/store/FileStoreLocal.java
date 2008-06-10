@@ -169,7 +169,7 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
     public final String toString()
     {
         final String pathStr = getPath().getPath();
-        return "[local fs]" + pathStr;
+        return "[local fs] " + pathStr;
     }
 
     public final String getLocationDescription(final StoreItem item)

@@ -372,7 +372,7 @@ public class FileStoreRemote extends FileStore
     public final String toString()
     {
         final String pathStr = getPathString();
-        return "[remote fs]" + getHost() + ":" + pathStr;
+        return "[remote fs] " + getHost() + ":" + pathStr;
     }
 
     public final String getLocationDescription(final StoreItem item)

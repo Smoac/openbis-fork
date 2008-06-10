@@ -67,7 +67,7 @@ public final class FileStoreRemoteMounted extends FileStore
     public final String toString()
     {
         final String pathStr = getPath().getPath();
-        return "[mounted remote fs]" + pathStr;
+        return "[mounted remote fs] " + pathStr;
     }
 
     public final String getLocationDescription(final StoreItem item)
