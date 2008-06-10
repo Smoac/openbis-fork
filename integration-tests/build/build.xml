@@ -9,7 +9,7 @@
 		<condition property="arg1" value="arg1" else="">
 			<isset property="arg1" />
 		</condition>
-		<condition property="arg2" value="arg21" else="">
+		<condition property="arg2" value="arg2" else="">
 			<isset property="arg2" />
 		</condition>
 		<condition property="arg3" value="arg3" else="">
