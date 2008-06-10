@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/args4j/args4j.jar" sourcepath="/libraries/args4j/args4j-src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

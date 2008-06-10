@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -64,7 +65,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, CrowdAuthenticationService.class);
 
     /** The template to authenticate the application. */
-    // @Private
+    @Private
     static final MessageFormat AUTHENTICATE_APPL =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -83,7 +84,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "</soap:Envelope>\n");
 
     /** The template to authenticate the user. */
-    // @Private
+    @Private
     static final MessageFormat AUTHENTICATE_USER =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -106,7 +107,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "</soap:Envelope>\n");
 
     /** The template to find a principal by token or by name. */
-    // @Private
+    @Private
     static final MessageFormat FIND_PRINCIPAL_BY_NAME =
             new MessageFormat(
                     "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
@@ -130,13 +131,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
                  * 
                  * @return The server's response to the request.
                  */
-                public String execute(String serviceUrl, String message)
+                public String execute(final String serviceUrl, final String message)
                 {
                     try
                     {
-                        HttpClient client = new HttpClient();
-                        PostMethod post = new PostMethod(serviceUrl);
-                        StringRequestEntity entity =
+                        final HttpClient client = new HttpClient();
+                        final PostMethod post = new PostMethod(serviceUrl);
+                        final StringRequestEntity entity =
                                 new StringRequestEntity(message, "application/soap+xml", "utf-8");
                         post.setRequestEntity(entity);
                         String response = null;
@@ -149,7 +150,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             post.releaseConnection();
                         }
                         return response;
-                    } catch (Exception ex)
+                    } catch (final Exception ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                     }
@@ -166,15 +167,15 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final IRequestExecutor requestExecutor;
 
-    public CrowdAuthenticationService(String host, int port, String application,
-            String applicationPassword)
+    public CrowdAuthenticationService(final String host, final int port, final String application,
+            final String applicationPassword)
     {
         this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application,
                 applicationPassword, createExecutor());
     }
 
-    public CrowdAuthenticationService(String url, String application, String applicationPassword,
-            IRequestExecutor requestExecutor)
+    public CrowdAuthenticationService(final String url, final String application,
+            final String applicationPassword, final IRequestExecutor requestExecutor)
     {
         this.url = url;
         this.application = application;
@@ -197,19 +198,19 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         try
         {
-            String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            final String response = execute(AUTHENTICATE_APPL, application, applicationPassword);
             if (pickElementContent(response, CrowdSoapElements.TOKEN) == null)
             {
                 throw new EnvironmentFailureException("Application '" + application
                         + "' couldn't be authenticated: " + response);
             }
-        } catch (EnvironmentFailureException ex)
+        } catch (final EnvironmentFailureException ex)
         {
             throw ex;
-        } catch (CheckedExceptionTunnel ex)
+        } catch (final CheckedExceptionTunnel ex)
         {
             throw new EnvironmentFailureException(ex.getMessage(), ex.getCause());
-        } catch (RuntimeException ex)
+        } catch (final RuntimeException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage(), ex);
         }
@@ -234,7 +235,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return applicationToken;
     }
 
-    public final boolean authenticateUser(String applicationToken, String user, String password)
+    public final boolean authenticateUser(final String applicationToken, final String user,
+            final String password)
     {
         assert applicationToken != null;
         assert user != null;
@@ -252,13 +254,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return userToken != null;
     }
 
-    public final Principal getPrincipal(String applicationToken, String user)
+    public final Principal getPrincipal(final String applicationToken, final String user)
     {
         String xmlResponse = null;
         try
         {
             xmlResponse = execute(FIND_PRINCIPAL_BY_NAME, application, applicationToken, user);
-            Map<String, String> parseXmlResponse = parseXmlResponse(xmlResponse);
+            final Map<String, String> parseXmlResponse = parseXmlResponse(xmlResponse);
             Principal principal = null;
             if (parseXmlResponse.size() >= 1)
             {
@@ -276,12 +278,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
                 throw new IllegalArgumentException("Cannot find user '" + user + "'.");
             }
             return principal;
-        } catch (IllegalArgumentException ex)
+        } catch (final IllegalArgumentException ex)
         {
             throw ex;
-        } catch (Exception ex) // SAXException, IOException
+        } catch (final Exception ex) // SAXException, IOException
         {
-            String message = "Parsing XML response '" + xmlResponse + "' throws an Exception.";
+            final String message =
+                    "Parsing XML response '" + xmlResponse + "' throws an Exception.";
             throw new EnvironmentFailureException(message, ex);
         }
     }
@@ -292,20 +295,21 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
      */
-    private final static Map<String, String> parseXmlResponse(String xmlResponse)
+    private final static Map<String, String> parseXmlResponse(final String xmlResponse)
             throws SAXException, IOException
     {
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        SOAPAttributeContentHandler contentHandler = new SOAPAttributeContentHandler();
+        final XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        final SOAPAttributeContentHandler contentHandler = new SOAPAttributeContentHandler();
         xmlReader.setContentHandler(contentHandler);
-        StringReader stringReader = new StringReader(xmlResponse);
+        final StringReader stringReader = new StringReader(xmlResponse);
         xmlReader.parse(new InputSource(stringReader));
         stringReader.close();
         return contentHandler.getSoapAttributes();
     }
 
     /** Creates a <code>Principal</code> with found SOAP attributes. */
-    private final static Principal createPrincipal(String user, Map<String, String> soapAttributes)
+    private final static Principal createPrincipal(final String user,
+            final Map<String, String> soapAttributes)
     {
         final String firstName = soapAttributes.get(FIRST_NAME_PROPERTY_KEY);
         final String lastName = soapAttributes.get(LAST_NAME_PROPERTY_KEY);
@@ -319,13 +323,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * 
      * @return The <var>responseElement</var> in the server's response.
      */
-    private final String execute(String responseElement, MessageFormat template, String... args)
+    private final String execute(final String responseElement, final MessageFormat template,
+            final String... args)
     {
         final String response = execute(template, args);
         return pickElementContent(response, responseElement);
     }
 
-    private final String execute(MessageFormat template, String... args)
+    private final String execute(final MessageFormat template, final String... args)
     {
         final Object[] decodedArguments = new Object[args.length];
         for (int i = 0; i < args.length; i++)
@@ -343,7 +348,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
      * 
      * @return The requested element, or <code>null</code> if it could not be found.
      */
-    private static final String pickElementContent(String xmlString, String element)
+    private static final String pickElementContent(final String xmlString, final String element)
     {
         if (xmlString == null)
         {
@@ -371,7 +376,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     + StringUtils.abbreviate(xmlString, 50) + "'.");
             return null;
         }
-        int endIndex = getIndex(xmlString, "</", element + ">", index);
+        final int endIndex = getIndex(xmlString, "</", element + ">", index);
         if (endIndex < 0)
         {
             operationLog.error("Start tag of element '" + element
@@ -382,17 +387,18 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return xmlString.substring(index + 1, endIndex);
     }
 
-    private static int getIndex(String xmlString, String begin, String element, int startIndex)
+    private static int getIndex(final String xmlString, final String begin, final String element,
+            final int startIndex)
     {
-        String regex = ".*(" + begin + "(\\w*:)?" + element + ").*";
-        Pattern p = Pattern.compile(regex);
-        Matcher matcher = p.matcher(xmlString);
-        boolean result = matcher.matches();
+        final String regex = ".*(" + begin + "(\\w*:)?" + element + ").*";
+        final Pattern p = Pattern.compile(regex);
+        final Matcher matcher = p.matcher(xmlString);
+        final boolean result = matcher.matches();
         if (result == false)
         {
             return -1;
         }
-        int index = matcher.start(1);
+        final int index = matcher.start(1);
         return index;
     }
 }

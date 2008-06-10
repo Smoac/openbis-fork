@@ -26,6 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = CrowdAuthenticationService.class)
 public class CrowdAuthenticationServiceTest
 {
 
@@ -94,9 +96,9 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters = new Object[]
+                    final Object[] parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue(createXMLElement(CrowdSoapElements.TOKEN,
@@ -104,7 +106,7 @@ public class CrowdAuthenticationServiceTest
                 }
 
             });
-        String result = authenticationService.authenticateApplication();
+        final String result = authenticationService.authenticateApplication();
         assertEquals(APPLICATION_TOKEN, result);
         assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
                 + "' successfully authenticated."), logRecorder.getLogContent());
@@ -118,15 +120,15 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters = new Object[]
+                    final Object[] parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_PASSWORD_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.AUTHENTICATE_APPL.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("error"));
                 }
             });
-        String result = authenticationService.authenticateApplication();
+        final String result = authenticationService.authenticateApplication();
         assertEquals(null, result);
         assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.TOKEN
                 + "' could not be found in 'error'.")
@@ -143,18 +145,18 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters =
+                    final Object[] parameters =
                             new Object[]
                                 { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
                                         USER_PASSWORD_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue(createXMLElement("n:" + CrowdSoapElements.OUT,
                             APPLICATION_TOKEN_ESACPED)));
                 }
             });
-        boolean result =
+        final boolean result =
                 authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(true, result);
         assertEquals(createInfoLogEntry("CROWD: authentication of user '" + USER
@@ -169,17 +171,17 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters =
+                    final Object[] parameters =
                             new Object[]
                                 { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED,
                                         USER_PASSWORD_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.AUTHENTICATE_USER.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("error"));
                 }
             });
-        boolean result =
+        final boolean result =
                 authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
         assertEquals(false, result);
         assertEquals(createDebugLogEntry("Element '" + CrowdSoapElements.OUT
@@ -197,9 +199,9 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters = new Object[]
+                    final Object[] parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     String element = createSOAPAttribute("sn", "Stepka");
@@ -212,14 +214,14 @@ public class CrowdAuthenticationServiceTest
                     will(returnValue("<a>" + element + "</a>"));
                 }
 
-                private String createSOAPAttribute(String name, String value)
+                private String createSOAPAttribute(final String name, final String value)
                 {
                     return "<SOAPAttribute><name>" + name
                             + "</name><values><ns1:string xmlns:ns1=\"urn:SecurityServer\">"
                             + value + "</ns1:string></values></SOAPAttribute>";
                 }
             });
-        Principal result = authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
+        final Principal result = authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
         assertEquals("Justen", result.getFirstName());
         assertEquals("Stepka", result.getLastName());
         assertEquals("justen.stepka@atlassian.com", result.getEmail());
@@ -237,9 +239,9 @@ public class CrowdAuthenticationServiceTest
         context.checking(new Expectations()
             {
                 {
-                    Object[] parameters = new Object[]
+                    final Object[] parameters = new Object[]
                         { APPLICATION_ESCAPED, APPLICATION_TOKEN_ESACPED, USER_ESCAPED };
-                    String message =
+                    final String message =
                             CrowdAuthenticationService.FIND_PRINCIPAL_BY_NAME.format(parameters);
                     one(executor).execute(URL, message);
                     will(returnValue("<a></a>"));
@@ -249,7 +251,7 @@ public class CrowdAuthenticationServiceTest
         {
             authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
             fail("EnvironmentFailureException expected");
-        } catch (IllegalArgumentException e)
+        } catch (final IllegalArgumentException e)
         {
             assertEquals("Cannot find user '" + USER + "'.", e.getMessage());
         }
@@ -261,27 +263,27 @@ public class CrowdAuthenticationServiceTest
         context.assertIsSatisfied();
     }
 
-    private String createDebugLogEntry(String message)
+    private String createDebugLogEntry(final String message)
     {
         return createLogEntry("DEBUG", message);
     }
 
-    private String createInfoLogEntry(String message)
+    private String createInfoLogEntry(final String message)
     {
         return createLogEntry("INFO ", message);
     }
 
-    private String createErrorLogEntry(String message)
+    private String createErrorLogEntry(final String message)
     {
         return createLogEntry("ERROR", message);
     }
 
-    private String createLogEntry(String level, String message)
+    private String createLogEntry(final String level, final String message)
     {
         return level + " OPERATION." + authenticationService.getClass().getName() + " - " + message;
     }
 
-    private String createXMLElement(String element, String content)
+    private String createXMLElement(final String element, final String content)
     {
         return "<" + element + ">" + content + "</" + element + ">";
     }
