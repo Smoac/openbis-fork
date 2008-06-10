@@ -38,6 +38,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = CIFEXServiceImpl.class)
 public class CIFEXServiceImplTest
 {
     private static final String ERROR_MSG_FILE_FOUND_IN_THE_DATABASE =

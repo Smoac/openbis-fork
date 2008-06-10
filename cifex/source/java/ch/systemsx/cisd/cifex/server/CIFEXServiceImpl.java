@@ -30,6 +30,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
@@ -740,8 +741,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
         checkUpdateOfUserIsAllowed(userToUpdate, privGetCurrentUser(), domainModel.getUserManager());
     }
 
+    @Private
+    public static void dummyMethod()
+    {
+    }
+
     /** Check if the current user is allowed to update the given user. */
-    // @Private
+    @Private
     static final void checkUpdateOfUserIsAllowed(final UserDTO userToUpdate,
             final UserDTO requestUser, final IUserManager userManager)
             throws InvalidSessionException, InsufficientPrivilegesException

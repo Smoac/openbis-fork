@@ -83,9 +83,22 @@
 	// Task for continuous integration server.
 	-->
     <target name="ci"
-            depends="build-common.ci, check-dependencies, dist"
+            depends="build-common.ci, check-restrictions, check-dependencies, dist"
             description="Task for continuous integration server." />
 
+	<target name="check-restrictions" depends="compile, compile-tests">
+			<exec executable="sh" dir="${lib}" failonerror="true">
+				<arg value="restrictionchecker/jrc"/>
+				<arg value="-jd"/>
+				<arg value="."/>
+				<arg value="-r"/>
+				<arg value="../common/${classes}"/>
+				<arg value="../dbmigration/${classes}"/>
+				<arg value="../authentication/${classes}"/>
+				<arg value="../cifex/${classes}"/>
+			</exec>
+		</target>
+	
     <!--
 	// Compiles the javascript using GWT compiler.
 	-->
