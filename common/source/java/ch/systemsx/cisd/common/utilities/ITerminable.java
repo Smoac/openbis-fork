@@ -23,17 +23,6 @@ package ch.systemsx.cisd.common.utilities;
  */
 public interface ITerminable
 {
-
-    /** Dummy implementation of an {@link ITerminable}. */
-    public static final ITerminable DUMMY = new ITerminable()
-        {
-            public boolean terminate()
-            {
-                // We are a dummy.
-                return false;
-            }
-        };
-
     /**
      * Terminates the {@link ITerminable}.
      * 
