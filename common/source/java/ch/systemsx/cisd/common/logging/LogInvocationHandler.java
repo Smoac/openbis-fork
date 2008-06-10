@@ -47,8 +47,8 @@ public final class LogInvocationHandler implements InvocationHandler
      * @param logLevel The log level to use for normal (successful) events.
      * @param classUsedToNameLogger Class used to specify the name of the logger.
      */
-    public LogInvocationHandler(Object object, String name, Level logLevel,
-            Class<?> classUsedToNameLogger)
+    public LogInvocationHandler(final Object object, final String name, final Level logLevel,
+            final Class<?> classUsedToNameLogger)
     {
         this.object = object;
         this.name = name;
@@ -56,22 +56,23 @@ public final class LogInvocationHandler implements InvocationHandler
         this.classUsedToNameLogger = classUsedToNameLogger;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+    public Object invoke(final Object proxy, final Method method, final Object[] args)
+            throws Throwable
     {
-        long time = System.currentTimeMillis();
+        final long time = System.currentTimeMillis();
         Throwable throwable = null;
         try
         {
             return method.invoke(object, args);
-        } catch (InvocationTargetException e)
+        } catch (final InvocationTargetException e)
         {
             throwable = e.getCause();
             throw throwable;
-        } catch (UndeclaredThrowableException e)
+        } catch (final UndeclaredThrowableException e)
         {
             throwable = e.getCause();
             throw throwable;
-        } catch (Throwable t)
+        } catch (final Throwable t)
         {
             throwable = t;
             throw t;
@@ -108,7 +109,7 @@ public final class LogInvocationHandler implements InvocationHandler
         }
     }
 
-    private Level getLogLevel(Method method)
+    private final Level getLogLevel(final Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
         if (annotation == null)
@@ -123,7 +124,7 @@ public final class LogInvocationHandler implements InvocationHandler
         }
     }
 
-    private Logger createLogger(Method method)
+    private final Logger createLogger(final Method method)
     {
         final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
         final LogCategory logCategory =
