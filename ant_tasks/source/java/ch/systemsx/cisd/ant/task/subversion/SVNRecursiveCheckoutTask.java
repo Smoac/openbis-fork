@@ -46,7 +46,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * where the <code>&lt;dependent_projectname&lt;n&gt;&gt;</code> are referenced from
  * <code>.../&lt;projectname&gt;/trunk/.classpath</code>.
  * <p>
- * In <code>tag</code> mode (applies to both tags and branches) we assume this subversion layout:
+ * For releases we assume the following layout in <code>tag</code> mode (applies to both tags and
+ * branches) :
  * 
  * <pre>
  * .../&lt;projectname&gt;/tags/&lt;versiontemplate&gt;/&lt;detailedversion&gt;/&lt;projectname&gt;
@@ -55,6 +56,18 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * ...
  * .../&lt;projectname&gt;/tags/&lt;versiontemplate&gt;/&lt;detailedversion&gt;/&lt;dependent_projectname2&gt;
  * </pre>
+ * 
+ * For our regularly sprint releases we only tag the version and do not create a branch of it. For
+ * this we have the following structure:
+ * 
+ * <pre>
+ * .../&lt;projectname&gt;/tags/sprint/S&lt;sprintnumber&gt;/&lt;projectname&gt;
+ * ...
+ * .../&lt;projectname&gt;/tags/sprint/S&lt;sprintnumber&gt;/&lt;dependent_projectname1&gt;
+ * ...
+ * .../&lt;projectname&gt;/tags/sprint/S&lt;sprintnumber&gt;/&lt;dependent_projectname2&gt;
+ * </pre>
+ * 
  * <em><strong>Note:</strong> This schema requires the Eclipse project names and the subversion project names to be the
  * same!</em>
  * 
@@ -268,8 +281,9 @@ public class SVNRecursiveCheckoutTask extends Task
      * <p>
      * If <code>versionName == "trunk"</code>, the version will be the trunk. If <var>versionName</var>
      * fits into the release branch schema, it will be interpreted as a release branch, if it fits
-     * into a release tag schema, it will be interpreted as a release tag. In all other cases the
-     * version will be interpreted as a feature branch.
+     * into a release tag schema, it will be interpreted as a release tag. If it fits into a sprint
+     * tag, it will be interpreted as a sprint tag. In all other cases the version will be
+     * interpreted as a feature branch.
      */
     public void setVersion(String versionName)
     {
@@ -282,6 +296,9 @@ public class SVNRecursiveCheckoutTask extends Task
         } else if (context.isReleaseTag(versionName))
         {
             setReleaseTag(versionName);
+        } else if (context.isSprintTag(versionName))
+        {
+            setSprintTag(versionName);
         } else
         {
             setFeatureBranch(versionName);
@@ -299,6 +316,23 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             context.setReleaseTag(tagName);
+        } catch (UserFailureException ex)
+        {
+            throw new BuildException(ex.getMessage());
+        }
+    }
+
+    /**
+     * Sets the name of the sprint tag specified for this project.
+     */
+    public void setSprintTag(String tagName)
+    {
+        assert context != null;
+        assert tagName != null;
+
+        try
+        {
+            context.setSprintTag(tagName);
         } catch (UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());

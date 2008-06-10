@@ -139,7 +139,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Requires the following properties:
      * <ul>
-     * <li> projecname - the name of the project in the subversion repository to branch from </li>
+     * <li> projectname - the name of the project in the subversion repository to branch from </li>
      * <li> branch - the name of the branch to create </li>
      * </ul>
      */
@@ -163,6 +163,9 @@ public class SVNBranchAndTagTask extends Task
                 createTagInSvn(svn, source, createBranchContext(destinationContext), destination,
                         branchIfNecessary);
                 break;
+            case SPRINT_TAG:
+                createTagInSvn(svn, source, destination);
+                break;
             case RELEASE_BRANCH:
             case FEATURE_BRANCH:
                 createBranchInSvn(svn, source, destination);
@@ -179,7 +182,7 @@ public class SVNBranchAndTagTask extends Task
             final SVNRepositoryProjectContextAntWrapper tag, boolean branchIfNecessary)
             throws BuildException
     {
-        if (false == branchExists(svn, branch))
+        if (false == nodeExists(svn, branch))
         {
             if (branchIfNecessary)
             {
@@ -203,24 +206,48 @@ public class SVNBranchAndTagTask extends Task
                 logMessage);
     }
 
-    private static SVNRepositoryProjectContextAntWrapper createBranchContext(
-            SVNRepositoryProjectContext tagContext) throws BuildException
+    /**
+     * This method only creates a tag with the content from the source. It does not create a branch!
+     */
+    private static void createTagInSvn(final ISVNActions svn,
+            final SVNRepositoryProjectContextAntWrapper source,
+            final SVNRepositoryProjectContextAntWrapper tag) throws BuildException
     {
         try
         {
-            final String branchName = SVNUtilities.getBranchForTag(tagContext.getVersion());
-            SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
-            context.setReleaseBranch(branchName);
-            return new SVNRepositoryProjectContextAntWrapper(context, tagContext);
-        } catch (UserFailureException ex)
+            copyDependentProjectInSvn(svn, source, tag, "tag");
+        } catch (SVNException ex)
         {
             throw new BuildException(ex);
         }
     }
 
+    /**
+     * This method only creates a branch with the content from the source. It does not create a tag!
+     */
     private static void createBranchInSvn(final ISVNActions svn,
             final SVNRepositoryProjectContextAntWrapper source,
             final SVNRepositoryProjectContextAntWrapper destination)
+    {
+        try
+        {
+            copyDependentProjectInSvn(svn, source, destination, "branch");
+        } catch (SVNException ex)
+        {
+            throw new BuildException(ex);
+        }
+    }
+
+    /**
+     * Copies a project with all dependencies from the source to the destination.
+     * 
+     * @param copyKind If the destination is a branch or a tag, this string is only used for log
+     *            messages!
+     */
+    private static void copyDependentProjectInSvn(final ISVNActions svn,
+            final SVNRepositoryProjectContextAntWrapper source,
+            final SVNRepositoryProjectContextAntWrapper destination, String copyKind)
+            throws BuildException
     {
         final ISVNProjectPathProvider sourcePathProvider = source.getPathProvider();
         final ISVNProjectPathProvider destinationPathProvider = destination.getPathProvider();
@@ -228,13 +255,13 @@ public class SVNBranchAndTagTask extends Task
                 new SVNDependentProjectsCollector(source.getPathProvider(), svn)
                         .collectDependentProjectsFromClasspath();
 
-        final String branchName = destination.getVersion();
-        final String logMessage = "Create branch '" + branchName + "'";
+        final String tagName = destination.getVersion();
+        final String logMessage = "Create " + copyKind + " '" + tagName + "'";
         try
         {
-            if (branchExists(svn, destination))
+            if (nodeExists(svn, destination))
             {
-                throw new BuildException("The branch '" + branchName + "' already exists.");
+                throw new BuildException("The " + copyKind + " '" + tagName + "' already exists.");
             }
             if (svn.isMuccAvailable())
             {
@@ -271,16 +298,31 @@ public class SVNBranchAndTagTask extends Task
         }
     }
 
-    private static boolean branchExists(final ISVNActions svn,
-            final SVNRepositoryProjectContextAntWrapper branch)
+    private static SVNRepositoryProjectContextAntWrapper createBranchContext(
+            SVNRepositoryProjectContext tagContext) throws BuildException
     {
-        final String branchName = branch.getVersion();
-        final String branchUrl = branch.getRepositoryUrl();
-        final String parentUrl = SVNUtilities.getParent(branchUrl);
+        try
+        {
+            final String branchName = SVNUtilities.getBranchForTag(tagContext.getVersion());
+            SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
+            context.setReleaseBranch(branchName);
+            return new SVNRepositoryProjectContextAntWrapper(context, tagContext);
+        } catch (UserFailureException ex)
+        {
+            throw new BuildException(ex);
+        }
+    }
+
+    private static boolean nodeExists(final ISVNActions svn,
+            final SVNRepositoryProjectContextAntWrapper node)
+    {
+        final String tagName = node.getVersion();
+        final String tagUrl = node.getRepositoryUrl();
+        final String parentUrl = SVNUtilities.getParent(tagUrl);
         assert parentUrl != null;
-        assert branchName.equals(branchUrl.substring(parentUrl.length() + 1));
+        assert tagName.equals(tagUrl.substring(parentUrl.length() + 1));
         final Set<String> branchSet = new HashSet<String>(svn.list(parentUrl));
-        final boolean exists = branchSet.contains(branchName + "/");
+        final boolean exists = branchSet.contains(tagName + "/");
         return exists;
     }
 
@@ -384,7 +426,7 @@ public class SVNBranchAndTagTask extends Task
     }
 
     /**
-     * Sets the name of the feature branch to create.
+     * Sets the name of the release tag to create.
      */
     public void setReleaseTag(String tagName)
     {
@@ -400,6 +442,29 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             destinationContext.setReleaseTag(tagName);
+        } catch (UserFailureException ex)
+        {
+            throw new BuildException(ex);
+        }
+    }
+
+    /**
+     * Sets the name of the sprint tag to create.
+     */
+    public void setSprintTag(String tagName)
+    {
+        assert tagName != null;
+
+        if (SVNProjectVersionType.TRUNK != destinationContext.getVersionType())
+        {
+            throw new BuildException(String.format(
+                    "Version type has already been set (Version: '%s', Type: '%s').",
+                    destinationContext.getVersion(), destinationContext.getVersionType()));
+        }
+
+        try
+        {
+            destinationContext.setSprintTag(tagName);
         } catch (UserFailureException ex)
         {
             throw new BuildException(ex);

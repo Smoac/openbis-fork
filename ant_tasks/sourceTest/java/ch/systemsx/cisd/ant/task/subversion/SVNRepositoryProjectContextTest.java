@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.FEATURE
 import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_BRANCH;
 import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.RELEASE_TAG;
 import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.TRUNK;
+import static ch.systemsx.cisd.ant.task.subversion.SVNProjectVersionType.SPRINT_TAG;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
@@ -48,36 +49,51 @@ public class SVNRepositoryProjectContextTest
     public void testVersionTypeReleaseBranch()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
-        
+
         def.setReleaseBranch("2.3.x");
         assert RELEASE_BRANCH == def.getVersionType();
         assertEquals("2.3.x", def.getVersion());
-        
+
         def.setReleaseBranch("0.0.x");
         assert RELEASE_BRANCH == def.getVersionType();
         assertEquals("0.0.x", def.getVersion());
-        
-        def.setReleaseBranch("S30.x");
-        assert RELEASE_BRANCH == def.getVersionType();
-        assertEquals("S30.x", def.getVersion());
+
+    }
+
+    @Test
+    public void testVersionTypeSprintReleaseTag()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+
+        def.setSprintTag("S42");
+        assert SPRINT_TAG == def.getVersionType();
+        assertEquals("S42", def.getVersion());
+
+        def.setSprintTag("S365");
+        assert SPRINT_TAG == def.getVersionType();
+        assertEquals("S365", def.getVersion());
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testFailSprintVersionTypeTag()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+            def.setSprintTag("S365.42");
     }
 
     @Test
     public void testVersionTypeTag()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
-        
+
         def.setReleaseTag("2.3.0");
         assert RELEASE_TAG == def.getVersionType();
         assertEquals("2.3.0", def.getVersion());
-        
+
         def.setReleaseTag("1.18.100");
         assert RELEASE_TAG == def.getVersionType();
         assertEquals("1.18.100", def.getVersion());
-        
-        def.setReleaseTag("S18.100");
-        assert RELEASE_TAG == def.getVersionType();
-        assertEquals("S18.100", def.getVersion());
     }
 
     @Test
@@ -154,7 +170,7 @@ public class SVNRepositoryProjectContextTest
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         final String name = "someProject";
         final String subName = "someSubProject";
-        final String branchName = "S9.x";
+        final String branchName = "8.06.x";
         def.setProjectName(name);
         def.setReleaseBranch(branchName);
         final String branchUrl =
@@ -311,15 +327,47 @@ public class SVNRepositoryProjectContextTest
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseTag("1.1.x");
     }
-    
+
     @Test(expectedExceptions =
         { UserFailureException.class })
-        public void testIllegalTag8()
+    public void testIllegalTag8()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseTag("s1.x");
     }
+    
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testIllegalReleaseTag9()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setReleaseTag("S42");
+    }
+    
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testIllegalSprintTag1()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setSprintTag("1.1");
+    }
+    
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testIllegalSprintTag2()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setSprintTag("42");
+    }
 
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testIllegalSprintTag3()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setSprintTag("s42");
+    }
+    
     @Test(expectedExceptions =
         { UserFailureException.class })
     public void testIllegalBranch1()
@@ -378,12 +426,20 @@ public class SVNRepositoryProjectContextTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-        public void testIllegalBranch8()
+    public void testIllegalBranch8()
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
         def.setReleaseBranch("s1.0");
     }
     
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void testIllegalBranch9()
+    {
+        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
+        def.setReleaseBranch("S1");
+    }
+
     @Test
     public void testMissingName()
     {

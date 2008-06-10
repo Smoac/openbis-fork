@@ -37,6 +37,10 @@ class SVNRepositoryProjectContext
     private static final Pattern releaseTagPattern =
             Pattern.compile(SVNUtilities.RELEASE_TAG_PATTERN_STRING);
 
+    /** A pattern that sprint tags must match. */
+    private static final Pattern sprintTagPattern =
+            Pattern.compile(SVNUtilities.SPRINT_TAG_PATTERN_STRING);
+
     /** The root of the repository url, including the protocol. */
     private String repositoryRoot = SVNUtilities.DEFAULT_REPOSITORY_ROOT;
 
@@ -205,7 +209,7 @@ class SVNRepositoryProjectContext
 
         if (false == isReleaseTag(tagName))
         {
-            throw new UserFailureException("Tag name '" + tagName + "' does not match the pattern.");
+            throw new UserFailureException("Release tag name '" + tagName + "' does not match the pattern.");
         }
         this.versionType = SVNProjectVersionType.RELEASE_TAG;
         this.version = tagName;
@@ -217,6 +221,34 @@ class SVNRepositoryProjectContext
     public boolean isReleaseTag(String versionName)
     {
         return releaseTagPattern.matcher(versionName).matches();
+    }
+
+    /**
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#SPRINT_TAG} and the
+     * version to <var>tagName</var>.
+     * 
+     * @throws UserFailureException If the <var>tagName</var> does not match the pattern for
+     *             sprint tags.
+     */
+    public void setSprintTag(String tagName) throws UserFailureException
+    {
+        assert tagName != null;
+
+        if (false == isSprintTag(tagName))
+        {
+            throw new UserFailureException("Sprint tag name '" + tagName + "' does not match the pattern.");
+        }
+        this.versionType = SVNProjectVersionType.SPRINT_TAG;
+        this.version = tagName;
+    }
+
+    
+    /**
+     * @return <code>true</code> if <var>versionName</var> is a sprint tag.
+     */
+    public boolean isSprintTag(String versionName)
+    {
+        return sprintTagPattern.matcher(versionName).matches();
     }
 
     /**
@@ -280,6 +312,9 @@ class SVNRepositoryProjectContext
                 final String branchName = SVNUtilities.getBranchForTag(getVersion());
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "tags/release", branchName, getVersion()), "/");
+            case SPRINT_TAG:
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "tags/sprint", getVersion()), "/");
             case FEATURE_BRANCH:
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/feature", getVersion()), "/");

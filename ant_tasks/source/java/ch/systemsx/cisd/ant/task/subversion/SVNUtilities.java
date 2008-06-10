@@ -54,11 +54,17 @@ class SVNUtilities
     /** A project all other projects depend on implicitely. */
     static final String BUILD_RESOURCES_PROJECT = "build_resources";
 
-    private static final String RELEASE_PATTERN_PREFIX = "((S|[0-9]+\\.)[0-9]+)\\.";
+    private static final String RELEASE_PATTERN_PREFIX = "(([0-9]+\\.)[0-9]+)\\.";
     
     /** The regular expression that a release tag has to match. */
     static final String RELEASE_TAG_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "[0-9]+";
-
+    
+    /** The prefix for the sprint tagging.  */
+    private static final String SPRINT_PATTERN_PREFIX = "S";
+    
+    /** Pattern which matches the sprint tagging */
+    static final String SPRINT_TAG_PATTERN_STRING = SPRINT_PATTERN_PREFIX + "[0-9]+";
+    
     /** The regular expression that a release branch has to match. */
     static final String RELEASE_BRANCH_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "x";
 
