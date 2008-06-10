@@ -22,6 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -48,6 +49,8 @@ public class MonitoringProxyTest
 
     private static final long TIMEOUT_MILLIS = 50L;
 
+    private volatile Thread threadToStop;
+    
     private ITest defaultReturningProxy;
 
     private ITest exceptionThrowingProxy;
@@ -79,16 +82,19 @@ public class MonitoringProxyTest
         void throwSignalException() throws SignalException;
     }
 
-    private static class TestImpl implements ITest
-    {
-        private final static Pattern THREAD_NAME_PATTERN =
-                Pattern.compile("Monitoring Proxy-T[0-9]+::" + THREAD_NAME);
+    private final static Pattern THREAD_NAME_PATTERN =
+        Pattern.compile("Monitoring Proxy-T[0-9]+::" + THREAD_NAME);
 
+    private class TestImpl implements ITest
+    {
         private void hang(boolean hang)
         {
             if (hang)
             {
-                ConcurrencyUtilities.sleep(Long.MAX_VALUE);
+                threadToStop = Thread.currentThread();
+                while (true)
+                {
+                }
             }
         }
 
@@ -147,7 +153,7 @@ public class MonitoringProxyTest
     }
 
     @BeforeTest
-    public void testCreateMonitoringProxy() throws NoSuchMethodException
+    public void createMonitoringProxy() throws NoSuchMethodException
     {
         defaultReturningProxy =
                 MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(TIMEOUT_MILLIS)
@@ -160,6 +166,17 @@ public class MonitoringProxyTest
                         .name(THREAD_NAME).get();
     }
 
+    @SuppressWarnings("deprecation")
+    @AfterMethod
+    public void stopThread()
+    {
+        final Thread t = threadToStop;
+        if (t != null)
+        {
+            t.stop();
+        }
+    }
+    
     @Test
     public void testVoid()
     {
