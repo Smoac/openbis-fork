@@ -343,6 +343,13 @@ public final class ProcessExecutionHelper
      */
     private final class ProcessKiller implements NamedCallable<ProcessResult>
     {
+        private final ExecutionStatus status;
+
+        private ProcessKiller(ExecutionStatus status)
+        {
+            this.status = status;
+        }
+
         private final int getExitValue(final Process process)
         {
             try
@@ -374,8 +381,8 @@ public final class ProcessExecutionHelper
                     machineLog.info(String.format("Killed '%s'.", getCommand(commandLine)));
                 }
                 final int exitValue = getExitValue(process);
-                return new ProcessResult(commandLine, processNumber, ExecutionStatus.TIMED_OUT, "",
-                        exitValue, processOutput, operationLog, machineLog);
+                return new ProcessResult(commandLine, processNumber, status, "", exitValue,
+                        processOutput, operationLog, machineLog);
             } else
             {
                 return null; // Value signals that the ProcessRunner got us.
@@ -412,34 +419,43 @@ public final class ProcessExecutionHelper
     private final ProcessResult run(final boolean stopOnInterrupt)
     {
         final Future<ProcessResult> runnerFuture = executor.submit(new ProcessRunner());
-        ExecutionResult<ProcessResult> processResult =
+        ExecutionResult<ProcessResult> executionResult =
                 ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false,
                         null, null);
-        if (processResult.getStatus() == ExecutionStatus.TIMED_OUT)
+        if (executionResult.getStatus() != ExecutionStatus.COMPLETE)
         {
-            final Future<ProcessResult> killerFuture = executor.submit(new ProcessKiller());
-            processResult = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+            final Future<ProcessResult> killerFuture =
+                    executor.submit(new ProcessKiller(executionResult.getStatus()));
+            checkStop(executionResult, stopOnInterrupt);
+            executionResult = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
             // If the process killer did not find anything to kill, then try to get the original
             // process result. We could have had a raise condition here.
-            if (processResult.tryGetResult() == null)
+            if (executionResult.tryGetResult() == null)
             {
-                processResult =
+                executionResult =
                         ConcurrencyUtilities.getResult(runnerFuture,
                                 ConcurrencyUtilities.IMMEDIATE_TIMEOUT);
             }
         }
-        final ProcessResult result = processResult.tryGetResult();
+        checkStop(executionResult, stopOnInterrupt);
+        final ProcessResult result = executionResult.tryGetResult();
         if (result != null)
         {
             return result;
-        } else if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(processResult.getStatus()))
-        {
-            throw new StopException();
         } else
         {
-            return new ProcessResult(commandLine, processNumber, processResult.getStatus(),
-                    tryGetStartupFailureMessage(processResult.tryGetException()),
+            return new ProcessResult(commandLine, processNumber, executionResult.getStatus(),
+                    tryGetStartupFailureMessage(executionResult.tryGetException()),
                     ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
+        }
+    }
+
+    private final static void checkStop(ExecutionResult<ProcessResult> executionResult,
+            boolean stopOnInterrupt) throws StopException
+    {
+        if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(executionResult.getStatus()))
+        {
+            throw new StopException();
         }
     }
 
