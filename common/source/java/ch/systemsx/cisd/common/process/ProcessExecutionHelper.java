@@ -38,14 +38,13 @@ import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.NamedCallable;
 import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
  * Utility to execute a command from a command line and log all events.
  * 
  * @author Bernd Rinn
  */
-// TODO 2008-06-04, Christian Ribeaud: It should be possible to kill a process NOW, resetting the
-// process timeout to 0 so that the killer thread can process as soon as possible.
 public final class ProcessExecutionHelper
 {
 
@@ -216,6 +215,36 @@ public final class ProcessExecutionHelper
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
                 operationLog, machineLog).run(stopOnInterrupt);
+    }
+
+    /** handler to a running process. Allows to wait for the result and stop the process. */
+    public interface IProcessHandler extends ITerminable
+    {
+        /**
+         * Blocks until the result of the process is available and returns it.
+         * 
+         * @throws StopException If the thread got interrupted.
+         */
+        ProcessResult getResult() throws StopException;
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a
+     * result.
+     * 
+     * @param cmd The command line to run.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @return The handler which allows to wait for the result or terminate the process.
+     */
+    public static IProcessHandler runUnblocking(final List<String> cmd, final Logger operationLog,
+            final Logger machineLog, final long millisToWaitForCompletion)
+    {
+        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
+                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runUnblocking();
     }
 
     /**
@@ -416,18 +445,41 @@ public final class ProcessExecutionHelper
         this.processWrapper = new AtomicReference<Process>();
     }
 
+    private final IProcessHandler runUnblocking()
+    {
+        final Future<ProcessResult> runnerFuture = launchProcessExecutor();
+        return new IProcessHandler()
+            {
+                private final boolean stopOnInterruption = true;
+
+                public boolean terminate()
+                {
+                    ExecutionResult<ProcessResult> executionResult =
+                            killProcess(ExecutionStatus.TIMED_OUT, stopOnInterruption);
+                    return (executionResult.tryGetResult() != null);
+                }
+
+                public ProcessResult getResult()
+                {
+                    return getProcessResult(stopOnInterruption, runnerFuture);
+                }
+            };
+    }
+
     private final ProcessResult run(final boolean stopOnInterrupt)
     {
-        final Future<ProcessResult> runnerFuture = executor.submit(new ProcessRunner());
-        ExecutionResult<ProcessResult> executionResult =
-                ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false,
-                        null, null);
+        final Future<ProcessResult> runnerFuture = launchProcessExecutor();
+        return getProcessResult(stopOnInterrupt, runnerFuture);
+    }
+
+    private ProcessResult getProcessResult(final boolean stopOnInterrupt,
+            final Future<ProcessResult> runnerFuture)
+    {
+        ExecutionResult<ProcessResult> executionResult = getExecutionResult(runnerFuture);
         if (executionResult.getStatus() != ExecutionStatus.COMPLETE)
         {
-            final Future<ProcessResult> killerFuture =
-                    executor.submit(new ProcessKiller(executionResult.getStatus()));
-            checkStop(executionResult, stopOnInterrupt);
-            executionResult = ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+            executionResult = killProcess(executionResult.getStatus(), stopOnInterrupt);
+
             // If the process killer did not find anything to kill, then try to get the original
             // process result. We could have had a raise condition here.
             if (executionResult.tryGetResult() == null)
@@ -437,7 +489,7 @@ public final class ProcessExecutionHelper
                                 ConcurrencyUtilities.IMMEDIATE_TIMEOUT);
             }
         }
-        checkStop(executionResult, stopOnInterrupt);
+        checkStop(executionResult.getStatus(), stopOnInterrupt);
         final ProcessResult result = executionResult.tryGetResult();
         if (result != null)
         {
@@ -450,10 +502,31 @@ public final class ProcessExecutionHelper
         }
     }
 
-    private final static void checkStop(ExecutionResult<ProcessResult> executionResult,
-            boolean stopOnInterrupt) throws StopException
+    private ExecutionResult<ProcessResult> killProcess(ExecutionStatus executionStatus,
+            boolean stopOnInterrupt)
     {
-        if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(executionResult.getStatus()))
+        final Future<ProcessResult> killerFuture =
+                executor.submit(new ProcessKiller(executionStatus));
+        checkStop(executionStatus, stopOnInterrupt);
+        return ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
+    }
+
+    private ExecutionResult<ProcessResult> getExecutionResult(
+            final Future<ProcessResult> runnerFuture)
+    {
+        return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null,
+                null);
+    }
+
+    private Future<ProcessResult> launchProcessExecutor()
+    {
+        return executor.submit(new ProcessRunner());
+    }
+
+    private final static void checkStop(ExecutionStatus executionStatus, boolean stopOnInterrupt)
+            throws StopException
+    {
+        if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(executionStatus))
         {
             throw new StopException();
         }
