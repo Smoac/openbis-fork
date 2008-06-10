@@ -48,6 +48,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
@@ -593,11 +594,7 @@ public final class FileUtilities
                 {
                     return;
                 }
-                if (Thread.interrupted())
-                {
-                    throw new CheckedExceptionTunnel(new InterruptedException(
-                            "lastChanged() interrupted"));
-                }
+                StopException.check();
                 traverse(entry);
             }
         }
@@ -647,8 +644,7 @@ public final class FileUtilities
      *         file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
      *             exist or is not readable.
-     * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
-     *             method runs in gets interrupted.
+     * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYounger)
@@ -675,8 +671,7 @@ public final class FileUtilities
      *         file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
      *             exist or is not readable.
-     * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
-     *             method runs in gets interrupted.
+     * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYoungerRelative)
@@ -690,8 +685,7 @@ public final class FileUtilities
      *         file system.
      * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
      *             exist or is not readable.
-     * @throws CheckedExceptionTunnel of a {@link InterruptedException} if the thread that the
-     *             method runs in gets interrupted.
+     * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path)
     {
