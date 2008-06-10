@@ -270,9 +270,7 @@ public class ProcessExecutionHelperTest
         result.log();
         assertFalse(result.isRun());
         assertTrue(result.getStartupFailureMessage(), result.getStartupFailureMessage().indexOf(
-                "some_non_existent_executable") >= 0
-                && result.getStartupFailureMessage().indexOf("IOException") >= 0);
-        System.out.println("Startup failure: " + result.getStartupFailureMessage());
+                "some_non_existent_executable") >= 0);
     }
 
 }
