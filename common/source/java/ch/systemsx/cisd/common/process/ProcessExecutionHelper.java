@@ -332,7 +332,7 @@ public final class ProcessExecutionHelper
                 {
                     processWrapper.set(process);
                     final int exitValue = process.waitFor();
-                    if (processWrapper.getAndSet(null) == null)
+                     if (processWrapper.getAndSet(null) == null)
                     {
                         // Value is irrelevant, the ProcessKiller got us.
                         return null;
@@ -475,6 +475,9 @@ public final class ProcessExecutionHelper
     private ProcessResult getProcessResult(final boolean stopOnInterrupt,
             final Future<ProcessResult> runnerFuture)
     {
+        // when runUnblocking is used it is possible that we are hanging here while other thread
+        // runs the killer. We will get COMPLETE status and null as the ProcessResult. We have to
+        // change that status.
         ExecutionResult<ProcessResult> executionResult = getExecutionResult(runnerFuture);
         if (executionResult.getStatus() != ExecutionStatus.COMPLETE)
         {
@@ -496,7 +499,13 @@ public final class ProcessExecutionHelper
             return result;
         } else
         {
-            return new ProcessResult(commandLine, processNumber, executionResult.getStatus(),
+            ExecutionStatus status = executionResult.getStatus();
+            if (status == ExecutionStatus.COMPLETE)
+            {
+                // see the note above about termination from other thread
+                status = ExecutionStatus.INTERRUPTED;
+            }
+            return new ProcessResult(commandLine, processNumber, status,
                     tryGetStartupFailureMessage(executionResult.tryGetException()),
                     ProcessResult.NO_EXIT_VALUE, null, operationLog, machineLog);
         }

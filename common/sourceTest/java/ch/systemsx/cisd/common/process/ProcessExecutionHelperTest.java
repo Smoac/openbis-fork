@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 
 /**
@@ -273,4 +275,32 @@ public class ProcessExecutionHelperTest
                 "some_non_existent_executable") >= 0);
     }
 
+    @Test(groups =
+        { "requires_unix", "slow" })
+    public void testSleepyExecutionWithTermination() throws Exception
+    {
+        final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);
+        final IProcessHandler handler =
+                ProcessExecutionHelper.runUnblocking(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
+        final AtomicReference<ProcessResult> result = new AtomicReference<ProcessResult>(null);
+        final Runnable resultGetter = new Runnable()
+            {
+                public void run()
+                {
+                    result.set(handler.getResult());
+                }
+            };
+        new Thread(resultGetter).start();
+        Thread.sleep(WATCHDOG_WAIT_MILLIS / 2);
+        boolean terminated = handler.terminate();
+        assertTrue(terminated);
+        Thread.sleep(WATCHDOG_WAIT_MILLIS / 20);
+        // Now resultGetter should be done with obtaining the result.
+        ProcessResult processResult = result.get();
+        assertTrue(processResult != null);
+        assert processResult != null; // avoid compiler warnings
+        assertFalse(processResult.isOK()); // process terminated unsuccessfully
+        assertTrue(processResult.isInterruped() || processResult.isTerminated());
+    }
 }
