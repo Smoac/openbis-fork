@@ -44,7 +44,10 @@ final class RsyncExitValueTranslator
      */
     private static String getRawMessage(final int exitValue)
     {
-        assert exitValue > 0 : "Exit value must be > 0";
+        if (exitValue < 0)
+        {
+            throw new IllegalArgumentException("Exit value must be > 0 but is: " + exitValue);
+        }
 
         switch (exitValue)
         {
@@ -98,7 +101,10 @@ final class RsyncExitValueTranslator
     /** Returns the {@link StatusFlag} of the rsync operation as indicated by the <var>exitValue</var>. */
     public static StatusFlag getStatus(final int exitValue)
     {
-        assert exitValue >= 0 : "Negative exit value: " + exitValue;
+        if (exitValue < 0)
+        {
+            throw new IllegalArgumentException("Negative exit value: " + exitValue);
+        }
 
         switch (exitValue)
         {
