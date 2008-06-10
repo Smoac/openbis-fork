@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
+import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.RsyncVersion;
@@ -82,14 +85,11 @@ public final class RsyncCopier implements IPathCopier
      */
     private final boolean destinationDirectoryRequiresDeletionBeforeCreation;
 
-    /**
-     * Informs that a process has been started (and, in this case, is finished or not) or not.
-     * <p>
-     * Gets initialized to <code>false</code> just before {@link ProcessExecutionHelper} gets
-     * called.
-     * </p>
-     */
-    private AtomicBoolean terminated = new AtomicBoolean(false);
+    // stores the handler to stop the copy process if it has been launched or null otherwise.
+    private final AtomicReference<ITerminable> rsyncTerminator;
+
+    // used to ensure that if terminate() is called before copy(), then copy will not proceed
+    private final AtomicBoolean isTerminatedExternally;
 
     /**
      * Constructs an <code>RsyncCopier</code>.
@@ -114,6 +114,8 @@ public final class RsyncCopier implements IPathCopier
         this.destinationDirectoryRequiresDeletionBeforeCreation =
                 destinationDirectoryRequiresDeletionBeforeCreation;
         this.overwrite = overwrite;
+        this.rsyncTerminator = new AtomicReference<ITerminable>(null);
+        this.isTerminatedExternally = new AtomicBoolean(false);
         if (cmdLineFlags.length > 0)
         {
             this.additionalCmdLineFlags = Arrays.asList(cmdLineFlags);
@@ -158,23 +160,21 @@ public final class RsyncCopier implements IPathCopier
     }
 
     /**
-     * Terminates the copy process by calling {@link Process#destroy()}, if a copy process is
-     * currently running. If no copy process is running, the method will return immediately.
+     * Terminates the copy process if it is still currently running. If no copy process is running,
+     * the method will return immediately. If many copy processes has been launched, only the last
+     * one will be terminated. No more copy operations can be started from that point.
      */
-    public final boolean terminate()
+    synchronized public final boolean terminate()
     {
-        // TODO 2008-06-02, Christian Ribeaud: Reimplement this once it is possible to run the
-        // killer process NOW in ProcessExecutionHelper.
-        // final Process copyProcess = copyProcessReference.get();
-        // if (copyProcess != null)
-        // {
-        // copyProcess.destroy();
-        // return true;
-        // } else
-        // {
-        // return false;
-        // }
-        return terminated.get();
+        isTerminatedExternally.set(true);
+        final ITerminable copyProcess = rsyncTerminator.get();
+        if (copyProcess != null)
+        {
+            return copyProcess.terminate();
+        } else
+        {
+            return false;
+        }
     }
 
     /**
@@ -234,12 +234,25 @@ public final class RsyncCopier implements IPathCopier
         final List<String> commandLine =
                 createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull);
-        terminated.set(false);
-        final ProcessResult processResult =
-                ProcessExecutionHelper.run(commandLine, operationLog, machineLog,
-                        MILLIS_TO_WAIT_BEFORE_TIMEOUT);
-        terminated.set(true);
+        IProcessHandler processHandler;
+        synchronized (this)
+        {
+            if (isTerminatedExternally.get())
+            {
+                // it can happen that terminate was called before us
+                return TERMINATED_STATUS;
+            }
+            processHandler =
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
+                            MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+            rsyncTerminator.set(processHandler);
+        }
+        final ProcessResult processResult = processHandler.getResult();
         processResult.log();
+        if (isTerminatedExternally.get())
+        {
+            return TERMINATED_STATUS;
+        }
         return createStatus(processResult);
     }
 
@@ -265,6 +278,7 @@ public final class RsyncCopier implements IPathCopier
 
         final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
         final List<String> commandLineList = new ArrayList<String>();
+
         commandLineList.add(rsyncExecutable);
         commandLineList.addAll(standardParameters);
         if (isOverwriteMode())

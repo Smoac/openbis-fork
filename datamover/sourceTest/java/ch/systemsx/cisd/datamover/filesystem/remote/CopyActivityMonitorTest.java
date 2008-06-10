@@ -27,23 +27,16 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
-import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
+import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor.IFileStoreMonitor;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
@@ -52,6 +45,8 @@ import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses =
+    { CopyActivityMonitor.class, CopyActivityMonitor.IFileStoreMonitor.class })
 public class CopyActivityMonitorTest
 {
 
@@ -113,7 +108,10 @@ public class CopyActivityMonitorTest
 
         public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
         {
-            assertEquals(stopWhenFindYoungerRelativeExpected, stopWhenFindYoungerRelative);
+            if (stopWhenFindYoungerRelative != 0)
+            {
+                assertEquals(stopWhenFindYoungerRelativeExpected, stopWhenFindYoungerRelative);
+            }
             return System.currentTimeMillis() - INACTIVITY_PERIOD_MILLIS / 2;
         }
     }
@@ -162,68 +160,32 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private IFileStore asFileStore(File directory, final ILastChangedChecker checker)
+    private IFileStoreMonitor asFileStore(File directory, final ILastChangedChecker checker)
     {
         IFileSysOperationsFactory factory = FileOperationsUtil.createTestFatory();
         return asFileStore(directory, checker, factory);
     }
 
-    private IFileStore asFileStore(File directory, final ILastChangedChecker checker,
+    private IFileStoreMonitor asFileStore(final File directory, final ILastChangedChecker checker,
             IFileSysOperationsFactory factory)
     {
-        final FileWithHighwaterMark fileWithHighwaterMark = new FileWithHighwaterMark(directory);
-        final FileStoreLocal localImpl =
-                new FileStoreLocal(fileWithHighwaterMark, "input-test", factory);
-        return new FileStore(fileWithHighwaterMark, null, "input-test", factory)
+        return new IFileStoreMonitor()
             {
-                public Status delete(StoreItem item)
-                {
-                    return localImpl.delete(item);
-                }
-
                 public boolean exists(StoreItem item)
                 {
-                    return localImpl.exists(item);
+                    return true;
+                    // return StoreItem.asFile(directory, item).exists();
                 }
 
-                public long lastChanged(StoreItem item, long stopWhenFindYounger)
-                {
-                    throw new UnsupportedOperationException("lastChanged");
-                }
-
-                public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
+                public long lastChanged(StoreItem item, long stopWhenFindYoungerRelative)
                 {
                     return checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
                 }
 
-                public String tryCheckDirectoryFullyAccessible(long timeOutMillis)
+                @Override
+                public String toString()
                 {
-                    return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
-                }
-
-                public IExtendedFileStore tryAsExtended()
-                {
-                    return localImpl.tryAsExtended();
-                }
-
-                public IStoreCopier getCopier(IFileStore destinationDirectory)
-                {
-                    return localImpl.getCopier(destinationDirectory);
-                }
-
-                public String getLocationDescription(StoreItem item)
-                {
-                    return localImpl.getLocationDescription(item);
-                }
-
-                public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull)
-                {
-                    return localImpl.tryListSortByLastModified(loggerOrNull);
-                }
-
-                public final HighwaterMarkWatcher getHighwaterMarkWatcher()
-                {
-                    return localImpl.getHighwaterMarkWatcher();
+                    return "[test store] " + directory.getPath();
                 }
             };
     }
@@ -467,6 +429,129 @@ public class CopyActivityMonitorTest
             return interruptionCount;
         }
 
+    }
+
+    @Test(groups =
+        { "slow" })
+    // check if copy is terminated if destination file is never visible
+    public void testActivityFileNeverExistsFail() throws Throwable
+    {
+        final StoreItem dummyItem = createDummyItem();
+        final IFileStoreMonitor store = new IFileStoreMonitor()
+            {
+                public boolean exists(StoreItem item)
+                {
+                    assertEquals(dummyItem, item);
+                    return false;
+                }
+
+                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                {
+                    throw new UnsupportedOperationException(); // should be never called
+                }
+
+            };
+        checkCopyTerminated(store, dummyItem);
+    }
+
+    @Test(groups =
+        { "slow" })
+    // check if copy is terminated if lastChange always fails
+    public void testActivityLastChangeUnavailableFail() throws Throwable
+    {
+        final StoreItem dummyItem = createDummyItem();
+        final IFileStoreMonitor store = new IFileStoreMonitor()
+            {
+                public boolean exists(StoreItem item)
+                {
+                    assertEquals(dummyItem, item);
+                    return true;
+                }
+
+                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                {
+                    assertEquals(dummyItem, item);
+                    return 0; // signalizes error
+                }
+
+            };
+        checkCopyTerminated(store, dummyItem);
+    }
+
+    @Test(groups =
+        { "slow" })
+    // check if copy is terminated if lastChange fails on even calls and returns the unchanged value
+    // on odd calls
+    public void testActivityLastChangeUnavailableOftenFail() throws Throwable
+    {
+        final StoreItem dummyItem = createDummyItem();
+        final IFileStoreMonitor store = new IFileStoreMonitor()
+            {
+                private boolean oddCall = true;
+
+                public boolean exists(StoreItem item)
+                {
+                    assertEquals(dummyItem, item);
+                    return true;
+                }
+
+                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                {
+                    assertEquals(dummyItem, item);
+                    oddCall = !oddCall;
+                    return oddCall ? 10 : 0; // error or unchanged value
+                }
+
+            };
+        checkCopyTerminated(store, dummyItem);
+    }
+
+    @Test(groups =
+        { "slow" })
+    // happy case - check if copy is not terminated if lastChange returns changing values
+    public void testActivityChangingCopyCompletes() throws Throwable
+    {
+        final StoreItem dummyItem = createDummyItem();
+        final IFileStoreMonitor store = new IFileStoreMonitor()
+            {
+                private int counter = 1;
+
+                public boolean exists(StoreItem item)
+                {
+                    assertEquals(dummyItem, item);
+                    return true;
+                }
+
+                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                {
+                    return counter++;
+                }
+
+            };
+        checkCopyTerminationStatus(store, dummyItem, false);
+    }
+
+    private void checkCopyTerminated(final IFileStoreMonitor store, StoreItem dummyItem)
+            throws InterruptedException
+    {
+        checkCopyTerminationStatus(store, dummyItem, true);
+    }
+
+    private void checkCopyTerminationStatus(final IFileStoreMonitor store, StoreItem dummyItem,
+            boolean expectedIsTerminated) throws InterruptedException
+    {
+        final MockTerminable copyProcess = new MockTerminable();
+        final ITimingParameters parameters = new MyTimingParameters(0);
+        final CopyActivityMonitor monitor = new CopyActivityMonitor(store, copyProcess, parameters);
+        monitor.start(dummyItem);
+        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
+        monitor.stop();
+        assertEquals(expectedIsTerminated, copyProcess.isTerminated());
+    }
+
+    private static StoreItem createDummyItem()
+    {
+        return new StoreItem("dummy-item");
     }
 
 }

@@ -117,11 +117,9 @@ public final class RsyncCopierTest
     public void testRsyncRetriableFailure() throws IOException, InterruptedException
     {
         final int exitValue = 11;
-        final File buggyRsyncBinary = createRsync(exitValue);
-        final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false, false);
-        final Status status = copier.copy(sourceFile, destinationDirectory);
-        assertEquals(StatusFlag.RETRIABLE_ERROR, status.getFlag());
-        assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
+        StatusFlag expectedStatus = StatusFlag.RETRIABLE_ERROR;
+
+        testRsyncFailure(exitValue, expectedStatus);
     }
 
     @Test(groups =
@@ -129,10 +127,18 @@ public final class RsyncCopierTest
     public void testRsyncFatalFailure() throws IOException, InterruptedException
     {
         final int exitValue = 1;
+        StatusFlag expectedStatus = StatusFlag.FATAL_ERROR;
+
+        testRsyncFailure(exitValue, expectedStatus);
+    }
+
+    private void testRsyncFailure(final int exitValue, StatusFlag expectedStatus)
+            throws IOException, InterruptedException
+    {
         final File buggyRsyncBinary = createRsync(exitValue);
         final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false, false);
         final Status status = copier.copy(sourceFile, destinationDirectory);
-        assertEquals(StatusFlag.FATAL_ERROR, status.getFlag());
+        assertEquals(expectedStatus, status.getFlag());
         assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
     }
 
@@ -185,7 +191,7 @@ public final class RsyncCopierTest
         { "requires_unix", "slow" })
     public void testRsyncTermination() throws IOException, InterruptedException
     {
-        final File sleepyRsyncBinary = createRsync("2.6.9", "/bin/sleep 100");
+        final File sleepyRsyncBinary = createSleepProcess(100);
         final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false, false);
         final Thread thread = new Thread(new Runnable()
             {
@@ -216,6 +222,24 @@ public final class RsyncCopierTest
         thread.start();
         final Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(RsyncCopier.TERMINATED_STATUS, status);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncTerminationBeforeCopy() throws IOException, InterruptedException
+    {
+        final File sleepyRsyncBinary = createSleepProcess(100);
+        final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false, false);
+        // copy monitor can call this method before the copy starts
+        boolean wasRunning = copier.terminate();
+        assertEquals(false, wasRunning);
+        final Status status = copier.copy(sourceFile, destinationDirectory);
+        assertEquals(RsyncCopier.TERMINATED_STATUS, status);
+    }
+
+    private File createSleepProcess(int seconds) throws IOException, InterruptedException
+    {
+        return createRsync("2.6.9", "/bin/sleep " + seconds);
     }
 
 }
