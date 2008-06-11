@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -45,13 +44,6 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.Rs
  */
 public final class RsyncCopier implements IPathCopier
 {
-
-    /**
-     * The maximal period to wait for the <code>rsync</code> list process to finish before killing
-     * it (<i>30s</i>).
-     */
-    private static final long MILLIS_TO_WAIT_BEFORE_TIMEOUT = 30 * DateUtils.MILLIS_PER_SECOND;
-
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
      */
@@ -66,6 +58,9 @@ public final class RsyncCopier implements IPathCopier
 
     private static final Status INTERRUPTED_STATUS =
             new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
+
+    private static final Status TIMEOUT_STATUS =
+            new Status(StatusFlag.RETRIABLE_ERROR, "Process has stopped because of timeout.");
 
     private final String rsyncExecutable;
 
@@ -232,8 +227,7 @@ public final class RsyncCopier implements IPathCopier
         synchronized (this)
         {
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
-                            MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
             rsyncTerminator.set(processHandler);
         }
         final ProcessResult processResult = processHandler.getResult();
@@ -295,7 +289,7 @@ public final class RsyncCopier implements IPathCopier
             return toUnix(sshExecutable) + " -oBatchMode=yes";
         } else
         {
-             return sshExecutable + " -oBatchMode=yes";
+            return sshExecutable + " -oBatchMode=yes";
         }
     }
 
@@ -351,6 +345,10 @@ public final class RsyncCopier implements IPathCopier
         if (processResult.isInterruped())
         {
             return INTERRUPTED_STATUS;
+        }
+        if (processResult.isTimedOut())
+        {
+            return TIMEOUT_STATUS;
         }
         int exitValue = processResult.getExitValue();
         final StatusFlag flag = RsyncExitValueTranslator.getStatus(exitValue);
