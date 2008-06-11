@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.AbstractEclipseClasspathExecutor;
 import ch.systemsx.cisd.ant.common.EclipseClasspathEntry;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -88,7 +89,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * The context of the project in the subversion repository.
      */
-    private SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
+    private final SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
 
     /**
      * A class that checks the classpath entries on whether they require a checkout of a new
@@ -100,18 +101,18 @@ public class SVNRecursiveCheckoutTask extends Task
     {
         private final ISVNCheckout checkoutCmd;
 
-        SVNCheckoutDependentExecutor(ISVNCheckout checkoutCmd)
+        SVNCheckoutDependentExecutor(final ISVNCheckout checkoutCmd)
         {
             this.checkoutCmd = checkoutCmd;
         }
 
         @Override
-        protected void executeEntries(List<EclipseClasspathEntry> entries)
+        protected void executeEntries(final List<EclipseClasspathEntry> entries)
         {
             assert entries != null;
             final ISVNProjectPathProvider pathProvider = context.getPathProvider();
 
-            for (EclipseClasspathEntry entry : entries)
+            for (final EclipseClasspathEntry entry : entries)
             {
                 final String path = entry.getPath();
                 if (path.startsWith("/"))
@@ -125,7 +126,7 @@ public class SVNRecursiveCheckoutTask extends Task
                         {
                             checkoutCmd.checkout(projectToCheckOut, projectName, pathProvider
                                     .getRevision());
-                        } catch (SVNException ex)
+                        } catch (final SVNException ex)
                         {
                             throw new BuildException(ex.getMessage(), ex.getCause());
                         }
@@ -139,7 +140,7 @@ public class SVNRecursiveCheckoutTask extends Task
         }
 
         @Override
-        protected void handleAbsentsOfClasspathFile(File eclipseClasspathFile)
+        protected void handleAbsentsOfClasspathFile(final File eclipseClasspathFile)
         {
             log("No Eclipse .classpath file found in '" + eclipseClasspathFile.getParent() + "'.");
         }
@@ -174,7 +175,7 @@ public class SVNRecursiveCheckoutTask extends Task
                     SVNUtilities.BUILD_RESOURCES_PROJECT, pathProvider.getRevision());
             new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir,
                     pathProvider.getProjectName()));
-        } catch (SVNException ex)
+        } catch (final SVNException ex)
         {
             throw new BuildException(ex.getMessage(), ex.getCause());
         }
@@ -183,7 +184,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * <em>Can be overwritten in unit tests.</em>
      */
-    // @Private
+    @Private
     ISVNCheckout createSVNCheckout(final String repositoryUrl, final String workingCopyDir)
     {
         return new SVNCheckout(new AntTaskSimpleLoggerAdapter(this), workingCopyDir);
@@ -192,7 +193,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the directory where the working copies of all dependent prejects will be checked out.
      */
-    public void setDir(String dir)
+    public void setDir(final String dir)
     {
         assert dir != null;
 
@@ -203,7 +204,7 @@ public class SVNRecursiveCheckoutTask extends Task
      * Sets the root url of the subversion repository. Defaults to
      * <code>svn+ssh://source.systemsx.ch/repos</code>.
      */
-    public void setRepositoryRoot(String repositoryRoot)
+    public void setRepositoryRoot(final String repositoryRoot)
     {
         assert repositoryRoot != null;
 
@@ -213,14 +214,14 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the name of the group that the project belongs to. Defaults to <code>cisd</code>.
      */
-    public void setGroup(String groupName)
+    public void setGroup(final String groupName)
     {
         assert groupName != null;
 
         try
         {
             context.setGroup(groupName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
@@ -229,14 +230,14 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the name of the project.
      */
-    public void setName(String projectName)
+    public void setName(final String projectName)
     {
         assert projectName != null;
 
         try
         {
             context.setProjectName(projectName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
@@ -245,7 +246,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the name of the release branch specified for this project.
      */
-    public void setReleaseBranch(String branchName)
+    public void setReleaseBranch(final String branchName)
     {
         assert context != null;
         assert branchName != null;
@@ -253,7 +254,7 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             context.setReleaseBranch(branchName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
@@ -262,7 +263,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the name of the feature branch specified for this project.
      */
-    public void setFeatureBranch(String branchName)
+    public void setFeatureBranch(final String branchName)
     {
         assert context != null;
         assert branchName != null;
@@ -270,7 +271,7 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             context.setFeatureBranch(branchName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
@@ -285,7 +286,7 @@ public class SVNRecursiveCheckoutTask extends Task
      * tag, it will be interpreted as a sprint tag. In all other cases the version will be
      * interpreted as a feature branch.
      */
-    public void setVersion(String versionName)
+    public void setVersion(final String versionName)
     {
         if (SVNUtilities.DEFAULT_VERSION.equals(versionName))
         {
@@ -308,7 +309,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the name of the release tag specified for this project.
      */
-    public void setReleaseTag(String tagName)
+    public void setReleaseTag(final String tagName)
     {
         assert context != null;
         assert tagName != null;
@@ -316,7 +317,7 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             context.setReleaseTag(tagName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }
@@ -342,7 +343,7 @@ public class SVNRecursiveCheckoutTask extends Task
     /**
      * Sets the revision to check out. Defaults to <code>HEAD</code>.
      */
-    public void setRevision(String revision)
+    public void setRevision(final String revision)
     {
         assert context != null;
         assert revision != null;
@@ -350,7 +351,7 @@ public class SVNRecursiveCheckoutTask extends Task
         try
         {
             context.setRevision(revision);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex.getMessage());
         }

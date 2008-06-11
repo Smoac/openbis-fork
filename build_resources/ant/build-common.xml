@@ -77,9 +77,22 @@
   </target>
  
   <target name="ci">
+  	<antcall target="check-restrictions" />
     <antcall target="run-tests">
       <param name="test.suite" value="tests.xml"/> 
     </antcall> 
   </target>
+	
+	<target name="check-restrictions" depends="compile, compile-tests">
+			<exec executable="sh" failonerror="true">
+				<arg value="../libraries/restrictionchecker/jrc"/>
+				<arg value="-r"/>
+				<arg value="../${mainfolder}/${classes}"/>
+				<arg value="-cp"/>
+				<arg value="${ecp}"/>
+				<arg value="-jd"/>
+				<arg value="../libraries"/>
+			</exec>
+		</target>
 
 </project>

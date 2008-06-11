@@ -28,6 +28,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -64,11 +66,11 @@ public class DBRestrictionParser
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DBRestrictionParser.class);
 
-    // @Private
+    @Private
     final Map<String, DBTableRestrictions> tableRestrictionMap =
             new HashMap<String, DBTableRestrictions>();
 
-    public DBRestrictionParser(String ddlScript)
+    public DBRestrictionParser(final String ddlScript)
     {
         final List<String> normalizedDDLScript = normalize(ddlScript);
         final Map<String, Integer> domains = parseDomains(normalizedDDLScript);
@@ -76,8 +78,8 @@ public class DBRestrictionParser
         parserCheckedConstraints(normalizedDDLScript);
     }
 
-    // @Private
-    static List<String> normalize(String ddlScript)
+    @Private
+    static List<String> normalize(final String ddlScript)
     {
         final List<String> list = new ArrayList<String>();
         final SQLCommandTokenizer normalizer = new SQLCommandTokenizer(ddlScript);
@@ -93,23 +95,23 @@ public class DBRestrictionParser
         return list;
     }
 
-    // @Private
-    static Map<String, Integer> parseDomains(List<String> ddlScript)
+    @Private
+    static Map<String, Integer> parseDomains(final List<String> ddlScript)
     {
         final Map<String, Integer> domains = new HashMap<String, Integer>();
-        for (String line : ddlScript)
+        for (final String line : ddlScript)
         {
             if (line.startsWith(CREATE_DOMAIN_PREFIX))
             {
                 String domainDefinition = line.substring(CREATE_DOMAIN_PREFIX.length());
-                int indexOfAS = domainDefinition.indexOf("as");
+                final int indexOfAS = domainDefinition.indexOf("as");
                 if (indexOfAS < 0)
                 {
                     operationLog.warn("line \"" + line
                             + "\" starts like a domain definition, but key word 'AS' is missing.");
                     continue;
                 }
-                String domainName = domainDefinition.substring(0, indexOfAS).trim();
+                final String domainName = domainDefinition.substring(0, indexOfAS).trim();
                 domainDefinition = domainDefinition.substring(indexOfAS + 2).trim();
                 final Matcher varCharMatcher = VARCHAR_PATTERN.matcher(domainDefinition);
                 if (varCharMatcher.matches())
@@ -122,9 +124,9 @@ public class DBRestrictionParser
         return domains;
     }
 
-    private void parseColumnLength(List<String> ddlScript, Map<String, Integer> domains)
+    private void parseColumnLength(final List<String> ddlScript, final Map<String, Integer> domains)
     {
-        for (String line : ddlScript)
+        for (final String line : ddlScript)
         {
             final Matcher createTableMatcher = CREATE_TABLE_PATTERN.matcher(line);
             if (createTableMatcher.matches())
@@ -132,7 +134,7 @@ public class DBRestrictionParser
                 final String tableName = createTableMatcher.group(1);
                 final String tableDefinition = createTableMatcher.group(2);
                 final String[] columnDefinitions = StringUtils.split(tableDefinition, ',');
-                for (String columnDefinition : columnDefinitions)
+                for (final String columnDefinition : columnDefinitions)
                 {
                     parseColumnDefinition(columnDefinition, tableName, domains);
                 }
@@ -140,14 +142,14 @@ public class DBRestrictionParser
         }
     }
 
-    private void parseColumnDefinition(String columnDefinition, final String tableName,
-            Map<String, Integer> domains) throws NumberFormatException
+    private void parseColumnDefinition(final String columnDefinition, final String tableName,
+            final Map<String, Integer> domains) throws NumberFormatException
     {
         if (columnDefinition.startsWith("constraint "))
         {
             return;
         }
-        int indexOfFirstSpace = columnDefinition.indexOf(' ');
+        final int indexOfFirstSpace = columnDefinition.indexOf(' ');
         if (indexOfFirstSpace < 0)
         {
             operationLog.warn("Invalid column definition \"" + columnDefinition + "\" for table "
@@ -180,9 +182,9 @@ public class DBRestrictionParser
         }
     }
 
-    private void parserCheckedConstraints(List<String> ddlScript)
+    private void parserCheckedConstraints(final List<String> ddlScript)
     {
-        for (String line : ddlScript)
+        for (final String line : ddlScript)
         {
             final Matcher checkedConstraintMatcher = CHECK_CONSTRAINT_PATTERN.matcher(line);
             if (checkedConstraintMatcher.matches())
@@ -192,7 +194,7 @@ public class DBRestrictionParser
                 final String alternativesStr = checkedConstraintMatcher.group(3);
                 final String[] alternatives = StringUtils.split(alternativesStr, ',');
                 final Set<String> alternativeSet = new HashSet<String>();
-                for (String alternative : alternatives)
+                for (final String alternative : alternatives)
                 {
                     if (alternative.charAt(0) != '\''
                             || alternative.charAt(alternative.length() - 1) != '\'')
@@ -212,8 +214,8 @@ public class DBRestrictionParser
     /**
      * @return The table restrictions of <var>tableName</var>
      */
-    // @Private
-    DBTableRestrictions getTableRestrictions(String tableName)
+    @Private
+    DBTableRestrictions getTableRestrictions(final String tableName)
     {
         DBTableRestrictions table = tableRestrictionMap.get(tableName);
         if (table == null)

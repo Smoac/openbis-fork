@@ -3,6 +3,7 @@
   <import file="../../build_resources/ant/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
+	<property name="mainfolder" value="ant_tasks"/>
 	<property name="jar.dir" value="${targets}/jar"/>
 	<property name="jar.file" value="${jar.dir}/cisd-ant-tasks.jar"/>
 

@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -61,14 +62,14 @@ public class SVNBranchAndTagTask extends Task
 
         private final String tagRepositoryUrl;
 
-        SVNRepositoryProjectContextAntWrapper(SVNRepositoryProjectContext context)
+        SVNRepositoryProjectContextAntWrapper(final SVNRepositoryProjectContext context)
                 throws BuildException
         {
             this(context, null);
         }
 
-        SVNRepositoryProjectContextAntWrapper(SVNRepositoryProjectContext context,
-                SVNRepositoryProjectContext contextToAssignFrom) throws BuildException
+        SVNRepositoryProjectContextAntWrapper(final SVNRepositoryProjectContext context,
+                final SVNRepositoryProjectContext contextToAssignFrom) throws BuildException
         {
             if (null != contextToAssignFrom)
             {
@@ -81,7 +82,8 @@ public class SVNBranchAndTagTask extends Task
                 this.repositoryUrl = context.getRepositoryUrl();
                 if (SVNProjectVersionType.RELEASE_BRANCH == context.getVersionType())
                 {
-                    SVNRepositoryProjectContext tagContext = new SVNRepositoryProjectContext();
+                    final SVNRepositoryProjectContext tagContext =
+                            new SVNRepositoryProjectContext();
                     assign(tagContext, context);
                     tagContext.setReleaseTag(SVNUtilities.getFirstTagForBranch(this.version));
                     this.tagRepositoryUrl = SVNUtilities.getParent(tagContext.getRepositoryUrl());
@@ -90,20 +92,20 @@ public class SVNBranchAndTagTask extends Task
                     this.tagRepositoryUrl = null;
                 }
                 this.pathProvider = createPathProvider(context);
-            } catch (UserFailureException ex)
+            } catch (final UserFailureException ex)
             {
                 throw new BuildException(ex);
             }
         }
 
         private static ISVNProjectPathProvider createPathProvider(
-                SVNRepositoryProjectContext context) throws UserFailureException
+                final SVNRepositoryProjectContext context) throws UserFailureException
         {
             return context.getPathProvider();
         }
 
-        private static void assign(SVNRepositoryProjectContext context,
-                SVNRepositoryProjectContext contextToAssignFrom) throws UserFailureException
+        private static void assign(final SVNRepositoryProjectContext context,
+                final SVNRepositoryProjectContext contextToAssignFrom) throws UserFailureException
         {
             context.setRepositoryRoot(contextToAssignFrom.getRepositoryRoot());
             context.setGroup(contextToAssignFrom.getGroup());
@@ -179,7 +181,7 @@ public class SVNBranchAndTagTask extends Task
     private static void createTagInSvn(final ISVNActions svn,
             final SVNRepositoryProjectContextAntWrapper source,
             final SVNRepositoryProjectContextAntWrapper branch,
-            final SVNRepositoryProjectContextAntWrapper tag, boolean branchIfNecessary)
+            final SVNRepositoryProjectContextAntWrapper tag, final boolean branchIfNecessary)
             throws BuildException
     {
         if (false == nodeExists(svn, branch))
@@ -216,7 +218,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             copyDependentProjectInSvn(svn, source, tag, "tag");
-        } catch (SVNException ex)
+        } catch (final SVNException ex)
         {
             throw new BuildException(ex);
         }
@@ -232,7 +234,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             copyDependentProjectInSvn(svn, source, destination, "branch");
-        } catch (SVNException ex)
+        } catch (final SVNException ex)
         {
             throw new BuildException(ex);
         }
@@ -246,7 +248,7 @@ public class SVNBranchAndTagTask extends Task
      */
     private static void copyDependentProjectInSvn(final ISVNActions svn,
             final SVNRepositoryProjectContextAntWrapper source,
-            final SVNRepositoryProjectContextAntWrapper destination, String copyKind)
+            final SVNRepositoryProjectContextAntWrapper destination, final String copyKind)
             throws BuildException
     {
         final ISVNProjectPathProvider sourcePathProvider = source.getPathProvider();
@@ -265,13 +267,13 @@ public class SVNBranchAndTagTask extends Task
             }
             if (svn.isMuccAvailable())
             {
-                List<String> commandLine = new ArrayList<String>();
+                final List<String> commandLine = new ArrayList<String>();
                 commandLine.addAll(Arrays.asList("mkdir", destination.getRepositoryUrl()));
                 if (null != destination.getTagRepositoryUrl())
                 {
                     commandLine.addAll(Arrays.asList("mkdir", destination.getTagRepositoryUrl()));
                 }
-                for (String subProjectName : dependentProjects)
+                for (final String subProjectName : dependentProjects)
                 {
                     commandLine.addAll(Arrays.asList("cp", sourcePathProvider.getRevision(),
                             sourcePathProvider.getPath(subProjectName), destinationPathProvider
@@ -285,29 +287,29 @@ public class SVNBranchAndTagTask extends Task
                 {
                     svn.mkdir(destination.getTagRepositoryUrl(), logMessage);
                 }
-                for (String subProjectName : dependentProjects)
+                for (final String subProjectName : dependentProjects)
                 {
                     svn.copy(sourcePathProvider.getPath(subProjectName), sourcePathProvider
                             .getRevision(), destinationPathProvider.getPath(subProjectName),
                             logMessage);
                 }
             }
-        } catch (SVNException ex)
+        } catch (final SVNException ex)
         {
             throw new BuildException(ex);
         }
     }
 
     private static SVNRepositoryProjectContextAntWrapper createBranchContext(
-            SVNRepositoryProjectContext tagContext) throws BuildException
+            final SVNRepositoryProjectContext tagContext) throws BuildException
     {
         try
         {
             final String branchName = SVNUtilities.getBranchForTag(tagContext.getVersion());
-            SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
+            final SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
             context.setReleaseBranch(branchName);
             return new SVNRepositoryProjectContextAntWrapper(context, tagContext);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -329,51 +331,51 @@ public class SVNBranchAndTagTask extends Task
     /**
      * <em>Can be overwritten in unit tests.</em>
      */
-    // @Private
+    @Private
     ISVNActions createSVNActions()
     {
         return new SVNActions(new AntTaskSimpleLoggerAdapter(this));
     }
 
-    public void setName(String projectName)
+    public void setName(final String projectName)
     {
         try
         {
             sourceContext.setProjectName(projectName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
     }
 
-    public void setRevision(String revision)
+    public void setRevision(final String revision)
     {
         try
         {
             sourceContext.setRevision(revision);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
     }
 
-    public void setGroup(String groupName)
+    public void setGroup(final String groupName)
     {
         try
         {
             sourceContext.setGroup(groupName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
     }
 
-    public void setRepositoryRoot(String repositoryRoot)
+    public void setRepositoryRoot(final String repositoryRoot)
     {
         try
         {
             sourceContext.setRepositoryRoot(repositoryRoot);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -382,7 +384,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Sets the name of the release branch to create.
      */
-    public void setReleaseBranch(String branchName)
+    public void setReleaseBranch(final String branchName)
     {
         assert branchName != null;
 
@@ -396,7 +398,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             destinationContext.setReleaseBranch(branchName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -405,7 +407,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Sets the name of the feature branch to create.
      */
-    public void setFeatureBranch(String branchName)
+    public void setFeatureBranch(final String branchName)
     {
         assert branchName != null;
 
@@ -419,7 +421,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             destinationContext.setFeatureBranch(branchName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -428,7 +430,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Sets the name of the release tag to create.
      */
-    public void setReleaseTag(String tagName)
+    public void setReleaseTag(final String tagName)
     {
         assert tagName != null;
 
@@ -442,7 +444,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             destinationContext.setReleaseTag(tagName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -451,7 +453,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Sets the name of the sprint tag to create.
      */
-    public void setSprintTag(String tagName)
+    public void setSprintTag(final String tagName)
     {
         assert tagName != null;
 
@@ -465,7 +467,7 @@ public class SVNBranchAndTagTask extends Task
         try
         {
             destinationContext.setSprintTag(tagName);
-        } catch (UserFailureException ex)
+        } catch (final UserFailureException ex)
         {
             throw new BuildException(ex);
         }
@@ -474,7 +476,7 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Sets whether it should be branched if the branch does not already exist when tagging.
      */
-    public void setBranchIfNecessary(boolean branchAndTag)
+    public void setBranchIfNecessary(final boolean branchAndTag)
     {
         this.branchIfNecessary = branchAndTag;
     }

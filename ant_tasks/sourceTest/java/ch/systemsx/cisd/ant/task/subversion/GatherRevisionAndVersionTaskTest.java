@@ -31,12 +31,14 @@ import org.apache.tools.ant.Project;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.ant.task.subversion.SVNInfoRecord.Updater;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author felmer
  */
+@Friend(toClasses = GatherRevisionAndVersionTask.class)
 public class GatherRevisionAndVersionTaskTest
 {
     private static final File BASE_DIR = new File(".");
@@ -61,7 +63,7 @@ public class GatherRevisionAndVersionTaskTest
     {
         private final SVNProject project;
 
-        public MockPathProvider(SVNProject project)
+        public MockPathProvider(final SVNProject project)
         {
             this.project = project;
         }
@@ -81,12 +83,13 @@ public class GatherRevisionAndVersionTaskTest
             return project.getName();
         }
 
-        public String getPath(String subProjectName, String entityPath) throws UserFailureException
+        public String getPath(final String subProjectName, final String entityPath)
+                throws UserFailureException
         {
             throw new UnsupportedOperationException();
         }
 
-        public String getPath(String subProjectName) throws UserFailureException
+        public String getPath(final String subProjectName) throws UserFailureException
         {
             return subProjectName;
         }
@@ -108,15 +111,15 @@ public class GatherRevisionAndVersionTaskTest
 
         private final Map<String, String> contentMap = new HashMap<String, String>();
 
-        SVNInfoRecord register(String path)
+        SVNInfoRecord register(final String path)
         {
             System.out.println("REGISTER - " + path);
-            SVNInfoRecord infoRecord = new SVNInfoRecord();
+            final SVNInfoRecord infoRecord = new SVNInfoRecord();
             infoMap.put(path, infoRecord);
             return infoRecord;
         }
 
-        void addFiles(String folder, String... files)
+        void addFiles(final String folder, final String... files)
         {
             System.out.println("ADD - " + folder + ": " + Arrays.asList(files));
             List<String> list = listMap.get(folder);
@@ -128,51 +131,51 @@ public class GatherRevisionAndVersionTaskTest
             list.addAll(Arrays.asList(files));
         }
 
-        void registerContent(String file, String content)
+        void registerContent(final String file, final String content)
         {
             contentMap.put(file, content);
         }
 
-        public List<SVNItemStatus> status(String path)
+        public List<SVNItemStatus> status(final String path)
         {
             System.out.println("svn status " + path);
             return statusMap.get(path);
         }
 
-        public SVNInfoRecord info(String path)
+        public SVNInfoRecord info(final String path)
         {
             System.out.println("INFO - " + path);
-            SVNInfoRecord infoRecord = infoMap.get(path);
+            final SVNInfoRecord infoRecord = infoMap.get(path);
             assert infoRecord != null : "Path '" + path + "' does not exist.";
             System.out.println(" -> " + infoRecord.getRepositoryUrl());
 
             return infoRecord;
         }
 
-        public void copy(String sourcePath, String sourceRevision, String destinationPath,
-                String logMessage) throws SVNException
+        public void copy(final String sourcePath, final String sourceRevision,
+                final String destinationPath, final String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call copy");
         }
 
-        public void mkdir(String path, String logMessage) throws SVNException
+        public void mkdir(final String path, final String logMessage) throws SVNException
         {
             throw new AssertionError("Unexpected call mkdir");
         }
 
-        public List<String> list(String path) throws SVNException
+        public List<String> list(final String path) throws SVNException
         {
             System.out.println("LIST - " + path);
-            List<String> result = listMap.get(path);
+            final List<String> result = listMap.get(path);
             assert result != null : "Path '" + path + "' does not exist.";
             System.out.println(" -> " + result);
             return result;
         }
 
-        public String cat(String path) throws SVNException
+        public String cat(final String path) throws SVNException
         {
             System.out.println("CAT - " + path);
-            String result = contentMap.get(path);
+            final String result = contentMap.get(path);
             return result == null ? "" : result;
         }
 
@@ -181,7 +184,7 @@ public class GatherRevisionAndVersionTaskTest
             return false;
         }
 
-        public void mucc(String logMessage, String... args) throws SVNException
+        public void mucc(final String logMessage, final String... args) throws SVNException
         {
             throw new AssertionError();
         }
@@ -190,7 +193,7 @@ public class GatherRevisionAndVersionTaskTest
     private GatherRevisionAndVersionTask createTask(final MockSVN mockSvn,
             final SVNProject svnProject, final String reposURL)
     {
-        GatherRevisionAndVersionTask task = new GatherRevisionAndVersionTask()
+        final GatherRevisionAndVersionTask task = new GatherRevisionAndVersionTask()
             {
                 @Override
                 ISVNActions createSVNActions()
@@ -211,7 +214,7 @@ public class GatherRevisionAndVersionTaskTest
                 }
 
             };
-        Project project = new Project();
+        final Project project = new Project();
         project.setBaseDir(BASE_DIR);
         task.setProject(project);
         return task;
@@ -225,7 +228,7 @@ public class GatherRevisionAndVersionTaskTest
 
         private String classpathContent;
 
-        SVNProject(String name)
+        SVNProject(final String name)
         {
             this.name = name;
         }
@@ -235,36 +238,37 @@ public class GatherRevisionAndVersionTaskTest
             return name;
         }
 
-        SVNProject addFiles(String... newFiles)
+        SVNProject addFiles(final String... newFiles)
         {
             this.files.addAll(Arrays.asList(newFiles));
             return this;
         }
 
-        SVNProject addClasspathFile(String content)
+        SVNProject addClasspathFile(final String content)
         {
             classpathContent = content;
             files.add(CLASSPATH_FILE);
             return this;
         }
 
-        void registerAsTrunk(MockSVN svn, int revision, int lastChangedRevision)
+        void registerAsTrunk(final MockSVN svn, final int revision, final int lastChangedRevision)
         {
-            String projectBaseDir = name + "/trunk";
+            final String projectBaseDir = name + "/trunk";
             registerProject(svn, projectBaseDir, revision, lastChangedRevision);
         }
 
-        void registerVersion(MockSVN svn, String version, int revision, int lastChangedRevision)
+        void registerVersion(final MockSVN svn, final String version, final int revision,
+                final int lastChangedRevision)
         {
-            String projectBaseDir = version + "/" + name;
+            final String projectBaseDir = version + "/" + name;
             registerProject(svn, projectBaseDir, revision, lastChangedRevision);
         }
 
-        private void registerProject(MockSVN svn, String projectBaseDir, int revision,
-                int lastChangedRevision)
+        private void registerProject(final MockSVN svn, final String projectBaseDir,
+                final int revision, final int lastChangedRevision)
         {
-            SVNInfoRecord info = svn.register(".." + File.separator + name);
-            Updater updater = info.getUpdater();
+            final SVNInfoRecord info = svn.register(".." + File.separator + name);
+            final Updater updater = info.getUpdater();
             updater.setRepositoryUrl(BASE_REPOSITORY_URL + "/" + projectBaseDir);
             updater.setRevision(revision);
             updater.setLastChangedRevision(lastChangedRevision);
@@ -308,7 +312,8 @@ public class GatherRevisionAndVersionTaskTest
     public void testVersionOrRevisionIsSet()
     {
         System.out.println("testVersionOrRevisionIsSet()");
-        GatherRevisionAndVersionTask task = createTask(new MockSVN(), null, BASE_REPOSITORY_URL);
+        final GatherRevisionAndVersionTask task =
+                createTask(new MockSVN(), null, BASE_REPOSITORY_URL);
         task.execute();
     }
 
@@ -323,7 +328,7 @@ public class GatherRevisionAndVersionTaskTest
         svn.register(".").getUpdater().setRepositoryUrl(
                 BASE_REPOSITORY_URL + "/" + project1.getName() + "/trunk");
 
-        GatherRevisionAndVersionTask task = createTask(svn, project1, BASE_REPOSITORY_URL);
+        final GatherRevisionAndVersionTask task = createTask(svn, project1, BASE_REPOSITORY_URL);
         task.setRevision("myRevision");
         task.setVersion("myVersion");
 
@@ -338,7 +343,7 @@ public class GatherRevisionAndVersionTaskTest
     public void testRevisionAndVersionAndDoNotFailOnInconsistencyAndDirty()
     {
         System.out.println("testRevisionAndVersionAndDoNotFailOnInconsistencyAndDirty()");
-        String version = "1.2.3";
+        final String version = "1.2.3";
         project1.registerVersion(svn, version, 10, 3);
         libraries.registerVersion(svn, version, 10, 6);
         common.registerVersion(svn, version, 11, 7);
@@ -346,7 +351,7 @@ public class GatherRevisionAndVersionTaskTest
         svn.register(".").getUpdater().setRepositoryUrl(
                 BASE_REPOSITORY_URL + "/" + version + "/" + project1.getName());
 
-        GatherRevisionAndVersionTask task =
+        final GatherRevisionAndVersionTask task =
                 createTask(svn, project1, BASE_REPOSITORY_URL + "/" + version);
         task.setRevision("myRevision");
         task.setVersion("myVersion");

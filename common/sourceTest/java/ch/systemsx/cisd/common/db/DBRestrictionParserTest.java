@@ -30,6 +30,7 @@ import java.util.Map;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * @{link DBREstrictionParser}.
  * @author Bernd Rinn
  */
+@Friend(toClasses = DBRestrictionParser.class)
 public class DBRestrictionParserTest
 {
 
@@ -68,7 +70,7 @@ public class DBRestrictionParserTest
     @Test
     public void testGetDomains()
     {
-        String invalidDomainStatement = "create domain bla for varchar(0)";
+        final String invalidDomainStatement = "create domain bla for varchar(0)";
         final List<String> domainScript =
                 Arrays.asList("create table sometable", "create domain user_id as varchar(15)",
                         invalidDomainStatement, "create domain code as varchar(8)",

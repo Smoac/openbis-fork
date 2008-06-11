@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -44,11 +45,13 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DBMigrationEngine.class)
 public class DBMigrationEngineTest
 {
     private class MyExpectations extends Expectations
     {
-        protected void expectSuccessfulExecution(Script script, boolean honorSingleStepMode)
+        protected void expectSuccessfulExecution(final Script script,
+                final boolean honorSingleStepMode)
         {
             will(returnValue(script));
             one(scriptExecutor).execute(script, honorSingleStepMode, logDAO);
@@ -220,12 +223,13 @@ public class DBMigrationEngineTest
                     will(throwException(exception));
                 }
             });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, true);
         try
         {
             migrationEngine.migrateTo(version);
             fail("BadSqlGrammarException expected because owner couldn't be created");
-        } catch (BadSqlGrammarException e)
+        } catch (final BadSqlGrammarException e)
         {
             assertSame(exception, e);
         }
@@ -270,7 +274,7 @@ public class DBMigrationEngineTest
                     will(returnValue("my 2. database"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
@@ -316,7 +320,7 @@ public class DBMigrationEngineTest
                     will(returnValue("my 2. database"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
@@ -354,14 +358,14 @@ public class DBMigrationEngineTest
                     will(returnValue(null));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
-        String message = "No schema script found for version 042";
+        final String message = "No schema script found for version 042";
         try
         {
             migrationEngine.migrateTo(version);
             fail("EnvironmentFailureException expected because of missing schema script");
-        } catch (ConfigurationFailureException e)
+        } catch (final ConfigurationFailureException e)
         {
             assertEquals(message, e.getMessage());
         }
@@ -390,7 +394,7 @@ public class DBMigrationEngineTest
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
                     one(logDAO).getLastEntry();
-                    LogEntry logEntry = new LogEntry();
+                    final LogEntry logEntry = new LogEntry();
                     logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
                     logEntry.setVersion(version);
                     will(returnValue(logEntry));
@@ -400,7 +404,7 @@ public class DBMigrationEngineTest
                     will(returnValue("my database URL"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
 
         migrationEngine.migrateTo(version);
@@ -432,7 +436,7 @@ public class DBMigrationEngineTest
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
                     one(logDAO).getLastEntry();
-                    LogEntry logEntry = new LogEntry();
+                    final LogEntry logEntry = new LogEntry();
                     logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
                     logEntry.setVersion(fromVersion);
                     will(returnValue(logEntry));
@@ -450,7 +454,7 @@ public class DBMigrationEngineTest
                     will(returnValue("my 2. database"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
 
         migrationEngine.migrateTo(toVersion);
@@ -493,7 +497,7 @@ public class DBMigrationEngineTest
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
                     one(logDAO).getLastEntry();
-                    LogEntry logEntry = new LogEntry();
+                    final LogEntry logEntry = new LogEntry();
                     logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
                     logEntry.setVersion(fromVersion);
                     will(returnValue(logEntry));
@@ -504,17 +508,17 @@ public class DBMigrationEngineTest
                     will(returnValue("my 2. database"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        String errorMessage =
+        final String errorMessage =
                 "Cannot migrate database 'my 2. database' from version 099 to 100 because of "
                         + "missing migration script.";
         try
         {
             migrationEngine.migrateTo(toVersion);
             fail("EnvironmentFailureException expected because of missing migration step");
-        } catch (EnvironmentFailureException e)
+        } catch (final EnvironmentFailureException e)
         {
             assertEquals(errorMessage, e.getMessage());
         }
@@ -545,7 +549,7 @@ public class DBMigrationEngineTest
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
                     one(logDAO).getLastEntry();
-                    LogEntry logEntry = new LogEntry();
+                    final LogEntry logEntry = new LogEntry();
                     logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
                     logEntry.setVersion(fromVersion);
                     will(returnValue(logEntry));
@@ -553,16 +557,16 @@ public class DBMigrationEngineTest
                     will(returnValue("my database"));
                 }
             });
-        DBMigrationEngine migrationEngine =
+        final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
 
-        String errorMessage =
+        final String errorMessage =
                 "Cannot revert database 'my database' from version 101 to earlier version 099.";
         try
         {
             migrationEngine.migrateTo(toVersion);
             fail("EnvironmentFailureException expected because migration couldn't be reverted");
-        } catch (EnvironmentFailureException e)
+        } catch (final EnvironmentFailureException e)
         {
             assertEquals(errorMessage, e.getMessage());
         }
@@ -591,14 +595,15 @@ public class DBMigrationEngineTest
                     one(logDAO).getLastEntry();
                 }
             });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        String message = "Inconsistent database: Empty database version log.";
+        final String message = "Inconsistent database: Empty database version log.";
         try
         {
             migrationEngine.migrateTo("001");
             fail("EnvironmentFailureException expected because of empty database version log.");
-        } catch (EnvironmentFailureException e)
+        } catch (final EnvironmentFailureException e)
         {
             assertEquals(message, e.getMessage());
         }
@@ -636,16 +641,17 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                 }
             });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        String message =
+        final String message =
                 "Inconsistent database: Last creation/migration didn't succeed. Last log entry: "
                         + logEntry;
         try
         {
             migrationEngine.migrateTo("001");
             fail("EnvironmentFailureException expected because of empty database version log.");
-        } catch (EnvironmentFailureException e)
+        } catch (final EnvironmentFailureException e)
         {
             assertEquals(message, e.getMessage());
         }
@@ -684,16 +690,17 @@ public class DBMigrationEngineTest
                     will(returnValue(logEntry));
                 }
             });
-        DBMigrationEngine migrationEngine = new DBMigrationEngine(daoFactory, scriptProvider, true);
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, true);
 
-        String message =
+        final String message =
                 "Inconsistent database: Last creation/migration didn't succeed. Last log entry: "
                         + logEntry;
         try
         {
             migrationEngine.migrateTo("001");
             fail("EnvironmentFailureException expected because of empty database version log.");
-        } catch (EnvironmentFailureException e)
+        } catch (final EnvironmentFailureException e)
         {
             assertEquals(message, e.getMessage());
         }
@@ -745,7 +752,7 @@ public class DBMigrationEngineTest
         {
             migrationEngine.migrateTo(toVersion);
             fail("Exception expected");
-        } catch (RuntimeException e)
+        } catch (final RuntimeException e)
         {
             assertSame(exception, e);
         }

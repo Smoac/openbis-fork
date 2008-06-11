@@ -34,6 +34,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.SystemExit;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = SystemExit.class)
 public final class ParametersTest extends AbstractFileSystemTestCase
 {
     private ByteArrayOutputStream logRecorder;
@@ -56,7 +58,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
 
     private PrintStream systemErr;
 
-    private final Parameters parse(String... args)
+    private final Parameters parse(final String... args)
     {
         return new Parameters(args, SystemExit.SYSTEM_EXIT);
     }
@@ -181,7 +183,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     }
 
     private final FileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
-            Parameters parameters)
+            final Parameters parameters)
     {
         if (optionName.equals(PropertyNames.BUFFER_DIR))
         {
@@ -365,12 +367,12 @@ public final class ParametersTest extends AbstractFileSystemTestCase
                         Integer.toString(quietPeriod), "--treat-incoming-as-remote",
                         "--incoming-host", remoteIncomingHost, "--extra-copy-dir", extraCopyDir,
                         "--rsync-overwrite");
-        IFileStore incomingStoreExpected =
+        final IFileStore incomingStoreExpected =
                 createIncomingStore(localDataDir, remoteIncomingHost, parameters);
-        IFileStore incomingStore = getIncomingStore(parameters);
-        IFileStore outgoingStoreExpected =
+        final IFileStore incomingStore = getIncomingStore(parameters);
+        final IFileStore outgoingStoreExpected =
                 createOutgoingStore(remoteDataDir, remoteHost, parameters);
-        IFileStore outgoingStore = getOutgoingStore(parameters);
+        final IFileStore outgoingStore = getOutgoingStore(parameters);
 
         assertEquals(incomingStoreExpected, incomingStore);
         assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
@@ -381,35 +383,35 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         assertTrue(parameters.isRsyncOverwrite());
     }
 
-    private IFileStore getIncomingStore(Parameters parameters)
+    private IFileStore getIncomingStore(final Parameters parameters)
     {
-        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return parameters.getIncomingStore(factory);
     }
 
-    private IFileStore getOutgoingStore(Parameters parameters)
+    private IFileStore getOutgoingStore(final Parameters parameters)
     {
-        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         return parameters.getOutgoingStore(factory);
     }
 
     private static IFileStore createIncomingStore(final String path, final String hostOrNull,
-            IFileSysParameters parameters)
+            final IFileSysParameters parameters)
     {
         return createStore(path, hostOrNull, Parameters.INCOMING_KIND_DESC, parameters);
     }
 
     private static IFileStore createOutgoingStore(final String path, final String hostOrNull,
-            IFileSysParameters parameters)
+            final IFileSysParameters parameters)
     {
         return createStore(path, hostOrNull, Parameters.OUTGOING_KIND_DESC, parameters);
     }
 
-    private static IFileStore createStore(final String path, final String hostOrNull, String kind,
-            IFileSysParameters parameters)
+    private static IFileStore createStore(final String path, final String hostOrNull,
+            final String kind, final IFileSysParameters parameters)
     {
-        IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
-        File file = new File(path);
+        final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        final File file = new File(path);
         if (hostOrNull == null)
         {
             return FileStoreFactory.createLocal(file, kind, factory);

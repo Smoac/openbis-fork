@@ -28,6 +28,7 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = SqlScriptExecutor.class)
 public class SqlScriptExecutorTest
 {
 
@@ -46,12 +48,12 @@ public class SqlScriptExecutorTest
 
         private final Error th;
 
-        public TestSqlScriptExecutor(boolean singleStepMode)
+        public TestSqlScriptExecutor(final boolean singleStepMode)
         {
             this(null, singleStepMode);
         }
 
-        public TestSqlScriptExecutor(Error th, boolean singleStepMode)
+        public TestSqlScriptExecutor(final Error th, final boolean singleStepMode)
         {
             super(new DelegatingDataSource(), singleStepMode);
             this.th = th;
@@ -59,7 +61,7 @@ public class SqlScriptExecutorTest
         }
 
         @Override
-        void execute(String script)
+        void execute(final String script)
         {
             if (th != null)
             {

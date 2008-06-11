@@ -19,6 +19,7 @@ package ch.systemsx.cisd.dbmigration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -42,7 +43,7 @@ public class DBMigrationEngine
      * @return the SQL script provider.
      */
     public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
-            DatabaseConfigurationContext context, String databaseVersion)
+            final DatabaseConfigurationContext context, final String databaseVersion)
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
@@ -50,7 +51,7 @@ public class DBMigrationEngine
         final ch.systemsx.cisd.dbmigration.IDAOFactory migrationDAOFactory =
                 context.createDAOFactory();
         final String scriptFolder = context.getScriptFolder();
-        String databaseEngineCode = context.getDatabaseEngineCode();
+        final String databaseEngineCode = context.getDatabaseEngineCode();
         final ISqlScriptProvider sqlScriptProvider =
                 new SqlScriptProvider(scriptFolder, databaseEngineCode);
         final DBMigrationEngine migrationEngine =
@@ -76,8 +77,8 @@ public class DBMigrationEngine
      * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and
      *            created from scratch.
      */
-    public DBMigrationEngine(IDAOFactory daoFactory, ISqlScriptProvider scriptProvider,
-            boolean shouldCreateFromScratch)
+    public DBMigrationEngine(final IDAOFactory daoFactory, final ISqlScriptProvider scriptProvider,
+            final boolean shouldCreateFromScratch)
     {
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
@@ -93,7 +94,7 @@ public class DBMigrationEngine
      * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent
      *             database.
      */
-    public void migrateTo(String version)
+    public void migrateTo(final String version)
     {
         if (shouldCreateFromScratch)
         {
@@ -160,16 +161,16 @@ public class DBMigrationEngine
 
     private LogEntry getAndCheckLastLogEntry()
     {
-        LogEntry entry = logDAO.getLastEntry();
+        final LogEntry entry = logDAO.getLastEntry();
         if (entry == null)
         {
-            String message = "Inconsistent database: Empty database version log.";
+            final String message = "Inconsistent database: Empty database version log.";
             operationLog.error(message);
             throw new EnvironmentFailureException(message);
         }
         if (entry.getRunStatus() != LogEntry.RunStatus.SUCCESS)
         {
-            String message =
+            final String message =
                     "Inconsistent database: Last creation/migration didn't succeed. Last log entry: "
                             + entry;
             operationLog.error(message);
@@ -178,7 +179,7 @@ public class DBMigrationEngine
         return entry;
     }
 
-    private void setupDatabase(String version)
+    private void setupDatabase(final String version)
     {
         adminDAO.createOwner();
         if (scriptProvider.isDumpRestore(version))
@@ -191,19 +192,19 @@ public class DBMigrationEngine
         }
         if (operationLog.isInfoEnabled())
         {
-            String databaseName = adminDAO.getDatabaseName();
+            final String databaseName = adminDAO.getDatabaseName();
             operationLog.info("Database '" + databaseName + "' version " + version
                     + " has been successfully created.");
         }
     }
 
-    private void createEmptyDatabase(String version)
+    private void createEmptyDatabase(final String version)
     {
         adminDAO.createDatabase();
         executeSchemaScript(version);
     }
 
-    private void executeSchemaScript(String version)
+    private void executeSchemaScript(final String version)
     {
         final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
         if (schemaScript == null)
@@ -223,22 +224,23 @@ public class DBMigrationEngine
         }
     }
 
-    private void fillWithInitialData(String version)
+    private void fillWithInitialData(final String version)
     {
-        Script initialDataScript = scriptProvider.tryGetDataScript(version);
+        final Script initialDataScript = scriptProvider.tryGetDataScript(version);
         if (initialDataScript != null)
         {
             scriptExecutor.execute(initialDataScript, true, logDAO);
         }
     }
 
-    private void migrate(String fromVersion, String toVersion)
+    private void migrate(final String fromVersion, final String toVersion)
     {
         String version = fromVersion;
         do
         {
-            String nextVersion = increment(version);
-            Script migrationScript = scriptProvider.tryGetMigrationScript(version, nextVersion);
+            final String nextVersion = increment(version);
+            final Script migrationScript =
+                    scriptProvider.tryGetMigrationScript(version, nextVersion);
             if (migrationScript == null)
             {
                 final String databaseName = adminDAO.getDatabaseName();
@@ -248,7 +250,7 @@ public class DBMigrationEngine
                 operationLog.error(message);
                 throw new EnvironmentFailureException(message);
             }
-            long time = System.currentTimeMillis();
+            final long time = System.currentTimeMillis();
             scriptExecutor.execute(migrationScript, true, logDAO);
             if (operationLog.isInfoEnabled())
             {
@@ -259,14 +261,14 @@ public class DBMigrationEngine
         } while (version.equals(toVersion) == false);
     }
 
-    // @Private
-    static String increment(String version)
+    @Private
+    static String increment(final String version)
     {
-        char[] characters = new char[version.length()];
+        final char[] characters = new char[version.length()];
         version.getChars(0, characters.length, characters, 0);
         for (int i = characters.length - 1; i >= 0; i--)
         {
-            char c = characters[i];
+            final char c = characters[i];
             if (c == '9')
             {
                 characters[i] = '0';
@@ -282,7 +284,7 @@ public class DBMigrationEngine
     /** Checks whether database already exists. */
     private final boolean databaseExists()
     {
-        boolean result = logDAO.canConnectToDatabase();
+        final boolean result = logDAO.canConnectToDatabase();
         if (result == false && operationLog.isInfoEnabled())
         {
             operationLog.info("Database '" + adminDAO.getDatabaseName() + "' does not exist.");

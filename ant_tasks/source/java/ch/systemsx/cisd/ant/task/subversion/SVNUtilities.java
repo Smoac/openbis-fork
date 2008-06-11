@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -39,23 +40,23 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
 class SVNUtilities
 {
 
-    // @Private
+    @Private
     static final String DEFAULT_GROUP = "cisd";
 
-    // @Private
+    @Private
     static final String DEFAULT_REPOSITORY_ROOT = "svn+ssh://source.systemsx.ch/repos";
 
-    // @Private
+    @Private
     static final String DEFAULT_VERSION = "trunk";
 
-    // @Private
+    @Private
     static final String HEAD_REVISION = "HEAD";
 
     /** A project all other projects depend on implicitely. */
     static final String BUILD_RESOURCES_PROJECT = "build_resources";
 
     private static final String RELEASE_PATTERN_PREFIX = "(([0-9]+\\.)[0-9]+)\\.";
-    
+
     /** The regular expression that a release tag has to match. */
     static final String RELEASE_TAG_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "[0-9]+";
     
@@ -79,7 +80,7 @@ class SVNUtilities
 
         private final List<String> lines;
 
-        ProcessInfo(String commandString, List<String> lines, int exitValue)
+        ProcessInfo(final String commandString, final List<String> lines, final int exitValue)
         {
             this.commandString = commandString;
             this.lines = lines;
@@ -112,7 +113,7 @@ class SVNUtilities
     /**
      * @return The top-level directory (first level of the hierarchy) of <var>path</var>.
      */
-    static String getTopLevelDirectory(String path)
+    static String getTopLevelDirectory(final String path)
     {
         assert path != null && path.startsWith("/");
 
@@ -130,7 +131,7 @@ class SVNUtilities
      * @return The parent directory of the subversion repository <var>urlPath</var>, or
      *         <code>null</code>, if the <var>urlPath</var> does not have a parent directory.
      */
-    static String getParent(String urlPath)
+    static String getParent(final String urlPath)
     {
         assert urlPath != null;
 
@@ -149,7 +150,7 @@ class SVNUtilities
      * @return The <var>url</var> with all trailing slashes removed and all multiple slashes
      *         replaced with single ones.
      */
-    static String normalizeUrl(String url)
+    static String normalizeUrl(final String url)
     {
         assert url != null;
         String normalizedUrl = url.replaceAll("([^:/])/+", "$1/");
@@ -171,7 +172,7 @@ class SVNUtilities
      * 
      * @throws UserFailureException If <var>projectName</var> is invalid.
      */
-    static void checkProjectName(String projectName) throws UserFailureException
+    static void checkProjectName(final String projectName) throws UserFailureException
     {
         assert projectName != null;
         checkName(projectName, "Project");
@@ -182,7 +183,7 @@ class SVNUtilities
      * 
      * @throws UserFailureException If <var>groupName</var> is invalid.
      */
-    static void checkGroupName(String groupName) throws UserFailureException
+    static void checkGroupName(final String groupName) throws UserFailureException
     {
         assert groupName != null;
         checkName(groupName, "Group");
@@ -194,7 +195,8 @@ class SVNUtilities
      * @throws UserFailureException If <var>projectName</var> is invalid. <var>typeOfName</var> is
      *             used to create a meaningful error message.
      */
-    private static void checkName(String name, String typeOfName) throws UserFailureException
+    private static void checkName(final String name, final String typeOfName)
+            throws UserFailureException
     {
         assert name != null;
         assert typeOfName != null;
@@ -210,14 +212,14 @@ class SVNUtilities
         }
     }
 
-    static ProcessInfo subversionCommand(ISimpleLogger logger, final String command,
+    static ProcessInfo subversionCommand(final ISimpleLogger logger, final String command,
             final String... args)
     {
         return subversionCommand(logger, true, command, args);
     }
 
-    static ProcessInfo subversionCommand(ISimpleLogger logger, final boolean redirectErrorStream,
-            final String command, final String... args)
+    static ProcessInfo subversionCommand(final ISimpleLogger logger,
+            final boolean redirectErrorStream, final String command, final String... args)
     {
         final File svnExecutable = OSUtilities.findExecutable("svn");
         if (svnExecutable == null)
@@ -236,12 +238,12 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            InputStreamReaderGobbler inputStreamGobbler =
+            final InputStreamReaderGobbler inputStreamGobbler =
                     new InputStreamReaderGobbler(process.getInputStream());
-            InputStreamReaderGobbler errorStreamGobbler =
+            final InputStreamReaderGobbler errorStreamGobbler =
                     new InputStreamReaderGobbler(process.getErrorStream());
             final int exitValue = process.waitFor();
-            List<String> lines = inputStreamGobbler.getLines();
+            final List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
             {
                 SVNUtilities.logSvnOutput(logger, inputStreamGobbler.getLines());
@@ -253,10 +255,10 @@ class SVNUtilities
                         commandString, exitValue);
             }
             return new ProcessInfo(commandString, lines, exitValue);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw SVNException.fromTemplate(ex, "Error while executing '%s'", commandString);
-        } catch (InterruptedException ex)
+        } catch (final InterruptedException ex)
         {
             throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'",
                     commandString);
@@ -265,10 +267,10 @@ class SVNUtilities
 
     static boolean isMuccAvailable()
     {
-        return (null != OSUtilities.findExecutable("svnmucc"));
+        return null != OSUtilities.findExecutable("svnmucc");
     }
 
-    static ProcessInfo subversionMuccCommand(ISimpleLogger logger, String logMessage,
+    static ProcessInfo subversionMuccCommand(final ISimpleLogger logger, final String logMessage,
             final String... args)
     {
         final File svnExecutable = OSUtilities.findExecutable("svnmucc");
@@ -288,10 +290,10 @@ class SVNUtilities
         try
         {
             final Process process = builder.start();
-            InputStreamReaderGobbler inputStreamGobbler =
+            final InputStreamReaderGobbler inputStreamGobbler =
                     new InputStreamReaderGobbler(process.getInputStream());
             final int exitValue = process.waitFor();
-            List<String> lines = inputStreamGobbler.getLines();
+            final List<String> lines = inputStreamGobbler.getLines();
             if (0 != exitValue)
             {
                 SVNUtilities.logSvnOutput(logger, inputStreamGobbler.getLines());
@@ -299,10 +301,10 @@ class SVNUtilities
                         commandString, exitValue);
             }
             return new ProcessInfo(commandString, lines, exitValue);
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw SVNException.fromTemplate(ex, "Error while executing '%s'", commandString);
-        } catch (InterruptedException ex)
+        } catch (final InterruptedException ex)
         {
             throw SVNException.fromTemplate(ex, "Unexpectedly interrupted while executing '%s'",
                     commandString);
@@ -314,25 +316,25 @@ class SVNUtilities
      */
     static void logSvnOutput(final ISimpleLogger logger, final List<String> output)
     {
-        for (String line : output)
+        for (final String line : output)
         {
             logger.log(LogLevel.INFO, String.format("SVN > %s", line));
         }
     }
 
-    static String getBranchForTag(String tagName)
+    static String getBranchForTag(final String tagName)
     {
         final Matcher tagMatcher = Pattern.compile(RELEASE_TAG_PATTERN_STRING).matcher(tagName);
-        boolean matches = tagMatcher.matches();
+        final boolean matches = tagMatcher.matches();
         assert matches;
         return String.format("%s.x", tagMatcher.group(1));
     }
 
-    static String getFirstTagForBranch(String branchName)
+    static String getFirstTagForBranch(final String branchName)
     {
         final Matcher branchMatcher =
                 Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
-        boolean matches = branchMatcher.matches();
+        final boolean matches = branchMatcher.matches();
         assert matches;
         return String.format("%s.0", branchMatcher.group(1));
     }

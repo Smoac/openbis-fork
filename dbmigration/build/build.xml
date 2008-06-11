@@ -1,6 +1,8 @@
 <project name="dbmigration" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
+	
+	<property name="mainfolder" value="dbmigration" />
   
   <target name="compile"  depends="build-common.compile">
     <copy todir="${classes}">

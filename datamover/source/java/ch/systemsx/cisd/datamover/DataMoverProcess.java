@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
@@ -36,21 +37,21 @@ public class DataMoverProcess implements ITerminable
 
     private final IRecoverableTimerTaskFactory recoverableTimerTaskFactory;
 
-    DataMoverProcess(TimerTask timerTask, String taskName)
+    DataMoverProcess(final TimerTask timerTask, final String taskName)
     {
         this(timerTask, taskName, null);
     }
 
-    DataMoverProcess(TimerTask dataMoverTimerTask, String taskName,
-            IRecoverableTimerTaskFactory recoverableTimerTaskFactory)
+    DataMoverProcess(final TimerTask dataMoverTimerTask, final String taskName,
+            final IRecoverableTimerTaskFactory recoverableTimerTaskFactory)
     {
         this.dataMoverTimerTask = dataMoverTimerTask;
         this.recoverableTimerTaskFactory = recoverableTimerTaskFactory;
         this.timer = new Timer(taskName);
         this.terminable = TimerHelper.asTerminable(timer);
     }
-    
-    // @Private
+
+    @Private
     TimerTask getDataMoverTimerTask()
     {
         return dataMoverTimerTask;
@@ -60,7 +61,7 @@ public class DataMoverProcess implements ITerminable
      * Starts up the process with a the given <var>delay</var> and <var>period</var> in milli
      * seconds.
      */
-    public void startup(long delay, long period)
+    public void startup(final long delay, final long period)
     {
         timer.schedule(dataMoverTimerTask, delay, period);
     }

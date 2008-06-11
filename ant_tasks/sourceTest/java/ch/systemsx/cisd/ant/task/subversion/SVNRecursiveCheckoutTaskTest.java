@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
-
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = SVNRecursiveCheckoutTask.class)
 public class SVNRecursiveCheckoutTaskTest
 {
 
@@ -83,7 +85,7 @@ public class SVNRecursiveCheckoutTaskTest
 
         final List<String> checkedOutRevision;
 
-        SVNCheckoutMock(String repositoryUrl, String workingCopyDir)
+        SVNCheckoutMock(final String repositoryUrl, final String workingCopyDir)
         {
             this.repositoryUrl = repositoryUrl;
             this.prefix = repositoryUrl + "/";
@@ -93,7 +95,8 @@ public class SVNRecursiveCheckoutTaskTest
             this.checkedOutRevision = new ArrayList<String>();
         }
 
-        public void checkout(String path, String projectName, String revision) throws SVNException
+        public void checkout(final String path, final String projectName, final String revision)
+                throws SVNException
         {
             assert path.startsWith(prefix);
 
@@ -115,9 +118,9 @@ public class SVNRecursiveCheckoutTaskTest
         SVNCheckoutMock mock;
 
         @Override
-        ISVNCheckout createSVNCheckout(String repositoryUrl, String workingCopyDir)
+        ISVNCheckout createSVNCheckout(final String repositoryUrl, final String workingCopyDir)
         {
-            assert (mock == null);
+            assert mock == null;
             mock = new SVNCheckoutMock(repositoryUrl, workingCopyDir);
             return mock;
         }
@@ -162,7 +165,8 @@ public class SVNRecursiveCheckoutTaskTest
     }
 
     @Test(dataProvider = "reposUrl")
-    public void testClasspathFile(String reposUrl, String projPath, boolean isTrunk)
+    public void testClasspathFile(final String reposUrl, final String projPath,
+            final boolean isTrunk)
     {
         final String classPathFileContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -217,7 +221,8 @@ public class SVNRecursiveCheckoutTaskTest
     }
 
     @Test(dataProvider = "reposUrl")
-    public void testTwoClasspathFiles(String reposUrl, String projPath, boolean isTrunk)
+    public void testTwoClasspathFiles(final String reposUrl, final String projPath,
+            final boolean isTrunk)
     {
         final String classPathFileContent1 =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -299,7 +304,7 @@ public class SVNRecursiveCheckoutTaskTest
         { BuildException.class })
     public void testSetInvalidRevision()
     {
-        SVNRecursiveCheckoutTask task = new SVNRecursiveCheckoutTask();
+        final SVNRecursiveCheckoutTask task = new SVNRecursiveCheckoutTask();
         task.setName("some_project");
         task.setRevision("some invalid revision");
     }

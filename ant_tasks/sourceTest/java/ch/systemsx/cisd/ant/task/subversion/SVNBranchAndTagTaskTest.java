@@ -31,6 +31,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.ant.common.StringUtils;
 
 /**
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.ant.common.StringUtils;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = SVNBranchAndTagTask.class)
 public class SVNBranchAndTagTaskTest
 {
 
@@ -51,7 +53,8 @@ public class SVNBranchAndTagTaskTest
 
         final String logMessage;
 
-        CopyItem(String sourcePath, String sourceRevision, String destinationPath, String logMessage)
+        CopyItem(final String sourcePath, final String sourceRevision,
+                final String destinationPath, final String logMessage)
         {
             assert sourcePath != null;
             assert sourceRevision != null;
@@ -65,13 +68,13 @@ public class SVNBranchAndTagTaskTest
         }
 
         @Override
-        public boolean equals(Object obj)
+        public boolean equals(final Object obj)
         {
             if (obj instanceof CopyItem == false)
             {
                 return false;
             }
-            CopyItem that = (CopyItem) obj;
+            final CopyItem that = (CopyItem) obj;
             return this.sourcePath.equals(that.sourcePath)
                     && this.sourceRevision.equals(that.sourceRevision)
                     && this.destinationPath.equals(that.destinationPath)
@@ -102,7 +105,7 @@ public class SVNBranchAndTagTaskTest
 
         final String logMessage;
 
-        MkdirItem(String path, String logMessage)
+        MkdirItem(final String path, final String logMessage)
         {
             assert path != null;
             assert logMessage != null;
@@ -112,7 +115,7 @@ public class SVNBranchAndTagTaskTest
         }
 
         @Override
-        public boolean equals(Object obj)
+        public boolean equals(final Object obj)
         {
             if (obj instanceof MkdirItem == false)
             {
@@ -153,38 +156,38 @@ public class SVNBranchAndTagTaskTest
             this.catMap = catMap;
         }
 
-        public String cat(String path) throws SVNException
+        public String cat(final String path) throws SVNException
         {
             System.out.println("CAT - " + path);
             final String result = catMap.get(path);
             return result == null ? "" : result;
         }
 
-        public List<String> list(String path) throws SVNException
+        public List<String> list(final String path) throws SVNException
         {
             System.out.println("LIST - " + path);
-            List<String> result = listMap.get(path);
+            final List<String> result = listMap.get(path);
             assert result != null : "Path '" + path + "' does not exist.";
             return result;
         }
 
-        public void mkdir(String path, String logMessage) throws SVNException
+        public void mkdir(final String path, final String logMessage) throws SVNException
         {
             mkdirList.add(new MkdirItem(path, logMessage));
         }
 
-        public void copy(String sourcePath, String sourceRevision, String destinationPath,
-                String logMessage) throws SVNException
+        public void copy(final String sourcePath, final String sourceRevision,
+                final String destinationPath, final String logMessage) throws SVNException
         {
             copyList.add(new CopyItem(sourcePath, sourceRevision, destinationPath, logMessage));
         }
 
-        public SVNInfoRecord info(String pathOrUrl)
+        public SVNInfoRecord info(final String pathOrUrl)
         {
             throw new AssertionError("Unexpected call info()");
         }
 
-        public List<SVNItemStatus> status(String path)
+        public List<SVNItemStatus> status(final String path)
         {
             throw new AssertionError("Unexpected call status()");
         }
@@ -194,7 +197,7 @@ public class SVNBranchAndTagTaskTest
             return false;
         }
 
-        public void mucc(String logMessage, String... args) throws SVNException
+        public void mucc(final String logMessage, final String... args) throws SVNException
         {
             throw new AssertionError();
         }

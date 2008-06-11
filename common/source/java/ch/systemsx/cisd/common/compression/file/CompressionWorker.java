@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.common.compression.file;
 
 import java.io.File;
-
 import java.util.Collection;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -36,20 +36,20 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 class CompressionWorker implements Runnable
 {
 
-    // @Private
+    @Private
     static final int MAX_RETRY_OF_FAILED_COMPRESSIONS = 3;
 
-    // @Private
+    @Private
     static final String COMPRESSING_MSG_TEMPLATE = "Compressing '%s'.";
 
-    // @Private
+    @Private
     static final String EXCEPTION_COMPRESSING_MSG_TEMPLATE =
             "Exceptional condition when trying to compress '%s'.";
 
-    // @Private
+    @Private
     static final String INTERRPTED_MSG = "Thread has been interrupted - exiting worker.";
 
-    // @Private
+    @Private
     static final String EXITING_MSG = "No more files to compress - exiting worker.";
 
     private final static Logger operationLog =
@@ -61,8 +61,8 @@ class CompressionWorker implements Runnable
 
     private final ICompressionMethod compressor;
 
-    CompressionWorker(Queue<File> incommingQueue, Collection<FailureRecord> failures,
-            ICompressionMethod compressor)
+    CompressionWorker(final Queue<File> incommingQueue, final Collection<FailureRecord> failures,
+            final ICompressionMethod compressor)
     {
         assert incommingQueue != null;
         assert failures != null;
@@ -102,7 +102,7 @@ class CompressionWorker implements Runnable
                 try
                 {
                     status = compressor.compress(fileToCompressOrNull);
-                } catch (Throwable th)
+                } catch (final Throwable th)
                 {
                     operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE,
                             fileToCompressOrNull), th);

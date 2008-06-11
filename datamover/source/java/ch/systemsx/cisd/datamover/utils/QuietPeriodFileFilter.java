@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -47,10 +48,10 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public class QuietPeriodFileFilter implements IStoreItemFilter
 {
-    // @Private
+    @Private
     static final int CLEANUP_TO_QUIET_PERIOD_RATIO = 10;
 
-    // @Private
+    @Private
     final static int MAX_CALLS_BEFORE_CLEANUP = 10000;
 
     private static final String TIME_FORMAT_TEMPLATE = "%#$tY-%#$tm-%#$td %#$tH:%#$tM:%#$tS";
@@ -111,7 +112,8 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
      * @param fileStore Used to check when a pathname was changed.
      * @param timingParameters The timing parameter object to get the quiet period from.
      */
-    public QuietPeriodFileFilter(IFileStore fileStore, ITimingParameters timingParameters)
+    public QuietPeriodFileFilter(final IFileStore fileStore,
+            final ITimingParameters timingParameters)
     {
         this(fileStore, timingParameters, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
@@ -123,8 +125,8 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
      * @param timingParameters The timing parameter object to get the quiet period from.
      * @param timeProvider A role that provides access to the current time.
      */
-    public QuietPeriodFileFilter(IFileStore fileStore, ITimingParameters timingParameters,
-            ITimeProvider timeProvider)
+    public QuietPeriodFileFilter(final IFileStore fileStore,
+            final ITimingParameters timingParameters, final ITimeProvider timeProvider)
     {
         assert timingParameters != null;
         assert timingParameters.getQuietPeriodMillis() > 0;
@@ -139,7 +141,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
         this.callCounter = 0;
     }
 
-    public boolean accept(StoreItem item)
+    public boolean accept(final StoreItem item)
     {
         final long now = timeProvider.getTimeInMilliseconds();
         try
@@ -188,7 +190,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
         }
     }
 
-    private void cleanUpVanishedPaths(long now)
+    private void cleanUpVanishedPaths(final long now)
     {
         final Iterator<Map.Entry<StoreItem, PathCheckRecord>> iter = pathMap.entrySet().iterator();
         while (iter.hasNext())
@@ -199,27 +201,25 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             {
                 final StoreItem item = entry.getKey();
                 operationLog.warn("Path '" + item.getName() + "' hasn't been checked for "
-                        + (timeSinceLastCheckMillis / 1000.0) + " s, removing from path map.");
+                        + timeSinceLastCheckMillis / 1000.0 + " s, removing from path map.");
                 iter.remove();
             }
         }
     }
 
-    // @Private
+    @Private
     static String getClockProblemLogMessage(final String pathname, final long oldCheck,
             final long oldLastChanged, final long newCheck, final long newLastChanged)
     {
-        return String.format(
-                "Last modification time of path '%1$s' jumped back: check at "
-                        + getTimeFormat(2) + " -> last modification time " + getTimeFormat(3)
-                        + ", check at later time " + getTimeFormat(4)
-                        + " -> last modification time " + getTimeFormat(5)
-                        + " (which is %6$d ms younger)", pathname, oldCheck, oldLastChanged,
-                newCheck, newLastChanged, (oldLastChanged - newLastChanged));
+        return String.format("Last modification time of path '%1$s' jumped back: check at "
+                + getTimeFormat(2) + " -> last modification time " + getTimeFormat(3)
+                + ", check at later time " + getTimeFormat(4) + " -> last modification time "
+                + getTimeFormat(5) + " (which is %6$d ms younger)", pathname, oldCheck,
+                oldLastChanged, newCheck, newLastChanged, (oldLastChanged - newLastChanged));
     }
 
-    // @Private
-    static String getTimeFormat(int position)
+    @Private
+    static String getTimeFormat(final int position)
     {
         return StringUtils.replace(TIME_FORMAT_TEMPLATE, "#", Integer.toString(position));
     }

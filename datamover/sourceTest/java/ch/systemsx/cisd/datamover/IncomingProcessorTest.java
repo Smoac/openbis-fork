@@ -30,6 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DataMoverProcess.class)
 public final class IncomingProcessorTest
 {
 

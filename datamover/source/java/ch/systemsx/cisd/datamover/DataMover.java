@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.util.Timer;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
@@ -52,7 +53,7 @@ public class DataMover
 
     private final static String LOCAL_TEMP_DIR = "tmp";
 
-    // @Private
+    @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
 
     private final Parameters parameters;

@@ -1,7 +1,10 @@
 <project name="common" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
+	<property name="mainfolder" value="common" />
 
   <target name="ci" depends="build-common.ci, check-dependencies"/>
+  
+  
 
 </project>

@@ -1,7 +1,7 @@
 <project name="intgration-tests" default="integration-tests" basedir="..">
 
 	<property name="work.dir" value="playground" />
-
+	
 	<target name="nightly-build" depends="integration-tests" />
 
 	<!-- Parameter: arg1, arg2, arg3, arg4 - arguments passed to integration test script -->

@@ -26,6 +26,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
@@ -46,14 +47,14 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
     /** Gives better error messages, but is a lot slower. */
     private final boolean singleStepMode;
 
-    public SqlScriptExecutor(DataSource dataSource, boolean singleStepMode)
+    public SqlScriptExecutor(final DataSource dataSource, final boolean singleStepMode)
     {
         setDataSource(dataSource);
         this.singleStepMode = singleStepMode;
     }
 
-    public void execute(Script sqlScript, boolean honorSingleStepMode,
-            ISqlScriptExecutionLogger loggerOrNull)
+    public void execute(final Script sqlScript, final boolean honorSingleStepMode,
+            final ISqlScriptExecutionLogger loggerOrNull)
     {
         if (loggerOrNull != null)
         {
@@ -65,16 +66,16 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
             if (singleStepMode && honorSingleStepMode)
             {
                 String lastSqlStatement = "";
-                for (String sqlStatement : DBUtilities.splitSqlStatements(sqlScriptCode))
+                for (final String sqlStatement : DBUtilities.splitSqlStatements(sqlScriptCode))
                 {
                     try
                     {
                         execute(sqlStatement);
-                    } catch (BadSqlGrammarException ex2)
+                    } catch (final BadSqlGrammarException ex2)
                     {
                         throw new BadSqlGrammarException(getTask(ex2), lastSqlStatement + ">-->"
                                 + sqlStatement + "<--<", getCause(ex2));
-                    } catch (UncategorizedSQLException ex2)
+                    } catch (final UncategorizedSQLException ex2)
                     {
                         throw new UncategorizedSQLException(getTask(ex2), lastSqlStatement + ">-->"
                                 + sqlStatement + "<--<", getCause(ex2));
@@ -89,7 +90,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
             {
                 loggerOrNull.logSuccess(sqlScript);
             }
-        } catch (Throwable t)
+        } catch (final Throwable t)
         {
             operationLog.error("Executing script '" + sqlScript.getName() + "', version "
                     + sqlScript.getVersion() + " failed.", t);
@@ -99,32 +100,32 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
             }
             if (t instanceof Error)
             {
-                Error error = (Error) t;
+                final Error error = (Error) t;
                 throw error;
             }
             throw CheckedExceptionTunnel.wrapIfNecessary((Exception) t);
         }
     }
 
-    // @Private
-    void execute(String script)
+    @Private
+    void execute(final String script)
     {
         getJdbcTemplate().execute(script);
     }
 
-    private String getTask(BadSqlGrammarException ex)
+    private String getTask(final BadSqlGrammarException ex)
     {
         final String marker = "; bad SQL grammar [";
         return getTask(ex, marker);
     }
 
-    private String getTask(UncategorizedSQLException ex)
+    private String getTask(final UncategorizedSQLException ex)
     {
         final String marker = "; uncategorized SQLException for SQL [";
         return getTask(ex, marker);
     }
 
-    private String getTask(RuntimeException ex, final String marker)
+    private String getTask(final RuntimeException ex, final String marker)
     {
         final String msg = ex.getMessage();
         final int endIdx = msg.indexOf(marker);
@@ -137,7 +138,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         }
     }
 
-    private SQLException getCause(DataAccessException ex)
+    private SQLException getCause(final DataAccessException ex)
     {
         final Throwable cause = ex.getCause();
         if (cause instanceof SQLException)
