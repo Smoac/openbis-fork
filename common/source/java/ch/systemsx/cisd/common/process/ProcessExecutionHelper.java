@@ -235,15 +235,12 @@ public final class ProcessExecutionHelper
      * @param cmd The command line to run.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated by
-     *            a watch dog.
      * @return The handler which allows to wait for the result or terminate the process.
      */
     public static IProcessHandler runUnblocking(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion)
+            final Logger machineLog)
     {
-        return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
+        return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runUnblocking();
     }
 
@@ -332,7 +329,7 @@ public final class ProcessExecutionHelper
                 {
                     processWrapper.set(process);
                     final int exitValue = process.waitFor();
-                     if (processWrapper.getAndSet(null) == null)
+                    if (processWrapper.getAndSet(null) == null)
                     {
                         // Value is irrelevant, the ProcessKiller got us.
                         return null;
