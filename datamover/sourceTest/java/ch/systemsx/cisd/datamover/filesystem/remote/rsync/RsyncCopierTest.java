@@ -224,19 +224,6 @@ public final class RsyncCopierTest
         assertEquals(RsyncCopier.TERMINATED_STATUS, status);
     }
 
-    @Test(groups =
-        { "requires_unix" })
-    public void testRsyncTerminationBeforeCopy() throws IOException, InterruptedException
-    {
-        final File sleepyRsyncBinary = createSleepProcess(100);
-        final RsyncCopier copier = new RsyncCopier(sleepyRsyncBinary, null, false, false);
-        // copy monitor can call this method before the copy starts
-        boolean wasRunning = copier.terminate();
-        assertEquals(false, wasRunning);
-        final Status status = copier.copy(sourceFile, destinationDirectory);
-        assertEquals(RsyncCopier.TERMINATED_STATUS, status);
-    }
-
     private File createSleepProcess(int seconds) throws IOException, InterruptedException
     {
         return createRsync("2.6.9", "/bin/sleep " + seconds);
