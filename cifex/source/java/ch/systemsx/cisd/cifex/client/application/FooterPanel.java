@@ -87,7 +87,7 @@ final class FooterPanel extends HorizontalPanel
                             {
                                 final Element target = DOM.eventGetTarget(event);
                                 // 'Element.equals' or 'DOM.compare' does not work here...
-                                if (disclaimerLink.toString().equals(target.toString()))
+                                if (target.toString().indexOf(messageResources.getFooterDisclaimerLinkLabel()) > -1)
                                 {
                                     try
                                     {
@@ -99,7 +99,7 @@ final class FooterPanel extends HorizontalPanel
                                     {
                                         showErrorMessage(ex);
                                     }
-                                } else if (documentationLink.toString().equals(target.toString()))
+                                } else if (target.toString().indexOf(messageResources.getFooterDocumentationLinkLabel()) > -1)
                                 {
                                     try
                                     {
