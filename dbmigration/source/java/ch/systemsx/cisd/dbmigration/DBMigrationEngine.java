@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Franz-Josef Elmer
  */
-public class DBMigrationEngine
+public final class DBMigrationEngine
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
@@ -42,7 +42,7 @@ public class DBMigrationEngine
      * 
      * @return the SQL script provider.
      */
-    public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
+    public final static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
             final DatabaseConfigurationContext context, final String databaseVersion)
     {
         assert context != null : "Unspecified database configuration context.";
@@ -94,7 +94,7 @@ public class DBMigrationEngine
      * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent
      *             database.
      */
-    public void migrateTo(final String version)
+    public final void migrateTo(final String version)
     {
         if (shouldCreateFromScratch)
         {
@@ -159,7 +159,7 @@ public class DBMigrationEngine
         }
     }
 
-    private LogEntry getAndCheckLastLogEntry()
+    private final LogEntry getAndCheckLastLogEntry()
     {
         final LogEntry entry = logDAO.getLastEntry();
         if (entry == null)
@@ -179,7 +179,7 @@ public class DBMigrationEngine
         return entry;
     }
 
-    private void setupDatabase(final String version)
+    private final void setupDatabase(final String version)
     {
         adminDAO.createOwner();
         if (scriptProvider.isDumpRestore(version))
@@ -198,13 +198,13 @@ public class DBMigrationEngine
         }
     }
 
-    private void createEmptyDatabase(final String version)
+    private final void createEmptyDatabase(final String version)
     {
         adminDAO.createDatabase();
         executeSchemaScript(version);
     }
 
-    private void executeSchemaScript(final String version)
+    private final void executeSchemaScript(final String version)
     {
         final Script schemaScript = scriptProvider.tryGetSchemaScript(version);
         if (schemaScript == null)
@@ -224,7 +224,7 @@ public class DBMigrationEngine
         }
     }
 
-    private void fillWithInitialData(final String version)
+    private final void fillWithInitialData(final String version)
     {
         final Script initialDataScript = scriptProvider.tryGetDataScript(version);
         if (initialDataScript != null)
@@ -233,7 +233,7 @@ public class DBMigrationEngine
         }
     }
 
-    private void migrate(final String fromVersion, final String toVersion)
+    private final void migrate(final String fromVersion, final String toVersion)
     {
         String version = fromVersion;
         do
@@ -262,7 +262,7 @@ public class DBMigrationEngine
     }
 
     @Private
-    static String increment(final String version)
+    final static String increment(final String version)
     {
         final char[] characters = new char[version.length()];
         version.getChars(0, characters.length, characters, 0);

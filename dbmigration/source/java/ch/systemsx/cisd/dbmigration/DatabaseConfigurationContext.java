@@ -37,7 +37,12 @@ public class DatabaseConfigurationContext implements DisposableBean
 {
     private static final class BasicDataSourceFactory implements IDataSourceFactory
     {
-        public DataSource createDataSource(final String driver, final String url,
+
+        //
+        // IDataSourceFactory
+        //
+
+        public final DataSource createDataSource(final String driver, final String url,
                 final String owner, final String password)
         {
             final BasicDataSource dataSource = new BasicDataSource();
