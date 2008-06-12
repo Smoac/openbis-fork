@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  * 
  * @author Christian Ribeaud
  */
-public class Principal extends AbstractHashable implements Serializable 
+public final class Principal extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -124,7 +124,7 @@ public class Principal extends AbstractHashable implements Serializable
      * Returns the property for given <var>key</var>, or <code>null</code>, if no property
      * exists for this <var>key</var>.
      */
-    public final String getProperty(String key)
+    public final String getProperty(final String key)
     {
         return properties.get(key);
     }
