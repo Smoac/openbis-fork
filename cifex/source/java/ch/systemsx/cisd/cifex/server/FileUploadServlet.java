@@ -57,11 +57,13 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
      * was successful, so if you change the value of the constant here it should also be changed in
      * the widget.
      */
+    private static final long serialVersionUID = 1L;
+
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
 
     private static final String MAX_UPLOAD_SIZE = "max-upload-size";
 
-    private static final long serialVersionUID = 1L;
+    private static final int MAX_FILENAME_LENGTH = 250;
 
     private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
 
@@ -180,6 +182,27 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
         }
     }
 
+    private String enforceMaxLength(final String filename)
+    {
+        if (filename.length() > MAX_FILENAME_LENGTH)
+        {
+            final String extension = FilenameUtils.getExtension(filename);
+            if (extension.length() > MAX_FILENAME_LENGTH / 2)
+            {
+                return filename.substring(0, MAX_FILENAME_LENGTH);
+            } else
+            {
+                final String filenameWithoutExtension = FilenameUtils.removeExtension(filename);
+                final int maxLengthWithoutExtension = 250 - extension.length() - 1;
+                return filenameWithoutExtension.substring(0, maxLengthWithoutExtension)
+                        + FilenameUtils.EXTENSION_SEPARATOR_STR + extension;
+            }
+        } else
+        {
+            return filename;
+        }
+    }
+
     private String getURLForEmail(final HttpServletRequest request)
     {
         final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
@@ -238,8 +261,8 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
                                 .getFieldName(), item.getName()));
                     }
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, filenameInStream, comment.toString(),
-                                    item.getContentType(), stream);
+                            fileManager.saveFile(requestUser, enforceMaxLength(filenameInStream),
+                                    comment.toString(), item.getContentType(), stream);
                     files.add(file);
                 } else
                 {
