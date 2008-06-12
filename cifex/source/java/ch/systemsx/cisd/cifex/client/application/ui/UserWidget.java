@@ -144,16 +144,12 @@ public abstract class UserWidget extends Form
         // only add it, if a new user is created, not when editing a user.
         if (editUser == null)
         {
-
             commentArea = createCommentArea();
             add(commentArea);
-
         } else if (editingMyself() == false)
         {
-
             sendUpdateInformation = createSendUserInformationCheckbox();
             add(sendUpdateInformation);
-
         }
 
         end();
@@ -299,12 +295,10 @@ public abstract class UserWidget extends Form
 
     private void disableInternalFields(final boolean disabled)
     {
-
         usernameField.setDisabled(disabled);
         passwordField.setDisabled(disabled);
         validatePasswordField.setDisabled(disabled);
         emailField.setDisabled(disabled);
-
     }
 
     private final TextField createUsernameField()

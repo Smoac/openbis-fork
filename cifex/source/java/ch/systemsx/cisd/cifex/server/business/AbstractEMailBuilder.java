@@ -52,11 +52,11 @@ abstract class AbstractEMailBuilder
 
     protected String password;
 
-    protected AbstractEMailBuilder(IMailClient mailClient, UserDTO registrator, String email)
+    protected AbstractEMailBuilder(final IMailClient mailClient, final UserDTO registrator, final String email)
     {
         assert mailClient != null : "Unspecified mail client.";
         assert registrator != null : "Unspecified registrator.";
-        assert email != null : "Unspecified email.";
+        assert StringUtils.isNotEmpty(email) : "Empty email.";
 
         this.mailClient = mailClient;
         this.registrator = registrator;
@@ -78,7 +78,7 @@ abstract class AbstractEMailBuilder
      * Sets the base URL used to creating links in the e-mail. Has to be called before e-mail will
      * be send.
      */
-    public void setURL(String url)
+    public void setURL(final String url)
     {
         this.url = url;
     }
@@ -86,7 +86,7 @@ abstract class AbstractEMailBuilder
     /**
      * Sets an optional comment.
      */
-    public void setComment(String comment)
+    public void setComment(final String comment)
     {
         this.comment = comment;
     }
@@ -94,7 +94,7 @@ abstract class AbstractEMailBuilder
     /**
      * Sets the password which might be needed.
      */
-    public void setPassword(String password)
+    public void setPassword(final String password)
     {
         this.password = password;
     }
@@ -102,7 +102,7 @@ abstract class AbstractEMailBuilder
     /**
      * Sets the full name, to be used in the greeting (if available).
      */
-    public void setFullName(String fullName)
+    public void setFullName(final String fullName)
     {
         this.fullName = fullName;
     }
@@ -116,7 +116,7 @@ abstract class AbstractEMailBuilder
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
     }
 
-    protected final void addGreeting(StringBuilder builder)
+    protected final void addGreeting(final StringBuilder builder)
     {
         builder.append("Hello");
         if (StringUtils.isNotBlank(fullName))
@@ -127,7 +127,7 @@ abstract class AbstractEMailBuilder
         builder.append(",\n\n");
     }
 
-    protected final void addRegistratorDetails(StringBuilder builder)
+    protected final void addRegistratorDetails(final StringBuilder builder)
     {
         builder.append("------------------------------------------------------------\n");
         builder.append("\nFrom:\t").append(getShortRegistratorDescription());

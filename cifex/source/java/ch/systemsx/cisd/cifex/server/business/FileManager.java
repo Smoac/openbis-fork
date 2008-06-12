@@ -75,7 +75,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
-    
+
     public final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
 
     FileManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
@@ -309,8 +309,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 final CountingInputStream countingInputStream = new CountingInputStream(input);
                 inputStream = countingInputStream;
                 // Uncomment the following line if you want a more perceptible effect in the file
-                // upload feedback.
-                // inputStream = new SlowInputStream(countingInputStream, 100 * FileUtils.ONE_KB);
+                // upload feedback. inputStream = new SlowInputStream(countingInputStream, 100 *
+                // FileUtils.ONE_KB);
                 IOUtils.copy(inputStream, outputStream);
                 final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
@@ -383,7 +383,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public List<String> shareFilesWith(final String url, final UserDTO requestUser,
+    public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
             final String comment) throws UserFailureException
     {
@@ -409,10 +409,10 @@ final class FileManager extends AbstractManager implements IFileManager
                 if (lowerCaseIdentifier.startsWith(USER_ID_PREFIX))
                 {
                     usersOrNull = new HashSet<UserDTO>();
-                    UserDTO userOrNull =
-                            existingUniqueUsers.tryGet(lowerCaseIdentifier
-                                    .substring(USER_ID_PREFIX.length()));
-                    if (userOrNull != null)
+                    final UserDTO userOrNull =
+                            existingUniqueUsers.tryGet(lowerCaseIdentifier.substring(USER_ID_PREFIX
+                                    .length()));
+                    if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
                     {
                         usersOrNull.add(userOrNull);
                     } else
@@ -422,7 +422,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 } else
                 {
                     usersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
-                    if (usersOrNull == null) // Try to create user.
+                    // Try to create user.
+                    if (usersOrNull == null)
                     {
                         password = passwordGenerator.generatePassword(10);
                         final UserDTO user =
@@ -434,10 +435,7 @@ final class FileManager extends AbstractManager implements IFileManager
                         } else
                         {
                             // Email address is invalid because user does not exist and requestUser
-                            // is
-                            // not allowed to create
-                            // new
-                            // users.
+                            // is not allowed to create new users.
                             invalidEmailAdresses.add(lowerCaseIdentifier);
                         }
                     }
@@ -446,20 +444,15 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     allUsers.addAll(usersOrNull);
                     // Implementation note: we do the sharing link creation and the email sending in
-                    // two loops in order
-                    // to
-                    // ensure that all database links are created before any email is sent (note
-                    // that this method is
-                    // @Transactional).
+                    // two loops in order to ensure that all database links are created before any
+                    // email is sent (note that this method is @Transactional).
                     final List<String> alreadyExistingSharingLinks = new ArrayList<String>();
                     for (final UserDTO user : usersOrNull)
                     {
                         for (final FileDTO file : files)
                         {
-
                             try
                             {
-
                                 fileDAO.createSharingLink(file.getID(), user.getID());
                             } catch (final DataIntegrityViolationException ex)
                             {
@@ -468,7 +461,6 @@ final class FileManager extends AbstractManager implements IFileManager
                                         "Sharing file %s with user %s for the second time.", file
                                                 .getPath(), user.getUserCode()), ex);
                             }
-
                         }
                     }
                     if (alreadyExistingSharingLinks.size() > 0)
@@ -506,10 +498,8 @@ final class FileManager extends AbstractManager implements IFileManager
                             if (notified == false)
                             {
                                 // As we are sure that we get correct email addresses, this
-                                // exception can only be
-                                // related to
-                                // the configuration and/or environment. So inform the administrator
-                                // about the problem.
+                                // exception can only be related to the configuration and/or
+                                // environment. So inform the administrator about the problem.
                                 notificationLog.error(
                                         "A problem has occurred while sending email.", ex);
                                 notified = true;
@@ -556,8 +546,8 @@ final class FileManager extends AbstractManager implements IFileManager
     private UserDTO tryCreateUser(final UserDTO requestUser, final String email,
             final String password)
     {
-        if (requestUser.isPermanent()) // Only permanent users are allowed to create new user
-        // accounts.
+        // Only permanent users are allowed to create new user accounts.
+        if (requestUser.isPermanent())
         {
             final UserDTO user = new UserDTO();
             user.setUserCode(email);

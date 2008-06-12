@@ -85,7 +85,7 @@ class UserManager extends AbstractManager implements IUserManager
     public List<UserDTO> tryFindUserByEmail(final String email)
     {
         assert email != null : "Given Email Adress is null";
-        
+
         return daoFactory.getUserDAO().tryFindUserByEmail(email);
     }
 
@@ -127,13 +127,19 @@ class UserManager extends AbstractManager implements IUserManager
     private void sendEmailToNewUser(final UserDTO user, final UserDTO registrator,
             final String comment, final String basicURL, final String finalPassword)
     {
+        if (StringUtils.isEmpty(user.getEmail()))
+        {
+            operationLog.warn(String.format(
+                    "Sending email to user '%s' not possible: email address is empty.", user));
+            return;
+        }
         try
         {
             final EMailBuilderForNewUser builder =
                     new EMailBuilderForNewUser(businessContext.getMailClient(), registrator, user);
             builder.setURL(getURLForEmail(basicURL));
             builder.setPassword(finalPassword);
-            if (comment != null && comment.equals("") == false)
+            if (StringUtils.isNotBlank(comment))
             {
                 builder.setComment(comment);
             }

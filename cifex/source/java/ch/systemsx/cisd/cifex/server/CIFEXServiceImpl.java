@@ -669,12 +669,17 @@ public final class CIFEXServiceImpl implements ICIFEXService
         userManager.updateUser(userDTO, new Password(plainPassword));
         if (sendUpdateInformationToUser)
         {
+            if (StringUtils.isEmpty(user.getEmail()))
+            {
+                operationLog.warn(String.format(
+                        "Sending email to user '%s' not possible: email address is empty.", user));
+                return;
+            }
             try
             {
                 final IMailClient mailClient = domainModel.getMailClient();
                 final EMailBuilderForUpdateUser builder =
-                        new EMailBuilderForUpdateUser(mailClient, this.privGetCurrentUser(),
-                                userDTO);
+                        new EMailBuilderForUpdateUser(mailClient, privGetCurrentUser(), userDTO);
                 builder.setURL(getBasicURL());
                 if (StringUtils.isNotBlank(plainPassword))
                 {
@@ -695,7 +700,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     /**
      * Changes the user code from <var>before</var> to <var>after</var>.
      */
-    public void changeUserCode(final String before, final String after)
+    public final void changeUserCode(final String before, final String after)
             throws InvalidSessionException, InsufficientPrivilegesException,
             EnvironmentFailureException
     {
@@ -710,6 +715,12 @@ public final class CIFEXServiceImpl implements ICIFEXService
         {
             userManager.changeUserCode(before, after);
             final UserDTO user = userManager.tryFindUserByCode(after);
+            if (StringUtils.isEmpty(user.getEmail()))
+            {
+                operationLog.warn(String.format(
+                        "Sending email to user '%s' not possible: email address is empty.", user));
+                return;
+            }
             try
             {
                 final IMailClient mailClient = domainModel.getMailClient();
