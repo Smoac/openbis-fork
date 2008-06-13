@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -80,14 +79,22 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         postInitialization();
     }
 
-    /**
-     * Gets called after initialization finished here.
-     * <p>
-     * Default implementation does nothing.
-     * </p>
-     */
-    protected void postInitialization()
+    protected final String getErrorMessage(final Exception exception)
     {
+        final String message;
+        final String exceptionMsg = exception.getMessage();
+        if (StringUtils.isNotBlank(exceptionMsg))
+        {
+            message = exceptionMsg;
+        } else
+        {
+            message =
+                    String
+                            .format(
+                                    "The request could not be processed because an unknown problem [%s] occurred.",
+                                    exception.getClass().getSimpleName());
+        }
+        return message;
     }
 
     protected final UserDTO getUserDTO(final HttpServletRequest request)
@@ -102,8 +109,22 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         return (UserDTO) session.getAttribute(CIFEXServiceImpl.SESSION_NAME);
     }
 
+    /**
+     * Gets called after initialization finished here.
+     * <p>
+     * Default implementation does nothing.
+     * </p>
+     */
+    protected void postInitialization()
+    {
+    }
+
+    //
+    // HttpServlet
+    //
+
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response)
+    public final void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
         try
@@ -131,46 +152,6 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
             }
         }
     }
-
-    /**
-     * Sends an error message to the client.
-     */
-    // TODO 2008-01-27, Christian Ribeaud: instead of using this method we could send an XML resp.
-    // JSON response which
-    // can be read and interpreted by the form (formConfig.setErrorReader(errorReader) resp.
-    // formConfig.setReader(reader)).
-    protected final void sendErrorMessage(final HttpServletResponse response, final String message)
-            throws IOException
-    {
-        assert message != null : "Given msg can not be null.";
-        response.setContentType("text/plain");
-        final PrintWriter writer = response.getWriter();
-        writer.write(message);
-        writer.flush();
-        writer.close();
-    }
-
-    protected final String getErrorMessage(final Exception exception)
-    {
-        final String message;
-        final String exceptionMsg = exception.getMessage();
-        if (StringUtils.isNotBlank(exceptionMsg))
-        {
-            message = exceptionMsg;
-        } else
-        {
-            message =
-                    String
-                            .format(
-                                    "The request could not be processed because an unknown problem [%s] occurred.",
-                                    exception.getClass().getSimpleName());
-        }
-        return message;
-    }
-
-    //
-    // HttpServlet
-    //
 
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
