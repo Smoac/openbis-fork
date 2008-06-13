@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -174,11 +175,11 @@ public final class UserActionLog implements IUserActionLog
         {
             result.append("PASSWORD, ");
         }
-        if (StringUtils.equals(oldUser.getUserFullName(), newUser.getUserFullName()) == false)
+        if (changed(oldUser.getUserFullName(), newUser.getUserFullName()))
         {
             result.append("FULLNAME, ");
         }
-        if (StringUtils.equals(oldUser.getEmail(), newUser.getEmail()) == false)
+        if (changed(oldUser.getEmail(), newUser.getEmail()))
         {
             result.append("EMAIL, ");
         }
@@ -199,6 +200,13 @@ public final class UserActionLog implements IUserActionLog
             result.setLength(result.length() - 2);
         }
         return result.toString();
+    }
+
+    @Private
+    static boolean changed(String string1OrNull, String string2OrNull)
+    {
+        return StringUtils.equals(string1OrNull, string2OrNull) == false
+                && (StringUtils.isBlank(string1OrNull) && StringUtils.isBlank(string2OrNull)) == false;
     }
 
     public void logUpdateUser(final UserDTO oldUser, final UserDTO newUser, final boolean success)
