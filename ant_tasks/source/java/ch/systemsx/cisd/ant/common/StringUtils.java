@@ -110,12 +110,12 @@ public final class StringUtils
         {
             return null;
         }
-        if (!iterator.hasNext())
+        if (iterator.hasNext() == false)
         {
             return EMPTY;
         }
         Object first = iterator.next();
-        if (!iterator.hasNext())
+        if (iterator.hasNext() == false)
         {
             return toString(first);
         }
