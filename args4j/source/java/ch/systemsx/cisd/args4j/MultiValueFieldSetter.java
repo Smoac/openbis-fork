@@ -1,12 +1,12 @@
 package ch.systemsx.cisd.args4j;
 
-import ch.systemsx.cisd.args4j.spi.Setter;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.args4j.spi.Setter;
 
 /**
  * {@link Setter} that sets multiple values to a collection {@link Field}.
@@ -33,7 +33,7 @@ final class MultiValueFieldSetter implements Setter<Object>
     @SuppressWarnings("unchecked")
     public Class<Object> getType()
     {
-        // TODO: compute this correctly
+        // TODO 2008-06-15, Christian Ribeaud: compute this correctly
         Type t = f.getGenericType();
         if (t instanceof ParameterizedType)
         {

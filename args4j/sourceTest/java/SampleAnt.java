@@ -1,13 +1,13 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.Vector;
+
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
-
-import java.io.IOException;
-import java.io.File;
-import java.util.List;
-import java.util.Vector;
-import java.util.TreeMap;
 
 /**
  * Showing the Ant command line interface as args4j annotations.
@@ -127,7 +127,7 @@ public class SampleAnt
         buildfile = f;
     }
 
-    // TODO: How to handle that?
+    // TODO 2008-06-15, Christian Ribeaud: How to handle that?
     // -D<property>=<value> use value for given property
     private TreeMap<String, String> props = new TreeMap<String, String>();
 
@@ -146,7 +146,7 @@ public class SampleAnt
     @Option(name = "-inputhandler", usage = "the class which will handle input requests", metaVar = "<class>")
     private String inputhandler;
 
-    // TODO: Another problem
+    // TODO 2008-06-15, Christian Ribeaud: Another problem
     // -find <file> (s)earch for buildfile towards the root of
     // -s <file> the filesystem and use it
     // problem is: info text has two lines and there are two lines for different option strings
