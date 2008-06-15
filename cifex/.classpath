@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty/jetty.jar" sourcepath="/libraries/jetty/src/jetty.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-util.jar" sourcepath="/libraries/jetty/src/jetty-util.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty/servlet-api-2.5.jar" sourcepath="/libraries/jetty/src/servlet-api-2.5.zip"/>
-	<classpathentry kind="lib" path="/libraries/args4j/args4j.jar" sourcepath="/libraries/args4j/args4j-src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-java5-threadpool.jar" sourcepath="/libraries/jetty/src/jetty-java5-threadpool.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty/jetty-sslengine.jar" sourcepath="/libraries/jetty/src/jetty-sslengine.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
