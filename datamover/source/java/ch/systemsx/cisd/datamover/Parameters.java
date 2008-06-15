@@ -27,14 +27,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.ExampleMode;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.LongOptionHandler;
-import org.kohsuke.args4j.spi.OptionHandler;
-import org.kohsuke.args4j.spi.Setter;
 
+import ch.systemsx.cisd.args4j.CmdLineException;
+import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.args4j.Option;
+import ch.systemsx.cisd.args4j.spi.LongOptionHandler;
+import ch.systemsx.cisd.args4j.spi.OptionHandler;
+import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
@@ -821,23 +821,25 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final void set(final long value) throws CmdLineException
         {
-            setter.addValue(toMillis(value));
+            super.set(toMillis(value));
         }
 
     }
 
     public final static class FileWithHighwaterMarkHandler extends
-            OptionHandler<FileWithHighwaterMark>
+            OptionHandler
     {
-
         static final char SEP = ':';
+
+        private final Setter<? super FileWithHighwaterMark> setter;
 
         private String argument;
 
         public FileWithHighwaterMarkHandler(final Option option,
                 final Setter<FileWithHighwaterMark> setter)
         {
-            super(option, setter);
+            super(option);
+            this.setter = setter;
         }
 
         //
@@ -851,7 +853,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         }
 
         @Override
-        public final int parseArguments(final org.kohsuke.args4j.spi.Parameters params)
+        public final int parseArguments(final ch.systemsx.cisd.args4j.spi.Parameters params)
                 throws CmdLineException
         {
             argument = params.getOptionName();

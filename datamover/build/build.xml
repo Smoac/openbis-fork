@@ -34,7 +34,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
 				<attribute name="Class-Path"
-                   value="log4j.jar args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar" />
+                   value="log4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
@@ -45,7 +45,6 @@
 		<copy file="${lib}/activation/activation.jar" todir="${dist.datamover.lib}" />
 		<copy file="${lib}/mail/mail.jar" todir="${dist.datamover.lib}" />
 		<copy file="${lib}/log4j/log4j.jar" todir="${dist.datamover.lib}" />
-		<copy file="${lib}/args4j/args4j.jar" todir="${dist.datamover.lib}" />
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datamover.lib}" />
 		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datamover.lib}" />
 		<property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
