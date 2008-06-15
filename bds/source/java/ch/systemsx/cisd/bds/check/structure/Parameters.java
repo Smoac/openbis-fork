@@ -21,12 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.ExampleMode;
-import org.kohsuke.args4j.Option;
-
+import ch.systemsx.cisd.args4j.Argument;
+import ch.systemsx.cisd.args4j.CmdLineException;
+import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
