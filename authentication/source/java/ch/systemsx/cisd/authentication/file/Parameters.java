@@ -19,12 +19,11 @@ package ch.systemsx.cisd.authentication.file;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.ExampleMode;
-import org.kohsuke.args4j.Option;
-
+import ch.systemsx.cisd.args4j.Argument;
+import ch.systemsx.cisd.args4j.CmdLineException;
+import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
@@ -186,8 +185,8 @@ final class Parameters
         }
         if (fieldOrNull.indexOf(':') >= 0)
         {
-            throw new UserFailureException(StringUtilities.capitalize(describer)
-                    + " '" + fieldOrNull + "'" + " must not contain a ':'.");
+            throw new UserFailureException(StringUtilities.capitalize(describer) + " '"
+                    + fieldOrNull + "'" + " must not contain a ':'.");
         }
     }
 
