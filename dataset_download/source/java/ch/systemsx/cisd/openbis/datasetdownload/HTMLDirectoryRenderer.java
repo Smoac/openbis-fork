@@ -27,9 +27,9 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.lims.base.dto.Experiment;
 import ch.systemsx.cisd.lims.base.dto.ExternalData;
-import ch.systemsx.cisd.lims.base.dto.Group;
+import ch.systemsx.cisd.lims.base.dto.GroupDTO;
 import ch.systemsx.cisd.lims.base.dto.Procedure;
-import ch.systemsx.cisd.lims.base.dto.Project;
+import ch.systemsx.cisd.lims.base.dto.ProjectDTO;
 
 /**
  * An <code>IDirectoryRenderer</code> implementation which renders on HTML pages.
@@ -103,9 +103,9 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         final Procedure procedure = dataSet.getProcedure();
         final Experiment experiment = procedure.getExperiment();
         final String experimentCode = experiment.getCode();
-        final Project project = experiment.getProject();
+        final ProjectDTO project = experiment.getProject();
         final String projectCode = project.getCode();
-        final Group group = project.getGroup();
+        final GroupDTO group = project.getGroup();
         final String groupCode = group.getCode();
         final Template template = HEADER_TEMPLATE.createFreshCopy();
         template.bind("group", groupCode);
