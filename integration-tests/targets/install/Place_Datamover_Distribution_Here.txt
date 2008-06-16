@@ -1,7 +1,0 @@
-If you run the integration test from a branch which does not have a datamover, 
-you should put a datamover distribution (which has the pattern 'datamover-*.zip') here
-and run the integration tests from the command line the followin way:
-
-	./run.sh --etl --lims --local-source --reinstall-all
-	
-Or just run the Eclipse 'External Tool': "Launch branch integration tests - rebuild local openBIS and ETL"
