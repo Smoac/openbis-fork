@@ -275,8 +275,8 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      * Factory method that creates a {@link TerminableCallable} with a <var>delegate</var> that
      * only runs code which is safe to stop.
      * <p>
-     * <strong>Note: Code executed in the <var>delegate</var> must <i>not</i> change
-     * variables or data structures used by several threads or else the problems described in <a
+     * <strong>Note: Code executed in the <var>delegate</var> must <i>not</i> change variables or
+     * data structures used by several threads or else the problems described in <a
      * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
      * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static
      * thread-safe variables like e.g. the ones of type {@link ThreadLocal}!</strong>
@@ -413,7 +413,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         return (causeOrNull != null) ? causeOrNull : new InterruptedException();
     }
 
-    public final V call() throws InterruptedException
+    public V call() throws InterruptedException
     {
         stopLock.lock();
         try
@@ -472,7 +472,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     /**
      * Returns this {@link Callable} as a {@link Runnable}.
      */
-    public final Runnable asRunnable()
+    public Runnable asRunnable()
     {
         return new Runnable()
             {
@@ -490,6 +490,59 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
+     * Returns <code>true</code>, if the callable has already started running.
+     */
+    public boolean hasStarted()
+    {
+        try
+        {
+            return started.await(0L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex)
+        {
+            return false; // Shouldn't happen.
+        }
+    }
+
+    /**
+     * Returns <code>true</code>, if the callable has already finished running.
+     */
+    public boolean hasFinished()
+    {
+        try
+        {
+            return finished.await(0L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex)
+        {
+            return false; // Shouldn't happen.
+        }
+    }
+
+    /**
+     * Returns <code>true</code>, if the callable has already called the
+     * {@link ICleaner#cleanUp(ch.systemsx.cisd.common.concurrent.TerminableCallable.FinishCause)}
+     * method, if any.
+     */
+    public boolean hasCleanedUp()
+    {
+        try
+        {
+            return cleanedUp.await(0L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex)
+        {
+            return false; // Shouldn't happen.
+        }
+    }
+
+    /**
+     * Returns <code>true</code>, if the callable is currently running and <code>false</code>
+     * otherwise.
+     */
+    public boolean isRunning()
+    {
+        return (thread != null);
+    }
+
+    /**
      * Terminates this {@link TerminableCallable}. A convenience wrapper for
      * {@link #terminate(long)} with <var>timeoutMillis</var> set to <var>timeoutTerminateMillis</var>
      * as set in the factory method (see
@@ -500,7 +553,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      *         successfully in due time, or <code>false</code>, if a timeout has occurred.
      * @throws StopException If the current thread is interrupted.
      */
-    public final boolean terminate() throws StopException
+    public boolean terminate() throws StopException
     {
         return terminate(timeoutTerminateMillis);
     }
@@ -538,7 +591,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      *         successfully in due time, or <code>false</code>, if a timeout has occurred.
      * @throws StopException If the current thread is interrupted.
      */
-    public final synchronized boolean terminate(long timeoutMillis) throws StopException
+    public synchronized boolean terminate(long timeoutMillis) throws StopException
     {
         final long start = System.currentTimeMillis();
         if (wait(started, timeoutMillis) == false)
