@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -306,6 +308,62 @@ public final class ConcurrencyUtilities
     }
 
     /**
+     * Submits the <var>callable</var> to the <var>executor</var>.
+     * 
+     * @return A future which allows to terminate the task even when running.
+     * @see ExecutorService#submit(Callable)
+     */
+    public static <V> ITerminableFuture<V> submit(ExecutorService executor,
+            TerminableCallable<V> callable)
+    {
+        final Future<V> future = executor.submit(callable);
+        return new TerminableFuture<V>(future, callable);
+    }
+
+    /**
+     * Submits the <var>callableWithCleaner</var> to the <var>executor</var>.
+     * 
+     * @return A future which allows to terminate the task even when running.
+     * @see ExecutorService#submit(Callable)
+     */
+    public static <V> ITerminableFuture<V> submit(ExecutorService executor,
+            TerminableCallable.ICallableCleaner<V> callableWithCleaner)
+    {
+        return submit(executor, TerminableCallable.create(callableWithCleaner));
+    }
+
+    /**
+     * Submits the <var>callable</var> to the <var>executor</var>.
+     * 
+     * @return A future which allows to terminate the task even when running.
+     * @see ExecutorService#submit(Callable)
+     */
+    public static <V> ITerminableFuture<V> submit(ExecutorService executor,
+            TerminableCallable.ICallable<V> callable)
+    {
+        return submit(executor, TerminableCallable.create(callable));
+    }
+
+    /**
+     * Submits the <var>stoppableCallable</var> to the <var>executor</var>.
+     * <p>
+     * <strong>Note: Code executed in the <var>stoppableCallable</var> must <i>not</i> change
+     * variables or data structures used by several threads or else the problems described in <a
+     * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
+     * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static
+     * thread-safe variables like e.g. the ones of type {@link ThreadLocal}!</strong>
+     * 
+     * @return A future which allows to terminate the task even when running.
+     * @see TerminableCallable#createStoppable(Callable)
+     * @see ExecutorService#submit(Callable)
+     */
+    public static <V> ITerminableFuture<V> submitAsStoppable(ExecutorService executor,
+            Callable<V> stoppableCallable)
+    {
+        return submit(executor, TerminableCallable.createStoppable(stoppableCallable));
+    }
+
+    /**
      * The same as {@link Thread#sleep(long)} but throws a {@link StopException} on interruption
      * rather than a {@link InterruptedException}.
      */
@@ -321,8 +379,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#join()} but throws a {@link StopException} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Thread#join()} but throws a {@link StopException} on interruption rather
+     * than a {@link InterruptedException}.
      */
     public static void join(Thread thread) throws StopException
     {
@@ -351,8 +409,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Object#wait()} but throws a {@link StopException} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Object#wait()} but throws a {@link StopException} on interruption rather
+     * than a {@link InterruptedException}.
      */
     public static void wait(Object obj) throws StopException
     {
