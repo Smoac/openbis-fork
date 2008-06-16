@@ -494,12 +494,23 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      */
     public boolean hasStarted()
     {
+        return waitForStarted(NO_WAIT_MILLIS);
+    }
+
+    /**
+     * Waits for the callable to start running. The method waits at most <var>timeoutMillis</var>
+     * milli-seconds.
+     * 
+     * @return <code>true</code>, if the callable has started running when the method returns.
+     */
+    public boolean waitForStarted(long timeoutMillis) throws StopException
+    {
         try
         {
-            return started.await(0L, TimeUnit.MILLISECONDS);
+            return started.await(timeoutMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex)
         {
-            return false; // Shouldn't happen.
+            throw new StopException(ex);
         }
     }
 
@@ -508,12 +519,23 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      */
     public boolean hasFinished()
     {
+        return waitForFinished(NO_WAIT_MILLIS);
+    }
+
+    /**
+     * Waits for the callable to finish running. The method waits at most <var>timeoutMillis</var>
+     * milli-seconds.
+     * 
+     * @return <code>true</code>, if the callable has finished running when the method returns.
+     */
+    public boolean waitForFinished(long timeoutMillis) throws StopException
+    {
         try
         {
-            return finished.await(0L, TimeUnit.MILLISECONDS);
+            return finished.await(timeoutMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex)
         {
-            return false; // Shouldn't happen.
+            throw new StopException(ex);
         }
     }
 
@@ -524,12 +546,23 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      */
     public boolean hasCleanedUp()
     {
+        return waitForCleanedUp(NO_WAIT_MILLIS);
+    }
+
+    /**
+     * Waits for the callable to finish cleaning up. The method waits at most <var>timeoutMillis</var>
+     * milli-seconds.
+     * 
+     * @return <code>true</code>, if the callable has finished cleaning up when the method returns.
+     */
+    public boolean waitForCleanedUp(long timeoutMillis) throws StopException
+    {
         try
         {
-            return cleanedUp.await(0L, TimeUnit.MILLISECONDS);
+            return cleanedUp.await(timeoutMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex)
         {
-            return false; // Shouldn't happen.
+            throw new StopException(ex);
         }
     }
 
