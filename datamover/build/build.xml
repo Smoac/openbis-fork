@@ -55,17 +55,5 @@
 		<delete dir="${dist.datamover.lib}" />
 	</target>
 
-	<target name="ci" depends="check-restrictions, run-tests, check-dependencies, dist">
-	</target>
-
-	<target name="check-restrictions" depends="compile, compile-tests">
-		<exec executable="sh" dir="${lib}" failonerror="true">
-			<arg value="restrictionchecker/jrc"/>
-			<arg value="-jd"/>
-			<arg value="."/>
-			<arg value="-r"/>
-			<arg value="../common/${classes}"/>
-			<arg value="../datamover/${classes}"/>
-		</exec>
-	</target>
+	<target name="ci" depends="check-restrictions, run-tests, check-dependencies, dist" />
 </project>
