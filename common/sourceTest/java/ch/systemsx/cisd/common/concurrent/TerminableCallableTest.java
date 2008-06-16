@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +55,7 @@ public class TerminableCallableTest
         final private Strategy strategy;
 
         volatile FinishCause cause;
-        
+
         volatile int cleanUpCount;
 
         public TestRunnable(CountDownLatch launchLatch, CountDownLatch milestoneLatch,
@@ -197,7 +200,7 @@ public class TerminableCallableTest
         assertEquals(1, sensor.cleanUpCount);
     }
 
-    @Test
+    @Test(invocationCount = 10)
     public void testThrowException() throws Exception
     {
         final CountDownLatch launchLatch = new CountDownLatch(1);
@@ -209,7 +212,7 @@ public class TerminableCallableTest
         t.start();
         launchLatch.await();
         milestoneLatch.await();
-        assertTrue(callableUnderTest.terminate(0L));
+        assertTrue(callableUnderTest.terminate());
         assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
         assertTrue(describe(sensor.cause), FinishCause.EXCEPTION.equals(sensor.cause));
         assertEquals(1, sensor.cleanUpCount);
