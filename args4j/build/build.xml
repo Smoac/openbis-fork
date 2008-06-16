@@ -8,7 +8,7 @@
     <property name="src.jar.file.name" value="${jar.file.name}-src.jar" />
     <property name="src.jar.file" value="${dist}/${src.jar.file.name}" />
 
-    <target name="ci" depends="build-common.ci, check-dependencies" />
+    <target name="ci" depends="build-common.ci" />
 
     <!-- 
     // Cleans distribution directory.
