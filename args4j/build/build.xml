@@ -1,51 +1,51 @@
 <project name="args4j" basedir=".." default="all">
-	<import file="../../build_resources/ant/build-common.xml" />
-	<project-classpath name="ecp" classes="${classes}" />
+    <import file="../../build_resources/ant/build-common.xml" />
+    <project-classpath name="ecp" classes="${classes}" />
 
-	<property name="mainfolder" value="${ant.project.name}" />
-	<property name="jar.file.name" value="cisd-${ant.project.name}" />
-	<property name="jar.file" value="${dist}/${jar.file.name}.jar" />
-	<property name="src.jar.file.name" value="${jar.file.name}-src.jar" />
-	<property name="src.jar.file" value="${dist}/${src.jar.file.name}" />
+    <property name="mainfolder" value="${ant.project.name}" />
+    <property name="jar.file.name" value="cisd-${ant.project.name}" />
+    <property name="jar.file" value="${dist}/${jar.file.name}.jar" />
+    <property name="src.jar.file.name" value="${jar.file.name}-src.jar" />
+    <property name="src.jar.file" value="${dist}/${src.jar.file.name}" />
 
-	<target name="ci" depends="build-common.ci, check-dependencies" />
+    <target name="ci" depends="build-common.ci, check-dependencies" />
 
-	<!-- 
-    Cleans distribution directory.
-  -->
-	<target name="clean" description="Cleans target directory.">
-		<delete dir="${dist}" failonerror="true" />
-		<delete dir="${targets}/ant" failonerror="true" />
-		<mkdir dir="${dist}" />
-		<mkdir dir="${targets}/ant" />
-	</target>
+    <!-- 
+    // Cleans distribution directory.
+  	-->
+    <target name="clean" description="Cleans target directory.">
+        <delete dir="${dist}" failonerror="true" />
+        <delete dir="${targets}/ant" failonerror="true" />
+        <mkdir dir="${dist}" />
+        <mkdir dir="${targets}/ant" />
+    </target>
 
-	<!--
-   Creates 'args4j.jar'. Note that this will not contain the sources.
-  -->
-	<target name="jar" depends="compile" description="Creates project jar file.">
-		<delete file="${jar.file}" />
-		<recursive-jar destfile="${jar.file}">
-			<fileset dir="${classes}">
-				<include name="**/*.class" />
-			</fileset>
-		</recursive-jar>
-	</target>
+    <!--
+    // Creates 'args4j.jar'. Note that this will not contain the sources.
+  	-->
+    <target name="jar" depends="compile" description="Creates project jar file.">
+        <delete file="${jar.file}" />
+        <recursive-jar destfile="${jar.file}">
+            <fileset dir="${classes}">
+                <include name="**/*.class" />
+            </fileset>
+        </recursive-jar>
+    </target>
 
-	<!--
-   Creates 'args4j-src.jar'. Note that this will only contain the sources.
-  -->
-	<target name="srcjar" description="Creates project source jar file.">
-		<delete file="${src.jar.file}" />
-		<recursive-jar destfile="${src.jar.file}">
-			<fileset dir="${sources}">
-				<include name="**/*" />
-			</fileset>
-		</recursive-jar>
-	</target>
+    <!--
+    // Creates 'args4j-src.jar'. Note that this will only contain the sources.
+  	-->
+    <target name="srcjar" description="Creates project source jar file.">
+        <delete file="${src.jar.file}" />
+        <recursive-jar destfile="${src.jar.file}">
+            <fileset dir="${sources}">
+                <include name="**/*" />
+            </fileset>
+        </recursive-jar>
+    </target>
 
-	<target name="all"
-	        depends="clean,srcjar,jar"
-	        description="Creates the project jar file and the source jar file" />
+    <target name="all"
+            depends="clean,srcjar,jar"
+            description="Creates the project jar file and the source jar file" />
 
 </project>
