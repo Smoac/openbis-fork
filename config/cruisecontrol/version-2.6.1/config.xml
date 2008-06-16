@@ -102,6 +102,14 @@
     </schedule>
   </project>
   
+  <project name="args4j">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+
   <project name="common">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -128,14 +136,6 @@
     </modificationset>
   </project>
   
-  <project name="args4j">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-
   <project name="authentication">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
