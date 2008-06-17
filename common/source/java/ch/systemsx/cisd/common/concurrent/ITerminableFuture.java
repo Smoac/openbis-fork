@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.concurrent;
 
 import java.util.concurrent.Future;
 
-import ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
@@ -35,15 +34,6 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * <code>false</code> otherwise.
      */
     public boolean isRunning();
-
-    /**
-     * Waits for the task of the future to start running. The method waits at most
-     * <var>timeoutMillis</var> milli-seconds.
-     * 
-     * @return <code>true</code>, if the task of the future has started running when the method
-     *         returns.
-     */
-    public boolean waitForStarted(long timeoutMillis) throws StopException;
 
     /**
      * Returns <code>true</code>, if the task of the future has already started running.
@@ -63,22 +53,6 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * Returns <code>true</code>, if the task of the future has already finished running.
      */
     public boolean hasFinished();
-
-    /**
-     * Waits for the task of the future to finish cleaning up. The method waits at most
-     * <var>timeoutMillis</var> milli-seconds.
-     * 
-     * @return <code>true</code>, if the task of the future has finished cleaning up when the
-     *         method returns.
-     */
-    public boolean waitForCleanedUp(long timeoutMillis) throws StopException;
-
-    /**
-     * Returns <code>true</code>, if the task of the future has already called the
-     * {@link ICleaner#cleanUp(ch.systemsx.cisd.common.concurrent.TerminableCallable.FinishCause)}
-     * method, if any.
-     */
-    public boolean hasCleanedUp();
 
     /**
      * Terminates the task of the future if it has already started running. If it has not yet
