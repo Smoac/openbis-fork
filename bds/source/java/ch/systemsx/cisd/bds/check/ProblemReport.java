@@ -38,6 +38,7 @@ public class ProblemReport
             this.severity = level;
         }
 
+        @Override
         public String toString()
         {
             if (Severity.ERROR.equals(this.severity))
