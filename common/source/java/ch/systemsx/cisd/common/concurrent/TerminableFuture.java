@@ -24,16 +24,12 @@ import java.util.concurrent.TimeoutException;
 import ch.systemsx.cisd.common.exceptions.StopException;
 
 /**
- * Implementation of a {@link ITerminableFuture} that delegates to appropriate classes. Note that
- * there is some additional logic in the {@link #terminate()} and {@link #terminate(long)} methods
- * to make them equivalent to {@link Future#cancel(boolean)} if the task did not yet start running.
+ * Implementation of a {@link ITerminableFuture} that delegates to appropriate classes.
  * 
  * @author Bernd Rinn
  */
 final class TerminableFuture<V> implements ITerminableFuture<V>
 {
-    private static final long TINY_PERIOD_MILLIS = 20L;
-
     private final Future<V> delegateFuture;
 
     private final TerminableCallable<V> delegateTerminableCallable;
@@ -76,11 +72,6 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         return delegateTerminableCallable.isRunning();
     }
 
-    public boolean waitForStarted(long timeoutMillis) throws StopException
-    {
-        return delegateTerminableCallable.waitForStarted(timeoutMillis);
-    }
-
     public boolean hasStarted()
     {
         return delegateTerminableCallable.hasStarted();
@@ -96,42 +87,16 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         return delegateTerminableCallable.hasFinished();
     }
 
-    public boolean waitForCleanedUp(long timeoutMillis) throws StopException
-    {
-        return delegateTerminableCallable.waitForCleanedUp(timeoutMillis);
-    }
-
-    public boolean hasCleanedUp()
-    {
-        return delegateTerminableCallable.hasCleanedUp();
-    }
-
     public boolean terminate()
     {
         cancel(false);
-        // Wait for a very short period of time to ensure that the callable didn't just start
-        // running at the very moment when we canceled.
-        if (waitForStarted(TINY_PERIOD_MILLIS))
-        {
-            return delegateTerminableCallable.terminate();
-        } else
-        {
-            return true;
-        }
+        return delegateTerminableCallable.terminate();
     }
 
     public final boolean terminate(long timeoutMillis) throws StopException
     {
         cancel(false);
-        // Wait for a very short period of time to ensure that the callable didn't just start
-        // running at the very moment when we canceled.
-        if (waitForStarted(TINY_PERIOD_MILLIS))
-        {
-            return delegateTerminableCallable.terminate(timeoutMillis);
-        } else
-        {
-            return true;
-        }
+        return delegateTerminableCallable.terminate(timeoutMillis);
     }
 
 }

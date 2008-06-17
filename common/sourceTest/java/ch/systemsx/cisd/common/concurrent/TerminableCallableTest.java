@@ -141,7 +141,7 @@ public class TerminableCallableTest
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.COMPLETE_IMMEDIATELY,
                         finishLatch);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        new Thread(callableUnderTest.asRunnable()).start();
+        new Thread(callableUnderTest.asRunnable(), "complete").start();
         finishLatch.await(500L, TimeUnit.MILLISECONDS);
         assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
         assertTrue(describe(sensor.cause), FinishCause.COMPLETED.equals(sensor.cause));
@@ -156,9 +156,9 @@ public class TerminableCallableTest
         final TestRunnable sensor =
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.SLEEP_FOREVER);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        new Thread(callableUnderTest.asRunnable()).start();
+        new Thread(callableUnderTest.asRunnable(), "interrupt").start();
         launchLatch.await();
-        callableUnderTest.terminate();
+        assertTrue(callableUnderTest.terminate(200L));
         assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
         assertTrue(describe(sensor.cause), FinishCause.INTERRUPTED.equals(sensor.cause));
         assertEquals(1, sensor.cleanUpCount);
@@ -173,7 +173,7 @@ public class TerminableCallableTest
         final TestRunnable sensor =
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.KEEP_SPINNING);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        final Thread t = new Thread(callableUnderTest.asRunnable());
+        final Thread t = new Thread(callableUnderTest.asRunnable(), "terminate failed");
         t.start();
         launchLatch.await();
         assertFalse(callableUnderTest.terminate(200L));
@@ -191,7 +191,7 @@ public class TerminableCallableTest
         final TestRunnable sensor =
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.KEEP_SPINNING_STOPPABLE);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        final Thread t = new Thread(callableUnderTest.asRunnable());
+        final Thread t = new Thread(callableUnderTest.asRunnable(), "stop");
         t.start();
         launchLatch.await();
         assertTrue(callableUnderTest.terminate(200L));
@@ -208,11 +208,11 @@ public class TerminableCallableTest
         final TestRunnable sensor =
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.THROW_EXCEPTION);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        final Thread t = new Thread(callableUnderTest.asRunnable());
+        final Thread t = new Thread(callableUnderTest.asRunnable(), "throw exception");
         t.start();
         launchLatch.await();
         milestoneLatch.await();
-        assertTrue(callableUnderTest.terminate());
+        assertTrue(callableUnderTest.terminate(200L));
         assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
         assertTrue(describe(sensor.cause), FinishCause.EXCEPTION.equals(sensor.cause));
         assertEquals(1, sensor.cleanUpCount);

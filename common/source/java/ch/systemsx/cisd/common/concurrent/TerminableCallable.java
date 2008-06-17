@@ -17,10 +17,6 @@
 package ch.systemsx.cisd.common.concurrent;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.HardStopException;
@@ -36,8 +32,8 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
  * this class, but create a new one instead!
  * <p>
  * All code in the delegate {@link #call()} that cannot be interrupted but safely be stopped (see
- * {@link Thread#interrupt()} and <code>Thread.stop()</code> for details) should be executed in
- * the <var>stoppableExecutor</var>.
+ * {@link Thread#interrupt()} and <code>Thread.stop()</code>) should be executed in the
+ * <var>stoppableExecutor</var>.
  * <p>
  * <strong>Note: Code executed in the <var>stoppableExecutor</var> must <i>not</i> change
  * variables or data structures used by several threads or else the problems described in <a
@@ -112,24 +108,14 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      */
     public static final long DEFAULT_WAIT_INTERRUPT_MILLIS = 100L;
 
+    /**
+     * The guard of the thread that runs the task.
+     */
+    private final ThreadGuard threadGuard = new ThreadGuard();
+
     private final ICallable<V> delegate;
 
     private final ICleaner cleanerOrNull;
-
-    /** The thread to interrupt or stop. */
-    private volatile Thread thread;
-
-    /** This latch signals that the callable has actually started. */
-    private final CountDownLatch started = new CountDownLatch(1);
-
-    /** This latch signals that the callable has finished. */
-    private final CountDownLatch finished = new CountDownLatch(1);
-
-    /** This latch signals that the callable has finished clean up after an interrupt or stop. */
-    private final CountDownLatch cleanedUp = new CountDownLatch(1);
-
-    /** The lock that guards stopping the thread. */
-    private final Lock stopLock = new ReentrantLock();
 
     /** The time (in milli-seconds) to wait for {@link Thread#interrupt()} to work. */
     private final long waitInterruptMillis;
@@ -143,13 +129,13 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         /** The callable completed normally. */
         COMPLETED,
 
-        /** The thread of the callable got interrupted. */
+        /** The thread that runs the callable got interrupted. */
         INTERRUPTED,
 
-        /** The thread of the callable got stopped. */
+        /** The thread that runs the callable got stopped. */
         STOPPED,
 
-        /** The callable was terminated with an exception. */
+        /** The callable got terminated with an exception. */
         EXCEPTION,
     }
 
@@ -280,12 +266,6 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      * href="http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">"Why is
      * <code>Thread.stop()</code> deprecated?"</a> apply to your code! Watch out for static
      * thread-safe variables like e.g. the ones of type {@link ThreadLocal}!</strong>
-     * <p>
-     * Convenience wrapper for
-     * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, 
-     * ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)} with
-     * <var>waitInterruptMillis</var> set to 0 and <var>timeoutTerminateMillis</var> set to
-     * {@link #WAIT_FOREVER_MILLIS}.
      */
     public static <V> TerminableCallable<V> createStoppable(final Callable<V> delegate)
     {
@@ -320,53 +300,6 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         this.timeoutTerminateMillis = timeoutTerminateMillis;
     }
 
-    /** Return <code>true</code>, if the <var>latch</var> becomes 0 in due time. */
-    private static boolean wait(CountDownLatch latch, long timeoutMillis) throws StopException
-    {
-        try
-        {
-            return latch.await(timeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex)
-        {
-            throw new StopException(ex);
-        }
-    }
-
-    private boolean stop(Thread t, long timeoutMillis) throws StopException
-    {
-        final boolean gotIt;
-        try
-        {
-            gotIt = stopLock.tryLock(timeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex)
-        {
-            throw new StopException(ex);
-        }
-        if (gotIt == false)
-        {
-            return false;
-        }
-        try
-        {
-            stopNow(t);
-            return true;
-        } finally
-        {
-            stopLock.unlock();
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void stopNow(Thread t)
-    {
-        t.stop(new HardStopException());
-    }
-
-    private void cleanUp()
-    {
-        cleanUp(null);
-    }
-
     private void cleanUp(Throwable throwableOrNull)
     {
         if (cleanerOrNull != null)
@@ -390,23 +323,6 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         }
     }
 
-    private void markStarted()
-    {
-        thread = Thread.currentThread();
-        started.countDown();
-    }
-
-    private void markFinished()
-    {
-        thread = null;
-        finished.countDown();
-    }
-
-    private void markCleanedUp()
-    {
-        cleanedUp.countDown();
-    }
-
     private InterruptedException getOrCreateInterruptedException(StopException stopEx)
     {
         final InterruptedException causeOrNull = (InterruptedException) stopEx.getCause();
@@ -415,57 +331,54 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
 
     public V call() throws InterruptedException
     {
-        stopLock.lock();
+        Throwable throwableOrNull = null;
         try
         {
             final V result;
-            markStarted();
+            threadGuard.startGuardOrInterrupt();
             try
             {
                 result = delegate.call(new IStoppableExecutor<V>()
                     {
                         public V execute(Callable<V> callable) throws Exception
                         {
-                            stopLock.unlock();
+                            threadGuard.allowStopping();
                             try
                             {
                                 return callable.call();
                             } finally
                             {
-                                stopLock.lock();
+                                threadGuard.preventStopping();
                             }
                         }
 
                         public void execute(Runnable runnable) throws Exception
                         {
-                            stopLock.unlock();
+                            threadGuard.allowStopping();
                             try
                             {
                                 runnable.run();
                             } finally
                             {
-                                stopLock.lock();
+                                threadGuard.preventStopping();
                             }
                         }
                     });
             } catch (Throwable th)
             {
-                markFinished();
-                cleanUp(th);
-                if (th instanceof StopException)
-                {
-                    throw getOrCreateInterruptedException((StopException) th);
-                } else
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(th);
-                }
+                throwableOrNull = th;
+                threadGuard.markFinishingOrInterrupt();
+                throw CheckedExceptionTunnel.wrapIfNecessary(th);
             }
-            markFinished();
-            cleanUp();
+            threadGuard.markFinishingOrInterrupt();
             return result;
+        } catch (StopException ex)
+        {
+            throw getOrCreateInterruptedException(ex);
         } finally
         {
-            markCleanedUp();
+            cleanUp(throwableOrNull);
+            threadGuard.markFinished();
         }
     }
 
@@ -490,28 +403,20 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
+     * Returns <code>true</code>, if the callable is currently running and <code>false</code>
+     * otherwise.
+     */
+    public boolean isRunning()
+    {
+        return threadGuard.isRunning();
+    }
+
+    /**
      * Returns <code>true</code>, if the callable has already started running.
      */
     public boolean hasStarted()
     {
-        return waitForStarted(NO_WAIT_MILLIS);
-    }
-
-    /**
-     * Waits for the callable to start running. The method waits at most <var>timeoutMillis</var>
-     * milli-seconds.
-     * 
-     * @return <code>true</code>, if the callable has started running when the method returns.
-     */
-    public boolean waitForStarted(long timeoutMillis) throws StopException
-    {
-        try
-        {
-            return started.await(timeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex)
-        {
-            throw new StopException(ex);
-        }
+        return threadGuard.hasStarted();
     }
 
     /**
@@ -532,7 +437,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     {
         try
         {
-            return finished.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            return threadGuard.waitForFinished(timeoutMillis);
         } catch (InterruptedException ex)
         {
             throw new StopException(ex);
@@ -540,39 +445,14 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * Returns <code>true</code>, if the callable has already called the
-     * {@link ICleaner#cleanUp(ch.systemsx.cisd.common.concurrent.TerminableCallable.FinishCause)}
-     * method, if any.
-     */
-    public boolean hasCleanedUp()
-    {
-        return waitForCleanedUp(NO_WAIT_MILLIS);
-    }
-
-    /**
-     * Waits for the callable to finish cleaning up. The method waits at most <var>timeoutMillis</var>
-     * milli-seconds.
+     * Cancels the callable if it is not yet running.
      * 
-     * @return <code>true</code>, if the callable has finished cleaning up when the method returns.
+     * @return <code>true</code>, if the callable is cancelled and <code>false</code>
+     *         otherwise.
      */
-    public boolean waitForCleanedUp(long timeoutMillis) throws StopException
+    public boolean cancel()
     {
-        try
-        {
-            return cleanedUp.await(timeoutMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex)
-        {
-            throw new StopException(ex);
-        }
-    }
-
-    /**
-     * Returns <code>true</code>, if the callable is currently running and <code>false</code>
-     * otherwise.
-     */
-    public boolean isRunning()
-    {
-        return (thread != null);
+        return threadGuard.cancel();
     }
 
     /**
@@ -593,58 +473,25 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
 
     /**
      * Tries to terminate this {@link TerminableCallable}. Note that this is a synchronous call
-     * that returns only when either the callable has been terminated (and cleaned up) or when a
-     * timeout has occurred. Note also that even when providing <var>timeoutMillis</var> as 0, this
-     * method may wait up to <var>timeoutInterruptMillis</var> milli-seconds for the
+     * that returns only when either the callable has been terminated or finished or when a timeout
+     * has occurred. Note also that even when providing <var>timeoutMillis</var> as 0, this method
+     * may wait up to <var>waitInterruptMillis</var> milli-seconds for the
      * {@link Thread#interrupt()} call to terminate the callable.
-     * <p>
-     * The following steps are performed:
-     * <ol>
-     * <li> Wait for the callable to start up, if that has not happened. If it doesn't start up in
-     * due time, return with <code>false</code>. </li>
-     * <li> If the callable has already terminated, wait for the clean up to finish and return
-     * <code>true</code>, if the clean up finishes in due time and <code>false</code>
-     * otherwise. </li>
-     * <li> Call <code>Thread.terminate()</code> on the thread that is running the callable. </li>
-     * <li> Wait for the callable to terminate in response to the call above (wait for
-     * <var>timeoutInterruptMillis</var> milli-seconds, as provided to the
-     * {@link #create(ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallable, 
-     * ch.systemsx.cisd.common.concurrent.TerminableCallable.ICleaner, long, long)} method. </li>
-     * <li> If the callable didn't terminate, try to call <code>Thread.stop()</code> on the thread
-     * that is running the callable. This can only succeed, if the callable is currently running
-     * code in the <var>stoppableExecutor</var>.</li>
-     * <li> If either interrupt or stop took effect in due time, wait for clean up to finish. </li>
-     * <li> If the clean up finishes in due time, return <code>true</code>, otherwise
-     * <code>false</code>. </li>
-     * </ol>
      * 
-     * @param timeoutMillis If <code>== 0</code>, the method will wait for the callable to stop,
-     *            if <code>&gt; 0</code>, the method will wait at most this time.
-     * @return <code>true</code>, if the callable is confirmed to be terminated and cleaned up
-     *         successfully in due time, or <code>false</code>, if a timeout has occurred.
+     * @param timeoutMillis The method will wait at most this time (in milli-seconds).
+     * @return <code>true</code>, if the callable is confirmed to be terminated or finished, or
+     *         <code>false</code>, if a timeout has occurred.
      * @throws StopException If the current thread is interrupted.
      */
-    public synchronized boolean terminate(long timeoutMillis) throws StopException
+    public boolean terminate(long timeoutMillis) throws StopException
     {
-        final long start = System.currentTimeMillis();
-        if (wait(started, timeoutMillis) == false)
+        try
         {
-            return false;
-        }
-        final Thread t = thread;
-        if (t == null)
+            return threadGuard.terminateAndWait(waitInterruptMillis, timeoutMillis);
+        } catch (InterruptedException ex)
         {
-            return wait(cleanedUp, timeoutMillis - (System.currentTimeMillis() - start));
+            throw new StopException(ex);
         }
-        t.interrupt();
-        if (wait(finished, waitInterruptMillis) == false)
-        {
-            if (stop(t, timeoutMillis - (System.currentTimeMillis() - start)) == false)
-            {
-                return false;
-            }
-        }
-        return wait(cleanedUp, timeoutMillis - (System.currentTimeMillis() - start));
     }
 
 }
