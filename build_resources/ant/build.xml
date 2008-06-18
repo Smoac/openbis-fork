@@ -123,6 +123,31 @@
   </target>
  
   <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+     Tag a project. Also a branch is created if necessary.
+     
+     Properties:
+       name     Name of the project. Mandatory
+       tag      Tag number. Mandatory
+       group    Group of the project. Default: cisd
+       repositoryRoot  URL of the root of the Subversion repository. 
+                       Default: ${repositoryRoot.default}=svn+ssh://source.systemsx.ch/repos 
+  --> 
+  <target name="tag-sprint">
+    <condition property="repositoryRoot" value="${repositoryRoot.default}">
+      <not>
+        <isset property="repositoryRoot" />   
+      </not>   
+    </condition>
+    <condition property="group" value="cisd">
+      <not>
+        <isset property="group" />
+      </not>
+    </condition>
+    <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}" 
+                            sprintTag="${tag}" branchIfNecessary="false" />
+  </target>
+ 
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      Checks out a tagged version of a project and run the 'dist' target. 
      
      Properties:
