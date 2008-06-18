@@ -23,9 +23,11 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.concurrent.TerminableCallable.CanceledException;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.FinishCause;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.ICallableCleaner;
 import ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor;
@@ -142,10 +144,38 @@ public class TerminableCallableTest
                         finishLatch);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
         new Thread(callableUnderTest.asRunnable(), "complete").start();
-        finishLatch.await(500L, TimeUnit.MILLISECONDS);
+        finishLatch.await(200L, TimeUnit.MILLISECONDS);
         assertTrue(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
         assertTrue(describe(sensor.cause), FinishCause.COMPLETED.equals(sensor.cause));
         assertEquals(1, sensor.cleanUpCount);
+    }
+
+    @Test
+    public void testCancel() throws Exception
+    {
+        final CountDownLatch launchLatch = new CountDownLatch(1);
+        final CountDownLatch milestoneLatch = new CountDownLatch(1);
+        final CountDownLatch finishLatch = new CountDownLatch(1);
+        final TestRunnable sensor =
+                new TestRunnable(launchLatch, milestoneLatch, Strategy.COMPLETE_IMMEDIATELY,
+                        finishLatch);
+        final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
+        callableUnderTest.cancel();
+        final Thread t = new Thread(callableUnderTest.asRunnable(), "cancel");
+        final AtomicReference<Throwable> uncaughtException = new AtomicReference<Throwable>(null);
+        t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+        {
+            public void uncaughtException(Thread t2, Throwable e)
+            {
+                uncaughtException.set(e);
+            }
+        });
+        t.start();
+        finishLatch.await(200L, TimeUnit.MILLISECONDS);
+        assertFalse(milestoneLatch.await(0, TimeUnit.MILLISECONDS));
+        assertNull(sensor.cause);
+        assertEquals(0, sensor.cleanUpCount);
+        assertEquals(CanceledException.class, uncaughtException.get().getClass());
     }
 
     @Test

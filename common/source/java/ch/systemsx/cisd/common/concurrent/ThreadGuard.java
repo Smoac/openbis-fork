@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.HardStopException;
 
 /**
  * A class that provides the framework for guarding a {@link Thread} such that it can be stopped
- * safely. It will guard the current thread of whoever runs {@link #startGuardOrInterrupt()}.
+ * safely. It will guard the current thread of whoever runs {@link #startGuard()}.
  * <p>
  * A {@link ThreadGuard} instance can only guard a thread once, it can not be reset.
  * 
@@ -35,7 +35,7 @@ final class ThreadGuard
 {
     private enum State
     {
-        INITIAL, CANCELLED, TERMINATING, RUNNING, FINISHING
+        INITIAL, CANCELED, TERMINATING, RUNNING, FINISHING
     }
 
     /** The lock that guards stopping the thread. */
@@ -82,8 +82,10 @@ final class ThreadGuard
     {
         if (state == State.RUNNING)
         {
+            final Thread t = thread;
+            thread = null;
             state = State.TERMINATING;
-            return thread;
+            return t;
         } else
         {
             return null;
@@ -132,36 +134,29 @@ final class ThreadGuard
     // Whatever manipulates state or thread needs to be synchronized.
 
     /**
-     * Mark the guard as being started. The current thread when running this method will be guarded
-     * from now on. Implies {@link #preventStopping()}.
+     * Start up the guard. The current thread when running this method will be guarded from now on.
+     * Implies {@link #preventStopping()}.
      * 
-     * @throws InterruptedException If the guard is not in initial state (e.g. because it got
-     *             cancelled).
+     * @return <code>true</code>, if the guard was successfully started and <code>false</code>,
+     *         if the guard had been canceled before.
      */
-    synchronized void startGuardOrInterrupt() throws InterruptedException
+    synchronized boolean startGuard()
     {
         if (state != State.INITIAL)
         {
-            Thread.interrupted(); // Clear interrupt flag
-            throw new InterruptedException();
+            return false;
         }
         stopLock.lock();
         state = State.RUNNING;
         thread = Thread.currentThread();
+        return true;
     }
 
     /**
-     * Mark the guard as being in state finishing.
-     * 
-     * @throws InterruptedException If this thread is not in state running.
+     * Shut down the guard. Does not yet set it to finished.
      */
-    synchronized void markFinishingOrInterrupt() throws InterruptedException
+    synchronized void shutdownGuard()
     {
-        if (state != State.RUNNING)
-        {
-            Thread.interrupted(); // Clear interrupt flag
-            throw new InterruptedException();
-        }
         state = State.FINISHING;
         thread = null;
     }
@@ -171,7 +166,7 @@ final class ThreadGuard
      */
     synchronized boolean hasStarted()
     {
-        return (state != State.INITIAL && state != State.CANCELLED);
+        return (state != State.INITIAL && state != State.CANCELED);
     }
 
     /**
@@ -183,15 +178,18 @@ final class ThreadGuard
     }
 
     /**
-     * Tries to cancel the guard, i.e. prevent it from running if it doesn't run yet.
+     * Tries to cancel the guard, i.e. prevent it from running if it doesn't run yet. If canceling
+     * is successful, it implies marking the guard as finished.
      * 
-     * @return <code>true</code>, if the guard has been cancelled successfully.
+     * @return <code>true</code>, if the guard has been canceled successfully.
      */
     synchronized boolean cancel()
     {
         if (state == State.INITIAL)
         {
-            state = State.CANCELLED;
+            state = State.CANCELED;
+            // Do not call markFinished() as the stopLock is not yet initialized.
+            finishedLatch.countDown();
             return true;
         } else
         {
@@ -208,7 +206,7 @@ final class ThreadGuard
      * <p>
      * The following steps are performed:
      * <ol>
-     * <li> If the guard got cancelled, return with cod<code>true</code>. </li>
+     * <li> If the guard got canceled, return with cod<code>true</code>. </li>
      * <li> If the guard is already in state finishing, wait for the guard to be set to finished and
      * return <code>true</code>, if that happens in due time and <code>false</code> otherwise.
      * </li>
@@ -243,7 +241,10 @@ final class ThreadGuard
         if (t != null)
         {
             t.interrupt();
-            if (waitForFinished(waitInterruptMillis) == false)
+            if (waitForFinished(waitInterruptMillis))
+            {
+                return true;
+            } else
             {
                 if (stop(t, timeoutMillis - (System.currentTimeMillis() - start)) == false)
                 {

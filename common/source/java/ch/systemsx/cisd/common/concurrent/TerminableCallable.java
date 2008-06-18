@@ -140,6 +140,16 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
+     * An exception thrown when the callable is called if it got canceled before.
+     * 
+     * @author Bernd Rinn
+     */
+    public static class CanceledException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+    }
+
+    /**
      * A role that executes {@link Runnable}s and {@link Callable}s immediately in the current
      * thread and that marks the code it runs as suitable for <code>Thread.stop()</code>.
      */
@@ -172,6 +182,10 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
          * <p>
          * Note that this method is <i>always</i> called, no matter what the cause is. If you want
          * to perform clean up only for some causes, check <var>cause</var> first.
+         * <p>
+         * Note that the current Thread may be in an interrupted state when this method is called or
+         * may get interrupted during the method runs. It is advised not to use methods that throw
+         * an {@link InterruptedException} or equivalent in this method.
          * <p>
          * <strong>Don't perform any time consuming operations in this method and avoid any
          * operations that can fail with an exception.</strong>
@@ -329,13 +343,16 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         return (causeOrNull != null) ? causeOrNull : new InterruptedException();
     }
 
-    public V call() throws InterruptedException
+    public V call() throws InterruptedException, CanceledException
     {
+        if (threadGuard.startGuard() == false)
+        {
+            throw new CanceledException();
+        }
         Throwable throwableOrNull = null;
         try
         {
             final V result;
-            threadGuard.startGuardOrInterrupt();
             try
             {
                 result = delegate.call(new IStoppableExecutor<V>()
@@ -367,10 +384,10 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
             } catch (Throwable th)
             {
                 throwableOrNull = th;
-                threadGuard.markFinishingOrInterrupt();
+                threadGuard.shutdownGuard();
                 throw CheckedExceptionTunnel.wrapIfNecessary(th);
             }
-            threadGuard.markFinishingOrInterrupt();
+            threadGuard.shutdownGuard();
             return result;
         } catch (StopException ex)
         {
