@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
  * 
  * @author Christian Ribeaud
  */
-public final class Parameters
+final class Parameters
 {
     @Argument()
     private final List<String> args = new ArrayList<String>();
@@ -45,44 +45,16 @@ public final class Parameters
     @Option(name = "v", longName = "verbose", skipForExample = true, usage = "Show more detailed problem report.")
     private boolean verbose;
 
-    /**
-     * The command line parser.
-     */
-    private final CmdLineParser parser = new CmdLineParser(this);
+    private final String programName;
 
-    @Option(name = "h", longName = "help", skipForExample = true, usage = "Shows this help text.")
-    void printHelp(final boolean exit)
+    Parameters(final String[] args, final String programName)
     {
-        parser.printHelp(getProgramName(), "[option [...]]", "<base-directory>", ExampleMode.ALL);
-        if (exit)
-        {
-            System.exit(0);
-        }
+        this(args, programName, SystemExit.SYSTEM_EXIT);
     }
 
-    @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
-    void printVersion(final boolean exit)
+    Parameters(final String[] args, final String programName, final IExitHandler systemExitHandler)
     {
-        System.err.println(getProgramName() + " version "
-                + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
-        if (exit)
-        {
-            System.exit(0);
-        }
-    }
-
-    private final static String getProgramName()
-    {
-        return StructureChecker.class.getName();
-    }
-
-    Parameters(final String[] args)
-    {
-        this(args, SystemExit.SYSTEM_EXIT);
-    }
-
-    Parameters(final String[] args, final IExitHandler systemExitHandler)
-    {
+        this.programName = programName;
         try
         {
             parser.parseArgument(args);
@@ -98,6 +70,32 @@ public final class Parameters
             systemExitHandler.exit(1);
             // Only reached in unit tests.
             throw new AssertionError(ex.getMessage());
+        }
+    }
+
+    /**
+     * The command line parser.
+     */
+    private final CmdLineParser parser = new CmdLineParser(this);
+
+    @Option(name = "h", longName = "help", skipForExample = true, usage = "Shows this help text.")
+    void printHelp(final boolean exit)
+    {
+        parser.printHelp(programName, "[option [...]]", "<base-directory>", ExampleMode.ALL);
+        if (exit)
+        {
+            System.exit(0);
+        }
+    }
+
+    @Option(longName = "version", skipForExample = true, usage = "Prints out the version information.")
+    void printVersion(final boolean exit)
+    {
+        System.err.println(programName + " version "
+                + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        if (exit)
+        {
+            System.exit(0);
         }
     }
 

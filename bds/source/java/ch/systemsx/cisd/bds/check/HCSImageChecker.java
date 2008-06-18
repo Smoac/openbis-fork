@@ -51,10 +51,10 @@ public class HCSImageChecker extends AbstractChecker
     {
         try
         {
-            final File bdsDirectory = getBdsDirectory(args);
+            final File bdsDirectory = getBdsDirectory(args, HCSImageChecker.class.getName());
 
             final ProblemReport report =
-                    new HCSImageChecker(getVerbose(args))
+                    new HCSImageChecker(getVerbose(args, HCSImageChecker.class.getName()))
                             .getHCSImageConsistencyReport(bdsDirectory);
             printReportAndExit(report);
         } catch (final Exception e)

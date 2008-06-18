@@ -414,15 +414,15 @@ public abstract class AbstractChecker
     /**
      * Creates a {@link File} extracting it's name from method parameters
      */
-    protected static File getBdsDirectory(final String[] args)
+    protected static File getBdsDirectory(final String[] args, final String programName)
     {
-        final File file = new Parameters(args).getFile();
+        final File file = new Parameters(args, programName).getFile();
         return file;
     }
 
-    protected static boolean getVerbose(final String[] args)
+    protected static boolean getVerbose(final String[] args, final String programName)
     {
-        return new Parameters(args).getVerbose();
+        return new Parameters(args, programName).getVerbose();
     }
 
     protected IFile getFileOrFail(final IDirectory dataDir, final String name)
