@@ -420,9 +420,9 @@ public abstract class AbstractChecker
         return file;
     }
 
-    protected static boolean getVerbose(final String[] args, final String programName)
+    protected static boolean isVerbose(final String[] args, final String programName)
     {
-        return new Parameters(args, programName).getVerbose();
+        return new Parameters(args, programName).isVerbose();
     }
 
     protected IFile getFileOrFail(final IDirectory dataDir, final String name)

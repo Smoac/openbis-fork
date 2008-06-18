@@ -54,7 +54,7 @@ public final class StructureChecker extends AbstractChecker
         {
             final File bdsDirectory = getBdsDirectory(args, StructureChecker.class.getName());
             final ProblemReport report =
-                    new StructureChecker(getVerbose(args, StructureChecker.class.getName()))
+                    new StructureChecker(isVerbose(args, StructureChecker.class.getName()))
                             .getStructureConsistencyReport(bdsDirectory);
             printReportAndExit(report);
         } catch (final Exception e)

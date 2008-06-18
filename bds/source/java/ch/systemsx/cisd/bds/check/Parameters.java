@@ -42,7 +42,8 @@ final class Parameters
     @Argument()
     private final List<String> args = new ArrayList<String>();
 
-    @Option(name = "v", longName = "verbose", skipForExample = true, usage = "Show more detailed problem report.")
+    // @Option(name = "v", longName = "verbose", skipForExample = true, usage = "Show more detailed
+    // problem report.")
     private boolean verbose;
 
     private final String programName;
@@ -137,7 +138,7 @@ final class Parameters
         return new File(filePath);
     }
 
-    final boolean getVerbose()
+    final boolean isVerbose()
     {
         return verbose;
     }
