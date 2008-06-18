@@ -675,7 +675,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo == check format parameters
     local parameters_dir=$metadata_dir/parameters
     assert_dir_exists $parameters_dir
-    assert_equals_as_in_file true $parameters_dir/contains_original_data
+    assert_equals_as_in_file TRUE $parameters_dir/contains_original_data
     assert_equals_as_in_file 2 $parameters_dir/number_of_channels
     assert_equals_as_in_file 24 $parameters_dir/plate_geometry/columns
     assert_equals_as_in_file 16 $parameters_dir/plate_geometry/rows
