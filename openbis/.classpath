@@ -11,5 +11,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/lims"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_webclient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/args4j"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
