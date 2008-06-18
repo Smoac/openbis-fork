@@ -17,9 +17,13 @@
 package ch.systemsx.cisd.bds.check;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.bds.Utilities;
@@ -190,6 +194,9 @@ public abstract class AbstractChecker
 
     private static final String MSG_ERROR_IN_STANDARD_ORIGINAL_MAPPING_LINE =
             "Error in standard-original mapping line ";
+
+    private static final String IO_EXCEPTION_WHILE_COMPARING_FILES =
+            "I/O Exception while comparing file '%s' with file '%s': %s";
 
     protected static final String path(final String... args)
     {
@@ -364,7 +371,7 @@ public abstract class AbstractChecker
                     final String fileName2 = values[2];
                     if ("I".equals(relationshipOperator))
                     {
-                        checkFilesIdenticat(bdsRoot, currentLineNumber, fileName1, fileName2);
+                        checkFilesIdentical(bdsRoot, currentLineNumber, fileName1, fileName2);
 
                     } else if ("T".equals(relationshipOperator) == false)
                     {
@@ -382,14 +389,11 @@ public abstract class AbstractChecker
         }
     }
 
-    private void checkFilesIdenticat(final IDirectory bdsRoot, final int currentLineNumber,
+    private void checkFilesIdentical(final IDirectory bdsRoot, final int currentLineNumber,
             final String fileName1, final String fileName2)
     {
-        IFile file1 = null;
-        IFile file2 = null;
-        file1 = tryGetFile(bdsRoot, path(DATA, STANDARD, fileName1));
-
-        file2 = tryGetFile(bdsRoot, path(DATA, ORIGINAL, fileName2));
+        final IFile file1 = tryGetFile(bdsRoot, path(DATA, STANDARD, fileName1));
+        final IFile file2 = tryGetFile(bdsRoot, path(DATA, ORIGINAL, fileName2));
         if (file1 == null || file2 == null)
         {
             final List<String> missing = new ArrayList<String>();
@@ -403,11 +407,28 @@ public abstract class AbstractChecker
             }
             problemReport.error(MSG_ERROR_IN_STANDARD_ORIGINAL_MAPPING_LINE + currentLineNumber
                     + ": missing files " + missing);
-        } else if (file1.getStringContent().equals(file2.getStringContent()) == false)
+            return;
+        }
+        InputStream input1 = null;
+        InputStream input2 = null;
+        try
         {
-            problemReport.error(MSG_ERROR_IN_STANDARD_ORIGINAL_MAPPING_LINE + currentLineNumber
-                    + ": content of the files is supposed to be identical but is different ("
-                    + fileName1 + "," + fileName2 + ")");
+            input1 = file1.getInputStream();
+            input2 = file2.getInputStream();
+            if (IOUtils.contentEquals(input1, input2) == false)
+            {
+                problemReport.error(MSG_ERROR_IN_STANDARD_ORIGINAL_MAPPING_LINE + currentLineNumber
+                        + ": content of the files is supposed to be identical but is different ("
+                        + fileName1 + "," + fileName2 + ")");
+            }
+        } catch (final IOException ex)
+        {
+            problemReport.error(String.format(IO_EXCEPTION_WHILE_COMPARING_FILES, fileName1,
+                    fileName2, ex.getMessage()));
+        } finally
+        {
+            IOUtils.closeQuietly(input1);
+            IOUtils.closeQuietly(input2);
         }
     }
 
