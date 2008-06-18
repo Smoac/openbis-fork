@@ -85,7 +85,7 @@ public class TimerUtilitiesTest
                     // We immediately return.
                 }
             };
-        timer.schedule(task, 50L, 1000L);
+        timer.schedule(task, 50L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         timer.cancel();
         assertTrue(TimerUtilities.tryJoinTimerThread(timer, 200L));
@@ -111,9 +111,10 @@ public class TimerUtilitiesTest
                     }
                 }
             };
-        timer.schedule(task, 0L, 200L);
+        timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         assertFalse(TimerUtilities.tryJoinTimerThread(timer, 100L));
+        timer.cancel(); // Ensure the timer doesn't get called again.
     }
 
     @Test
@@ -138,7 +139,7 @@ public class TimerUtilitiesTest
                     }
                 }
             };
-        timer.schedule(task, 0L, 1000L);
+        timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         timer.cancel();
         assertTrue(TimerUtilities.tryInterruptTimerThread(timer));
@@ -174,6 +175,7 @@ public class TimerUtilitiesTest
         assertTrue(TimerUtilities.tryInterruptTimerThread(timer));
         assertFalse(TimerUtilities.tryJoinTimerThread(timer, 100L));
         assertTrue(sem.tryAcquire());
+        timer.cancel(); // Ensure the timer doesn't get called again.
     }
 
     @Test
@@ -198,10 +200,11 @@ public class TimerUtilitiesTest
                     }
                 }
             };
-        timer.schedule(task, 0L, 1000L);
+        timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         assertTrue(TimerUtilities.tryShutdownTimer(timer, 100L));
         assertTrue(sem.tryAcquire());
+        timer.cancel(); // Just to be sure.
     }
 
     @Test
@@ -234,9 +237,10 @@ public class TimerUtilitiesTest
                     }
                 }
             };
-        timer.schedule(task, 0L, 1000L);
+        timer.schedule(task, 0L);
         sem.acquire(); // Ensure we don't cancel() before the task is running.
         assertTrue(TimerUtilities.tryShutdownTimer(timer, 50L));
         assertTrue(sem.tryAcquire());
+        timer.cancel(); // Just to be sure.
     }
 }
