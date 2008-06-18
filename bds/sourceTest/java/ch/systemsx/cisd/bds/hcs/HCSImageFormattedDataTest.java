@@ -36,6 +36,7 @@ import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormattedDataFactory;
 import ch.systemsx.cisd.bds.IFormatParameters;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.hcs.IHCSImageFormattedData.NodePath;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -197,7 +198,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     will(returnValue(originalNode));
 
                     one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
-                    will(returnValue(Boolean.TRUE));
+                    will(returnValue(Utilities.Boolean.TRUE));
                 }
             });
         final NodePath nodePath =
@@ -232,7 +233,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                     will(returnValue(standardNode));
 
                     one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
-                    will(returnValue(Boolean.FALSE));
+                    will(returnValue(Utilities.Boolean.FALSE));
                 }
             });
         final NodePath nodePath =

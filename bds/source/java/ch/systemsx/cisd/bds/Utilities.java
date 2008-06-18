@@ -242,11 +242,12 @@ public class Utilities
      * A boolean object that only accepts <code>TRUE</code> or <code>FALSE</code> as value
      * (case-sensitive).
      */
-    private static enum Boolean
+    public static enum Boolean
     {
         TRUE, FALSE;
 
-        final boolean toBoolean()
+        /** Converts this object to corresponding <code>boolean</code>. */
+        public final boolean toBoolean()
         {
             return this == TRUE ? true : false;
         }

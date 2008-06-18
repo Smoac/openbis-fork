@@ -73,9 +73,9 @@ public abstract class AbstractChecker
 
     public static final String WAVELENGTH = "wavelength";
 
-    public static final String FALSE = "FALSE";
+    public static final String FALSE = ch.systemsx.cisd.bds.Utilities.Boolean.FALSE.toString();
 
-    public static final String TRUE = "TRUE";
+    public static final String TRUE = ch.systemsx.cisd.bds.Utilities.Boolean.TRUE.toString();
 
     public static final String FIRST_NAME = "first_name";
 

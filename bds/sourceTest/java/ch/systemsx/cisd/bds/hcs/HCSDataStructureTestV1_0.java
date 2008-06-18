@@ -33,6 +33,7 @@ import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -53,7 +54,7 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
     {
         dataStructure.setFormat(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         dataStructure.addFormatParameter(new FormatParameter(
-                HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean.TRUE));
+                HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Utilities.Boolean.TRUE));
         dataStructure.addFormatParameter(new FormatParameter(HCSImageFormatV1_0.NUMBER_OF_CHANNELS,
                 new Integer(2)));
         dataStructure.addFormatParameter(new FormatParameter(PlateGeometry.PLATE_GEOMETRY,

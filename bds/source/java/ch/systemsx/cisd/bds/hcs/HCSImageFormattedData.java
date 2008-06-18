@@ -56,7 +56,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     public final boolean containsOriginalData()
     {
-        return (Boolean) getFormatParameters().getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
+        return ((Utilities.Boolean) getFormatParameters().getValue(
+                HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA)).toBoolean();
     }
 
     public final Geometry getWellGeometry()

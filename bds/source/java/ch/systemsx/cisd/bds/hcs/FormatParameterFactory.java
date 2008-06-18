@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds.hcs;
 
 import ch.systemsx.cisd.bds.FormatParameter;
 import ch.systemsx.cisd.bds.IFormatParameterFactory;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
 
@@ -76,7 +77,7 @@ public final class FormatParameterFactory implements IFormatParameterFactory
                     .parseInt(value));
         } else if (nodeName.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
         {
-            return new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Boolean
+            return new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Utilities.Boolean
                     .valueOf(value));
         }
         return formatParameter;
@@ -103,7 +104,7 @@ public final class FormatParameterFactory implements IFormatParameterFactory
             return new FormatParameter(name, Integer.parseInt(value));
         } else if (name.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
         {
-            return new FormatParameter(name, Boolean.valueOf(value));
+            return new FormatParameter(name, Utilities.Boolean.valueOf(value));
         }
         return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name,
                 value);
