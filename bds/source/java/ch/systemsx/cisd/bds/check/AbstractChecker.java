@@ -229,7 +229,7 @@ public abstract class AbstractChecker
     {
         try
         {
-            return Utilities.getBoolean(dataDir, name);
+            return Utilities.getBoolean(dataDir, name).toBoolean();
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());

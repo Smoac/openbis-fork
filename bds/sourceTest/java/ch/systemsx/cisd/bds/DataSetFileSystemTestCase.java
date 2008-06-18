@@ -27,6 +27,7 @@ import java.util.List;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.Utilities.Boolean;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -48,7 +49,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         final DataSet dataSet = new DataSet(dataSetCode, observableType);
         dataSet.saveTo(directory);
         final IDirectory folder = Utilities.getSubDirectory(directory, DataSet.FOLDER);
-        checkBasicDataSet(folder, dataSetCode, observableType, true);
+        checkBasicDataSet(folder, dataSetCode, observableType, Boolean.TRUE);
         assertEquals(0, Utilities.getStringList(folder, DataSet.PARENT_CODES).size());
         assertEquals(StringUtils.EMPTY_STRING, Utilities.getTrimmedString(folder,
                 DataSet.PRODUCER_CODE));
@@ -58,7 +59,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
     }
 
     private final static void checkBasicDataSet(final IDirectory directory,
-            final String dataSetCode, final String observableType, final boolean isMeasured)
+            final String dataSetCode, final String observableType, final Boolean isMeasured)
     {
         assertEquals(dataSetCode, Utilities.getTrimmedString(directory, DataSet.CODE));
         assertEquals("HCS_IMAGE", Utilities.getTrimmedString(directory, DataSet.OBSERVABLE_TYPE));
@@ -74,11 +75,11 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         final String producerCode = "producerCode";
         final Date productionTimestamp = new Date(0L);
         final DataSet dataSet =
-                new DataSet(dataSetCode, observableType, true, productionTimestamp, producerCode,
-                        null);
+                new DataSet(dataSetCode, observableType, Boolean.TRUE, productionTimestamp,
+                        producerCode, null);
         dataSet.saveTo(directory);
         final IDirectory folder = Utilities.getSubDirectory(directory, DataSet.FOLDER);
-        checkBasicDataSet(folder, dataSetCode, observableType, true);
+        checkBasicDataSet(folder, dataSetCode, observableType, Boolean.TRUE);
         assertEquals(0, Utilities.getStringList(folder, DataSet.PARENT_CODES).size());
         assertEquals(producerCode, Utilities.getTrimmedString(folder, DataSet.PRODUCER_CODE));
         assertEquals(productionTimestamp, Utilities.getDateOrNull(folder,
@@ -97,17 +98,17 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         parentCodes.add("parent2");
         try
         {
-            new DataSet(dataSetCode, observableType, true, null, null, parentCodes);
+            new DataSet(dataSetCode, observableType, Boolean.TRUE, null, null, parentCodes);
             fail(DataSet.NO_PARENT_FOR_MEASURED_DATA);
         } catch (final IllegalArgumentException ex)
         {
             assertEquals(DataSet.NO_PARENT_FOR_MEASURED_DATA, ex.getMessage());
         }
         final DataSet dataSet =
-                new DataSet(dataSetCode, observableType, false, null, null, parentCodes);
+                new DataSet(dataSetCode, observableType, Boolean.FALSE, null, null, parentCodes);
         dataSet.saveTo(directory);
         final IDirectory folder = Utilities.getSubDirectory(directory, DataSet.FOLDER);
-        checkBasicDataSet(folder, dataSetCode, observableType, false);
+        checkBasicDataSet(folder, dataSetCode, observableType, Boolean.FALSE);
         final List<String> parentList = Utilities.getStringList(folder, DataSet.PARENT_CODES);
         assertEquals(2, parentList.size());
         assertEquals(parentCode, parentList.get(0));
@@ -139,8 +140,8 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         parentCodes.add(parentCode);
         parentCodes.add("parent2");
         final DataSet dataSet =
-                new DataSet(dataSetCode, observableType, false, productionTimestamp, producerCode,
-                        parentCodes);
+                new DataSet(dataSetCode, observableType, Boolean.FALSE, productionTimestamp,
+                        producerCode, parentCodes);
         dataSet.saveTo(directory);
         final DataSet newDataSet = DataSet.loadFrom(directory);
         assertEquals(observableType, newDataSet.getObservableTypeCode());

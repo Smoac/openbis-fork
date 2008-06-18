@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.Utilities.Boolean;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
@@ -45,7 +46,8 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("i", "g", "p", "e");
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         final ExperimentRegistrator experimentRegistrator =
                 new ExperimentRegistrator("john", "doe", "j@doe");
@@ -54,7 +56,8 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
                 new Date(0)));
         dataStructure.setSample(new Sample("a", "CELL_PLATE", "b"));
         final List<String> parentCodes = createParentCodes();
-        dataStructure.setDataSet(new DataSet("s", "HCS_IMAGE", false, null, null, parentCodes));
+        dataStructure.setDataSet(new DataSet("s", "HCS_IMAGE", Boolean.FALSE, null, null,
+                parentCodes));
         dataStructure.close();
 
         final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");

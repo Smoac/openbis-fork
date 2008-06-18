@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.bds.Utilities.Boolean;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.common.collections.CollectionIO;
@@ -67,7 +68,7 @@ public final class DataSet implements IStorable
      * Specifies whether the data set has been measured from a sample or whether it has been derived
      * by means of some calculation from another data set.
      */
-    private final boolean isMeasured;
+    private final Boolean isMeasured;
 
     /** The list of parent codes. Never <code>null</code> but could be empty. */
     private final List<String> parentCodes;
@@ -85,7 +86,7 @@ public final class DataSet implements IStorable
      */
     public DataSet(final String code, final String observableType)
     {
-        this(code, observableType, true, null, null, null);
+        this(code, observableType, Boolean.TRUE, null, null, null);
     }
 
     /**
@@ -99,7 +100,7 @@ public final class DataSet implements IStorable
      * @param parentCodesOrNull list of parent data sets. Must be <code>null</code> or empty for
      *            measured data (or not empty for derived data).
      */
-    public DataSet(final String code, final String observableType, final boolean isMeasured,
+    public DataSet(final String code, final String observableType, final Boolean isMeasured,
             final Date productionTimestampOrNull, final String producerCodeOrNull,
             final List<String> parentCodesOrNull)
     {
@@ -107,7 +108,8 @@ public final class DataSet implements IStorable
         this.isMeasured = isMeasured;
         assert StringUtils.isEmpty(observableType) == false : "Unspecified observable type.";
         this.observableTypeCode = observableType;
-        if (isMeasured == true && parentCodesOrNull != null && parentCodesOrNull.size() > 0)
+        if (isMeasured.toBoolean() == true && parentCodesOrNull != null
+                && parentCodesOrNull.size() > 0)
         {
             throw new IllegalArgumentException(String.format(NO_PARENT_FOR_MEASURED_DATA));
         }
@@ -142,7 +144,7 @@ public final class DataSet implements IStorable
         return observableTypeCode;
     }
 
-    public final boolean isMeasured()
+    public final Boolean isMeasured()
     {
         return isMeasured;
     }
@@ -168,7 +170,7 @@ public final class DataSet implements IStorable
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String code = Utilities.getTrimmedString(idFolder, CODE);
         final String observableTypeCode = Utilities.getTrimmedString(idFolder, OBSERVABLE_TYPE);
-        final boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
+        final Boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
         final Date productionTimestampOrNull =
                 Utilities.getDateOrNull(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
@@ -204,7 +206,7 @@ public final class DataSet implements IStorable
                 productionTimestamp == null ? StringUtils.EMPTY_STRING : Constants.DATE_FORMAT
                         .get().format(productionTimestamp));
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
-        folder.addKeyValuePair(IS_MEASURED, Boolean.toString(isMeasured).toUpperCase());
+        folder.addKeyValuePair(IS_MEASURED, isMeasured.toString());
         folder.addKeyValuePair(OBSERVABLE_TYPE, observableTypeCode);
         folder.addKeyValuePair(IS_COMPLETE, isComplete.toString());
         final String value;

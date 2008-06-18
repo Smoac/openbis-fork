@@ -137,7 +137,7 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(1, listFiles.length);
         assertEquals(key, listFiles[0].getName());
         assertEquals(value, file.getStringContent().trim());
-        assertTrue(Utilities.getBoolean(directory, key));
+        assertTrue(Utilities.getBoolean(directory, key).toBoolean());
         directory.addKeyValuePair(key, "true");
         try
         {
@@ -148,7 +148,7 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
             // Nothing to do here.
         }
         directory.addKeyValuePair(key, " FALSE ");
-        assertFalse(Utilities.getBoolean(directory, key));
+        assertFalse(Utilities.getBoolean(directory, key).toBoolean());
     }
 
 }

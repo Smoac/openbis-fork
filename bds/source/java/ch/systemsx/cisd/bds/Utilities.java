@@ -142,14 +142,14 @@ public class Utilities
      * Return the string content of a file from the given <var>directory</var> as boolean (<code>TRUE</code>
      * or <code>FALSE</code>).
      */
-    public static boolean getBoolean(final IDirectory directory, final String name)
+    public static Boolean getBoolean(final IDirectory directory, final String name)
             throws DataStructureException
     {
         // No assertion here as 'getString(IDirectory, String)' already does it.
         final String value = getTrimmedString(directory, name);
         try
         {
-            return Boolean.valueOf(value).toBoolean();
+            return Boolean.valueOf(value);
         } catch (final IllegalArgumentException ex)
         {
             throw new DataStructureException("Value of '" + name
@@ -250,6 +250,12 @@ public class Utilities
         public final boolean toBoolean()
         {
             return this == TRUE ? true : false;
+        }
+
+        /** Converts given <code>boolean</code> to this enumeration item. */
+        public final static Boolean fromBoolean(final boolean bool)
+        {
+            return bool ? TRUE : FALSE;
         }
     }
 }
