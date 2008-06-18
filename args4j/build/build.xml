@@ -10,6 +10,17 @@
 
     <target name="ci" depends="build-common.ci" />
 
+    <!--
+	// Add '*.properties' files to 'build-common.compile' target.
+	-->
+	<target name="compile" depends="build-common.compile" description="Overrides the parent 'compile' target by including properties files.">
+		<copy todir="${classes}">
+			<fileset dir="${sources}">
+				<include name="**/*.properties" />
+			</fileset>
+		</copy>
+	</target>
+
     <!-- 
     // Cleans distribution directory.
   	-->
