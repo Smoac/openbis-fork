@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -33,11 +34,18 @@ import org.testng.annotations.Test;
 public final class ConditionalNotificationLoggerTest
 {
 
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ConditionalNotificationLoggerTest.class);
+
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, ConditionalNotificationLoggerTest.class);
+
     private final ConditionalNotificationLogger createConditionalNotificationLogger(
             final int ignoredErrorCountBeforeNotification)
     {
         final ConditionalNotificationLogger logger =
-                new ConditionalNotificationLogger(getClass(), ignoredErrorCountBeforeNotification);
+                new ConditionalNotificationLogger(operationLog, Level.WARN, notificationLog,
+                        ignoredErrorCountBeforeNotification);
         return logger;
     }
 
@@ -58,14 +66,14 @@ public final class ConditionalNotificationLoggerTest
         boolean fail = true;
         try
         {
-            new ConditionalNotificationLogger(null, -1);
+            new ConditionalNotificationLogger(operationLog, null, 100);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         try
         {
-            new ConditionalNotificationLogger(getClass(), -1);
+            new ConditionalNotificationLogger(operationLog, notificationLog, -1);
         } catch (final AssertionError e)
         {
             fail = false;

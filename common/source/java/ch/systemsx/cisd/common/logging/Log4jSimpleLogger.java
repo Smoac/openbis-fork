@@ -25,7 +25,7 @@ import org.apache.log4j.Priority;
  * 
  * @author Bernd Rinn
  */
-public final class Log4jSimpleLogger implements ISimpleLogger
+public class Log4jSimpleLogger implements ISimpleLogger
 {
     private final Priority log4jOverridePriorityOrNull;
 
@@ -62,6 +62,7 @@ public final class Log4jSimpleLogger implements ISimpleLogger
      */
     public Log4jSimpleLogger(final Logger log4jLogger, final Priority log4jOverridePriorityOrNull)
     {
+        assert log4jLogger != null : "Unspecified log4j logger";
         this.log4jOverridePriorityOrNull = log4jOverridePriorityOrNull;
         this.log4jLogger = log4jLogger;
     }
@@ -76,7 +77,11 @@ public final class Log4jSimpleLogger implements ISimpleLogger
         this(log4jLogger, null);
     }
 
-    public final void log(final LogLevel level, final String message)
+    //
+    // ISimpleLogger
+    //
+
+    public void log(final LogLevel level, final String message)
     {
         if (log4jOverridePriorityOrNull != null)
         {

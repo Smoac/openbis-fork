@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.TimerTask;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
@@ -120,7 +121,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
         this.sourceDirectory = scannedStore;
         this.storeHandler = storeHandler;
         this.directoryScanningHandler = directoryScanningHandler;
-        this.notificationLogger = new ConditionalNotificationLogger(getClass(), ignoredErrorCount);
+        this.notificationLogger =
+                new ConditionalNotificationLogger(operationLog, Level.WARN, notificationLog,
+                        ignoredErrorCount);
     }
 
     /**

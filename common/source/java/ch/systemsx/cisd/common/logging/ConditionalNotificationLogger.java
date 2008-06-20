@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.logging;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  * An <code>ISimpleLogger</code> implementation which sends an email (via logger) when the number
@@ -28,11 +30,9 @@ import org.apache.log4j.Logger;
  * 
  * @author Christian Ribeaud
  */
-public final class ConditionalNotificationLogger implements ISimpleLogger
+public final class ConditionalNotificationLogger extends Log4jSimpleLogger
 {
     private final Logger notificationLog;
-
-    private final Logger operationLog;
 
     private final int ignoredErrorCountBeforeNotification;
 
@@ -41,18 +41,37 @@ public final class ConditionalNotificationLogger implements ISimpleLogger
     private boolean notified;
 
     /**
+     * @param log4jLogger logger that is called when <var>ignoredErrorCountBeforeNotification</var>
+     *            is not reached yet. By default gets called with {@link Level#WARN}.
+     * @param notificationLog logger that is conditionally called.
      * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
      *            sending a notification email.
      */
-    public ConditionalNotificationLogger(final Class<?> clazz,
+    public ConditionalNotificationLogger(final Logger log4jLogger, final Logger notificationLog,
             final int ignoredErrorCountBeforeNotification)
     {
-        assert clazz != null : "Unspecified class";
+        this(log4jLogger, null, notificationLog, ignoredErrorCountBeforeNotification);
+        assert ignoredErrorCountBeforeNotification > -1 : "Negative ignored error "
+                + "count before notification";
+    }
+
+    /**
+     * @param log4jLogger logger that is called when <var>ignoredErrorCountBeforeNotification</var>
+     *            is not reached yet.
+     * @param notificationLog the log that is conditionally called.
+     * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
+     *            sending a notification email.
+     */
+    public ConditionalNotificationLogger(final Logger log4jLogger,
+            final Priority log4jOverridePriorityOrNull, final Logger notificationLog,
+            final int ignoredErrorCountBeforeNotification)
+    {
+        super(log4jLogger, log4jOverridePriorityOrNull);
+        assert notificationLog != null : "Notification log not specified";
         assert ignoredErrorCountBeforeNotification > -1 : "Negative ignored error "
                 + "count before notification";
         this.ignoredErrorCountBeforeNotification = ignoredErrorCountBeforeNotification;
-        operationLog = LogFactory.getLogger(LogCategory.OPERATION, clazz);
-        notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, clazz);
+        this.notificationLog = notificationLog;
     }
 
     /**
@@ -78,13 +97,14 @@ public final class ConditionalNotificationLogger implements ISimpleLogger
     // ISimpleLogger
     //
 
+    @Override
     public final void log(final LogLevel level, final String message)
     {
         if (LogLevel.ERROR.equals(level))
         {
             if (errorCount < ignoredErrorCountBeforeNotification)
             {
-                operationLog.warn(message);
+                super.log(level, message);
             } else if (notified == false)
             {
                 notificationLog.error(message);
