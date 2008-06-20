@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStor
 
 /**
  * A <code>DirectoryScanningHandlerInterceptor</code> extension which bases its decision on the
- * encapsulated {@link HighwaterMarkWatcher} and {@link FileWithHighwaterMark}s.
+ * encapsulated {@link HighwaterMarkWatcher} and {@link HostAwareFileWithHighwaterMark}s.
  * <p>
  * Note that the decision has precedence over encapsulated {@link IDirectoryScanningHandler}
  * implementation and might short-circuit it.

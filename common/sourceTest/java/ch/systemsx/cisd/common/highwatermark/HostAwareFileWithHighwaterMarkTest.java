@@ -28,11 +28,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * Test cases for the {@link FileWithHighwaterMarkTest}.
+ * Test cases for the {@link HostAwareFileWithHighwaterMark}.
  * 
  * @author Christian Ribeaud
  */
-public final class FileWithHighwaterMarkTest
+public final class HostAwareFileWithHighwaterMarkTest
 {
 
     @Test
@@ -41,7 +41,7 @@ public final class FileWithHighwaterMarkTest
         boolean fail = true;
         try
         {
-            FileWithHighwaterMark.fromProperties(null, "");
+            HostAwareFileWithHighwaterMark.fromProperties(null, "");
         } catch (final AssertionError e)
         {
             fail = false;
@@ -50,7 +50,7 @@ public final class FileWithHighwaterMarkTest
         final String filePropertyKey = "file";
         try
         {
-            FileWithHighwaterMark.fromProperties(new Properties(), filePropertyKey);
+            HostAwareFileWithHighwaterMark.fromProperties(new Properties(), filePropertyKey);
             fail("");
         } catch (final ConfigurationFailureException e)
         {
@@ -58,22 +58,40 @@ public final class FileWithHighwaterMarkTest
         final Properties properties = new Properties();
         final String path = "/my/path";
         properties.setProperty(filePropertyKey, path);
-        FileWithHighwaterMark fileWithHighwaterMark =
-                FileWithHighwaterMark.fromProperties(properties, filePropertyKey);
+        HostAwareFileWithHighwaterMark fileWithHighwaterMark =
+                HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         // Default value is -1
         assertEquals(new File(path), fileWithHighwaterMark.getFile());
         assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
         // 100Kb
-        properties.setProperty(filePropertyKey + FileWithHighwaterMark.SEP
-                + FileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "100");
-        fileWithHighwaterMark = FileWithHighwaterMark.fromProperties(properties, filePropertyKey);
+        properties.setProperty(filePropertyKey + HostAwareFileWithHighwaterMark.SEP
+                + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "100");
+        fileWithHighwaterMark =
+                HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         assertEquals(new File(path), fileWithHighwaterMark.getFile());
         assertEquals(100, fileWithHighwaterMark.getHighwaterMark());
         // Meaningless value
-        properties.setProperty(filePropertyKey + FileWithHighwaterMark.SEP
-                + FileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "notANumber");
-        fileWithHighwaterMark = FileWithHighwaterMark.fromProperties(properties, filePropertyKey);
+        properties.setProperty(filePropertyKey + HostAwareFileWithHighwaterMark.SEP
+                + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "notANumber");
+        fileWithHighwaterMark =
+                HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         assertEquals(new File(path), fileWithHighwaterMark.getFile());
         assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
+    }
+
+    @Test
+    public final void testFromPropertiesWithHost()
+    {
+        final Properties properties = new Properties();
+        final String hostFilePath = "localhost:/my/path";
+        final String key = "key";
+        properties.setProperty(key, hostFilePath);
+        properties.setProperty(key + HostAwareFileWithHighwaterMark.SEP
+                + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "123");
+        final HostAwareFileWithHighwaterMark fileWithHighwaterMark =
+                HostAwareFileWithHighwaterMark.fromProperties(properties, key);
+        assertEquals(fileWithHighwaterMark.getHighwaterMark(), 123L);
+        assertEquals(fileWithHighwaterMark.tryGetHost(), "localhost");
+        assertEquals(fileWithHighwaterMark.getFile(), new File("/my/path"));
     }
 }

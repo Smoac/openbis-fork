@@ -200,7 +200,7 @@ public final class HighwaterMarkWatcher implements Runnable
         {
             throw new EnvironmentFailureException(errorMsg);
         }
-        return new HighwaterMarkState(new FileWithHighwaterMark(file, highwaterMarkInKb),
+        return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file, highwaterMarkInKb),
                 freeSpaceInKb);
     }
 
@@ -236,7 +236,7 @@ public final class HighwaterMarkWatcher implements Runnable
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Free space on '%s': %s, highwater mark: %s.",
-                        state.fileWithHighwaterMark.getCanonicalPath(),
+                        state.hostAwareFileWithHighwaterMark.getCanonicalPath(),
                         displayKilobyteValue(state.freeSpace),
                         displayKilobyteValue(highwaterMarkInKb)));
             }
@@ -255,19 +255,20 @@ public final class HighwaterMarkWatcher implements Runnable
     {
         private static final long serialVersionUID = 1L;
 
-        private final FileWithHighwaterMark fileWithHighwaterMark;
+        private final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark;
 
         private final long freeSpace;
 
-        HighwaterMarkState(final FileWithHighwaterMark fileWithHighwaterMark, final Long freeSpace)
+        HighwaterMarkState(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
+                final Long freeSpace)
         {
-            this.fileWithHighwaterMark = fileWithHighwaterMark;
+            this.hostAwareFileWithHighwaterMark = hostAwareFileWithHighwaterMark;
             this.freeSpace = freeSpace;
         }
 
         public final File getPath()
         {
-            return fileWithHighwaterMark.getFile();
+            return hostAwareFileWithHighwaterMark.getFile();
         }
 
         /** Returns the free space (in <i>kilobytes</i>). */
@@ -279,7 +280,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /** Returns the high water mark (in <i>kilobytes</i>). */
         public final long getHighwaterMark()
         {
-            return fileWithHighwaterMark.getHighwaterMark();
+            return hostAwareFileWithHighwaterMark.getHighwaterMark();
         }
 
     }
@@ -308,7 +309,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /** Returns the canonical path. */
         public final String getPath()
         {
-            return highwaterMarkState.fileWithHighwaterMark.getCanonicalPath();
+            return highwaterMarkState.hostAwareFileWithHighwaterMark.getCanonicalPath();
         }
 
         public final long getFreeSpace()
@@ -318,7 +319,7 @@ public final class HighwaterMarkWatcher implements Runnable
 
         public final long getHighwaterMark()
         {
-            return highwaterMarkState.fileWithHighwaterMark.getHighwaterMark();
+            return highwaterMarkState.hostAwareFileWithHighwaterMark.getHighwaterMark();
         }
     }
 
