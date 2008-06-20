@@ -107,4 +107,25 @@ public final class ExceptionUtils
         return clientSafeException;
     }
 
+    /**
+     * Returns the first found <code>Throwable</code> of given <var>clazz</var> from the
+     * exception chain of given <var>throwable</var>.
+     */
+    public final static <T extends Throwable> T tryGetThrowableOfClass(final Throwable throwable,
+            final Class<T> clazz)
+    {
+        assert throwable != null : "Unspecified throwable";
+        assert clazz != null : "Unspecified class";
+        if (clazz.isAssignableFrom(throwable.getClass()))
+        {
+            return clazz.cast(throwable);
+        }
+        final Throwable cause =
+                org.apache.commons.lang.exception.ExceptionUtils.getCause(throwable);
+        if (cause != null)
+        {
+            return tryGetThrowableOfClass(cause, clazz);
+        }
+        return null;
+    }
 }

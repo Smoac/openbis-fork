@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.security.DigestException;
+import java.text.ParseException;
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -153,5 +156,30 @@ public final class ExceptionUtilsTest
         assertEquals(IOException.class.getName(), ((MasqueradingException) clientSafeException)
                 .getRootExceptionClassName());
         assertEquals(text, cause.getMessage());
+    }
+
+    @Test
+    public final void testTryGetThrowableOfClass()
+    {
+        boolean fail = true;
+        try
+        {
+            ExceptionUtils.tryGetThrowableOfClass(null, null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        final ParseException parseException = new ParseException("", 2);
+        final UserFailureException userFailureException =
+                new UserFailureException("", new IllegalArgumentException(parseException));
+        assertNull(ExceptionUtils.tryGetThrowableOfClass(userFailureException,
+                UnsupportedOperationException.class));
+        assertEquals(userFailureException, ExceptionUtils.tryGetThrowableOfClass(
+                userFailureException, UserFailureException.class));
+        assertEquals(parseException, ExceptionUtils.tryGetThrowableOfClass(userFailureException,
+                ParseException.class));
+        assertEquals(userFailureException, ExceptionUtils.tryGetThrowableOfClass(
+                userFailureException, RuntimeException.class));
     }
 }
