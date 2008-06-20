@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -27,7 +26,8 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
@@ -38,49 +38,39 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 public abstract class FileStore implements IFileStore
 {
-    private final FileWithHighwaterMark fileWithHighwaterMark;
-
-    private final String hostOrNull;
+    private final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark;
 
     private final String kind;
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(final FileWithHighwaterMark fileWithHighwaterMark, final String hostOrNull,
+    protected FileStore(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String kind, final IFileSysOperationsFactory factory)
     {
-        assert fileWithHighwaterMark != null;
+        assert hostAwareFileWithHighwaterMark != null;
         assert kind != null;
-        this.fileWithHighwaterMark = fileWithHighwaterMark;
+        this.hostAwareFileWithHighwaterMark = hostAwareFileWithHighwaterMark;
         this.kind = kind;
-        this.hostOrNull = hostOrNull;
         this.factory = factory;
     }
 
     private final String getCanonicalPath(final File file)
     {
-        if (hostOrNull != null)
+        if (tryGetHost() != null)
         {
             return file.getPath();
         }
-        try
-        {
-            return file.getCanonicalPath() + File.separator;
-        } catch (final IOException e)
-        {
-            throw EnvironmentFailureException.fromTemplate(e,
-                    "Cannot determine canonical form of path '%s'", file.getPath());
-        }
+        return FileUtilities.getCanonicalPath(file);
     }
 
     protected final File getPath()
     {
-        return fileWithHighwaterMark.getFile();
+        return hostAwareFileWithHighwaterMark.getFile();
     }
 
     protected final String tryGetHost()
     {
-        return hostOrNull;
+        return hostAwareFileWithHighwaterMark.tryGetHost();
     }
 
     protected final String getDescription()
@@ -99,8 +89,8 @@ public abstract class FileStore implements IFileStore
             final boolean requiresDeletionBeforeCreation)
     {
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
-        final String srcHostOrNull = hostOrNull;
-        final String destHostOrNull = ((FileStore) destinationDirectory).hostOrNull;
+        final String srcHostOrNull = tryGetHost();
+        final String destHostOrNull = ((FileStore) destinationDirectory).tryGetHost();
         final File destPath = ((FileStore) destinationDirectory).getPath();
         return new IStoreCopier()
             {
@@ -132,7 +122,7 @@ public abstract class FileStore implements IFileStore
 
     public final StoreItemLocation getStoreItemLocation(final StoreItem item)
     {
-        return new StoreItemLocation(hostOrNull, StoreItem.asFile(getPath(), item)
+        return new StoreItemLocation(tryGetHost(), StoreItem.asFile(getPath(), item)
                 .getAbsolutePath());
     }
 
@@ -143,7 +133,7 @@ public abstract class FileStore implements IFileStore
             return false;
         }
         final FileStore potentialChild = (FileStore) child;
-        return StringUtils.equals(hostOrNull, potentialChild.hostOrNull)
+        return StringUtils.equals(tryGetHost(), potentialChild.tryGetHost())
                 && getCanonicalPath(potentialChild.getPath()).startsWith(
                         getCanonicalPath(getPath()));
     }
@@ -175,9 +165,8 @@ public abstract class FileStore implements IFileStore
         }
         final FileStore that = (FileStore) obj;
         final EqualsBuilder equalsBuilder = new EqualsBuilder();
-        equalsBuilder.append(hostOrNull, that.hostOrNull);
         equalsBuilder.append(kind, that.kind);
-        equalsBuilder.append(fileWithHighwaterMark, that.fileWithHighwaterMark);
+        equalsBuilder.append(hostAwareFileWithHighwaterMark, that.hostAwareFileWithHighwaterMark);
         return equalsBuilder.isEquals();
     }
 
@@ -185,9 +174,8 @@ public abstract class FileStore implements IFileStore
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(hostOrNull);
         builder.append(kind);
-        builder.append(fileWithHighwaterMark);
+        builder.append(hostAwareFileWithHighwaterMark);
         return builder.toHashCode();
     }
 

@@ -29,7 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -103,8 +103,8 @@ public class FileStoreRemoteTest
     private IFileStore createRemoteStore(File dir)
     {
         ISshCommandBuilder fakeSshBuilder = createFakeSshComandBuilder();
-        return new FileStoreRemote(new FileWithHighwaterMark(dir), "fake-host", "remote-dir-desc",
-                fakeSshBuilder, fileSysOpertationFactory, null);
+        return new FileStoreRemote(new HostAwareFileWithHighwaterMark("fake-host", dir),
+                "remote-dir-desc", fakeSshBuilder, fileSysOpertationFactory, null);
     }
 
     static ISshCommandBuilder createFakeSshComandBuilder()

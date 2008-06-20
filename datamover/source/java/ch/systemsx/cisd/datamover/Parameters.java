@@ -28,6 +28,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -37,8 +38,8 @@ import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
@@ -65,7 +66,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     static final int DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT = 600;
 
     private final static String HIGHWATER_MARK_TEXT =
-            "(optional high water mark in KB specified after a ':')";
+            "(optional high water mark in KB specified after a '>')";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
@@ -224,23 +225,17 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private int maximalNumberOfRetries = DEFAULT_MAXIMAL_NUMBER_OF_RETRIES;
 
     /**
-     * The remote host to copy the data from or null if data are available on a local/remote share
-     */
-    @Option(longName = PropertyNames.INCOMING_HOST, metaVar = "HOST", usage = "The remote host to move the data from  using ssh tunneling")
-    private String incomingHost = null;
-
-    /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
-    @Option(longName = PropertyNames.INCOMING_DIR, metaVar = "DIR", usage = "The directory where the data producer writes to.")
-    private File incomingDirectory = null;
+    @Option(longName = PropertyNames.INCOMING_TARGET, metaVar = "[HOST:]DIR", usage = "The directory where the data producer writes to.", handler = FileWithHighwaterMarkHandler.class)
+    private HostAwareFileWithHighwaterMark incomingTarget = null;
 
     /**
      * The directory for local files and directories manipulations.
      */
     @Option(longName = PropertyNames.BUFFER_DIR, usage = "The local directory to "
-            + "store the paths to be transfered temporarily " + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
-    private FileWithHighwaterMark bufferDirectory = null;
+            + "store the paths to be transfered temporarily " + HIGHWATER_MARK_TEXT + ".", metaVar = "DIR[>KB]", handler = FileWithHighwaterMarkHandler.class)
+    private HostAwareFileWithHighwaterMark bufferDirectory = null;
 
     /**
      * The directory to move files and directories to that have been quiet in the incoming directory
@@ -254,16 +249,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The directory on the remote side to move the paths to from the buffer directory.
      */
-    @Option(longName = PropertyNames.OUTGOING_DIR, usage = "The remote directory to move the data to "
+    @Option(longName = PropertyNames.OUTGOING_TARGET, usage = "The remote directory to move the data to "
             + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
-    FileWithHighwaterMark outgoingDirectory = null;
-
-    /**
-     * The remote host to copy the data to (only with rsync, will use an ssh tunnel).
-     */
-    @Option(longName = PropertyNames.OUTGOING_HOST, metaVar = "HOST", usage = "The remote host to "
-            + "move the data to using ssh tunneling.")
-    private String outgoingHost = null;
+    @Private
+    HostAwareFileWithHighwaterMark outgoingTarget = null;
 
     /**
      * The local directory where we create additional copy of the incoming data (if and only if the
@@ -354,17 +343,17 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         try
         {
             parser.parseArgument(args);
-            if (incomingDirectory == null)
+            if (incomingTarget == null)
             {
-                throw createConfigurationFailureException(PropertyNames.INCOMING_DIR);
+                throw createConfigurationFailureException(PropertyNames.INCOMING_TARGET);
             }
             if (bufferDirectory == null)
             {
                 throw createConfigurationFailureException(PropertyNames.BUFFER_DIR);
             }
-            if (outgoingDirectory == null)
+            if (outgoingTarget == null)
             {
-                throw createConfigurationFailureException(PropertyNames.OUTGOING_DIR);
+                throw createConfigurationFailureException(PropertyNames.OUTGOING_TARGET);
             }
             if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
             {
@@ -469,25 +458,27 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         prefixForIncoming =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.PREFIX_FOR_INCOMING,
                         prefixForIncoming);
-        incomingDirectory =
-                tryCreateFile(serviceProperties, PropertyNames.INCOMING_DIR, incomingDirectory);
-        incomingHost = PropertyUtils.getProperty(serviceProperties, PropertyNames.INCOMING_HOST);
+        if (serviceProperties.getProperty(PropertyNames.INCOMING_TARGET) != null)
+        {
+            incomingTarget =
+                    HostAwareFileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.INCOMING_TARGET);
+        }
         if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
             bufferDirectory =
-                    FileWithHighwaterMark.fromProperties(serviceProperties,
+                    HostAwareFileWithHighwaterMark.fromProperties(serviceProperties,
                             PropertyNames.BUFFER_DIR);
         }
         manualInterventionDirectoryOrNull =
                 tryCreateFile(serviceProperties, PropertyNames.MANUAL_INTERVENTION_DIR,
                         manualInterventionDirectoryOrNull);
-        if (serviceProperties.getProperty(PropertyNames.OUTGOING_DIR) != null)
+        if (serviceProperties.getProperty(PropertyNames.OUTGOING_TARGET) != null)
         {
-            outgoingDirectory =
-                    FileWithHighwaterMark.fromProperties(serviceProperties,
-                            PropertyNames.OUTGOING_DIR);
+            outgoingTarget =
+                    HostAwareFileWithHighwaterMark.fromProperties(serviceProperties,
+                            PropertyNames.OUTGOING_TARGET);
         }
-        outgoingHost = serviceProperties.getProperty(PropertyNames.OUTGOING_HOST);
         extraCopyDirectory =
                 tryCreateFile(serviceProperties, PropertyNames.EXTRA_COPY_DIR, extraCopyDirectory);
         if (serviceProperties.getProperty(PropertyNames.CLEANSING_REGEX) != null)
@@ -650,14 +641,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     public final IFileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
-        return FileStoreFactory.createStore(incomingDirectory, INCOMING_KIND_DESC, incomingHost,
+        return FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
                 treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull);
     }
 
     /**
      * @return The directory for local files and directories manipulations.
      */
-    public final FileWithHighwaterMark getBufferDirectoryPath()
+    public final HostAwareFileWithHighwaterMark getBufferDirectoryPath()
     {
         return bufferDirectory;
     }
@@ -667,8 +658,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     public final IFileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
-        return FileStoreFactory.createStore(outgoingDirectory, OUTGOING_KIND_DESC, outgoingHost,
-                true, factory, outgoingHostFindExecutableOrNull);
+        return FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
+                outgoingHostFindExecutableOrNull);
     }
 
     /**
@@ -727,24 +718,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Incoming directory: '%s'.", getStorePath(
-                    incomingDirectory, incomingHost)));
-            if (null != incomingHost)
-            {
-                operationLog.info(String.format("Incoming host: '%s'.", incomingHost));
-            }
+            operationLog.info(String.format("Incoming directory: '%s'.", incomingTarget
+                    .getCanonicalPath()));
             operationLog.info(String.format("Is incoming directory remote: %b.",
                     treatIncomingAsRemote));
             operationLog.info(String.format("Buffer directory: '%s' [high water mark: %s].",
                     bufferDirectory.getCanonicalPath(), HighwaterMarkWatcher
                             .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
-            operationLog.info(String.format("Outgoing directory: '%s' [high water mark: %s].",
-                    getStorePath(outgoingDirectory.getFile(), outgoingHost), HighwaterMarkWatcher
-                            .displayKilobyteValue(outgoingDirectory.getHighwaterMark())));
-            if (null != outgoingHost)
-            {
-                operationLog.info(String.format("Outgoing host: '%s'.", outgoingHost));
-            }
+            operationLog.info(String.format("Outgoing target: '%s' [high water mark: %s].",
+                    outgoingTarget.getCanonicalPath(), HighwaterMarkWatcher
+                            .displayKilobyteValue(outgoingTarget.getHighwaterMark())));
             if (null != tryGetManualInterventionDir())
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.",
@@ -788,17 +771,6 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    private static String getStorePath(File dir, String hostOrNull)
-    {
-        if (hostOrNull == null)
-        {
-            return dir.getAbsolutePath();
-        } else
-        {
-            return dir.getPath();
-        }
-    }
-
     //
     // Helper classes
     //
@@ -826,17 +798,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     }
 
-    public final static class FileWithHighwaterMarkHandler extends
-            OptionHandler
+    public final static class FileWithHighwaterMarkHandler extends OptionHandler
     {
-        static final char SEP = ':';
+        static final char DIRECTORY_HIGHWATERMARK_SEP = '>';
 
-        private final Setter<? super FileWithHighwaterMark> setter;
+        private final Setter<? super HostAwareFileWithHighwaterMark> setter;
 
         private String argument;
 
         public FileWithHighwaterMarkHandler(final Option option,
-                final Setter<FileWithHighwaterMark> setter)
+                final Setter<HostAwareFileWithHighwaterMark> setter)
         {
             super(option);
             this.setter = setter;
@@ -849,7 +820,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final String getDefaultMetaVariable()
         {
-            return "DIR[" + SEP + "KB]";
+            return "[HOST" + HostAwareFileWithHighwaterMark.HOST_FILE_SEP + "]DIR["
+                    + DIRECTORY_HIGHWATERMARK_SEP + "KB]";
         }
 
         @Override
@@ -864,29 +836,42 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final void set(final String value) throws CmdLineException
         {
+            String host = null;
+            String strHighwaterMark = null;
             final File file;
-            final long highwaterMark;
-            final int indexOf = value.indexOf(SEP);
-            if (indexOf > -1)
+            final int hostFileIndex = value.indexOf(HostAwareFileWithHighwaterMark.HOST_FILE_SEP);
+            final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
+            if (hostFileIndex > -1 && fileHWMIndex > -1)
             {
-                file = new File(value.substring(0, indexOf));
-                String substring = null;
+                host = value.substring(0, hostFileIndex);
+                file = new File(value.substring(hostFileIndex + 1, fileHWMIndex));
+                strHighwaterMark = value.substring(fileHWMIndex + 1);
+            } else if (hostFileIndex > -1)
+            {
+                host = value.substring(0, hostFileIndex);
+                file = new File(value.substring(hostFileIndex + 1));
+            } else if (fileHWMIndex > -1)
+            {
+                file = new File(value.substring(0, fileHWMIndex));
+                strHighwaterMark = value.substring(fileHWMIndex + 1);
+            } else
+            {
+                file = new File(value);
+            }
+            long highwaterMark = HostAwareFileWithHighwaterMark.DEFAULT_HIGHWATER_MARK;
+            if (strHighwaterMark != null)
+            {
                 try
                 {
-                    substring = value.substring(indexOf + 1);
-                    highwaterMark = Long.valueOf(substring);
+                    highwaterMark = Long.valueOf(strHighwaterMark);
                 } catch (final NumberFormatException ex)
                 {
                     throw new CmdLineException(String.format(
                             "Wrong format for argument '%s': '%s' is not a number.", argument,
-                            substring));
+                            strHighwaterMark));
                 }
-            } else
-            {
-                file = new File(value);
-                highwaterMark = FileWithHighwaterMark.DEFAULT_HIGHWATER_MARK;
             }
-            setter.addValue(new FileWithHighwaterMark(file, highwaterMark));
+            setter.addValue(new HostAwareFileWithHighwaterMark(host, file, highwaterMark));
         }
     }
 }

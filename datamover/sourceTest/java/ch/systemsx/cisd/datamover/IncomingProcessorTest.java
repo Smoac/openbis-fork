@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -138,7 +138,7 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1");
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1");
         final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
 
         final LogMonitoringAppender operationAppender =
@@ -167,7 +167,7 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1",
                         "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
         final LogMonitoringAppender notifyAppender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
@@ -204,7 +204,7 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_DIR, incomingDir.toString(), "-q", "1",
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1",
                         "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
         final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
@@ -232,7 +232,7 @@ public final class IncomingProcessorTest
     {
         final Parameters parameters = new Parameters(args, exitHandler);
         final LocalBufferDirs localBufferDirs =
-                new LocalBufferDirs(new FileWithHighwaterMark(TEST_FOLDER), COPY_IN_PROGRESS_DIR,
+                new LocalBufferDirs(new HostAwareFileWithHighwaterMark(TEST_FOLDER), COPY_IN_PROGRESS_DIR,
                         COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
         context.checking(new Expectations()
             {

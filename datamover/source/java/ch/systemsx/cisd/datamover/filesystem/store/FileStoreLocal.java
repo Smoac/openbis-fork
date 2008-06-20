@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -58,21 +58,21 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    public FileStoreLocal(final FileWithHighwaterMark highwaterMarkWatcher,
+    public FileStoreLocal(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String desription, final IFileSysOperationsFactory factory)
     {
-        super(highwaterMarkWatcher, null, desription, factory);
+        super(hostAwareFileWithHighwaterMark, desription, factory);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
-        this.highwaterMarkWatcher = createHighwaterMarkWatcher(highwaterMarkWatcher);
+        this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
     }
 
     private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
-            final FileWithHighwaterMark fileWithHighwaterMark)
+            final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark)
     {
         final HighwaterMarkWatcher highwaterMarkWatcher =
-                new HighwaterMarkWatcher(fileWithHighwaterMark.getHighwaterMark());
-        highwaterMarkWatcher.setPath(fileWithHighwaterMark.getFile());
+                new HighwaterMarkWatcher(hostAwareFileWithHighwaterMark.getHighwaterMark());
+        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark.getFile());
         return highwaterMarkWatcher;
     }
 
@@ -115,7 +115,8 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
 
     public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        final boolean available = FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
+        final boolean available =
+                FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
         if (available == false)
         {
             return String.format(

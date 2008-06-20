@@ -19,8 +19,8 @@ package ch.systemsx.cisd.datamover.filesystem.store;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -41,10 +41,10 @@ public final class FileStoreRemoteMounted extends FileStore
 {
     private final FileStoreLocal localImpl;
 
-    public FileStoreRemoteMounted(final FileWithHighwaterMark file, final String desription,
-            final IFileSysOperationsFactory factory)
+    public FileStoreRemoteMounted(final HostAwareFileWithHighwaterMark file,
+            final String desription, final IFileSysOperationsFactory factory)
     {
-        super(file, null, desription, factory);
+        super(file, desription, factory);
         this.localImpl = new FileStoreLocal(file, desription, factory);
     }
 

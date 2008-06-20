@@ -55,9 +55,7 @@ public final class PropertyNames
     /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
-    static final String INCOMING_DIR = "incoming-dir";
-
-    static final String INCOMING_HOST = "incoming-host";
+    static final String INCOMING_TARGET = "incoming-target";
 
     /** The local directory to store paths that need manual intervention. */
     static final String MANUAL_INTERVENTION_DIR = "manual-intervention-dir";
@@ -67,9 +65,7 @@ public final class PropertyNames
     static final String MAX_RETRIES = "max-retries";
 
     /** The remote directory to move the data to. */
-    static final String OUTGOING_DIR = "outgoing-dir";
-
-    static final String OUTGOING_HOST = "outgoing-host";
+    static final String OUTGOING_TARGET = "outgoing-target";
 
     static final String PREFIX_FOR_INCOMING = "prefix-for-incoming";
 

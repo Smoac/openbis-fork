@@ -35,9 +35,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.datamover.Parameters.FileWithHighwaterMarkHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -49,7 +50,8 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses = SystemExit.class)
+@Friend(toClasses =
+    { SystemExit.class, Parameters.class })
 public final class ParametersTest extends AbstractFileSystemTestCase
 {
     private ByteArrayOutputStream logRecorder;
@@ -148,7 +150,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public void testIncomingDirectory() throws Exception
     {
         final String localDataDir = ".." + File.separator + "test_it_data";
-        final Parameters parameters = parse("--incoming-dir", localDataDir);
+        final Parameters parameters = parse("--" + PropertyNames.INCOMING_TARGET, localDataDir);
         assertEquals(createIncomingStore(localDataDir, null, parameters),
                 getIncomingStore(parameters));
     }
@@ -159,7 +161,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         return new Object[][]
             {
                 { PropertyNames.BUFFER_DIR, 100 },
-                { PropertyNames.OUTGOING_DIR, 200 } };
+                { PropertyNames.OUTGOING_TARGET, 200 } };
     }
 
     @Test(dataProvider = "directoryWithHighwaterMark")
@@ -169,28 +171,28 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final String localTempDir = "test_it_tmp";
         // Without highwater mark
         Parameters parameters = parse("--" + optionName, localTempDir);
-        FileWithHighwaterMark fileWithHighwaterMark =
+        HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(optionName, parameters);
-        assertEquals(localTempDir, fileWithHighwaterMark.getFile().getPath());
-        assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
+        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals(-1, hostAwareFileWithHighwaterMark.getHighwaterMark());
         // With a highwater mark value
         parameters =
-                parse("--" + optionName, localTempDir + Parameters.FileWithHighwaterMarkHandler.SEP
-                        + highwaterMark);
-        fileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
-        assertEquals(localTempDir, fileWithHighwaterMark.getFile().getPath());
-        assertEquals(highwaterMark, fileWithHighwaterMark.getHighwaterMark());
+                parse("--" + optionName, localTempDir
+                        + FileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP + highwaterMark);
+        hostAwareFileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
+        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals(highwaterMark, hostAwareFileWithHighwaterMark.getHighwaterMark());
     }
 
-    private final FileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
+    private final HostAwareFileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
             final Parameters parameters)
     {
         if (optionName.equals(PropertyNames.BUFFER_DIR))
         {
             return parameters.getBufferDirectoryPath();
-        } else if (optionName.equals(PropertyNames.OUTGOING_DIR))
+        } else if (optionName.equals(PropertyNames.OUTGOING_TARGET))
         {
-            return parameters.outgoingDirectory;
+            return parameters.outgoingTarget;
         }
         throw new AssertionError();
     }
@@ -339,8 +341,9 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final String localTempDir = "l" + File.separator + "tmp";
         final String remoteDataDir = "rrr";
         final Parameters parameters =
-                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir,
-                        "--outgoing-dir", remoteDataDir);
+                parse("--" + PropertyNames.INCOMING_TARGET, localDataDir, "--"
+                        + PropertyNames.BUFFER_DIR, localTempDir, "--"
+                        + PropertyNames.OUTGOING_TARGET, remoteDataDir);
         assertEquals(createIncomingStore(localDataDir, null, parameters),
                 getIncomingStore(parameters));
         assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
@@ -361,12 +364,13 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final String extraCopyDir = "xxx";
 
         final Parameters parameters =
-                parse("--incoming-dir", localDataDir, "--buffer-dir", localTempDir,
-                        "--outgoing-dir", remoteDataDir, "--outgoing-host", remoteHost,
-                        "--check-interval", Integer.toString(checkIntervall), "--quiet-period",
-                        Integer.toString(quietPeriod), "--treat-incoming-as-remote",
-                        "--incoming-host", remoteIncomingHost, "--extra-copy-dir", extraCopyDir,
-                        "--rsync-overwrite");
+                parse("--" + PropertyNames.INCOMING_TARGET,
+                        remoteIncomingHost + ":" + localDataDir, "--" + PropertyNames.BUFFER_DIR,
+                        localTempDir, "--" + PropertyNames.OUTGOING_TARGET, remoteHost + ":"
+                                + remoteDataDir, "--check-interval", Integer
+                                .toString(checkIntervall), "--quiet-period", Integer
+                                .toString(quietPeriod), "--treat-incoming-as-remote",
+                        "--extra-copy-dir", extraCopyDir, "--rsync-overwrite");
         final IFileStore incomingStoreExpected =
                 createIncomingStore(localDataDir, remoteIncomingHost, parameters);
         final IFileStore incomingStore = getIncomingStore(parameters);

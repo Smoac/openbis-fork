@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -121,28 +121,29 @@ public class FileStoreRemote extends FileStore
      *            -printf option.
      * @param kind Description of the directory used in logs
      */
-    public FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+    public FileStoreRemote(final HostAwareFileWithHighwaterMark fileWithHighwaterMark,
             final String kind, final IFileSysOperationsFactory factory,
             String remoteFindExecutableOrNull)
     {
-        this(fileWithHighwaterMark, host, kind, createSshCommandBuilder(findSSHOrDie(factory)),
-                factory, remoteFindExecutableOrNull);
+        this(fileWithHighwaterMark, kind, createSshCommandBuilder(findSSHOrDie(factory)), factory,
+                remoteFindExecutableOrNull);
     }
 
     // exposed for tests
-    FileStoreRemote(final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+    FileStoreRemote(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String kind, final ISshCommandBuilder sshCommandBuilder,
             final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull)
     {
-        super(fileWithHighwaterMark, host, kind, factory);
-        assert host != null : "Unspecified host";
+        super(hostAwareFileWithHighwaterMark, kind, factory);
+        assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
         this.sshCommandBuilder = sshCommandBuilder;
         this.highwaterMarkWatcher =
-                createHighwaterMarkWatcher(fileWithHighwaterMark, host, sshCommandBuilder);
+                createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
         this.remoteFindExecutableOrNull = remoteFindExecutableOrNull;
         if (remoteFindExecutableOrNull != null)
         {
-            ensureSpecifiedFindExists(host, remoteFindExecutableOrNull);
+            ensureSpecifiedFindExists(hostAwareFileWithHighwaterMark.tryGetHost(),
+                    remoteFindExecutableOrNull);
         }
     }
 
@@ -166,15 +167,16 @@ public class FileStoreRemote extends FileStore
     }
 
     private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
-            final FileWithHighwaterMark fileWithHighwaterMark, final String host,
+            final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final ISshCommandBuilder sshCommandBuilder)
     {
         final IFreeSpaceProvider freeSpaceProvider =
-                new RemoteFreeSpaceProvider(host, sshCommandBuilder);
+                new RemoteFreeSpaceProvider(hostAwareFileWithHighwaterMark.tryGetHost(),
+                        sshCommandBuilder);
         final HighwaterMarkWatcher highwaterMarkWatcher =
-                new HighwaterMarkWatcher(fileWithHighwaterMark.getHighwaterMark(),
+                new HighwaterMarkWatcher(hostAwareFileWithHighwaterMark.getHighwaterMark(),
                         freeSpaceProvider);
-        highwaterMarkWatcher.setPath(fileWithHighwaterMark.getFile());
+        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark.getFile());
         return highwaterMarkWatcher;
     }
 

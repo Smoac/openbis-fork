@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -41,8 +41,8 @@ public final class FileStoreFactory
     /**
      * use when file store is on a local host.
      */
-    public static final IFileStore createLocal(final FileWithHighwaterMark path, final String kind,
-            final IFileSysOperationsFactory factory)
+    public static final IFileStore createLocal(final HostAwareFileWithHighwaterMark path,
+            final String kind, final IFileSysOperationsFactory factory)
     {
         return new FileStoreLocal(path, kind, factory);
     }
@@ -53,11 +53,11 @@ public final class FileStoreFactory
     public static final IFileStore createLocal(final File readyToMoveDir, final String string,
             final IFileSysOperationsFactory factory)
     {
-        return createLocal(new FileWithHighwaterMark(readyToMoveDir), string, factory);
+        return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory);
     }
 
     /** use when file store is on a remote share mounted on local host */
-    public static final IFileStore createRemoteShare(final FileWithHighwaterMark path,
+    public static final IFileStore createRemoteShare(final HostAwareFileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory)
     {
         return new FileStoreRemoteMounted(path, kind, factory);
@@ -66,11 +66,10 @@ public final class FileStoreFactory
     /**
      * use when file store is on a remote share mounted on local host
      */
-    public static final IFileStore createRemoteHost(final FileWithHighwaterMark path,
-            final String host, final String kind, final IFileSysOperationsFactory factory,
-            String findExecutableOrNull)
+    public static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
+            final String kind, final IFileSysOperationsFactory factory, String findExecutableOrNull)
     {
-        return new FileStoreRemote(path, host, kind, factory, findExecutableOrNull);
+        return new FileStoreRemote(path, kind, factory, findExecutableOrNull);
     }
 
     /**
@@ -81,7 +80,7 @@ public final class FileStoreFactory
     public static final IFileStore createRemoteHost(final File path, final String host,
             final String kind, final IFileSysOperationsFactory factory)
     {
-        return createRemoteHost(new FileWithHighwaterMark(path), host, kind, factory, null);
+        return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path), kind, factory, null);
     }
 
     /**
@@ -91,8 +90,8 @@ public final class FileStoreFactory
             final String hostOrNull, final boolean isRemote,
             final IFileSysOperationsFactory factory, String findExecutableOrNull)
     {
-        return createStore(new FileWithHighwaterMark(path), kind, hostOrNull, isRemote, factory,
-                findExecutableOrNull);
+        return createStore(new HostAwareFileWithHighwaterMark(hostOrNull, path), kind, isRemote,
+                factory, findExecutableOrNull);
     }
 
     /**
@@ -100,13 +99,13 @@ public final class FileStoreFactory
      * 
      * @param findExecutableOrNull
      */
-    public final static IFileStore createStore(final FileWithHighwaterMark path, final String kind,
-            final String hostOrNull, final boolean isRemote,
-            final IFileSysOperationsFactory factory, final String findExecutableOrNull)
+    public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
+            final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,
+            final String findExecutableOrNull)
     {
-        if (hostOrNull != null)
+        if (path.tryGetHost() != null)
         {
-            return createRemoteHost(path, hostOrNull, kind, factory, findExecutableOrNull);
+            return createRemoteHost(path, kind, factory, findExecutableOrNull);
         } else
         {
             if (isRemote)

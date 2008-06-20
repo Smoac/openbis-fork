@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.highwatermark.FileWithHighwaterMark;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 
 /**
  * Paths to different local buffer directories.
@@ -42,7 +42,7 @@ public final class LocalBufferDirs
 
     private final long bufferDirHighwaterMark;
 
-    public LocalBufferDirs(final FileWithHighwaterMark bufferDir,
+    public LocalBufferDirs(final HostAwareFileWithHighwaterMark bufferDir,
             final String copyInProgressDirName, final String copyCompleteDirName,
             final String readyToMoveDirName, final String tempDirName)
     {
