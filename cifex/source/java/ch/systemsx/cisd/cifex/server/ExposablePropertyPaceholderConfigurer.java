@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.util.StringUtils;
 
 /**
  * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have
@@ -48,16 +49,17 @@ public final class ExposablePropertyPaceholderConfigurer extends PropertyPlaceho
     //
 
     @Override
+    protected final String convertPropertyValue(final String originalValue)
+    {
+        // Can handle null value
+        return StringUtils.trimWhitespace(originalValue);
+    }
+
+    @Override
     protected final void processProperties(
             final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
             throws BeansException
     {
-        for (final Object key : props.keySet())
-        {
-            final String keyStr = key.toString();
-            props.setProperty(keyStr, org.springframework.util.StringUtils.trimWhitespace(props
-                    .getProperty(keyStr)));
-        }
         super.processProperties(beanFactoryToProcess, props);
         resolvedProps = new HashMap<String, String>();
         for (final Object key : props.keySet())
