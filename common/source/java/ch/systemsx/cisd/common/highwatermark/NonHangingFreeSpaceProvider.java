@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +47,7 @@ public final class NonHangingFreeSpaceProvider extends DelegateFreeSpaceProvider
     //
 
     @Override
-    public final long freeSpaceKb(final File path) throws IOException
+    public final long freeSpaceKb(final HostAwareFile path) throws IOException
     {
         final Future<Long> future =
                 executorService.submit(new FreeSpaceCallable(getFreeSpaceProvider(), path));
@@ -73,9 +72,9 @@ public final class NonHangingFreeSpaceProvider extends DelegateFreeSpaceProvider
     {
         private final IFreeSpaceProvider freeSpaceProvider;
 
-        private final File path;
+        private final HostAwareFile path;
 
-        FreeSpaceCallable(final IFreeSpaceProvider freeSpaceProvider, final File path)
+        FreeSpaceCallable(final IFreeSpaceProvider freeSpaceProvider, final HostAwareFile path)
         {
             this.freeSpaceProvider = freeSpaceProvider;
             this.path = path;

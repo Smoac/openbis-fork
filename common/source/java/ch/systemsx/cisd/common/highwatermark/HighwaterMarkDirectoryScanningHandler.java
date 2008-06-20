@@ -77,7 +77,7 @@ public final class HighwaterMarkDirectoryScanningHandler extends
 
     private final boolean isBelow(final File path)
     {
-        highwaterMarkWatcher.setPathAndRun(path);
+        highwaterMarkWatcher.setPathAndRun(new HostAwareFile(path));
         return highwaterMarkWatcher.isBelow();
     }
 

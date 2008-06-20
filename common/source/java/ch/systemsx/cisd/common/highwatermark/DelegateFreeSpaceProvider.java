@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
 import java.io.IOException;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
@@ -46,7 +45,7 @@ public class DelegateFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
-    public long freeSpaceKb(final File path) throws IOException
+    public long freeSpaceKb(final HostAwareFile path) throws IOException
     {
         return freeSpaceProvider.freeSpaceKb(path);
     }

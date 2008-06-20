@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileSystemUtils;
@@ -36,9 +35,9 @@ public final class SimpleFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File path) throws IOException
+    public final long freeSpaceKb(final HostAwareFile path) throws IOException
     {
-        final String canonicalPath = FileUtilities.getCanonicalPath(path);
+        final String canonicalPath = FileUtilities.getCanonicalPath(path.getFile());
         return FileSystemUtils.freeSpaceKb(canonicalPath);
     }
 }

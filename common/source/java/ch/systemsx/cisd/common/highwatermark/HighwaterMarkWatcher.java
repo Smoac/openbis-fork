@@ -64,7 +64,7 @@ public final class HighwaterMarkWatcher implements Runnable
     private final EventListenerList listenerList = new EventListenerList();
 
     /** The path to get free space for. Is not <code>null</code>, not empty on Unix. */
-    private File path;
+    private HostAwareFile path;
 
     /** The last {@link HighwaterMarkState} computed. */
     private HighwaterMarkState highwaterMarkState;
@@ -145,7 +145,7 @@ public final class HighwaterMarkWatcher implements Runnable
      * The path must be set before calling {@link #run()}.
      * </p>
      */
-    public final synchronized void setPath(final File path)
+    public final synchronized void setPath(final HostAwareFile path)
     {
         this.path = path;
     }
@@ -153,7 +153,7 @@ public final class HighwaterMarkWatcher implements Runnable
     /**
      * Returns the path to get free space for.
      */
-    public final synchronized File getPath()
+    public final synchronized HostAwareFile getPath()
     {
         return path;
     }
@@ -161,7 +161,7 @@ public final class HighwaterMarkWatcher implements Runnable
     /**
      * Sets the path and calls {@link #run()} at the same time.
      */
-    public final synchronized void setPathAndRun(final File path)
+    public final synchronized void setPathAndRun(final HostAwareFile path)
     {
         setPath(path);
         run();
@@ -170,7 +170,7 @@ public final class HighwaterMarkWatcher implements Runnable
     /**
      * Analyzes given <var>path</var> and returns a {@link HighwaterMarkState}.
      */
-    public final HighwaterMarkState getHighwaterMarkState(final File file)
+    public final HighwaterMarkState getHighwaterMarkState(final HostAwareFile file)
             throws EnvironmentFailureException
     {
         assert file != null : "Unspecified file";
@@ -185,7 +185,7 @@ public final class HighwaterMarkWatcher implements Runnable
                                 // Callable
                                 //
 
-                                public Long call() throws Exception
+                                public final Long call() throws Exception
                                 {
                                     try
                                     {
@@ -200,8 +200,8 @@ public final class HighwaterMarkWatcher implements Runnable
         {
             throw new EnvironmentFailureException(errorMsg);
         }
-        return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file, highwaterMarkInKb),
-                freeSpaceInKb);
+        return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
+                .getFile(), highwaterMarkInKb), freeSpaceInKb);
     }
 
     /**
@@ -379,7 +379,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /**
          * Returns the free space on a drive or volume in kilobytes by invoking the command line.
          */
-        public long freeSpaceKb(final File path) throws IOException;
+        public long freeSpaceKb(final HostAwareFile path) throws IOException;
     }
 
 }

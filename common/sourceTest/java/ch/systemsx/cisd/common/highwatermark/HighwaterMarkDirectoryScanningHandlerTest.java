@@ -119,7 +119,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
             fail = false;
         }
         assertFalse(fail);
-        final File file = new File("temp");
+        final HostAwareFile file = new HostAwareFile(null, new File("temp"));
         highwaterMarkWatcher.setPath(file);
         context.checking(new Expectations()
             {
@@ -150,12 +150,12 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
         context.checking(new Expectations()
             {
                 {
-                    one(freeSpaceProvider).freeSpaceKb(files[0]);
+                    one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(files[0]));
                     will(returnValue(freeSpace));
 
                     if (freeSpace > HIGHWATER_MARK)
                     {
-                        one(freeSpaceProvider).freeSpaceKb(files[1]);
+                        one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(files[1]));
                         will(returnValue(freeSpace));
 
                         one(directoryScanningHandler).mayHandle(scannedStore, storeItem);

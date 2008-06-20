@@ -17,14 +17,11 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -35,13 +32,11 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class HostAwareFileWithHighwaterMark extends AbstractHashable implements Serializable
+public final class HostAwareFileWithHighwaterMark extends HostAwareFile
 {
     private static final long serialVersionUID = 1L;
 
     static final String SEP = "-";
-
-    public static final char HOST_FILE_SEP = ':';
 
     public static final int DEFAULT_HIGHWATER_MARK = -1;
 
@@ -50,10 +45,6 @@ public final class HostAwareFileWithHighwaterMark extends AbstractHashable imple
      * <i>kilobytes</i>).
      */
     public static final String HIGHWATER_MARK_PROPERTY_KEY = "highwater-mark";
-
-    private final String host;
-
-    private final File path;
 
     private final long highwaterMarkInKb;
 
@@ -66,8 +57,7 @@ public final class HostAwareFileWithHighwaterMark extends AbstractHashable imple
     public HostAwareFileWithHighwaterMark(final String hostOrNull, final File file,
             final long highwaterMarkInKb)
     {
-        this.host = hostOrNull;
-        this.path = file;
+        super(hostOrNull, file);
         this.highwaterMarkInKb = highwaterMarkInKb;
     }
 
@@ -136,20 +126,6 @@ public final class HostAwareFileWithHighwaterMark extends AbstractHashable imple
                 highwaterMarkInKb);
     }
 
-    /** Returns the host on which {@link #getFile()} is located on. */
-    public final String tryGetHost()
-    {
-        return host;
-    }
-
-    /**
-     * Returns the file path.
-     */
-    public final File getFile()
-    {
-        return path;
-    }
-
     /**
      * Returns the high water mark for this file.
      */
@@ -158,15 +134,4 @@ public final class HostAwareFileWithHighwaterMark extends AbstractHashable imple
         return highwaterMarkInKb;
     }
 
-    /** Return the canonical path of the encapsulated <code>path</code>. */
-    public final String getCanonicalPath()
-    {
-        if (tryGetHost() == null)
-        {
-            return FileUtilities.getCanonicalPath(getFile());
-        } else
-        {
-            return tryGetHost() + HOST_FILE_SEP + getFile();
-        }
-    }
 }

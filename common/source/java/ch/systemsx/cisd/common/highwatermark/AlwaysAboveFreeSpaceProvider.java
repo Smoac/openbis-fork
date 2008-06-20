@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
 
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 
@@ -44,7 +43,7 @@ public final class AlwaysAboveFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File path)
+    public final long freeSpaceKb(final HostAwareFile path)
     {
         return Long.MAX_VALUE;
     }
