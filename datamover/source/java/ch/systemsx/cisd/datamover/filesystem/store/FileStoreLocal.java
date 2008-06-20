@@ -72,7 +72,7 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
     {
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(hostAwareFileWithHighwaterMark.getHighwaterMark());
-        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark.getFile());
+        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark);
         return highwaterMarkWatcher;
     }
 

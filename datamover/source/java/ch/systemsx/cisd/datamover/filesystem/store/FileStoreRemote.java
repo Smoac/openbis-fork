@@ -170,13 +170,11 @@ public class FileStoreRemote extends FileStore
             final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final ISshCommandBuilder sshCommandBuilder)
     {
-        final IFreeSpaceProvider freeSpaceProvider =
-                new RemoteFreeSpaceProvider(hostAwareFileWithHighwaterMark.tryGetHost(),
-                        sshCommandBuilder);
+        final IFreeSpaceProvider freeSpaceProvider = new RemoteFreeSpaceProvider(sshCommandBuilder);
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(hostAwareFileWithHighwaterMark.getHighwaterMark(),
                         freeSpaceProvider);
-        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark.getFile());
+        highwaterMarkWatcher.setPath(hostAwareFileWithHighwaterMark);
         return highwaterMarkWatcher;
     }
 

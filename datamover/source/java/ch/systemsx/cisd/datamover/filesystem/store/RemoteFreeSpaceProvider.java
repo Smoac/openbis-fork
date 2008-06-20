@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -51,15 +51,11 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
 
     private final ISshCommandBuilder sshCommandBuilder;
 
-    private final String host;
-
     private final long millisToWaitForCompletion = Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
 
-    public RemoteFreeSpaceProvider(final String host, final ISshCommandBuilder sshCommandBuilder)
+    public RemoteFreeSpaceProvider(final ISshCommandBuilder sshCommandBuilder)
     {
-        assert host != null : "Unspecified host";
         assert sshCommandBuilder != null : "Unspecified ssh command builder";
-        this.host = host;
         this.sshCommandBuilder = sshCommandBuilder;
     }
 
@@ -86,13 +82,14 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
     // IFreeSpaceProvider
     //
 
-    public final long freeSpaceKb(final File file) throws IOException
+    public final long freeSpaceKb(final HostAwareFile file) throws IOException
     {
         assert file != null : "Unspecified remote file.";
-        final String path = file.getPath();
+        final String path = file.getFile().getPath();
         assert StringUtils.isNotEmpty(path) : "Empty path.";
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
-        final List<String> command = sshCommandBuilder.createSshCommand(dfCommand, host);
+        final List<String> command =
+                sshCommandBuilder.createSshCommand(dfCommand, file.tryGetHost());
         final ProcessResult processResult =
                 ProcessExecutionHelper.run(command, operationLog, machineLog,
                         millisToWaitForCompletion, OutputReadingStrategy.ALWAYS, false);

@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
+
 /**
  * Test cases for {@link RemoteFreeSpaceProvider}.
  * 
@@ -34,7 +36,8 @@ public final class RemoteFreeSpaceProviderTest
     {
         ISshCommandBuilder sshCmdBuilder = FileStoreRemoteTest.createFakeSshComandBuilder();
         final RemoteFreeSpaceProvider freeSpaceProvider =
-                new RemoteFreeSpaceProvider("fake-host-name", sshCmdBuilder);
-        System.out.println(freeSpaceProvider.freeSpaceKb(new File("/")));
+                new RemoteFreeSpaceProvider(sshCmdBuilder);
+        System.out.println(freeSpaceProvider.freeSpaceKb(new HostAwareFile("fake-host-name",
+                new File("/"))));
     }
 }
