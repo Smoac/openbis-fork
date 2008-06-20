@@ -23,8 +23,10 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
@@ -75,6 +77,9 @@ public final class RemotePathMover implements IStoreHandler
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, RemotePathMover.class);
+
+    private static final ConditionalNotificationLogger conditionalLogger =
+            new ConditionalNotificationLogger(machineLog, notificationLog, 3);
 
     private final IFileStore sourceDirectory;
 
@@ -149,10 +154,15 @@ public final class RemotePathMover implements IStoreHandler
                         .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (msg != null)
         {
-            machineLog.error(msg);
+            conditionalLogger.log(LogLevel.ERROR, msg);
             return false;
+        } else
+        {
+            conditionalLogger.reset(String.format(
+                    "Following store '%s' is again fully accessible to the program.",
+                    destinationDirectory));
+            return true;
         }
-        return true;
     }
 
     private final void remove(final StoreItem sourceItem)
@@ -316,9 +326,6 @@ public final class RemotePathMover implements IStoreHandler
                             destinationDirectory));
                 }
             }
-            // TODO 2008-03-17, Bernd Rinn: There needs to be a limit for how often we take this
-            // exit without sending
-            // a notification email.
             if (checkTargetAvailable() == false)
             {
                 return;

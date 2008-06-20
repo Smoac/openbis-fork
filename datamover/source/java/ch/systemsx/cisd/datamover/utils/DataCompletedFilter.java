@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
@@ -75,7 +76,8 @@ public class DataCompletedFilter implements IStoreItemFilter
             throw new IllegalArgumentException("Data completed script not specified.");
         }
         this.dataCompletedScript = dataCompletedScript;
-        notificationLogger = new ConditionalNotificationLogger(getClass(), 0);
+        notificationLogger =
+                new ConditionalNotificationLogger(operationLog, Level.WARN, notificationLog, 0);
         this.dataCompletedScriptTimeout = dataCompletedScriptTimeout;
         if (fileStore == null)
         {
