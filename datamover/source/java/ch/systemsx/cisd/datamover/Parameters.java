@@ -119,7 +119,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.INCOMING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote incoming host."
             + " It should be a GNU find supporting -printf option."
-            + " Useful only in SSH tunneling mode when incoming-host is specified.")
+            + " Useful only in SSH tunneling mode.")
     private String incomingHostFindExecutableOrNull = null;
 
     /**
@@ -127,7 +127,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.OUTGOING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote outgoing host."
             + " It should be a GNU find supporting -printf option."
-            + " Useful only in SSH tunneling mode when outgoing-host is specified.")
+            + " Useful only in SSH tunneling mode.")
     private String outgoingHostFindExecutableOrNull = null;
 
     /**
