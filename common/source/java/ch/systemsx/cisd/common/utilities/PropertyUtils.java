@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -387,6 +389,21 @@ public final class PropertyUtils
                 }
             }
             return false;
+        }
+    }
+
+    /**
+     * Trims each value of given <var>properties</var> using {@link StringUtils#trim(String)}.
+     */
+    @SuppressWarnings("unchecked")
+    public final static void trimProperties(final Properties properties)
+    {
+        assert properties != null : "Unspecified properties";
+        for (final Enumeration<String> enumeration =
+                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements();)
+        {
+            final String key = enumeration.nextElement();
+            properties.setProperty(key, StringUtils.trim(properties.getProperty(key)));
         }
     }
 }
