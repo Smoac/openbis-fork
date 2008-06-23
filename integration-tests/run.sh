@@ -598,7 +598,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
     local bds_container=$DATA/main-store/Instance_integration-test/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_3VCP1/
-    bds_container=$bds_container`ls -1 $bds_container | head -1`/microX_200801011213_3VCP1
+    bds_container=$bds_container`ls -1 $bds_container | head -1`
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
     assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
@@ -615,7 +615,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     # Picks up the first directory found
     raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir | head -1`
     assert_dir_exists $raw_data_dir
-    local raw_data_set=$raw_data_dir/microX_200801011213_3VCP1
+    local raw_data_set=$raw_data_dir
     assert_dir_exists $raw_data_set
     
     echo == check data structure version
@@ -743,7 +743,7 @@ function assert_correct_content {
     assert_empty_in_out_folders
     assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
-    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 5 "Data complete.*3VCP[0-9]" 
+    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 10 "Data complete.*3VCP[0-9]" 
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
