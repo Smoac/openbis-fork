@@ -111,10 +111,9 @@ public class DirectoryScanningTimerTaskTest
         mockPathHandler.clear();
     }
 
-    private final File getFaultyPathFile()
+    private final static File getFaultyPathFile()
     {
-        final File faultyPaths = new File(workingDirectory, FaultyPathDirectoryScanningHandler.FAULTY_PATH_FILENAME);
-        return faultyPaths;
+        return new File(workingDirectory, FaultyPathDirectoryScanningHandler.FAULTY_PATH_FILENAME);
     }
 
     private final static void createNewFile(final File someFile) throws IOException
@@ -130,7 +129,7 @@ public class DirectoryScanningTimerTaskTest
         final File faultyPaths = getFaultyPathFile();
         CollectionIO.writeIterable(faultyPaths, Collections.singleton("some_path"));
         new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
-        assertEquals(0, faultyPaths.length());
+        assertEquals(1, CollectionIO.readSet(faultyPaths).size());
     }
 
     @Test

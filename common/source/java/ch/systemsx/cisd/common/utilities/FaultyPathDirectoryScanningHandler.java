@@ -55,7 +55,6 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     {
         this.faultyPaths = new HashSet<String>();
         this.faultyPathsFile = new File(faultyPathDirectory, FAULTY_PATH_FILENAME);
-        faultyPathsFile.delete();
     }
 
     private final void checkForFaultyPathsFileChanged()
