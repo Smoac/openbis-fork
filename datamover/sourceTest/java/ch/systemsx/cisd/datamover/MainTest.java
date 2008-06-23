@@ -34,6 +34,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -41,9 +42,13 @@ import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
+ * Test cases for the {@link Parameters} class.
+ * 
  * @author Tomasz Pylak
  */
-public class MainTest
+@Friend(toClasses =
+    { Main.class })
+public final class MainTest
 {
     private static final FileStructEngine DEFAULT_STRUCT = new FileStructEngine("test");
 
@@ -314,10 +319,10 @@ public class MainTest
     }
 
     private static void runDataMover(Parameters parameters, LocalBufferDirs bufferDirs,
-            long dataMoverCompleteionTime) throws InterruptedException
+            long dataMoverCompletionTime) throws InterruptedException
     {
         ITerminable terminable = Main.startupServer(parameters, bufferDirs);
-        Thread.sleep(dataMoverCompleteionTime);
+        Thread.sleep(dataMoverCompletionTime);
         assertTrue(terminable.terminate());
     }
 

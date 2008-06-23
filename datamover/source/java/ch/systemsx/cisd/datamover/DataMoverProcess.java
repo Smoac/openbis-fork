@@ -26,6 +26,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
 /**
  * A class that represents the incoming moving process.
+ * 
+ * @author Bernd Rinn
  */
 public class DataMoverProcess implements ITerminable
 {

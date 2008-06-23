@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -41,7 +42,6 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  */
 public class Main
 {
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Main.class);
 
@@ -51,7 +51,12 @@ public class Main
     private static final UncaughtExceptionHandler loggingExceptionHandler =
             new UncaughtExceptionHandler()
                 {
-                    public void uncaughtException(Thread t, Throwable e)
+
+                    //
+                    // UncaughtExceptionHandler
+                    //
+
+                    public final void uncaughtException(final Thread t, final Throwable e)
                     {
                         notificationLog.error("An exception has occurred [thread: '" + t.getName()
                                 + "'].", e);
@@ -60,7 +65,12 @@ public class Main
 
     private static final Runnable loggingShutdownHook = new Runnable()
         {
-            public void run()
+
+            //
+            // Runnable
+            //
+
+            public final void run()
             {
                 if (operationLog.isInfoEnabled())
                 {
@@ -120,7 +130,7 @@ public class Main
                 stores.add(dummyStore);
             }
             final IPathCopier copyProcess = factory.getCopier(false);
-            SelfTest.check(copyProcess, stores.toArray(new IFileStore[] {}));
+            SelfTest.check(copyProcess, stores.toArray(IFileStore.EMPTY_ARRAY));
         } catch (final HighLevelException e)
         {
             System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
@@ -134,7 +144,7 @@ public class Main
         }
     }
 
-    /** exposed for testing purposes */
+    @Private
     static ITerminable startupServer(final Parameters parameters, final LocalBufferDirs bufferDirs)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
@@ -154,7 +164,10 @@ public class Main
         printInitialLogMessage(parameters);
         selfTest(parameters);
         startupServer(parameters);
-        operationLog.info("Datamover ready and waiting for data.");
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Datamover ready and waiting for data.");
+        }
     }
 
 }

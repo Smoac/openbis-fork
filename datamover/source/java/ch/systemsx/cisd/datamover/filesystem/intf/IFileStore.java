@@ -29,6 +29,8 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  */
 public interface IFileStore extends ISelfTestable
 {
+    public static final IFileStore[] EMPTY_ARRAY = new IFileStore[0];
+
     /**
      * Returns the location of the specified store item.
      */

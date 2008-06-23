@@ -67,7 +67,7 @@ public class DataMover
      * 
      * @return object which can be used to terminate the process and all its threads
      */
-    public static final ITerminable start(final Parameters parameters,
+    static final ITerminable start(final Parameters parameters,
             final IFileSysOperationsFactory factory)
     {
         return start(parameters, factory, createLocalBufferDirs(parameters));
@@ -80,7 +80,7 @@ public class DataMover
     }
 
     /** Allows to specify buffer directories. Exposed for testing purposes. */
-    public static final ITerminable start(final Parameters parameters,
+    static final ITerminable start(final Parameters parameters,
             final IFileSysOperationsFactory factory, final LocalBufferDirs localBufferDirs)
     {
         return new DataMover(parameters, factory, localBufferDirs).start();
