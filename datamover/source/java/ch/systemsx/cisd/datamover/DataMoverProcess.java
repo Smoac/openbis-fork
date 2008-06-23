@@ -21,7 +21,7 @@ import java.util.TimerTask;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.TimerHelper;
+import ch.systemsx.cisd.common.utilities.ITriggerable;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 
 /**
@@ -29,13 +29,11 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
  * 
  * @author Bernd Rinn
  */
-public class DataMoverProcess implements ITerminable
+public final class DataMoverProcess implements ITerminable, ITriggerable
 {
     private final Timer timer;
 
     private final TimerTask dataMoverTimerTask;
-
-    private final ITerminable terminable;
 
     private final IRecoverableTimerTaskFactory recoverableTimerTaskFactory;
 
@@ -50,7 +48,6 @@ public class DataMoverProcess implements ITerminable
         this.dataMoverTimerTask = dataMoverTimerTask;
         this.recoverableTimerTaskFactory = recoverableTimerTaskFactory;
         this.timer = new Timer(taskName);
-        this.terminable = TimerHelper.asTerminable(timer);
     }
 
     @Private
@@ -60,20 +57,18 @@ public class DataMoverProcess implements ITerminable
     }
 
     /**
-     * Starts up the process with a the given <var>delay</var> and <var>period</var> in milli
-     * seconds.
+     * Starts up the process with a the given <var>delay</var> and <var>period</var> in
+     * milliseconds.
      */
-    public void startup(final long delay, final long period)
+    public final void startup(final long delay, final long period)
     {
         timer.schedule(dataMoverTimerTask, delay, period);
     }
 
-    public boolean terminate()
-    {
-        return terminable.terminate();
-    }
-
-    public void recover()
+    /**
+     * Schedules the specified <code>recoverableTimerTaskFactory</code>.
+     */
+    private final void recover()
     {
         if (recoverableTimerTaskFactory != null)
         {
@@ -81,4 +76,22 @@ public class DataMoverProcess implements ITerminable
         }
     }
 
+    //
+    // ITerminable
+    //
+
+    public final boolean terminate()
+    {
+        timer.cancel();
+        return true;
+    }
+
+    //
+    // ITriggerable
+    //
+
+    public final void trigger()
+    {
+        recover();
+    }
 }

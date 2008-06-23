@@ -17,18 +17,17 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
-import java.util.Timer;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.utilities.CompoundTerminable;
+import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.ITriggerable;
-import ch.systemsx.cisd.common.utilities.TimerHelper;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
@@ -104,29 +103,23 @@ public class DataMover
         localProcessor.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
                 .getCheckIntervalInternalMillis());
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
-        return createCompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor,
+        return new CompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor,
                 incomingProcess);
     }
 
     private ITerminable startupRecoveryProcess(final DataMoverProcess localProcessor,
             final DataMoverProcess incomingProcessor)
     {
-        final ITriggerable recoverable = new ITriggerable()
-            {
-                public void trigger()
-                {
-                    localProcessor.recover();
-                    incomingProcessor.recover();
-                }
-            };
+        final CompoundTriggerable triggerable =
+                new CompoundTriggerable(localProcessor, incomingProcessor);
         // Trigger initial recovery cycle.
-        recoverable.trigger();
+        triggerable.trigger();
         final TriggeringTimerTask recoveryingTimerTask =
-                new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), recoverable);
-        final Timer recoveryTimer = new Timer("Recovery");
-        recoveryTimer
-                .schedule(recoveryingTimerTask, 0, parameters.getCheckIntervalInternalMillis());
-        return TimerHelper.asTerminable(recoveryTimer);
+                new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), triggerable);
+        final DataMoverProcess recoveryProcess =
+                new DataMoverProcess(recoveryingTimerTask, "Recovery");
+        recoveryProcess.startup(0, parameters.getCheckIntervalInternalMillis());
+        return recoveryProcess;
     }
 
     private DataMoverProcess createIncomingMovingProcess()
@@ -163,25 +156,9 @@ public class DataMover
         return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
     }
 
-    private IStoreHandler createRemotePathMover(final IFileStore source,
+    private final IStoreHandler createRemotePathMover(final IFileStore source,
             final IFileStore destination)
     {
         return RemoteMonitoredMoverFactory.create(source, destination, parameters);
-    }
-
-    private static ITerminable createCompoundTerminable(final ITerminable... terminables)
-    {
-        return new ITerminable()
-            {
-                public boolean terminate()
-                {
-                    boolean ok = true;
-                    for (final ITerminable terminable : terminables)
-                    {
-                        ok = ok && terminable.terminate();
-                    }
-                    return ok;
-                }
-            };
     }
 }
