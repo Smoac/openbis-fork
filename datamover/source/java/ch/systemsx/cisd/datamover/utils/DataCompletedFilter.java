@@ -147,7 +147,7 @@ public class DataCompletedFilter implements IStoreItemFilter
             final String message =
                     String
                             .format(
-                                    "Processing status of data completed script has changed to '%s'. Command line: '%s'.",
+                                    "Processing status of data completed script has changed to '%s'. ICommand line: '%s'.",
                                     describeProcessResult(result), commandLine);
             if (ok)
             {

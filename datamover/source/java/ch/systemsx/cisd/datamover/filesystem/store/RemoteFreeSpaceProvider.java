@@ -68,13 +68,13 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
             if (kBytes < 0)
             {
                 throw new IOException(String.format(
-                        "Command line '%s' did not find free space in response.", dfCommand));
+                        "ICommand line '%s' did not find free space in response.", dfCommand));
             }
             return kBytes;
         } catch (final NumberFormatException ex)
         {
             throw new IOException(String.format(
-                    "Command line '%s' did not return numeric data as expected.", dfCommand));
+                    "ICommand line '%s' did not return numeric data as expected.", dfCommand));
         }
     }
 
@@ -100,7 +100,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
         if (spaceOutputKb == null)
         {
             throw new IOException(String.format(
-                    "Command line '%s' did not return info as expected. Response was '%s'",
+                    "ICommand line '%s' did not return info as expected. Response was '%s'",
                     commandLine, processOutput));
         }
         return parseKbytes(spaceOutputKb, dfCommand);

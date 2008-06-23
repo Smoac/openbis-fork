@@ -433,7 +433,7 @@ public class FileStoreRemote extends FileStore
     {
         if (result.isOK() == false)
         {
-            return "Command '" + result.getCommandLine() + "' failed with error result "
+            return "ICommand '" + result.getCommandLine() + "' failed with error result "
                     + result.getExitValue();
         } else
         {

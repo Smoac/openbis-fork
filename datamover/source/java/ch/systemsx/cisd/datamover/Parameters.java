@@ -19,6 +19,9 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -29,6 +32,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
@@ -285,6 +289,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             + "'%t' will be replaced with the current time stamp.")
     private String prefixForIncoming = "";
 
+    @Argument()
+    private final List<String> arguments = new ArrayList<String>();
+
     /**
      * The command line parser.
      */
@@ -293,7 +300,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(final boolean exit)
     {
-        parser.printHelp("Datamover", "<required options> [option [...]]", "", ExampleMode.ALL);
+        parser.printHelp("Datamover", "<required options> [option [...]]", "[status|mstatus]", ExampleMode.ALL);
         if (exit)
         {
             System.exit(0);
@@ -718,6 +725,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         return prefixForIncoming;
     }
+    
+    public final List<String> getArgs()
+    {
+        return Collections.unmodifiableList(arguments);
+    }
+
 
     /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
