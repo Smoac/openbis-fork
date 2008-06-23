@@ -38,7 +38,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.datamover.Parameters.FileWithHighwaterMarkHandler;
+import ch.systemsx.cisd.datamover.Parameters.HostAwareFileWithHighwaterMarkHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -178,7 +178,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         // With a highwater mark value
         parameters =
                 parse("--" + optionName, localTempDir
-                        + FileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP + highwaterMark);
+                        + HostAwareFileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP + highwaterMark);
         hostAwareFileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
         assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals(highwaterMark, hostAwareFileWithHighwaterMark.getHighwaterMark());

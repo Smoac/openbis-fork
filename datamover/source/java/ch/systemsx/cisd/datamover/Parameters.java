@@ -38,7 +38,6 @@ import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -227,14 +226,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     /**
      * The directory to monitor for new files and directories to move to outgoing.
      */
-    @Option(longName = PropertyNames.INCOMING_TARGET, metaVar = "[HOST:]DIR", usage = "The directory where the data producer writes to.", handler = FileWithHighwaterMarkHandler.class)
+    @Option(longName = PropertyNames.INCOMING_TARGET, metaVar = "[HOST:]DIR", usage = "The directory where the data producer writes to.", handler = HostAwareFileWithHighwaterMarkHandler.class)
     private HostAwareFileWithHighwaterMark incomingTarget = null;
 
     /**
      * The directory for local files and directories manipulations.
      */
     @Option(longName = PropertyNames.BUFFER_DIR, usage = "The local directory to "
-            + "store the paths to be transfered temporarily " + HIGHWATER_MARK_TEXT + ".", metaVar = "DIR[>KB]", handler = FileWithHighwaterMarkHandler.class)
+            + "store the paths to be transfered temporarily " + HIGHWATER_MARK_TEXT + ".", metaVar = "DIR[>KB]", handler = HostAwareFileWithHighwaterMarkHandler.class)
     private HostAwareFileWithHighwaterMark bufferDirectory = null;
 
     /**
@@ -250,7 +249,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * The directory on the remote side to move the paths to from the buffer directory.
      */
     @Option(longName = PropertyNames.OUTGOING_TARGET, usage = "The remote directory to move the data to "
-            + HIGHWATER_MARK_TEXT + ".", handler = FileWithHighwaterMarkHandler.class)
+            + HIGHWATER_MARK_TEXT + ".", handler = HostAwareFileWithHighwaterMarkHandler.class)
     @Private
     HostAwareFileWithHighwaterMark outgoingTarget = null;
 
@@ -346,10 +345,19 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             if (incomingTarget == null)
             {
                 throw createConfigurationFailureException(PropertyNames.INCOMING_TARGET);
+            } else if (incomingTarget.getHighwaterMark() > -1L)
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Can not specify a high water mark for '%s'.",
+                        PropertyNames.INCOMING_TARGET);
             }
             if (bufferDirectory == null)
             {
                 throw createConfigurationFailureException(PropertyNames.BUFFER_DIR);
+            } else if (bufferDirectory.tryGetHost() != null)
+            {
+                throw ConfigurationFailureException.fromTemplate("Remote '%s' not supported.",
+                        PropertyNames.BUFFER_DIR);
             }
             if (outgoingTarget == null)
             {
@@ -718,16 +726,11 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Incoming directory: '%s'.", incomingTarget
-                    .getCanonicalPath()));
+            operationLog.info(String.format("Incoming target: '%s'.", incomingTarget));
             operationLog.info(String.format("Is incoming directory remote: %b.",
                     treatIncomingAsRemote));
-            operationLog.info(String.format("Buffer directory: '%s' [high water mark: %s].",
-                    bufferDirectory.getCanonicalPath(), HighwaterMarkWatcher
-                            .displayKilobyteValue(bufferDirectory.getHighwaterMark())));
-            operationLog.info(String.format("Outgoing target: '%s' [high water mark: %s].",
-                    outgoingTarget.getCanonicalPath(), HighwaterMarkWatcher
-                            .displayKilobyteValue(outgoingTarget.getHighwaterMark())));
+            operationLog.info(String.format("Buffer directory: '%s'.", bufferDirectory));
+            operationLog.info(String.format("Outgoing target: '%s'.", outgoingTarget));
             if (null != tryGetManualInterventionDir())
             {
                 operationLog.info(String.format("Manual interventions directory: '%s'.",
@@ -798,7 +801,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     }
 
-    public final static class FileWithHighwaterMarkHandler extends OptionHandler
+    public final static class HostAwareFileWithHighwaterMarkHandler extends OptionHandler
     {
         static final char DIRECTORY_HIGHWATERMARK_SEP = '>';
 
@@ -806,7 +809,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
         private String argument;
 
-        public FileWithHighwaterMarkHandler(final Option option,
+        public HostAwareFileWithHighwaterMarkHandler(final Option option,
                 final Setter<HostAwareFileWithHighwaterMark> setter)
         {
             super(option);
