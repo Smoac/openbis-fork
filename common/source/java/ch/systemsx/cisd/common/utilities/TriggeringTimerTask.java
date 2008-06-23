@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A role that triggers an {@link ITriggerable} when
+ * A role that triggers an {@link ITriggerable} when a given trigger file has been found.
  * 
  * @author Bernd Rinn
  */
