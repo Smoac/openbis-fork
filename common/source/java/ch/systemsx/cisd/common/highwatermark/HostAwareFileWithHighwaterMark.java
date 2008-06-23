@@ -134,4 +134,17 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         return highwaterMarkInKb;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        final StringBuilder builder = new StringBuilder(getCanonicalPath());
+        builder.append(" ").append(
+                String.format("[high water mark: %s]", HighwaterMarkWatcher
+                        .displayKilobyteValue(getHighwaterMark())));
+        return builder.toString();
+    }
 }
