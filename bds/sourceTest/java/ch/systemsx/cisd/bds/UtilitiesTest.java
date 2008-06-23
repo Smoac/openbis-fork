@@ -138,7 +138,7 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(key, listFiles[0].getName());
         assertEquals(value, file.getStringContent().trim());
         assertTrue(Utilities.getBoolean(directory, key).toBoolean());
-        directory.addKeyValuePair(key, "true");
+        directory.addKeyValuePair(key, "yes");
         try
         {
             Utilities.getBoolean(directory, key);
@@ -151,4 +151,31 @@ public class UtilitiesTest extends AbstractFileSystemTestCase
         assertFalse(Utilities.getBoolean(directory, key).toBoolean());
     }
 
+    @Test
+    public void testBooleanToString()
+    {
+        assertEquals("TRUE", Utilities.Boolean.TRUE.toString());
+        assertEquals("FALSE", Utilities.Boolean.FALSE.toString());
+    }
+    @Test
+    public void testBooleanFromString()
+    {
+        assertEquals(Utilities.Boolean.TRUE, Utilities.Boolean.fromString("TRUE"));
+        assertEquals(Utilities.Boolean.TRUE, Utilities.Boolean.fromString("true"));
+        assertEquals(Utilities.Boolean.FALSE, Utilities.Boolean.fromString("FALSE"));
+        assertEquals(Utilities.Boolean.FALSE, Utilities.Boolean.fromString("false"));
+    }
+    
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testBooleanFromStringError()
+    {
+        Utilities.Boolean.fromString("yes");
+    }
+    
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testBooleanFromStringNull()
+    {
+        Utilities.Boolean.fromString(null);
+    }
+    
 }

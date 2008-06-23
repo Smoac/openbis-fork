@@ -141,6 +141,8 @@ public class Utilities
     /**
      * Return the string content of a file from the given <var>directory</var> as boolean (<code>TRUE</code>
      * or <code>FALSE</code>).
+     * 
+     * @throws DataStructureException If the value of <var>name</var> is not a boolean.
      */
     public static Boolean getBoolean(final IDirectory directory, final String name)
             throws DataStructureException
@@ -149,7 +151,7 @@ public class Utilities
         final String value = getTrimmedString(directory, name);
         try
         {
-            return Boolean.valueOf(value);
+            return Boolean.fromString(value);
         } catch (final IllegalArgumentException ex)
         {
             throw new DataStructureException("Value of '" + name
@@ -239,23 +241,44 @@ public class Utilities
     //
 
     /**
-     * A boolean object that only accepts <code>TRUE</code> or <code>FALSE</code> as value
-     * (case-sensitive).
+     * A boolean object that uses <code>TRUE</code> and <code>FALSE</code> as text
+     * representation but accepts also <code>true</code> and <code>false</code> when converting
+     * from strings.
      */
     public static enum Boolean
     {
         TRUE, FALSE;
 
         /** Converts this object to corresponding <code>boolean</code>. */
-        public final boolean toBoolean()
+        public boolean toBoolean()
         {
-            return this == TRUE ? true : false;
+            return (this == TRUE) ? true : false;
         }
 
         /** Converts given <code>boolean</code> to this enumeration item. */
-        public final static Boolean fromBoolean(final boolean bool)
+        public static Boolean fromBoolean(final boolean bool)
         {
             return bool ? TRUE : FALSE;
+        }
+
+        /**
+         * Converts a string value to a {@link Boolean}. Accepts either <code>true</code>,
+         * <code>TRUE</code>, <code>false</code> or <code>FALSE</code>.
+         * 
+         * @throws IllegalArgumentException if <var>value</var> is not one of the values listed
+         *             above.
+         */
+        public static Boolean fromString(final String value)
+        {
+            if ("true".equalsIgnoreCase(value))
+            {
+                return TRUE;
+            }
+            if ("false".equalsIgnoreCase(value))
+            {
+                return FALSE;
+            }
+            throw new IllegalArgumentException("" + value);
         }
     }
 }
