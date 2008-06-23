@@ -57,6 +57,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final ConditionalNotificationLogger notificationLogger;
 
+    private boolean cancelled;
+
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
@@ -149,6 +151,34 @@ public final class DirectoryScanningTimerTask extends TimerTask
         return new DirectoryScannedStore(filter, directory);
     }
 
+    private final void printNotification(final Exception ex)
+    {
+        notificationLog.error("An exception has occurred. (thread still running)", ex);
+    }
+
+    private final StoreItem[] listStoreItems()
+    {
+        final StoreItem[] storeItems =
+                sourceDirectory.tryListSortedReadyToProcess(notificationLogger);
+        if (storeItems != null)
+        {
+            notificationLogger.reset(String.format("Directory '%s' is available again.",
+                    sourceDirectory));
+        }
+        return (storeItems == null) ? StoreItem.EMPTY_ARRAY : storeItems;
+    }
+
+    //
+    // TimerTask
+    //
+
+    @Override
+    public final boolean cancel()
+    {
+        cancelled = true;
+        return super.cancel();
+    }
+
     /**
      * Handles all entries in the source directory that are picked by the filter.
      */
@@ -157,14 +187,26 @@ public final class DirectoryScanningTimerTask extends TimerTask
     {
         if (operationLog.isTraceEnabled())
         {
-            operationLog.trace("Start scanning directory " + sourceDirectory + ".");
+            operationLog.trace(String.format("Start scanning directory '%s'.", sourceDirectory));
         }
         try
         {
             final StoreItem[] storeItems = listStoreItems();
             directoryScanningHandler.beforeHandle();
+            StoreItem lastStoreItem = null;
             for (final StoreItem storeItem : storeItems)
             {
+                if (cancelled)
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format(
+                                "Scan of directory '%s' has been cancelled. "
+                                        + "Last item handled is '%s'.", sourceDirectory,
+                                lastStoreItem));
+                    }
+                    return;
+                }
                 if (directoryScanningHandler.mayHandle(sourceDirectory, storeItem))
                 {
                     try
@@ -193,6 +235,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
                     }
 
                 }
+                lastStoreItem = storeItem;
             }
         } catch (final Exception ex)
         {
@@ -200,25 +243,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
         if (operationLog.isTraceEnabled())
         {
-            operationLog.trace("Finished scanning directory " + sourceDirectory + ".");
+            operationLog.trace(String.format("Finished scanning directory '%s'.", sourceDirectory));
         }
-    }
-
-    private final void printNotification(final Exception ex)
-    {
-        notificationLog.error("An exception has occurred. (thread still running)", ex);
-    }
-
-    private final StoreItem[] listStoreItems()
-    {
-        final StoreItem[] storeItems =
-                sourceDirectory.tryListSortedReadyToProcess(notificationLogger);
-        if (storeItems != null)
-        {
-            notificationLogger.reset(String.format("Directory '%s' is available again.",
-                    sourceDirectory));
-        }
-        return (storeItems == null) ? StoreItem.EMPTY_ARRAY : storeItems;
     }
 
     //
