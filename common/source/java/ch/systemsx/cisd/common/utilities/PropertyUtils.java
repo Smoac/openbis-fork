@@ -400,7 +400,7 @@ public final class PropertyUtils
     {
         assert properties != null : "Unspecified properties";
         for (final Enumeration<String> enumeration =
-                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements();)
+                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements(); )
         {
             final String key = enumeration.nextElement();
             properties.setProperty(key, StringUtils.trim(properties.getProperty(key)));
