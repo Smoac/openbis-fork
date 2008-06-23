@@ -93,21 +93,19 @@ public class DataMover
         this.bufferDirs = bufferDirs;
     }
 
-    private ITerminable start()
+    private final ITerminable start()
     {
         final DataMoverProcess outgoingMovingProcess = createOutgoingMovingProcess();
         final DataMoverProcess localProcessor = createLocalProcessor();
         final DataMoverProcess incomingProcess = createIncomingMovingProcess();
-        final ITerminable recoveryProcess = startupRecoveryProcess(localProcessor, incomingProcess);
-        outgoingMovingProcess.startup(0L, parameters.getCheckIntervalInternalMillis());
-        localProcessor.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
-                .getCheckIntervalInternalMillis());
-        incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
-        return new CompoundTerminable(recoveryProcess, outgoingMovingProcess, localProcessor,
-                incomingProcess);
+        final DataMoverProcess recoveryProcess =
+                startupRecoveryProcess(localProcessor, incomingProcess);
+        // The ITerminable order here is important.
+        return new CompoundTerminable(recoveryProcess, incomingProcess, localProcessor,
+                outgoingMovingProcess);
     }
 
-    private ITerminable startupRecoveryProcess(final DataMoverProcess localProcessor,
+    private final DataMoverProcess startupRecoveryProcess(final DataMoverProcess localProcessor,
             final DataMoverProcess incomingProcessor)
     {
         final CompoundTriggerable triggerable =
@@ -122,9 +120,12 @@ public class DataMover
         return recoveryProcess;
     }
 
-    private DataMoverProcess createIncomingMovingProcess()
+    private final DataMoverProcess createIncomingMovingProcess()
     {
-        return IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs);
+        final DataMoverProcess incomingProcess =
+                IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs);
+        incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
+        return incomingProcess;
     }
 
     private final DataMoverProcess createLocalProcessor()
@@ -136,7 +137,11 @@ public class DataMover
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
                         localProcessor);
-        return new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
+        final DataMoverProcess dataMoverProcess =
+                new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
+        dataMoverProcess.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
+                .getCheckIntervalInternalMillis());
+        return dataMoverProcess;
     }
 
     private final DataMoverProcess createOutgoingMovingProcess()
@@ -153,7 +158,11 @@ public class DataMover
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
                         remoteStoreMover, directoryScanningHandler);
-        return new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
+        final DataMoverProcess outgoingMovingProcess =
+                new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
+        outgoingMovingProcess.startup(0L, parameters.getCheckIntervalInternalMillis());
+        return outgoingMovingProcess;
+
     }
 
     private final IStoreHandler createRemotePathMover(final IFileStore source,

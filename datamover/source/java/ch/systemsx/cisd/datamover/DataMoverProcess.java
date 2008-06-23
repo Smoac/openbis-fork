@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
@@ -82,7 +83,9 @@ public final class DataMoverProcess implements ITerminable, ITriggerable
 
     public final boolean terminate()
     {
+        dataMoverTimerTask.cancel();
         timer.cancel();
+        TimerUtilities.tryJoinTimerThread(timer, Long.MAX_VALUE);
         return true;
     }
 

@@ -69,22 +69,6 @@ public class Main
                     }
                 };
 
-    private static final Runnable loggingShutdownHook = new Runnable()
-        {
-
-            //
-            // Runnable
-            //
-
-            public final void run()
-            {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info("Datamover is shutting down.");
-                }
-            }
-        };
-
     private static void initLog()
     {
         LogInitializer.init();
@@ -102,7 +86,6 @@ public class Main
             operationLog.info(line);
         }
         parameters.log();
-        Runtime.getRuntime().addShutdownHook(new Thread(loggingShutdownHook, "Shutdown Hook"));
     }
 
     /**
@@ -160,7 +143,23 @@ public class Main
     private static void startupServer(final Parameters parameters)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
-        DataMover.start(parameters, factory);
+        final ITerminable terminable = DataMover.start(parameters, factory);
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+            {
+
+                //
+                // Runnable
+                //
+
+                public final void run()
+                {
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Datamover is shutting down.");
+                    }
+                    terminable.terminate();
+                }
+            }, "Shutdown Hook"));
     }
 
     public static void main(final String[] args)
