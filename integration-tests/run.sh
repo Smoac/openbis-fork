@@ -743,7 +743,7 @@ function assert_correct_content {
     assert_empty_in_out_folders
     assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
-    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 10 "Data complete.*3VCP[0-9]" 
+    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 5 "Data complete.*3VCP[0-9]" 
     assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
