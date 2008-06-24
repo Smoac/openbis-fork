@@ -258,7 +258,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
          */
         StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
 
-        boolean exists(StoreItem item);
+        boolean existsOrError(StoreItem item);
 
         /**
          * returned description should give the user the idea about file location. You should not

@@ -47,7 +47,7 @@ public final class DirectoryScannedStore implements IScannedStore
         return StoreItem.asFile(directory, item).getPath();
     }
 
-    public final boolean exists(final StoreItem item)
+    public final boolean existsOrError(final StoreItem item)
     {
         return StoreItem.asFile(directory, item).exists();
     }

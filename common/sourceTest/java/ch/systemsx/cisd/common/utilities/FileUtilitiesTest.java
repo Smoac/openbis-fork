@@ -53,7 +53,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     {
         final File nonExistentFile = new File(workingDirectory, "non-existent");
         nonExistentFile.delete();
-        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(nonExistentFile, "test");
+        String errorMsg = FileUtilities.tryCheckDirectoryFullyAccessible(nonExistentFile, "test");
         assertNotNull(errorMsg);
     }
 
@@ -64,7 +64,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         file.delete();
         file.deleteOnExit();
         file.createNewFile();
-        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(file, "test");
+        String errorMsg = FileUtilities.tryCheckDirectoryFullyAccessible(file, "test");
         assertNotNull(errorMsg);
     }
 
@@ -78,7 +78,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         readOnlyDirectory.deleteOnExit();
         assert readOnlyDirectory.setReadOnly();
 
-        String errorMsg = FileUtilities.checkDirectoryFullyAccessible(readOnlyDirectory, "test");
+        String errorMsg = FileUtilities.tryCheckDirectoryFullyAccessible(readOnlyDirectory, "test");
 
         // --- clean before checking results
         // Unfortunately, with JDK 5 there is no portable way to set a file or directory read/write,

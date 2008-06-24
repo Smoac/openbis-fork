@@ -387,7 +387,7 @@ public final class FileUtilities
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
      *         message describing the problem with the <var>directory</var> otherwise.
      */
-    public static String checkDirectoryFullyAccessible(final File directory,
+    public static String tryCheckDirectoryFullyAccessible(final File directory,
             final String kindOfDirectory)
     {
         assert directory != null;

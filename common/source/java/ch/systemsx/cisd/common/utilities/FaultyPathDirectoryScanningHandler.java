@@ -139,7 +139,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     {
         // If the item still exists, we assume that it has not been handled. So it
         // should be added to the faulty paths.
-        if (scannedStore.exists(storeItem))
+        if (scannedStore.existsOrError(storeItem))
         {
             addToFaultyPaths(scannedStore, storeItem);
         }

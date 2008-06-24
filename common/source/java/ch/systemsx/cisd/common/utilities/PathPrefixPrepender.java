@@ -79,7 +79,7 @@ public final class PathPrefixPrepender
         {
             final File file = new File(prefix);
             final String response =
-                    FileUtilities.checkDirectoryFullyAccessible(file, type + " prefix path");
+                    FileUtilities.tryCheckDirectoryFullyAccessible(file, type + " prefix path");
             if (response != null)
             {
                 throw new ConfigurationFailureException(response);
