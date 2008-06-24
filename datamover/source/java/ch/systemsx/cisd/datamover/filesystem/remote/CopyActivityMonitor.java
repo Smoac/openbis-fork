@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
@@ -126,8 +127,7 @@ public class CopyActivityMonitor
         // returns 0 when an error or timeout occurs during the check
         long lastChanged(StoreItem item, long stopWhenYoungerThan);
 
-        // true if item exists in the store
-        boolean exists(StoreItem item);
+        BooleanStatus exists(StoreItem item);
 
         // description of the store for logging purposes
         String toString();
@@ -200,7 +200,7 @@ public class CopyActivityMonitor
                     return destinationStore.lastChangedRelative(item, stopWhenFindYoungerRelative);
                 }
 
-                public boolean exists(StoreItem item)
+                public BooleanStatus exists(StoreItem item)
                 {
                     return destinationStore.exists(item);
                 }
@@ -288,7 +288,7 @@ public class CopyActivityMonitor
         // true if nothing has changed during the specified period
         private boolean isQuietFor(long quietPeriodMillis, long now)
         {
-            if (destinationStore.exists(itemToBeCopied) == false)
+            if (destinationStore.exists(itemToBeCopied).isSuccess() == false)
             {
                 return checkNonexistentPeriod(quietPeriodMillis, now);
             }

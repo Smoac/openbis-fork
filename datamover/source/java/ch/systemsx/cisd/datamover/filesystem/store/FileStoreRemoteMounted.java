@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -80,7 +81,7 @@ public final class FileStoreRemoteMounted extends FileStore
         return localImpl.delete(item);
     }
 
-    public final boolean exists(final StoreItem item)
+    public final BooleanStatus exists(final StoreItem item)
     {
         return localImpl.exists(item);
     }
@@ -96,7 +97,7 @@ public final class FileStoreRemoteMounted extends FileStore
         return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);
     }
 
-    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         return localImpl.tryCheckDirectoryFullyAccessible(timeOutMillis);
     }

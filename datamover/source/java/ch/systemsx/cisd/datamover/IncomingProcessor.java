@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -284,7 +285,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 } else
                 // no marker
                 {
-                    if (incomingStore.exists(new StoreItem(localCopy.getName())))
+                    BooleanStatus exists = incomingStore.exists(new StoreItem(localCopy.getName()));
+                    if (exists.isSuccess())
                     {
                         // partial copy - nothing to do, will be copied again
                     } else

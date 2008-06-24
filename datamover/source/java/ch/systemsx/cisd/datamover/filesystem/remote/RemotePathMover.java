@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
@@ -30,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
@@ -115,13 +115,6 @@ public final class RemotePathMover implements IStoreHandler
         assert sourceDirectory.tryAsExtended() != null
                 || destinationDirectory.tryAsExtended() != null;
 
-        final String errorMsg =
-                destinationDirectory
-                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
-        if (StringUtils.isNotBlank(errorMsg))
-        {
-            throw new ConfigurationFailureException(errorMsg);
-        }
         this.sourceDirectory = sourceDirectory;
         this.destinationDirectory = destinationDirectory;
         this.copier = copier;
@@ -131,6 +124,11 @@ public final class RemotePathMover implements IStoreHandler
 
         assert intervallToWaitAfterFailure >= 0;
         assert maximalNumberOfRetries >= 0;
+        final BooleanStatus status = checkTargetAvailable();
+        if (status.isSuccess() == false)
+        {
+            throw new ConfigurationFailureException(status.tryGetMessage());
+        }
     }
 
     private final Status copyAndMonitor(final StoreItem item)
@@ -147,22 +145,31 @@ public final class RemotePathMover implements IStoreHandler
         markAsFinished(item);
     }
 
-    private final boolean checkTargetAvailable()
+    private final boolean checkTargetAvailableAgain()
     {
-        final String msg =
-                destinationDirectory
-                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
-        if (msg != null)
-        {
-            conditionalLogger.log(LogLevel.ERROR, msg);
-            return false;
-        } else
+        BooleanStatus status = checkTargetAvailable();
+        if (status.isSuccess())
         {
             conditionalLogger.reset(String.format(
                     "Following store '%s' is again fully accessible to the program.",
                     destinationDirectory));
             return true;
+        } else
+        {
+            return false;
         }
+    }
+
+    private BooleanStatus checkTargetAvailable()
+    {
+        final BooleanStatus status =
+                destinationDirectory
+                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+        if (status.isSuccess() == false)
+        {
+            conditionalLogger.log(LogLevel.ERROR, status.tryGetMessage());
+        }
+        return status;
     }
 
     private final void remove(final StoreItem sourceItem)
@@ -185,7 +192,8 @@ public final class RemotePathMover implements IStoreHandler
     {
         final StoreItem markDeletionInProgressMarkerFile =
                 MarkerFile.createDeletionInProgressMarker(item);
-        return getDeletionMarkerStore().exists(markDeletionInProgressMarkerFile);
+        BooleanStatus exists = getDeletionMarkerStore().exists(markDeletionInProgressMarkerFile);
+        return exists.isSuccess();
     }
 
     private final StoreItem tryMarkAsDeletionInProgress(final StoreItem item)
@@ -326,7 +334,7 @@ public final class RemotePathMover implements IStoreHandler
                             destinationDirectory));
                 }
             }
-            if (checkTargetAvailable() == false)
+            if (checkTargetAvailableAgain() == false)
             {
                 return;
             }

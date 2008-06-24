@@ -35,10 +35,9 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor.IFileStoreMonitor;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
-import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
 /**
  * Test cases for the {@link CopyActivityMonitor} class.
@@ -160,21 +159,29 @@ public class CopyActivityMonitorTest
         }
     }
 
-    private IFileStoreMonitor asFileStore(File directory, final ILastChangedChecker checker)
+    abstract private static class AlwaysExistsStoreMonitor implements IFileStoreMonitor
     {
-        IFileSysOperationsFactory factory = FileOperationsUtil.createTestFatory();
-        return asFileStore(directory, checker, factory);
+        private final StoreItem expectedItem;
+
+        public AlwaysExistsStoreMonitor(StoreItem item)
+        {
+            this.expectedItem = item;
+        }
+
+        public BooleanStatus exists(StoreItem item)
+        {
+            assertEquals(this.expectedItem, item);
+            return BooleanStatus.createTrue();
+        }
     }
 
-    private IFileStoreMonitor asFileStore(final File directory, final ILastChangedChecker checker,
-            IFileSysOperationsFactory factory)
+    private IFileStoreMonitor asFileStore(final File directory, final ILastChangedChecker checker)
     {
         return new IFileStoreMonitor()
             {
-                public boolean exists(StoreItem item)
+                public BooleanStatus exists(StoreItem item)
                 {
-                    return true;
-                    // return StoreItem.asFile(directory, item).exists();
+                    return BooleanStatus.createTrue();
                 }
 
                 public long lastChanged(StoreItem item, long stopWhenFindYoungerRelative)
@@ -439,10 +446,10 @@ public class CopyActivityMonitorTest
         final StoreItem dummyItem = createDummyItem();
         final IFileStoreMonitor store = new IFileStoreMonitor()
             {
-                public boolean exists(StoreItem item)
+                public BooleanStatus exists(StoreItem item)
                 {
                     assertEquals(dummyItem, item);
-                    return false;
+                    return BooleanStatus.createFalse();
                 }
 
                 public long lastChanged(StoreItem item, long stopWhenYoungerThan)
@@ -460,20 +467,13 @@ public class CopyActivityMonitorTest
     public void testActivityLastChangeUnavailableFail() throws Throwable
     {
         final StoreItem dummyItem = createDummyItem();
-        final IFileStoreMonitor store = new IFileStoreMonitor()
+        final IFileStoreMonitor store = new AlwaysExistsStoreMonitor(dummyItem)
             {
-                public boolean exists(StoreItem item)
-                {
-                    assertEquals(dummyItem, item);
-                    return true;
-                }
-
                 public long lastChanged(StoreItem item, long stopWhenYoungerThan)
                 {
                     assertEquals(dummyItem, item);
                     return 0; // signalizes error
                 }
-
             };
         checkCopyTerminated(store, dummyItem);
     }
@@ -485,15 +485,9 @@ public class CopyActivityMonitorTest
     public void testActivityLastChangeUnavailableOftenFail() throws Throwable
     {
         final StoreItem dummyItem = createDummyItem();
-        final IFileStoreMonitor store = new IFileStoreMonitor()
+        final IFileStoreMonitor store = new AlwaysExistsStoreMonitor(dummyItem)
             {
                 private boolean oddCall = true;
-
-                public boolean exists(StoreItem item)
-                {
-                    assertEquals(dummyItem, item);
-                    return true;
-                }
 
                 public long lastChanged(StoreItem item, long stopWhenYoungerThan)
                 {
@@ -501,7 +495,6 @@ public class CopyActivityMonitorTest
                     oddCall = !oddCall;
                     return oddCall ? 10 : 0; // error or unchanged value
                 }
-
             };
         checkCopyTerminated(store, dummyItem);
     }
@@ -512,21 +505,14 @@ public class CopyActivityMonitorTest
     public void testActivityChangingCopyCompletes() throws Throwable
     {
         final StoreItem dummyItem = createDummyItem();
-        final IFileStoreMonitor store = new IFileStoreMonitor()
+        final IFileStoreMonitor store = new AlwaysExistsStoreMonitor(dummyItem)
             {
                 private int counter = 1;
-
-                public boolean exists(StoreItem item)
-                {
-                    assertEquals(dummyItem, item);
-                    return true;
-                }
 
                 public long lastChanged(StoreItem item, long stopWhenYoungerThan)
                 {
                     return counter++;
                 }
-
             };
         checkCopyTerminationStatus(store, dummyItem, false);
     }

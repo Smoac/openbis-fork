@@ -140,11 +140,11 @@ public abstract class FileStore implements IFileStore
 
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
-        final String errorMessage =
+        final BooleanStatus result =
                 tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
-        if (errorMessage != null)
+        if (result.isSuccess() == false)
         {
-            throw new ConfigurationFailureException(errorMessage);
+            throw new ConfigurationFailureException(result.tryGetMessage());
         }
     }
 

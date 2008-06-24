@@ -57,14 +57,17 @@ class RetryingPathMover implements IPathMover
         return tryMove(sourceFile, destinationDir, "");
     }
 
-    public File tryMove(final File sourcePath, final File destinationDirectory, final String prefixTemplate)
+    public File tryMove(final File sourcePath, final File destinationDirectory,
+            final String prefixTemplate)
     {
         assert destinationDirectory != null;
-        assert FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination") == null : "Directory is not fully accessible "
-                + destinationDirectory.getAbsolutePath();
         assert prefixTemplate != null;
         assert sourcePath != null;
 
+        if (checkDirectoryAccesible(destinationDirectory) == false)
+        {
+            return null;
+        }
         final String destinationPath =
                 createDestinationPath(sourcePath, null, destinationDirectory, prefixTemplate);
         if (operationLog.isInfoEnabled())
@@ -88,13 +91,28 @@ class RetryingPathMover implements IPathMover
         }
     }
 
+    private boolean checkDirectoryAccesible(final File destinationDirectory)
+    {
+        String errorMessage =
+                FileUtilities.tryCheckDirectoryFullyAccessible(destinationDirectory, "destination");
+        if (errorMessage != null)
+        {
+            operationLog.error("Unaccessible directory: " + errorMessage);
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
+
     /**
      * Creates a destination path for copying <var>sourcePath</var> to <var>destinationDirectory</var>
      * with prefix defined by <var>prefixTemplate</var>. Note that '%t' in <var>prefixTemplate</var>
      * will be replaced by the current time stamp in format YYYYmmddhhMMss.
      */
-    private static String createDestinationPath(final File sourcePath, final String destinationHostOrNull,
-            final File destinationDirectory, final String prefixTemplate)
+    private static String createDestinationPath(final File sourcePath,
+            final String destinationHostOrNull, final File destinationDirectory,
+            final String prefixTemplate)
     {
         assert sourcePath != null;
         assert destinationDirectory != null;

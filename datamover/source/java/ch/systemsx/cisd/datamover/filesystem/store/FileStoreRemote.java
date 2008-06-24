@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -202,17 +203,24 @@ public class FileStoreRemote extends FileStore
         }
     }
 
-    public final boolean exists(final StoreItem item)
+    public final BooleanStatus exists(final StoreItem item)
     {
         final File itemFile = StoreItem.asFile(getPath(), item);
         final String cmd = mkCheckFileExistsCommand(itemFile.getPath());
         final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
-        return isSuccessfulCheck(result);
+        if (result.isOK())
+        {
+            return BooleanStatus.createFromBoolean(isSuccessfulCheck(result));
+        } else
+        {
+            return BooleanStatus.createError("Remote command '" + cmd
+                    + "' failed with exit value: " + result.getExitValue());
+        }
     }
 
     private boolean isSuccessfulCheck(final ProcessResult result)
     {
-        return result.isOK() && result.getOutput().size() == 0;
+        return result.getOutput().size() == 0;
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
@@ -280,21 +288,21 @@ public class FileStoreRemote extends FileStore
     }
 
     // outgoing and self-test
-    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
-        final String errMsg = tryCheckDirectoryAccessible(getPathString(), timeOutMillis);
-        if (errMsg == null)
+        final BooleanStatus status = checkDirectoryAccessible(getPathString(), timeOutMillis);
+        if (status.isSuccess())
         {
             if (this.remoteFindExecutableOrNull != null || checkAvailableAndSetFindUtil())
             {
-                return null;
+                return BooleanStatus.createTrue();
             } else
             {
-                return createNoFindUtilMessage();
+                return BooleanStatus.createError(createNoFindUtilMessage());
             }
         } else
         {
-            return errMsg;
+            return status;
         }
     }
 
@@ -338,12 +346,26 @@ public class FileStoreRemote extends FileStore
         this.remoteFindExecutableOrNull = findExecutable;
     }
 
-    private String tryCheckDirectoryAccessible(final String pathString, final long timeOutMillis)
+    private BooleanStatus checkDirectoryAccessible(final String pathString, final long timeOutMillis)
     {
         final String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
         final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
-        return isSuccessfulCheck(result) ? null
-                : ("Directory not accessible: '" + getHost() + ":" + pathString + "'. Check that it exists and that you have read and write rights to it.");
+        String dirDesc = "'" + getHost() + ":" + pathString + "'";
+        if (result.isOK())
+        {
+            if (isSuccessfulCheck(result))
+            {
+                return BooleanStatus.createTrue();
+            } else
+            {
+                return BooleanStatus.createFalse("Directory not accessible: " + dirDesc
+                        + ". Check that it exists and that you have read and write rights to it.");
+            }
+        } else
+        {
+            return BooleanStatus.createError("Error when checking if directory " + dirDesc
+                    + " is accessible: " + result.getOutput());
+        }
     }
 
     private final static List<String> createSshCommand(final String command,

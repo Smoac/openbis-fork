@@ -21,6 +21,7 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.utils.IStoreItemFilter;
 
@@ -67,9 +68,10 @@ final class FileScannedStore implements IScannedStore
     // IScannedStore
     //
 
-    public final boolean exists(final StoreItem item)
+    public final boolean existsOrError(final StoreItem item)
     {
-        return fileStore.exists(item);
+        BooleanStatus status = fileStore.exists(item);
+        return status.isError() || status.getResult() == true;
     }
 
     public final String getLocationDescription(final StoreItem item)

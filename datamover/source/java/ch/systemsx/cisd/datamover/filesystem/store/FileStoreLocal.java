@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -81,9 +82,10 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         return remover.remove(getChildFile(item));
     }
 
-    public final boolean exists(final StoreItem item)
+    public final BooleanStatus exists(final StoreItem item)
     {
-        return getChildFile(item).exists();
+        boolean exists = getChildFile(item).exists();
+        return BooleanStatus.createFromBoolean(exists);
     }
 
     public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
@@ -113,17 +115,30 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
                 stopWhenFindYoungerRelative);
     }
 
-    public final String tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
     {
         final boolean available =
                 FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
+        String unaccesibleMsg;
         if (available == false)
         {
-            return String.format(
-                    "Path '%s' which is supposed to be a %s directory is not available.",
-                    getPath(), getDescription());
+            unaccesibleMsg =
+                    String.format(
+                            "Path '%s' which is supposed to be a %s directory is not available.",
+                            getPath(), getDescription());
+            return BooleanStatus.createFalse(unaccesibleMsg);
+        } else
+        {
+            unaccesibleMsg =
+                    FileUtilities.tryCheckDirectoryFullyAccessible(getPath(), getDescription());
         }
-        return FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
+        if (unaccesibleMsg != null)
+        {
+            return BooleanStatus.createFalse(unaccesibleMsg);
+        } else
+        {
+            return BooleanStatus.createTrue();
+        }
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)

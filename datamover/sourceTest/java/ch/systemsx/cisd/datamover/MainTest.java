@@ -217,11 +217,11 @@ public final class MainTest
 
     private static ArrayList<String> getDefaultParameters(ExternalDirs dirs)
     {
-        return createList("--incoming-dir", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer
-                .getPath(), "--outgoing-dir", dirs.outgoing.getPath(), "--check-interval", Integer
-                .toString(CHECK_INTERVAL), "--check-interval-internal", Integer
-                .toString(CHECK_INTERVAL_INTERNAL), "--quiet-period", Integer
-                .toString(QUIET_PERIOD), "--treat-incoming-as-remote");
+        return createList("--incoming-target", dirs.incoming.getPath(), "--buffer-dir", dirs.buffer
+                .getPath(), "--outgoing-target", dirs.outgoing.getPath(), "--check-interval",
+                Integer.toString(CHECK_INTERVAL), "--check-interval-internal", Integer
+                        .toString(CHECK_INTERVAL_INTERNAL), "--quiet-period", Integer
+                        .toString(QUIET_PERIOD), "--treat-incoming-as-remote");
     }
 
     private static ArrayList<String> getManualInterventionParameters(ExternalDirs dirs,

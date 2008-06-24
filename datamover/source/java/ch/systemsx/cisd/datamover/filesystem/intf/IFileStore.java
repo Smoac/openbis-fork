@@ -47,15 +47,17 @@ public interface IFileStore extends ISelfTestable
      * 
      * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available
      *            if it is not initially.
-     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return status describing if the <var>directory</var> is fully accessible. If this
+     *         operation fails, there is an error message available describing the problem with the
+     *         <var>directory</var>. In this case nothing can be stated about directory accessability.
      */
-    public String tryCheckDirectoryFullyAccessible(final long timeOutMillis);
+    public BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis);
 
     /**
-     * Returns <code>true</code> if the specified store item exists in this file store.
+     * Checks if the specified store item exists in this file store. This operation can fail, error
+     * status is then available and the result is unknown.
      */
-    public boolean exists(StoreItem item);
+    public BooleanStatus exists(StoreItem item);
 
     /**
      * Returns the last time when there was a write access to <var>item</var>.
