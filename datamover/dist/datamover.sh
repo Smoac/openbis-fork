@@ -50,6 +50,54 @@ STARTUPLOG=log/startup_log.txt
 SUCCESS_MSG="Self test successfully completed"
 MAX_LOOPS=10
 
+getStatus()
+{
+	if [ -f $PIDFILE ]; then
+		PID=`cat $PIDFILE`
+		isPIDRunning $PID
+		if [ $? -eq 0 ]; then
+			if [ -f .MARKER_shutdown ]; then
+				STATUS=SHUTDOWN
+				return 1
+			elif [ "`ls -a1 | awk '/\.MARKER_.*_processing/ {print $1}'`" = "" ]; then
+				STATUS=IDLE
+			else
+				STATUS=PROCESSING
+			fi 
+			return 0
+		else
+			STATUS=STALE
+			return 3
+		fi
+	else
+		STATUS=DOWN
+		return 2
+	fi
+}
+
+printStatus()
+{
+	PID=`cat $PIDFILE`
+	MSG_PREFIX="Datamover (pid $PID) is"
+	case "$1" in
+		PROCESSING)
+			echo "$MSG_PREFIX running and in processing state"
+			;;
+		IDLE)
+			echo "$MSG_PREFIX running and in idle state"
+			;;
+		SHUTDOWN)
+			echo "$MSG_PREFIX in shutdown mode"
+			;;
+		DOWN)
+			echo "Datamover is not running"
+			;;
+		STALE)
+			echo "Datamover is dead (stale pid $PID)"
+			;;
+	esac
+}
+
 #
 # change to installation directory
 #
@@ -75,8 +123,8 @@ command=$1
 # ensure that we ignore a possible prefix "--" for any command 
 command="${command#--*}"
 case "$command" in
-        start)
-	        echo -n "Starting Datamover "
+	start)
+		echo -n "Starting Datamover "
 
 		shift 1
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
@@ -110,8 +158,8 @@ case "$command" in
 			echo "FAILED"
 		fi
 		;;
-        stop)
-        	echo -n "Stopping Datamover "
+	stop)
+		echo -n "Stopping Datamover "
 		if [ -f $PIDFILE ]; then
 			PID=`cat $PIDFILE`
 			isPIDRunning $PID
@@ -130,39 +178,38 @@ case "$command" in
 		else
 			echo "(not running - nothing to do)"
 		fi
-        ;;
-        status)
-		if [ -f $PIDFILE ]; then
-			PID=`cat $PIDFILE`
-			isPIDRunning $PID
-			if [ $? -eq 0 ]; then
-				echo "Datamover is running (pid $PID)"
-			else
-				echo "Datamover is dead (stale pid $PID)"
-			fi
-		else
-			echo "Datamover is not running"
-		fi
-        ;;
-        recover)
-        	echo "Triggering recovery cycle"
-        	touch .MARKER_recovery
-        ;;
-        restart)
-	        $SCRIPT stop
-	        $SCRIPT start
-        ;;
+	;;
+	status)
+		getStatus
+		EXIT_STATUS=$?
+		printStatus $STATUS
+		exit $EXIT_STATUS
+	;;
+	mstatus)
+		getStatus
+		EXIT_STATUS=$?
+		echo $STATUS
+		exit $EXIT_STATUS
+	;;
+	recover)
+		echo "Triggering recovery cycle"
+		touch .MARKER_recovery
+	;;
+	restart)
+		$SCRIPT stop
+		$SCRIPT start
+	;;
 	help)
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --help
 	;;
 	version)
-                ${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --version
+		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --version
 	;;
 	test-notify)
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
 	;;
-        *)
-        echo $"Usage: $0 {start|stop|restart|status|recover|help|version|test-notify}"
-        exit 1
+	*)
+	echo $"Usage: $0 {start|stop|restart|status|mstatus|recover|help|version|test-notify}"
+	exit 1
 esac
 exit 0
