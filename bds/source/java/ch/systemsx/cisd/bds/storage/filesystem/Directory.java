@@ -237,6 +237,6 @@ final class Directory extends AbstractNode implements IDirectory
     @Override
     public final boolean isValid()
     {
-        return super.isValid() && FileUtilities.checkDirectoryFullyAccessible(nodeFile, "") == null;
+        return super.isValid() && FileUtilities.tryCheckDirectoryFullyAccessible(nodeFile, "") == null;
     }
 }
