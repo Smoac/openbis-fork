@@ -19,14 +19,10 @@ package ch.systemsx.cisd.datamover;
 import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.TimerTask;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -65,8 +61,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
     
-    @Private static final String MARKER_FILE_NAME = ".MARKER_thread_incoming_processing";
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
@@ -86,26 +80,32 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final IStoreItemFilter storeItemFilter;
 
+    private final String markerFileName;
+
     public static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
+            final String markerFile, final IFileSysOperationsFactory factory,
+            final LocalBufferDirs bufferDirs)
     {
-        return createMovingProcess(parameters, factory, SYSTEM_TIME_PROVIDER, bufferDirs);
+        return createMovingProcess(parameters, markerFile, factory, SYSTEM_TIME_PROVIDER,
+                bufferDirs);
     }
 
     static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
-            final LocalBufferDirs bufferDirs)
+            final String markerFile, final IFileSysOperationsFactory factory,
+            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
     {
         final IncomingProcessor processor =
-                new IncomingProcessor(parameters, factory, timeProvider, bufferDirs);
+                new IncomingProcessor(parameters, markerFile, factory, timeProvider, bufferDirs);
 
         return processor.create();
     }
 
-    private IncomingProcessor(final Parameters parameters, final IFileSysOperationsFactory factory,
-            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
+    private IncomingProcessor(final Parameters parameters, final String markerFileName,
+            final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
+            final LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
+        this.markerFileName = markerFileName;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.incomingStore = parameters.getIncomingStore(factory);
         this.pathMover = factory.getMover();
@@ -145,7 +145,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 new DirectoryScanningTimerTask(
                         new FileScannedStore(incomingStore, storeItemFilter),
                         directoryScanningHandler, pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
-        return new DataMoverProcess(movingTask, "Mover of Incoming Data", this);
+        TimerTask timerTask =
+                DataMover.createTimerTaskForMarkerFileProtocol(movingTask, markerFileName);
+        return new DataMoverProcess(timerTask, "Mover of Incoming Data", this);
     }
 
     private IStoreHandler createIncomingMovingPathHandler()
@@ -159,24 +161,13 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
                 public final void handle(final StoreItem sourceItem)
                 {
-                    File markerFile = new File(MARKER_FILE_NAME);
-                    try
+                    final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
+                    if (extendedFileStore == null)
                     {
-                        FileUtils.touch(markerFile);
-                        final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
-                        if (extendedFileStore == null)
-                        {
-                            moveFromRemoteIncoming(sourceItem);
-                        } else
-                        {
-                            moveFromLocalIncoming(extendedFileStore, sourceItem);
-                        }
-                    } catch (IOException ex)
+                        moveFromRemoteIncoming(sourceItem);
+                    } else
                     {
-                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                    } finally
-                    {
-                        markerFile.delete();
+                        moveFromLocalIncoming(extendedFileStore, sourceItem);
                     }
                 }
             };

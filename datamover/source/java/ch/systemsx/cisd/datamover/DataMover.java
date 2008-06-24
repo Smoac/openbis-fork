@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.util.TimerTask;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.CompoundTerminable;
 import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
@@ -54,6 +56,20 @@ public class DataMover
 
     @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
+    
+    private static final String TEMPLATE = Constants.MARKER_PREFIX + "thread_%s_processing";
+    
+    @Private 
+    static final String INCOMING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "incoming");
+    
+    @Private
+    static final String OUTGOING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "outgoing");
+    
+    @Private
+    static final String LOCAL_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "local");
+
+    @Private
+    static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "recovery");
 
     private final Parameters parameters;
 
@@ -70,6 +86,14 @@ public class DataMover
             final IFileSysOperationsFactory factory)
     {
         return start(parameters, factory, createLocalBufferDirs(parameters));
+    }
+
+    static TimerTask createTimerTaskForMarkerFileProtocol(TimerTask timerTask, String markerFileName)
+    {
+        TimerTaskWithListeners timerTaskWithListeners = new TimerTaskWithListeners(timerTask);
+        timerTaskWithListeners.addListener(new TimerTaskListenerForMarkerFileProtocol(
+                markerFileName));
+        return timerTaskWithListeners;
     }
 
     private static LocalBufferDirs createLocalBufferDirs(final Parameters parameters)
@@ -114,8 +138,10 @@ public class DataMover
         triggerable.trigger();
         final TriggeringTimerTask recoveryingTimerTask =
                 new TriggeringTimerTask(new File(RECOVERY_MARKER_FIILENAME), triggerable);
-        final DataMoverProcess recoveryProcess =
-                new DataMoverProcess(recoveryingTimerTask, "Recovery");
+        TimerTask timerTask =
+                createTimerTaskForMarkerFileProtocol(recoveryingTimerTask,
+                        RECOVERY_PROCESS_MARKER_FILENAME);
+        final DataMoverProcess recoveryProcess = new DataMoverProcess(timerTask, "Recovery");
         recoveryProcess.startup(0, parameters.getCheckIntervalInternalMillis());
         return recoveryProcess;
     }
@@ -123,7 +149,8 @@ public class DataMover
     private final DataMoverProcess createIncomingMovingProcess()
     {
         final DataMoverProcess incomingProcess =
-                IncomingProcessor.createMovingProcess(parameters, factory, bufferDirs);
+                IncomingProcessor.createMovingProcess(parameters, INCOMING_PROCESS_MARKER_FILENAME,
+                        factory, bufferDirs);
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
         return incomingProcess;
     }
@@ -137,13 +164,16 @@ public class DataMover
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
                         localProcessor);
+        TimerTask timerTask =
+                createTimerTaskForMarkerFileProtocol(localProcessingTask,
+                        LOCAL_PROCESS_MARKER_FILENAME);
         final DataMoverProcess dataMoverProcess =
-                new DataMoverProcess(localProcessingTask, "Local Processor", localProcessor);
+                new DataMoverProcess(timerTask, "Local Processor", localProcessor);
         dataMoverProcess.startup(parameters.getCheckIntervalInternalMillis() / 2L, parameters
                 .getCheckIntervalInternalMillis());
         return dataMoverProcess;
     }
-
+    
     private final DataMoverProcess createOutgoingMovingProcess()
     {
         final IFileStore outgoingStore = parameters.getOutgoingStore(factory);
@@ -158,8 +188,11 @@ public class DataMover
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
                         remoteStoreMover, directoryScanningHandler);
+        TimerTask timerTask =
+                createTimerTaskForMarkerFileProtocol(outgoingMovingTask,
+                        OUTGOING_PROCESS_MARKER_FILENAME);
         final DataMoverProcess outgoingMovingProcess =
-                new DataMoverProcess(outgoingMovingTask, "Final Destination Mover");
+                new DataMoverProcess(timerTask, "Final Destination Mover");
         outgoingMovingProcess.startup(0L, parameters.getCheckIntervalInternalMillis());
         return outgoingMovingProcess;
 

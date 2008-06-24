@@ -244,7 +244,7 @@ public final class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        return IncomingProcessor.createMovingProcess(parameters, fileSysOpertationFactory,
+        return IncomingProcessor.createMovingProcess(parameters, ".marker", fileSysOpertationFactory,
                 new MockTimeProvider(), localBufferDirs);
 
     }

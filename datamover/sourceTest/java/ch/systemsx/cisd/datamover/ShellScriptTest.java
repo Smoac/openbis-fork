@@ -55,8 +55,11 @@ public class ShellScriptTest
     
     private static final File PID_FILE = new File(WORKING_DIRECTORY, "datamover.pid");
     
-    private static final File MARKER_FILE_INCOMMING_PROCESSING =
-            new File(WORKING_DIRECTORY, IncomingProcessor.MARKER_FILE_NAME);
+    private static final File MARKER_FILE_INCOMING_PROCESSING =
+            new File(WORKING_DIRECTORY, DataMover.INCOMING_PROCESS_MARKER_FILENAME);
+    
+    private static final File mARKER_FILE_OUTGOING_PROCESSING =
+            new File(WORKING_DIRECTORY, DataMover.OUTGOING_PROCESS_MARKER_FILENAME);
     
     private static final File MARKER_FILE_SHUTDOWN =
             new File(WORKING_DIRECTORY, ".MARKER_shutdown");
@@ -117,9 +120,11 @@ public class ShellScriptTest
     public void testStatusProcessing() throws IOException
     {
         FileUtils.touch(PID_FILE);
-        FileUtils.touch(MARKER_FILE_INCOMMING_PROCESSING);
+        FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
         checkStatus(0, "Datamover (pid ) is running and in processing state", true);
+        FileUtils.touch(mARKER_FILE_OUTGOING_PROCESSING);
+        checkStatus(0, "PROCESSING", false);
     }
     
     @Test
@@ -129,7 +134,7 @@ public class ShellScriptTest
         FileUtils.touch(MARKER_FILE_SHUTDOWN);
         checkStatus(1, "SHUTDOWN", false);
         checkStatus(1, "Datamover (pid ) is in shutdown mode", true);
-        FileUtils.touch(MARKER_FILE_INCOMMING_PROCESSING);
+        FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(1, "SHUTDOWN", false);
     }
     
