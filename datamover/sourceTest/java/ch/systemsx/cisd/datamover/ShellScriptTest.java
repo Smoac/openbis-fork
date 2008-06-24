@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DataMover.class)
 public class ShellScriptTest
 {
     private static final String SCRIPT_FILE_NAME = "datamover.sh";
