@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.IWebService;
 import ch.systemsx.cisd.lims.base.RMIBasedLIMSServiceFactory;
@@ -132,6 +133,7 @@ public class DatasetDownloadService
             try
             {
                 properties.load(is);
+                PropertyUtils.trimProperties(properties);
                 return properties;
             } finally
             {
