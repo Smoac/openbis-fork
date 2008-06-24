@@ -51,6 +51,15 @@ public final class PropertyUtilsTest
     }
 
     @Test
+    public final void testTrim()
+    {
+        final Properties properties = new Properties();
+        final String propertyKey = "key";
+        properties.setProperty(propertyKey, " value  ");
+        assertEquals("value", PropertyUtils.getProperty(properties, propertyKey));
+    }
+
+    @Test
     public final void testGetMandatoryProperty()
     {
         boolean fail = true;
