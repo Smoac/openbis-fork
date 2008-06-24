@@ -19,7 +19,6 @@ package ch.systemsx.cisd.datamover;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
@@ -30,31 +29,38 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
  * 
  * @author Bernd Rinn
  */
-public final class DataMoverProcess implements ITerminable, ITriggerable
+class DataMoverProcess implements ITerminable, ITriggerable
 {
     private final Timer timer;
 
-    private final TimerTask dataMoverTimerTask;
+    private final TimerTask timerTask;
 
     private final IRecoverableTimerTaskFactory recoverableTimerTaskFactory;
+
+    private final String taskName;
 
     DataMoverProcess(final TimerTask timerTask, final String taskName)
     {
         this(timerTask, taskName, null);
     }
 
-    DataMoverProcess(final TimerTask dataMoverTimerTask, final String taskName,
+    DataMoverProcess(final TimerTask timerTask, final String taskName,
             final IRecoverableTimerTaskFactory recoverableTimerTaskFactory)
     {
-        this.dataMoverTimerTask = dataMoverTimerTask;
+        this.timerTask = timerTask;
         this.recoverableTimerTaskFactory = recoverableTimerTaskFactory;
         this.timer = new Timer(taskName);
+        this.taskName = taskName;
     }
 
-    @Private
-    TimerTask getDataMoverTimerTask()
+    final TimerTask getTimerTask()
     {
-        return dataMoverTimerTask;
+        return timerTask;
+    }
+
+    final String getTaskName()
+    {
+        return taskName;
     }
 
     /**
@@ -63,7 +69,7 @@ public final class DataMoverProcess implements ITerminable, ITriggerable
      */
     public final void startup(final long delay, final long period)
     {
-        timer.schedule(dataMoverTimerTask, delay, period);
+        timer.schedule(timerTask, delay, period);
     }
 
     /**
@@ -81,12 +87,11 @@ public final class DataMoverProcess implements ITerminable, ITriggerable
     // ITerminable
     //
 
-    public final boolean terminate()
+    public boolean terminate()
     {
-        dataMoverTimerTask.cancel();
+        timerTask.cancel();
         timer.cancel();
-        TimerUtilities.tryJoinTimerThread(timer, Long.MAX_VALUE);
-        return true;
+        return TimerUtilities.tryJoinTimerThread(timer, Long.MAX_VALUE);
     }
 
     //

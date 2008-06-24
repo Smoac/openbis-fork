@@ -54,18 +54,18 @@ public class ShellScriptTest
     private static final File WORKING_DIRECTORY = new File("targets/shell-script-test");
 
     private static final File SCRIPT_FILE = new File(WORKING_DIRECTORY, SCRIPT_FILE_NAME);
-    
+
     private static final File PID_FILE = new File(WORKING_DIRECTORY, "datamover.pid");
-    
+
     private static final File MARKER_FILE_INCOMING_PROCESSING =
             new File(WORKING_DIRECTORY, DataMover.INCOMING_PROCESS_MARKER_FILENAME);
-    
-    private static final File mARKER_FILE_OUTGOING_PROCESSING =
+
+    private static final File MARKER_FILE_OUTGOING_PROCESSING =
             new File(WORKING_DIRECTORY, DataMover.OUTGOING_PROCESS_MARKER_FILENAME);
-    
+
     private static final File MARKER_FILE_SHUTDOWN =
             new File(WORKING_DIRECTORY, ".MARKER_shutdown");
-    
+
     private Logger operationLog;
 
     private Logger machineLog;
@@ -79,7 +79,7 @@ public class ShellScriptTest
         operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
         machineLog = LogFactory.getLogger(LogCategory.MACHINE, getClass());
     }
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -88,14 +88,14 @@ public class ShellScriptTest
         FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, SCRIPT_FILE, true);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
         logRecorder.reset();
         FileUtilities.deleteRecursively(WORKING_DIRECTORY);
     }
-    
+
     @Test
     public void testStatusDown()
     {
@@ -109,7 +109,7 @@ public class ShellScriptTest
         checkStatus(3, "STALE", false);
         checkStatus(3, "Datamover is dead (stale pid -1)", true);
     }
-    
+
     @Test
     public void testStatusIdle() throws IOException
     {
@@ -117,7 +117,7 @@ public class ShellScriptTest
         checkStatus(0, "IDLE", false);
         checkStatus(0, "Datamover (pid ) is running and in idle state", true);
     }
-    
+
     @Test
     public void testStatusProcessing() throws IOException
     {
@@ -125,10 +125,10 @@ public class ShellScriptTest
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
         checkStatus(0, "Datamover (pid ) is running and in processing state", true);
-        FileUtils.touch(mARKER_FILE_OUTGOING_PROCESSING);
+        FileUtils.touch(MARKER_FILE_OUTGOING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
     }
-    
+
     @Test
     public void testStatusShutdown() throws IOException
     {
@@ -139,7 +139,7 @@ public class ShellScriptTest
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(1, "SHUTDOWN", false);
     }
-    
+
     private void checkStatus(int expectedExitValue, String expectedStatus, boolean pretty)
     {
         List<String> command =

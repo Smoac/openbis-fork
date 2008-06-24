@@ -51,6 +51,9 @@ import ch.systemsx.cisd.datamover.utils.QuietPeriodFileFilter;
 import ch.systemsx.cisd.datamover.utils.StoreItemFilterBank;
 
 /**
+ * The <code>IRecoverableTimerTaskFactory</code> implementation which processes files in the
+ * <code>incoming</code> directory.
+ * 
  * @author Tomasz Pylak
  */
 public class IncomingProcessor implements IRecoverableTimerTaskFactory
@@ -60,7 +63,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
      * the log to avoid mailbox flooding.
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
 
@@ -96,7 +99,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     {
         final IncomingProcessor processor =
                 new IncomingProcessor(parameters, markerFile, factory, timeProvider, bufferDirs);
-
         return processor.create();
     }
 
@@ -145,9 +147,23 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 new DirectoryScanningTimerTask(
                         new FileScannedStore(incomingStore, storeItemFilter),
                         directoryScanningHandler, pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
-        TimerTask timerTask =
+        final TimerTask timerTask =
                 DataMover.createTimerTaskForMarkerFileProtocol(movingTask, markerFileName);
-        return new DataMoverProcess(timerTask, "Mover of Incoming Data", this);
+        return new DataMoverProcess(timerTask, "Mover of Incoming Data", this)
+            {
+
+                //
+                // DataMoverProcess
+                //
+
+                @Override
+                public final boolean terminate()
+                {
+                    final boolean terminated = super.terminate();
+                    movingTask.stopRun();
+                    return terminated;
+                }
+            };
     }
 
     private IStoreHandler createIncomingMovingPathHandler()
@@ -293,7 +309,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 } else
                 // no marker
                 {
-                    BooleanStatus exists = incomingStore.exists(new StoreItem(localCopy.getName()));
+                    final BooleanStatus exists =
+                            incomingStore.exists(new StoreItem(localCopy.getName()));
                     if (exists.isSuccess())
                     {
                         // partial copy - nothing to do, will be copied again

@@ -47,9 +47,10 @@ public interface IFileStore extends ISelfTestable
      * 
      * @param timeOutMillis The time (in milli-seconds) to wait for the target to become available
      *            if it is not initially.
-     * @return status describing if the <var>directory</var> is fully accessible. If this
-     *         operation fails, there is an error message available describing the problem with the
-     *         <var>directory</var>. In this case nothing can be stated about directory accessability.
+     * @return status describing if the <var>directory</var> is fully accessible. If this operation
+     *         fails, there is an error message available describing the problem with the
+     *         <var>directory</var>. In this case nothing can be stated about directory
+     *         accessability.
      */
     public BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis);
 
@@ -88,6 +89,8 @@ public interface IFileStore extends ISelfTestable
 
     /**
      * List files in the scanned store. Sort in order of "oldest first".
+     * 
+     * @return <code>null</code> if it was no able to access the items of this store.
      */
     public StoreItem[] tryListSortByLastModified(ISimpleLogger loggerOrNull);
 

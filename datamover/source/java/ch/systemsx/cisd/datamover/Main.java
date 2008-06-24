@@ -40,14 +40,14 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  * 
  * @author Bernd Rinn
  */
-public class Main
+public final class Main
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Main.class);
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, Main.class);
-    
+
     private static final UncaughtExceptionHandler loggingExceptionHandler =
             new UncaughtExceptionHandler()
                 {
@@ -138,22 +138,8 @@ public class Main
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         final ITerminable terminable = DataMover.start(parameters, factory);
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
-            {
-
-                //
-                // Runnable
-                //
-
-                public final void run()
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("Datamover is shutting down.");
-                    }
-                    terminable.terminate();
-                }
-            }, "Shutdown Hook"));
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(new DataMoverShutdownHook(terminable), "Shutdown Hook"));
     }
 
     public static void main(final String[] args)

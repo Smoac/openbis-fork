@@ -138,8 +138,9 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1");
-        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
+                        "1");
+        final TimerTask dataMoverTimerTask = process.getTimerTask();
 
         final LogMonitoringAppender operationAppender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
@@ -167,8 +168,8 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1",
-                        "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
+                        "1", "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
         final LogMonitoringAppender notifyAppender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         "Processing status of data completed script has changed");
@@ -176,7 +177,7 @@ public final class IncomingProcessorTest
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Running command",
                         "process returned with exit value 0");
 
-        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+        final TimerTask dataMoverTimerTask = process.getTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         notifyAppender.verifyLogHasHappened();
@@ -204,9 +205,9 @@ public final class IncomingProcessorTest
             });
 
         final DataMoverProcess process =
-                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q", "1",
-                        "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
-        final TimerTask dataMoverTimerTask = process.getDataMoverTimerTask();
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
+                        "1", "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
+        final TimerTask dataMoverTimerTask = process.getTimerTask();
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         final LogMonitoringAppender notifyAppender =
@@ -232,8 +233,8 @@ public final class IncomingProcessorTest
     {
         final Parameters parameters = new Parameters(args, exitHandler);
         final LocalBufferDirs localBufferDirs =
-                new LocalBufferDirs(new HostAwareFileWithHighwaterMark(TEST_FOLDER), COPY_IN_PROGRESS_DIR,
-                        COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
+                new LocalBufferDirs(new HostAwareFileWithHighwaterMark(TEST_FOLDER),
+                        COPY_IN_PROGRESS_DIR, COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
         context.checking(new Expectations()
             {
                 {
