@@ -57,7 +57,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final ConditionalNotificationLogger notificationLogger;
 
-    private boolean cancelled;
+    private volatile boolean stopRun;
 
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
@@ -168,16 +168,17 @@ public final class DirectoryScanningTimerTask extends TimerTask
         return (storeItems == null) ? StoreItem.EMPTY_ARRAY : storeItems;
     }
 
+    /**
+     * Tries to stop {@link #run()} method before it exists.
+     */
+    public final void stopRun()
+    {
+        stopRun = true;
+    }
+
     //
     // TimerTask
     //
-
-    @Override
-    public final boolean cancel()
-    {
-        cancelled = true;
-        return super.cancel();
-    }
 
     /**
      * Handles all entries in the source directory that are picked by the filter.
@@ -196,11 +197,11 @@ public final class DirectoryScanningTimerTask extends TimerTask
             StoreItem lastStoreItem = null;
             for (final StoreItem storeItem : storeItems)
             {
-                if (cancelled)
+                if (stopRun)
                 {
-                    if (operationLog.isDebugEnabled())
+                    if (operationLog.isInfoEnabled())
                     {
-                        operationLog.debug(String.format(
+                        operationLog.info(String.format(
                                 "Scan of directory '%s' has been cancelled. "
                                         + "Last item handled is '%s'.", sourceDirectory,
                                 lastStoreItem));
@@ -255,6 +256,8 @@ public final class DirectoryScanningTimerTask extends TimerTask
     {
         /**
          * List items in the scanned store in order in which they should be handled.
+         * 
+         * @return <code>null</code> if it was no able to access the items of this scanned store.
          */
         StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
 

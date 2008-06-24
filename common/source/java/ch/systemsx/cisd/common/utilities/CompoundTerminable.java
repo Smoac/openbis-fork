@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.utilities;
  * 
  * @author Christian Ribeaud
  */
-public final class CompoundTerminable implements ITerminable
+public class CompoundTerminable implements ITerminable
 {
     private final ITerminable[] terminables;
 
@@ -35,7 +35,7 @@ public final class CompoundTerminable implements ITerminable
     // ITerminable
     //
 
-    public final boolean terminate()
+    public boolean terminate()
     {
         boolean ok = true;
         for (final ITerminable terminable : terminables)

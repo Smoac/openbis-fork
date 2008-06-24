@@ -76,6 +76,24 @@ public class TriggeringTimerTask extends TimerTask
         this.monitor = monitor;
     }
 
+    private final void trigger()
+    {
+        if (triggerable != null)
+        {
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("File '%s' found - triggering.", triggerFile
+                        .getAbsolutePath()));
+            }
+            triggerable.trigger();
+        }
+
+    }
+
+    //
+    // TimerTask
+    //
+
     /**
      * Handles all entries in the source directory that are picked by the filter.
      */
@@ -96,20 +114,6 @@ public class TriggeringTimerTask extends TimerTask
                 notificationLog.error("An exception has occurred. (thread still running)", ex);
             }
         }
-    }
-
-    private void trigger()
-    {
-        if (triggerable != null)
-        {
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("File '%s' found - triggering.", triggerFile
-                        .getAbsolutePath()));
-            }
-            triggerable.trigger();
-        }
-
     }
 
 }
