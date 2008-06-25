@@ -34,6 +34,8 @@ public final class DirectoryScannedStore implements IScannedStore
 
     DirectoryScannedStore(final FileFilter filter, final File directory)
     {
+        assert directory != null : "Directory not specified";
+        assert filter != null : "File filter not specified";
         this.filter = filter;
         this.directory = directory;
     }
@@ -63,5 +65,15 @@ public final class DirectoryScannedStore implements IScannedStore
         {
             return null;
         }
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return directory.toString();
     }
 }

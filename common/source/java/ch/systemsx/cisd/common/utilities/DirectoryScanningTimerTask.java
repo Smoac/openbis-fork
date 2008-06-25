@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.TimerTask;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -57,6 +59,12 @@ public final class DirectoryScanningTimerTask extends TimerTask
 
     private final ConditionalNotificationLogger notificationLogger;
 
+    /**
+     * Indicates that we should try to exit the {@link #run()} method as soon as possible.
+     * <p>
+     * This could be set asynchronously via {@link #stopRun()}.
+     * </p>
+     */
     private volatile boolean stopRun;
 
     /**
@@ -194,17 +202,18 @@ public final class DirectoryScanningTimerTask extends TimerTask
         {
             final StoreItem[] storeItems = listStoreItems();
             directoryScanningHandler.beforeHandle();
-            StoreItem lastStoreItem = null;
-            for (final StoreItem storeItem : storeItems)
+            int len = storeItems.length;
+            for (int i = 0; i < len; i++)
             {
+                final StoreItem storeItem = storeItems[i];
                 if (stopRun)
                 {
-                    if (operationLog.isInfoEnabled())
+                    if (operationLog.isDebugEnabled())
                     {
-                        operationLog.info(String.format(
-                                "Scan of directory '%s' has been cancelled. "
-                                        + "Last item handled is '%s'.", sourceDirectory,
-                                lastStoreItem));
+                        operationLog.debug(String.format("Scan of store '%s' has been cancelled. "
+                                + "Following items have NOT been handled: %s.", sourceDirectory,
+                                CollectionUtils.abbreviate(ArrayUtils.subarray(storeItems, i + 1,
+                                        len), 10)));
                     }
                     return;
                 }
@@ -213,9 +222,9 @@ public final class DirectoryScanningTimerTask extends TimerTask
                     try
                     {
                         storeHandler.handle(storeItem);
-                        if (operationLog.isDebugEnabled())
+                        if (operationLog.isTraceEnabled())
                         {
-                            operationLog.debug(String.format(
+                            operationLog.trace(String.format(
                                     "Following store item '%s' has been handled.", storeItem));
                         }
                     } catch (final Exception ex)
@@ -229,14 +238,12 @@ public final class DirectoryScanningTimerTask extends TimerTask
                     }
                 } else
                 {
-                    if (operationLog.isDebugEnabled())
+                    if (operationLog.isTraceEnabled())
                     {
-                        operationLog.debug(String.format(
+                        operationLog.trace(String.format(
                                 "Following store item '%s' has NOT been handled.", storeItem));
                     }
-
                 }
-                lastStoreItem = storeItem;
             }
         } catch (final Exception ex)
         {
