@@ -144,7 +144,6 @@ public final class IncomingProcessorTest
 
         final LogMonitoringAppender operationAppender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
-                        "Following store item 'test-data.txt' has been handled",
                         "has been added to faulty paths file");
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
@@ -245,8 +244,8 @@ public final class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        return IncomingProcessor.createMovingProcess(parameters, ".marker", fileSysOpertationFactory,
-                new MockTimeProvider(), localBufferDirs);
+        return IncomingProcessor.createMovingProcess(parameters, ".marker",
+                fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
 
     }
 }
