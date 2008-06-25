@@ -48,6 +48,7 @@ CONFFILE=etc/datamover.conf
 LOGFILE=log/datamover_log.txt
 STARTUPLOG=log/startup_log.txt
 TARGET_LOCATION_FILE=.outgoing_target_location
+MARKER_SHUTDOWN_FILE=.MARKER_shutdown
 SUCCESS_MSG="Self test successfully completed"
 MAX_LOOPS=10
 
@@ -180,6 +181,9 @@ case "$command" in
 			echo "(not running - nothing to do)"
 		fi
 	;;
+	shutdown)
+		touch $MARKER_SHUTDOWN_FILE
+	;;
 	status)
 		getStatus
 		EXIT_STATUS=$?
@@ -217,7 +221,7 @@ case "$command" in
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
 	;;
 	*)
-		echo $"Usage: $0 {start|stop|restart|status|mstatus|target|recover|help|version|test-notify}"
+		echo $"Usage: $0 {start|stop|restart|shutdown|status|mstatus|target|recover|help|version|test-notify}"
 		exit 1
 esac
 exit 0
