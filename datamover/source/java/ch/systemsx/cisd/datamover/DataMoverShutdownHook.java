@@ -20,13 +20,14 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.ITriggerable;
 
 /**
  * The <i>DataMover</i> shutdown hook.
  * 
  * @author Christian Ribeaud
  */
-final class DataMoverShutdownHook implements Runnable
+final class DataMoverShutdownHook implements ITriggerable
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMoverShutdownHook.class);
@@ -39,10 +40,10 @@ final class DataMoverShutdownHook implements Runnable
     }
 
     //
-    // Runnable
+    // ITriggerable
     //
 
-    public final void run()
+    public final void trigger()
     {
         if (operationLog.isInfoEnabled())
         {

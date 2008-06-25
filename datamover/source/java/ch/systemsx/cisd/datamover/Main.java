@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.datamover;
 
+import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -127,6 +130,14 @@ public final class Main
         }
     }
 
+    private final static void createShutdownHookTimer(final ITerminable terminable)
+    {
+        final TriggeringTimerTask shutdownHook =
+                new TriggeringTimerTask(new File(DataMover.SHUTDOWN_MARKER_FILENAME),
+                        new DataMoverShutdownHook(terminable));
+        new Timer("Shutdown Hook", true).schedule(shutdownHook, 0L, 5000L);
+    }
+
     @Private
     static ITerminable startupServer(final Parameters parameters, final LocalBufferDirs bufferDirs)
     {
@@ -138,8 +149,7 @@ public final class Main
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         final ITerminable terminable = DataMover.start(parameters, factory);
-        Runtime.getRuntime().addShutdownHook(
-                new Thread(new DataMoverShutdownHook(terminable), "Shutdown Hook"));
+        createShutdownHookTimer(terminable);
     }
 
     public static void main(final String[] args)

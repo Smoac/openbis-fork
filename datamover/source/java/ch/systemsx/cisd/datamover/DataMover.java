@@ -58,8 +58,9 @@ public final class DataMover
     private final static String LOCAL_READY_TO_MOVE_DIR = "ready-to-move";
 
     private final static String LOCAL_TEMP_DIR = "tmp";
-    
-    @Private static final String OUTGOING_TARGET_LOCATION_FILE = ".outgoing_target_location";
+
+    @Private
+    static final String OUTGOING_TARGET_LOCATION_FILE = ".outgoing_target_location";
 
     @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
@@ -77,19 +78,31 @@ public final class DataMover
 
     @Private
     static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "recovery");
-    
+
+    @Private
+    /**
+     * This marker file indicates that we are in a <i>shutdown</i> mode, started by the program.
+     */
+    static final String SHUTDOWN_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "shutdown");
+
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
                         LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME };
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
-    
+
     private final Parameters parameters;
 
     private final IFileSysOperationsFactory factory;
 
     private final LocalBufferDirs bufferDirs;
+
+    /**
+     * Indicates that a <i>shutdown</i> should be performed by the program (has been asked by
+     * <code>datamover.sh</code>).
+     */
+    public static final String SHUTDOWN_MARKER_FILENAME = Constants.MARKER_PREFIX + "shutdown";
 
     /**
      * starts the process of moving data and monitoring it
@@ -147,10 +160,10 @@ public final class DataMover
         localProcess.startup(checkIntervalInternalMillis / 2L, checkIntervalInternalMillis);
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
         // The ITerminable order here is important.
-        return new DataMoverTerminable(locationFile, recoveryProcess, incomingProcess, localProcess,
-                outgoingProcess);
+        return new DataMoverTerminable(locationFile, recoveryProcess, incomingProcess,
+                localProcess, outgoingProcess);
     }
-    
+
     private void cleanUpProcessMarkerFiles()
     {
         for (String fileName : PROCESS_MARKER_FILENAMES)

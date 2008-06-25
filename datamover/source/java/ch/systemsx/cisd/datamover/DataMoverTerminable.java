@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.CompoundTerminable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 final class DataMoverTerminable extends CompoundTerminable
 {
 
-    public static final String SHUTDOWN_MARKER_FILENAME = Constants.MARKER_PREFIX + "shutdown";
     private final File outgoingTargetLocationFile;
 
     DataMoverTerminable(final File locationFile, final DataMoverProcess... dataMoverProcesses)
@@ -76,7 +74,7 @@ final class DataMoverTerminable extends CompoundTerminable
     @Override
     public final boolean terminate()
     {
-        final File markerFile = new File(SHUTDOWN_MARKER_FILENAME);
+        final File markerFile = new File(DataMover.SHUTDOWN_PROCESS_MARKER_FILENAME);
         createMarkerFile(markerFile);
         final boolean terminate = super.terminate();
         deleteMarkerFile(markerFile);
