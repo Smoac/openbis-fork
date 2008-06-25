@@ -34,6 +34,9 @@ import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 public final class SQLStateUtils
 {
     /** SQL State. */
+    public static final String NULL_VALUE_VIOLATION = "23502";
+
+    /** SQL State. */
     public static final String FOREIGN_KEY_VIOLATION = "23503";
 
     /** SQL State. */
@@ -55,55 +58,81 @@ public final class SQLStateUtils
 
     /**
      * Tries to get the SQL state of given <code>Throwable</code>.
-     * <p>
-     * This is only possible if {@link Throwable#getCause()} is an instance of
-     * <code>SQLException</code>.
-     * </p>
      */
-    public final static String getSqlState(final Throwable ex)
+    public final static String tryGetSqlState(final Throwable ex)
     {
-        SQLException sqlException = ExceptionUtils.tryGetThrowableOfClass(ex, SQLException.class);
-        String sqlState = null;
-        if (sqlException != null)
+        assert ex != null : "Throwable unspecified";
+        final SQLException nextExceptionOrNull = tryGetNextExceptionWithNonNullState(ex);
+        if (nextExceptionOrNull != null)
         {
-            sqlState = sqlException.getSQLState();
-            final SQLException cause = sqlException.getNextException();
-            while (sqlState == null && cause != null)
-            {
-                sqlState = cause.getSQLState();
-            }
+            return nextExceptionOrNull.getSQLState();
         }
-        return sqlState;
+        return null;
+    }
+
+    /**
+     * Try to find a {@link SQLException} with a non-<code>null</code> SQL state (using
+     * {@link SQLException#getSQLState()}) in given <var>ex</var>.
+     */
+    public final static SQLException tryGetNextExceptionWithNonNullState(final Throwable ex)
+    {
+        assert ex != null : "Throwable unspecified";
+        final SQLException sqlExceptionOrNull =
+                ExceptionUtils.tryGetThrowableOfClass(ex, SQLException.class);
+        if (sqlExceptionOrNull != null)
+        {
+            SQLException nextException = sqlExceptionOrNull;
+            String sqlStateOrNull = nextException.getSQLState();
+            while (sqlStateOrNull == null && nextException.getNextException() != null)
+            {
+                nextException = nextException.getNextException();
+                sqlStateOrNull = nextException.getSQLState();
+            }
+            return nextException;
+        }
+        return null;
     }
 
     /** Whether given SQL state stands for <i>DUPLICATE OBJECT</i>. */
     public final static boolean isDuplicateObject(final String sqlState)
     {
+        assert sqlState != null : "SQL state unspecified";
         return DUPLICATE_OBJECT.equalsIgnoreCase(sqlState);
     }
 
     /** Whether given SQL state stands for <i>DUPLICATE DATABASE</i>. */
     public final static boolean isDuplicateDatabase(final String sqlState)
     {
+        assert sqlState != null : "SQL state unspecified";
         return DUPLICATE_DATABASE.equalsIgnoreCase(sqlState);
     }
 
     /** Whether given SQL state stands for <i>INVALID CATALOG NAME</i>. */
     public final static boolean isInvalidCatalogName(final String sqlState)
     {
+        assert sqlState != null : "SQL state unspecified";
         return INVALID_CATALOG_NAME.equalsIgnoreCase(sqlState);
     }
 
     /** Whether given SQL state stands for <i>UNIQUE VIOLATION</i>. */
     public final static boolean isUniqueViolation(final String sqlState)
     {
+        assert sqlState != null : "SQL state unspecified";
         return UNIQUE_VIOLATION.equalsIgnoreCase(sqlState);
     }
 
     /** Whether given SQL state stands for <i>FOREIGN KEY VIOLATION</i>. */
     public final static boolean isForeignKeyViolation(final String sqlState)
     {
+        assert sqlState != null : "SQL state unspecified";
         return FOREIGN_KEY_VIOLATION.equalsIgnoreCase(sqlState);
+    }
+
+    /** Whether given SQL state stands for <i>NULL_VALUE_VIOLATION</i>. */
+    public final static boolean isNullValueConstraintViolation(final String sqlState)
+    {
+        assert sqlState != null : "SQL state unspecified";
+        return NULL_VALUE_VIOLATION.equalsIgnoreCase(sqlState);
     }
 
 }
