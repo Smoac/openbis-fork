@@ -47,7 +47,7 @@ public final class DBUtilities
     public static boolean isDBNotExistException(final DataAccessException ex)
     {
         // 3D000: INVALID CATALOG NAME
-        return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.getSqlState(ex));
+        return SQLStateUtils.isInvalidCatalogName(SQLStateUtils.tryGetSqlState(ex));
     }
 
     /**
@@ -60,13 +60,13 @@ public final class DBUtilities
     public static boolean isDuplicateObjectException(final DataAccessException ex)
     {
         // 42710 DUPLICATE OBJECT
-        return SQLStateUtils.isDuplicateObject(SQLStateUtils.getSqlState(ex));
+        return SQLStateUtils.isDuplicateObject(SQLStateUtils.tryGetSqlState(ex));
     }
 
     public static boolean isDuplicateDatabaseException(final DataAccessException ex)
     {
         // 42P04 DUPLICATE DATABASE
-        return SQLStateUtils.isDuplicateDatabase(SQLStateUtils.getSqlState(ex));
+        return SQLStateUtils.isDuplicateDatabase(SQLStateUtils.tryGetSqlState(ex));
     }
 
     /**
