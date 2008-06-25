@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
  */
 final class DataMoverTerminable extends CompoundTerminable
 {
-
     private final File outgoingTargetLocationFile;
 
     DataMoverTerminable(final File locationFile, final DataMoverProcess... dataMoverProcesses)

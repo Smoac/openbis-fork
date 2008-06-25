@@ -79,7 +79,6 @@ public final class DataMover
     @Private
     static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "recovery");
 
-    @Private
     /**
      * This marker file indicates that we are in a <i>shutdown</i> mode, started by the program.
      */
