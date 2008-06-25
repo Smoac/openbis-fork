@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,6 +66,9 @@ public class ShellScriptTest
 
     private static final File MARKER_FILE_SHUTDOWN =
             new File(WORKING_DIRECTORY, DataMoverTerminable.SHUTDOWN_MARKER_FILENAME);
+
+    private static final File TARGET_LOCATION_FILE =
+            new File(WORKING_DIRECTORY, DataMover.OUTGOING_TARGET_LOCATION_FILE);
 
     private Logger operationLog;
 
@@ -139,18 +143,46 @@ public class ShellScriptTest
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(1, "SHUTDOWN", false);
     }
+    
+    @Test
+    public void testUnknownTarget()
+    {
+        ProcessResult result = executeShellScript("target");
+        assertEquals(1, result.getExitValue());
+        assertEquals(0, result.getOutput().size());
+    }
 
+    @Test
+    public void testTarget()
+    {
+        String targetlocation = "target-location";
+        FileUtilities.writeToFile(TARGET_LOCATION_FILE, targetlocation);
+        ProcessResult result = executeShellScript("target");
+        assertEquals(0, result.getExitValue());
+        List<String> output = result.getOutput();
+        assertEquals(targetlocation, output.get(0));
+        assertEquals(1, output.size());
+    }
+    
     private void checkStatus(int expectedExitValue, String expectedStatus, boolean pretty)
     {
-        List<String> command =
-                Arrays.asList("sh", SCRIPT_FILE.getAbsolutePath(), pretty ? "status" : "mstatus");
-        ProcessResult result =
-                ProcessExecutionHelper.run(command, operationLog, machineLog,
-                        ConcurrencyUtilities.NO_TIMEOUT,
-                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+        ProcessResult result = executeShellScript(pretty ? "status" : "mstatus");
         assertEquals(expectedExitValue, result.getExitValue());
         List<String> output = result.getOutput();
         assertEquals(expectedStatus, output.get(0));
         assertEquals(1, output.size());
+    }
+
+    private ProcessResult executeShellScript(String... arguments)
+    {
+        List<String> command = new ArrayList<String>();
+        command.add("sh");
+        command.add(SCRIPT_FILE.getAbsolutePath());
+        command.addAll(Arrays.asList(arguments));
+        ProcessResult result =
+                ProcessExecutionHelper.run(command, operationLog, machineLog,
+                        ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+        return result;
     }
 }

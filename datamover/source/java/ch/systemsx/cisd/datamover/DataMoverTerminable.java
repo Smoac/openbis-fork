@@ -35,10 +35,16 @@ final class DataMoverTerminable extends CompoundTerminable
 {
 
     public static final String SHUTDOWN_MARKER_FILENAME = Constants.MARKER_PREFIX + "shutdown";
+    private final File outgoingTargetLocationFile;
 
-    DataMoverTerminable(final DataMoverProcess... dataMoverProcesses)
+    DataMoverTerminable(final File locationFile, final DataMoverProcess... dataMoverProcesses)
     {
         super(dataMoverProcesses);
+        if (locationFile == null)
+        {
+            throw new IllegalArgumentException("Unspecified outgoing target location file.");
+        }
+        this.outgoingTargetLocationFile = locationFile;
     }
 
     private final static void createMarkerFile(final File markerFile)
@@ -74,6 +80,7 @@ final class DataMoverTerminable extends CompoundTerminable
         createMarkerFile(markerFile);
         final boolean terminate = super.terminate();
         deleteMarkerFile(markerFile);
+        outgoingTargetLocationFile.delete();
         return terminate;
     }
 }

@@ -19,10 +19,14 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler;
@@ -54,6 +58,8 @@ public final class DataMover
     private final static String LOCAL_READY_TO_MOVE_DIR = "ready-to-move";
 
     private final static String LOCAL_TEMP_DIR = "tmp";
+    
+    @Private static final String OUTGOING_TARGET_LOCATION_FILE = ".outgoing_target_location";
 
     @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
@@ -71,7 +77,14 @@ public final class DataMover
 
     @Private
     static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "recovery");
+    
+    private static final String[] PROCESS_MARKER_FILENAMES =
+                { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
+                        LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME };
 
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
+    
     private final Parameters parameters;
 
     private final IFileSysOperationsFactory factory;
@@ -121,6 +134,9 @@ public final class DataMover
 
     private final ITerminable start()
     {
+        cleanUpProcessMarkerFiles();
+        File locationFile = new File(OUTGOING_TARGET_LOCATION_FILE);
+        FileUtilities.writeToFile(locationFile, parameters.getOutgoingTarget().getCanonicalPath());
         final DataMoverProcess outgoingProcess = createAndStartOutgoingProcess();
         final DataMoverProcess localProcess = createLocalProcess();
         final DataMoverProcess incomingProcess = createIncomingProcess();
@@ -131,8 +147,21 @@ public final class DataMover
         localProcess.startup(checkIntervalInternalMillis / 2L, checkIntervalInternalMillis);
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
         // The ITerminable order here is important.
-        return new DataMoverTerminable(recoveryProcess, incomingProcess, localProcess,
+        return new DataMoverTerminable(locationFile, recoveryProcess, incomingProcess, localProcess,
                 outgoingProcess);
+    }
+    
+    private void cleanUpProcessMarkerFiles()
+    {
+        for (String fileName : PROCESS_MARKER_FILENAMES)
+        {
+            File markerFile = new File(fileName);
+            if (markerFile.delete() == false)
+            {
+                operationLog.warn("Couldn't delete process marker file "
+                        + markerFile.getAbsolutePath());
+            }
+        }
     }
 
     private final DataMoverProcess createAndStartRecoveryProcess(

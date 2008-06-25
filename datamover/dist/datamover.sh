@@ -47,6 +47,7 @@ PIDFILE=datamover.pid
 CONFFILE=etc/datamover.conf
 LOGFILE=log/datamover_log.txt
 STARTUPLOG=log/startup_log.txt
+TARGET_LOCATION_FILE=.outgoing_target_location
 SUCCESS_MSG="Self test successfully completed"
 MAX_LOOPS=10
 
@@ -191,6 +192,13 @@ case "$command" in
 		echo $STATUS
 		exit $EXIT_STATUS
 	;;
+	target)
+		if [ -f $TARGET_LOCATION_FILE ]; then
+			cat $TARGET_LOCATION_FILE
+		else
+			exit 1
+		fi
+	;;
 	recover)
 		echo "Triggering recovery cycle"
 		touch .MARKER_recovery
@@ -209,7 +217,7 @@ case "$command" in
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar --test-notify
 	;;
 	*)
-	echo $"Usage: $0 {start|stop|restart|status|mstatus|recover|help|version|test-notify}"
-	exit 1
+		echo $"Usage: $0 {start|stop|restart|status|mstatus|target|recover|help|version|test-notify}"
+		exit 1
 esac
 exit 0

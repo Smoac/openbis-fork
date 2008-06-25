@@ -659,6 +659,11 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         return FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
                 treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull);
     }
+    
+    public final HostAwareFileWithHighwaterMark getOutgoingTarget()
+    {
+        return outgoingTarget;
+    }
 
     /**
      * @return The directory for local files and directories manipulations.
