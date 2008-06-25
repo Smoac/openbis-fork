@@ -51,7 +51,7 @@ public class TriggeringTimerTask extends TimerTask
      * @param triggerable The handler that can perform a recovery action, or <code>null</code> if
      *            there is no recovery action available.
      */
-    public TriggeringTimerTask(File triggerFile, ITriggerable triggerable)
+    public TriggeringTimerTask(final File triggerFile, final ITriggerable triggerable)
     {
         this(triggerFile, triggerable, SynchronizationMonitor.create());
     }
@@ -64,8 +64,8 @@ public class TriggeringTimerTask extends TimerTask
      *            there is no recovery action available.
      * @param monitor The monitor to synchronize on.
      */
-    public TriggeringTimerTask(File triggerFile, ITriggerable triggerable,
-            SynchronizationMonitor monitor)
+    public TriggeringTimerTask(final File triggerFile, final ITriggerable triggerable,
+            final SynchronizationMonitor monitor)
     {
         assert triggerFile != null;
         assert triggerable != null;
@@ -109,7 +109,7 @@ public class TriggeringTimerTask extends TimerTask
                     trigger();
                     triggerFile.delete();
                 }
-            } catch (Exception ex)
+            } catch (final Exception ex)
             {
                 notificationLog.error("An exception has occurred. (thread still running)", ex);
             }
