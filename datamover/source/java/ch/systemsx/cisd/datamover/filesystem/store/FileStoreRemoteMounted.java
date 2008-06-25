@@ -64,13 +64,6 @@ public final class FileStoreRemoteMounted extends FileStore
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
-    @Override
-    public final String toString()
-    {
-        final String pathStr = getPath().getPath();
-        return "[mounted remote fs] " + pathStr;
-    }
-
     public final String getLocationDescription(final StoreItem item)
     {
         return localImpl.getLocationDescription(item);
@@ -107,14 +100,25 @@ public final class FileStoreRemoteMounted extends FileStore
         return localImpl.tryListSortByLastModified(loggerOrNull);
     }
 
+    public final HighwaterMarkWatcher getHighwaterMarkWatcher()
+    {
+        return localImpl.getHighwaterMarkWatcher();
+    }
+
+    //
+    // FileStore
+    //
+
     @Override
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         localImpl.check();
     }
 
-    public final HighwaterMarkWatcher getHighwaterMarkWatcher()
+    @Override
+    public final String toString()
     {
-        return localImpl.getHighwaterMarkWatcher();
+        final String pathStr = getPath().getPath();
+        return "[mounted remote fs] " + pathStr;
     }
 }

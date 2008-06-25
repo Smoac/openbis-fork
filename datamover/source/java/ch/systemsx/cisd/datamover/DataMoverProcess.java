@@ -19,7 +19,11 @@ package ch.systemsx.cisd.datamover;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
@@ -31,6 +35,9 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
  */
 class DataMoverProcess implements ITerminable, ITriggerable
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DataMoverProcess.class);
+
     private final Timer timer;
 
     private final TimerTask timerTask;
@@ -38,6 +45,8 @@ class DataMoverProcess implements ITerminable, ITriggerable
     private final IRecoverableTimerTaskFactory recoverableTimerTaskFactory;
 
     private final String taskName;
+
+    private TimerTask recoverableTimerTask;
 
     DataMoverProcess(final TimerTask timerTask, final String taskName)
     {
@@ -79,7 +88,8 @@ class DataMoverProcess implements ITerminable, ITriggerable
     {
         if (recoverableTimerTaskFactory != null)
         {
-            timer.schedule(recoverableTimerTaskFactory.createRecoverableTimerTask(), 0);
+            recoverableTimerTask = recoverableTimerTaskFactory.createRecoverableTimerTask();
+            timer.schedule(recoverableTimerTask, 0);
         }
     }
 
@@ -89,6 +99,14 @@ class DataMoverProcess implements ITerminable, ITriggerable
 
     public boolean terminate()
     {
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Terminating Datamover process '%s'.", taskName));
+        }
+        if (recoverableTimerTask != null)
+        {
+            recoverableTimerTask.cancel();
+        }
         timerTask.cancel();
         timer.cancel();
         return TimerUtilities.tryJoinTimerThread(timer, Long.MAX_VALUE);

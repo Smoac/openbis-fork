@@ -159,9 +159,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 @Override
                 public final boolean terminate()
                 {
-                    final boolean terminated = super.terminate();
                     movingTask.stopRun();
-                    return terminated;
+                    return super.terminate();
                 }
             };
     }

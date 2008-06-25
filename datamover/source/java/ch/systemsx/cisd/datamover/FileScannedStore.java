@@ -38,6 +38,8 @@ final class FileScannedStore implements IScannedStore
 
     FileScannedStore(final IFileStore fileStore, final IStoreItemFilter storeItemFilter)
     {
+        assert fileStore != null : "File store not specified";
+        assert storeItemFilter != null : "Store item filter not specified";
         this.fileStore = fileStore;
         this.storeItemFilter = storeItemFilter;
     }
@@ -70,7 +72,7 @@ final class FileScannedStore implements IScannedStore
 
     public final boolean existsOrError(final StoreItem item)
     {
-        BooleanStatus status = fileStore.exists(item);
+        final BooleanStatus status = fileStore.exists(item);
         return status.isError() || status.getResult() == true;
     }
 
@@ -81,13 +83,23 @@ final class FileScannedStore implements IScannedStore
 
     public final StoreItem[] tryListSortedReadyToProcess(final ISimpleLogger loggerOrNull)
     {
-        // Older items will be handled before newer items.
-        // This becomes important when doing online quality control of measurements.
+        // Older items will be handled before newer items. This becomes important when doing online
+        // quality control of measurements.
         final StoreItem[] items = fileStore.tryListSortByLastModified(loggerOrNull);
         if (items == null)
         {
             return null;
         }
         return filterReadyToProcess(items);
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return fileStore.toString();
     }
 }

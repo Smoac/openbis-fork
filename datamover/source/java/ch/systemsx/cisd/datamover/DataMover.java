@@ -210,7 +210,7 @@ public final class DataMover
     // Helper classes
     //
 
-    private final class RunOnceMoreAfterTerminateDataMoverProcess extends DataMoverProcess
+    private final static class RunOnceMoreAfterTerminateDataMoverProcess extends DataMoverProcess
     {
         RunOnceMoreAfterTerminateDataMoverProcess(final TimerTask timerTask, final String taskName,
                 final IRecoverableTimerTaskFactory recoverableTimerTaskFactory)

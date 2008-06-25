@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.datamover;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
+import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.CompoundTerminable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
@@ -27,9 +34,33 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 final class DataMoverTerminable extends CompoundTerminable
 {
 
+    public static final String SHUTDOWN_MARKER_FILENAME = Constants.MARKER_PREFIX + "shutdown";
+
     DataMoverTerminable(final DataMoverProcess... dataMoverProcesses)
     {
         super(dataMoverProcesses);
+    }
+
+    private final static void createMarkerFile(final File markerFile)
+    {
+        try
+        {
+            FileUtils.touch(markerFile);
+        } catch (final IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate(ex, "Can not create marker file '%s'.",
+                    markerFile.getAbsolutePath());
+        }
+    }
+
+    private final static void deleteMarkerFile(final File markerFile)
+    {
+        final boolean deleted = markerFile.delete();
+        if (deleted == false)
+        {
+            throw EnvironmentFailureException.fromTemplate("Can not delete marker file '%s'.",
+                    markerFile.getAbsolutePath());
+        }
     }
 
     //
@@ -39,6 +70,10 @@ final class DataMoverTerminable extends CompoundTerminable
     @Override
     public final boolean terminate()
     {
-        return super.terminate();
+        final File markerFile = new File(SHUTDOWN_MARKER_FILENAME);
+        createMarkerFile(markerFile);
+        final boolean terminate = super.terminate();
+        deleteMarkerFile(markerFile);
+        return terminate;
     }
 }

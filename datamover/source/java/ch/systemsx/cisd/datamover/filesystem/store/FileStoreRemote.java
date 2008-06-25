@@ -390,13 +390,6 @@ public class FileStoreRemote extends FileStore
             };
     }
 
-    @Override
-    public final String toString()
-    {
-        final String pathStr = getPathString();
-        return "[remote fs] " + getHost() + ":" + pathStr;
-    }
-
     public final String getLocationDescription(final StoreItem item)
     {
         return getHost() + ":" + getChildFile(item).getPath();
@@ -461,5 +454,16 @@ public class FileStoreRemote extends FileStore
         {
             return null;
         }
+    }
+
+    //
+    // FileStore
+    //
+
+    @Override
+    public final String toString()
+    {
+        final String pathStr = getPathString();
+        return "[remote fs] " + getHost() + ":" + pathStr;
     }
 }

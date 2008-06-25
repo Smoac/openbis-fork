@@ -64,7 +64,7 @@ public class ShellScriptTest
             new File(WORKING_DIRECTORY, DataMover.OUTGOING_PROCESS_MARKER_FILENAME);
 
     private static final File MARKER_FILE_SHUTDOWN =
-            new File(WORKING_DIRECTORY, ".MARKER_shutdown");
+            new File(WORKING_DIRECTORY, DataMoverTerminable.SHUTDOWN_MARKER_FILENAME);
 
     private Logger operationLog;
 

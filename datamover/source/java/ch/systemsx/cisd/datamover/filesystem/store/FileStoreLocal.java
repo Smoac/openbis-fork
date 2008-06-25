@@ -181,13 +181,6 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         return mover.tryMove(getChildFile(sourceItem), destinationDir, newFilePrefix);
     }
 
-    @Override
-    public final String toString()
-    {
-        final String pathStr = getPath().getPath();
-        return "[local fs] " + pathStr;
-    }
-
     public final String getLocationDescription(final StoreItem item)
     {
         return getChildFile(item).getPath();
@@ -274,4 +267,14 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         }
     }
 
+    //
+    // FileStore
+    //
+
+    @Override
+    public final String toString()
+    {
+        final String pathStr = getPath().getPath();
+        return "[local fs] " + pathStr;
+    }
 }
