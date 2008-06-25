@@ -65,8 +65,10 @@ public final class DataMover
     @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
 
-    private static final String TEMPLATE = Constants.MARKER_PREFIX + "thread_%s_processing";
-
+    @Private static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
+    
+    private static final String TEMPLATE = PROCESS_MARKER_PREFIX + "%s_processing";
+    
     @Private
     static final String INCOMING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "incoming");
 
@@ -87,7 +89,7 @@ public final class DataMover
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
                         LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME };
-
+    
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
 

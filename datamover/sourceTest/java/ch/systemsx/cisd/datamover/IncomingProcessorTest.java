@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
+import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -52,6 +55,8 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 @Friend(toClasses = DataMoverProcess.class)
 public final class IncomingProcessorTest
 {
+
+    private static final String MARKER_FILE = ".marker";
 
     private static final File TEST_FOLDER = new File("targets/unit-test/IncomingProcessorTest");
 
@@ -91,6 +96,28 @@ public final class IncomingProcessorTest
 
     private File exampleScript;
 
+    private ITimerTaskListener timerTaskListener = new ITimerTaskListener()
+        {
+            public void startRunning()
+            {
+                File markerFile = new File(MARKER_FILE);
+                assertEquals("Missing marker file " + markerFile, true, markerFile.exists());
+            }
+
+            public void finishRunning()
+            {
+                File markerFile = new File(MARKER_FILE);
+                assertEquals("Marker file " + markerFile + " still there", false, markerFile
+                        .exists());
+            }
+    
+            public void canceling()
+            {
+                fail("Invocation of 'canceling()' not expected.");
+            }
+    
+        };
+
     @BeforeMethod
     public void setUp()
     {
@@ -101,7 +128,7 @@ public final class IncomingProcessorTest
         mover = context.mock(IPathMover.class);
         remover = context.mock(IPathRemover.class);
         exitHandler = context.mock(IExitHandler.class);
-
+        
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
@@ -140,7 +167,7 @@ public final class IncomingProcessorTest
         final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
                         "1");
-        final TimerTask dataMoverTimerTask = process.getTimerTask();
+        final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
 
         final LogMonitoringAppender operationAppender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION,
@@ -176,7 +203,7 @@ public final class IncomingProcessorTest
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Running command",
                         "process returned with exit value 0");
 
-        final TimerTask dataMoverTimerTask = process.getTimerTask();
+        final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         notifyAppender.verifyLogHasHappened();
@@ -187,6 +214,7 @@ public final class IncomingProcessorTest
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
+    
 
     @Test
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
@@ -206,7 +234,7 @@ public final class IncomingProcessorTest
         final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
                         "1", "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
-        final TimerTask dataMoverTimerTask = process.getTimerTask();
+        final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         final LogMonitoringAppender notifyAppender =
@@ -228,6 +256,20 @@ public final class IncomingProcessorTest
         context.assertIsSatisfied();
     }
 
+    private TimerTask getInstrumentedTimerTaskFrom(final DataMoverProcess process)
+    {
+        TimerTask timerTask = process.getTimerTask();
+        if (timerTask instanceof TimerTaskWithListeners)
+        {
+            ((TimerTaskWithListeners) timerTask).addListener(timerTaskListener);
+        } else
+        {
+            fail("Timer task is not an instance of " + TimerTaskWithListeners.class + ": "
+                    + timerTask.getClass().getName());
+        }
+        return timerTask;
+    }
+
     private DataMoverProcess createProcess(final String... args)
     {
         final Parameters parameters = new Parameters(args, exitHandler);
@@ -244,7 +286,7 @@ public final class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        return IncomingProcessor.createMovingProcess(parameters, ".marker",
+        return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE,
                 fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
 
     }

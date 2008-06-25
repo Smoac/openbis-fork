@@ -21,8 +21,10 @@ import static ch.systemsx.cisd.datamover.testhelper.FileSystemHelper.createDir;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,12 +69,18 @@ public final class MainTest
 
     private static final int QUIET_PERIOD = 2;
 
+    private static final int WAITING_TIME_OUT = 30;
+    
     private static final File unitTestRootDirectory =
             new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory =
             new File(unitTestRootDirectory, MainTest.class.getSimpleName());
 
+    private static final File ORIGINAL_SCRIPT_FILE = new File(new File("dist"), ShellScriptTest.SCRIPT_FILE_NAME);
+    
+    private static final File SCRIPT_FILE = new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
+    
     @BeforeClass(alwaysRun = true)
     public void init()
     {
@@ -80,12 +88,13 @@ public final class MainTest
         unitTestRootDirectory.mkdirs();
         assertTrue(unitTestRootDirectory.isDirectory());
     }
-
+    
     @BeforeMethod(alwaysRun = true)
     public void setUp()
     {
         FileUtilities.deleteRecursively(workingDirectory);
         workingDirectory.mkdirs();
+        FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, SCRIPT_FILE, true);
     }
 
     @AfterClass
@@ -339,6 +348,33 @@ public final class MainTest
         Thread.sleep(DATA_MOVER_COMPLETION_TIME);
         assertTrue(terminable.terminate());
         assertFalse(recoveryFile.exists());
+    }
+
+    private void waitUntilFinished() throws Exception
+    {
+        Thread.sleep(2 * CHECK_INTERVAL * 1000);
+        for (int i = 0; i < WAITING_TIME_OUT; i++)
+        {
+            File[] processingMarkerFiles = getProcessingMarkerFiles();
+            if (processingMarkerFiles.length == 0)
+            {
+                return;
+            }
+            Thread.sleep(1000);
+        }
+        fail("Not finished after " + WAITING_TIME_OUT + " seconds.");
+    }
+    
+    private File[] getProcessingMarkerFiles()
+    {
+        File[] files = new File(".").listFiles(new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    return pathname.getName().startsWith(DataMover.PROCESS_MARKER_PREFIX);
+                }
+            });
+        return files;
     }
 
     @DataProvider(name = "delays")
@@ -711,7 +747,7 @@ public final class MainTest
             structs[i] = new FileStructEngine("test" + i);
             structs[i].createSampleStructure(dirs.incoming);
         }
-        Thread.sleep(DATA_MOVER_COMPLETION_TIME_LONG);
+        waitUntilFinished();
 
         for (int i = 0; i < size; i++)
         {
@@ -720,7 +756,7 @@ public final class MainTest
         assertEquals(2 * size, dirs.outgoing.list().length);
         assertTrue(terminable.terminate());
     }
-
+    
     @Test(groups =
         { "slow" })
     // some data are in incoming, test the whole pipeline taking manual intervention and cleansing

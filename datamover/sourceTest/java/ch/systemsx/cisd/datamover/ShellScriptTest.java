@@ -48,7 +48,9 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 @Friend(toClasses = DataMover.class)
 public class ShellScriptTest
 {
-    private static final String SCRIPT_FILE_NAME = "datamover.sh";
+    static final String PID_FILE_NAME = "datamover.pid";
+
+    static final String SCRIPT_FILE_NAME = "datamover.sh";
 
     private static final File ORIGINAL_SCRIPT_FILE = new File(new File("dist"), SCRIPT_FILE_NAME);
 
@@ -56,7 +58,7 @@ public class ShellScriptTest
 
     private static final File SCRIPT_FILE = new File(WORKING_DIRECTORY, SCRIPT_FILE_NAME);
 
-    private static final File PID_FILE = new File(WORKING_DIRECTORY, "datamover.pid");
+    private static final File PID_FILE = new File(WORKING_DIRECTORY, PID_FILE_NAME);
 
     private static final File MARKER_FILE_INCOMING_PROCESSING =
             new File(WORKING_DIRECTORY, DataMover.INCOMING_PROCESS_MARKER_FILENAME);
@@ -117,7 +119,7 @@ public class ShellScriptTest
     @Test
     public void testStatusIdle() throws IOException
     {
-        FileUtils.touch(PID_FILE);
+        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
         checkStatus(0, "IDLE", false);
         checkStatus(0, "Datamover (pid ) is running and in idle state", true);
     }
@@ -125,7 +127,7 @@ public class ShellScriptTest
     @Test
     public void testStatusProcessing() throws IOException
     {
-        FileUtils.touch(PID_FILE);
+        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
         checkStatus(0, "Datamover (pid ) is running and in processing state", true);
@@ -136,7 +138,7 @@ public class ShellScriptTest
     @Test
     public void testStatusShutdown() throws IOException
     {
-        FileUtils.touch(PID_FILE);
+        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
         FileUtils.touch(MARKER_FILE_SHUTDOWN);
         checkStatus(1, "SHUTDOWN", false);
         checkStatus(1, "Datamover (pid ) is in shutdown mode", true);
