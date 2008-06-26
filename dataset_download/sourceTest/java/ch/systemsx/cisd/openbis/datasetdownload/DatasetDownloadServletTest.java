@@ -48,10 +48,10 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.dto.Experiment;
 import ch.systemsx.cisd.lims.base.dto.ExternalData;
-import ch.systemsx.cisd.lims.base.dto.GroupDTO;
+import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.lims.base.dto.LocatorType;
 import ch.systemsx.cisd.lims.base.dto.Procedure;
-import ch.systemsx.cisd.lims.base.dto.ProjectDTO;
+import ch.systemsx.cisd.lims.base.dto.ProjectPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -527,9 +527,9 @@ public class DatasetDownloadServletTest
 
     private ExternalData createExternalData()
     {
-        GroupDTO group = new GroupDTO();
+        GroupPE group = new GroupPE();
         group.setCode(GROUP_CODE);
-        ProjectDTO project = new ProjectDTO();
+        ProjectPE project = new ProjectPE();
         project.setCode(PROJECT_CODE);
         project.setGroup(group);
         Procedure procedure = new Procedure();
