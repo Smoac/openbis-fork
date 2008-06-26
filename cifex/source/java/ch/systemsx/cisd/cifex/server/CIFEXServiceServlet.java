@@ -41,6 +41,7 @@ import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.User;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.servlet.GWTSpringController;
 
 /**
  * The server <code>ICifexService</code> implementation.
