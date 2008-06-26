@@ -64,6 +64,12 @@
            source="1.5" target="1.5" debug="true">
       <compilerarg line="-warn:none" />
     </javac>
+    <copy todir="${classes}">
+      <fileset dir="${src}">
+        <include name="**/*.xml"/>
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
   </target> 
 
   <!-- Runs a TestNG test suite
