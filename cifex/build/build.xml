@@ -14,7 +14,8 @@
     <property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
     <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
-    <property name="cifex.server.resource" value="../${ant.project.name}/resource/server/" />
+    <property name="server-resource" value="resource/server"/>
+    <property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
     <property name="webapp.dist" value="${dist}/webapp" />
     <property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -246,6 +247,7 @@
             description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
         <copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
             <fileset dir="${cifex.server.resource}" includes="*.xml" />
+            <fileset dir="../server-common/${server-resource}" includes="*.xml" />
         </copy>
         <delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
         <delete failonerror="true" dir="../${ant.project.name}/targets/www" />

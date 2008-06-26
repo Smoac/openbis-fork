@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app [
+    <!ENTITY common SYSTEM "web-common.xml">
     <!ENTITY gwt SYSTEM "gwt.xml">
 ]>
 <web-app>
 
     <display-name>CISD File EXchanger</display-name>
     <description>Allows users to exchange large files using a standard web browser.</description>
+    
+    &common;
 
     <!--
         // Session holder
@@ -15,26 +18,6 @@
         <listener-class>ch.systemsx.cisd.cifex.server.UserHttpSessionListener</listener-class>
     </listener>
 
-    <!-- 
-        // Spring stuff
-    -->
-
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext.xml</param-value>
-        <description>File for Spring beans.</description>
-    </context-param>
-
-    <listener>
-        <listener-class>ch.systemsx.cisd.cifex.server.CIFEXContextLoaderListener</listener-class>
-    </listener>
-
-    <servlet>
-        <servlet-name>spring</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
@@ -42,7 +25,7 @@
     </servlet-mapping>
 
     <!--
-        // Servlets
+        // Additional servlets
     -->
 
     <servlet>
