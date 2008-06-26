@@ -33,6 +33,8 @@ import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 
 /**
  * This class provides methods that are required to log the actions of CIFEX users.

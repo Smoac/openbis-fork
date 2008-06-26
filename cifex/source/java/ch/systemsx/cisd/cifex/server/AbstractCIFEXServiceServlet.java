@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 
 /**
  * An abstract <code>HttpServlet</code> extension.
@@ -57,7 +58,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
 
     protected final Logger notificationLog;
 
-    protected Map<String, String> serviceProperties;
+    protected Properties serviceProperties;
 
     protected IDomainModel domainModel;
 

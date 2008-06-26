@@ -62,6 +62,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**

@@ -76,7 +76,7 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     private final long getMaxUploadSizeInMegabytes()
     {
-        final String value = serviceProperties.get(MAX_UPLOAD_SIZE);
+        final String value = serviceProperties.getProperty(MAX_UPLOAD_SIZE);
         long longValue = -1;
         if (StringUtils.isNotBlank(value))
         {
