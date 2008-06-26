@@ -23,10 +23,8 @@ import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 /**
  * Some utility methods regarding <i>SQL State</i>.
  * <p>
- * Note: be careful not to duplicate functionality with the <i>Spring</i> framework. Have a look at
- * at <code>org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator</code> and
- * <code>org.springframework.util.StringUtils.SQLErrorCodes</code> before extending the
- * functionality of this class.
+ * This class does the job done in
+ * <code>org.springframework.jdbc.support.SQLStateSQLExceptionTranslator</code> back.
  * </p>
  * 
  * @author Christian Ribeaud
