@@ -22,6 +22,7 @@
 		</fileset>
 	</path>
 
+	<property name="resource" value="resource"/>
 	<property name="targets" value="targets" />
 	<property name="dist" value="${targets}/dist" />
 </project>
