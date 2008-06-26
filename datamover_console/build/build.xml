@@ -19,6 +19,15 @@
   </target>
 
   <!-- 
+  // Runs tests.
+  -->
+  <target name="run-tests">
+    <antcall target="build-common.run-tests">
+       <param name="test.suite" value="tests.xml" />
+    </antcall>
+  </target>
+	        
+  <!-- 
   // Makes a distribution.
   -->
   <target name="dist" description="Makes a distribution file."/>
