@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  * 
  * @author Christian Ribeaud
  */
-@ContextConfiguration(locations = "file:source/java/applicationContext.xml")
+@ContextConfiguration(locations = "classpath:applicationContext.xml")
 // In 'commonContext.xml', our transaction manager is called 'transaction-manager' (by default
 // Spring looks for 'transactionManager').
 @TransactionConfiguration(transactionManager = "transaction-manager")
