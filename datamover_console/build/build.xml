@@ -1,15 +1,7 @@
 <project name="datamover_console" basedir="..">
-  <import file="../../build_resources/ant/build-common.xml" />
+  <import file="../../server-common/build/build.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
-  <property name="original.dist" value="../${ant.project.name}/dist" />
-  <property name="original.dist.server" value="${original.dist}/server" />
-
-  <property name="lib" value="../libraries" />
-  <property name="gwt.lib" value="${lib}/gwt" />
-  <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
-  <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
-	
   <!-- 
   // Cleans distribution directory.
   -->

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app [
+    <!ENTITY common SYSTEM "web-common.xml">
+    <!ENTITY gwt SYSTEM "gwt.xml">
+]>
+<web-app>
+
+    <display-name>Datamover Console</display-name>
+    <description>Allows users to monitor, restart, and redirect Datamovers using a standard web browser.</description>
+    
+    &common;
+
+    <!--
+        // Session holder
+    -->
+
+    <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
+    <servlet-mapping>
+        <servlet-name>spring</servlet-name>
+        <url-pattern>/dmc/*</url-pattern>
+    </servlet-mapping>
+
+    <!--
+        // Additional servlets
+    -->
+
+    &gwt;
+</web-app>

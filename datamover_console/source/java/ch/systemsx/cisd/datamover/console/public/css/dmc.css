@@ -1,0 +1,31 @@
+body,div,td {
+    font-family: verdana, tahoma, helvetica;
+    font-size: 11px;
+}
+
+.cifex-heading {
+    font-weight: bold;
+    color: white;
+    background-color: #1e4e8f;
+    padding: 3px;
+}
+
+.cifex-a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.cifex-light-div {
+    color: gray;
+    display:inline;
+}
+
+.cifex-font-huge {
+    font-size: 16px;
+}
+
+.cifex-ul{
+	style=list-style-type:disc;
+}

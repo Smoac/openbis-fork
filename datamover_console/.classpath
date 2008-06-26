@@ -10,5 +10,8 @@
 	<classpathentry kind="lib" path="/libraries/gwt/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>
+	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt/gwt-servlet.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
