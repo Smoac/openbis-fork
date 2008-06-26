@@ -1,3 +1,19 @@
+<!--
+ Copyright 2008 ETH Zuerich, CISD
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -8,43 +24,7 @@
 						http://www.springframework.org/schema/tx
 						http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!--
-        // Replaces ${...} with corresponding values found in 'location' property. A value
-        // can be overridden by setting a corresponding system property.
-    -->
-    <bean id="propertyConfigurer"
-        class="ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer">
-        <property name="location" value="classpath:service.properties" />
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-        <property name="ignoreUnresolvablePlaceholders" value="true" />
-    </bean>
-
-    <!-- 
-        // Authentication
-    -->
-
-    <bean id="dummy-authentication-service"
-        class="ch.systemsx.cisd.authentication.DummyAuthenticationService" />
-
-    <bean id="no-authentication-service"
-        class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
-
-    <bean id="crowd-authentication-service"
-        class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
-        <constructor-arg value="crowd.systemsx.ch" />
-        <constructor-arg value="8443" />
-        <constructor-arg value="${crowd.application.name}" />
-        <constructor-arg value="${crowd.application.password}" />
-    </bean>
-
-    <!--
-        // Useful for testing. Does not make sense to use it in productive environment.
-    -->
-    <bean id="file-authentication-service"
-        class="ch.systemsx.cisd.authentication.file.FileAuthenticationService">
-        <constructor-arg value="etc/passwd" />
-    </bean>
-
+    <import resource="genericCommonContext.xml"/>
     <!-- 
         // Server
     -->
@@ -80,9 +60,6 @@
 
     <bean id="user-session-holder"
         class="ch.systemsx.cisd.cifex.server.business.UserHttpSessionHolder" />
-
-    <bean id="request-context-provider"
-        class="ch.systemsx.cisd.common.servlet.SpringRequestContextProvider" />
 
     <bean id="user-action-log" class="ch.systemsx.cisd.cifex.server.UserActionLog">
         <constructor-arg ref="request-context-provider" />
