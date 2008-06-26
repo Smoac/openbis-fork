@@ -170,13 +170,14 @@
         <echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
         <war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
             <fileset dir="${webapp.dist}" />
-            <classes dir="${sources}">
-                <!-- Add 'applicationContext.xml' and related files. -->
+            <!-- Add 'applicationContext.xml' and related files. -->
+            <classes dir="../server-common/${sources}">
                 <include name="**/*.xml" />
             </classes>
-            <!--
-			// Add the database specific files.
-			-->
+            <classes dir="${sources}">
+                <include name="**/*.xml" />
+            </classes>
+            <!-- Add the database specific files. -->
             <classes dir="../${ant.project.name}/source">
                 <include name="**/*.sql" />
                 <include name="**/*.csv" />
