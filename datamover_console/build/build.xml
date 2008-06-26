@@ -1,7 +1,7 @@
 <project name="datamover_console" basedir="..">
   <import file="../../server-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
-  <property name="mainfolder" value="server-common"/>
+  <property name="mainfolder" value="datamover_console"/>
 
   <!-- 
   // Cleans distribution directory.
