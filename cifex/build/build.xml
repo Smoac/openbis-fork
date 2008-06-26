@@ -14,7 +14,6 @@
     <property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
     <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
-    <property name="server-resource" value="resource/server"/>
     <property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
     <property name="webapp.dist" value="${dist}/webapp" />
