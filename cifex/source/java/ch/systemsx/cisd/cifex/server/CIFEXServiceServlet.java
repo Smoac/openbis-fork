@@ -26,8 +26,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
@@ -72,28 +70,6 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         final BeanFactory context =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         cifexServiceDelegate = (ICIFEXService) context.getBean(CIFEX_SERVICE_BEAN_NAME);
-    }
-
-    @Override
-    public String processCall(final String payload) throws SerializationException
-    {
-        try
-        {
-            return super.processCall(payload);
-        } catch (final Throwable th)
-        {
-            operationLog.error("Error processing request for method '" + payload + "'.", th);
-            if (th instanceof Error)
-            {
-                throw (Error) th;
-            } else if (th instanceof RuntimeException)
-            {
-                throw (RuntimeException) th;
-            } else
-            {
-                throw new Error("Unexpected error: " + th.getMessage());
-            }
-        }
     }
 
     //
