@@ -772,7 +772,7 @@ public final class BeanUtils
         }
         final Class<T> parameterType = (Class<T>) setter.getParameterTypes()[0];
         if (parameterType.isPrimitive() || immutableTypes.contains(parameterType)
-                || parameterType.isEnum())
+                || parameterType.isEnum() || oldBean.getClass().isAssignableFrom(parameterType))
         {
             return (T) oldBean;
         } else
@@ -936,7 +936,7 @@ public final class BeanUtils
             final List<PropertyDescriptor> descriptors =
                     new ArrayList<PropertyDescriptor>(Arrays.asList(Introspector.getBeanInfo(clazz)
                             .getPropertyDescriptors()));
-            for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext(); )
+            for (final Iterator<PropertyDescriptor> iter = descriptors.iterator(); iter.hasNext();)
             {
                 final PropertyDescriptor descriptor = iter.next();
                 // If no write method, remove it. For instance 'class' property does not have any
