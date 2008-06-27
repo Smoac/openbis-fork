@@ -121,8 +121,8 @@ public class PasswordEditorCommand
                         password = readPassword(ENTER_NEW_PASSWORD_MSG);
                     }
                     final UserEntry user =
-                            new UserEntry(params.getUserId(), params.getFirstName(), params
-                                    .getLastName(), params.getEmail(), password);
+                            new UserEntry(params.getUserId(), params.getEmail(), params
+                                    .getFirstName(), params.getLastName(), password);
                     userStore.addOrUpdateUser(user);
                     break;
                 }
