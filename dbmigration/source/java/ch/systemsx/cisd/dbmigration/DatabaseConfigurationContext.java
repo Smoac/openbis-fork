@@ -88,8 +88,6 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private String urlHostPart;
 
-    private String groupCode;
-
     private String databaseInstance;
 
     public DatabaseConfigurationContext()
@@ -103,16 +101,6 @@ public class DatabaseConfigurationContext implements DisposableBean
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    public final String getGroupCode()
-    {
-        return StringUtils.trim(groupCode);
-    }
-
-    public final void setGroupCode(final String groupCode)
-    {
-        this.groupCode = groupCode;
-    }
-
     private final static void closeConnection(final DataSource dataSource)
     {
         if (dataSource != null)
@@ -121,7 +109,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             {
                 if (dataSource instanceof BasicDataSource)
                 {
-                    (((BasicDataSource) dataSource)).close();
+                    ((BasicDataSource) dataSource).close();
                 }
                 if (dataSource instanceof DisposableBean)
                 {
