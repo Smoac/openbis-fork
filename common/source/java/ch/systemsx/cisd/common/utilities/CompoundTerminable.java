@@ -31,6 +31,15 @@ public class CompoundTerminable implements ITerminable
         this.terminables = terminables;
     }
 
+    /**
+     * Terminates given {@link ITerminable}.
+     */
+    protected boolean terminate(final ITerminable terminable)
+    {
+        assert terminable != null : "Unspecified ITerminable";
+        return terminable.terminate();
+    }
+
     //
     // ITerminable
     //
@@ -40,7 +49,7 @@ public class CompoundTerminable implements ITerminable
         boolean ok = true;
         for (final ITerminable terminable : terminables)
         {
-            ok = ok && terminable.terminate();
+            ok = ok && terminate(terminable);
         }
         return ok;
     }
