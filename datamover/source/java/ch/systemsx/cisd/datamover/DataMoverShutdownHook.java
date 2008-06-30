@@ -15,8 +15,13 @@
  */
 package ch.systemsx.cisd.datamover;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -34,9 +39,38 @@ final class DataMoverShutdownHook implements ITriggerable
 
     private final ITerminable terminable;
 
-    DataMoverShutdownHook(final ITerminable terminable)
+    private final File outgoingTargetLocationFile;
+
+    DataMoverShutdownHook(final File locationFile, final ITerminable terminable)
     {
         this.terminable = terminable;
+        if (locationFile == null)
+        {
+            throw new IllegalArgumentException("Unspecified outgoing target location file.");
+        }
+        this.outgoingTargetLocationFile = locationFile;
+    }
+
+    private final static void createMarkerFile(final File markerFile)
+    {
+        try
+        {
+            FileUtils.touch(markerFile);
+        } catch (final IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate(ex, "Can not create marker file '%s'.",
+                    markerFile.getAbsolutePath());
+        }
+    }
+
+    private final static void deleteFile(final File markerFile, final String description)
+    {
+        final boolean deleted = markerFile.delete();
+        if (deleted == false)
+        {
+            operationLog.warn(String.format("Can not delete %s file '%s'.", description, markerFile
+                    .getAbsolutePath()));
+        }
     }
 
     //
@@ -45,10 +79,14 @@ final class DataMoverShutdownHook implements ITriggerable
 
     public final void trigger()
     {
+        final File markerFile = new File(DataMover.SHUTDOWN_PROCESS_MARKER_FILENAME);
+        createMarkerFile(markerFile);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Datamover is shutting down.");
         }
         terminable.terminate();
+        deleteFile(outgoingTargetLocationFile, "outgoing target location");
+        deleteFile(markerFile, "marker");
     }
 }

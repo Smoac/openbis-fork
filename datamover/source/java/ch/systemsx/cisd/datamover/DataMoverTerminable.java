@@ -16,54 +16,29 @@
 
 package ch.systemsx.cisd.datamover;
 
-import java.io.File;
-import java.io.IOException;
+import org.apache.log4j.Logger;
 
-import org.apache.commons.io.FileUtils;
-
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.CompoundTerminable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
- * The <i>DataMover</i> specific {@link ITerminable} implementation.
+ * The <i>DataMover</i> specific {@link CompoundTerminable} extension.
+ * <p>
+ * It try/catches each {@link #terminate(ITerminable)} call.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
 final class DataMoverTerminable extends CompoundTerminable
 {
-    private final File outgoingTargetLocationFile;
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DataMoverTerminable.class);
 
-    DataMoverTerminable(final File locationFile, final DataMoverProcess... dataMoverProcesses)
+    DataMoverTerminable(final DataMoverProcess... dataMoverProcesses)
     {
         super(dataMoverProcesses);
-        if (locationFile == null)
-        {
-            throw new IllegalArgumentException("Unspecified outgoing target location file.");
-        }
-        this.outgoingTargetLocationFile = locationFile;
-    }
-
-    private final static void createMarkerFile(final File markerFile)
-    {
-        try
-        {
-            FileUtils.touch(markerFile);
-        } catch (final IOException ex)
-        {
-            throw EnvironmentFailureException.fromTemplate(ex, "Can not create marker file '%s'.",
-                    markerFile.getAbsolutePath());
-        }
-    }
-
-    private final static void deleteMarkerFile(final File markerFile)
-    {
-        final boolean deleted = markerFile.delete();
-        if (deleted == false)
-        {
-            throw EnvironmentFailureException.fromTemplate("Can not delete marker file '%s'.",
-                    markerFile.getAbsolutePath());
-        }
     }
 
     //
@@ -71,13 +46,16 @@ final class DataMoverTerminable extends CompoundTerminable
     //
 
     @Override
-    public final boolean terminate()
+    protected final boolean terminate(final ITerminable terminable)
     {
-        final File markerFile = new File(DataMover.SHUTDOWN_PROCESS_MARKER_FILENAME);
-        createMarkerFile(markerFile);
-        final boolean terminate = super.terminate();
-        deleteMarkerFile(markerFile);
-        outgoingTargetLocationFile.delete();
-        return terminate;
+        try
+        {
+            return super.terminate(terminable);
+        } catch (final Exception e)
+        {
+            operationLog.warn(String
+                    .format("Terminating Datamover process '%s' threw an exception."), e);
+            return false;
+        }
     }
 }

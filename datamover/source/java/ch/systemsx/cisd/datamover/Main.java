@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  */
 public final class Main
 {
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Main.class);
 
@@ -130,11 +132,12 @@ public final class Main
         }
     }
 
-    private final static void createShutdownHookTimer(final ITerminable terminable)
+    private final static void createShutdownHookTimer(final File outgoingTargetLocationFile,
+            final ITerminable terminable)
     {
         final TriggeringTimerTask shutdownHook =
                 new TriggeringTimerTask(new File(DataMover.SHUTDOWN_MARKER_FILENAME),
-                        new DataMoverShutdownHook(terminable));
+                        new DataMoverShutdownHook(outgoingTargetLocationFile, terminable));
         new Timer("Shutdown Hook", true).schedule(shutdownHook, 0L, 5000L);
     }
 
@@ -148,8 +151,11 @@ public final class Main
     private static void startupServer(final Parameters parameters)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        final File outgoingTargetLocationFile = new File(DataMover.OUTGOING_TARGET_LOCATION_FILE);
+        FileUtilities.writeToFile(outgoingTargetLocationFile, parameters.getOutgoingTarget()
+                .getCanonicalPath());
         final ITerminable terminable = DataMover.start(parameters, factory);
-        createShutdownHookTimer(terminable);
+        createShutdownHookTimer(outgoingTargetLocationFile, terminable);
     }
 
     public static void main(final String[] args)

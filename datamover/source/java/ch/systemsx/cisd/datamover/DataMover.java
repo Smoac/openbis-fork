@@ -65,10 +65,11 @@ public final class DataMover
     @Private
     static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
 
-    @Private static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
-    
+    @Private
+    static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
+
     private static final String TEMPLATE = PROCESS_MARKER_PREFIX + "%s_processing";
-    
+
     @Private
     static final String INCOMING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "incoming");
 
@@ -89,7 +90,7 @@ public final class DataMover
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
                         LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME };
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
 
@@ -149,8 +150,6 @@ public final class DataMover
     private final ITerminable start()
     {
         cleanUpProcessMarkerFiles();
-        File locationFile = new File(OUTGOING_TARGET_LOCATION_FILE);
-        FileUtilities.writeToFile(locationFile, parameters.getOutgoingTarget().getCanonicalPath());
         final DataMoverProcess outgoingProcess = createAndStartOutgoingProcess();
         final DataMoverProcess localProcess = createLocalProcess();
         final DataMoverProcess incomingProcess = createIncomingProcess();
@@ -161,8 +160,8 @@ public final class DataMover
         localProcess.startup(checkIntervalInternalMillis / 2L, checkIntervalInternalMillis);
         incomingProcess.startup(0L, parameters.getCheckIntervalMillis());
         // The ITerminable order here is important.
-        return new DataMoverTerminable(locationFile, recoveryProcess, incomingProcess,
-                localProcess, outgoingProcess);
+        return new DataMoverTerminable(recoveryProcess, incomingProcess, localProcess,
+                outgoingProcess);
     }
 
     private void cleanUpProcessMarkerFiles()
