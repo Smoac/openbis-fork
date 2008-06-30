@@ -534,7 +534,7 @@ public final class FileUtilities
         private boolean terminated;
 
         LastChangedWorker(final File root, final boolean subDirectoriesOnly, final long reference,
-                final boolean referenceIsRelative)
+                final boolean referenceIsRelative) throws UnknownLastChangedException
         {
             assert root != null;
 
@@ -550,15 +550,15 @@ public final class FileUtilities
             }
         }
 
-        private void updateLastChanged(final File path)
+        private void updateLastChanged(final File path) throws UnknownLastChangedException
         {
             assert path != null;
 
             final long lastModified = path.lastModified();
             if (lastModified == 0)
             {
-                throw new CheckedExceptionTunnel(new IOException(String.format(
-                        "Cannot get the last modification date of '%s'.", path.getPath())));
+                throw new UnknownLastChangedException(String.format(
+                        "Cannot get the last modification date of '%s'.", path.getPath()));
             }
 
             lastChanged = Math.max(lastModified, lastChanged);
@@ -579,7 +579,7 @@ public final class FileUtilities
             }
         }
 
-        private void traverse(final File path)
+        private void traverse(final File path) throws UnknownLastChangedException
         {
             assert path != null;
 
@@ -642,12 +642,12 @@ public final class FileUtilities
      *            entry, but only, if there are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
-     *             exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
-            final long stopWhenFindYounger)
+            final long stopWhenFindYounger) throws UnknownLastChangedException
     {
         return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYounger, false))
                 .getLastChanged();
@@ -669,12 +669,12 @@ public final class FileUtilities
      *            there are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
-     *             exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
-            final long stopWhenFindYoungerRelative)
+            final long stopWhenFindYoungerRelative) throws UnknownLastChangedException
     {
         return (new LastChangedWorker(path, subDirectoriesOnly, stopWhenFindYoungerRelative, true))
                 .getLastChanged();
@@ -683,11 +683,11 @@ public final class FileUtilities
     /**
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws CheckedExceptionTunnel of an {@link IOException} if the <var>path</var> does not
-     *             exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
-    public static long lastChanged(final File path)
+    public static long lastChanged(final File path) throws UnknownLastChangedException
     {
         return lastChanged(path, false, 0L);
     }

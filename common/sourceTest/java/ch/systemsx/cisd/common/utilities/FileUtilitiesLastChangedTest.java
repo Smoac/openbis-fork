@@ -82,6 +82,7 @@ public class FileUtilitiesLastChangedTest
     @Test(groups =
         { "slow" }, dataProvider = "testLastChanged")
     public void testLastChanged(String dirToCheck, String dirToCreate)
+            throws UnknownLastChangedException
     {
         final File testDir = new File(workingDirectory, dirToCheck);
         testDir.deleteOnExit();
