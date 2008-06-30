@@ -1,4 +1,8 @@
 login -u test -p <password>
+register-group CISD
+assign-home-group test CISD
+logout
+login -u test -p <password>
 register-project NEMO
 register-materials VIRUS testdata/basic-viruses.txt
 register-materials CONTROL testdata/basic-controls.txt
