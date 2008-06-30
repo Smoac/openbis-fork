@@ -52,8 +52,6 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
 {
     private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
 
-    private static final String PROPERTY_CONFIGURER_BEAN_NAME = "propertyConfigurer";
-
     protected final Logger operationLog;
 
     protected final Logger notificationLog;
@@ -75,7 +73,7 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         domainModel = (IDomainModel) context.getBean(DOMAIN_MODEL_BEAN_NAME);
         final ExposablePropertyPaceholderConfigurer configurer =
                 (ExposablePropertyPaceholderConfigurer) context
-                        .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
+                        .getBean(ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
         serviceProperties = configurer.getResolvedProps();
         postInitialization();
     }
