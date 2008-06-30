@@ -42,7 +42,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 
 /**
  * @author Tomasz Pylak
@@ -229,12 +229,12 @@ public class FileStoreRemote extends FileStore
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
-    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return lastChanged(item);
     }
 
-    private final long lastChanged(final StoreItem item)
+    private final NumberStatus lastChanged(final StoreItem item)
     {
         final String itemPath = StoreItem.asFile(getPath(), item).getPath();
 
@@ -247,22 +247,22 @@ public class FileStoreRemote extends FileStore
             final String resultLine = result.getOutput().get(0);
             try
             {
-                return Long.parseLong(resultLine) * 1000;
+                long lastChanged = Long.parseLong(resultLine) * 1000;
+                return NumberStatus.create(lastChanged);
             } catch (final NumberFormatException e)
             {
-                throw createLastChangeException(item, "The result of " + cmd + " on remote host "
+                return createLastChangeError(item, "The result of " + cmd + " on remote host "
                         + getHost() + "should be a number but was: " + result.getOutput());
             }
         } else
         {
-            throw createLastChangeException(item, errMsg);
+            return createLastChangeError(item, errMsg);
         }
     }
 
-    private static UnknownLastChangedException createLastChangeException(StoreItem item,
-            String errorMsg)
+    private static NumberStatus createLastChangeError(StoreItem item, String errorMsg)
     {
-        return new UnknownLastChangedException("Cannot obtain last change time of the item " + item
+        return NumberStatus.createError("Cannot obtain last change time of the item " + item
                 + ". Reason: " + errorMsg);
     }
 
@@ -281,7 +281,7 @@ public class FileStoreRemote extends FileStore
         }
     }
 
-    public final long lastChangedRelative(final StoreItem item,
+    public final NumberStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return lastChanged(item);

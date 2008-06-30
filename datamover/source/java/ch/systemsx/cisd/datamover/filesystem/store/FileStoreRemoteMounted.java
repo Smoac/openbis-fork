@@ -29,6 +29,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 
 /**
  * A <code>FileStore</code> extension for remote paths mounted.
@@ -79,12 +80,12 @@ public final class FileStoreRemoteMounted extends FileStore
         return localImpl.exists(item);
     }
 
-    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return localImpl.lastChanged(item, stopWhenFindYounger);
     }
 
-    public final long lastChangedRelative(final StoreItem item,
+    public final NumberStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return localImpl.lastChangedRelative(item, stopWhenFindYoungerRelative);

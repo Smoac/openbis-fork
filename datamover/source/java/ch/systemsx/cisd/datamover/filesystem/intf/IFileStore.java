@@ -69,10 +69,9 @@ public interface IFileStore extends ISelfTestable
      *            parameter. Supposed to be used when one does not care about the absolutely
      *            youngest entry, but only, if there are entries that are "young enough".
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
-     *         last changed.
-     * @throws UnknownLastChangedException when reading modification time failed
+     *         last changed or error status if checking failed.
      */
-    public long lastChanged(StoreItem item, long stopWhenFindYounger);
+    public NumberStatus lastChanged(StoreItem item, long stopWhenFindYounger);
 
     /**
      * Returns the last time when there was a write access to <var>item</var>.
@@ -82,10 +81,9 @@ public interface IFileStore extends ISelfTestable
      *            stopped when a file or directory is found that is younger than
      *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>.
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
-     *         last changed.
-     * @throws UnknownLastChangedException when reading modification time failed
+     *         last changed or error status if checking failed.
      */
-    public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
+    public NumberStatus lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
 
     /**
      * List files in the scanned store. Sort in order of "oldest first".

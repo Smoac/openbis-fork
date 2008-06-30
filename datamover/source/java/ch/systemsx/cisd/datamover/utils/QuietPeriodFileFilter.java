@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -149,7 +150,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             final PathCheckRecord checkRecordOrNull = pathMap.get(item);
             if (checkRecordOrNull == null) // new item
             {
-                pathMap.put(item, new PathCheckRecord(now, fileStore.lastChanged(item, 0L)));
+                saveFirstModificationTime(item, now);
                 return false;
             }
             if (now - checkRecordOrNull.getTimeChecked() < quietPeriodMillis) // no need to check
@@ -158,7 +159,12 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                 return false;
             }
             final long oldLastChanged = checkRecordOrNull.getTimeOfLastModification();
-            final long newLastChanged = fileStore.lastChanged(item, oldLastChanged);
+            NumberStatus newStatus = fileStore.lastChanged(item, oldLastChanged);
+            if (newStatus.isError())
+            {
+                return false;
+            }
+            final long newLastChanged = newStatus.getResult();
             if (newLastChanged != oldLastChanged)
             {
                 pathMap.put(item, new PathCheckRecord(now, newLastChanged));
@@ -187,6 +193,15 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                 cleanUpVanishedPaths(now);
                 callCounter = 0;
             }
+        }
+    }
+
+    private void saveFirstModificationTime(final StoreItem item, final long now)
+    {
+        NumberStatus status = fileStore.lastChanged(item, 0L);
+        if (status.isError() == false)
+        {
+            pathMap.put(item, new PathCheckRecord(now, status.getResult()));
         }
     }
 

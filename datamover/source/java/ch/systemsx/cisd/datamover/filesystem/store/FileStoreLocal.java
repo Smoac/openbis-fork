@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.utilities.UnknownLastChangedException;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
@@ -41,7 +41,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 
 /**
  * An {@link IFileStore} implementation for local stores.
@@ -88,31 +88,41 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         return BooleanStatus.createFromBoolean(exists);
     }
 
-    public final long lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         try
         {
-            return FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
-        } catch (CheckedExceptionTunnel tunnelEx)
+            long lastChanged =
+                    FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
+            return NumberStatus.create(lastChanged);
+        } catch (UnknownLastChangedException ex)
         {
-            if (tunnelEx.getCause() instanceof IOException)
-            {
-                String errorMsg =
-                        String.format("Could not determine \"last changed time\" of %s: %s", item,
-                                tunnelEx.getCause());
-                throw new UnknownLastChangedException(errorMsg);
-            } else
-            {
-                throw tunnelEx;
-            }
+            return createLastChangedError(item, ex);
         }
     }
 
-    public final long lastChangedRelative(final StoreItem item,
+    public final NumberStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        return FileUtilities.lastChangedRelative(getChildFile(item), true,
-                stopWhenFindYoungerRelative);
+        try
+        {
+            long lastChanged =
+                    FileUtilities.lastChangedRelative(getChildFile(item), true,
+                            stopWhenFindYoungerRelative);
+            return NumberStatus.create(lastChanged);
+        } catch (UnknownLastChangedException ex)
+        {
+            return createLastChangedError(item, ex);
+        }
+    }
+
+    private static NumberStatus createLastChangedError(final StoreItem item,
+            UnknownLastChangedException ex)
+    {
+        String errorMsg =
+                String.format("Could not determine \"last changed time\" of %s: %s", item, ex
+                        .getCause());
+        return NumberStatus.createError(errorMsg);
     }
 
     public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)

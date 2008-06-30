@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -114,13 +115,10 @@ public class QuietPeriodFileFilterTest
         context.checking(new Expectations()
             {
                 {
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis));
-                    one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(pathLastChangedMillis));
+                    prepareLastChanged(nowMillis, 0L, pathLastChangedMillis);
                 }
             });
-        assertFalse(filterUnderTest.accept(ITEM));
+        assertNoAccept();
         context.assertIsSatisfied();
     }
 
@@ -134,19 +132,13 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis1));
-                    one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(pathLastChangedMillis));
+                    prepareLastChanged(nowMillis1, 0L, pathLastChangedMillis);
                     // second call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis2));
-                    one(fileStore).lastChanged(ITEM, pathLastChangedMillis);
-                    will(returnValue(pathLastChangedMillis));
+                    prepareLastChanged(nowMillis2, pathLastChangedMillis, pathLastChangedMillis);
                 }
             });
-        assertFalse(filterUnderTest.accept(ITEM));
-        assertTrue(filterUnderTest.accept(ITEM));
+        assertNoAccept();
+        assertFilterAccepts();
         context.assertIsSatisfied();
     }
 
@@ -162,7 +154,7 @@ public class QuietPeriodFileFilterTest
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis));
                     one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(pathLastChangedMillis));
+                    will(returnValue(NumberStatus.create(pathLastChangedMillis)));
                     for (int i = 1; i <= 100; ++i)
                     {
                         one(timeProvider).getTimeInMilliseconds();
@@ -171,14 +163,14 @@ public class QuietPeriodFileFilterTest
                     // last call - will check only when last check is longer ago than the quiet
                     // period
                     one(fileStore).lastChanged(ITEM, pathLastChangedMillis);
-                    will(returnValue(pathLastChangedMillis));
+                    will(returnValue(NumberStatus.create(pathLastChangedMillis)));
                 }
             });
         for (int i = 0; i < 100; ++i)
         {
-            assertFalse(filterUnderTest.accept(ITEM));
+            assertNoAccept();
         }
-        assertTrue(filterUnderTest.accept(ITEM));
+        assertFilterAccepts();
         context.assertIsSatisfied();
     }
 
@@ -194,25 +186,16 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis1));
-                    one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(pathLastChangedMillis1));
+                    prepareLastChanged(nowMillis1, 0L, pathLastChangedMillis1);
                     // second call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis2));
-                    one(fileStore).lastChanged(ITEM, pathLastChangedMillis1);
-                    will(returnValue(pathLastChangedMillis2));
+                    prepareLastChanged(nowMillis2, pathLastChangedMillis1, pathLastChangedMillis2);
                     // third call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis3));
-                    one(fileStore).lastChanged(ITEM, pathLastChangedMillis2);
-                    will(returnValue(pathLastChangedMillis2));
+                    prepareLastChanged(nowMillis3, pathLastChangedMillis2, pathLastChangedMillis2);
                 }
             });
-        assertFalse(filterUnderTest.accept(ITEM));
-        assertFalse(filterUnderTest.accept(ITEM));
-        assertTrue(filterUnderTest.accept(ITEM));
+        assertNoAccept();
+        assertNoAccept();
+        assertFilterAccepts();
         context.assertIsSatisfied();
     }
 
@@ -228,31 +211,84 @@ public class QuietPeriodFileFilterTest
             {
                 {
                     // first call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis1));
-                    one(fileStore).lastChanged(ITEM, 0L);
-                    will(returnValue(pathLastChangedMillis1));
+                    prepareLastChanged(nowMillis1, 0L, pathLastChangedMillis1);
                     // second call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis2));
-                    one(fileStore).lastChanged(ITEM, pathLastChangedMillis1);
-                    will(returnValue(pathLastChangedMillis2));
+                    prepareLastChanged(nowMillis2, pathLastChangedMillis1, pathLastChangedMillis2);
                     // third call
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(nowMillis3));
-                    one(fileStore).lastChanged(ITEM, pathLastChangedMillis2);
-                    will(returnValue(pathLastChangedMillis2));
+                    prepareLastChanged(nowMillis3, pathLastChangedMillis2, pathLastChangedMillis2);
                 }
             });
         final LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.MACHINE, Pattern
                         .compile("Last modification time of path '.+' jumped back"));
-        assertFalse(filterUnderTest.accept(ITEM));
-        assertFalse(filterUnderTest.accept(ITEM));
-        assertTrue(filterUnderTest.accept(ITEM));
+        assertNoAccept();
+        assertNoAccept();
+        assertFilterAccepts();
         appender.verifyLogHasHappened();
         LogMonitoringAppender.removeAppender(appender);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testErrorInLastChangeDoesNotAccept()
+    {
+        // simulate several times an error during acquiring last modification time
+        int errorRepetitions = 3;
+        long now = 0;
+        for (int i = 0; i < errorRepetitions; i++)
+        {
+            prepareLastChanged(now, 0L, NumberStatus.createError());
+            now += QUIET_PERIOD_MILLIS;
+        }
+        for (int i = 0; i < errorRepetitions; i++)
+        {
+            assertNoAccept();
+        }
+        // first time we acquire modification time
+        NumberStatus lastChange = NumberStatus.create(0);
+        prepareLastChanged(now, 0L, lastChange);
+        now += QUIET_PERIOD_MILLIS;
+        assertNoAccept();
+        // error again
+        prepareLastChanged(now, 0L, NumberStatus.createError());
+        now += QUIET_PERIOD_MILLIS;
+        assertNoAccept();
+        // second time we acquire modification time - and nothing change during the quite period, so
+        // accept should succeed
+        prepareLastChanged(now, 0L, lastChange);
+        now += QUIET_PERIOD_MILLIS;
+        assertFilterAccepts();
+        context.assertIsSatisfied();
+    }
+
+    private void assertNoAccept()
+    {
+        assertFalse(filterUnderTest.accept(ITEM));
+    }
+
+    private void assertFilterAccepts()
+    {
+        assertTrue(filterUnderTest.accept(ITEM));
+    }
+
+    private void prepareLastChanged(final long currentTime, final long stopWhenFindYounger,
+            final long lastChanged)
+    {
+        prepareLastChanged(currentTime, stopWhenFindYounger, NumberStatus.create(lastChanged));
+    }
+
+    private void prepareLastChanged(final long currentTime, final long stopWhenFindYounger,
+            final NumberStatus lastChanged)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(currentTime));
+                    one(fileStore).lastChanged(ITEM, stopWhenFindYounger);
+                    will(returnValue(lastChanged));
+                }
+            });
     }
 
     @Test
@@ -271,13 +307,13 @@ public class QuietPeriodFileFilterTest
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis1));
                     allowing(fileStore).lastChanged(vanishingItem, 0L);
-                    will(returnValue(pathLastChangedMillis1));
+                    will(returnValue(NumberStatus.create(pathLastChangedMillis1)));
                     // calls to get the required number of calls for clean up
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(nowMillis2));
                     allowing(fileStore).lastChanged(with(same(ITEM)),
                             with(greaterThanOrEqualTo(0L)));
-                    will(returnValue(pathLastChangedMillis2));
+                    will(returnValue(NumberStatus.create(pathLastChangedMillis2)));
                 }
             });
         final LogMonitoringAppender appender =
@@ -285,7 +321,7 @@ public class QuietPeriodFileFilterTest
         assertFalse(filterUnderTest.accept(vanishingItem));
         for (int i = 0; i < QuietPeriodFileFilter.MAX_CALLS_BEFORE_CLEANUP; ++i)
         {
-            assertFalse(filterUnderTest.accept(ITEM));
+            assertNoAccept();
         }
         appender.verifyLogHasHappened();
         LogMonitoringAppender.removeAppender(appender);

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 import ch.systemsx.cisd.datamover.filesystem.remote.CopyActivityMonitor.IFileStoreMonitor;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
@@ -184,9 +185,12 @@ public class CopyActivityMonitorTest
                     return BooleanStatus.createTrue();
                 }
 
-                public long lastChanged(StoreItem item, long stopWhenFindYoungerRelative)
+                public NumberStatus lastChangedRelative(StoreItem item,
+                        long stopWhenFindYoungerRelative)
                 {
-                    return checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
+                    long lastChanged =
+                            checker.lastChangedRelative(item, stopWhenFindYoungerRelative);
+                    return NumberStatus.create(lastChanged);
                 }
 
                 @Override
@@ -452,7 +456,7 @@ public class CopyActivityMonitorTest
                     return BooleanStatus.createFalse();
                 }
 
-                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                public NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan)
                 {
                     throw new UnsupportedOperationException(); // should be never called
                 }
@@ -469,10 +473,10 @@ public class CopyActivityMonitorTest
         final StoreItem dummyItem = createDummyItem();
         final IFileStoreMonitor store = new AlwaysExistsStoreMonitor(dummyItem)
             {
-                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                public NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan)
                 {
                     assertEquals(dummyItem, item);
-                    return 0; // signalizes error
+                    return NumberStatus.createError("mock: lastChange error");
                 }
             };
         checkCopyTerminated(store, dummyItem);
@@ -489,11 +493,13 @@ public class CopyActivityMonitorTest
             {
                 private boolean oddCall = true;
 
-                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                public NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan)
                 {
                     assertEquals(dummyItem, item);
                     oddCall = !oddCall;
-                    return oddCall ? 10 : 0; // error or unchanged value
+                    // error or unchanged value
+                    return oddCall ? NumberStatus.create(10) : NumberStatus
+                            .createError("mock: simulate error while getting last change");
                 }
             };
         checkCopyTerminated(store, dummyItem);
@@ -509,9 +515,9 @@ public class CopyActivityMonitorTest
             {
                 private int counter = 1;
 
-                public long lastChanged(StoreItem item, long stopWhenYoungerThan)
+                public NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan)
                 {
-                    return counter++;
+                    return NumberStatus.create(counter++);
                 }
             };
         checkCopyTerminationStatus(store, dummyItem, false);

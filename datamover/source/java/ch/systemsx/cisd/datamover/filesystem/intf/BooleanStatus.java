@@ -24,19 +24,11 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
  */
 public class BooleanStatus
 {
-    private final Boolean result;
-
-    // if true the result is unavailable
-    private final boolean errorOccurred;
-
-    // can be used not only in case of errors
-    private final String messageOrNull;
+    private final ResultStatus<Boolean> result;
 
     private BooleanStatus(Boolean result, boolean errorOccurred, String messageOrNull)
     {
-        this.result = result;
-        this.errorOccurred = errorOccurred;
-        this.messageOrNull = messageOrNull;
+        this.result = new ResultStatus<Boolean>(result, errorOccurred, messageOrNull);
     }
 
     public static final BooleanStatus createTrue()
@@ -76,7 +68,7 @@ public class BooleanStatus
     /** has operation finished with an error? */
     public boolean isError()
     {
-        return errorOccurred;
+        return result.isError();
     }
 
     /**
@@ -86,13 +78,12 @@ public class BooleanStatus
      */
     public boolean getResult()
     {
-        assert isError() == false : "Operation failed, there is no result";
-        return result;
+        return result.getResult();
     }
 
     /** @return the message associated with the result or an error message */
     public String tryGetMessage()
     {
-        return messageOrNull;
+        return result.tryGetMessage();
     }
 }

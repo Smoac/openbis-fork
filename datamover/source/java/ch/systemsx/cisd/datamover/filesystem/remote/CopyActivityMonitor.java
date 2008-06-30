@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.UnknownLastChangedException;
+import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -124,8 +125,7 @@ public class CopyActivityMonitor
     @Private
     static interface IFileStoreMonitor
     {
-        // returns 0 when an error or timeout occurs during the check
-        long lastChanged(StoreItem item, long stopWhenYoungerThan);
+        NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan);
 
         BooleanStatus exists(StoreItem item);
 
@@ -166,9 +166,9 @@ public class CopyActivityMonitor
     {
         final private long timeChecked;
 
-        final private long timeOfLastModification;
+        final private NumberStatus timeOfLastModification;
 
-        public PathCheckRecord(final long timeChecked, final long timeLastChanged)
+        public PathCheckRecord(final long timeChecked, final NumberStatus timeLastChanged)
         {
             this.timeChecked = timeChecked;
             this.timeOfLastModification = timeLastChanged;
@@ -185,7 +185,7 @@ public class CopyActivityMonitor
         /**
          * The newest last modification time found during the check.
          */
-        public long getTimeOfLastModification()
+        public NumberStatus getTimeOfLastModification()
         {
             return timeOfLastModification;
         }
@@ -195,7 +195,8 @@ public class CopyActivityMonitor
     {
         return new IFileStoreMonitor()
             {
-                public long lastChanged(StoreItem item, long stopWhenFindYoungerRelative)
+                public NumberStatus lastChangedRelative(StoreItem item,
+                        long stopWhenFindYoungerRelative)
                 {
                     return destinationStore.lastChangedRelative(item, stopWhenFindYoungerRelative);
                 }
@@ -298,7 +299,7 @@ public class CopyActivityMonitor
                 return false;
             } else
             {
-                final boolean oldIsUnknown = (lastCheckOrNull.getTimeOfLastModification() == 0);
+                final boolean oldIsUnknown = lastCheckOrNull.getTimeOfLastModification().isError();
                 // no need to check yet
                 if (now - lastCheckOrNull.getTimeChecked() < quietPeriodMillis)
                 {
@@ -316,7 +317,9 @@ public class CopyActivityMonitor
                     return true;
                 } else
                 {
-                    return checkIfModifiedAndSet(now);
+                    long prevModificationTime =
+                            lastCheckOrNull.getTimeOfLastModification().getResult();
+                    return checkIfUnmodifiedAndSet(now, prevModificationTime);
                 }
             }
         }
@@ -328,11 +331,11 @@ public class CopyActivityMonitor
         {
             if (lastCheckOrNull == null)
             {
-                lastCheckOrNull = new PathCheckRecord(now, 0);
+                lastCheckOrNull = new PathCheckRecord(now, NumberStatus.createError());
                 return false;
             } else
             {
-                if (lastCheckOrNull.getTimeOfLastModification() != 0)
+                if (lastCheckOrNull.getTimeOfLastModification().isError() == false)
                 {
                     operationLog.warn(String.format(
                             "File or directory '%s' has vanished from '%s'.", itemToBeCopied,
@@ -347,14 +350,13 @@ public class CopyActivityMonitor
             }
         }
 
-        // check if item has been modified since last check by comparing its current modification
-        // time to the one acquired in the past
-        private boolean checkIfModifiedAndSet(long now)
+        // check if item has been unmodified ("quite") since last check by comparing its current
+        // modification time to the one acquired in the past.
+        private boolean checkIfUnmodifiedAndSet(long now, long prevModificationTime)
         {
-            final long prevModificationTime = lastCheckOrNull.getTimeOfLastModification();
-            final long newModificationTime = lastChanged(itemToBeCopied, prevModificationTime);
-            boolean newIsKnown = (newModificationTime != 0);
-            if (newIsKnown && newModificationTime != prevModificationTime)
+            final NumberStatus newModificationTime = lastChanged(itemToBeCopied);
+            if (newModificationTime.isError() == false
+                    && newModificationTime.getResult() != prevModificationTime)
             {
                 lastCheckOrNull = new PathCheckRecord(now, newModificationTime);
                 return false;
@@ -366,22 +368,26 @@ public class CopyActivityMonitor
 
         private void setFirstModificationDate(final long timeChecked)
         {
-            long lastChanged = lastChanged(itemToBeCopied, 0L); // 0 if error
+            NumberStatus lastChanged = lastChanged(itemToBeCopied);
             lastCheckOrNull = new PathCheckRecord(timeChecked, lastChanged);
         }
     }
 
-    private long lastChanged(StoreItem item, long previousCheck)
+    private NumberStatus lastChanged(StoreItem item)
     {
-        final Long lastChanged = tryLastChanged(destinationStore, item);
-        if (operationLog.isTraceEnabled() && lastChanged != null)
+        final NumberStatus lastChanged = lastChanged(destinationStore, item);
+        if (lastChanged.isError())
+        {
+            operationLog.error(lastChanged.tryGetMessage());
+        } else if (operationLog.isTraceEnabled())
         {
             String msgTemplate =
                     "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.";
-            String msg = String.format(msgTemplate, item, destinationStore, lastChanged);
+            String msg =
+                    String.format(msgTemplate, item, destinationStore, lastChanged.getResult());
             operationLog.trace(msg);
         }
-        return (lastChanged != null) ? lastChanged : 0;
+        return lastChanged;
     }
 
     private long minusSafetyMargin(long period)
@@ -389,69 +395,51 @@ public class CopyActivityMonitor
         return Math.max(0L, period - 1000L);
     }
 
-    private Long tryLastChanged(IFileStoreMonitor store, StoreItem item)
+    private NumberStatus lastChanged(IFileStoreMonitor store, StoreItem item)
     {
         long stopWhenFindYoungerRelative = minusSafetyMargin(inactivityPeriodMillis);
         final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
         final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
-        final Future<Long> lastChangedFuture =
+        final Future<NumberStatus> lastChangedFuture =
                 lastChangedExecutor.submit(createCheckerCallable(store, item,
                         stopWhenFindYoungerRelative));
-        try
+        ExecutionResult<NumberStatus> executionResult =
+                ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis, simpleMachineLog,
+                        "Check for recent paths");
+        NumberStatus result = executionResult.tryGetResult();
+        if (result == null)
         {
-            final Long lastChanged =
-                    ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis,
-                            simpleMachineLog, "Check for recent paths").tryGetResult();
-            if (lastChanged == null)
-            {
-                operationLog.error(String.format(
-                        "Could not determine \"last changed time\" of %s: time out.", item));
-                return null;
-            }
-            return lastChanged;
-        } catch (UnknownLastChangedException ex)
+            return NumberStatus.createError(String.format(
+                    "Could not determine \"last changed time\" of %s: time out.", item));
+        } else
         {
-            operationLog.error(String.format("Could not determine \"last changed time\" of %s: %s",
-                    item, ex));
-            return null;
+            return result;
         }
     }
 
-    private static Callable<Long> createCheckerCallable(final IFileStoreMonitor store,
+    private static Callable<NumberStatus> createCheckerCallable(final IFileStoreMonitor store,
             final StoreItem item, final long stopWhenYoungerThan)
     {
-        return new Callable<Long>()
+        return new Callable<NumberStatus>()
             {
-                public Long call() throws Exception
+                public NumberStatus call() throws Exception
                 {
                     if (machineLog.isTraceEnabled())
                     {
                         machineLog
                                 .trace("Starting quick check for recent paths on '" + item + "'.");
                     }
-                    try
+                    final NumberStatus lastChanged =
+                            store.lastChangedRelative(item, stopWhenYoungerThan);
+                    if (machineLog.isTraceEnabled())
                     {
-                        final long lastChanged = store.lastChanged(item, stopWhenYoungerThan);
-                        if (machineLog.isTraceEnabled())
-                        {
-                            machineLog
-                                    .trace(String
-                                            .format(
-                                                    "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
-                                                    item, lastChanged));
-                        }
-                        return lastChanged;
-                    } catch (RuntimeException ex)
-                    {
-                        if (machineLog.isTraceEnabled())
-                        {
-                            final Throwable th =
-                                    (ex instanceof CheckedExceptionTunnel) ? ex.getCause() : ex;
-                            machineLog.trace("Failed on quick check for recent paths on '" + item
-                                    + "'.", th);
-                        }
-                        throw ex;
+                        machineLog
+                                .trace(String
+                                        .format(
+                                                "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
+                                                item, lastChanged));
                     }
+                    return lastChanged;
                 }
             };
     }
