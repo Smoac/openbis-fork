@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.client;
+package ch.systemsx.cisd.datamover.console.client.application;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public enum DatamoverStatus
+public interface IPageController
 {
-    PROCESSING,
-    IDLE,
-    SHUTDOWN,
-    DOWN,
-    STALE;
+    public void reload();
 }

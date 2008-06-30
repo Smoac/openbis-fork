@@ -3,29 +3,56 @@ body,div,td {
     font-size: 11px;
 }
 
-.cifex-heading {
+.console-main {
+    width: 100%;
+    background-color: #fff;
+    padding: 10px;    	
+}
+
+.console-header-panel {
+    width: 100%;
+    padding: 3px; 
+    margin-bottom: 5px;   	
+}
+
+.console-header-label {
     font-weight: bold;
-    color: white;
-    background-color: #1e4e8f;
-    padding: 3px;
+    vertical-align: bottom;
+    border: 1px solid black
 }
 
-.cifex-a {
-    color: blue;
-    text-decoration: underline;
-    cursor: pointer;
-    cursor: hand;
+.console-header-button {
+    border: 1px solid black
+    vertical-align: middle;
+    margin: 1px;
+    font-size: 80%;
 }
 
-.cifex-light-div {
-    color: gray;
-    display:inline;
+.console-content {
+    width: 100%;
 }
 
-.cifex-font-huge {
-    font-size: 16px;
+.console-table-table {
+    width: 100%;
+    border: 1px solid gray;
+    padding: 0px;
+    border-collapse: collapse;
 }
 
-.cifex-ul{
-	style=list-style-type:disc;
+.console-table-header {
+    border: 1px solid gray;
+    font-weight: bold;
+    background-color: #ccc;
+}
+
+.console-table-odd-row {
+    background-color: #fff;
+}
+
+.console-table-even-row {
+    background-color: #eee;
+}
+
+.console-table-button {
+    font-size: 60%;
 }

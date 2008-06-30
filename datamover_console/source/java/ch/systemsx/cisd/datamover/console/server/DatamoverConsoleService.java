@@ -16,15 +16,24 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.UserFailureException;
+import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
@@ -34,6 +43,8 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  */
 public class DatamoverConsoleService implements IDatamoverConsoleService
 {
+    private static final String SESSION_USER = "user";
+
     /**
      * The Crowd property for the display name.
      */
@@ -41,17 +52,29 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, DatamoverConsoleService.class);
-
+    
     private final IAuthenticationService authenticationService;
 
     /** Session timeout in seconds. */
     private int sessionExpirationPeriod;
 
     private final IActionLog actionLog;
+
+    private final IRequestContextProvider requestContextProvider;
+
+    private final IDatamoverConsoleFactory factory;
     
-    public DatamoverConsoleService(final IAuthenticationService authenticationService, IActionLog actionLog)
+    private Map<String, IDatamoverConsole> consoles;
+
+    private List<String> targets;
+    
+    public DatamoverConsoleService(final IAuthenticationService authenticationService,
+            IRequestContextProvider requestContextProvider,
+            IDatamoverConsoleFactory factory, IActionLog actionLog)
     {
         this.authenticationService = authenticationService;
+        this.requestContextProvider = requestContextProvider;
+        this.factory = factory;
         this.actionLog = actionLog;
     }
     
@@ -59,8 +82,31 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     {
         sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
+    
+    public final void setConfigParameters(ConfigParameters configParameters)
+    {
+        targets = configParameters.getTargets();
+        Map<String, String> workingDirectories = configParameters.getDatamoversWorkingDirectories();
+        consoles = new LinkedHashMap<String, IDatamoverConsole>();
+        for (Map.Entry<String, String> workingDirectoryEntry : workingDirectories.entrySet())
+        {
+            String name = workingDirectoryEntry.getKey();
+            IDatamoverConsole console = factory.create(name, workingDirectoryEntry.getValue());
+            consoles.put(name, console);
+        }
+    }
 
-    public User tryLogin(String user, String password) throws UserFailureException,
+    public User tryToGetCurrentUser()
+    {
+        HttpSession session = requestContextProvider.getHttpServletRequest().getSession(false);
+        if (session == null)
+        {
+            return null;
+        }
+        return (User) session.getAttribute(SESSION_USER);
+    }
+
+    public User tryToLogin(String user, String password) throws UserFailureException,
             EnvironmentFailureException
     {
         final String applicationToken = authenticationService.authenticateApplication();
@@ -92,20 +138,74 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         userBean.setUserCode(principal.getUserId());
         if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
         {
-            userBean.setUserFullName(principal.getProperty(DISPLAY_NAME_PROPERTY));
+            userBean.setUserFullName(principal.getProperty(DISPLAY_NAME_PROPERTY).trim());
         } else
         {
-            userBean.setUserFullName(principal.getFirstName() + " " + principal.getLastName());
+            userBean.setUserFullName(principal.getFirstName() + " " + principal.getLastName().trim());
         }
         userBean.setEmail(principal.getEmail());
         actionLog.logSuccessfulLogin();
+        HttpSession session = requestContextProvider.getHttpServletRequest().getSession(true);
+        session.setMaxInactiveInterval(sessionExpirationPeriod);
+        session.setAttribute(SESSION_USER, userBean);
         return userBean;
     }
     
     public void logout()
     {
-        // TODO Auto-generated method stub
-        
+        HttpSession session = requestContextProvider.getHttpServletRequest().getSession(false);
+        if (session != null)
+        {
+            actionLog.logLogout(session);
+            session.invalidate();
+        }
+    }
+
+    public List<DatamoverInfo> listDatamoverInfos()
+    {
+        List<DatamoverInfo> list = new ArrayList<DatamoverInfo>();
+        for (Map.Entry<String, IDatamoverConsole> entry : consoles.entrySet())
+        {
+            String name = entry.getKey();
+            IDatamoverConsole console = entry.getValue();
+            DatamoverInfo datamoverInfo = new DatamoverInfo();
+            datamoverInfo.setName(name);
+            datamoverInfo.setTargetLocation(console.tryToObtainTargetPath());
+            datamoverInfo.setStatus(console.obtainStatus());
+            list.add(datamoverInfo);
+        }
+        return list;
+    }
+
+    public List<String> getTargets()
+    {
+        return targets;
+    }
+
+    public void startDatamover(String name, String target, int highwaterLevelInKB)
+    {
+        IDatamoverConsole datamoverConsole = consoles.get(name);
+        if (datamoverConsole != null)
+        {
+            int colonIndex = target.indexOf(":");
+            String host = null;
+            String path = target;
+            if (colonIndex >= 0)
+            {
+                host = target.substring(0, colonIndex);
+                path = target.substring(colonIndex + 1);
+            }
+            datamoverConsole.start(host, path, highwaterLevelInKB);
+        }
+    }
+
+    public void stopDatamover(String name)
+    {
+        IDatamoverConsole datamoverConsole = consoles.get(name);
+        if (datamoverConsole != null)
+        {
+            datamoverConsole.shutdown();
+        }
     }
 
 }

@@ -15,8 +15,14 @@
 
     <bean id="service" class="ch.systemsx.cisd.datamover.console.server.DatamoverConsoleService">
         <constructor-arg ref="${authentication-service}" />
+        <constructor-arg ref="request-context-provider" />
+        <constructor-arg ref="console-factory" />
         <constructor-arg ref="action-log" />
         <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" />
+    </bean>
+    
+    <bean id="console-factory" 
+                class="ch.systemsx.cisd.datamover.console.server.ScriptBasedDatamoverConsoleFactory">
     </bean>
     
     <bean id="action-log" class="ch.systemsx.cisd.datamover.console.server.ActionLog">

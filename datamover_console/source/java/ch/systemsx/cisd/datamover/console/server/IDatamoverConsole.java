@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-import ch.systemsx.cisd.datamover.console.client.DatamoverStatus;
+import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
  * 
@@ -26,6 +26,8 @@ import ch.systemsx.cisd.datamover.console.client.DatamoverStatus;
 public interface IDatamoverConsole
 {
     public DatamoverStatus obtainStatus();
+    
+    public String tryToObtainTargetPath();
     
     public void shutdown();
     

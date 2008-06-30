@@ -1,10 +1,10 @@
 <module>
 
     <!--
-        // Inherit the core Web Toolkit stuff. We use <a href="http://code.google.com/p/gwt-ext/">gwt-ext</a>
-        // as it already implements nice widgets.
+        // Inherit the core Web Toolkit stuff.
     -->
-    <inherits name="com.google.gwt.i18n.I18N" />
+    <inherits name='com.google.gwt.user.User'/>
+    <!--inherits name="com.google.gwt.i18n.I18N" /-->
 
     <!--
         // Specify the app entry point class.

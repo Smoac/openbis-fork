@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.console.client;
 
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
@@ -28,36 +29,20 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  *
  * @author Franz-Josef Elmer
  */
-public interface IDatamoverConsoleService extends RemoteService
+public interface IDatamoverConsoleServiceAsync extends RemoteService
 {
-    /**
-     * Returns the currently logged-in {@link User}, or <code>null</code> if the user is not
-     * logged-in.
-     */
-    public User tryToGetCurrentUser();
+    public void tryToGetCurrentUser(AsyncCallback<User> callback);
 
-    /**
-     * Authenticates the specified user with the specified password.
-     * 
-     * @return a {@link User} if the login was successful, <code>null</code> otherwise.
-     */
-    public User tryToLogin(final String user, final String password) throws UserFailureException,
-            EnvironmentFailureException;
+    public void tryToLogin(final String user, final String password, AsyncCallback<User> callback)
+            throws UserFailureException, EnvironmentFailureException;
 
-    /**
-     * Logout the current user.
-     */
-    public void logout();
-
-    /**
-     * Lists information of all datamovers.
-     */
-    public List<DatamoverInfo> listDatamoverInfos();
+    public void logout(AsyncCallback<Void> callback);
     
-    public List<String> getTargets();
+    public void listDatamoverInfos(AsyncCallback<List<DatamoverInfo>> callback);
     
-    public void startDatamover(String name, String target, int highwaterLevelInKB);
+    public void getTargets(AsyncCallback<List<String>> callback);
+    
+    public void startDatamover(String name, String target, int highwaterLevelInKB, AsyncCallback<Void> callback);
 
-    public void stopDatamover(String name);
-    
+    public void stopDatamover(String name, AsyncCallback<Void> callback);
 }

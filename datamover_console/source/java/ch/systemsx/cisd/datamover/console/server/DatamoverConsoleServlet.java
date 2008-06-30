@@ -16,14 +16,26 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+
+import java.util.List;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.GWTSpringController;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.UserFailureException;
+import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
@@ -41,17 +53,80 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DatamoverConsoleServlet.class);
 
-    public void logout()
+    private IDatamoverConsoleService service;
+    
+    @Override
+    public final void init(final ServletConfig config) throws ServletException
     {
-        // TODO Auto-generated method stub
-        
+        super.init(config);
+        try
+        {
+            initService(config.getServletContext());
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("'%s' successfully initialized.", getClass()
+                        .getName()));
+            }
+        } catch (final Exception ex)
+        {
+            notificationLog.fatal("Failure during servlet initialization.", ex);
+            throw new ServletException(ex);
+        }
     }
 
-    public User tryLogin(String user, String password) throws UserFailureException,
+    private final void initService(final ServletContext servletContext)
+    {
+        final BeanFactory context =
+                WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        service =
+                (IDatamoverConsoleService) context.getBean("service",
+                        IDatamoverConsoleService.class);
+        if (service instanceof DatamoverConsoleService)
+        {
+            DatamoverConsoleService datamoverConsoleService = (DatamoverConsoleService) service;
+            final ExposablePropertyPaceholderConfigurer configurer =
+                    (ExposablePropertyPaceholderConfigurer) context
+                            .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
+
+            ConfigParameters configParameters = new ConfigParameters(configurer.getResolvedProps());
+            datamoverConsoleService.setConfigParameters(configParameters);
+        }
+    }
+    
+    public User tryToGetCurrentUser()
+    {
+        return service.tryToGetCurrentUser();
+    }
+
+    public User tryToLogin(String user, String password) throws UserFailureException,
             EnvironmentFailureException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return service.tryToLogin(user, password);
     }
 
+    public void logout()
+    {
+        service.logout();
+    }
+
+    public List<DatamoverInfo> listDatamoverInfos()
+    {
+        return service.listDatamoverInfos();
+    }
+
+    public List<String> getTargets()
+    {
+        return service.getTargets();
+    }
+
+    public void startDatamover(String name, String target, int highwaterLevelInKB)
+    {
+        service.startDatamover(name, target, highwaterLevelInKB);
+    }
+
+    public void stopDatamover(String name)
+    {
+        service.stopDatamover(name);
+    }
+    
 }

@@ -17,8 +17,17 @@
 package ch.systemsx.cisd.datamover.console.client.application;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
+import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleServiceAsync;
+import ch.systemsx.cisd.datamover.console.client.application.ui.Console;
+import ch.systemsx.cisd.datamover.console.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
  * 
@@ -28,10 +37,60 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class DatamoverConsoleEntryPoint implements EntryPoint
 {
 
+    private final static IDatamoverConsoleServiceAsync createService()
+    {
+        final IDatamoverConsoleServiceAsync service =
+                GWT.<IDatamoverConsoleServiceAsync>create(IDatamoverConsoleService.class);
+        final ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        endpoint.setServiceEntryPoint(Constants.SERVER_NAME);
+        return service;
+    }
+    
+    private ViewContext viewContext;
+    
     public void onModuleLoad()
     {
-        // TODO Auto-generated method stub
-        RootPanel.get().add(new Label("under construction"));
+        setupViewContext();
+        viewContext.getService().tryToGetCurrentUser(new AsyncCallback<User>()
+            {
+                public void onSuccess(User user)
+                {
+                    RootPanel rootPanel = RootPanel.get();
+                    rootPanel.clear();
+                    Widget widget;
+                    if (user == null)
+                    {
+                        widget = new LoginWidget(viewContext);
+                    } else
+                    {
+                        viewContext.getModel().setUser(user);
+                        widget = new Console(viewContext);
+                    }
+                    rootPanel.add(widget);
+                }
+                
+                public void onFailure(Throwable throwable)
+                {
+                    // TODO Auto-generated method stub
+        
+                }
+            });
+    }
+    
+    private void setupViewContext()
+    {
+        if (viewContext == null)
+        {
+            viewContext = new ViewContext(createService(), new IPageController()
+                {
+            
+                    public void reload()
+                    {
+                        onModuleLoad();
+                    }
+            
+                });
+        }
     }
 
 }

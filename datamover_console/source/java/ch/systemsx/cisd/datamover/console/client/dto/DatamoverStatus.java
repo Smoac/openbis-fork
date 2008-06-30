@@ -14,33 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.server;
+package ch.systemsx.cisd.datamover.console.client.dto;
 
-import javax.servlet.http.HttpSession;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ActionLog implements IActionLog
+public enum DatamoverStatus implements IsSerializable
 {
-
-    public void logFailedLoginAttempt(String userCode)
-    {
-        System.out.println("authentication failed for user " + userCode);
-    }
-
-    public void logLogout(HttpSession httpSession)
-    {
-        System.out.println("log out user ");
-        // TODO Auto-generated method stub
-
-    }
-
-    public void logSuccessfulLogin()
-    {
-        System.out.println("logged in");
-    }
-
+    PROCESSING,
+    IDLE,
+    SHUTDOWN,
+    DOWN,
+    STALE;
 }

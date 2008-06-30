@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.console.client;
 
-import com.google.gwt.user.client.rpc.SerializableException;
 
 /**
  * The <code>UserFailureException</code> is the super class of all exceptions that have their
@@ -25,7 +24,7 @@ import com.google.gwt.user.client.rpc.SerializableException;
  * 
  * @author Christian Ribeaud
  */
-public class UserFailureException extends SerializableException
+public class UserFailureException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;

@@ -1,0 +1,98 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.datamover.console.client.application.ui;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
+import ch.systemsx.cisd.datamover.console.client.dto.User;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class LoginWidget extends Composite
+{
+    private final ViewContext viewContext;
+    private final TextBox userNameField;
+    private final PasswordTextBox passwordField;
+
+    public LoginWidget(ViewContext viewContext)
+    {
+        this.viewContext = viewContext;
+        VerticalPanel panel = new VerticalPanel();
+        Grid grid = new Grid(2, 2);
+        panel.add(grid);
+        grid.setWidget(0, 0, new Label("user:"));
+        userNameField = new TextBox();
+        grid.setWidget(0, 1, userNameField);
+        grid.setWidget(1, 0, new Label("password:"));
+        passwordField = new PasswordTextBox();
+        grid.setWidget(1, 1, passwordField);
+        Button button = new Button("login");
+        button.addClickListener(new ClickListener()
+            {
+                public void onClick(Widget widget)
+                {
+                    authenticate();
+                }
+            });
+        panel.add(button);
+        
+        
+        initWidget(panel);
+    }
+    
+    void authenticate()
+    {
+        String userName = userNameField.getText();
+        String password = passwordField.getText();
+        viewContext.getService().tryToLogin(userName, password, new AsyncCallback<User>()
+            {
+        
+                public void onSuccess(User user)
+                {
+                    if (user == null)
+                    {
+                        MessageDialog.showMessage("Authentication failure", "Invalid authentication. Please login again.");
+                    } else
+                    {
+                        viewContext.getPageController().reload();
+                    }
+        
+                }
+        
+                public void onFailure(Throwable arg0)
+                {
+                    // TODO Auto-generated method stub
+        
+                }
+        
+            });
+    }
+    
+}

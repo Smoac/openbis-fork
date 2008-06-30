@@ -16,31 +16,12 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-import javax.servlet.http.HttpSession;
-
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ActionLog implements IActionLog
+public interface IDatamoverConsoleFactory
 {
-
-    public void logFailedLoginAttempt(String userCode)
-    {
-        System.out.println("authentication failed for user " + userCode);
-    }
-
-    public void logLogout(HttpSession httpSession)
-    {
-        System.out.println("log out user ");
-        // TODO Auto-generated method stub
-
-    }
-
-    public void logSuccessfulLogin()
-    {
-        System.out.println("logged in");
-    }
-
+    public IDatamoverConsole create(String datamoverName, String workingDirectory);
 }

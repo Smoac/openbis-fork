@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.console.client;
 
-import com.google.gwt.user.client.rpc.SerializableException;
 
 /**
  * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
@@ -25,7 +24,7 @@ import com.google.gwt.user.client.rpc.SerializableException;
  * 
  * @author Bernd Rinn
  */
-public class EnvironmentFailureException extends SerializableException
+public class EnvironmentFailureException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;

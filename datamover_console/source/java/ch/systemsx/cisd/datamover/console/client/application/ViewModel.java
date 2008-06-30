@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.server;
+package ch.systemsx.cisd.datamover.console.client.application;
 
-import javax.servlet.http.HttpSession;
+import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ActionLog implements IActionLog
+public class ViewModel
 {
+    private User user;
 
-    public void logFailedLoginAttempt(String userCode)
+    public final User getUser()
     {
-        System.out.println("authentication failed for user " + userCode);
+        return user;
     }
 
-    public void logLogout(HttpSession httpSession)
+    public final void setUser(User user)
     {
-        System.out.println("log out user ");
-        // TODO Auto-generated method stub
-
+        this.user = user;
     }
-
-    public void logSuccessfulLogin()
-    {
-        System.out.println("logged in");
-    }
-
+    
 }
