@@ -1,8 +1,11 @@
+login -u etlserver -p <password>
+logout
 login -u test -p <password>
 register-group CISD
 assign-home-group test CISD
 logout
 login -u test -p <password>
+assign-home-group etlserver CISD
 register-project NEMO
 register-materials VIRUS testdata/basic-viruses.txt
 register-materials CONTROL testdata/basic-controls.txt
