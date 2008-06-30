@@ -41,7 +41,7 @@ public class ConfigParametersTest
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException e)
         {
-            assertEquals("Given key 'datamovers' not found in properties '[]'", e.getMessage());
+            assertEquals("Given key 'targets' not found in properties '[]'", e.getMessage());
         }
     }
 }
