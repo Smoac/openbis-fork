@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -152,8 +153,12 @@ public final class Main
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         final File outgoingTargetLocationFile = new File(DataMover.OUTGOING_TARGET_LOCATION_FILE);
-        FileUtilities.writeToFile(outgoingTargetLocationFile, parameters.getOutgoingTarget()
-                .getCanonicalPath());
+        HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
+        StringBuilder builder = new StringBuilder();
+        builder.append(outgoingTarget.getCanonicalPath()).append('>');
+        long highwatermark = Math.max(0, outgoingTarget.getHighwaterMark());
+        builder.append(highwatermark);
+        FileUtilities.writeToFile(outgoingTargetLocationFile, builder.toString());
         final ITerminable terminable = DataMover.start(parameters, factory);
         createShutdownHookTimer(outgoingTargetLocationFile, terminable);
     }
