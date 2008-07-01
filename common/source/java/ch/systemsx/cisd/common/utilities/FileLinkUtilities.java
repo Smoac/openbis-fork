@@ -38,6 +38,71 @@ public class FileLinkUtilities
         }
     }
 
+    /** An exception that indicates that obtaining information about a link failed. */
+    public static final class FileLinkInfoException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+
+        private FileLinkInfoException(String filename, String errorMessage)
+        {
+            super(String.format("Cannot obtain inode info for file '%s': %s", filename,
+                    errorMessage));
+        }
+    }
+
+    /** A class that provides information about a link. */
+    public static final class LinkInfo
+    {
+        private final int inode;
+
+        private final int hardLinkCount;
+
+        private final boolean isSsymbolicLink;
+
+        private final String symbolicLinkOrNull;
+
+        private LinkInfo(int[] info, String symbolicLinkOrNull)
+        {
+            this.inode = info[0];
+            this.hardLinkCount = info[1];
+            this.isSsymbolicLink = (info[2] != 0);
+            this.symbolicLinkOrNull = symbolicLinkOrNull;
+        }
+
+        /**
+         * Returns <code>true</code>, if this link is a symbolic link.
+         */
+        public final boolean isSymbolicLink()
+        {
+            return isSsymbolicLink;
+        }
+
+        /**
+         * Returns the value of the symbolic link, or <code>null</code>, if this link is not a
+         * symbolic link.
+         */
+        public final String tryGetSymbolicLink()
+        {
+            return symbolicLinkOrNull;
+        }
+
+        /**
+         * Returns the inode number of this link.
+         */
+        public final int getInode()
+        {
+            return inode;
+        }
+
+        /**
+         * Returns the hard link count of this link.
+         */
+        public final int getHardLinkCount()
+        {
+            return hardLinkCount;
+        }
+    }
+
     //
     // The wrappers for the native function calls.
     //
@@ -45,6 +110,10 @@ public class FileLinkUtilities
     private static native int hardlink(String filename, String linktarget);
 
     private static native int symlink(String filename, String linktarget);
+
+    private static native int linkinfo(String filename, int[] info);
+
+    private static native String readlink(String filename, int linkvallen);
 
     private static native String strerror(int errnum);
 
@@ -58,35 +127,106 @@ public class FileLinkUtilities
     }
 
     /**
-     * Creates a hard link from <var>filename</var> to <var>linktarget</var>.
+     * Creates a hard link from <var>filename</var> to <var>linkname</var>.
      * 
      * @throws FileLinkException If the underlying system call fails, e.g. because <var>filename</var>
-     *             does not exist or because <var>linktarget</var> already exists.
+     *             does not exist or because <var>linkname</var> already exists.
      */
-    public static final void createHardLink(String filename, String linktarget)
+    public static final void createHardLink(String filename, String linkname)
             throws FileLinkException
     {
-        final int result = hardlink(filename, linktarget);
-        if (result != 0)
+        final int result = hardlink(filename, linkname);
+        if (result < 0)
         {
-            throw new FileLinkException("hard", linktarget, filename, strerror(result));
+            throw new FileLinkException("hard", linkname, filename, strerror(result));
         }
     }
 
     /**
-     * Creates a symbolic link from <var>filename</var> to <var>linktarget</var>.
+     * Creates a symbolic link from <var>filename</var> to <var>linkname</var>.
      * 
      * @throws FileLinkException If the underlying system call fails, e.g. because <var>filename</var>
      *             does not exist or because <var>linktarget</var> already exists.
      */
-    public static final void createSymbolicLink(String filename, String linktarget)
+    public static final void createSymbolicLink(String filename, String linkname)
             throws FileLinkException
     {
-        final int result = symlink(filename, linktarget);
-        if (result != 0)
+        final int result = symlink(filename, linkname);
+        if (result < 0)
         {
-            throw new FileLinkException("symbolic", linktarget, filename, strerror(result));
+            throw new FileLinkException("symbolic", linkname, filename, strerror(result));
         }
+    }
+
+    private static int[] getLinkInfoArray(String linkname) throws FileLinkInfoException
+    {
+        final int[] inodeInfo = new int[4];
+        final int result = linkinfo(linkname, inodeInfo);
+        if (result < 0)
+        {
+            throw new FileLinkInfoException(linkname, strerror(result));
+        }
+        return inodeInfo;
+    }
+
+    /**
+     * Returns the inode for the <var>filename</var>.
+     * 
+     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final int getInode(String filename) throws FileLinkInfoException
+    {
+        return getLinkInfoArray(filename)[0];
+    }
+
+    /**
+     * Returns the inode for the <var>filename</var>.
+     * 
+     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final int getHardLinkCount(String filename) throws FileLinkInfoException
+    {
+        return getLinkInfoArray(filename)[1];
+    }
+
+    /**
+     * Returns <code>true</code> if <var>filename</var> is a symbolic link and <code>false</code>
+     * otherwise.
+     * 
+     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final boolean isSymbolicLink(String filename) throws FileLinkInfoException
+    {
+        return getLinkInfoArray(filename)[2] != 0;
+    }
+
+    /**
+     * Returns the value of the symbolik link <var>filename</var>, or <code>null</code>, if
+     * <var>filename</var> is not a symbolic link.
+     * 
+     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final String tryReadSymbolicLink(String linkname) throws FileLinkInfoException
+    {
+        final int[] info = getLinkInfoArray(linkname);
+        return (info[2] != 0) ? readlink(linkname, info[3]) : null;
+    }
+
+    /**
+     * Returns the information about <var>linkname</var>.
+     * 
+     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final LinkInfo getLinkInfo(String linkname) throws FileLinkInfoException
+    {
+        final int[] info = getLinkInfoArray(linkname);
+        final String symbolicLinkOrNull = (info[2] != 0) ? readlink(linkname, info[3]) : null;
+        return new LinkInfo(info, symbolicLinkOrNull);
     }
 
 }
