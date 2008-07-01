@@ -90,7 +90,10 @@ public class DataCompletedFilter implements IStoreItemFilter
     {
         final StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
         final List<String> command = new ArrayList<String>();
-        command.add("sh");
+        if (OSUtilities.isWindows())
+        {
+            command.add("sh");
+        }
         command.add(getDataCompletedScript());
         command.add(storeItemLocation.getAbsolutePath());
         final String host = storeItemLocation.getHost();
