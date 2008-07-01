@@ -138,12 +138,6 @@ public final class IncomingProcessorTest
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
-        if (OSUtilities.isWindows() == false)
-        {
-            Logger logger = LogFactory.getLogger(LogCategory.OPERATION, getClass());
-            List<String> cmd = Arrays.asList("chmod", "755", exampleScript.getAbsolutePath());
-            ProcessExecutionHelper.run(cmd, logger, logger);
-        }
         incomingDir = new File(TEST_FOLDER, INCOMING_DIR);
         incomingDir.mkdir();
         copyInProgressDir = new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR);
@@ -194,7 +188,7 @@ public final class IncomingProcessorTest
     @Test
     public void testWithDataCompletedScript() throws IOException
     {
-        FileUtilities.writeToFile(exampleScript, EXAMPLE_SCRIPT);
+        createExampleScript(EXAMPLE_SCRIPT);
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
         context.checking(new Expectations()
@@ -231,8 +225,7 @@ public final class IncomingProcessorTest
     @Test
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
     {
-        FileUtilities.writeToFile(exampleScript, EXAMPLE_SCRIPT + "\nrm -v "
-                + TEST_FILE.toString().replace('\\', '/'));
+        createExampleScript(EXAMPLE_SCRIPT + "\nrm -v " + TEST_FILE.toString().replace('\\', '/'));
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
         context.checking(new Expectations()
@@ -266,6 +259,17 @@ public final class IncomingProcessorTest
         notifyAppender.verifyLogHasHappened();
 
         context.assertIsSatisfied();
+    }
+
+    private void createExampleScript(String text)
+    {
+        FileUtilities.writeToFile(exampleScript, text);
+        if (OSUtilities.isWindows() == false)
+        {
+            Logger logger = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+            List<String> cmd = Arrays.asList("chmod", "755", exampleScript.getAbsolutePath());
+            ProcessExecutionHelper.run(cmd, logger, logger);
+        }
     }
 
     private TimerTask getInstrumentedTimerTaskFrom(final DataMoverProcess process)
