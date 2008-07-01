@@ -87,7 +87,7 @@ public class FileStoreRemoteMountedTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testLastChangedBlockedAndTerminated() throws Throwable
     {
         final StoreItem item = new StoreItem("some-directory");
