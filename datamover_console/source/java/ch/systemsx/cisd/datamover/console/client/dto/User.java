@@ -84,6 +84,7 @@ public final class User implements IsSerializable
     // Object
     //
 
+    @Override
     public final boolean equals(final Object obj)
     {
         if (obj == this)
@@ -98,11 +99,13 @@ public final class User implements IsSerializable
         return that.userCode.equals(userCode);
     }
 
+    @Override
     public final int hashCode()
     {
         return userCode.hashCode();
     }
 
+    @Override
     public final String toString()
     {
         return userCode;
