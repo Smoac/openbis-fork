@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.io.File;
-
 /**
  * A utility class that provides access to hard link and symbolic link creation on Unix platforms.
  * 
@@ -26,29 +24,7 @@ import java.io.File;
 public class FileLinkUtilities
 {
 
-    private static boolean operational = false;
-
-    static
-    {
-        final String filename = FileUtilities.tryCopyNativeLibraryToTempFile("jlink");
-
-        if (filename != null)
-        {
-            final File linkLib = new File(filename);
-            if (linkLib.exists() && linkLib.canRead() && linkLib.isFile())
-            {
-                try
-                {
-                    System.load(filename);
-                    operational = true;
-                } catch (final Throwable err)
-                {
-                    System.err.printf("Native Link library '%s' failed to load:\n", filename);
-                    err.printStackTrace();
-                }
-            }
-        }
-    }
+    private final static boolean operational = FileUtilities.loadNativeLibraryFromResource("jlink");
 
     /** An exception that indicates that creating a link failed. */
     public static final class FileLinkException extends RuntimeException
