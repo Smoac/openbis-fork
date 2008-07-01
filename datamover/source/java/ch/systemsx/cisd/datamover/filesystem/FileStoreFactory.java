@@ -56,13 +56,6 @@ public final class FileStoreFactory
         return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory);
     }
 
-    /** use when file store is on a remote share mounted on local host */
-    public static final IFileStore createRemoteShare(final HostAwareFileWithHighwaterMark path,
-            final String kind, final IFileSysOperationsFactory factory)
-    {
-        return new FileStoreRemoteMounted(path, kind, factory);
-    }
-
     /**
      * use when file store is on a remote share mounted on local host
      */
@@ -85,23 +78,12 @@ public final class FileStoreFactory
 
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
-     */
-    public final static IFileStore createStore(final File path, final String kind,
-            final String hostOrNull, final boolean isRemote,
-            final IFileSysOperationsFactory factory, String findExecutableOrNull)
-    {
-        return createStore(new HostAwareFileWithHighwaterMark(hostOrNull, path), kind, isRemote,
-                factory, findExecutableOrNull);
-    }
-
-    /**
-     * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      * 
      * @param findExecutableOrNull
      */
     public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
             final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,
-            final String findExecutableOrNull)
+            final String findExecutableOrNull, final long checkIntervalMillis)
     {
         if (path.tryGetHost() != null)
         {
@@ -110,7 +92,7 @@ public final class FileStoreFactory
         {
             if (isRemote)
             {
-                return createRemoteShare(path, kind, factory);
+                return new FileStoreRemoteMounted(path, kind, factory, checkIntervalMillis * 3);
             } else
             {
                 return createLocal(path, kind, factory);

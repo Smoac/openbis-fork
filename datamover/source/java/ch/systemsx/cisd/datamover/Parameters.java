@@ -300,7 +300,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(final boolean exit)
     {
-        parser.printHelp("Datamover", "<required options> [option [...]]", "[status|mstatus]", ExampleMode.ALL);
+        parser.printHelp("Datamover", "<required options> [option [...]]", "[status|mstatus]",
+                ExampleMode.ALL);
         if (exit)
         {
             System.exit(0);
@@ -657,9 +658,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final IFileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
-                treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull);
+                treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
+                checkIntervalMillis);
     }
-    
+
     public final HostAwareFileWithHighwaterMark getOutgoingTarget()
     {
         return outgoingTarget;
@@ -679,7 +681,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final IFileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
         return FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
-                outgoingHostFindExecutableOrNull);
+                outgoingHostFindExecutableOrNull, checkIntervalMillis);
     }
 
     /**
@@ -730,12 +732,11 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         return prefixForIncoming;
     }
-    
+
     public final List<String> getArgs()
     {
         return Collections.unmodifiableList(arguments);
     }
-
 
     /**
      * Logs the current parameters to the {@link LogCategory#OPERATION} log.
