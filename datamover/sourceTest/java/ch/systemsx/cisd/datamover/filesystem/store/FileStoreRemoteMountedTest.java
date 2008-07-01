@@ -92,7 +92,7 @@ public class FileStoreRemoteMountedTest
     {
         final StoreItem item = new StoreItem("some-directory");
         final long age = 212;
-        long timeout = 10;
+        long timeout = 100;
         LastChangeWrapper lastChangeWrapper =
                 new FileStoreRemoteMounted.LastChangeWrapper(localStoreMock, timeout);
         final PathLastChangedCheckerDelayed lastChangedSleepAction =
