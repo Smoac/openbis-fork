@@ -22,9 +22,12 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TimerTask;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -37,11 +40,14 @@ import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -132,6 +138,12 @@ public final class IncomingProcessorTest
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
+        if (OSUtilities.isWindows() == false)
+        {
+            Logger logger = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+            List<String> cmd = Arrays.asList("chmod", "755", exampleScript.getAbsolutePath());
+            ProcessExecutionHelper.run(cmd, logger, logger);
+        }
         incomingDir = new File(TEST_FOLDER, INCOMING_DIR);
         incomingDir.mkdir();
         copyInProgressDir = new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR);
