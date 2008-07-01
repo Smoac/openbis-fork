@@ -107,9 +107,11 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
      * Creates copier which is able to retry the operation of creating each hard link of a file if
      * it does not complete after a specified timeout.
      * 
-     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
-     *            seconds. If the process is not finished after that time, it will be terminated.
-     * @param maxRetryOnFailure The number of times we should try if copy operation fails.
+     * @param millisToWaitForCompletion The time to wait for the process creating one hard link to a
+     *            file to complete in milli seconds. If the process is not finished after that time,
+     *            it will be terminated.
+     * @param maxRetryOnFailure The number of times we should try to create each hard link if copy
+     *            operation fails.
      * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing
      *            the copy of a single file. Specify 0 to wait till the first operation completes.
      */
@@ -300,6 +302,7 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     private static boolean runRepeatableProcess(final Callable<Boolean> task,
             final int maxRetryOnFailure, final long millisToSleepOnFailure)
     {
-        return new CallableExecutor(maxRetryOnFailure, millisToSleepOnFailure).executeCallable(task);
+        return new CallableExecutor(maxRetryOnFailure, millisToSleepOnFailure)
+                .executeCallable(task);
     }
 }
