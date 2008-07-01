@@ -18,19 +18,11 @@ package ch.systemsx.cisd.datamover.filesystem.remote;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.concurrent.ExecutionResult;
-import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -62,9 +54,6 @@ public class CopyActivityMonitor
     private final long inactivityPeriodMillis;
 
     private final String threadNamePrefix;
-
-    private final ExecutorService lastChangedExecutor =
-            new NamingThreadPoolExecutor("Last Changed Explorer").daemonize();
 
     /** handler to terminate monitored process if the observed store item does not change */
     private final ITerminable terminable;
@@ -375,7 +364,9 @@ public class CopyActivityMonitor
 
     private NumberStatus lastChanged(StoreItem item)
     {
-        final NumberStatus lastChanged = lastChanged(destinationStore, item);
+        long stopWhenFindYoungerRelative = minusSafetyMargin(inactivityPeriodMillis);
+        final NumberStatus lastChanged =
+                destinationStore.lastChangedRelative(item, stopWhenFindYoungerRelative);
         if (lastChanged.isError())
         {
             operationLog.error(lastChanged.tryGetMessage());
@@ -394,54 +385,4 @@ public class CopyActivityMonitor
     {
         return Math.max(0L, period - 1000L);
     }
-
-    private NumberStatus lastChanged(IFileStoreMonitor store, StoreItem item)
-    {
-        long stopWhenFindYoungerRelative = minusSafetyMargin(inactivityPeriodMillis);
-        final long timeoutMillis = Math.min(checkIntervallMillis * 3, inactivityPeriodMillis);
-        final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
-        final Future<NumberStatus> lastChangedFuture =
-                lastChangedExecutor.submit(createCheckerCallable(store, item,
-                        stopWhenFindYoungerRelative));
-        ExecutionResult<NumberStatus> executionResult =
-                ConcurrencyUtilities.getResult(lastChangedFuture, timeoutMillis, simpleMachineLog,
-                        "Check for recent paths");
-        NumberStatus result = executionResult.tryGetResult();
-        if (result == null)
-        {
-            return NumberStatus.createError(String.format(
-                    "Could not determine \"last changed time\" of %s: time out.", item));
-        } else
-        {
-            return result;
-        }
-    }
-
-    private static Callable<NumberStatus> createCheckerCallable(final IFileStoreMonitor store,
-            final StoreItem item, final long stopWhenYoungerThan)
-    {
-        return new Callable<NumberStatus>()
-            {
-                public NumberStatus call() throws Exception
-                {
-                    if (machineLog.isTraceEnabled())
-                    {
-                        machineLog
-                                .trace("Starting quick check for recent paths on '" + item + "'.");
-                    }
-                    final NumberStatus lastChanged =
-                            store.lastChangedRelative(item, stopWhenYoungerThan);
-                    if (machineLog.isTraceEnabled())
-                    {
-                        machineLog
-                                .trace(String
-                                        .format(
-                                                "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
-                                                item, lastChanged));
-                    }
-                    return lastChanged;
-                }
-            };
-    }
-
 }

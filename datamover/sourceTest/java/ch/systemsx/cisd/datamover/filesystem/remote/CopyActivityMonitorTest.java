@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 
@@ -28,10 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
@@ -328,49 +323,6 @@ public class CopyActivityMonitorTest
         }
     }
 
-    @Test(groups =
-        { "slow" })
-    public void testActivityMonitorTimedOut() throws Throwable
-    {
-        final PathLastChangedCheckerDelayed checker =
-                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS);
-        final MockTerminable copyProcess = new MockTerminable();
-        final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
-                        parameters);
-        final StoreItem item = createDirectoryInside(workingDirectory);
-        final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.OPERATION, String.format(
-                        "Could not determine \"last changed time\" of %s: time out.", item));
-        monitor.start(item);
-        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
-        monitor.stop();
-        LogMonitoringAppender.removeAppender(appender);
-        assertTrue(checker.lastCheckInterrupted());
-        assertTrue(copyProcess.isTerminated());
-        appender.verifyLogHasHappened();
-    }
-
-    @Test(groups =
-        { "slow" })
-    public void testActivityMonitorOnceTimedOutTheOK() throws Throwable
-    {
-        final PathLastChangedCheckerDelayed checker =
-                new PathLastChangedCheckerDelayed(INACTIVITY_PERIOD_MILLIS, 0L);
-        final MockTerminable copyProcess = new MockTerminable();
-        final ITimingParameters parameters = new MyTimingParameters(0);
-        final CopyActivityMonitor monitor =
-                new CopyActivityMonitor(asFileStore(workingDirectory, checker), copyProcess,
-                        parameters);
-        final StoreItem item = createDirectoryInside(workingDirectory);
-        monitor.start(item);
-        Thread.sleep(INACTIVITY_PERIOD_MILLIS * 15);
-        monitor.stop();
-        assertFalse(checker.lastCheckInterrupted());
-        assertFalse(copyProcess.isTerminated());
-    }
-
     private StoreItem createDirectoryInside(File parentDir)
     {
         StoreItem item = new StoreItem("some-directory");
@@ -379,67 +331,6 @@ public class CopyActivityMonitorTest
         assert directory.isDirectory() : "directory could not be created: " + directory;
         directory.deleteOnExit();
         return item;
-    }
-
-    private final static class PathLastChangedCheckerDelayed implements ILastChangedChecker
-    {
-        private final long[] delayMillis;
-
-        private int callNumber;
-
-        private volatile boolean interrupted;
-
-        private int interruptionCount;
-
-        public PathLastChangedCheckerDelayed(long... delayMillis)
-        {
-            assert delayMillis.length > 0;
-
-            this.interrupted = false;
-            this.interruptionCount = 0;
-            this.delayMillis = delayMillis;
-        }
-
-        private long timeToSleepMillis()
-        {
-            try
-            {
-                return delayMillis[callNumber];
-            } finally
-            {
-                if (callNumber < delayMillis.length - 1)
-                {
-                    ++callNumber;
-                }
-            }
-        }
-
-        public long lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative)
-        {
-            try
-            {
-                Thread.sleep(timeToSleepMillis()); // Wait predefined time.
-            } catch (InterruptedException e)
-            {
-                this.interrupted = true;
-                ++this.interruptionCount;
-                // That is what we expect if we are terminated.
-                throw new CheckedExceptionTunnel(new InterruptedException(e.getMessage()));
-            }
-            this.interrupted = false;
-            return System.currentTimeMillis();
-        }
-
-        synchronized boolean lastCheckInterrupted()
-        {
-            return interrupted;
-        }
-
-        int getInterruptionCount()
-        {
-            return interruptionCount;
-        }
-
     }
 
     @Test(groups =
