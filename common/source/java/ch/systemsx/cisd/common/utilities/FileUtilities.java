@@ -929,6 +929,22 @@ public final class FileUtilities
     }
 
     /**
+     * Tries to copy a native library which is available as a resource to a temporary file. It will
+     * use the following naming schema to locate the resource containing the native library:
+     * <p>
+     * <code>/native/&lt;libname&gt;/&lt;platform_id&gt;/&lt;libname&gt;.so</code>.
+     * 
+     * @param libraryName The name of the library.
+     * @return The name of the temporary file, or <code>null</code>, if the resource could not be
+     *         copied.
+     */
+    public final static String tryCopyNativeLibraryToTempFile(final String libraryName)
+    {
+        return tryCopyResourceToTempFile(String.format("/native/%s/%s/%s.so", libraryName,
+                OSUtilities.getComputerPlatform(), libraryName), libraryName, ".so");
+    }
+
+    /**
      * Tries to copy the resource with the given name to a temporary file.
      * 
      * @param resource The name of the resource to copy.
