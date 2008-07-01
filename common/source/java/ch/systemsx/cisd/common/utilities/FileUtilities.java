@@ -945,6 +945,36 @@ public final class FileUtilities
     }
 
     /**
+     * Loads the native library <var>libraryName</var> from a Java resource that follows tha naming
+     * convention described in {@link #tryCopyNativeLibraryToTempFile(String)}.
+     * 
+     * @return <code>true</code> if the library has been loaded successfully and
+     *         <code>false</code> otherwise.
+     */
+    public final static boolean loadNativeLibraryFromResource(final String libraryName)
+    {
+        final String filename = FileUtilities.tryCopyNativeLibraryToTempFile(libraryName);
+
+        if (filename != null)
+        {
+            final File linkLib = new File(filename);
+            if (linkLib.exists() && linkLib.canRead() && linkLib.isFile())
+            {
+                try
+                {
+                    System.load(filename);
+                    return true;
+                } catch (final Throwable err)
+                {
+                    System.err.printf("Native library '%s' failed to load:\n", filename);
+                    err.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Tries to copy the resource with the given name to a temporary file.
      * 
      * @param resource The name of the resource to copy.
