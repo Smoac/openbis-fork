@@ -30,9 +30,7 @@ public class FileLinkUtilities
 
     static
     {
-        final String filename =
-                FileUtilities.tryCopyResourceToTempFile("/" + OSUtilities.getComputerPlatform()
-                        + "/jlink.so", "jlink", ".so");
+        final String filename = FileUtilities.tryCopyNativeLibraryToTempFile("jlink");
 
         if (filename != null)
         {
@@ -67,7 +65,7 @@ public class FileLinkUtilities
     //
     // The wrappers for the native function calls.
     //
-    
+
     private static native int hardlink(String filename, String linktarget);
 
     private static native int symlink(String filename, String linktarget);
