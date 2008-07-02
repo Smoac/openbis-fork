@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -57,7 +59,7 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private final IFileStore fileStore;
 
-    private final String dataCompletedScript;
+    private final File dataCompletedScript;
 
     private final long dataCompletedScriptTimeout;
 
@@ -68,7 +70,7 @@ public class DataCompletedFilter implements IStoreItemFilter
     /**
      * Creates an instance for the specified file store, data completed script, and script time out.
      */
-    public DataCompletedFilter(final IFileStore fileStore, final String dataCompletedScript,
+    public DataCompletedFilter(final IFileStore fileStore, final File dataCompletedScript,
             final long dataCompletedScriptTimeout)
     {
         if (dataCompletedScript == null)
@@ -94,7 +96,7 @@ public class DataCompletedFilter implements IStoreItemFilter
         {
             command.add("sh");
         }
-        command.add(getDataCompletedScript());
+        command.add(FileUtilities.getCanonicalPath(getDataCompletedScript()));
         command.add(storeItemLocation.getAbsolutePath());
         final String host = storeItemLocation.getHost();
         if (host != null)
@@ -104,7 +106,7 @@ public class DataCompletedFilter implements IStoreItemFilter
         return command;
     }
 
-    private final String getDataCompletedScript()
+    private final File getDataCompletedScript()
     {
         if (OSUtilities.executableExists(dataCompletedScript) == false)
         {
@@ -113,7 +115,7 @@ public class DataCompletedFilter implements IStoreItemFilter
         } else
         {
             notificationLogger.reset(String.format("Script '%s' is again accessible.",
-                    dataCompletedScript));
+                    FileUtilities.getCanonicalPath(dataCompletedScript)));
         }
         return dataCompletedScript;
     }

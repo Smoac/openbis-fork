@@ -26,7 +26,6 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
+import ch.systemsx.cisd.args4j.spi.FileOptionHandler;
 import ch.systemsx.cisd.args4j.spi.LongOptionHandler;
 import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
@@ -78,8 +78,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
 
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script "
-            + "which checks whether incoming data is complete or not.")
-    private String dataCompletedScript;
+            + "which checks whether incoming data is complete or not.", handler = FileOptionHandler.class)
+    private File dataCompletedScript;
 
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) after which data completed script will be stopped "
             + "[default: " + DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT + "]", handler = MillisecondConversionOptionHandler.class)
@@ -425,7 +425,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         final Properties serviceProperties = loadServiceProperties();
         dataCompletedScript =
-                PropertyUtils.getProperty(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
+                tryCreateFile(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
                         dataCompletedScript);
         dataCompletedScriptTimeout =
                 toMillis(PropertyUtils.getPosLong(serviceProperties,
@@ -553,9 +553,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    public final String getDataCompletedScript()
+    public final File getDataCompletedScript()
     {
-        return StringUtils.defaultIfEmpty(dataCompletedScript, null);
+        return dataCompletedScript;
     }
 
     public final long getDataCompletedScriptTimeout()

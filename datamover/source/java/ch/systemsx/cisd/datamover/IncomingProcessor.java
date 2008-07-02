@@ -120,7 +120,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     {
         final StoreItemFilterBank filterBank = new StoreItemFilterBank();
         filterBank.add(new QuietPeriodFileFilter(incomingStore, parameters, timeProvider));
-        final String dataCompletedScript = parameters.getDataCompletedScript();
+        final File dataCompletedScript = parameters.getDataCompletedScript();
         if (dataCompletedScript != null)
         {
             final long timeout = parameters.getDataCompletedScriptTimeout();

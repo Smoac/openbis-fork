@@ -178,7 +178,8 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         // With a highwater mark value
         parameters =
                 parse("--" + optionName, localTempDir
-                        + HostAwareFileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP + highwaterMark);
+                        + HostAwareFileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP
+                        + highwaterMark);
         hostAwareFileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
         assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals(highwaterMark, hostAwareFileWithHighwaterMark.getHighwaterMark());
@@ -224,7 +225,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final File scriptFile = new File(workingDirectory, scriptName);
         FileUtils.touch(scriptFile);
         parameters = parse("--" + PropertyNames.DATA_COMPLETED_SCRIPT, scriptFile.getPath());
-        assertEquals(scriptFile.getPath(), parameters.getDataCompletedScript());
+        assertEquals(scriptFile, parameters.getDataCompletedScript());
     }
 
     @Test
