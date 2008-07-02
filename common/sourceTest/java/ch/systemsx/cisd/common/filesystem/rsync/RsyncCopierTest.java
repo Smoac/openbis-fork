@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
+package ch.systemsx.cisd.common.filesystem.rsync;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -33,6 +33,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncExitValueTranslator;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.intf;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 

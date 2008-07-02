@@ -17,6 +17,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 
 /**

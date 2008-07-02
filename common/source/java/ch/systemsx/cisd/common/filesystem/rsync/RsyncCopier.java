@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
+package ch.systemsx.cisd.common.filesystem.rsync;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +27,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.filesystem.IPathCopier;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncVersionChecker.RsyncVersion;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -35,8 +37,6 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
 import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
-import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.RsyncVersion;
 
 /**
  * A class that encapsulates the <code>rsync</code> call for doing an archive copy.

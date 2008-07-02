@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.remote.rsync;
+package ch.systemsx.cisd.common.filesystem.rsync;
 
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
