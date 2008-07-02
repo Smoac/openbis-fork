@@ -272,10 +272,16 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                     return;
                 }
             }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("Creating extra copy of directory '%s' to '%s'.",
+                        path.getAbsolutePath(), tempDir.getAbsoluteFile()));
+            }
             final boolean ok = copier.copyDirectoryImmutably(path, tempDir, null);
             if (ok == false)
             {
-                notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
+                notificationLog.error(String.format("Creating extra copy of '%s' failed.", path
+                        .getAbsolutePath()));
                 return;
             }
         }
