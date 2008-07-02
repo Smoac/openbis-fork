@@ -22,7 +22,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -61,12 +60,20 @@ public class Console extends Composite
         this.viewContext = viewContext;
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName(STYLE_PREFIX + "main");
-        panel.add(createTitle());
         panel.add(createHeaderPanel());
         content = new VerticalPanel();
         content.setStyleName(STYLE_PREFIX + "content");
         panel.add(content);
+        panel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
+        panel.add(createHeaderButton("refresh", new ClickListener()
+            {
+                public void onClick(Widget arg0)
+                {
+                    refreshView();
+                }
+            }));
         initWidget(panel);
+        
         viewContext.getService().getTargets(new AbstractAsyncCallback<List<String>>(viewContext)
             {
                 public void onSuccess(List<String> list)
@@ -84,26 +91,26 @@ public class Console extends Composite
             };
     }
     
-    private Widget createTitle()
-    {
-        HorizontalPanel titlePanel = new HorizontalPanel();
-        titlePanel.add(viewContext.getImageBundle().getLogo().createImage());
-        Label label = new Label(viewContext.getMessageResources().getConsoleTitle());
-        label.setStyleName(STYLE_PREFIX + "title");
-        titlePanel.add(label);
-        return titlePanel;
-    }
-
     private Widget createHeaderPanel()
     {
-        DockPanel headerPanel = new DockPanel();
+        HorizontalPanel headerPanel = new HorizontalPanel();
+        headerPanel.setSpacing(10);
         headerPanel.setStyleName(STYLE_HEADER_PREFIX + "panel");
         
+        headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
+        VerticalPanel infoPanel = new VerticalPanel();
+        headerPanel.add(infoPanel);
+        Label title = new Label(viewContext.getMessageResources().getConsoleTitle());
+        title.setStyleName(STYLE_PREFIX + "title");
+        infoPanel.add(title);
+        HorizontalPanel userPanel = new HorizontalPanel();
+        userPanel.setSpacing(10);
+        infoPanel.add(userPanel);
         Label label = new Label(viewContext.getModel().getUser().getUserFullName());
         label.setStyleName(STYLE_HEADER_PREFIX + "label");
-        headerPanel.add(label, DockPanel.WEST);
+        userPanel.add(label);
         
-        headerPanel.add(createHeaderButton("logout", new ClickListener()
+        userPanel.add(createHeaderButton("logout", new ClickListener()
             {
                 public void onClick(Widget arg0)
                 {
@@ -115,22 +122,13 @@ public class Console extends Composite
                             }
                         });
                 }
-            }), DockPanel.WEST);
-        
-        headerPanel.add(createHeaderButton("refresh", new ClickListener()
-        {
-            public void onClick(Widget arg0)
-            {
-                refreshView();
-            }
-        }), DockPanel.EAST);
+            }));
         return headerPanel;
     }
     
     private Button createHeaderButton(String label, ClickListener listener)
     {
         Button button = new Button(label);
-        button.setStyleName(STYLE_HEADER_PREFIX + "button");
         if (listener != null)
         {
             button.addClickListener(listener);
