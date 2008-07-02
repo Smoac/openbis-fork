@@ -93,6 +93,9 @@ public final class ProcessExecutionHelper
     /** The number used in thread names to distinguish the process. */
     private final int processNumber;
 
+    /** The name of the thread that the {@link ProcessExecutionHelper} is instantiated from. */
+    private final String callingThreadName;
+
     // Use this reference to make sure the process is as dead as you can get it to be.
     private final AtomicReference<Process> processWrapper;
 
@@ -358,7 +361,8 @@ public final class ProcessExecutionHelper
 
         public String getCallableName()
         {
-            return "run-P" + processNumber + "-{" + getCommandName(commandLine) + "}";
+            return callingThreadName + "::run-P" + processNumber + "-{"
+                    + getCommandName(commandLine) + "}";
         }
     }
 
@@ -417,7 +421,8 @@ public final class ProcessExecutionHelper
 
         public final String getCallableName()
         {
-            return "kill-P" + processNumber + "-{" + getCommandName(commandLine) + "}";
+            return callingThreadName + "::kill-P" + processNumber + "-{"
+                    + getCommandName(commandLine) + "}";
         }
     }
 
@@ -427,6 +432,7 @@ public final class ProcessExecutionHelper
             final Logger machineLog)
     {
         this.processNumber = processCounter.getAndIncrement();
+        this.callingThreadName = Thread.currentThread().getName();
         this.operationLog = operationLog;
         this.machineLog = machineLog;
         // Backward compatibility. Do not remove this!!!
