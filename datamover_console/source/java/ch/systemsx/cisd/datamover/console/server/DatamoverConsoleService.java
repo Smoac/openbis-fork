@@ -170,7 +170,12 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             IDatamoverConsole console = entry.getValue();
             DatamoverInfo datamoverInfo = new DatamoverInfo();
             datamoverInfo.setName(name);
-            datamoverInfo.setTargetLocation(console.tryToObtainTargetPath());
+            TargetAndHighwaterMark targetAndHighwaterMark = console.tryToObtainTargetAndHighwaterMark();
+            if (targetAndHighwaterMark != null)
+            {
+                datamoverInfo.setTargetLocation(targetAndHighwaterMark.getTarget());
+                datamoverInfo.setWatermarkLevel(targetAndHighwaterMark.getHighwaterMarkInKB());
+            }
             datamoverInfo.setStatus(console.obtainStatus());
             list.add(datamoverInfo);
         }
@@ -182,20 +187,13 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         return targets;
     }
 
-    public void startDatamover(String name, String target, int highwaterLevelInKB)
+    public void startDatamover(String name, String target, String highwaterLevelInKB)
     {
         IDatamoverConsole datamoverConsole = consoles.get(name);
         if (datamoverConsole != null)
         {
-            int colonIndex = target.indexOf(":");
-            String host = null;
-            String path = target;
-            if (colonIndex >= 0)
-            {
-                host = target.substring(0, colonIndex);
-                path = target.substring(colonIndex + 1);
-            }
-            datamoverConsole.start(host, path, highwaterLevelInKB);
+            long levelInKB = Long.parseLong(highwaterLevelInKB);
+            datamoverConsole.start(target, levelInKB);
         }
     }
 

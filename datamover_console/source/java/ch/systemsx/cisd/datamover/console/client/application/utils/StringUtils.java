@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.server;
-
-import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
+package ch.systemsx.cisd.datamover.console.client.application.utils;
 
 /**
+ * Some utilities around <code>String</code>.
  * 
- *
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public interface IDatamoverConsole
+public final class StringUtils
 {
-    public DatamoverStatus obtainStatus();
-    
-    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark();
-    
-    public void shutdown();
-    
-    public void start(String target, long highwaterMarkInKByteOrNull);
+    private StringUtils()
+    {
+        // Can not be instantiated
+    }
+
+    /**
+     * Whether given <var>value</var> is blank or not.
+     */
+    public final static boolean isBlank(final String value)
+    {
+        return value == null || value.trim().length() == 0;
+    }
+
 }

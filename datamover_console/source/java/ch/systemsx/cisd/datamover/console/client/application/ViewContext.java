@@ -31,10 +31,17 @@ public class ViewContext
 
     private final IPageController pageController;
 
-    public ViewContext(IDatamoverConsoleServiceAsync service, IPageController pageController)
+    private final IMessageResources messageResources;
+
+    private final IImageBundle imageBundle;
+
+    public ViewContext(IDatamoverConsoleServiceAsync service, IPageController pageController,
+            IMessageResources messageResources, IImageBundle imageBundle)
     {
         this.service = service;
         this.pageController = pageController;
+        this.messageResources = messageResources;
+        this.imageBundle = imageBundle;
     }
 
     public final IDatamoverConsoleServiceAsync getService()
@@ -45,6 +52,16 @@ public class ViewContext
     public final IPageController getPageController()
     {
         return pageController;
+    }
+
+    public final IMessageResources getMessageResources()
+    {
+        return messageResources;
+    }
+
+    public final IImageBundle getImageBundle()
+    {
+        return imageBundle;
     }
 
     public final ViewModel getModel()

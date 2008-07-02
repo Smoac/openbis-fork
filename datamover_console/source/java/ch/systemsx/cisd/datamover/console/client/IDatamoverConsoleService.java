@@ -56,7 +56,7 @@ public interface IDatamoverConsoleService extends RemoteService
     
     public List<String> getTargets();
     
-    public void startDatamover(String name, String target, int highwaterLevelInKB);
+    public void startDatamover(String name, String target, String highwaterLevelInKB);
 
     public void stopDatamover(String name);
     

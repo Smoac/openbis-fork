@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.server;
+package ch.systemsx.cisd.datamover.console.client.application;
 
-import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.ImageBundle;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IDatamoverConsole
+public interface IImageBundle extends ImageBundle
 {
-    public DatamoverStatus obtainStatus();
-    
-    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark();
-    
-    public void shutdown();
-    
-    public void start(String target, long highwaterMarkInKByteOrNull);
+    /**
+     * 
+     * 
+     * @gwt.resource cisd.jpg
+     */
+    public AbstractImagePrototype getLogo();
 }

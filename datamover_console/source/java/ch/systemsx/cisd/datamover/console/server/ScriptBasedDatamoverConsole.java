@@ -22,12 +22,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
@@ -79,10 +79,10 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         return status;
     }
 
-    public String tryToObtainTargetPath()
+    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark()
     {
         List<String> output = execute("target").getOutput();
-        return output.isEmpty() ? null : output.get(0);
+        return output.isEmpty() ? null : new TargetAndHighwaterMark(output.get(0));
     }
 
     public void shutdown()
@@ -106,17 +106,32 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         }
     }
 
-    public void start(String targetHostOrNull, String targetPathOrNull,
-            long highwaterMarkInKByteOrNull)
+    public void start(String target, long highwaterMarkInKByteOrNull)
     {
-        // TODO Auto-generated method stub
-
+        String argument =
+                highwaterMarkInKByteOrNull > 0 ? target + ">" + highwaterMarkInKByteOrNull : target;
+        ProcessResult result = execute("start", "--outgoing-target", argument);
+        if (result.isOK() == false)
+        {
+            String message =
+                    "Datamover '" + name + "' couldn't be started for target '" + target + "'";
+            operationLog.error(message + ": ");
+            List<String> output = result.getOutput();
+            for (String line : output)
+            {
+                operationLog.error("   " + line);
+            }
+            throw new EnvironmentFailureException(message + ".");
+        }
     }
     
     private ProcessResult execute(String commandName, String... options)
     {
         List<String> command = new ArrayList<String>();
-        command.add("sh");
+        if (OSUtilities.isWindows())
+        {
+            command.add("sh");
+        }
         command.add(scriptPath);
         command.add(commandName);
         command.addAll(Arrays.asList(options));

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.datamover.console.client.application;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -46,12 +45,21 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
         return service;
     }
     
+    private IPageController pageController = new IPageController()
+        {
+
+            public void reload()
+            {
+                onModuleLoad();
+            }
+
+        };
     private ViewContext viewContext;
     
     public void onModuleLoad()
     {
         setupViewContext();
-        viewContext.getService().tryToGetCurrentUser(new AsyncCallback<User>()
+        viewContext.getService().tryToGetCurrentUser(new AbstractAsyncCallback<User>(viewContext)
             {
                 public void onSuccess(User user)
                 {
@@ -68,12 +76,6 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
                     }
                     rootPanel.add(widget);
                 }
-                
-                public void onFailure(Throwable throwable)
-                {
-                    // TODO Auto-generated method stub
-        
-                }
             });
     }
     
@@ -81,15 +83,11 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
     {
         if (viewContext == null)
         {
-            viewContext = new ViewContext(createService(), new IPageController()
-                {
-            
-                    public void reload()
-                    {
-                        onModuleLoad();
-                    }
-            
-                });
+            final IMessageResources messageResources =
+                    GWT.<IMessageResources> create(IMessageResources.class);
+            IImageBundle imageBundle = GWT.<IImageBundle> create(IImageBundle.class);
+            viewContext =
+                    new ViewContext(createService(), pageController, messageResources, imageBundle);
         }
     }
 

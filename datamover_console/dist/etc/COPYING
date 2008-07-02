@@ -13,23 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package ch.systemsx.cisd.datamover.console.server;
-
-import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
-
-/**
- * 
- *
- * @author Franz-Josef Elmer
- */
-public interface IDatamoverConsole
-{
-    public DatamoverStatus obtainStatus();
-    
-    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark();
-    
-    public void shutdown();
-    
-    public void start(String target, long highwaterMarkInKByteOrNull);
-}

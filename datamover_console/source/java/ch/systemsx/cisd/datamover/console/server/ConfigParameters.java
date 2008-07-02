@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.datamover.console.server;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +74,11 @@ public class ConfigParameters
     
     public final List<String> getTargets()
     {
-        return Collections.unmodifiableList(targets);
+        return targets;
     }
 
     public Map<String, String> getDatamoversWorkingDirectories()
     {
-        return Collections.unmodifiableMap(datamoversWorkingDirectories);
+        return datamoversWorkingDirectories;
     }
 }

@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.datamover.console.client.application.ui;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.datamover.console.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.datamover.console.client.application.IMessageResources;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -37,23 +39,37 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  */
 public class LoginWidget extends Composite
 {
+    private static final String STYLE_PREFIX = "console-login-";
+    
     private final ViewContext viewContext;
     private final TextBox userNameField;
-    private final PasswordTextBox passwordField;
+    private final TextBox passwordField;
 
     public LoginWidget(ViewContext viewContext)
     {
         this.viewContext = viewContext;
+        IMessageResources messageResources = viewContext.getMessageResources();
         VerticalPanel panel = new VerticalPanel();
+        panel.setSpacing(10);
+        panel.setStyleName(STYLE_PREFIX + "main");
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        panel.setStyleName(STYLE_PREFIX + "header");
+        panel.add(horizontalPanel);
+        horizontalPanel.add(viewContext.getImageBundle().getLogo().createImage());
+        Label welcome = new HTML(messageResources.getLoginWelcomeText());
+        welcome.setStyleName(STYLE_PREFIX + "welcome");
+        horizontalPanel.add(welcome);
+        
+        VerticalPanel loginPanel = new VerticalPanel();
+        panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        panel.add(loginPanel);
+        FieldSet fieldSet = new FieldSet("Login");
+        loginPanel.add(fieldSet);
         Grid grid = new Grid(2, 2);
-        panel.add(grid);
-        grid.setWidget(0, 0, new Label("user:"));
-        userNameField = new TextBox();
-        grid.setWidget(0, 1, userNameField);
-        grid.setWidget(1, 0, new Label("password:"));
-        passwordField = new PasswordTextBox();
-        grid.setWidget(1, 1, passwordField);
-        Button button = new Button("login");
+        fieldSet.add(grid);
+        userNameField = createLabeledTextBoxIn(grid, 0, messageResources.getLoginUserLabel(), false);
+        passwordField = createLabeledTextBoxIn(grid, 1, messageResources.getLoginPasswordLabel(), true);
+        Button button = new Button(messageResources.getLoginButtonLabel());
         button.addClickListener(new ClickListener()
             {
                 public void onClick(Widget widget)
@@ -61,38 +77,39 @@ public class LoginWidget extends Composite
                     authenticate();
                 }
             });
-        panel.add(button);
-        
+        loginPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
+        loginPanel.add(button);
         
         initWidget(panel);
+    }
+    
+    private TextBox createLabeledTextBoxIn(Grid grid, int rowIndex, String label, boolean password)
+    {
+        grid.setText(rowIndex, 0, label + ":");
+        TextBox textBox = new TextBox();
+        grid.setWidget(rowIndex, 1, textBox);
+        return textBox;
     }
     
     void authenticate()
     {
         String userName = userNameField.getText();
         String password = passwordField.getText();
-        viewContext.getService().tryToLogin(userName, password, new AsyncCallback<User>()
-            {
-        
-                public void onSuccess(User user)
-                {
-                    if (user == null)
+        viewContext.getService().tryToLogin(userName, password,
+                new AbstractAsyncCallback<User>(viewContext)
                     {
-                        MessageDialog.showMessage("Authentication failure", "Invalid authentication. Please login again.");
-                    } else
-                    {
-                        viewContext.getPageController().reload();
-                    }
-        
-                }
-        
-                public void onFailure(Throwable arg0)
-                {
-                    // TODO Auto-generated method stub
-        
-                }
-        
-            });
+                        public void onSuccess(User user)
+                        {
+                            if (user == null)
+                            {
+                                MessageDialog.showMessage("Authentication failure",
+                                        "Invalid authentication. Please login again.");
+                            } else
+                            {
+                                viewContext.getPageController().reload();
+                            }
+                        }
+                    });
     }
     
 }

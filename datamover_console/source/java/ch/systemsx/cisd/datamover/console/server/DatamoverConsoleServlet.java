@@ -119,7 +119,7 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
         return service.getTargets();
     }
 
-    public void startDatamover(String name, String target, int highwaterLevelInKB)
+    public void startDatamover(String name, String target, String highwaterLevelInKB)
     {
         service.startDatamover(name, target, highwaterLevelInKB);
     }

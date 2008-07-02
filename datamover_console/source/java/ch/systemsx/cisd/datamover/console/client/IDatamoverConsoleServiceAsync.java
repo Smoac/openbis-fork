@@ -42,7 +42,7 @@ public interface IDatamoverConsoleServiceAsync extends RemoteService
     
     public void getTargets(AsyncCallback<List<String>> callback);
     
-    public void startDatamover(String name, String target, int highwaterLevelInKB, AsyncCallback<Void> callback);
+    public void startDatamover(String name, String target, String highwaterLevelInKB, AsyncCallback<Void> callback);
 
     public void stopDatamover(String name, AsyncCallback<Void> callback);
 }
