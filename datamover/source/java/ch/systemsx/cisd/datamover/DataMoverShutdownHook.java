@@ -93,6 +93,7 @@ final class DataMoverShutdownHook implements ITriggerable
         terminable.terminate();
         deleteFile(outgoingTargetLocationFile, "outgoing target location");
         deleteFile(markerFile, "marker");
+        deleteFile(new File("datamover.pid"), "Datamover pid file");
         exitHandler.exit(0);
     }
 }
