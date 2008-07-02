@@ -89,7 +89,8 @@ public final class DataMover
 
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
-                        LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME };
+                        LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME,
+                        SHUTDOWN_PROCESS_MARKER_FILENAME };
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
