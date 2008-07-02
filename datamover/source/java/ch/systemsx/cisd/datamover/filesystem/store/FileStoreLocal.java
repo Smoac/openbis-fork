@@ -140,7 +140,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         } else
         {
             unaccesibleMsg =
-                    FileUtilities.tryCheckDirectoryFullyAccessible(getPath(), getDescription());
+                    FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
         }
         if (unaccesibleMsg != null)
         {

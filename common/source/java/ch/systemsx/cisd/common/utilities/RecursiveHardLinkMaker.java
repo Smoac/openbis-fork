@@ -38,10 +38,11 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
  * 
  * @author Tomasz Pylak
  */
-public final class RecursiveHardLinkMaker implements IPathImmutableCopier
+public final class RecursiveHardLinkMaker implements IPathImmutableCopier,
+        IDirectoryImmutableCopier, IFileImmutableCopier
 {
     private static final String HARD_LINK_EXEC = "ln";
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RecursiveHardLinkMaker.class);
 
@@ -101,7 +102,7 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     //
     // Factory methods
     //
-    
+
     /**
      * Creates copier which won't retry an operation if it fails.
      * 
@@ -112,10 +113,10 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return new RecursiveHardLinkMaker(linkExecPath, null);
     }
 
-    /** 
+    /**
      * Creates copier trying to find the path to the <code>ln</code> executable.
      * 
-     * @return <code>null</code> if the <code>ln</code> executable was not found. 
+     * @return <code>null</code> if the <code>ln</code> executable was not found.
      */
     public static final IPathImmutableCopier tryCreate()
     {
@@ -155,10 +156,6 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return new RecursiveHardLinkMaker(lnExec.getAbsolutePath(), singleFileLinkTimeoutOrNull);
     }
 
-    //
-    // IPathImmutableCopier
-    //
-    
     /**
      * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by
      * duplicating directory structure and creating hard link for each file.
@@ -166,12 +163,12 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
      * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>
      */
-    public final File tryImmutableCopy(final File path, final File destinationDirectory,
+    private final File tryImmutableCopy(final File path, final File destinationDirectory,
             final String nameOrNull)
     {
         assert path != null : "Given path can not be null.";
         assert destinationDirectory != null && destinationDirectory.isDirectory() : "Given destination directory can not be null and must be a directory.";
-        final String destName = nameOrNull == null ? path.getName() : nameOrNull;
+        final String destName = (nameOrNull == null) ? path.getName() : nameOrNull;
         final File destFile = new File(destinationDirectory, destName);
         if (destFile.exists())
         {
@@ -186,6 +183,29 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
                     .getPath(), destinationDirectory.getPath()));
         }
         return tryMakeCopy(path, destinationDirectory, nameOrNull);
+    }
+
+    //
+    // IDirectoryImmutableCopier
+    //
+
+    public boolean copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
+            String targetNameOrNull)
+    {
+        assert sourceDirectory != null && sourceDirectory.isDirectory();
+        assert destinationDirectory != null && destinationDirectory.isDirectory();
+        return (tryImmutableCopy(sourceDirectory, destinationDirectory, targetNameOrNull) != null);
+    }
+
+    //
+    // IFileImmutableCopier
+    //
+
+    public boolean copyFileImmutably(File file, File destinationDirectory, String nameOrNull)
+    {
+        assert file != null && file.isFile();
+        assert destinationDirectory != null && destinationDirectory.isDirectory();
+        return (tryImmutableCopy(file, destinationDirectory, nameOrNull) != null);
     }
 
     private final File tryMakeCopy(final File resource, final File destinationDirectory,

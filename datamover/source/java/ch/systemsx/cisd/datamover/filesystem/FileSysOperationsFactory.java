@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
+import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -76,27 +76,27 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         return executableFile;
     }
 
-    private final IPathImmutableCopier createFakedImmCopier()
+    private final IDirectoryImmutableCopier createFakedImmCopier()
     {
         final IPathCopier normalCopier = getCopier(false);
-        return new IPathImmutableCopier()
+        return new IDirectoryImmutableCopier()
             {
                 //
-                // IPathImmutableCopier
+                // IDirectoryImmutableCopier
                 //
 
-                public final File tryImmutableCopy(final File file, final File destinationDirectory,
-                        final String nameOrNull)
+                public final boolean copyDirectoryImmutably(final File file,
+                        final File destinationDirectory, String targetNameOrNull)
                 {
                     final Status status = normalCopier.copy(file, destinationDirectory);
                     if (StatusFlag.OK.equals(status.getFlag()))
                     {
-                        return new File(destinationDirectory, file.getName());
+                        return true;
                     } else
                     {
                         notificationLog.error(String.format("Copy of '%s' to '%s' failed: %s.",
                                 file.getPath(), destinationDirectory.getPath(), status));
-                        return null;
+                        return false;
                     }
                 }
             };
@@ -112,7 +112,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
-    public final IPathImmutableCopier getImmutableCopier()
+    public final IDirectoryImmutableCopier getImmutableCopier()
     {
         final String lnExec = parameters.getHardLinkExecutable();
         if (lnExec != null)
@@ -120,7 +120,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
             return RecursiveHardLinkMaker.create(lnExec);
         }
 
-        IPathImmutableCopier copier = null;
+        IDirectoryImmutableCopier copier = null;
         if (OSUtilities.isWindows() == false)
         {
             copier = RecursiveHardLinkMaker.tryCreate();

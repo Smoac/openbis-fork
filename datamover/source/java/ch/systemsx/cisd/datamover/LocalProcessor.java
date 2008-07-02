@@ -31,8 +31,8 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.IPathHandler;
-import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -56,7 +56,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, LocalProcessor.class);
 
-    private final IPathImmutableCopier copier;
+    private final IDirectoryImmutableCopier copier;
 
     private final IPathMover mover;
 
@@ -81,7 +81,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     private final File manualInterventionDir;
 
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
-            final IPathImmutableCopier copier, final IPathMover mover)
+            final IDirectoryImmutableCopier copier, final IPathMover mover)
     {
         this.inputDir = bufferDirs.getCopyCompleteDir();
         this.outputDir = bufferDirs.getReadyToMoveDir();
@@ -272,8 +272,8 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                     return;
                 }
             }
-            extraTmpCopy = copier.tryImmutableCopy(path, tempDir, null);
-            if (extraTmpCopy == null)
+            final boolean ok = copier.copyDirectoryImmutably(path, tempDir, null);
+            if (ok == false)
             {
                 notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));
                 return;

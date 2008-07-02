@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,8 +143,8 @@ public class RecursiveHardLinkMakerTest
     {
         File inputDir = createDirectory(workingDirectory, "resource-to-copy");
         createStructure(inputDir);
-        File newInput = createHardLinkCopier().tryImmutableCopy(inputDir, outputDir, null);
-        assert newInput != null;
+        assertTrue(createHardLinkCopier().copyDirectoryImmutably(inputDir, outputDir, null));
+        File newInput = new File(outputDir, inputDir.getName());
 
         assertStructureExists(newInput);
         boolean deleted = FileUtilities.deleteRecursively(inputDir);
@@ -170,7 +170,8 @@ public class RecursiveHardLinkMakerTest
         File src = createFile(workingDirectory, "fileXXX");
         assertFileExists(src);
 
-        File dest = createHardLinkCopier().tryImmutableCopy(src, outputDir, null);
+        assertTrue(createHardLinkCopier().copyFileImmutably(src, outputDir, null));
+        File dest = new File(outputDir, src.getName());
         assertFileExists(dest);
 
         modifyDest(dest);

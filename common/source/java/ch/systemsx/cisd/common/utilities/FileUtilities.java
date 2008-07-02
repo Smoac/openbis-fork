@@ -378,7 +378,45 @@ public final class FileUtilities
         assert path != null;
         assert kindOfPath != null;
 
-        return checkPathFullyAccessible(path, kindOfPath, "path");
+        return checkPathAccessible(path, kindOfPath, "path", true);
+    }
+
+    /**
+     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the
+     * program.
+     * 
+     * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
+     */
+    public static String checkPathReadAccessible(final File path, final String kindOfPath)
+    {
+        assert path != null;
+        assert kindOfPath != null;
+
+        return checkPathAccessible(path, kindOfPath, "path", false);
+    }
+
+    /**
+     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
+     * the program (it's a directory, you can read and write in it)
+     * 
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an
+     *         error message describing the problem with the <var>directory</var> otherwise.
+     */
+    public static String checkDirectoryReadAccessible(final File directory,
+            final String kindOfDirectory)
+    {
+        assert directory != null;
+        assert kindOfDirectory != null;
+
+        final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", false);
+        if (msg == null && directory.isDirectory() == false)
+        {
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
+                    directory.getPath(), kindOfDirectory);
+        }
+        return msg;
     }
 
     /**
@@ -388,23 +426,65 @@ public final class FileUtilities
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
      *         message describing the problem with the <var>directory</var> otherwise.
      */
-    public static String tryCheckDirectoryFullyAccessible(final File directory,
+    public static String checkDirectoryFullyAccessible(final File directory,
             final String kindOfDirectory)
     {
         assert directory != null;
         assert kindOfDirectory != null;
 
-        final String msg = checkPathFullyAccessible(directory, kindOfDirectory, "directory");
+        final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", true);
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory, but is a file.",
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
                     directory.getPath(), kindOfDirectory);
         }
         return msg;
     }
 
-    private static String checkPathFullyAccessible(final File path, final String kindOfPath,
-            final String directoryOrFile)
+    /**
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to
+     * the program (so it's a file and you can read it)
+     * 
+     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error
+     *         message describing the problem with the <var>file</var> otherwise.
+     */
+    public static String checkFileReadAccessible(final File file, final String kindOfFile)
+    {
+        assert file != null;
+        assert kindOfFile != null;
+
+        final String msg = checkPathAccessible(file, kindOfFile, "directory", false);
+        if (msg == null && file.isFile() == false)
+        {
+            return String.format("Path '%s' is supposed to be a %s file but isn't.",
+                    file.getPath(), kindOfFile);
+        }
+        return msg;
+    }
+
+    /**
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading
+     * and writing to the program (so it's a file and you can read and write it)
+     * 
+     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
+     *         describing the problem with the <var>file</var> otherwise.
+     */
+    public static String checkFileFullyAccessible(final File file, final String kindOfFile)
+    {
+        assert file != null;
+        assert kindOfFile != null;
+
+        final String msg = checkPathAccessible(file, kindOfFile, "file", true);
+        if (msg == null && file.isFile() == false)
+        {
+            return String.format("Path '%s' is supposed to be a %s file but isn't.",
+                    file.getPath(), kindOfFile);
+        }
+        return msg;
+    }
+
+    private static String checkPathAccessible(final File path, final String kindOfPath,
+            final String directoryOrFile, boolean readAndWrite)
     {
         assert path != null;
         assert kindOfPath != null;
@@ -422,7 +502,7 @@ public final class FileUtilities
                         .capitalize(kindOfPath), directoryOrFile, path.getPath());
             }
         }
-        if (path.canWrite() == false)
+        if (readAndWrite && path.canWrite() == false)
         {
             return String.format("%s directory '%s' is not writable.", StringUtilities
                     .capitalize(kindOfPath), path.getPath());

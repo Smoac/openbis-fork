@@ -158,9 +158,9 @@ final class Directory extends AbstractNode implements IDirectory
         assert node != null : "Node can not be null.";
         assert name != null : "Name can not be null.";
         final java.io.File file = getNodeFile(node);
-        final java.io.File fileLink =
-                LinkMakerProvider.getLinkMaker().tryImmutableCopy(file, nodeFile, name);
-        if (fileLink != null)
+        final boolean ok =
+                LinkMakerProvider.getLinkMaker().copyFileImmutably(file, nodeFile, name);
+        if (ok)
         {
             final Link link = (Link) NodeFactory.createLinkNode(name, file);
             link.setParent(this);
@@ -237,6 +237,6 @@ final class Directory extends AbstractNode implements IDirectory
     @Override
     public final boolean isValid()
     {
-        return super.isValid() && FileUtilities.tryCheckDirectoryFullyAccessible(nodeFile, "") == null;
+        return super.isValid() && FileUtilities.checkDirectoryFullyAccessible(nodeFile, "") == null;
     }
 }

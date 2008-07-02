@@ -94,7 +94,7 @@ class RetryingPathMover implements IPathMover
     private boolean checkDirectoryAccesible(final File destinationDirectory)
     {
         String errorMessage =
-                FileUtilities.tryCheckDirectoryFullyAccessible(destinationDirectory, "destination");
+                FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination");
         if (errorMessage != null)
         {
             operationLog.error("Unaccessible directory: " + errorMessage);

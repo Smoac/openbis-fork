@@ -16,27 +16,11 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.io.File;
-
 /**
  * Utility to create copies of files/resources, which should not be modified later.
  * 
  * @author Tomasz Pylak
  */
-public interface IPathImmutableCopier
+public interface IPathImmutableCopier extends IFileImmutableCopier, IDirectoryImmutableCopier
 {
-    /**
-     * Creates a copy of <code>path</code> (which may be a file or a directory) in
-     * <code>destinationDirectory</code>, which must not be modified later.
-     * <p>
-     * <i>Can use hard links if available.</i>
-     * </p>
-     * 
-     * @param path the source path. Can be a file or a directory. Can not be <code>null</code>.
-     * @param destinationDirectory the directory where given <var>path</var> should be copied. Can
-     *            not be <code>null</code> and must be an existing directory.
-     * @param nameOrNull the link name in the destination directory.
-     * @return the new path created, or <code>null</code> if the operation fails.
-     */
-    File tryImmutableCopy(final File path, final File destinationDirectory, final String nameOrNull);
 }
