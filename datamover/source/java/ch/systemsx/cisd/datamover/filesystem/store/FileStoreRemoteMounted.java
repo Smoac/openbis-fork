@@ -36,13 +36,13 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 
 /**
  * A <code>FileStore</code> extension for remote paths mounted.
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
  * 
  * @author Tomasz Pylak
  */
-public final class FileStoreRemoteMounted extends FileStore
+public final class FileStoreRemoteMounted extends AbstractFileStore
 {
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreRemoteMounted.class);
@@ -104,12 +104,12 @@ public final class FileStoreRemoteMounted extends FileStore
         return localImpl.exists(item);
     }
 
-    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final DateStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return lastChangeInvoker.lastChangedInternal(item, stopWhenFindYounger, false);
     }
 
-    public final NumberStatus lastChangedRelative(final StoreItem item,
+    public final DateStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return lastChangeInvoker.lastChangedInternal(item, stopWhenFindYoungerRelative, true);
@@ -166,21 +166,21 @@ public final class FileStoreRemoteMounted extends FileStore
         }
 
         // call checking last change in a separate thread with timeout
-        public NumberStatus lastChangedInternal(StoreItem item, long stopWhenFindYoungerAge,
+        public DateStatus lastChangedInternal(StoreItem item, long stopWhenFindYoungerAge,
                 boolean isAgeRelative)
         {
-            Callable<NumberStatus> callable =
+            Callable<DateStatus> callable =
                     createLastChangedCallable(localImpl, item, stopWhenFindYoungerAge,
                             isAgeRelative);
             final ISimpleLogger simpleMachineLog = new Log4jSimpleLogger(machineLog);
-            final Future<NumberStatus> future = lastChangedExecutor.submit(callable);
-            ExecutionResult<NumberStatus> executionResult =
+            final Future<DateStatus> future = lastChangedExecutor.submit(callable);
+            ExecutionResult<DateStatus> executionResult =
                     ConcurrencyUtilities.getResult(future, lastChangedTimeoutMillis,
                             simpleMachineLog, "Check for recent paths");
-            NumberStatus result = executionResult.tryGetResult();
+            DateStatus result = executionResult.tryGetResult();
             if (result == null)
             {
-                return NumberStatus.createError(String.format(
+                return DateStatus.createError(String.format(
                         "Could not determine \"last changed time\" of %s: time out.", item));
             } else
             {
@@ -188,19 +188,19 @@ public final class FileStoreRemoteMounted extends FileStore
             }
         }
 
-        private Callable<NumberStatus> createLastChangedCallable(final IFileStore store,
+        private Callable<DateStatus> createLastChangedCallable(final IFileStore store,
                 final StoreItem item, final long stopWhenFindYoungerAge, final boolean isAgeRelative)
         {
-            return new Callable<NumberStatus>()
+            return new Callable<DateStatus>()
                 {
-                    public NumberStatus call() throws Exception
+                    public DateStatus call() throws Exception
                     {
                         if (machineLog.isTraceEnabled())
                         {
                             machineLog.trace("Starting quick check for recent paths on '" + item
                                     + "'.");
                         }
-                        final NumberStatus lastChanged;
+                        final DateStatus lastChanged;
                         if (isAgeRelative)
                         {
                             lastChanged = store.lastChangedRelative(item, stopWhenFindYoungerAge);
@@ -210,11 +210,9 @@ public final class FileStoreRemoteMounted extends FileStore
                         }
                         if (machineLog.isTraceEnabled())
                         {
-                            machineLog
-                                    .trace(String
-                                            .format(
-                                                    "Finishing quick check for recent paths on '%s', found to be %2$tF %2$tT.",
-                                                    item, lastChanged));
+                            machineLog.trace(String.format(
+                                    "Finishing quick check for recent paths on '%s': %s.", item,
+                                    lastChanged));
                         }
                         return lastChanged;
                     }

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -159,7 +159,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                 return false;
             }
             final long oldLastChanged = checkRecordOrNull.getTimeOfLastModification();
-            NumberStatus newStatus = fileStore.lastChanged(item, oldLastChanged);
+            DateStatus newStatus = fileStore.lastChanged(item, oldLastChanged);
             if (newStatus.isError())
             {
                 return false;
@@ -198,7 +198,7 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
 
     private void saveFirstModificationTime(final StoreItem item, final long now)
     {
-        NumberStatus status = fileStore.lastChanged(item, 0L);
+        DateStatus status = fileStore.lastChanged(item, 0L);
         if (status.isError() == false)
         {
             pathMap.put(item, new PathCheckRecord(now, status.getResult()));

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.utilities.StoreItem;
  * @author Bernd Rinn
  * @author Tomasz Pylak
  */
-public abstract class FileStore implements IFileStore
+public abstract class AbstractFileStore implements IFileStore
 {
     private final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark;
 
@@ -44,8 +44,9 @@ public abstract class FileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
-    protected FileStore(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
-            final String kind, final IFileSysOperationsFactory factory)
+    protected AbstractFileStore(
+            final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark, final String kind,
+            final IFileSysOperationsFactory factory)
     {
         assert hostAwareFileWithHighwaterMark != null;
         assert kind != null;
@@ -90,8 +91,8 @@ public abstract class FileStore implements IFileStore
     {
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
         final String srcHostOrNull = tryGetHost();
-        final String destHostOrNull = ((FileStore) destinationDirectory).tryGetHost();
-        final File destPath = ((FileStore) destinationDirectory).getPath();
+        final String destHostOrNull = ((AbstractFileStore) destinationDirectory).tryGetHost();
+        final File destPath = ((AbstractFileStore) destinationDirectory).getPath();
         return new IStoreCopier()
             {
                 public Status copy(final StoreItem item)
@@ -128,11 +129,11 @@ public abstract class FileStore implements IFileStore
 
     public final boolean isParentDirectory(final IFileStore child)
     {
-        if (child instanceof FileStore == false)
+        if (child instanceof AbstractFileStore == false)
         {
             return false;
         }
-        final FileStore potentialChild = (FileStore) child;
+        final AbstractFileStore potentialChild = (AbstractFileStore) child;
         return StringUtils.equals(tryGetHost(), potentialChild.tryGetHost())
                 && getCanonicalPath(potentialChild.getPath()).startsWith(
                         getCanonicalPath(getPath()));
@@ -159,11 +160,11 @@ public abstract class FileStore implements IFileStore
         {
             return true;
         }
-        if (obj instanceof FileStore == false)
+        if (obj instanceof AbstractFileStore == false)
         {
             return false;
         }
-        final FileStore that = (FileStore) obj;
+        final AbstractFileStore that = (AbstractFileStore) obj;
         final EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(kind, that.kind);
         equalsBuilder.append(hostAwareFileWithHighwaterMark, that.hostAwareFileWithHighwaterMark);

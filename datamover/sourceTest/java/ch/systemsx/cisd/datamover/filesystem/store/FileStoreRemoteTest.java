@@ -29,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -40,9 +41,12 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 
 /**
+ * Test cases for {@link FileStoreRemote}.
+ * 
  * @author Tomasz Pylak
  */
-public class FileStoreRemoteTest
+@Friend(toClasses = FileStoreRemote.class)
+public final class FileStoreRemoteTest
 {
     private static final File TEST_FOLDER = new File("targets/unit-test/FileStoreRemoteTest");
 

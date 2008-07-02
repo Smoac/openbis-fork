@@ -16,52 +16,73 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+
 /**
  * A class that holds the information about the result of an operation which is a number. There is a
  * way to find out if an error occurred during operation execution, the result is unavailable then.
  * 
  * @author Tomasz Pylak
  */
-public class NumberStatus
+public final class DateStatus
 {
     private final ResultStatus<Long> result;
 
-    private NumberStatus(Long result, boolean errorOccurred, String messageOrNull)
+    private DateStatus(final Long result, final boolean errorOccurred, final String messageOrNull)
     {
         this.result = new ResultStatus<Long>(result, errorOccurred, messageOrNull);
     }
 
-    public static final NumberStatus create(long result)
+    public static final DateStatus create(final long result)
     {
-        return new NumberStatus(result, false, null);
+        return new DateStatus(result, false, null);
     }
 
-    public static final NumberStatus createError(String message)
+    public static final DateStatus createError(final String message)
     {
-        return new NumberStatus(null, true, message);
+        return new DateStatus(null, true, message);
     }
 
-    public static final NumberStatus createError()
+    public static final DateStatus createError()
     {
-        return new NumberStatus(null, true, null);
+        return new DateStatus(null, true, null);
     }
 
     /**
      * can be called only if no error occurred, otherwise it fails.
      */
-    public long getResult()
+    public final long getResult()
     {
         return result.getResult();
     }
 
     /** has operation finished with an error? */
-    public boolean isError()
+    public final boolean isError()
     {
         return result.isError();
     }
 
-    public String tryGetMessage()
+    public final String tryGetMessage()
     {
         return result.tryGetMessage();
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        final Long thisResult = result.getResult();
+        builder.append("result", thisResult != null ? String.format("%1$tF %1$tT", thisResult) : null);
+        builder.append("error", isError());
+        builder.append("message", tryGetMessage());
+        return builder.toString();
     }
 }

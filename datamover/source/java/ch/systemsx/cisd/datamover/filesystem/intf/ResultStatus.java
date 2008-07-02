@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+
 /**
  * A class that holds the information about the status and the result of an operation. To be used
  * whenever a failure of an operation is signaled back via a return value rather than an exception.
@@ -37,22 +41,22 @@ public class ResultStatus<T>
         return new ResultStatus<T>(null, true, null);
     }
 
-    public static <T> ResultStatus<T> createError(String message)
+    public static <T> ResultStatus<T> createError(final String message)
     {
         return new ResultStatus<T>(null, true, message);
     }
 
-    public static <T> ResultStatus<T> createResult(T result)
+    public static <T> ResultStatus<T> createResult(final T result)
     {
         return new ResultStatus<T>(result, false, null);
     }
 
-    public static <T> ResultStatus<T> createResult(T result, String message)
+    public static <T> ResultStatus<T> createResult(final T result, final String message)
     {
         return new ResultStatus<T>(result, false, message);
     }
 
-    protected ResultStatus(T result, boolean errorOccurred, String messageOrNull)
+    protected ResultStatus(final T result, final boolean errorOccurred, final String messageOrNull)
     {
         this.result = result;
         this.errorOccurred = errorOccurred;
@@ -64,21 +68,32 @@ public class ResultStatus<T>
      * 
      * @return result of an operation
      */
-    public T getResult()
+    public final T getResult()
     {
         assert isError() == false : "Operation failed, there is no result";
         return result;
     }
 
     /** @return message associated with the result or an error if there is any */
-    public String tryGetMessage()
+    public final String tryGetMessage()
     {
         return messageOrNull;
     }
 
     /** has operation finished with an error? */
-    public boolean isError()
+    public final boolean isError()
     {
         return errorOccurred;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
 }

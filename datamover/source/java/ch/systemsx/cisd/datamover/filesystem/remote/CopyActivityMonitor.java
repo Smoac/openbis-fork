@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -114,7 +114,7 @@ public class CopyActivityMonitor
     @Private
     static interface IFileStoreMonitor
     {
-        NumberStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan);
+        DateStatus lastChangedRelative(StoreItem item, long stopWhenYoungerThan);
 
         BooleanStatus exists(StoreItem item);
 
@@ -155,9 +155,9 @@ public class CopyActivityMonitor
     {
         final private long timeChecked;
 
-        final private NumberStatus timeOfLastModification;
+        final private DateStatus timeOfLastModification;
 
-        public PathCheckRecord(final long timeChecked, final NumberStatus timeLastChanged)
+        public PathCheckRecord(final long timeChecked, final DateStatus timeLastChanged)
         {
             this.timeChecked = timeChecked;
             this.timeOfLastModification = timeLastChanged;
@@ -174,7 +174,7 @@ public class CopyActivityMonitor
         /**
          * The newest last modification time found during the check.
          */
-        public NumberStatus getTimeOfLastModification()
+        public DateStatus getTimeOfLastModification()
         {
             return timeOfLastModification;
         }
@@ -184,7 +184,7 @@ public class CopyActivityMonitor
     {
         return new IFileStoreMonitor()
             {
-                public NumberStatus lastChangedRelative(StoreItem item,
+                public DateStatus lastChangedRelative(StoreItem item,
                         long stopWhenFindYoungerRelative)
                 {
                     return destinationStore.lastChangedRelative(item, stopWhenFindYoungerRelative);
@@ -320,7 +320,7 @@ public class CopyActivityMonitor
         {
             if (lastCheckOrNull == null)
             {
-                lastCheckOrNull = new PathCheckRecord(now, NumberStatus.createError());
+                lastCheckOrNull = new PathCheckRecord(now, DateStatus.createError());
                 return false;
             } else
             {
@@ -343,7 +343,7 @@ public class CopyActivityMonitor
         // modification time to the one acquired in the past.
         private boolean checkIfUnmodifiedAndSet(long now, long prevModificationTime)
         {
-            final NumberStatus newModificationTime = lastChanged(itemToBeCopied);
+            final DateStatus newModificationTime = lastChanged(itemToBeCopied);
             if (newModificationTime.isError() == false
                     && newModificationTime.getResult() != prevModificationTime)
             {
@@ -357,25 +357,23 @@ public class CopyActivityMonitor
 
         private void setFirstModificationDate(final long timeChecked)
         {
-            NumberStatus lastChanged = lastChanged(itemToBeCopied);
+            DateStatus lastChanged = lastChanged(itemToBeCopied);
             lastCheckOrNull = new PathCheckRecord(timeChecked, lastChanged);
         }
     }
 
-    private NumberStatus lastChanged(StoreItem item)
+    private DateStatus lastChanged(StoreItem item)
     {
         long stopWhenFindYoungerRelative = minusSafetyMargin(inactivityPeriodMillis);
-        final NumberStatus lastChanged =
+        final DateStatus lastChanged =
                 destinationStore.lastChangedRelative(item, stopWhenFindYoungerRelative);
         if (lastChanged.isError())
         {
             operationLog.error(lastChanged.tryGetMessage());
         } else if (operationLog.isTraceEnabled())
         {
-            String msgTemplate =
-                    "Checker reported last changed time of '%s' inside '%s' to be %3$tF %3$tT.";
-            String msg =
-                    String.format(msgTemplate, item, destinationStore, lastChanged.getResult());
+            String msgTemplate = "Checker reported last changed time of '%s' inside '%s' to be %s.";
+            String msg = String.format(msgTemplate, item, destinationStore, lastChanged);
             operationLog.trace(msg);
         }
         return lastChanged;

@@ -33,22 +33,22 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 
 /**
  * An {@link IFileStore} implementation for local stores.
  * 
  * @author Tomasz Pylak
  */
-public class FileStoreLocal extends FileStore implements IExtendedFileStore
+public class FileStoreLocal extends AbstractFileStore implements IExtendedFileStore
 {
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreLocal.class);
@@ -88,20 +88,20 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
         return BooleanStatus.createFromBoolean(exists);
     }
 
-    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final DateStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         try
         {
             long lastChanged =
                     FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
-            return NumberStatus.create(lastChanged);
+            return DateStatus.create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
         }
     }
 
-    public final NumberStatus lastChangedRelative(final StoreItem item,
+    public final DateStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         try
@@ -109,20 +109,20 @@ public class FileStoreLocal extends FileStore implements IExtendedFileStore
             long lastChanged =
                     FileUtilities.lastChangedRelative(getChildFile(item), true,
                             stopWhenFindYoungerRelative);
-            return NumberStatus.create(lastChanged);
+            return DateStatus.create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
         }
     }
 
-    private static NumberStatus createLastChangedError(final StoreItem item,
+    private static DateStatus createLastChangedError(final StoreItem item,
             UnknownLastChangedException ex)
     {
         String errorMsg =
                 String.format("Could not determine \"last changed time\" of %s: %s", item, ex
                         .getCause());
-        return NumberStatus.createError(errorMsg);
+        return DateStatus.createError(errorMsg);
     }
 
     public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)

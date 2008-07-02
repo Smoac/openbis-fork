@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted.LastChangeWrapper;
 
 /**
@@ -81,7 +81,7 @@ public class FileStoreRemoteMountedTest
                 }
             });
 
-        NumberStatus result = lastChangeWrapper.lastChangedInternal(item, age, true);
+        DateStatus result = lastChangeWrapper.lastChangedInternal(item, age, true);
         AssertJUnit.assertFalse(result.isError());
         assertFalse(lastChangedSleepAction.lastCheckInterrupted());
         context.assertIsSatisfied();
@@ -105,7 +105,7 @@ public class FileStoreRemoteMountedTest
                 }
             });
 
-        NumberStatus result = lastChangeWrapper.lastChangedInternal(item, age, false);
+        DateStatus result = lastChangeWrapper.lastChangedInternal(item, age, false);
         assertTrue(result.isError());
         assertTrue(lastChangedSleepAction.lastCheckInterrupted());
         context.assertIsSatisfied();
@@ -135,7 +135,7 @@ public class FileStoreRemoteMountedTest
                 throw new CheckedExceptionTunnel(new InterruptedException(e.getMessage()));
             }
             this.interrupted = false;
-            return NumberStatus.create(System.currentTimeMillis());
+            return DateStatus.create(System.currentTimeMillis());
         }
 
         synchronized boolean lastCheckInterrupted()

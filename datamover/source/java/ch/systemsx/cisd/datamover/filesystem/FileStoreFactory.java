@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 import java.io.File;
 
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreLocal;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
 import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
 
 /**
- * A {@link FileStore} factory.
+ * A {@link AbstractFileStore} factory.
  * 
  * @author Tomasz Pylak
  */
@@ -36,6 +36,16 @@ public final class FileStoreFactory
     private FileStoreFactory()
     {
         // This class can not be instantiated.
+    }
+
+    /**
+     * use when file store is on a remote share mounted on local host
+     */
+    private static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
+            final String kind, final IFileSysOperationsFactory factory,
+            final String findExecutableOrNull)
+    {
+        return new FileStoreRemote(path, kind, factory, findExecutableOrNull);
     }
 
     /**
@@ -58,15 +68,6 @@ public final class FileStoreFactory
 
     /**
      * use when file store is on a remote share mounted on local host
-     */
-    public static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
-            final String kind, final IFileSysOperationsFactory factory, String findExecutableOrNull)
-    {
-        return new FileStoreRemote(path, kind, factory, findExecutableOrNull);
-    }
-
-    /**
-     * use when file store is on a remote share mounted on local host
      * 
      * @param factory
      */
@@ -79,7 +80,7 @@ public final class FileStoreFactory
     /**
      * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
      * 
-     * @param findExecutableOrNull
+     * @param checkIntervalMillis only used if given <var>isRemote</var> is <code>true</code>.
      */
     public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
             final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,

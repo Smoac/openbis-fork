@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -36,18 +37,18 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
-import ch.systemsx.cisd.datamover.filesystem.intf.FileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.NumberStatus;
+import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 
 /**
  * @author Tomasz Pylak
  */
-public class FileStoreRemote extends FileStore
+public class FileStoreRemote extends AbstractFileStore
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileStoreRemote.class);
@@ -130,7 +131,7 @@ public class FileStoreRemote extends FileStore
                 remoteFindExecutableOrNull);
     }
 
-    // exposed for tests
+    @Private
     FileStoreRemote(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String kind, final ISshCommandBuilder sshCommandBuilder,
             final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull)
@@ -229,12 +230,12 @@ public class FileStoreRemote extends FileStore
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
-    public final NumberStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final DateStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         return lastChanged(item);
     }
 
-    private final NumberStatus lastChanged(final StoreItem item)
+    private final DateStatus lastChanged(final StoreItem item)
     {
         final String itemPath = StoreItem.asFile(getPath(), item).getPath();
 
@@ -248,7 +249,7 @@ public class FileStoreRemote extends FileStore
             try
             {
                 long lastChanged = Long.parseLong(resultLine) * 1000;
-                return NumberStatus.create(lastChanged);
+                return DateStatus.create(lastChanged);
             } catch (final NumberFormatException e)
             {
                 return createLastChangeError(item, "The result of " + cmd + " on remote host "
@@ -260,9 +261,9 @@ public class FileStoreRemote extends FileStore
         }
     }
 
-    private static NumberStatus createLastChangeError(StoreItem item, String errorMsg)
+    private static DateStatus createLastChangeError(StoreItem item, String errorMsg)
     {
-        return NumberStatus.createError("Cannot obtain last change time of the item " + item
+        return DateStatus.createError("Cannot obtain last change time of the item " + item
                 + ". Reason: " + errorMsg);
     }
 
@@ -281,7 +282,7 @@ public class FileStoreRemote extends FileStore
         }
     }
 
-    public final NumberStatus lastChangedRelative(final StoreItem item,
+    public final DateStatus lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         return lastChanged(item);
