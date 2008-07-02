@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.utilities.ITriggerable;
  */
 final class DataMoverShutdownHook implements ITriggerable
 {
+    private static final String DATAMOVER_PID_FILE_NAME = "datamover.pid";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMoverShutdownHook.class);
 
@@ -68,13 +70,20 @@ final class DataMoverShutdownHook implements ITriggerable
         }
     }
 
-    private final static void deleteFile(final File markerFile, final String description)
+    private final static void deleteFile(final File file, final String description)
     {
-        final boolean deleted = markerFile.delete();
+        if (file.exists() == false)
+        {
+            operationLog.warn(String.format(
+                    "Can not delete %s file '%s' because it does not exist.", description, file
+                            .getAbsolutePath()));
+            return;
+        }
+        final boolean deleted = file.delete();
         if (deleted == false)
         {
-            operationLog.warn(String.format("Can not delete %s file '%s'.", description, markerFile
-                    .getAbsolutePath()));
+            operationLog.warn(String.format("Was not able to delete %s file '%s'.", description,
+                    file.getAbsolutePath()));
         }
     }
 
@@ -93,7 +102,7 @@ final class DataMoverShutdownHook implements ITriggerable
         terminable.terminate();
         deleteFile(outgoingTargetLocationFile, "outgoing target location");
         deleteFile(markerFile, "marker");
-        deleteFile(new File("datamover.pid"), "Datamover pid file");
+        deleteFile(new File(DATAMOVER_PID_FILE_NAME), "Datamover pid file");
         exitHandler.exit(0);
     }
 }

@@ -155,10 +155,10 @@ public final class Main
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         final File outgoingTargetLocationFile = new File(DataMover.OUTGOING_TARGET_LOCATION_FILE);
-        HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
-        StringBuilder builder = new StringBuilder();
+        final HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
+        final StringBuilder builder = new StringBuilder();
         builder.append(outgoingTarget.getCanonicalPath()).append('>');
-        long highwatermark = Math.max(0, outgoingTarget.getHighwaterMark());
+        final long highwatermark = Math.max(0, outgoingTarget.getHighwaterMark());
         builder.append(highwatermark);
         FileUtilities.writeToFile(outgoingTargetLocationFile, builder.toString());
         final ITerminable terminable = DataMover.start(parameters, factory);
