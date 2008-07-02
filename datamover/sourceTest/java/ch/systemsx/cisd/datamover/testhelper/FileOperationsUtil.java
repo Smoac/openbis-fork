@@ -53,6 +53,11 @@ public class FileOperationsUtil
                 {
                     return false;
                 }
+
+                public boolean useRsyncForExtraCopies()
+                {
+                    return true;
+                }
             };
     }
 }

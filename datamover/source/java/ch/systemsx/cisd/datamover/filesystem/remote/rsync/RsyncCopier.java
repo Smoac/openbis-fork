@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
+import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathCopier;
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.datamover.filesystem.remote.rsync.RsyncVersionChecker.Rs
  * 
  * @author Bernd Rinn
  */
-public final class RsyncCopier implements IPathCopier
+public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 {
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
@@ -81,6 +82,16 @@ public final class RsyncCopier implements IPathCopier
 
     // stores the handler to stop the copy process if it has been launched or null otherwise.
     private final AtomicReference<ITerminable> rsyncTerminator;
+
+    /**
+     * Constructs an <code>RsyncCopier</code> for use as {@link IDirectoryImmutableCopier}.
+     * 
+     * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
+     */
+    public RsyncCopier(final File rsyncExecutable)
+    {
+        this(rsyncExecutable, null, false, false);
+    }
 
     /**
      * Constructs an <code>RsyncCopier</code>.
@@ -149,6 +160,45 @@ public final class RsyncCopier implements IPathCopier
         return copy(sourcePath, null, destinationDirectory, destinationHost);
     }
 
+    //
+    // IDirectoryImmutableCopier
+    //
+
+    public boolean copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
+            String targetNameOrNull)
+    {
+        assert sourceDirectory != null;
+        assert sourceDirectory.isDirectory() : sourceDirectory.getAbsolutePath();
+        assert destinationDirectory != null;
+        assert destinationDirectory.isDirectory() : destinationDirectory.getAbsolutePath();
+
+        final List<String> commandLine =
+                createCommandLineForImmutableCopy(sourceDirectory, createTargetDirectory(
+                        sourceDirectory, destinationDirectory, targetNameOrNull));
+        final IProcessHandler processHandler;
+        synchronized (this)
+        {
+            processHandler =
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
+            rsyncTerminator.set(processHandler);
+        }
+        final ProcessResult processResult = processHandler.getResult();
+        processResult.log();
+        return processResult.isOK();
+    }
+
+    private File createTargetDirectory(final File sourceDirectory, final File destinationDirectory,
+            final String targetNameOrNull)
+    {
+        if (targetNameOrNull == null)
+        {
+            return new File(destinationDirectory, sourceDirectory.getName());
+        } else
+        {
+            return new File(destinationDirectory, targetNameOrNull);
+        }
+    }
+
     /**
      * Terminates the copy process if it is still currently running. If no copy process is running,
      * the method will return immediately. If many copy processes has been launched, only the last
@@ -164,6 +214,25 @@ public final class RsyncCopier implements IPathCopier
         {
             return false;
         }
+    }
+
+    private final List<String> createCommandLineForImmutableCopy(final File sourcePath,
+            final File destinationPath)
+    {
+        assert sourcePath != null;
+        assert destinationPath != null;
+        assert destinationPath.getParentFile().isDirectory() : destinationPath.getParentFile()
+                .getAbsolutePath();
+
+        final String absoluteSource = sourcePath.getAbsolutePath();
+        final List<String> commandLineList = new ArrayList<String>();
+        commandLineList.add(rsyncExecutable);
+        commandLineList.add("--archive");
+        commandLineList.add("--link-dest=" + absoluteSource);
+        commandLineList.add(absoluteSource + "/");
+        commandLineList.add(destinationPath.getAbsolutePath());
+
+        return commandLineList;
     }
 
     /**
@@ -221,7 +290,7 @@ public final class RsyncCopier implements IPathCopier
         // Only one side can be remote
         assert sourceHostOrNull == null || destinationHostOrNull == null;
         final List<String> commandLine =
-                createCommandLine(sourcePath, sourceHostOrNull, destinationDirectory,
+                createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull);
         IProcessHandler processHandler;
         synchronized (this)
@@ -246,8 +315,8 @@ public final class RsyncCopier implements IPathCopier
         }
     }
 
-    private final List<String> createCommandLine(final File sourcePath, final String sourceHost,
-            final File destinationDirectory, final String destinationHost)
+    private final List<String> createCommandLineForMutableCopy(final File sourcePath,
+            final String sourceHost, final File destinationDirectory, final String destinationHost)
     {
         assert sourcePath != null && (sourceHost != null || sourcePath.exists());
         assert destinationDirectory != null
@@ -358,4 +427,5 @@ public final class RsyncCopier implements IPathCopier
         }
         return new Status(flag, RsyncExitValueTranslator.getMessage(exitValue));
     }
+
 }

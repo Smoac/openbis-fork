@@ -52,6 +52,8 @@ public final class RsyncCopierTest
 
     private final File sourceFile = new File(workingDirectory, "a");
 
+    private final File sourceDirectory = new File(workingDirectory, "aa");
+
     private final File destinationDirectory = new File(workingDirectory, "b");
 
     private final StoringUncaughtExceptionHandler exceptionHandler =
@@ -76,8 +78,11 @@ public final class RsyncCopierTest
         sourceFile.delete();
         sourceFile.createNewFile();
         sourceFile.deleteOnExit();
+        sourceDirectory.delete();
+        assertTrue(sourceDirectory.mkdir());
+        sourceDirectory.deleteOnExit();
         destinationDirectory.delete();
-        assert destinationDirectory.mkdir();
+        assertTrue(destinationDirectory.mkdir());
         destinationDirectory.deleteOnExit();
     }
 
@@ -106,10 +111,55 @@ public final class RsyncCopierTest
         { "requires_unix" })
     public void testRsyncOK() throws IOException, InterruptedException
     {
-        final File buggyRsyncBinary = createRsync(0);
-        final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false, false);
+        final File rsyncBinary = createRsync(0);
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, null, false, false);
         final Status status = copier.copy(sourceFile, destinationDirectory);
         assert Status.OK == status;
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncImmutableCopyImplicitNameOK() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
+                        .getAbsolutePath()));
+        final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
+        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null));
+        final String absWd = workingDirectory.getAbsolutePath();
+        final String expectedRsyncCmdLine =
+                String.format("--archive --link-dest=%s/aa %s/aa/ %s/b/aa\n", absWd, absWd, absWd);
+        final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
+        assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncImmutableCopyExplicitNameOK() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
+                        .getAbsolutePath()));
+        final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
+        final String name = "xxx";
+        assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, name));
+        final String absWd = workingDirectory.getAbsolutePath();
+        final String expectedRsyncCmdLine =
+                String.format("--archive --link-dest=%s/aa %s/aa/ %s/b/%s\n", absWd, absWd, absWd,
+                        name);
+        final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
+        assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
+    public void testRsyncImmutableCopyFailed() throws IOException, InterruptedException
+    {
+        final File failingRsyncBinary = createRsync(1);
+        final RsyncCopier copier = new RsyncCopier(failingRsyncBinary, null, false, false);
+        assertFalse(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null));
     }
 
     @Test(groups =

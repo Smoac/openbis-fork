@@ -42,4 +42,11 @@ public interface IFileSysParameters
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
     String getSshExecutable();
+
+    /**
+     * @return <code>true</code>, if <code>rsync</code> should be used for creating the
+     *         additional hard link copies, <code>false</code> if <code>ln</code> should be
+     *         called on every file individually (which is a lot slower).
+     */
+    boolean useRsyncForExtraCopies();
 }

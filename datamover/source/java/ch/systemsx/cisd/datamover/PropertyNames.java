@@ -74,6 +74,8 @@ public final class PropertyNames
     static final String RSYNC_EXECUTABLE = "rsync-executable";
 
     static final String RSYNC_OVERWRITE = "rsync-overwrite";
+    
+    static final String USE_RSYNC_FOR_EXTRA_COPIES = "use-rsync-for-extra-copies";
 
     static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 

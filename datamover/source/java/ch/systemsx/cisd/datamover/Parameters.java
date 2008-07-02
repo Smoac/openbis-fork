@@ -102,7 +102,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      * overwritten rather than appended to.
      */
     @Option(longName = PropertyNames.RSYNC_OVERWRITE, usage = "If true, files that already exist on the remote side are always "
-            + "overwritten rather than appended.")
+            + "overwritten rather than appended (default: false).")
     private boolean rsyncOverwrite = DEFAULT_RSYNC_OVERWRITE;
 
     /**
@@ -116,6 +116,21 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.HARD_LINK_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for creating hard links.")
     private String hardLinkExecutable = null;
+
+    /**
+     * Default of whether rsync should be used for creating the extra copy or ln should be called on
+     * each individual file.
+     */
+    private static final boolean DEFAULT_USE_RSYNC_FOR_EXTRA_COPIES = true;
+
+    /**
+     * If set to <code>true</code>, rsync is used to perform the extra copy using hard links.
+     * Otherwise, <code>ln</code> will be called on each single file.
+     */
+    @Option(longName = PropertyNames.USE_RSYNC_FOR_EXTRA_COPIES, usage = "If true, rsync is used "
+            + "for performing the extra copy (it will create hard links), otherwise the ln "
+            + "executable will be used (default: true).")
+    private boolean useRsyncForExtraCopies = DEFAULT_USE_RSYNC_FOR_EXTRA_COPIES;
 
     /**
      * The path to the <code>find</code> executable file on the incoming host.
@@ -436,6 +451,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         rsyncOverwrite =
                 PropertyUtils.getBoolean(serviceProperties, PropertyNames.RSYNC_OVERWRITE,
                         rsyncOverwrite);
+        useRsyncForExtraCopies =
+                PropertyUtils.getBoolean(serviceProperties,
+                        PropertyNames.USE_RSYNC_FOR_EXTRA_COPIES, useRsyncForExtraCopies);
         sshExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
                         sshExecutable);
@@ -595,6 +613,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final String getHardLinkExecutable()
     {
         return hardLinkExecutable;
+    }
+
+    /**
+     * @return <code>true</code>, if <code>rsync</code> will be used for creating the extra
+     *         (hard link) copies, <code>false</code> if <code>ln</code> will be called on every
+     *         file individually (which is a lot slower).
+     */
+    public boolean useRsyncForExtraCopies()
+    {
+        return useRsyncForExtraCopies;
     }
 
     /**
@@ -759,6 +787,20 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             {
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
                         .getAbsolutePath()));
+                if (useRsyncForExtraCopies)
+                {
+                    operationLog.info("Using 'rsync' for doing extra copies.");
+                } else
+                {
+                    if (hardLinkExecutable != null)
+                    {
+                        operationLog.info(String.format("Using '%s' for doing extra copies.",
+                                hardLinkExecutable));
+                    } else
+                    {
+                        operationLog.info("Using 'ln' for doing extra copies.");
+                    }
+                }
             }
             operationLog.info(String.format("Check intervall (external): %s s.",
                     DurationFormatUtils.formatDuration(getCheckIntervalMillis(), "s")));
@@ -896,4 +938,5 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             setter.addValue(new HostAwareFileWithHighwaterMark(host, file, highwaterMark));
         }
     }
+
 }

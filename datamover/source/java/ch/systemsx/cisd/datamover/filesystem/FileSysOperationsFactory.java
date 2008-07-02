@@ -42,6 +42,10 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  */
 public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {
+    private static final String SSH_BINARY_NAME = "ssh";
+
+    private static final String RSYNC_BINARY_NAME = "rsync";
+
     /** The maximal number of retries when the move operation fails. */
     private static final int MAX_RETRIES_ON_FAILURE = 12;
 
@@ -114,10 +118,15 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IDirectoryImmutableCopier getImmutableCopier()
     {
-        final String lnExec = parameters.getHardLinkExecutable();
-        if (lnExec != null)
+        if (parameters.useRsyncForExtraCopies())
         {
-            return RecursiveHardLinkMaker.create(lnExec);
+            final File rsyncExecutable = findRsyncExecutable();
+            return new RsyncCopier(rsyncExecutable);
+        }
+        final String lnExecOrNull = parameters.getHardLinkExecutable();
+        if (lnExecOrNull != null)
+        {
+            return RecursiveHardLinkMaker.create(lnExecOrNull);
         }
 
         IDirectoryImmutableCopier copier = null;
@@ -134,21 +143,26 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
     {
-        final File rsyncExecutable = findExecutable(parameters.getRsyncExecutable(), "rsync");
+        final File rsyncExecutable = findRsyncExecutable();
         final File sshExecutable = tryFindSshExecutable();
-        if (rsyncExecutable != null)
-        {
-            return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
-                    parameters.isRsyncOverwrite());
-        } else
-        {
-            throw new ConfigurationFailureException("Unable to find a copy engine.");
-        }
+        return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
+                parameters.isRsyncOverwrite());
     }
 
     public final File tryFindSshExecutable()
     {
-        return findExecutable(parameters.getSshExecutable(), "ssh");
+        return findExecutable(parameters.getSshExecutable(), SSH_BINARY_NAME);
+    }
+
+    private final File findRsyncExecutable()
+    {
+        final File rsyncExecutableOrNull =
+                findExecutable(parameters.getRsyncExecutable(), RSYNC_BINARY_NAME);
+        if (rsyncExecutableOrNull == null)
+        {
+            throw new ConfigurationFailureException("Unable to find an rsync executable.");
+        }
+        return rsyncExecutableOrNull;
     }
 
     public final IPathMover getMover()
