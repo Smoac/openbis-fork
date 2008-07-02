@@ -192,18 +192,20 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier,
     public boolean copyDirectoryImmutably(File sourceDirectory, File destinationDirectory,
             String targetNameOrNull)
     {
-        return copyFileImmutably(sourceDirectory, destinationDirectory, targetNameOrNull);
+        assert sourceDirectory != null && sourceDirectory.isDirectory();
+        assert destinationDirectory != null && destinationDirectory.isDirectory();
+        return (tryImmutableCopy(sourceDirectory, destinationDirectory, targetNameOrNull) != null);
     }
 
     //
     // IFileImmutableCopier
     //
 
-    public boolean copyFileImmutably(File file, File destinationDirectory, String targetNameOrNull)
+    public boolean copyFileImmutably(File file, File destinationDirectory, String nameOrNull)
     {
         assert file != null && file.isFile();
         assert destinationDirectory != null && destinationDirectory.isDirectory();
-        return (tryImmutableCopy(file, destinationDirectory, targetNameOrNull) != null);
+        return (tryImmutableCopy(file, destinationDirectory, nameOrNull) != null);
     }
 
     private final File tryMakeCopy(final File resource, final File destinationDirectory,
