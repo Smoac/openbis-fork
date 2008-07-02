@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.ITriggerable;
 
@@ -41,9 +42,13 @@ final class DataMoverShutdownHook implements ITriggerable
 
     private final File outgoingTargetLocationFile;
 
-    DataMoverShutdownHook(final File locationFile, final ITerminable terminable)
+    private final IExitHandler exitHandler;
+
+    DataMoverShutdownHook(final File locationFile, final ITerminable terminable,
+            final IExitHandler exitHandler)
     {
         this.terminable = terminable;
+        this.exitHandler = exitHandler;
         if (locationFile == null)
         {
             throw new IllegalArgumentException("Unspecified outgoing target location file.");
@@ -88,5 +93,6 @@ final class DataMoverShutdownHook implements ITriggerable
         terminable.terminate();
         deleteFile(outgoingTargetLocationFile, "outgoing target location");
         deleteFile(markerFile, "marker");
+        exitHandler.exit(0);
     }
 }

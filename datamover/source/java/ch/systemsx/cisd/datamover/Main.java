@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
@@ -138,8 +139,9 @@ public final class Main
     {
         final TriggeringTimerTask shutdownHook =
                 new TriggeringTimerTask(new File(DataMover.SHUTDOWN_MARKER_FILENAME),
-                        new DataMoverShutdownHook(outgoingTargetLocationFile, terminable));
-        new Timer("Shutdown Hook", true).schedule(shutdownHook, 0L, 5000L);
+                        new DataMoverShutdownHook(outgoingTargetLocationFile, terminable,
+                                SystemExit.SYSTEM_EXIT));
+        new Timer("Shutdown Hook").schedule(shutdownHook, 0L, 5000L);
     }
 
     @Private
