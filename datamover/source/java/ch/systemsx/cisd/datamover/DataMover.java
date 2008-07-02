@@ -170,6 +170,10 @@ public final class DataMover
         for (String fileName : PROCESS_MARKER_FILENAMES)
         {
             File markerFile = new File(fileName);
+            if (markerFile.exists() == false)
+            {
+                continue;
+            }
             if (markerFile.delete() == false)
             {
                 operationLog.warn("Couldn't delete process marker file "
