@@ -165,6 +165,9 @@
             <fileset dir="${cifex.server.resource}">
                 <include name="spring-servlet.xml" />
             </fileset>
+            <fileset dir="../server-common/${server-resource}">
+                <include name="web-common.xml" />
+            </fileset>
         </copy>
         <!-- Create an empty 'gwt.xml' file. -->
         <echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
