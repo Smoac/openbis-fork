@@ -38,5 +38,5 @@ public interface IPathImmutableCopier
      * @param nameOrNull the link name in the destination directory.
      * @return the new path created, or <code>null</code> if the operation fails.
      */
-    File tryCopy(final File path, final File destinationDirectory, final String nameOrNull);
+    File tryImmutableCopy(final File path, final File destinationDirectory, final String nameOrNull);
 }

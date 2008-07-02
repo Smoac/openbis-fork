@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 public final class RecursiveHardLinkMaker implements IPathImmutableCopier
 {
     private static final String HARD_LINK_EXEC = "ln";
-
+    
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RecursiveHardLinkMaker.class);
 
@@ -64,11 +64,6 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
     private RetryingOperationTimeout createNoTimeout()
     {
         return new RetryingOperationTimeout(0, 1, 0);
-    }
-
-    public static final IPathImmutableCopier create(final String linkExecPath)
-    {
-        return new RecursiveHardLinkMaker(linkExecPath, null);
     }
 
     private static class RetryingOperationTimeout
@@ -103,6 +98,30 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         }
     }
 
+    //
+    // Factory methods
+    //
+    
+    /**
+     * Creates copier which won't retry an operation if it fails.
+     * 
+     * @param linkExecPath The path to the <code>ln</code> executable.
+     */
+    public static final IPathImmutableCopier create(final String linkExecPath)
+    {
+        return new RecursiveHardLinkMaker(linkExecPath, null);
+    }
+
+    /** 
+     * Creates copier trying to find the path to the <code>ln</code> executable.
+     * 
+     * @return <code>null</code> if the <code>ln</code> executable was not found. 
+     */
+    public static final IPathImmutableCopier tryCreate()
+    {
+        return tryCreate(null);
+    }
+
     /**
      * Creates copier which is able to retry the operation of creating each hard link of a file if
      * it does not complete after a specified timeout.
@@ -125,12 +144,6 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return tryCreate(timeout);
     }
 
-    /** Creates copier trying to find the path to hard link tool, null if nothing is found. */
-    public static final IPathImmutableCopier tryCreate()
-    {
-        return tryCreate(null);
-    }
-
     private static final IPathImmutableCopier tryCreate(
             RetryingOperationTimeout singleFileLinkTimeoutOrNull)
     {
@@ -142,6 +155,10 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
         return new RecursiveHardLinkMaker(lnExec.getAbsolutePath(), singleFileLinkTimeoutOrNull);
     }
 
+    //
+    // IPathImmutableCopier
+    //
+    
     /**
      * Copies <var>path</var> (file or directory) to <var>destinationDirectory</var> by
      * duplicating directory structure and creating hard link for each file.
@@ -149,7 +166,7 @@ public final class RecursiveHardLinkMaker implements IPathImmutableCopier
      * <i>Note that <var>nameOrNull</var> cannot already exist in given <var>destinationDirectory</var>.</i>
      * </p>
      */
-    public final File tryCopy(final File path, final File destinationDirectory,
+    public final File tryImmutableCopy(final File path, final File destinationDirectory,
             final String nameOrNull)
     {
         assert path != null : "Given path can not be null.";

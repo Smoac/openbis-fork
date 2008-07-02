@@ -272,7 +272,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                     return;
                 }
             }
-            extraTmpCopy = copier.tryCopy(path, tempDir, null);
+            extraTmpCopy = copier.tryImmutableCopy(path, tempDir, null);
             if (extraTmpCopy == null)
             {
                 notificationLog.error(String.format("Creating extra copy of '%s' failed.", path));

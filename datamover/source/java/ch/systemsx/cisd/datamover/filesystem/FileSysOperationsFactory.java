@@ -85,7 +85,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 // IPathImmutableCopier
                 //
 
-                public final File tryCopy(final File file, final File destinationDirectory,
+                public final File tryImmutableCopy(final File file, final File destinationDirectory,
                         final String nameOrNull)
                 {
                     final Status status = normalCopier.copy(file, destinationDirectory);
