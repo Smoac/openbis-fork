@@ -73,7 +73,9 @@ public class CopyActivityMonitor
     /**
      * Creates a monitor.
      * 
-     * @param destinationStore The file store to monitor for write access.
+     * @param destinationStore The file store to monitor for write access. Note that this store
+     *            needs to detect and signal time out conditions itself. <i>If an operation on this
+     *            store hangs, then the CopyActivityMonitor hangs, too!</i>
      * @param copyProcess The {@link ITerminable} representing the copy process. This will get
      *            terminated if the copy process gets stuck.
      * @param timingParameters The {@link ITimingParameters} to get the check interval and the
