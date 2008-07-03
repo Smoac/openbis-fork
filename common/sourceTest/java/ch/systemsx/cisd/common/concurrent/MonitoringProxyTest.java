@@ -83,7 +83,7 @@ public class MonitoringProxyTest
     }
 
     private final static Pattern THREAD_NAME_PATTERN =
-        Pattern.compile("Monitoring Proxy-T[0-9]+::" + THREAD_NAME);
+        Pattern.compile("Monitoring Proxy-T[0-9]+::main::" + THREAD_NAME);
 
     private class TestImpl implements ITest
     {
