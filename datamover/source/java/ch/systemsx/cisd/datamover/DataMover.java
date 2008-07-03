@@ -19,14 +19,10 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.utilities.FaultyPathDirectoryScanningHandler;
@@ -91,9 +87,6 @@ public final class DataMover
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
                         LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME,
                         SHUTDOWN_PROCESS_MARKER_FILENAME };
-
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
 
     private final Parameters parameters;
 
@@ -165,20 +158,11 @@ public final class DataMover
                 outgoingProcess);
     }
 
-    private void cleanUpProcessMarkerFiles()
+    private final static void cleanUpProcessMarkerFiles()
     {
         for (String fileName : PROCESS_MARKER_FILENAMES)
         {
-            File markerFile = new File(fileName);
-            if (markerFile.exists() == false)
-            {
-                continue;
-            }
-            if (markerFile.delete() == false)
-            {
-                operationLog.warn("Couldn't delete process marker file "
-                        + markerFile.getAbsolutePath());
-            }
+            DataMoverShutdownHook.deleteFile(new File(fileName), "marker");
         }
     }
 

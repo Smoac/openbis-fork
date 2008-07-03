@@ -48,6 +48,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  */
 public final class Main
 {
+    private static final String DATAMOVER_PID_FILE_NAME = "datamover.pid";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Main.class);
@@ -134,13 +135,11 @@ public final class Main
         }
     }
 
-    private final static void createShutdownHookTimer(final File outgoingTargetLocationFile,
-            final ITerminable terminable)
+    private final static void createShutdownHookTimer(final ITerminable terminable)
     {
         final TriggeringTimerTask shutdownHook =
-                new TriggeringTimerTask(new File(DataMover.SHUTDOWN_MARKER_FILENAME),
-                        new DataMoverShutdownHook(outgoingTargetLocationFile, terminable,
-                                SystemExit.SYSTEM_EXIT));
+                new TriggeringTimerTask(createDeleteOnExitFile(DataMover.SHUTDOWN_MARKER_FILENAME),
+                        new DataMoverShutdownHook(terminable, SystemExit.SYSTEM_EXIT));
         new Timer("Shutdown Hook").schedule(shutdownHook, 0L, 5000L);
     }
 
@@ -151,18 +150,29 @@ public final class Main
         return DataMover.start(parameters, factory, bufferDirs);
     }
 
-    private static void startupServer(final Parameters parameters)
+    private final static void startupServer(final Parameters parameters)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
-        final File outgoingTargetLocationFile = new File(DataMover.OUTGOING_TARGET_LOCATION_FILE);
+        createOutgoingTargetFile(parameters);
+        createDeleteOnExitFile(DATAMOVER_PID_FILE_NAME);
+        createShutdownHookTimer(DataMover.start(parameters, factory));
+    }
+
+    private final static void createOutgoingTargetFile(final Parameters parameters)
+    {
         final HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
         final StringBuilder builder = new StringBuilder();
         builder.append(outgoingTarget.getCanonicalPath()).append('>');
-        final long highwatermark = Math.max(0, outgoingTarget.getHighwaterMark());
-        builder.append(highwatermark);
-        FileUtilities.writeToFile(outgoingTargetLocationFile, builder.toString());
-        final ITerminable terminable = DataMover.start(parameters, factory);
-        createShutdownHookTimer(outgoingTargetLocationFile, terminable);
+        builder.append(Math.max(0, outgoingTarget.getHighwaterMark()));
+        FileUtilities.writeToFile(createDeleteOnExitFile(DataMover.OUTGOING_TARGET_LOCATION_FILE),
+                builder.toString());
+    }
+
+    private final static File createDeleteOnExitFile(final String fileName)
+    {
+        final File file = new File(fileName);
+        file.deleteOnExit();
+        return file;
     }
 
     public static void main(final String[] args)

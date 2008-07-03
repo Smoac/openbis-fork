@@ -35,27 +35,18 @@ import ch.systemsx.cisd.common.utilities.ITriggerable;
  */
 final class DataMoverShutdownHook implements ITriggerable
 {
-    private static final String DATAMOVER_PID_FILE_NAME = "datamover.pid";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataMoverShutdownHook.class);
 
     private final ITerminable terminable;
 
-    private final File outgoingTargetLocationFile;
-
     private final IExitHandler exitHandler;
 
-    DataMoverShutdownHook(final File locationFile, final ITerminable terminable,
-            final IExitHandler exitHandler)
+    DataMoverShutdownHook(final ITerminable terminable, final IExitHandler exitHandler)
     {
         this.terminable = terminable;
         this.exitHandler = exitHandler;
-        if (locationFile == null)
-        {
-            throw new IllegalArgumentException("Unspecified outgoing target location file.");
-        }
-        this.outgoingTargetLocationFile = locationFile;
     }
 
     private final static void createMarkerFile(final File markerFile)
@@ -70,13 +61,18 @@ final class DataMoverShutdownHook implements ITriggerable
         }
     }
 
-    private final static void deleteFile(final File file, final String description)
+    /**
+     * Deletes given <var>file</var>.
+     * <p>
+     * If file does not exist, do nothing. If file could not be deleted, makes a warning log.
+     * </p>
+     * 
+     * @param description which type of file we are currently deleted. Do not use "file" in it.
+     */
+    final static void deleteFile(final File file, final String description)
     {
         if (file.exists() == false)
         {
-            operationLog.warn(String.format(
-                    "Can not delete %s file '%s' because it does not exist.", description, file
-                            .getAbsolutePath()));
             return;
         }
         final boolean deleted = file.delete();
@@ -100,10 +96,7 @@ final class DataMoverShutdownHook implements ITriggerable
             operationLog.info("Datamover is shutting down.");
         }
         terminable.terminate();
-        deleteFile(outgoingTargetLocationFile, "outgoing target location");
         deleteFile(markerFile, "marker");
-        deleteFile(new File(DATAMOVER_PID_FILE_NAME), "Datamover pid");
-        deleteFile(new File(DataMover.SHUTDOWN_MARKER_FILENAME), "shutdown triggering");
         exitHandler.exit(0);
     }
 }
