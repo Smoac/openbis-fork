@@ -183,9 +183,10 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
          * Note that this method is <i>always</i> called, no matter what the cause is. If you want
          * to perform clean up only for some causes, check <var>cause</var> first.
          * <p>
-         * Note that the current Thread may be in an interrupted state when this method is called or
-         * may get interrupted during the method runs. It is advised not to use methods that throw
-         * an {@link InterruptedException} or equivalent in this method.
+         * <i>It is guaranteed that, if the callable is terminated with the
+         * {@link TerminableCallable#terminate(long)} or the {@link TerminableCallable#terminate()}
+         * method, this call will be interrupted by neither {@link Thread#interrupt()} nor
+         * <code>Thread.stop()</code>.</i>
          * <p>
          * <strong>Don't perform any time consuming operations in this method and avoid any
          * operations that can fail with an exception.</strong>

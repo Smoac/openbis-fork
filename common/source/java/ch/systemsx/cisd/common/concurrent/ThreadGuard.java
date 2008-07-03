@@ -78,13 +78,14 @@ final class ThreadGuard
         }
     }
 
-    private synchronized Thread getThreadForTermination()
+    private synchronized Thread tryInterruptAndGetThread()
     {
         if (state == State.RUNNING)
         {
             final Thread t = thread;
             thread = null;
             state = State.TERMINATING;
+            t.interrupt();
             return t;
         } else
         {
@@ -159,6 +160,7 @@ final class ThreadGuard
     {
         state = State.FINISHING;
         thread = null;
+        Thread.interrupted(); // Clear interrupted flag in case we are in mode TERMINATING.
     }
 
     /**
@@ -237,10 +239,9 @@ final class ThreadGuard
             return true;
         }
         final long start = System.currentTimeMillis();
-        final Thread t = getThreadForTermination();
+        final Thread t = tryInterruptAndGetThread();
         if (t != null)
         {
-            t.interrupt();
             if (waitForFinished(waitInterruptMillis))
             {
                 return true;
