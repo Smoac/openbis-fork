@@ -154,6 +154,7 @@ public class MonitoringProxy<T>
         public Object invoke(final Object myProxy, final Method method, final Object[] args)
                 throws Throwable
         {
+            final String callingThreadName = Thread.currentThread().getName();
             final Future<Object> future = executor.submit(new NamedCallable<Object>()
                 {
                     public Object call() throws Exception
@@ -177,10 +178,10 @@ public class MonitoringProxy<T>
                     {
                         if (nameOrNull != null)
                         {
-                            return nameOrNull;
+                            return callingThreadName + "::" + nameOrNull;
                         } else
                         {
-                            return describe(method);
+                            return callingThreadName + "::" + describe(method);
                         }
                     }
                 });
