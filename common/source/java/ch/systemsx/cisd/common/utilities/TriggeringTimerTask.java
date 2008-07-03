@@ -107,7 +107,12 @@ public class TriggeringTimerTask extends TimerTask
                 if (triggerFile.exists())
                 {
                     trigger();
-                    triggerFile.delete();
+                    if (triggerFile.delete() == false)
+                    {
+                        operationLog.warn(String.format(
+                                "Was not able to delete trigger file '%s'.", triggerFile
+                                        .getAbsolutePath()));
+                    }
                 }
             } catch (final Exception ex)
             {
@@ -115,5 +120,4 @@ public class TriggeringTimerTask extends TimerTask
             }
         }
     }
-
 }
