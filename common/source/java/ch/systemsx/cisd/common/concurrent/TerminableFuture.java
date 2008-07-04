@@ -43,7 +43,9 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
 
     public boolean cancel(boolean mayInterruptIfRunning)
     {
-        return delegateFuture.cancel(mayInterruptIfRunning);
+        final boolean canceled = delegateTerminableCallable.cancel(mayInterruptIfRunning);
+        delegateFuture.cancel(false);
+        return canceled;
     }
 
     public V get() throws InterruptedException, ExecutionException
@@ -59,7 +61,7 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
 
     public boolean isCancelled()
     {
-        return delegateFuture.isCancelled();
+        return delegateTerminableCallable.isCancelled();
     }
 
     public boolean isDone()

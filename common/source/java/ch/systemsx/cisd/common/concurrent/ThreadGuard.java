@@ -48,6 +48,8 @@ final class ThreadGuard
 
     private ThreadGuard.State state = State.INITIAL;
 
+    private volatile boolean cancelled = false;
+
     @SuppressWarnings("deprecation")
     private static void stopNow(Thread t)
     {
@@ -172,7 +174,7 @@ final class ThreadGuard
     }
 
     /**
-     * Returns <code>true</code>, if the guard is in state running.
+     * Returns <code>true</code> if the guard is in state <code>RUNNING</code>.
      */
     synchronized boolean isRunning()
     {
@@ -180,23 +182,35 @@ final class ThreadGuard
     }
 
     /**
+     * Returns <code>true</code> if {@link #cancel(boolean)} has been called on the guard
+     * successfully, or when {@link #terminateAndWait(long, long)} has been called on the guard.
+     */
+    boolean isCancelled()
+    {
+        return cancelled;
+    }
+
+    /**
      * Tries to cancel the guard, i.e. prevent it from running if it doesn't run yet. If canceling
      * is successful, it implies marking the guard as finished.
      * 
+     * @param mayInterruptIfRunning If <code>true</code> and the guard is in state
+     *            <code>RUNNING</code>, interrupt the thread. Otherwise, do nothing.
      * @return <code>true</code>, if the guard has been canceled successfully.
      */
-    synchronized boolean cancel()
+    synchronized boolean cancel(boolean mayInterruptIfRunning)
     {
         if (state == State.INITIAL)
         {
             state = State.CANCELED;
             // Do not call markFinished() as the stopLock is not yet initialized.
             finishedLatch.countDown();
-            return true;
+            cancelled = true;
         } else
         {
-            return false;
+            cancelled = mayInterruptIfRunning ? (tryInterruptAndGetThread() != null) : false;
         }
+        return cancelled;
     }
 
     /**
@@ -234,7 +248,7 @@ final class ThreadGuard
     boolean terminateAndWait(long waitInterruptMillis, long timeoutMillis)
             throws InterruptedException
     {
-        if (cancel())
+        if (cancel(false))
         {
             return true;
         }
@@ -242,6 +256,7 @@ final class ThreadGuard
         final Thread t = tryInterruptAndGetThread();
         if (t != null)
         {
+            cancelled = true;
             if (waitForFinished(waitInterruptMillis))
             {
                 return true;

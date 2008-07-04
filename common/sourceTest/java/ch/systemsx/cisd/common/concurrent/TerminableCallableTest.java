@@ -160,7 +160,7 @@ public class TerminableCallableTest
                 new TestRunnable(launchLatch, milestoneLatch, Strategy.COMPLETE_IMMEDIATELY,
                         finishLatch);
         final TerminableCallable<Object> callableUnderTest = TerminableCallable.create(sensor);
-        callableUnderTest.cancel();
+        callableUnderTest.cancel(false);
         final Thread t = new Thread(callableUnderTest.asRunnable(), "cancel");
         final AtomicReference<Throwable> uncaughtException = new AtomicReference<Throwable>(null);
         t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()

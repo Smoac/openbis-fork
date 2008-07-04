@@ -421,7 +421,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * Returns <code>true</code>, if the callable is currently running and <code>false</code>
+     * Returns <code>true</code> if the callable is currently running and <code>false</code>
      * otherwise.
      */
     public boolean isRunning()
@@ -430,7 +430,15 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * Returns <code>true</code>, if the callable has already started running.
+     * Returns <code>true</code> if the callable has been (successfully) cancelled or terminated.
+     */
+    public boolean isCancelled()
+    {
+        return threadGuard.isCancelled();
+    }
+    
+    /**
+     * Returns <code>true</code> if the callable has already started running.
      */
     public boolean hasStarted()
     {
@@ -438,7 +446,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * Returns <code>true</code>, if the callable has already finished running.
+     * Returns <code>true</code> if the callable has already finished running.
      */
     public boolean hasFinished()
     {
@@ -465,12 +473,14 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     /**
      * Cancels the callable if it is not yet running.
      * 
+     * @param mayInterruptIfRunning If <code>true</code> and the callable is running, interrupt
+     *            its thread. Otherwise, do nothing.
      * @return <code>true</code>, if the callable is cancelled and <code>false</code>
      *         otherwise.
      */
-    public boolean cancel()
+    public boolean cancel(boolean mayInterruptIfRunning)
     {
-        return threadGuard.cancel();
+        return threadGuard.cancel(mayInterruptIfRunning);
     }
 
     /**
