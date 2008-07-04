@@ -79,10 +79,14 @@ public final class DateStatus
         final ToStringBuilder builder =
                 new ToStringBuilder(this,
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        final Long thisResult = result.getResult();
-        builder.append("result", thisResult != null ? String.format("%1$tF %1$tT", thisResult) : null);
-        builder.append("error", isError());
-        builder.append("message", tryGetMessage());
+        if (isError())
+        {
+            builder.append("[DateStatus, error: ", tryGetMessage() + "]");
+        } else
+        {
+            final Long thisResult = result.getResult();
+            builder.append("[DateStatus, result: ", String.format("%1$tF %1$tT", thisResult) + "]");
+        }
         return builder.toString();
     }
 }
