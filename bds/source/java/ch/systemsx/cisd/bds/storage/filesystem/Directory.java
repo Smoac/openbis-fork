@@ -219,7 +219,7 @@ final class Directory extends AbstractNode implements IDirectory
         final java.io.File file = getNodeFile(node);
         if (file.isDirectory())
         {
-            if (FileUtilities.deleteRecursively(file, null) == false)
+            if (FileUtilities.deleteRecursively(file) == false)
             {
                 throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.",
                         file.getAbsolutePath());
