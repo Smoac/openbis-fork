@@ -38,8 +38,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
  * 
  * @author Tomasz Pylak
  */
-public final class RecursiveHardLinkMaker implements IPathImmutableCopier,
-        IDirectoryImmutableCopier, IFileImmutableCopier
+public final class RecursiveHardLinkMaker implements IPathImmutableCopier
 {
     private static final String HARD_LINK_EXEC = "ln";
 
