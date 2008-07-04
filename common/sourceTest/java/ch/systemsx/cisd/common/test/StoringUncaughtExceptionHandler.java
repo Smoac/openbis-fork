@@ -17,6 +17,8 @@ package ch.systemsx.cisd.common.test;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+
 /**
  * An exception handler that stores the first occurring exception for later investigation. Needs to
  * be activated by
@@ -78,15 +80,26 @@ public final class StoringUncaughtExceptionHandler implements UncaughtExceptionH
     }
 
     /**
-     * Checks whether an exception or error has occurred and, if yes, throws a new
-     * {@link RuntimeException} with the caught exception as cause in the current thread.
+     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current
+     * thread, wrapping it into a {@link CheckedExceptionTunnel} if necessary.
      */
-    public void checkAndRethrowException()
+    public void checkAndRethrowExceptionWrapIfNecessary()
     {
         if (hasExceptionOccurred())
         {
-            throw new RuntimeException(String.format("An exception occurred in thread %s.",
-                    getThreadName()), getThrowable());
+            throw CheckedExceptionTunnel.wrapIfNecessary(getThrowable());
+        }
+    }
+
+    /**
+     * Checks whether an exception or error has occurred and, if yes, re-throws it in the current
+     * thread.
+     */
+    public void checkAndRethrowException() throws Throwable
+    {
+        if (hasExceptionOccurred())
+        {
+            throw getThrowable();
         }
     }
 

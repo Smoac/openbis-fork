@@ -219,7 +219,7 @@ public class CopyActivityMonitorTest
     }
 
     @AfterMethod
-    public void checkException()
+    public void checkException() throws Throwable
     {
         exceptionHandler.checkAndRethrowException();
     }
