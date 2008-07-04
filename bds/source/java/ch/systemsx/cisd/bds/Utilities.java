@@ -103,6 +103,22 @@ public class Utilities
     }
 
     /**
+     * Returns the string content of a file from the specified directory. Doesn't change line
+     * terminating characters to '\n'.
+     * 
+     * @param directory Directory of the requested file.
+     * @param name Name of the file.
+     * @return never <code>null</code> but could return an empty string.
+     * @throws DataStructureException if the requested file does not exist.
+     */
+    public static String getExactString(final IDirectory directory, final String name)
+    {
+        final INode node = tryGetFileNode(directory, name);
+        final IFile file = (IFile) node;
+        return file.getExactStringContent();
+    }
+
+    /**
      * Returns the string content of a file from the specified directory as list of
      * <code>String</code> objects.
      * 
@@ -252,7 +268,7 @@ public class Utilities
         /** Converts this object to corresponding <code>boolean</code>. */
         public boolean toBoolean()
         {
-            return (this == TRUE) ? true : false;
+            return this == TRUE ? true : false;
         }
 
         /** Converts given <code>boolean</code> to this enumeration item. */

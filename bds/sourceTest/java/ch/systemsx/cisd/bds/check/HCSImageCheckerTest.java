@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class HCSImageCheckerTest
+public class HCSImageCheckerTest extends AbstractCheckerTest
 {
     private final boolean verbose = false;
 
@@ -74,6 +74,29 @@ public class HCSImageCheckerTest
 
         Assert.assertEquals(new HCSImageChecker(verbose).getHCSImageConsistencyReport(
                 new File("testdata/bds_hcs_mapping_error")).numberOfProblems(), 2);
+
+    }
+
+    @Test
+    public final void testNotTrimmedKeyValuePairFiles() throws IOException
+    {
+
+        final File dir = new File("testdata/bds_new_lines");
+        final String path = dir.getAbsolutePath();
+
+        Assert.assertEquals(new HCSImageChecker(verbose).getHCSImageConsistencyReport(dir)
+                .toString(), errorFoundNotTrimmed(path, "metadata/data_set/observable_type", "")
+                + errorFoundNotTrimmed(path, "metadata/format/code", "")
+                + errorFoundNotTrimmed(path, "major", "/metadata/format/version")
+                + errorFoundNotTrimmed(path, "minor", "/metadata/format/version")
+                + errorFoundNotTrimmed(path, "metadata/parameters/plate_geometry/rows", "")
+                + errorFoundNotTrimmed(path, "metadata/parameters/plate_geometry/columns", "")
+                + errorFoundNotTrimmed(path, "metadata/parameters/well_geometry/rows", "")
+                + errorFoundNotTrimmed(path, "metadata/parameters/well_geometry/columns", "")
+                + errorFoundNotTrimmed(path, "metadata/parameters/number_of_channels", "")
+                + errorFoundNotTrimmed(path, "wavelength", "/annotations/channel1")
+                + errorFoundNotTrimmed(path, "wavelength", "/annotations/channel2")
+                + errorFoundNotTrimmed(path, "metadata/parameters/contains_original_data", ""));
 
     }
 }

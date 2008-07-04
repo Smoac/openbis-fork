@@ -155,6 +155,34 @@ public final class FileUtilities
     }
 
     /**
+     * Loads a text file to a {@link String}. Doesn't append new line at the end.
+     * 
+     * @param file the file that should be loaded. This method asserts that given <code>File</code>
+     *            is not <code>null</code>.
+     * @return The content of the file. All newline characters are '\n' (Unix convention). Never
+     *         returns <code>null</code>.
+     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
+     *             not exist.
+     */
+    public static String loadExactToString(final File file) throws CheckedExceptionTunnel
+    {
+        assert file != null;
+
+        FileReader fileReader = null;
+        try
+        {
+            fileReader = new FileReader(file);
+            return readExactString(new BufferedReader(fileReader));
+        } catch (final IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(fileReader);
+        }
+    }
+
+    /**
      * Writes the specified string to the specified file.
      * 
      * @throws CheckedExceptionTunnel for wrapping an {@link IOException}.
@@ -341,6 +369,19 @@ public final class FileUtilities
         return builder.toString();
     }
 
+    private static String readExactString(final BufferedReader reader) throws IOException
+    {
+        assert reader != null : "Unspecified BufferedReader.";
+        final StringBuilder builder = new StringBuilder();
+        int numRead = 0;
+        while ((numRead = reader.read()) != -1)
+        {
+            builder.append(String.copyValueOf(Character.toChars(numRead)));
+        }
+        reader.close();
+        return builder.toString();
+    }
+
     private final static List<String> readStringList(final BufferedReader reader,
             final ILineFilter lineFilterOrNull) throws IOException
     {
@@ -413,8 +454,8 @@ public final class FileUtilities
         final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", false);
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
-                    directory.getPath(), kindOfDirectory);
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.", directory
+                    .getPath(), kindOfDirectory);
         }
         return msg;
     }
@@ -435,8 +476,8 @@ public final class FileUtilities
         final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", true);
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
-                    directory.getPath(), kindOfDirectory);
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.", directory
+                    .getPath(), kindOfDirectory);
         }
         return msg;
     }
@@ -484,7 +525,7 @@ public final class FileUtilities
     }
 
     private static String checkPathAccessible(final File path, final String kindOfPath,
-            final String directoryOrFile, boolean readAndWrite)
+            final String directoryOrFile, final boolean readAndWrite)
     {
         assert path != null;
         assert kindOfPath != null;
@@ -604,7 +645,7 @@ public final class FileUtilities
 
     private static final class LastChangedWorker
     {
-        private boolean subDirectoriesOnly;
+        private final boolean subDirectoriesOnly;
 
         private final long reference;
 

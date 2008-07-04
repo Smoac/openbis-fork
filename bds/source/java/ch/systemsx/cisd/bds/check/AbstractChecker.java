@@ -236,6 +236,7 @@ public abstract class AbstractChecker
     {
         try
         {
+            checkTrimmed(problemReport, dataDir, name);
             return Utilities.getBoolean(dataDir, name).toBoolean();
         } catch (final Exception e)
         {
@@ -249,6 +250,7 @@ public abstract class AbstractChecker
     {
         try
         {
+            checkTrimmed(problemReport, dataSet, name);
             final String loadedValue = Utilities.getTrimmedString(dataSet, name);
             boolean matches = false;
             for (final String value : values)
@@ -276,6 +278,7 @@ public abstract class AbstractChecker
     {
         try
         {
+            checkTrimmed(problemReport, dir, file);
             return Utilities.getNumber(dir, file);
         } catch (final Exception e)
         {
@@ -288,6 +291,7 @@ public abstract class AbstractChecker
     {
         try
         {
+            // FIXME???
             getFileOrFail(dataDir, name);
         } catch (final Exception e)
         {
@@ -478,6 +482,8 @@ public abstract class AbstractChecker
     {
         try
         {
+            checkTrimmed(problemReport, dir, file);
+
             final int loaded = Utilities.getNumber(dir, file);
             if (loaded != value)
             {
@@ -486,6 +492,18 @@ public abstract class AbstractChecker
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
+        }
+    }
+
+    public static void checkTrimmed(final ProblemReport problemReport, final IDirectory dir,
+            final String file)
+    {
+        final String loaded = Utilities.getExactString(dir, file);
+        final String loadedTrimmed = Utilities.getTrimmedString(dir, file);
+        if (loaded.equals(loadedTrimmed) == false)
+        {
+            problemReport.error(String.format(
+                    "Found not trimmed value in file '%s' (directory '%s').", file, dir));
         }
     }
 

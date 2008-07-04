@@ -25,7 +25,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 
 /**
- * Allows to check consistency of <image>HCS_IMAGE V1.0</code> format. Program will try to find all
+ * Allows to check consistency of <code>HCS_IMAGE V1.0</code> format. Program will try to find all
  * the problems. If the path provided as an argument is not a readable directory or version is
  * incorrect (directory with version does not exist, cannot be parsed, etc.) - program will stop
  * processing the path complaining only about this basic problem.

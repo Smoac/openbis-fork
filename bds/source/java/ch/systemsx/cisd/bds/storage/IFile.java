@@ -46,6 +46,14 @@ public interface IFile extends INode
     public String getStringContent();
 
     /**
+     * Returns the content of this file node as a string. Doesn't change line terminating
+     * characters.
+     * 
+     * @return never <code>null</code> but could return an empty string.
+     */
+    public String getExactStringContent();
+
+    /**
      * Returns the content of this file node as a list of <code>String</code> objects.
      * <p>
      * This is useful when you know that the file content is composed of several lines.

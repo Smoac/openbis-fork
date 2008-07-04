@@ -137,7 +137,7 @@ public final class StructureChecker extends AbstractChecker
         try
         {
             final IDirectory md5sum = Utilities.getSubDirectory(metadata, AbstractChecker.MD5SUM);
-            checkFileNotEmpty(md5sum, AbstractChecker.ORIGINAL);
+            checkFileNotEmpty(md5sum, AbstractChecker.ORIGINAL, false);
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -149,9 +149,9 @@ public final class StructureChecker extends AbstractChecker
         try
         {
             final IDirectory sample = Utilities.getSubDirectory(metadata, AbstractChecker.SAMPLE);
-            checkFileNotEmpty(sample, AbstractChecker.TYPE_DESCRIPTION);
-            checkFileNotEmpty(sample, AbstractChecker.TYPE_CODE);
-            checkFileNotEmpty(sample, AbstractChecker.CODE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_DESCRIPTION);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_CODE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.CODE);
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -164,9 +164,9 @@ public final class StructureChecker extends AbstractChecker
         {
             final IDirectory experimentRegistrator =
                     Utilities.getSubDirectory(metadata, AbstractChecker.EXPERIMENT_REGISTRATOR);
-            checkFileNotEmpty(experimentRegistrator, AbstractChecker.FIRST_NAME);
-            checkFileNotEmpty(experimentRegistrator, AbstractChecker.LAST_NAME);
-            checkFileNotEmpty(experimentRegistrator, AbstractChecker.EMAIL);
+            checkFileNotEmptyAndTrimmed(experimentRegistrator, AbstractChecker.FIRST_NAME);
+            checkFileNotEmptyAndTrimmed(experimentRegistrator, AbstractChecker.LAST_NAME);
+            checkFileNotEmptyAndTrimmed(experimentRegistrator, AbstractChecker.EMAIL);
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -184,10 +184,10 @@ public final class StructureChecker extends AbstractChecker
         {
             final IDirectory experimentIdentifier =
                     Utilities.getSubDirectory(metadata, AbstractChecker.EXPERIMENT_IDENTIFIER);
-            checkFileNotEmpty(experimentIdentifier, AbstractChecker.INSTANCE_CODE);
-            checkFileNotEmpty(experimentIdentifier, AbstractChecker.GROUP_CODE);
-            checkFileNotEmpty(experimentIdentifier, AbstractChecker.PROJECT_CODE);
-            checkFileNotEmpty(experimentIdentifier, AbstractChecker.EXPERIMENT_CODE);
+            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.INSTANCE_CODE);
+            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.GROUP_CODE);
+            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.PROJECT_CODE);
+            checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.EXPERIMENT_CODE);
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -200,7 +200,7 @@ public final class StructureChecker extends AbstractChecker
         {
             final IDirectory format = getFormatOrFail(metadata);
             checkVersion(format);
-            checkFileNotEmpty(format, AbstractChecker.CODE);
+            checkFileNotEmptyAndTrimmed(format, AbstractChecker.CODE);
         } catch (final Exception e)
         {
             problemReport.error(e.getMessage());
@@ -213,10 +213,10 @@ public final class StructureChecker extends AbstractChecker
         {
             final IDirectory dataSet =
                     Utilities.getSubDirectory(metadata, AbstractChecker.DATA_SET);
-            checkFileNotEmpty(dataSet, AbstractChecker.CODE);
+            checkFileNotEmptyAndTrimmed(dataSet, AbstractChecker.CODE);
             checkFileContainsTimestamp(dataSet, AbstractChecker.PRODUCTION_TIMESTAMP);
-            checkFileNotEmpty(dataSet, AbstractChecker.PRODUCER_CODE);
-            checkFileNotEmpty(dataSet, AbstractChecker.OBSERVABLE_TYPE);
+            checkFileNotEmptyAndTrimmed(dataSet, AbstractChecker.PRODUCER_CODE);
+            checkFileNotEmptyAndTrimmed(dataSet, AbstractChecker.OBSERVABLE_TYPE);
             final Boolean isMeasured = checkFileContainsBoolean(dataSet, IS_MEASURED);
             checkFileContainsEnumeration(dataSet, IS_COMPLETE, new String[]
                 { TRUE, FALSE, UNKNOWN });
@@ -236,7 +236,7 @@ public final class StructureChecker extends AbstractChecker
                 checkFileExists(dataSet, PARENT_CODES);
             } else
             {
-                checkFileNotEmpty(dataSet, PARENT_CODES);
+                checkFileNotEmptyAndTrimmed(dataSet, PARENT_CODES);
             }
         } catch (final Exception e)
         {
@@ -262,6 +262,7 @@ public final class StructureChecker extends AbstractChecker
     {
         try
         {
+            checkTrimmed(problemReport, dataDir, name);
             if (Utilities.getDateOrNull(dataDir, name) == null)
             {
                 throw new DataStructureException(String.format(
@@ -273,10 +274,15 @@ public final class StructureChecker extends AbstractChecker
         }
     }
 
-    private void checkFileNotEmpty(final IDirectory dataDir, final String name)
+    private void checkFileNotEmpty(final IDirectory dataDir, final String name,
+            final boolean mustBeTrimmed)
     {
         try
         {
+            if (mustBeTrimmed)
+            {
+                checkTrimmed(problemReport, dataDir, name);
+            }
             final IFile file = getFileOrFail(dataDir, name);
             if (StringUtils.isEmpty(file.getStringContent()))
             {
@@ -288,6 +294,11 @@ public final class StructureChecker extends AbstractChecker
         {
             problemReport.error(e.getMessage());
         }
+    }
+
+    private void checkFileNotEmptyAndTrimmed(final IDirectory dataDir, final String name)
+    {
+        checkFileNotEmpty(dataDir, name, true);
     }
 
     private void checkVersion(final IDirectory containerNode)

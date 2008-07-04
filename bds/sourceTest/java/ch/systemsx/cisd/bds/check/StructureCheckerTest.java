@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class StructureCheckerTest
+public class StructureCheckerTest extends AbstractCheckerTest
 {
     private final boolean verbose = false;
 
@@ -30,8 +30,11 @@ public class StructureCheckerTest
     public final void testCorrectContainer() throws IOException
     {
 
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
-                new File("testdata/bds_ok")).noProblemsFound(), true);
+        final ProblemReport structureConsistencyReport =
+                new StructureChecker(verbose).getStructureConsistencyReport(new File(
+                        "testdata/bds_ok"));
+        Assert.assertEquals(structureConsistencyReport.toString(), "");
+        Assert.assertEquals(structureConsistencyReport.noProblemsFound(), true);
 
     }
 
@@ -76,7 +79,40 @@ public class StructureCheckerTest
     @Test
     public final void testWrongFileFormat()
     {
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
-                new File("testdata/bds_wrong_values")).numberOfProblems(), 7);
+        final ProblemReport structureConsistencyReport =
+                new StructureChecker(verbose).getStructureConsistencyReport(new File(
+                        "testdata/bds_wrong_values"));
+        Assert.assertEquals(structureConsistencyReport.numberOfProblems(), 7);
+    }
+
+    @Test
+    public final void testNewLinesPresentInKeyValuePairFiles()
+    {
+        final File dir = new File("testdata/bds_new_lines");
+        final String path = dir.getAbsolutePath();
+
+        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(dir)
+                .toString(), errorFoundNotTrimmed(path, "major", "/version")
+                + errorFoundNotTrimmed(path, "minor", "/version")
+                + errorFoundNotTrimmed(path, "code", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "production_timestamp", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "producer_code", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "observable_type", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "is_measured", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "is_complete", "/metadata/data_set")
+                + errorFoundNotTrimmed(path, "major", "/metadata/format/version")
+                + errorFoundNotTrimmed(path, "minor", "/metadata/format/version")
+                + errorFoundNotTrimmed(path, "code", "/metadata/format")
+                + errorFoundNotTrimmed(path, "instance_code", "/metadata/experiment_identifier")
+                + errorFoundNotTrimmed(path, "group_code", "/metadata/experiment_identifier")
+                + errorFoundNotTrimmed(path, "project_code", "/metadata/experiment_identifier")
+                + errorFoundNotTrimmed(path, "experiment_code", "/metadata/experiment_identifier")
+                + errorFoundNotTrimmed(path, "experiment_registration_timestamp", "/metadata")
+                + errorFoundNotTrimmed(path, "first_name", "/metadata/experiment_registrator")
+                + errorFoundNotTrimmed(path, "last_name", "/metadata/experiment_registrator")
+                + errorFoundNotTrimmed(path, "email", "/metadata/experiment_registrator")
+                + errorFoundNotTrimmed(path, "type_description", "/metadata/sample")
+                + errorFoundNotTrimmed(path, "type_code", "/metadata/sample")
+                + errorFoundNotTrimmed(path, "code", "/metadata/sample"));
     }
 }
