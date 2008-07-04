@@ -19,6 +19,8 @@ package ch.systemsx.cisd.datamover.filesystem.remote;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -69,6 +71,8 @@ public final class RemotePathMover implements IStoreHandler
     private static final String FAILED_TO_COPY_FILE_TO_REMOTE_TEMPLATE =
             "Failed to copy file '%s' from '%s' to remote (%s)";
 
+    private static final String TERMINATING_COPIER_LOG_TEMPLATE = "Terminating copier %s: %s.";
+
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, RemotePathMover.class);
 
@@ -87,9 +91,11 @@ public final class RemotePathMover implements IStoreHandler
 
     private final IStoreCopier copier;
 
-    private final CopyActivityMonitor monitor;
-
     private final long intervallToWaitAfterFailure;
+
+    private final long checkIntervallMillis;
+
+    private final long inactivityPeriodMillis;
 
     private final int maximalNumberOfRetries;
 
@@ -99,18 +105,16 @@ public final class RemotePathMover implements IStoreHandler
      * @param sourceDirectory The directory to move paths from.
      * @param destinationDirectory The directory to move paths to.
      * @param copier Copies items from source to destination
-     * @param monitor The activity monitor to inform about actions.
      * @param timingParameters The timing parameters used for monitoring and reporting stall
      *            situations.
      * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(final IFileStore sourceDirectory, final IFileStore destinationDirectory,
-            final IStoreCopier copier, final CopyActivityMonitor monitor,
+            final IStoreCopier copier,
             final ITimingParameters timingParameters) throws ConfigurationFailureException
     {
         assert sourceDirectory != null;
         assert destinationDirectory != null;
-        assert monitor != null;
         assert timingParameters != null;
         assert sourceDirectory.tryAsExtended() != null
                 || destinationDirectory.tryAsExtended() != null;
@@ -118,9 +122,10 @@ public final class RemotePathMover implements IStoreHandler
         this.sourceDirectory = sourceDirectory;
         this.destinationDirectory = destinationDirectory;
         this.copier = copier;
-        this.monitor = monitor;
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
+        this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
+        this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
 
         assert intervallToWaitAfterFailure >= 0;
         assert maximalNumberOfRetries >= 0;
@@ -133,7 +138,19 @@ public final class RemotePathMover implements IStoreHandler
 
     private final Status copyAndMonitor(final StoreItem item)
     {
-        monitor.start(item);
+        final InactivityMonitor monitor =
+                new InactivityMonitor(
+                        new RemoteStoreCopyActivitySensor(destinationDirectory, item),
+                        new IInactivityObserver()
+                            {
+                                public void update(long inactiveSinceMillis,
+                                        String descriptionOfInactivity)
+                                {
+                                    operationLog.warn(String.format(TERMINATING_COPIER_LOG_TEMPLATE,
+                                            copier.getClass().getName(), descriptionOfInactivity));
+                                    copier.terminate();
+                                }
+                            }, checkIntervallMillis, inactivityPeriodMillis, true);
         final Status copyStatus = copier.copy(item);
         monitor.stop();
         return copyStatus;
