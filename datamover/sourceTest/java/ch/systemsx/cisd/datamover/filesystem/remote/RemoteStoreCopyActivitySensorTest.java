@@ -156,14 +156,14 @@ public class RemoteStoreCopyActivitySensorTest
         ConcurrencyUtilities.sleep(10L);
         final long now1 = System.currentTimeMillis();
         final long lastActivity1 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now1, lastActivity1);
+        assertTrue("Delta=" + (lastActivity1 - now1), lastActivity1 - now1 < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
         final long now2 = System.currentTimeMillis();
         final long lastActivity2 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now2, lastActivity2);
+        assertTrue("Delta=" + (lastActivity2 - now2), lastActivity2 - now2 < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
         final long lastActivity3 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now1, lastActivity3);
+        assertEquals(lastActivity1, lastActivity3);
     }
 
 }
