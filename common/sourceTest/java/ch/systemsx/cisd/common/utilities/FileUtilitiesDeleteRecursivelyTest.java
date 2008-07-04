@@ -21,10 +21,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.utilities.FileUtilities.SimpleActivityObserver;
 
 /**
  * Test cases for the <code>deleteRecursively</code> methods of {@link FileUtilities}.
@@ -155,6 +157,34 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
         checkDirectories(false);
         checkFiles(false);
         assertEquals(true, workingDirectory.exists());
+    }
+
+    @Test
+    public void testDeleteRecursivelyDeleteEverythingAndObserve() throws IOException
+    {
+        createStructure();
+        final AtomicInteger counter = new AtomicInteger(0);
+        FileUtilities.deleteRecursively(workingDirectory, new FileFilter()
+            {
+                //
+                // FileFilter
+                //
+
+                public final boolean accept(final File pathname)
+                {
+                    return pathname.getAbsolutePath().equals(workingDirectory.getAbsolutePath()) == false;
+                }
+            }, null, new SimpleActivityObserver()
+            {
+                public void update()
+                {
+                    counter.incrementAndGet();
+                }
+            });
+        checkDirectories(false);
+        checkFiles(false);
+        assertEquals(true, workingDirectory.exists());
+        assertEquals(9, counter.intValue());
     }
 
     @Test

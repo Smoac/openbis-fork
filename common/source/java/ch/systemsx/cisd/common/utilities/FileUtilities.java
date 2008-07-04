@@ -552,6 +552,17 @@ public final class FileUtilities
     }
 
     /**
+     * A simple role that can observe activity.
+     */
+    public interface SimpleActivityObserver
+    {
+        /**
+         * Called when activity occurred.
+         */
+        public void update();
+    }
+
+    /**
      * Deletes a directory recursively, that is deletes all files and directories within first and
      * then the directory itself.
      * <p>
@@ -566,7 +577,7 @@ public final class FileUtilities
     {
         assert path != null;
 
-        return deleteRecursively(path, null);
+        return deleteRecursively(path, (ISimpleLogger) null, null);
     }
 
     /**
@@ -581,15 +592,39 @@ public final class FileUtilities
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull)
     {
+        return deleteRecursively(path, loggerOrNull, null);
+    }
+
+    /**
+     * Deletes a directory recursively, that is deletes all files and directories within first and
+     * then the directory itself.
+     * 
+     * @param path Path of the file or directory to delete.
+     * @param loggerOrNull The logger that should be used to log deletion of path entries, or
+     *            <code>null</code> if nothing should be logged.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
+     *            deletion. This can be used to find out whether a (potentially) long-running
+     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
+     *            directory becoming unresponsive).
+     * @return <code>true</code> if the path has been delete successfully, <code>false</code>
+     *         otherwise.
+     */
+    public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull,
+            final SimpleActivityObserver observerOrNull)
+    {
         assert path != null;
 
         if (path.isDirectory())
         {
             for (final File file : path.listFiles())
             {
+                if (observerOrNull != null)
+                {
+                    observerOrNull.update();
+                }
                 if (file.isDirectory())
                 {
-                    deleteRecursively(file, loggerOrNull);
+                    deleteRecursively(file, loggerOrNull, observerOrNull);
                 } else
                 {
                     if (loggerOrNull != null)
@@ -625,18 +660,46 @@ public final class FileUtilities
             final ISimpleLogger logger)
     {
         assert path != null;
+
+        return deleteRecursively(path, filter, logger, null);
+    }
+
+    /**
+     * Deletes selected parts of a directory recursively, that is deletes all files and directories
+     * within the directory that are accepted by the {@link FileFilter}. Any subdirectory that is
+     * accepted by the <var>filter</var> will be completely deleted. This holds true also for the
+     * <var>path</var> itself.
+     * 
+     * @param path Path of the directory to delete the selected content from.
+     * @param filter The {@link FileFilter} to use when deciding which paths to delete.
+     * @param logger The logger that should be used to log deletion of path entries, or
+     *            <code>null</code> if nothing should be logged.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
+     *            deletion. This can be used to find out whether a (potentially) long-running
+     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
+     *            directory becoming unresponsive).
+     * @return <code>true</code> if the <var>path</var> itself has been deleted.
+     */
+    public static boolean deleteRecursively(final File path, final FileFilter filter,
+            final ISimpleLogger logger, final SimpleActivityObserver observerOrNull)
+    {
+        assert path != null;
         assert filter != null;
 
         if (filter.accept(path))
         {
-            return deleteRecursively(path, logger);
+            return deleteRecursively(path, logger, observerOrNull);
         } else
         {
             if (path.isDirectory())
             {
                 for (final File file : path.listFiles())
                 {
-                    deleteRecursively(file, filter, logger);
+                    if (observerOrNull != null)
+                    {
+                        observerOrNull.update();
+                    }
+                    deleteRecursively(file, filter, logger, observerOrNull);
                 }
             }
             return false;
