@@ -332,11 +332,7 @@ public final class ProcessExecutionHelper
                 {
                     processWrapper.set(process);
                     final int exitValue = process.waitFor();
-                    if (processWrapper.getAndSet(null) == null)
-                    {
-                        // Value is irrelevant, the ProcessKiller got us.
-                        return null;
-                    }
+                    processWrapper.set(null);
                     List<String> processOutput = null;
                     if (OutputReadingStrategy.ALWAYS.equals(outputReadingStrategy)
                             || (OutputReadingStrategy.ON_ERROR.equals(outputReadingStrategy) && ProcessResult
