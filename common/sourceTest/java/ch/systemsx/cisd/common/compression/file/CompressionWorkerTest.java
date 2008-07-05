@@ -125,7 +125,7 @@ public class CompressionWorkerTest
     public void testCompressionWorkerWithRetriableFailure()
     {
         final String faultyFile = "b";
-        final Status faultyStatus = new Status(StatusFlag.RETRIABLE_ERROR, "some problem");
+        final Status faultyStatus = Status.createRetriableError("some problem");
         final File[] files = new File[]
             { new File("a"), new File(faultyFile), new File("c") };
         context.checking(new Expectations()
@@ -159,7 +159,7 @@ public class CompressionWorkerTest
     public void testCompressionWorkerWithRetriableFailureFinallyFailed()
     {
         final String faultyFile = "b";
-        final Status faultyStatus = new Status(StatusFlag.RETRIABLE_ERROR, "some problem");
+        final Status faultyStatus = Status.createRetriableError("some problem");
         final File[] files = new File[]
             { new File("a"), new File(faultyFile), new File("c") };
         context.checking(new Expectations()
@@ -191,7 +191,7 @@ public class CompressionWorkerTest
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
         assertEquals(StatusFlag.RETRIABLE_ERROR, record.getFailureStatus().getFlag());
-        assertEquals(faultyStatus.getMessage(), record.getFailureStatus().getMessage());
+        assertEquals(faultyStatus.tryGetErrorMessage(), record.getFailureStatus().tryGetErrorMessage());
         assertTrue(logRecorder.getLogContent().indexOf(CompressionWorker.EXITING_MSG) >= 0);
     }
 
@@ -199,7 +199,7 @@ public class CompressionWorkerTest
     public void testCompressionWorkerWithFatalFailure()
     {
         final String faultyFile = "b";
-        final Status fatalStatus = new Status(StatusFlag.FATAL_ERROR, "some problem");
+        final Status fatalStatus = Status.createError("some problem");
         final File[] files = new File[]
             { new File("a"), new File(faultyFile), new File("c") };
         context.checking(new Expectations()
@@ -226,8 +226,8 @@ public class CompressionWorkerTest
         assertEquals(1, failed.size());
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
-        assertEquals(StatusFlag.FATAL_ERROR, record.getFailureStatus().getFlag());
-        assertEquals(fatalStatus.getMessage(), record.getFailureStatus().getMessage());
+        assertEquals(StatusFlag.ERROR, record.getFailureStatus().getFlag());
+        assertEquals(fatalStatus.tryGetErrorMessage(), record.getFailureStatus().tryGetErrorMessage());
         assertTrue(logRecorder.getLogContent().indexOf(CompressionWorker.EXITING_MSG) >= 0);
     }
 
@@ -308,9 +308,9 @@ public class CompressionWorkerTest
         assertEquals(1, failed.size());
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
-        assertEquals(StatusFlag.FATAL_ERROR, record.getFailureStatus().getFlag());
+        assertEquals(StatusFlag.ERROR, record.getFailureStatus().getFlag());
         assertEquals("Exceptional condition: " + FakedException.class.getSimpleName(), record
-                .getFailureStatus().getMessage());
+                .getFailureStatus().tryGetErrorMessage());
         assertEquals(ex, record.tryGetThrowable());
         assertTrue(logRecorder.getLogContent().indexOf(
                 String.format(CompressionWorker.EXCEPTION_COMPRESSING_MSG_TEMPLATE, faultyFile)) >= 0);

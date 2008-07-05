@@ -179,7 +179,7 @@ public final class RsyncCopierTest
     public void testRsyncFatalFailure() throws IOException, InterruptedException
     {
         final int exitValue = 1;
-        StatusFlag expectedStatus = StatusFlag.FATAL_ERROR;
+        StatusFlag expectedStatus = StatusFlag.ERROR;
 
         testRsyncFailure(exitValue, expectedStatus);
     }
@@ -191,7 +191,7 @@ public final class RsyncCopierTest
         final RsyncCopier copier = new RsyncCopier(buggyRsyncBinary, null, false, false);
         final Status status = copier.copy(sourceFile, destinationDirectory);
         assertEquals(expectedStatus, status.getFlag());
-        assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.getMessage());
+        assertEquals(RsyncExitValueTranslator.getMessage(exitValue), status.tryGetErrorMessage());
     }
 
     @Test(groups =

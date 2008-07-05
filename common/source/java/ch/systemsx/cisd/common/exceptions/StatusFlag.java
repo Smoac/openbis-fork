@@ -27,9 +27,9 @@ public enum StatusFlag
 
     /** The operation has been successful. */
     OK,
-    /** An error has occurred. Retrying the operation might remedy the problem. */
+    /** An error has occurred. Retrying the operation might remove the problem. */
     RETRIABLE_ERROR,
-    /** A fatal error has occurred. */
-    FATAL_ERROR
+    /** An error has occurred. */
+    ERROR
 
 }

@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -94,7 +93,7 @@ public abstract class InPlaceCompressionMethod implements ICompressionMethod, IS
     {
         final String msg = String.format(msgTemplate, params);
         operationLog.error(msg);
-        return new Status(StatusFlag.FATAL_ERROR, msg);
+        return Status.createError(msg);
     }
 
     /**

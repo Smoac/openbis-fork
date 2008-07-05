@@ -368,7 +368,7 @@ public final class RemotePathMover implements IStoreHandler
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item),
                         destinationDirectory, copyStatus));
-                if (StatusFlag.FATAL_ERROR.equals(copyStatus.getFlag()))
+                if (StatusFlag.ERROR.equals(copyStatus.getFlag()))
                 {
                     break;
                 }

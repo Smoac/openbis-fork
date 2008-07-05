@@ -21,7 +21,6 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -53,7 +52,7 @@ final class RetryingPathRemover implements IPathRemover
     }
 
     private final static Status STATUS_FAILED_DELETION =
-            new Status(StatusFlag.FATAL_ERROR, "Failed to remove path.");
+            Status.createError("Failed to remove path.");
 
     public Status remove(File path)
     {

@@ -26,9 +26,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 
 /**
@@ -44,6 +44,8 @@ public class RemoteStoreCopyActivitySensorTest
     private static final long THRESHOLD = 123L;
 
     private static final long MAX_DELTA = 5L;
+
+    private static final int MAX_ERRORS_TO_IGNORE = 1;
 
     private Mockery context;
 
@@ -65,7 +67,8 @@ public class RemoteStoreCopyActivitySensorTest
         context = new Mockery();
         destinationStore = context.mock(IFileStore.class);
         copyItem = new StoreItem(ITEM_NAME);
-        sensorUnderTest = new RemoteStoreCopyActivitySensor(destinationStore, copyItem);
+        sensorUnderTest =
+                new RemoteStoreCopyActivitySensor(destinationStore, copyItem, MAX_ERRORS_TO_IGNORE);
     }
 
     @AfterMethod
@@ -84,7 +87,7 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     one(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(returnValue(DateStatus.create(lastChanged)));
+                    will(returnValue(StatusWithResult.<Long> create(lastChanged)));
                 }
             });
         final long delta =
@@ -106,13 +109,13 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     one(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(returnValue(DateStatus.createError(errorMsg)));
+                    will(returnValue(StatusWithResult.<Long> createError(errorMsg)));
                 }
             });
         final long now = System.currentTimeMillis();
         final long delta = now - sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
         assertTrue("Delta is " + delta, delta < MAX_DELTA);
-        assertEquals("Error [ERROR message]: Unable to determine the time of write activity on "
+        assertEquals("Error: Unable to determine the time of write activity on "
                 + "item 'I am probed' in store 'iFileStore'", sensorUnderTest
                 .describeInactivity(now));
     }
@@ -125,19 +128,20 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     exactly(3).of(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(returnValue(DateStatus.createError(errorMsg)));
+                    will(returnValue(StatusWithResult.<Long> createError(errorMsg)));
                 }
             });
         ConcurrencyUtilities.sleep(10L);
         final long now = System.currentTimeMillis();
         final long lastActivity1 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now, lastActivity1);
+        final long delta = lastActivity1 - now;
+        assertTrue("Delta is " + delta, delta < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
         final long lastActivity2 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now, lastActivity2);
+        assertEquals(lastActivity1, lastActivity2);
         ConcurrencyUtilities.sleep(10L);
         final long lastActivity3 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
-        assertEquals(now, lastActivity3);
+        assertEquals(lastActivity1, lastActivity3);
     }
 
     @Test
@@ -148,9 +152,9 @@ public class RemoteStoreCopyActivitySensorTest
             {
                 {
                     exactly(3).of(destinationStore).lastChangedRelative(copyItem, THRESHOLD);
-                    will(onConsecutiveCalls(returnValue(DateStatus.create(17L)),
-                            returnValue(DateStatus.createError(errorMsg)), returnValue(DateStatus
-                                    .create(17L))));
+                    will(onConsecutiveCalls(returnValue(StatusWithResult.<Long> create(17L)),
+                            returnValue(StatusWithResult.<Long> createError(errorMsg)),
+                            returnValue(StatusWithResult.<Long> create(17L))));
                 }
             });
         ConcurrencyUtilities.sleep(10L);

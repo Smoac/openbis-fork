@@ -1,0 +1,138 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.common.utilities;
+
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
+/**
+ * A super class for {@link IActivitySensor}s that sense changes in some sort of copy operation to
+ * a "target".
+ * 
+ * @author Bernd Rinn
+ */
+public abstract class AbstractCopyActivitySensor implements IActivitySensor
+{
+    protected static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, AbstractCopyActivitySensor.class);
+
+    protected static final int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
+
+    protected final int maxErrorsToIgnore;
+
+    protected final long timeOfCreation = System.currentTimeMillis();
+
+    protected long timeOfLastConfirmedActivity = timeOfCreation;
+
+    protected long timeOfLastReportedActivity = timeOfCreation;
+
+    protected long lastNonErrorResult = -1L;
+
+    protected StatusWithResult<Long> currentResult;
+
+    protected int errorCount = 0;
+
+    protected AbstractCopyActivitySensor()
+    {
+        this(DEFAULT_MAX_ERRORS_TO_IGNORE);
+    }
+
+    protected AbstractCopyActivitySensor(int maxErrorsToIgnore)
+    {
+        this.maxErrorsToIgnore = maxErrorsToIgnore;
+        this.currentResult = null;
+    }
+
+    /**
+     * Returns the result of obtaining the last activity of the target that is more recent than
+     * <var>thresholdMillis</var> (relative to the current point in time).
+     * <p>
+     * If the status of the result is {@link StatusFlag#OK}, the result must be the time of last
+     * activity in milli-seconds (and <i>must not</i> be <code>null</code>).
+     */
+    protected abstract StatusWithResult<Long> getTargetTimeOfLastActivityMoreRecentThan(
+            long thresholdMillis);
+
+    /**
+     * Returns a textual description of the target.
+     */
+    protected abstract String getTargetDescription();
+
+    //
+    // IActivitySensor
+    //
+
+    public long getTimeOfLastActivityMoreRecentThan(long thresholdMillis)
+    {
+        currentResult = getTargetTimeOfLastActivityMoreRecentThan(thresholdMillis);
+        final long now = System.currentTimeMillis();
+        if (currentResult.isError())
+        {
+            ++errorCount;
+            if (errorCount <= maxErrorsToIgnore)
+            {
+                timeOfLastReportedActivity = now;
+                machineLog.error(describeInactivity(now)
+                        + String.format(" (error count: %d <= %d, goes unreported)", errorCount,
+                                maxErrorsToIgnore));
+            } else
+            {
+                machineLog.error(describeInactivity(now)
+                        + " (error count: %s, reported to monitor)");
+            }
+        } else
+        {
+            if (currentResult.tryGetResult() != lastNonErrorResult)
+            {
+                timeOfLastConfirmedActivity = now;
+                lastNonErrorResult = currentResult.tryGetResult();
+                if (machineLog.isDebugEnabled())
+                {
+                    machineLog.debug("Observing write activity on " + getTargetDescription());
+                }
+            }
+            // Implementation note: This means we can report an older time of activity than what we
+            // reported the last time if the last time we had an error. This is on purpose as it
+            // helps avoiding a situation where error and non-error situations do "flip-flop" and we
+            // could report progress where there is no progress.
+            timeOfLastReportedActivity = timeOfLastConfirmedActivity;
+            errorCount = 0;
+        }
+
+        return timeOfLastReportedActivity;
+    }
+
+    public String describeInactivity(long now)
+    {
+        if (currentResult.isError())
+        {
+            return "Error: Unable to determine the time of write activity on "
+                    + getTargetDescription();
+        } else
+        {
+            final String inactivityPeriod =
+                    DurationFormatUtils.formatDurationHMS(now - timeOfLastConfirmedActivity);
+            return "No write activity on " + getTargetDescription() + " for " + inactivityPeriod;
+        }
+    }
+}

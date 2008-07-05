@@ -24,6 +24,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -41,7 +42,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
-import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 
 /**
  * An {@link IFileStore} implementation for local stores.
@@ -88,20 +88,20 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         return BooleanStatus.createFromBoolean(exists);
     }
 
-    public final DateStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final StatusWithResult<Long> lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
         try
         {
             long lastChanged =
                     FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
-            return DateStatus.create(lastChanged);
+            return StatusWithResult.<Long>create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
         }
     }
 
-    public final DateStatus lastChangedRelative(final StoreItem item,
+    public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
         try
@@ -109,20 +109,20 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             long lastChanged =
                     FileUtilities.lastChangedRelative(getChildFile(item), true,
                             stopWhenFindYoungerRelative);
-            return DateStatus.create(lastChanged);
+            return StatusWithResult.<Long>create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
         }
     }
 
-    private static DateStatus createLastChangedError(final StoreItem item,
+    private static StatusWithResult<Long> createLastChangedError(final StoreItem item,
             UnknownLastChangedException ex)
     {
         String errorMsg =
                 String.format("Could not determine \"last changed time\" of %s: %s", item, ex
                         .getCause());
-        return DateStatus.createError(errorMsg);
+        return StatusWithResult.<Long>createError(errorMsg);
     }
 
     public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)

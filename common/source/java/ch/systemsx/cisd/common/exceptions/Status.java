@@ -15,29 +15,78 @@
  */
 package ch.systemsx.cisd.common.exceptions;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+
 /**
  * A class that holds the information about the status of an operation. To be used whenever a
  * failure of an operation is signalled back via a return value rather than an exception.
  * 
  * @author Bernd Rinn
  */
-public final class Status
+public class Status
 {
 
     private final StatusFlag flag;
 
-    private final String message;
+    private final String errorMessageOrNull;
 
     /** The status indicating that the operation went fine. */
     public static final Status OK = new Status(StatusFlag.OK, null);
 
-    public Status(StatusFlag flag, String message)
+    /**
+     * Create an error.
+     * 
+     * @param retriable If <code>true</code>, the error will be marked 'retriable'.
+     */
+    public static Status createError(boolean retriable)
+    {
+        return new Status(getErrorFlag(retriable), "");
+    }
+
+    public static Status createError(boolean retriable, String message)
+    {
+        assert message != null;
+        
+        return new Status(getErrorFlag(retriable), message);
+    }
+    
+    public static Status createError()
+    {
+        return new Status(StatusFlag.ERROR, "");
+    }
+    
+    public static Status createError(String message)
+    {
+        assert message != null;
+        
+        return new Status(StatusFlag.ERROR, message);
+    }
+    
+    public static Status createRetriableError()
+    {
+        return new Status(StatusFlag.RETRIABLE_ERROR, "");
+    }
+
+    public static Status createRetriableError(String message)
+    {
+        assert message != null;
+        
+        return new Status(StatusFlag.RETRIABLE_ERROR, message);
+    }
+
+    protected static StatusFlag getErrorFlag(boolean retriable)
+    {
+        return retriable ? StatusFlag.RETRIABLE_ERROR : StatusFlag.ERROR;
+    }
+    
+    protected Status(StatusFlag flag, String message)
     {
         assert flag != null;
         assert StatusFlag.OK.equals(flag) || message != null;
 
         this.flag = flag;
-        this.message = message;
+        this.errorMessageOrNull = message;
     }
 
     /**
@@ -49,13 +98,25 @@ public final class Status
     }
 
     /**
-     * @return The message of the operation if <code>getFlag() != OK</code>, or <code>null</code>
-     *         otherwise.
+     * @return <code>true</code> if this status represents an error.
      */
-    public String getMessage()
+    public final boolean isError()
     {
-        return message;
+        return flag != StatusFlag.OK;
     }
+
+    /**
+     * @return The error message of the operation if <code>getFlag() != OK</code> (can be empty), or
+     *         <code>null</code> otherwise.
+     */
+    public String tryGetErrorMessage()
+    {
+        return errorMessageOrNull;
+    }
+
+    //
+    // Object
+    //
 
     @Override
     public boolean equals(Object obj)
@@ -68,22 +129,23 @@ public final class Status
         {
             return false;
         }
-        final Status status = (Status) obj;
-        return flag.equals(status.flag);
+        final Status that = (Status) obj;
+        return getFlag() == that.getFlag()
+                && ObjectUtils.equals(this.tryGetErrorMessage(), that.tryGetErrorMessage());
     }
 
     @Override
     public int hashCode()
     {
-        return flag.hashCode();
+        return (17 + flag.hashCode()) * 37 + ObjectUtils.hashCode(tryGetErrorMessage());
     }
 
     @Override
     public String toString()
     {
-        if (message != null)
+        if (StringUtils.isNotBlank(errorMessageOrNull))
         {
-            return flag.toString() + ": \"" + message + "\"";
+            return flag.toString() + ": \"" + errorMessageOrNull + "\"";
         } else
         {
             return flag.toString();

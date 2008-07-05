@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
-import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -88,8 +87,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         final Status statusOrNull = localImplMonitored.delete(item);
         if (statusOrNull == null)
         {
-            return new Status(StatusFlag.RETRIABLE_ERROR, "Could not delete '" + item
-                    + "': time out.");
+            return Status.createRetriableError("Could not delete '" + item + "': time out.");
         }
         return statusOrNull;
     }
@@ -105,25 +103,25 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         return statusOrNull;
     }
 
-    public final DateStatus lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final StatusWithResult<Long> lastChanged(final StoreItem item, final long stopWhenFindYounger)
     {
-        final DateStatus statusOrNull = localImplMonitored.lastChanged(item, stopWhenFindYounger);
+        final StatusWithResult<Long> statusOrNull = localImplMonitored.lastChanged(item, stopWhenFindYounger);
         if (statusOrNull == null)
         {
-            return DateStatus.createError(String.format(
+            return StatusWithResult.<Long>createError(String.format(
                     "Could not determine \"last changed time\" of %s: time out.", item));
         }
         return statusOrNull;
     }
 
-    public final DateStatus lastChangedRelative(final StoreItem item,
+    public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        final DateStatus statusOrNull =
+        final StatusWithResult<Long> statusOrNull =
                 localImplMonitored.lastChangedRelative(item, stopWhenFindYoungerRelative);
         if (statusOrNull == null)
         {
-            return DateStatus.createError(String.format(
+            return StatusWithResult.<Long>createError(String.format(
                     "Could not determine \"last changed time\" of %s: time out.", item));
         }
         return statusOrNull;

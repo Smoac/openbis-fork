@@ -25,13 +25,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.DateStatus;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
 /**
@@ -159,12 +159,12 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
                 return false;
             }
             final long oldLastChanged = checkRecordOrNull.getTimeOfLastModification();
-            DateStatus newStatus = fileStore.lastChanged(item, oldLastChanged);
+            final StatusWithResult<Long> newStatus = fileStore.lastChanged(item, oldLastChanged);
             if (newStatus.isError())
             {
                 return false;
             }
-            final long newLastChanged = newStatus.getResult();
+            final long newLastChanged = newStatus.tryGetResult();
             if (newLastChanged != oldLastChanged)
             {
                 pathMap.put(item, new PathCheckRecord(now, newLastChanged));
@@ -198,10 +198,10 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
 
     private void saveFirstModificationTime(final StoreItem item, final long now)
     {
-        DateStatus status = fileStore.lastChanged(item, 0L);
+        final StatusWithResult<Long> status = fileStore.lastChanged(item, 0L);
         if (status.isError() == false)
         {
-            pathMap.put(item, new PathCheckRecord(now, status.getResult()));
+            pathMap.put(item, new PathCheckRecord(now, status.tryGetResult()));
         }
     }
 

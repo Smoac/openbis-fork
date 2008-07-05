@@ -45,7 +45,7 @@ public class FailureRecord
     {
         this.failedFile = failedFile;
         this.failureStatus =
-                new Status(StatusFlag.FATAL_ERROR, "Exceptional condition: "
+                Status.createError("Exceptional condition: "
                         + throwableOrNull.getClass().getSimpleName());
         this.throwableOrNull = throwableOrNull;
     }

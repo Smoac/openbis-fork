@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -45,23 +46,24 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  */
 public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 {
-    /**
-     * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
-     */
-    protected static final Status TERMINATED_STATUS =
-            new Status(StatusFlag.RETRIABLE_ERROR, "Process was terminated.");
-
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, RsyncCopier.class);
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RsyncCopier.class);
 
+    /**
+     * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
+     */
+    @Private
+    static final Status TERMINATED_STATUS =
+            Status.createRetriableError("Process was terminated.");
+
     private static final Status INTERRUPTED_STATUS =
-            new Status(StatusFlag.RETRIABLE_ERROR, "Process was interrupted.");
+        Status.createRetriableError("Process was interrupted.");
 
     private static final Status TIMEOUT_STATUS =
-            new Status(StatusFlag.RETRIABLE_ERROR, "Process has stopped because of timeout.");
+        Status.createRetriableError("Process has stopped because of timeout.");
 
     private final String rsyncExecutable;
 
@@ -421,11 +423,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         int exitValue = processResult.getExitValue();
         final StatusFlag flag = RsyncExitValueTranslator.getStatus(exitValue);
-        if (StatusFlag.OK.equals(flag))
+        if (flag == StatusFlag.OK)
         {
             return Status.OK;
         }
-        return new Status(flag, RsyncExitValueTranslator.getMessage(exitValue));
+        final boolean retriableError = (flag == StatusFlag.RETRIABLE_ERROR);
+        return Status.createError(retriableError, RsyncExitValueTranslator.getMessage(exitValue));
     }
 
 }

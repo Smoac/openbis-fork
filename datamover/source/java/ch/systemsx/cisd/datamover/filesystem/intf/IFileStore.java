@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
@@ -71,7 +72,7 @@ public interface IFileStore extends ISelfTestable
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed or error status if checking failed.
      */
-    public DateStatus lastChanged(StoreItem item, long stopWhenFindYounger);
+    public StatusWithResult<Long> lastChanged(StoreItem item, long stopWhenFindYounger);
 
     /**
      * Returns the last time when there was a write access to <var>item</var>.
@@ -83,7 +84,7 @@ public interface IFileStore extends ISelfTestable
      * @return The time (in milliseconds since the start of the epoch) when <var>resource</var> was
      *         last changed or error status if checking failed.
      */
-    public DateStatus lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
+    public StatusWithResult<Long> lastChangedRelative(StoreItem item, long stopWhenFindYoungerRelative);
 
     /**
      * List files in the scanned store. Sort in order of "oldest first".
