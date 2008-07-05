@@ -50,7 +50,7 @@ public final class CallableExecutor
      * Executes given <var>callable</var> until it returns a non-<code>null</code> value (or
      * until <code>maxRetryOnFailure</code> is reached).
      */
-    public final <T> T executeCallable(final Callable<T> callable)
+    public final <T> T executeCallable(final Callable<T> callable) throws StopException
     {
         int counter = 0;
         T result = null;
@@ -62,13 +62,7 @@ public final class CallableExecutor
                 result = callable.call();
                 if (counter > 0 && millisToSleepOnFailure > 0)
                 {
-                    try
-                    {
-                        Thread.sleep(millisToSleepOnFailure);
-                    } catch (final InterruptedException ex)
-                    {
-                        throw new CheckedExceptionTunnel(ex);
-                    }
+                    Thread.sleep(millisToSleepOnFailure);
                 }
             } while (counter++ < maxRetryOnFailure && result == null);
         } catch (final Exception ex)
