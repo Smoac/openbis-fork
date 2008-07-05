@@ -142,7 +142,7 @@ public class SelfTestTest
         SelfTest.check(mockCopier, incomingStore, bufferStore, incomingStore);
     }
 
-    @Test(expectedExceptions = ConfigurationFailureException.class)
+    @Test(expectedExceptions = ConfigurationFailureException.class, groups = "slow")
     public void testContainingPaths()
     {
         final File illegalBufferDirectory = new File(incomingDirectory, "temp");
@@ -150,7 +150,7 @@ public class SelfTestTest
         SelfTest.check(mockCopier, incomingStore, illegalBufferStore, outgoingStore);
     }
 
-    @Test(expectedExceptions = ConfigurationFailureException.class)
+    @Test(expectedExceptions = ConfigurationFailureException.class, groups = "slow")
     public void testNonExistentPaths()
     {
         final File nonExistentIncomingDirectory = new File(workingDirectory, "data");
