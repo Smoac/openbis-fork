@@ -291,7 +291,6 @@ public abstract class AbstractChecker
     {
         try
         {
-            // FIXME???
             getFileOrFail(dataDir, name);
         } catch (final Exception e)
         {
