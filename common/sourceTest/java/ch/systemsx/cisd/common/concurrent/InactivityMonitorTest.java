@@ -39,8 +39,6 @@ import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
  */
 public class InactivityMonitorTest
 {
-    private final static long CHECK_INTERVAL_MILLIS = 10L;
-
     private final static long INACTIVITY_THRESHOLD_MILLIS = 20L;
 
     private static final long TIME_TO_WAIT_MILLIS = 4 * INACTIVITY_THRESHOLD_MILLIS;
@@ -105,13 +103,13 @@ public class InactivityMonitorTest
     private final class ReturnNowMinus extends CustomAction
     {
         final long lagTimeMillis;
-        
+
         ReturnNowMinus(long lagTimeMillis)
         {
             super("returns now - " + lagTimeMillis);
             this.lagTimeMillis = lagTimeMillis;
         }
-        
+
         public Object invoke(Invocation invocation) throws Throwable
         {
             return (System.currentTimeMillis() - lagTimeMillis);
@@ -161,8 +159,7 @@ public class InactivityMonitorTest
                 }
             });
         monitorUnderTest =
-                new InactivityMonitor(sensor, observer, CHECK_INTERVAL_MILLIS,
-                        INACTIVITY_THRESHOLD_MILLIS, true);
+                new InactivityMonitor(sensor, observer, INACTIVITY_THRESHOLD_MILLIS, true);
         ConcurrencyUtilities.sleep(TIME_TO_WAIT_MILLIS);
         monitorUnderTest.stop();
         exceptionHandler.checkAndRethrowException();
@@ -186,8 +183,7 @@ public class InactivityMonitorTest
                 }
             });
         monitorUnderTest =
-                new InactivityMonitor(sensor, observer, CHECK_INTERVAL_MILLIS,
-                        INACTIVITY_THRESHOLD_MILLIS, true);
+                new InactivityMonitor(sensor, observer, INACTIVITY_THRESHOLD_MILLIS, true);
         ConcurrencyUtilities.sleep(TIME_TO_WAIT_MILLIS);
         monitorUnderTest.stop();
         exceptionHandler.checkAndRethrowException();
@@ -201,7 +197,8 @@ public class InactivityMonitorTest
         context.checking(new Expectations()
             {
                 {
-                    atLeast(3).of(sensor).getTimeOfLastActivityMoreRecentThan(INACTIVITY_THRESHOLD_MILLIS);
+                    atLeast(3).of(sensor).getTimeOfLastActivityMoreRecentThan(
+                            INACTIVITY_THRESHOLD_MILLIS);
                     will(new ReturnNowMinus(2 * INACTIVITY_THRESHOLD_MILLIS));
                     atLeast(3).of(sensor).describeInactivity(with(new NowMatcher()));
                     will(returnValue(descriptionOfInactivity));
@@ -211,8 +208,7 @@ public class InactivityMonitorTest
                 }
             });
         monitorUnderTest =
-                new InactivityMonitor(sensor, observer, CHECK_INTERVAL_MILLIS,
-                        INACTIVITY_THRESHOLD_MILLIS, false);
+                new InactivityMonitor(sensor, observer, INACTIVITY_THRESHOLD_MILLIS, false);
         ConcurrencyUtilities.sleep(TIME_TO_WAIT_MILLIS);
         monitorUnderTest.stop();
         exceptionHandler.checkAndRethrowException();

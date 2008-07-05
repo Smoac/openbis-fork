@@ -100,7 +100,6 @@ public class InactivityMonitor
      *            detect and signal time out conditions itself. <i>If an operation on this sensor
      *            hangs infinitely, then the InactivityMonitor hangs, too!</i>
      * @param observer The observer to inform when the inactivity threshold has been exceeded.
-     * @param checkIntervallMillis The interval the monitor should use for checking activity status.
      * @param inactivityThresholdMillis The threshold of a period of inactivity that needs to be
      *            exceeded before the inactivity observer gets informed.
      * @param stopAfterFirstEvent If <code>true</code>, the monitor will stop itself after the
@@ -108,11 +107,10 @@ public class InactivityMonitor
      *            will continue to look for such events.
      */
     public InactivityMonitor(IActivitySensor sensor, IInactivityObserver observer,
-            long checkIntervallMillis, long inactivityThresholdMillis, boolean stopAfterFirstEvent)
+            long inactivityThresholdMillis, boolean stopAfterFirstEvent)
     {
         assert sensor != null;
         assert observer != null;
-        assert checkIntervallMillis > 0;
         assert inactivityThresholdMillis > 0;
 
         this.sensor = sensor;
@@ -132,7 +130,10 @@ public class InactivityMonitor
         activityMonitoringTimer = new Timer(threadNamePrefix + "Activity Monitor", true);
         final InactivityMonitoringTimerTask inactivityMonitoringTimerTask =
                 new InactivityMonitoringTimerTask();
-        activityMonitoringTimer.schedule(inactivityMonitoringTimerTask, 0L, checkIntervallMillis);
+        activityMonitoringTimer.schedule(inactivityMonitoringTimerTask, 0L,
+                inactivityThresholdMillis / 2);
+//        activityMonitoringTimer.schedule(inactivityMonitoringTimerTask, 0L,
+//                Math.max(inactivityThresholdMillis, inactivityThresholdMillis + 10L));
     }
 
     /**

@@ -93,8 +93,6 @@ public final class RemotePathMover implements IStoreHandler
 
     private final long intervallToWaitAfterFailure;
 
-    private final long checkIntervallMillis;
-
     private final long inactivityPeriodMillis;
 
     private final int maximalNumberOfRetries;
@@ -124,7 +122,6 @@ public final class RemotePathMover implements IStoreHandler
         this.copier = copier;
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
-        this.checkIntervallMillis = timingParameters.getCheckIntervalMillis();
         this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
 
         assert intervallToWaitAfterFailure >= 0;
@@ -150,7 +147,7 @@ public final class RemotePathMover implements IStoreHandler
                                             copier.getClass().getName(), descriptionOfInactivity));
                                     copier.terminate();
                                 }
-                            }, checkIntervallMillis, inactivityPeriodMillis, true);
+                            }, inactivityPeriodMillis, true);
         final Status copyStatus = copier.copy(item);
         monitor.stop();
         return copyStatus;
