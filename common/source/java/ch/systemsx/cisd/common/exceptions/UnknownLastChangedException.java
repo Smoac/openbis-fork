@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
-import java.io.IOException;
-
 /**
  * Used to signal the error of getting last modification time of a store item
  * 
  * @author Tomasz Pylak
  */
-public class UnknownLastChangedException extends IOException
+public class UnknownLastChangedException extends EnvironmentFailureException
 {
     private static final long serialVersionUID = 1L;
 
