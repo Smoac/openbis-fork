@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = RsyncCopier.class)
 public final class RsyncCopierTest
 {
 
