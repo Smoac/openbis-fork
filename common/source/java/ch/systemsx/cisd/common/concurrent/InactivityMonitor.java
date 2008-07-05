@@ -132,8 +132,6 @@ public class InactivityMonitor
                 new InactivityMonitoringTimerTask();
         activityMonitoringTimer.schedule(inactivityMonitoringTimerTask, 0L,
                 inactivityThresholdMillis / 2);
-//        activityMonitoringTimer.schedule(inactivityMonitoringTimerTask, 0L,
-//                Math.max(inactivityThresholdMillis, inactivityThresholdMillis + 10L));
     }
 
     /**
