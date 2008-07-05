@@ -135,10 +135,14 @@ public class FileLinkUtilities
     public static final void createHardLink(String filename, String linkname)
             throws FileLinkException
     {
+        if (filename == null || linkname == null)
+        {
+            throw new FileLinkException("hard", filename, linkname, "null is not allowed");
+        }
         final int result = hardlink(filename, linkname);
         if (result < 0)
         {
-            throw new FileLinkException("hard", linkname, filename, strerror(result));
+            throw new FileLinkException("hard", filename, linkname, strerror(result));
         }
     }
 
@@ -151,15 +155,23 @@ public class FileLinkUtilities
     public static final void createSymbolicLink(String filename, String linkname)
             throws FileLinkException
     {
+        if (filename == null || linkname == null)
+        {
+            throw new FileLinkException("symbolic", filename, linkname, "null is not allowed");
+        }
         final int result = symlink(filename, linkname);
         if (result < 0)
         {
-            throw new FileLinkException("symbolic", linkname, filename, strerror(result));
+            throw new FileLinkException("symbolic", filename, linkname, strerror(result));
         }
     }
 
     private static int[] getLinkInfoArray(String linkname) throws FileLinkInfoException
     {
+        if (linkname == null)
+        {
+            throw new FileLinkInfoException(linkname, "null is not allowed");
+        }
         final int[] inodeInfo = new int[4];
         final int result = linkinfo(linkname, inodeInfo);
         if (result < 0)
