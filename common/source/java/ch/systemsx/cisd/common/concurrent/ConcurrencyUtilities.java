@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -289,6 +290,15 @@ public final class ConcurrencyUtilities
                 loggerOrNull.log(LogLevel.DEBUG, String
                         .format("%s got interrupted.", operationName));
             }
+            return ExecutionResult.createInterrupted();
+        } catch (CancellationException ex)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.DEBUG, String
+                        .format("%s got cancelled.", operationName));
+            }
+            // We treat cancelled the same as interrupted.
             return ExecutionResult.createInterrupted();
         } catch (ExecutionException ex)
         {
