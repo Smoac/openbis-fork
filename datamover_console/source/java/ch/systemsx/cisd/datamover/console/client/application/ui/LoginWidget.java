@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -86,7 +87,7 @@ public class LoginWidget extends Composite
     private TextBox createLabeledTextBoxIn(Grid grid, int rowIndex, String label, boolean password)
     {
         grid.setText(rowIndex, 0, label + ":");
-        TextBox textBox = new TextBox();
+        TextBox textBox = password ? new PasswordTextBox() : new TextBox();
         grid.setWidget(rowIndex, 1, textBox);
         return textBox;
     }
