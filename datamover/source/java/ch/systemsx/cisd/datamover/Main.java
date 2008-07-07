@@ -161,11 +161,8 @@ public final class Main
     private final static void createOutgoingTargetFile(final Parameters parameters)
     {
         final HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
-        final StringBuilder builder = new StringBuilder();
-        builder.append(outgoingTarget.getCanonicalPath()).append('>');
-        builder.append(Math.max(0, outgoingTarget.getHighwaterMark()));
         FileUtilities.writeToFile(createDeleteOnExitFile(DataMover.OUTGOING_TARGET_LOCATION_FILE),
-                builder.toString());
+                outgoingTarget.getCanonicalPath());
     }
 
     private final static File createDeleteOnExitFile(final String fileName)
