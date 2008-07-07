@@ -157,7 +157,6 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         if (session != null)
         {
             session.invalidate();
-            actionLog.logLogout(session);
         }
     }
 
