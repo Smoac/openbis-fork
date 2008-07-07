@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.console.client;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -40,9 +41,9 @@ public interface IDatamoverConsoleServiceAsync extends RemoteService
     
     public void listDatamoverInfos(AsyncCallback<List<DatamoverInfo>> callback);
     
-    public void getTargets(AsyncCallback<List<String>> callback);
+    public void getTargets(AsyncCallback<Map<String, String>> callback);
     
-    public void startDatamover(String name, String target, String highwaterLevelInKB, AsyncCallback<Void> callback);
+    public void startDatamover(String name, String target, AsyncCallback<Void> callback);
 
     public void stopDatamover(String name, AsyncCallback<Void> callback);
 }

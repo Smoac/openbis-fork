@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.console.client;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
@@ -54,9 +55,9 @@ public interface IDatamoverConsoleService extends RemoteService
      */
     public List<DatamoverInfo> listDatamoverInfos();
     
-    public List<String> getTargets();
+    public Map<String, String> getTargets();
     
-    public void startDatamover(String name, String target, String highwaterLevelInKB);
+    public void startDatamover(String name, String target);
 
     public void stopDatamover(String name);
     

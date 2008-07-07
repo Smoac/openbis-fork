@@ -27,7 +27,6 @@ public class DatamoverInfo implements IsSerializable
 {
     private String name = "?";
     private String targetLocation = "?";
-    private int watermarkLevel = 0;
     private DatamoverStatus status = DatamoverStatus.DOWN;
     
     public final String getName()
@@ -48,16 +47,6 @@ public class DatamoverInfo implements IsSerializable
     public final void setTargetLocation(String targetLocation)
     {
         this.targetLocation = targetLocation;
-    }
-    
-    public final int getWatermarkLevel()
-    {
-        return watermarkLevel;
-    }
-    
-    public final void setWatermarkLevel(int watermarkLevel)
-    {
-        this.watermarkLevel = watermarkLevel;
     }
     
     public final DatamoverStatus getStatus()
