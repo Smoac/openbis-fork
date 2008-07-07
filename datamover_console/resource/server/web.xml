@@ -10,9 +10,9 @@
     
     &common;
 
-    <!--
-        // Session holder
-    -->
+    <listener>
+        <listener-class>ch.systemsx.cisd.datamover.console.server.LogHttpSessionListener</listener-class>
+    </listener>
 
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
