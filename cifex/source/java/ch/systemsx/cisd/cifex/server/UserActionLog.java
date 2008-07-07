@@ -23,25 +23,21 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.servlet.AbstractActionLog;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 
 /**
  * This class provides methods that are required to log the actions of CIFEX users.
  * 
  * @author Bernd Rinn
  */
-public final class UserActionLog implements IUserActionLog
+public final class UserActionLog extends AbstractActionLog implements IUserActionLog
 {
 
     private static final String TEMPORARY_UNTIL_STR = "TEMPORARY until ";
@@ -54,71 +50,24 @@ public final class UserActionLog implements IUserActionLog
 
     private static final String OK = "OK";
 
-    private static final String USER_HOST_SESSION_TEMPLATE = "{USER: %s, HOST: %s, SESSION: %s} ";
-
-    private static final Logger authenticationLog = LogFactory.getLogger(LogCategory.AUTH);
-
-    private static final Logger accessLog = LogFactory.getLogger(LogCategory.ACCESS);
-
-    private static final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING);
-
     private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
 
     private static final SimpleDateFormat dateTimeFormat =
             new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
 
-    private final IRequestContextProvider requestContextProvider;
-
-    private final IRemoteHostProvider remoteHostProvider;
-
     public UserActionLog(final IRequestContextProvider requestContextProvider)
     {
-        this.requestContextProvider = requestContextProvider;
-        this.remoteHostProvider = new RequestContextProviderAdapter(requestContextProvider);
+        super(requestContextProvider);
     }
 
     //
-    // IUserBehaviorLog
+    // AbstractActionLog
     //
 
-    //
-    // Login / Logout
-    //
-
-    public void logFailedLoginAttempt(final String userCode)
+    @Override
+    protected String getUserCode(HttpSession httpSession)
     {
-        if (authenticationLog.isInfoEnabled())
-        {
-            final String logMessage =
-                    String.format("{USER: %s, HOST: %s} login: FAILED", userCode,
-                            remoteHostProvider.getRemoteHost());
-            authenticationLog.info(logMessage);
-        }
-    }
-
-    public void logSuccessfulLogin()
-    {
-        if (authenticationLog.isInfoEnabled())
-        {
-            final String userHostSessionDescription = getUserHostSessionDescription();
-            authenticationLog.info(userHostSessionDescription + "login: OK");
-        }
-    }
-
-    public void logLogout(final HttpSession httpSession)
-    {
-        if (authenticationLog.isInfoEnabled())
-        {
-            final long now = System.currentTimeMillis();
-            final boolean timedOut =
-                    (now - httpSession.getLastAccessedTime()) / 1000.0 >= httpSession
-                            .getMaxInactiveInterval();
-            final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-            final String logoutMsg =
-                    String.format("{USER: %s, SESSION: %s} logout%s", user.getUserCode(),
-                            httpSession.getId(), timedOut ? " (session timeout)" : "");
-            authenticationLog.info(logoutMsg);
-        }
+        return ((UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME)).getUserCode();
     }
 
     //
@@ -239,24 +188,6 @@ public final class UserActionLog implements IUserActionLog
             trackingLog.info(String.format("{SYSTEM} delete_user '%s': %s",
                     getUserDescription(user), getSuccessString(success)));
         }
-    }
-
-    private String getUserHostSessionDescription()
-    {
-        final HttpSession httpSession = getHttpSession();
-        if (httpSession == null)
-        {
-            return String.format(USER_HOST_SESSION_TEMPLATE, "UNKNOWN", remoteHostProvider
-                    .getRemoteHost(), "UNKNOWN");
-        }
-        final UserDTO user = (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
-        return String.format(USER_HOST_SESSION_TEMPLATE, user.getUserCode(), remoteHostProvider
-                .getRemoteHost(), httpSession.getId());
-    }
-
-    private HttpSession getHttpSession()
-    {
-        return requestContextProvider.getHttpServletRequest().getSession(false);
     }
 
     private static String getSuccessString(final boolean success)

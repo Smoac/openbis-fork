@@ -18,29 +18,18 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpSession;
-
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.servlet.IActionLog;
 
 /**
  * This role provides methods that are required to log the actions of CIFEX users.
  * 
  * @author Bernd Rinn
  */
-public interface IUserActionLog
+public interface IUserActionLog extends IActionLog
 {
     public static final String USER_ACTION_LOG_BEAN_NAME = "user-action-log";
-
-    //
-    // Login / Logout
-    //
-
-    public void logFailedLoginAttempt(String userCode);
-
-    public void logSuccessfulLogin();
-
-    public void logLogout(HttpSession httpSession);
 
     //
     // Users
