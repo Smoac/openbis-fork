@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.console.client.application.ui;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -41,9 +42,6 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
  */
 public class Console extends Composite
 {
-    private static final int MEGA = 1024;
-    private static final int GIGA = 1024 * 1024;
-    
     private static final String STYLE_PREFIX = "console-";
     private static final String STYLE_HEADER_PREFIX = STYLE_PREFIX + "header-";
     private static final String STYLE_TABLE_PREFIX = STYLE_PREFIX + "table-";
@@ -53,7 +51,7 @@ public class Console extends Composite
     
     private final AsyncCallback<Void> refreshCallBack;
         
-    private List<String> targets;
+    private Map<String, String> targets;
 
     public Console(ViewContext viewContext)
     {
@@ -74,9 +72,9 @@ public class Console extends Composite
             }));
         initWidget(panel);
         
-        viewContext.getService().getTargets(new AbstractAsyncCallback<List<String>>(viewContext)
+        viewContext.getService().getTargets(new AbstractAsyncCallback<Map<String, String>>(viewContext)
             {
-                public void onSuccess(List<String> list)
+                public void onSuccess(Map<String, String> list)
                 {
                     targets = list;
                     refreshView();
@@ -158,13 +156,12 @@ public class Console extends Composite
     
     private Widget createView(List<DatamoverInfo> list)
     {
-        Grid grid = new Grid(list.size() + 1, 5);
+        Grid grid = new Grid(list.size() + 1, 4);
         grid.setStyleName(STYLE_TABLE_PREFIX + "table");
         grid.setText(0, 0, "Datamover");
         grid.setText(0, 1, "Target Location");
-        grid.setText(0, 2, "Minimum Target Disk Space needed");
-        grid.setText(0, 3, "Status");
-        grid.setText(0, 4, "Command");
+        grid.setText(0, 2, "Status");
+        grid.setText(0, 3, "Command");
         grid.getRowFormatter().setStyleName(0, STYLE_TABLE_PREFIX + "header");
         for (int i = 0, n = list.size(); i < n; i++)
         {
@@ -180,25 +177,22 @@ public class Console extends Composite
     {
         grid.setText(rowIndex, 0, datamoverInfo.getName());
         DatamoverStatus status = datamoverInfo.getStatus();
-        grid.setText(rowIndex, 3, status.toString());
+        grid.setText(rowIndex, 2, status.toString());
         if (status == DatamoverStatus.DOWN || status == DatamoverStatus.STALE)
         {
             final ListBox targetListBox = createTargetListBox();
-            final ListBox levelListBox = createLevelListBox();
             grid.setWidget(rowIndex, 1, targetListBox);
-            grid.setWidget(rowIndex, 2, levelListBox);
             Button button = createTableButton("start", new ClickListener()
                 {
                     public void onClick(Widget arg0)
                     {
-                        startDatamover(datamoverInfo.getName(), targetListBox, levelListBox);
+                        startDatamover(datamoverInfo.getName(), targetListBox);
                     }
                 });
-            grid.setWidget(rowIndex, 4, button);
+            grid.setWidget(rowIndex, 3, button);
         } else
         {
-            grid.setText(rowIndex, 1, datamoverInfo.getTargetLocation());
-            grid.setText(rowIndex, 2, renderInBytes(datamoverInfo.getWatermarkLevel()));
+            grid.setText(rowIndex, 1, getTargetName(datamoverInfo));
             if (status != DatamoverStatus.SHUTDOWN)
             {
                 Button button = createTableButton("stop", new ClickListener()
@@ -208,16 +202,28 @@ public class Console extends Composite
                             stopDatamover(datamoverInfo.getName());
                         }
                     });
-                grid.setWidget(rowIndex, 4, button);
+                grid.setWidget(rowIndex, 3, button);
             }
         }
     }
     
-    private void startDatamover(String name, ListBox targetListBox, ListBox levelListBox)
+    private String getTargetName(DatamoverInfo datamoverInfo)
+    {
+        String targetLocation = datamoverInfo.getTargetLocation();
+        for (Map.Entry<String, String> entry : targets.entrySet())
+        {
+            if (entry.getValue().equals(targetLocation))
+            {
+                return entry.getKey();
+            }
+        }
+        return targetLocation;
+    }
+    
+    private void startDatamover(String name, ListBox targetListBox)
     {
         String target = getSelectedValueOf(targetListBox);
-        String level = getSelectedValueOf(levelListBox);
-        viewContext.getService().startDatamover(name, target, level, refreshCallBack);
+        viewContext.getService().startDatamover(name, target, refreshCallBack);
     }
     
     private String getSelectedValueOf(ListBox listBox)
@@ -241,43 +247,10 @@ public class Console extends Composite
     private ListBox createTargetListBox()
     {
         ListBox list = new ListBox();
-        for (String target : targets)
+        for (Map.Entry<String, String> target : targets.entrySet())
         {
-            list.addItem(target, target);
+            list.addItem(target.getKey(), target.getValue());
         }
         return list;
     }
-
-    private ListBox createLevelListBox()
-    {
-        ListBox listBox = new ListBox();
-        for (int i = 0, base = 1; i < 3; i++, base *= 1024)
-        {
-            for (int level = base; level < 101 * base; level *= 10)
-            {
-                addItemTo(listBox, level);
-                addItemTo(listBox, 3 * level);
-            }
-        }
-        return listBox;
-    }
-
-    private void addItemTo(ListBox listBox, int level)
-    {
-        listBox.addItem(renderInBytes(level), Integer.toString(level));
-    }
-    
-    private String renderInBytes(int kiloBytes)
-    {
-        if (kiloBytes < MEGA)
-        {
-            return Integer.toString(kiloBytes) + "KB";
-        }
-        if (kiloBytes < GIGA)
-        {
-            return Integer.toString((kiloBytes + 512) / 1024) + "MB";
-        }
-        return Integer.toString((kiloBytes + 512 * 1024) / (1024 * 1024)) + "GB";
-    }
-
 }
