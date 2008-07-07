@@ -79,12 +79,12 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         return status;
     }
 
-    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark()
+    public String tryToObtainTarget()
     {
         List<String> output = execute("target").getOutput();
-        return output.isEmpty() ? null : new TargetAndHighwaterMark(output.get(0));
+        return output.isEmpty() ? null : output.get(0);
     }
-
+    
     public void shutdown()
     {
         ProcessResult result = execute("shutdown");
@@ -106,11 +106,9 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         }
     }
 
-    public void start(String target, long highwaterMarkInKByteOrNull)
+    public void start(String target)
     {
-        String argument =
-                highwaterMarkInKByteOrNull > 0 ? target + ">" + highwaterMarkInKByteOrNull : target;
-        ProcessResult result = execute("start", "--outgoing-target", argument);
+        ProcessResult result = execute("start", "--outgoing-target", target);
         if (result.isOK() == false)
         {
             String message =

@@ -16,20 +16,17 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-import javax.servlet.http.HttpSession;
+import ch.systemsx.cisd.common.servlet.IActionLog;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IActionLog
+public interface IConsoleActionLog extends IActionLog
 {
-    public void logFailedLoginAttempt(String userCode);
-
-    public void logSuccessfulLogin();
-
-    public void logLogout(HttpSession httpSession);
-
+    public void logStartDatamover(String datamover, String targetName);
+    
+    public void logShutdownDatamover(String datamover);
 
 }

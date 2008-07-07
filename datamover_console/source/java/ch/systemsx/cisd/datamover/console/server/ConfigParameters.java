@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
@@ -33,46 +32,42 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class ConfigParameters
 {
-    private static final String TARGETS = "targets";
-    private static final String DATAMOVERS = "datamovers";
-    private static final String WORKING_DIRECTORY = ".working-directory";
+    @Private static final String TARGETS = "targets";
+    @Private static final String LOCATION = "location";
+    @Private static final String DATAMOVERS = "datamovers";
+    @Private static final String WORKING_DIRECTORY = "working-directory";
     
-    private final List<String> targets;
+    private final Map<String, String> targets;
     private final Map<String, String> datamoversWorkingDirectories;
 
     public ConfigParameters(Properties properties)
     {
-        StringTokenizer tokenizer =
-                new StringTokenizer(PropertyUtils.getMandatoryProperty(properties, TARGETS), ",");
-        targets = new ArrayList<String>();
-        while (tokenizer.hasMoreElements())
-        {
-            String target = tokenizer.nextToken().trim();
-            targets.add(target);
-        }
+        targets = obtainMapFrom(properties, TARGETS, LOCATION);
         if (targets.isEmpty())
         {
-            throw new ConfigurationFailureException("At least one target has to be specified.");
+            throw new ConfigurationFailureException("At least one target should be specified.");
         }
-        
-        String datamovers = PropertyUtils.getMandatoryProperty(properties, DATAMOVERS);
-        tokenizer = new StringTokenizer(datamovers);
-        datamoversWorkingDirectories = new LinkedHashMap<String, String>();
-        while (tokenizer.hasMoreElements())
-        {
-            String datamover = tokenizer.nextToken();
-            String key = datamover + WORKING_DIRECTORY;
-            String workingDirectory = PropertyUtils.getMandatoryProperty(properties, key);
-            datamoversWorkingDirectories.put(datamover, workingDirectory);
-        }
+        datamoversWorkingDirectories = obtainMapFrom(properties, DATAMOVERS, WORKING_DIRECTORY);
         if (datamoversWorkingDirectories.isEmpty())
         {
-            throw new ConfigurationFailureException(
-                    "Working directory of at least one datamover should be specified.");
+            throw new ConfigurationFailureException("At least one datamover should be specified.");
         }
     }
     
-    public final List<String> getTargets()
+    private Map<String, String> obtainMapFrom(Properties properties, String name, String valueName)
+    {
+        String keys = PropertyUtils.getMandatoryProperty(properties, name);
+        StringTokenizer tokenizer = new StringTokenizer(keys);
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        while (tokenizer.hasMoreTokens())
+        {
+            String key = tokenizer.nextToken();
+            map.put(key, PropertyUtils.getMandatoryProperty(properties, key + "." + valueName));
+        }
+        return map;
+    }
+    
+    public final Map<String, String> getTargets()
     {
         return targets;
     }

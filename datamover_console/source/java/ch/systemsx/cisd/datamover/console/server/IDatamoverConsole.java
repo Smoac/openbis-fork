@@ -27,9 +27,9 @@ public interface IDatamoverConsole
 {
     public DatamoverStatus obtainStatus();
     
-    public TargetAndHighwaterMark tryToObtainTargetAndHighwaterMark();
+    public String tryToObtainTarget();
     
     public void shutdown();
     
-    public void start(String target, long highwaterMarkInKByteOrNull);
+    public void start(String target);
 }

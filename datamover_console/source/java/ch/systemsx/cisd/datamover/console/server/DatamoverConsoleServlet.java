@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.console.server;
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -114,14 +115,14 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
         return service.listDatamoverInfos();
     }
 
-    public List<String> getTargets()
+    public Map<String, String> getTargets()
     {
         return service.getTargets();
     }
 
-    public void startDatamover(String name, String target, String highwaterLevelInKB)
+    public void startDatamover(String name, String target)
     {
-        service.startDatamover(name, target, highwaterLevelInKB);
+        service.startDatamover(name, target);
     }
 
     public void stopDatamover(String name)

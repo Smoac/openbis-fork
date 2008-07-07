@@ -18,29 +18,45 @@ package ch.systemsx.cisd.datamover.console.server;
 
 import javax.servlet.http.HttpSession;
 
+import ch.systemsx.cisd.common.servlet.AbstractActionLog;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.datamover.console.client.dto.User;
+
+
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ActionLog implements IActionLog
+public class ActionLog extends AbstractActionLog implements IConsoleActionLog
 {
-
-    public void logFailedLoginAttempt(String userCode)
+    public ActionLog(IRequestContextProvider requestContextProvider)
     {
-        System.out.println("authentication failed for user " + userCode);
+        super(requestContextProvider);
     }
 
-    public void logLogout(HttpSession httpSession)
+    public void logShutdownDatamover(String datamover)
     {
-        System.out.println("log out user ");
-        // TODO Auto-generated method stub
-
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("Shutdown Datamover '%s'.", datamover));
+        }
     }
 
-    public void logSuccessfulLogin()
+    public void logStartDatamover(String datamover, String targetName)
     {
-        System.out.println("logged in");
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("Start Datamover '%s' with target '%s'.", datamover, targetName));
+        }
+    }
+
+    @Override
+    protected String getUserCode(HttpSession httpSession)
+    {
+        return ((User) httpSession.getAttribute(DatamoverConsoleService.SESSION_USER)).getUserCode();
     }
 
 }

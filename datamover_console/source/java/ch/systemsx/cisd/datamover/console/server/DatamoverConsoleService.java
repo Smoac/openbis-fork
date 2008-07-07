@@ -43,7 +43,7 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  */
 public class DatamoverConsoleService implements IDatamoverConsoleService
 {
-    private static final String SESSION_USER = "user";
+    static final String SESSION_USER = "user";
 
     /**
      * The Crowd property for the display name.
@@ -58,7 +58,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     /** Session timeout in seconds. */
     private int sessionExpirationPeriod;
 
-    private final IActionLog actionLog;
+    private final IConsoleActionLog actionLog;
 
     private final IRequestContextProvider requestContextProvider;
 
@@ -66,11 +66,11 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     
     private Map<String, IDatamoverConsole> consoles;
 
-    private List<String> targets;
+    private Map<String, String> targets;
     
     public DatamoverConsoleService(final IAuthenticationService authenticationService,
             IRequestContextProvider requestContextProvider,
-            IDatamoverConsoleFactory factory, IActionLog actionLog)
+            IDatamoverConsoleFactory factory, IConsoleActionLog actionLog)
     {
         this.authenticationService = authenticationService;
         this.requestContextProvider = requestContextProvider;
@@ -144,10 +144,10 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             userBean.setUserFullName(principal.getFirstName() + " " + principal.getLastName().trim());
         }
         userBean.setEmail(principal.getEmail());
-        actionLog.logSuccessfulLogin();
         HttpSession session = requestContextProvider.getHttpServletRequest().getSession(true);
         session.setMaxInactiveInterval(sessionExpirationPeriod);
         session.setAttribute(SESSION_USER, userBean);
+        actionLog.logSuccessfulLogin();
         return userBean;
     }
     
@@ -156,8 +156,8 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         HttpSession session = requestContextProvider.getHttpServletRequest().getSession(false);
         if (session != null)
         {
-            actionLog.logLogout(session);
             session.invalidate();
+            actionLog.logLogout(session);
         }
     }
 
@@ -170,11 +170,10 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             IDatamoverConsole console = entry.getValue();
             DatamoverInfo datamoverInfo = new DatamoverInfo();
             datamoverInfo.setName(name);
-            TargetAndHighwaterMark targetAndHighwaterMark = console.tryToObtainTargetAndHighwaterMark();
-            if (targetAndHighwaterMark != null)
+            String target = console.tryToObtainTarget();
+            if (target != null)
             {
-                datamoverInfo.setTargetLocation(targetAndHighwaterMark.getTarget());
-                datamoverInfo.setWatermarkLevel(targetAndHighwaterMark.getHighwaterMarkInKB());
+                datamoverInfo.setTargetLocation(target);
             }
             datamoverInfo.setStatus(console.obtainStatus());
             list.add(datamoverInfo);
@@ -182,18 +181,18 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         return list;
     }
 
-    public List<String> getTargets()
+    public Map<String, String> getTargets()
     {
         return targets;
     }
 
-    public void startDatamover(String name, String target, String highwaterLevelInKB)
+    public void startDatamover(String name, String target)
     {
         IDatamoverConsole datamoverConsole = consoles.get(name);
         if (datamoverConsole != null)
         {
-            long levelInKB = Long.parseLong(highwaterLevelInKB);
-            datamoverConsole.start(target, levelInKB);
+            datamoverConsole.start(target);
+            actionLog.logStartDatamover(name, target);
         }
     }
 
@@ -203,6 +202,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         if (datamoverConsole != null)
         {
             datamoverConsole.shutdown();
+            actionLog.logShutdownDatamover(name);
         }
     }
 
