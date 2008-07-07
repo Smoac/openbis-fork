@@ -26,6 +26,7 @@
     </bean>
     
     <bean id="action-log" class="ch.systemsx.cisd.datamover.console.server.ActionLog">
+        <constructor-arg ref="request-context-provider" />
     </bean>
 
 </beans>
