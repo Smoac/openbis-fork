@@ -23,5 +23,5 @@ package ch.systemsx.cisd.datamover.console.client.application;
  */
 public class Constants
 {
-    public static final String SERVER_NAME = "/dmc/dmc";
+    public static final String SERVER_NAME = "/datamover_console/datamover_console";
 }

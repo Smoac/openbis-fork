@@ -170,6 +170,12 @@
       <lib dir="${lib}/commons-io">
         <include name="commons-io.jar" />
       </lib>
+      <lib dir="${lib}/jline">
+        <include name="jline.jar" />
+      </lib>
+      <lib dir="${lib}/commons-codec">
+        <include name="commons-codec.jar" />
+      </lib>
       <lib dir="${lib}/commons-httpclient">
         <include name="commons-httpclient.jar" />
       </lib>

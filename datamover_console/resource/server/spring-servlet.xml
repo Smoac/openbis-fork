@@ -10,7 +10,7 @@
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
             <value>
-                dmc=dmc-servlet
+                datamover_console=dmc-servlet
             </value>
         </property>
     </bean>

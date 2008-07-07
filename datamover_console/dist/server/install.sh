@@ -100,6 +100,7 @@ ln -s "${rel_jetty_folder}" jetty
 JETTY_BIN_DIR="$jetty_folder"/bin
 cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"
 cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
+cp -p "$installation_folder"/passwd.sh "$JETTY_BIN_DIR"
 
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties

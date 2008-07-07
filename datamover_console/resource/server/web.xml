@@ -17,7 +17,7 @@
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
-        <url-pattern>/dmc/*</url-pattern>
+        <url-pattern>/datamover_console/*</url-pattern>
     </servlet-mapping>
 
     <!--

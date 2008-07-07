@@ -38,12 +38,12 @@
 
     <Set name="handler">
         <New class="org.mortbay.jetty.webapp.WebAppContext">
-            <Set name="contextPath">/</Set>
+            <Set name="contextPath">/datamover_console</Set>
             <Set name="war">
                 <SystemProperty name="jetty.home" default="." />/webapps/datamover_console.war
             </Set>
             <Set name="tempDirectory">
-                <SystemProperty name="jetty.home" default="." />/work
+                <SystemProperty name="jetty.home" default="." />/work/datamover_console
             </Set>
         </New>
     </Set>
