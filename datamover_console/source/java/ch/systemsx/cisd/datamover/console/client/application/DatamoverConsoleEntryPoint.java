@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleServiceAsync;
 import ch.systemsx.cisd.datamover.console.client.application.ui.Console;
-import ch.systemsx.cisd.datamover.console.client.application.ui.FooterDecorator;
+import ch.systemsx.cisd.datamover.console.client.application.ui.HeaderFooterDecorator;
 import ch.systemsx.cisd.datamover.console.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
@@ -92,7 +92,7 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
                                     viewContext.getModel().setUser(user);
                                     widget = new Console(viewContext);
                                 }
-                                rootPanel.add(new FooterDecorator(widget, viewContext));
+                                rootPanel.add(new HeaderFooterDecorator(widget, viewContext));
                             }
                         });
 

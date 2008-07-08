@@ -45,11 +45,18 @@ public interface IMessageResources extends Messages
     public String getExceptionWithoutMessage(final String typeName);
 
     /**
-     * Returns the title for error message box.
+     * Returns the footer text.
      * 
-     * @gwt.key footer
+     * @gwt.key footer.text
      */
-    public String getFooter(String version);
+    public String getFooterText(String version);
+    
+    /**
+     * Returns the header title.
+     * 
+     * @gwt.key header.title
+     */
+    public String getHeaderTitle();
     
     /**
      * Returns welcome text that appears on the first page (login page).
@@ -79,13 +86,6 @@ public interface IMessageResources extends Messages
      */
     public String getLoginButtonLabel();
 
-    /**
-     * Returns the title text for the console.
-     * 
-     * @gwt.key console.title
-     */
-    public String getConsoleTitle();
-    
     /**
      * Returns the status line with the specified timestamp.
      * 

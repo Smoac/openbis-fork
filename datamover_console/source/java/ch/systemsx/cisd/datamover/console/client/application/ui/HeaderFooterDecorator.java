@@ -29,24 +29,39 @@ import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
  *
  * @author Franz-Josef Elmer
  */
-public class FooterDecorator extends Composite
+public class HeaderFooterDecorator extends Composite
 {
-    public FooterDecorator(Widget widget, ViewContext viewContext)
+    public HeaderFooterDecorator(Widget widget, ViewContext viewContext)
     {
         VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setStyleName("border");
         verticalPanel.setSpacing(10);
         verticalPanel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        verticalPanel.add(createHeader(viewContext));
         verticalPanel.add(widget);
         verticalPanel.add(createFooter(viewContext));
         
         initWidget(verticalPanel);
     }
     
+    private Widget createHeader(ViewContext viewContext)
+    {
+        HorizontalPanel headerPanel = new HorizontalPanel();
+        headerPanel.setSpacing(10);
+        headerPanel.setStyleName("header");
+        
+        headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
+        Label title = new Label(viewContext.getMessageResources().getHeaderTitle());
+        title.setStyleName("header-title");
+        headerPanel.add(title);
+        return headerPanel;
+    }
+    
     private Widget createFooter(ViewContext viewContext)
     {
         final HorizontalPanel footerPanel = new HorizontalPanel();
         final String version = viewContext.getModel().getApplicationInfo().getVersion();
-        final Label label = new Label(viewContext.getMessageResources().getFooter(version));
+        final Label label = new Label(viewContext.getMessageResources().getFooterText(version));
         label.setStyleName("footer");
         footerPanel.add(label);
         return footerPanel;

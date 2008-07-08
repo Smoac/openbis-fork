@@ -64,6 +64,7 @@ public class Console extends Composite
         panel.add(createHeaderPanel());
         content = new VerticalPanel();
         content.setStyleName(STYLE_PREFIX + "content");
+        panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         panel.add(content);
         initWidget(panel);
         
@@ -99,22 +100,12 @@ public class Console extends Composite
     {
         HorizontalPanel headerPanel = new HorizontalPanel();
         headerPanel.setSpacing(10);
-        headerPanel.setStyleName(STYLE_HEADER_PREFIX + "panel");
         
-        headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
-        VerticalPanel infoPanel = new VerticalPanel();
-        headerPanel.add(infoPanel);
-        Label title = new Label(viewContext.getMessageResources().getConsoleTitle());
-        title.setStyleName(STYLE_PREFIX + "title");
-        infoPanel.add(title);
-        HorizontalPanel userPanel = new HorizontalPanel();
-        userPanel.setSpacing(10);
-        infoPanel.add(userPanel);
         Label label = new Label(viewContext.getModel().getUser().getUserFullName());
         label.setStyleName(STYLE_HEADER_PREFIX + "label");
-        userPanel.add(label);
+        headerPanel.add(label);
         
-        userPanel.add(createHeaderButton("logout", new ClickListener()
+        headerPanel.add(createTableButton("logout", new ClickListener()
             {
                 public void onClick(Widget arg0)
                 {

@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -54,17 +53,14 @@ public class LoginWidget extends Composite
         VerticalPanel panel = new VerticalPanel();
         panel.setSpacing(10);
         panel.setStyleName(STYLE_PREFIX + "main");
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
-        panel.setStyleName(STYLE_PREFIX + "header");
-        panel.add(horizontalPanel);
-        horizontalPanel.add(viewContext.getImageBundle().getLogo().createImage());
+        panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        
         Label welcome = new HTML(messageResources.getLoginWelcomeText());
         welcome.setStyleName(STYLE_PREFIX + "welcome");
-        horizontalPanel.add(welcome);
+        panel.add(welcome);
         
         VerticalPanel loginPanel = new VerticalPanel();
         panel.setStyleName(STYLE_PREFIX + "content");
-        panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         panel.add(loginPanel);
         FieldSet fieldSet = new FieldSet("Login");
         loginPanel.add(fieldSet);
