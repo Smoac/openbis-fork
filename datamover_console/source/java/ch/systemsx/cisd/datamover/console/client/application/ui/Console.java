@@ -62,14 +62,6 @@ public class Console extends Composite
         content = new VerticalPanel();
         content.setStyleName(STYLE_PREFIX + "content");
         panel.add(content);
-        panel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-        panel.add(createHeaderButton("refresh", new ClickListener()
-            {
-                public void onClick(Widget arg0)
-                {
-                    refreshView();
-                }
-            }));
         initWidget(panel);
         
         viewContext.getService().getTargets(new AbstractAsyncCallback<Map<String, String>>(viewContext)
@@ -142,8 +134,7 @@ public class Console extends Composite
                     {
                         public void onSuccess(List<DatamoverInfo> list)
                         {
-                            content.clear();
-                            content.add(createView(list));
+                            showTable(list);
                         }
                     });
     }
@@ -151,9 +142,24 @@ public class Console extends Composite
     private void showWaitMessage()
     {
         content.clear();
+        content.setHorizontalAlignment(VerticalPanel.ALIGN_LEFT);
         content.add(new Label("Data will be loaded. Please wait."));
     }
     
+    private void showTable(List<DatamoverInfo> list)
+    {
+        content.clear();
+        content.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
+        content.add(createView(list));
+        content.add(createHeaderButton("refresh", new ClickListener()
+        {
+            public void onClick(Widget widget)
+            {
+                refreshView();
+            }
+        }));
+    }
+
     private Widget createView(List<DatamoverInfo> list)
     {
         Grid grid = new Grid(list.size() + 1, 4);
@@ -233,7 +239,7 @@ public class Console extends Composite
     
     private void stopDatamover(String name)
     {
-        viewContext.getService().stopDatamover(name, refreshCallBack);
+        viewContext.getService().shutdownDatamover(name, refreshCallBack);
     }
 
     private Button createTableButton(String label, ClickListener clickListener)

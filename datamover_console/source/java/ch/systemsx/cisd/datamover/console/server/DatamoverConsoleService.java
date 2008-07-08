@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
-import ch.systemsx.cisd.datamover.console.client.UserFailureException;
+import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -98,7 +98,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
 
     public User tryToGetCurrentUser()
     {
-        HttpSession session = requestContextProvider.getHttpServletRequest().getSession(false);
+        HttpSession session = getSession();
         if (session == null)
         {
             return null;
@@ -106,8 +106,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         return (User) session.getAttribute(SESSION_USER);
     }
 
-    public User tryToLogin(String user, String password) throws UserFailureException,
-            EnvironmentFailureException
+    public User tryToLogin(String user, String password) 
     {
         final String applicationToken = authenticationService.authenticateApplication();
         if (applicationToken == null)
@@ -153,7 +152,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     
     public void logout()
     {
-        HttpSession session = requestContextProvider.getHttpServletRequest().getSession(false);
+        HttpSession session = getSession();
         if (session != null)
         {
             session.invalidate();
@@ -162,6 +161,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
 
     public List<DatamoverInfo> listDatamoverInfos()
     {
+        checkAuthenticated();
         List<DatamoverInfo> list = new ArrayList<DatamoverInfo>();
         for (Map.Entry<String, IDatamoverConsole> entry : consoles.entrySet())
         {
@@ -182,27 +182,45 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
 
     public Map<String, String> getTargets()
     {
+        checkAuthenticated();
         return targets;
     }
 
-    public void startDatamover(String name, String target)
+    public void startDatamover(String datamoverName, String targetLocation)
     {
-        IDatamoverConsole datamoverConsole = consoles.get(name);
+        checkAuthenticated();
+        IDatamoverConsole datamoverConsole = consoles.get(datamoverName);
         if (datamoverConsole != null)
         {
-            datamoverConsole.start(target);
-            actionLog.logStartDatamover(name, target);
+            datamoverConsole.start(targetLocation);
+            actionLog.logStartDatamover(datamoverName, targetLocation);
         }
     }
 
-    public void stopDatamover(String name)
+    public void shutdownDatamover(String datamoverName)
     {
-        IDatamoverConsole datamoverConsole = consoles.get(name);
+        checkAuthenticated();
+        IDatamoverConsole datamoverConsole = consoles.get(datamoverName);
         if (datamoverConsole != null)
         {
             datamoverConsole.shutdown();
-            actionLog.logShutdownDatamover(name);
+            actionLog.logShutdownDatamover(datamoverName);
         }
+    }
+    
+    private void checkAuthenticated()
+    {
+        HttpSession session = getSession();
+        if (session == null)
+        {
+            throw new InvalidSessionException(
+                    "You are not logged in or your session has expired. Please log in.");
+        }
+    }
+
+    private HttpSession getSession()
+    {
+        return requestContextProvider.getHttpServletRequest().getSession(false);
     }
 
 }

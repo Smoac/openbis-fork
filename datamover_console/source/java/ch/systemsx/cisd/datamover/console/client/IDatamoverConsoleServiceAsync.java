@@ -26,7 +26,7 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
+ * Asynchronious version of {@link IDatamoverConsoleService}.
  *
  * @author Franz-Josef Elmer
  */
@@ -34,8 +34,7 @@ public interface IDatamoverConsoleServiceAsync extends RemoteService
 {
     public void tryToGetCurrentUser(AsyncCallback<User> callback);
 
-    public void tryToLogin(final String user, final String password, AsyncCallback<User> callback)
-            throws UserFailureException, EnvironmentFailureException;
+    public void tryToLogin(final String user, final String password, AsyncCallback<User> callback);
 
     public void logout(AsyncCallback<Void> callback);
     
@@ -43,7 +42,7 @@ public interface IDatamoverConsoleServiceAsync extends RemoteService
     
     public void getTargets(AsyncCallback<Map<String, String>> callback);
     
-    public void startDatamover(String name, String target, AsyncCallback<Void> callback);
+    public void startDatamover(String datamoverName, String targetLocation, AsyncCallback<Void> callback);
 
-    public void stopDatamover(String name, AsyncCallback<Void> callback);
+    public void shutdownDatamover(String datamoverName, AsyncCallback<Void> callback);
 }

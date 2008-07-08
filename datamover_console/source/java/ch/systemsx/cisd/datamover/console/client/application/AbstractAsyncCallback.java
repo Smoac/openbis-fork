@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.datamover.console.client.application;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
-import ch.systemsx.cisd.datamover.console.client.application.ui.MessageDialog;
+import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
 import ch.systemsx.cisd.datamover.console.client.application.utils.StringUtils;
 
 
@@ -61,7 +62,11 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 msg = message;
             }
         }
-        MessageDialog.showMessage(messageResources.getMessageBoxErrorTitle(), msg);
+        Window.alert(msg);
+        if (caught instanceof InvalidSessionException)
+        {
+            viewContext.getPageController().reload();
+        }
     }
 
 }

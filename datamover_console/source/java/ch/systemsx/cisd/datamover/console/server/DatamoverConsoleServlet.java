@@ -120,14 +120,14 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
         return service.getTargets();
     }
 
-    public void startDatamover(String name, String target)
+    public void startDatamover(String datamoverName, String targetLocation)
     {
-        service.startDatamover(name, target);
+        service.startDatamover(datamoverName, targetLocation);
     }
 
-    public void stopDatamover(String name)
+    public void shutdownDatamover(String datamoverName)
     {
-        service.stopDatamover(name);
+        service.shutdownDatamover(datamoverName);
     }
     
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.client.application.ui;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -103,8 +104,7 @@ public class LoginWidget extends Composite
                         {
                             if (user == null)
                             {
-                                MessageDialog.showMessage("Authentication failure",
-                                        "Invalid authentication. Please login again.");
+                                Window.alert("Invalid authentication. Please login again.");
                             } else
                             {
                                 viewContext.getPageController().reload();
