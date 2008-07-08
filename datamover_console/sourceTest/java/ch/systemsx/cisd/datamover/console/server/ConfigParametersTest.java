@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.DATAMOVERS;
+import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.LOCATION;
+import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.TARGETS;
+import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.WORKING_DIRECTORY;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
@@ -23,6 +27,7 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
@@ -30,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses=ConfigParameters.class)
 public class ConfigParametersTest
 {
     @Test
@@ -41,7 +47,74 @@ public class ConfigParametersTest
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException e)
         {
-            assertEquals("Given key 'targets' not found in properties '[]'", e.getMessage());
+            assertEquals("Given key '" + TARGETS + "' not found in properties '[]'", e.getMessage());
         }
+    }
+    
+    @Test
+    public void testMissingDatamovers()
+    {
+        try
+        {
+            Properties properties = new Properties();
+            properties.setProperty(TARGETS, "1");
+            properties.setProperty("1." + LOCATION, "/target1");
+            new ConfigParameters(properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException e)
+        {
+            assertEquals("Given key '" + DATAMOVERS + "' not found in properties '[" + TARGETS
+                    + ", 1." + LOCATION + "]'", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testEmptyDatamovers()
+    {
+        try
+        {
+            Properties properties = new Properties();
+            properties.setProperty(TARGETS, "1");
+            properties.setProperty("1." + LOCATION, "/target1");
+            properties.setProperty(DATAMOVERS, "");
+            new ConfigParameters(properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException e)
+        {
+            assertEquals("Property '" + DATAMOVERS + "' is an empty string.",
+                    e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testEmptyTargets()
+    {
+        try
+        {
+            Properties properties = new Properties();
+            properties.setProperty(TARGETS, "");
+            properties.setProperty(DATAMOVERS, "");
+            new ConfigParameters(properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException e)
+        {
+            assertEquals("Property '" + TARGETS + "' is an empty string.",
+                    e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testProperConfigParameters()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(TARGETS, "t1 t2");
+        properties.setProperty("t1." + LOCATION, "/target1  ");
+        properties.setProperty("t2." + LOCATION, "/target2");
+        properties.setProperty(DATAMOVERS, "dm1 dm2");
+        properties.setProperty("dm1." + WORKING_DIRECTORY, "wd1");
+        properties.setProperty("dm2." + WORKING_DIRECTORY, "wd2");
+        ConfigParameters configParameters = new ConfigParameters(properties);
+        assertEquals("{t1=/target1, t2=/target2}", configParameters.getTargets().toString());
+        assertEquals("{dm1=wd1, dm2=wd2}", configParameters.getDatamoversWorkingDirectories().toString());
     }
 }
