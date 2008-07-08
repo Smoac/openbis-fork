@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.console.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
+ * Enumeration of datamover stati.
  *
  * @author Franz-Josef Elmer
  */

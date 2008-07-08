@@ -21,7 +21,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * 
+ * Widget realizing an HTML fieldSet. Style class reads <code>cisd-fieldset</code>.
  *
  * @author Franz-Josef Elmer
  */
@@ -29,6 +29,11 @@ public class FieldSet extends Widget
 {
     private Element fieldSet;
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param legendOrNull If not-<code>null</code> the field set will get a legend.
+     */
     public FieldSet(String legendOrNull)
     {
         fieldSet = DOM.createFieldSet();
@@ -42,6 +47,9 @@ public class FieldSet extends Widget
         setStyleName("cisd-fieldset");
     }
     
+    /**
+     * Add a widget to be surounded by the field set border.
+     */
     public void add(Widget widget)
     {
         DOM.appendChild(fieldSet, widget.getElement());

@@ -19,17 +19,31 @@ package ch.systemsx.cisd.datamover.console.server;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
- * 
+ * Interface to a Datamover.
  *
  * @author Franz-Josef Elmer
  */
 public interface IDatamoverConsole
 {
+    /**
+     * Obtains the current status of the datamover.
+     */
     public DatamoverStatus obtainStatus();
     
+    /**
+     * Obtains the current target of the running datamover.
+     * 
+     * @return <code>null</code> if the datamover is not running.
+     */
     public String tryToObtainTarget();
     
+    /**
+     * Initiates a shutdown of tzhe datamover.
+     */
     public void shutdown();
     
+    /**
+     * Starts the datamover with the specified outgoing target.
+     */
     public void start(String target);
 }

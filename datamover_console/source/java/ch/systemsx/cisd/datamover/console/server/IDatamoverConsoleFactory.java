@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.datamover.console.server;
 
 /**
- * 
+ * Factory of {@link IDatamoverConsole} instances.
  *
  * @author Franz-Josef Elmer
  */
 public interface IDatamoverConsoleFactory
 {
+    /**
+     * Creates a console for the specified datamover and its working directory.
+     */
     public IDatamoverConsole create(String datamoverName, String workingDirectory);
 }

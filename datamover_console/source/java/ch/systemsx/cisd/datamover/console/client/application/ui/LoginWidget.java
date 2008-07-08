@@ -35,7 +35,7 @@ import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
- * 
+ * Widget for login.
  *
  * @author Franz-Josef Elmer
  */

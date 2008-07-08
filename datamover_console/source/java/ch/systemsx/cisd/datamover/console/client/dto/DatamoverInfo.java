@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.console.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
+ * Bean with all information of a datamover instance.
  *
  * @author Franz-Josef Elmer
  */

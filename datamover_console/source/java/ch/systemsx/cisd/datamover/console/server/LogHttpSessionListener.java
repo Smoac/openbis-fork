@@ -27,7 +27,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ch.systemsx.cisd.common.servlet.IActionLog;
 
 /**
- * 
+ * Implementation which logs logouts caused by timeouts.
  *
  * @author Franz-Josef Elmer
  */

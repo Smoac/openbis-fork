@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
- * 
+ * Confuguration parameters.
  *
  * @author Franz-Josef Elmer
  */
@@ -40,6 +40,9 @@ public class ConfigParameters
     private final Map<String, String> targets;
     private final Map<String, String> datamoversWorkingDirectories;
 
+    /**
+     * Creates an instance based on the specified properties.
+     */
     public ConfigParameters(Properties properties)
     {
         targets = obtainMapFrom(properties, TARGETS, LOCATION);
@@ -66,12 +69,18 @@ public class ConfigParameters
         }
         return map;
     }
-    
+
+    /**
+     * Returns the map of symbolic target names to target locations.
+     */
     public final Map<String, String> getTargets()
     {
         return targets;
     }
 
+    /**
+     * Returns the map of datamover names to datamover working directories.
+     */
     public Map<String, String> getDatamoversWorkingDirectories()
     {
         return datamoversWorkingDirectories;

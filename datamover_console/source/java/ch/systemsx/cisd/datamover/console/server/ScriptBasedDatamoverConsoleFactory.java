@@ -18,13 +18,12 @@ package ch.systemsx.cisd.datamover.console.server;
 
 
 /**
- * 
+ * Implementation creating {@link ScriptBasedDatamoverConsole} instances.
  *
  * @author Franz-Josef Elmer
  */
 public class ScriptBasedDatamoverConsoleFactory implements IDatamoverConsoleFactory
 {
-
     public IDatamoverConsole create(String datamoverName, String workingDirectory)
     {
         return new ScriptBasedDatamoverConsole(datamoverName, workingDirectory);

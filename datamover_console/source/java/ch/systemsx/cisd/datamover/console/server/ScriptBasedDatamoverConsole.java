@@ -32,7 +32,7 @@ import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
- * 
+ * Implementation based on script <code>datamover.sh</code>.
  *
  * @author Franz-Josef Elmer
  */
@@ -50,6 +50,9 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
     
     private final String scriptPath;
     
+    /**
+     * Creates an instance for the specified datamover name and its working directory.
+     */
     public ScriptBasedDatamoverConsole(String name, String scriptWorkingDirectory)
     {
         this.name = name;

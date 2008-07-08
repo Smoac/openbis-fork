@@ -19,6 +19,7 @@ package ch.systemsx.cisd.datamover.console.client.application.ui;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -79,6 +80,15 @@ public class Console extends Composite
                     refreshView();
                 }
             };
+        Timer timer = new Timer()
+            {
+                @Override
+                public void run()
+                {
+                    refreshView();
+                }
+            };
+        timer.scheduleRepeating(10000);
     }
     
     private Widget createHeaderPanel()
@@ -152,12 +162,12 @@ public class Console extends Composite
         content.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
         content.add(createView(list));
         content.add(createHeaderButton("refresh", new ClickListener()
-        {
-            public void onClick(Widget widget)
             {
-                refreshView();
-            }
-        }));
+                public void onClick(Widget widget)
+                {
+                    refreshView();
+                }
+            }));
     }
 
     private Widget createView(List<DatamoverInfo> list)
