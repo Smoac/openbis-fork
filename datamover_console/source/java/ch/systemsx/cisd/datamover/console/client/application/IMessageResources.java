@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.console.client.application;
 
+import java.util.Date;
+
 import com.google.gwt.i18n.client.Messages;
 
 /**
@@ -45,10 +47,10 @@ public interface IMessageResources extends Messages
     /**
      * Returns the title for error message box.
      * 
-     * @gwt.key messagebox.error.title
+     * @gwt.key footer
      */
-    public String getMessageBoxErrorTitle();
-
+    public String getFooter(String version);
+    
     /**
      * Returns welcome text that appears on the first page (login page).
      * 
@@ -84,5 +86,11 @@ public interface IMessageResources extends Messages
      */
     public String getConsoleTitle();
     
+    /**
+     * Returns the status line with the specified timestamp.
+     * 
+     * @gwt.key console.status.line
+     */
+    public String getConsoleStatusLine(Date timestamp);
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.client.application.ui;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +34,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.datamover.console.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
- * 
+ * Main page.
  *
  * @author Franz-Josef Elmer
  */
@@ -88,7 +90,9 @@ public class Console extends Composite
                     refreshView();
                 }
             };
-        timer.scheduleRepeating(10000);
+        viewContext.getPageController().setTimer(timer);
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
+        timer.scheduleRepeating(applicationInfo.getRefreshTimeInterval());
     }
     
     private Widget createHeaderPanel()
@@ -159,6 +163,7 @@ public class Console extends Composite
     private void showTable(List<DatamoverInfo> list)
     {
         content.clear();
+        content.add(createStatusLine());
         content.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
         content.add(createView(list));
         content.add(createHeaderButton("refresh", new ClickListener()
@@ -168,6 +173,11 @@ public class Console extends Composite
                     refreshView();
                 }
             }));
+    }
+    
+    private Widget createStatusLine()
+    {
+        return new Label(viewContext.getMessageResources().getConsoleStatusLine(new Date()));
     }
 
     private Widget createView(List<DatamoverInfo> list)

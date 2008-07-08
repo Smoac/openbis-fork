@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.datamover.console.client.application;
 
+import com.google.gwt.user.client.Timer;
+
 /**
  * 
  *
@@ -23,5 +25,7 @@ package ch.systemsx.cisd.datamover.console.client.application;
  */
 public interface IPageController
 {
+    public void setTimer(Timer timer);
+    
     public void reload();
 }

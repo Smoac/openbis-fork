@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.UserFailureException;
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -94,6 +95,11 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
         }
     }
     
+    public ApplicationInfo getApplicationInfo()
+    {
+        return service.getApplicationInfo();
+    }
+
     public User tryToGetCurrentUser()
     {
         return service.tryToGetCurrentUser();

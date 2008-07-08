@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.console.server;
 
 import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.DATAMOVERS;
 import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.LOCATION;
+import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.REFRESH_TIME_INTERVAL;
 import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.TARGETS;
 import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.WORKING_DIRECTORY;
 import static org.testng.AssertJUnit.assertEquals;
@@ -114,7 +115,23 @@ public class ConfigParametersTest
         properties.setProperty("dm1." + WORKING_DIRECTORY, "wd1");
         properties.setProperty("dm2." + WORKING_DIRECTORY, "wd2");
         ConfigParameters configParameters = new ConfigParameters(properties);
+        
+        assertEquals(60000, configParameters.getRefreshTimeInterval());
         assertEquals("{t1=/target1, t2=/target2}", configParameters.getTargets().toString());
         assertEquals("{dm1=wd1, dm2=wd2}", configParameters.getDatamoversWorkingDirectories().toString());
+    }
+    
+    @Test
+    public void testProperConfigParametersWithRefreshTimeInterval()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(REFRESH_TIME_INTERVAL, "10");
+        properties.setProperty(TARGETS, "t");
+        properties.setProperty("t." + LOCATION, "/target");
+        properties.setProperty(DATAMOVERS, "dm");
+        properties.setProperty("dm." + WORKING_DIRECTORY, "wd");
+        ConfigParameters configParameters = new ConfigParameters(properties);
+        
+        assertEquals(10000, configParameters.getRefreshTimeInterval());
     }
 }

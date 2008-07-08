@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
@@ -86,6 +87,15 @@ public class DatamoverConsolerServiceTest
     {
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetApplicationInfo()
+    {
+        ApplicationInfo applicationInfo = createService().getApplicationInfo();
+        assertEquals(42000, applicationInfo.getRefreshTimeInterval());
+        
         context.assertIsSatisfied();
     }
     
@@ -456,6 +466,7 @@ public class DatamoverConsolerServiceTest
                 new DatamoverConsoleService(authenticationService, requestContextProvider,
                         consoleFactory, actionLog);
         Properties properties = new Properties();
+        properties.setProperty(ConfigParameters.REFRESH_TIME_INTERVAL, "42");
         properties.setProperty(ConfigParameters.TARGETS, "t1 t2");
         properties.setProperty("t1." + ConfigParameters.LOCATION, "target1");
         properties.setProperty("t2." + ConfigParameters.LOCATION, "target2");

@@ -63,6 +63,7 @@ public class LoginWidget extends Composite
         horizontalPanel.add(welcome);
         
         VerticalPanel loginPanel = new VerticalPanel();
+        panel.setStyleName(STYLE_PREFIX + "content");
         panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         panel.add(loginPanel);
         FieldSet fieldSet = new FieldSet("Login");

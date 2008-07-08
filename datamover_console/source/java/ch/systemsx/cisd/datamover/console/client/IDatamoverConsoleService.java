@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -31,6 +32,11 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  */
 public interface IDatamoverConsoleService extends RemoteService
 {
+    /**
+     * Returns static information of the application needed by the client.
+     */
+    public ApplicationInfo getApplicationInfo();
+    
     /**
      * Returns the currently logged-in {@link User}, or <code>null</code> if the user is not
      * logged-in.

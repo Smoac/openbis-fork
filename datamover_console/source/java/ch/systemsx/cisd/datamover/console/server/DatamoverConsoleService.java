@@ -30,9 +30,11 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -67,6 +69,8 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
     private Map<String, IDatamoverConsole> consoles;
 
     private Map<String, String> targets;
+
+    private ApplicationInfo applicationInfo;
     
     public DatamoverConsoleService(final IAuthenticationService authenticationService,
             IRequestContextProvider requestContextProvider,
@@ -94,6 +98,14 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             IDatamoverConsole console = factory.create(name, workingDirectoryEntry.getValue());
             consoles.put(name, console);
         }
+        applicationInfo = new ApplicationInfo();
+        applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        applicationInfo.setRefreshTimeInterval(configParameters.getRefreshTimeInterval());
+    }
+
+    public ApplicationInfo getApplicationInfo()
+    {
+        return applicationInfo;
     }
 
     public User tryToGetCurrentUser()

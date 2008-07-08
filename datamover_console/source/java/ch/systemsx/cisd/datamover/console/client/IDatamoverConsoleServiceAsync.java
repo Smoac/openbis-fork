@@ -22,6 +22,7 @@ import java.util.Map;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.datamover.console.client.dto.User;
  */
 public interface IDatamoverConsoleServiceAsync extends RemoteService
 {
+    public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
+    
     public void tryToGetCurrentUser(AsyncCallback<User> callback);
 
     public void tryToLogin(final String user, final String password, AsyncCallback<User> callback);

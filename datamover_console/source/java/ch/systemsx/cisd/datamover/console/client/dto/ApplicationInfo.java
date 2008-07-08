@@ -14,39 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.console.client.application;
+package ch.systemsx.cisd.datamover.console.client.dto;
 
-import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
-import ch.systemsx.cisd.datamover.console.client.dto.User;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ViewModel
+public class ApplicationInfo implements IsSerializable
 {
-    private ApplicationInfo applicationInfo;
-    private User user;
-
-    public final ApplicationInfo getApplicationInfo()
-    {
-        return applicationInfo;
-    }
-
-    public final void setApplicationInfo(ApplicationInfo info)
-    {
-        this.applicationInfo = info;
-    }
-
-    public final User getUser()
-    {
-        return user;
-    }
-
-    public final void setUser(User user)
-    {
-        this.user = user;
-    }
+    private String version;
     
+    private int refreshTimeInterval;
+
+    public final String getVersion()
+    {
+        return version;
+    }
+
+    public final void setVersion(String version)
+    {
+        this.version = version;
+    }
+
+    public final int getRefreshTimeInterval()
+    {
+        return refreshTimeInterval;
+    }
+
+    public final void setRefreshTimeInterval(int refreshTimeInterval)
+    {
+        this.refreshTimeInterval = refreshTimeInterval;
+    }
 }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.console.client.application;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -25,7 +26,9 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleServiceAsync;
 import ch.systemsx.cisd.datamover.console.client.application.ui.Console;
+import ch.systemsx.cisd.datamover.console.client.application.ui.FooterDecorator;
 import ch.systemsx.cisd.datamover.console.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
@@ -47,34 +50,52 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
     
     private IPageController pageController = new IPageController()
         {
+            private Timer timer;
+
+            public void setTimer(Timer timer)
+            {
+                this.timer = timer;
+            }
 
             public void reload()
             {
+                if (timer != null)
+                {
+                    timer.cancel();
+                }
                 onModuleLoad();
             }
-
         };
     private ViewContext viewContext;
     
     public void onModuleLoad()
     {
         setupViewContext();
-        viewContext.getService().tryToGetCurrentUser(new AbstractAsyncCallback<User>(viewContext)
+        final IDatamoverConsoleServiceAsync service = viewContext.getService();
+        service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
-                public void onSuccess(User user)
+                public void onSuccess(ApplicationInfo info)
                 {
-                    RootPanel rootPanel = RootPanel.get();
-                    rootPanel.clear();
-                    Widget widget;
-                    if (user == null)
-                    {
-                        widget = new LoginWidget(viewContext);
-                    } else
-                    {
-                        viewContext.getModel().setUser(user);
-                        widget = new Console(viewContext);
-                    }
-                    rootPanel.add(widget);
+                    viewContext.getModel().setApplicationInfo(info);
+                    service.tryToGetCurrentUser(new AbstractAsyncCallback<User>(viewContext)
+                        {
+                            public void onSuccess(User user)
+                            {
+                                RootPanel rootPanel = RootPanel.get();
+                                rootPanel.clear();
+                                Widget widget;
+                                if (user == null)
+                                {
+                                    widget = new LoginWidget(viewContext);
+                                } else
+                                {
+                                    viewContext.getModel().setUser(user);
+                                    widget = new Console(viewContext);
+                                }
+                                rootPanel.add(new FooterDecorator(widget, viewContext));
+                            }
+                        });
+
                 }
             });
     }

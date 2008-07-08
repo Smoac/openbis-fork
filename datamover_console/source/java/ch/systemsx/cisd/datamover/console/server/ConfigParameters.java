@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class ConfigParameters
 {
+    @Private static final String REFRESH_TIME_INTERVAL = "refresh-time-interval";
     @Private static final String TARGETS = "targets";
     @Private static final String LOCATION = "location";
     @Private static final String DATAMOVERS = "datamovers";
@@ -39,12 +40,14 @@ public class ConfigParameters
     
     private final Map<String, String> targets;
     private final Map<String, String> datamoversWorkingDirectories;
+    private final int refreshTimeInterval;
 
     /**
      * Creates an instance based on the specified properties.
      */
     public ConfigParameters(Properties properties)
     {
+        refreshTimeInterval = PropertyUtils.getInt(properties, REFRESH_TIME_INTERVAL, 60) * 1000;
         targets = obtainMapFrom(properties, TARGETS, LOCATION);
         if (targets.isEmpty())
         {
@@ -57,6 +60,11 @@ public class ConfigParameters
         }
     }
     
+    public final int getRefreshTimeInterval()
+    {
+        return refreshTimeInterval;
+    }
+
     private Map<String, String> obtainMapFrom(Properties properties, String name, String valueName)
     {
         String keys = PropertyUtils.getMandatoryProperty(properties, name);

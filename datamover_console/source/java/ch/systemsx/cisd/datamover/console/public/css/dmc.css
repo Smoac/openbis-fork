@@ -1,3 +1,9 @@
+.footer {
+    text-align: center;
+    font-size: 80%;
+    font-color: grey;
+}
+
 .console-login-main {
     width: 100%;
     font-size: 100%;
@@ -5,7 +11,7 @@
 }
         
 .console-login-header {
-    align: center;
+    text-align: center;
     margin: 40px;
 }
 	
@@ -13,6 +19,12 @@
     font-size: 100%;
     vertical-align: middle;
     padding: 10px;
+}
+
+.console-login-content {
+    vertical-align: middle;
+    width: 100%;
+    padding: 5px;
 }
 
 .console-title {
@@ -40,6 +52,7 @@
 
 .console-content {
     width: 100%;
+    padding: 5px;
 }
 
 .console-table-table {
