@@ -25,8 +25,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DatamoverInfo implements IsSerializable
 {
-    private String name = "?";
-    private String targetLocation = "?";
+    private String name;
+    private String targetLocation;
     private DatamoverStatus status = DatamoverStatus.DOWN;
     
     public final String getName()

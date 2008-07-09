@@ -55,8 +55,6 @@ public class Console extends Composite
     
     private final AsyncCallback<Void> refreshCallBack;
         
-    private Map<String, String> targets;
-
     public Console(ViewContext viewContext)
     {
         this.viewContext = viewContext;
@@ -71,9 +69,9 @@ public class Console extends Composite
         
         viewContext.getService().getTargets(new AbstractAsyncCallback<Map<String, String>>(viewContext)
             {
-                public void onSuccess(Map<String, String> list)
+                public void onSuccess(Map<String, String> map)
                 {
-                    targets = list;
+                    viewContext.getModel().setTargets(map);
                     refreshView();
                 }
             });
@@ -141,7 +139,8 @@ public class Console extends Composite
                     {
                         public void onSuccess(List<DatamoverInfo> list)
                         {
-                            showTable(list);
+                            viewContext.getModel().setInfos(list);
+                            showTable();
                         }
                     });
     }
@@ -153,12 +152,12 @@ public class Console extends Composite
         content.add(new Label(viewContext.getMessageResources().getConsoleWaitMessage()));
     }
     
-    private void showTable(List<DatamoverInfo> list)
+    private void showTable()
     {
         content.clear();
         content.add(createStatusLine());
         content.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-        content.add(createView(list));
+        content.add(createView());
         String buttonLabel = viewContext.getMessageResources().getRefreshButtonLabel();
         content.add(createHeaderButton(buttonLabel, new ClickListener()
             {
@@ -174,8 +173,9 @@ public class Console extends Composite
         return new Label(viewContext.getMessageResources().getConsoleStatusLine(new Date()));
     }
 
-    private Widget createView(List<DatamoverInfo> list)
+    private Widget createView()
     {
+        List<DatamoverInfo> list = viewContext.getModel().getInfos();
         Grid grid = new Grid(list.size() + 1, 4);
         grid.setStyleName(STYLE_TABLE_PREFIX + "table");
         IMessageResources messageResources = viewContext.getMessageResources();
@@ -196,26 +196,28 @@ public class Console extends Composite
 
     private void createRow(Grid grid, final DatamoverInfo datamoverInfo, int rowIndex)
     {
-        grid.setText(rowIndex, 0, datamoverInfo.getName());
+        final String datamoverName = datamoverInfo.getName();
+        grid.setText(rowIndex, 0, datamoverName == null ? "?" : datamoverName);
         DatamoverStatus status = datamoverInfo.getStatus();
         grid.setText(rowIndex, 2, status.toString());
         IMessageResources messageResources = viewContext.getMessageResources();
+        String targetName = tryToGetTargetName(datamoverInfo);
         if (status == DatamoverStatus.DOWN || status == DatamoverStatus.STALE)
         {
-            final ListBox targetListBox = createTargetListBox();
+            final ListBox targetListBox = createTargetListBox(targetName);
             grid.setWidget(rowIndex, 1, targetListBox);
             String buttonLabel = messageResources.getStartButtonLabel();
             Button button = createTableButton(buttonLabel, new ClickListener()
                 {
                     public void onClick(Widget arg0)
                     {
-                        startDatamover(datamoverInfo.getName(), targetListBox);
+                        startDatamover(datamoverName, targetListBox);
                     }
                 });
             grid.setWidget(rowIndex, 3, button);
         } else
         {
-            grid.setText(rowIndex, 1, getTargetName(datamoverInfo));
+            grid.setText(rowIndex, 1, targetName == null ? "?" : targetName);
             if (status != DatamoverStatus.SHUTDOWN)
             {
                 String buttonLabel = messageResources.getStopButtonLabel();
@@ -223,7 +225,7 @@ public class Console extends Composite
                     {
                         public void onClick(Widget arg0)
                         {
-                            stopDatamover(datamoverInfo.getName());
+                            stopDatamover(datamoverName);
                         }
                     });
                 grid.setWidget(rowIndex, 3, button);
@@ -231,9 +233,10 @@ public class Console extends Composite
         }
     }
     
-    private String getTargetName(DatamoverInfo datamoverInfo)
+    private String tryToGetTargetName(DatamoverInfo datamoverInfo)
     {
         String targetLocation = datamoverInfo.getTargetLocation();
+        Map<String, String> targets = viewContext.getModel().getTargets();
         for (Map.Entry<String, String> entry : targets.entrySet())
         {
             if (entry.getValue().equals(targetLocation))
@@ -268,12 +271,24 @@ public class Console extends Composite
         return button;
     }
     
-    private ListBox createTargetListBox()
+    private ListBox createTargetListBox(String targetNameOrNull)
     {
         ListBox list = new ListBox();
+        Map<String, String> targets = viewContext.getModel().getTargets();
         for (Map.Entry<String, String> target : targets.entrySet())
         {
             list.addItem(target.getKey(), target.getValue());
+        }
+        if (targetNameOrNull != null)
+        {
+            for (int i = 0, n = list.getItemCount(); i < n; i++)
+            {
+                if (list.getItemText(i).equals(targetNameOrNull))
+                {
+                    list.setSelectedIndex(i);
+                    break;
+                }
+            }
         }
         return list;
     }

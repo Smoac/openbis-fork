@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.datamover.console.client.application;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
@@ -28,6 +32,8 @@ public class ViewModel
 {
     private ApplicationInfo applicationInfo;
     private User user;
+    private Map<String, String> targets;
+    private List<DatamoverInfo> infos;
 
     public final ApplicationInfo getApplicationInfo()
     {
@@ -47,6 +53,41 @@ public class ViewModel
     public final void setUser(User user)
     {
         this.user = user;
+    }
+
+    public final Map<String, String> getTargets()
+    {
+        return targets;
+    }
+
+    public final void setTargets(Map<String, String> targets)
+    {
+        this.targets = targets;
+    }
+
+    public final List<DatamoverInfo> getInfos()
+    {
+        return infos;
+    }
+
+    public final void setInfos(List<DatamoverInfo> infos)
+    {
+        if (this.infos == null || this.infos.size() != infos.size())
+        {
+            this.infos = infos;
+            return;
+        }
+        for (int i = 0, n = infos.size(); i < n; i++)
+        {
+            DatamoverInfo info = infos.get(i);
+            String currentTargetLocation = info.getTargetLocation();
+            if (currentTargetLocation == null)
+            {
+                String oldTargetLocation = this.infos.get(i).getTargetLocation();
+                info.setTargetLocation(oldTargetLocation);
+            }
+            this.infos.set(i, info);
+        }
     }
     
 }
