@@ -30,7 +30,8 @@ import ch.systemsx.cisd.datamover.filesystem.RetryingPathRemover.DeleteActivityD
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = RetryingPathRemover.class)
+@Friend(toClasses =
+    { RetryingPathRemover.class, DeleteActivityDetector.class })
 public class RetryingPathRemoverTest
 {
     @BeforeClass
