@@ -64,24 +64,30 @@ public final class DataMover
     @Private
     static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
 
-    private static final String TEMPLATE = PROCESS_MARKER_PREFIX + "%s_processing";
+    private static final String PROCESSING_MARKER_TEMPLATE =
+            PROCESS_MARKER_PREFIX + "%s_processing";
 
     @Private
-    static final String INCOMING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "incoming");
+    static final String INCOMING_PROCESS_MARKER_FILENAME =
+            String.format(PROCESSING_MARKER_TEMPLATE, "incoming");
 
     @Private
-    static final String OUTGOING_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "outgoing");
+    static final String OUTGOING_PROCESS_MARKER_FILENAME =
+            String.format(PROCESSING_MARKER_TEMPLATE, "outgoing");
 
     @Private
-    static final String LOCAL_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "local");
+    static final String LOCAL_PROCESS_MARKER_FILENAME =
+            String.format(PROCESSING_MARKER_TEMPLATE, "local");
 
     @Private
-    static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "recovery");
+    static final String RECOVERY_PROCESS_MARKER_FILENAME =
+            String.format(PROCESSING_MARKER_TEMPLATE, "recovery");
 
     /**
      * This marker file indicates that we are in a <i>shutdown</i> mode, started by the program.
      */
-    static final String SHUTDOWN_PROCESS_MARKER_FILENAME = String.format(TEMPLATE, "shutdown");
+    static final String SHUTDOWN_PROCESS_MARKER_FILENAME =
+            String.format(PROCESSING_MARKER_TEMPLATE, "shutdown");
 
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,

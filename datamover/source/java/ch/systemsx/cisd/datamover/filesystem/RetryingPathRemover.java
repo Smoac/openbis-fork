@@ -17,13 +17,26 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
+import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.utilities.FileUtilities.SimpleActivityObserver;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 
 /**
@@ -35,11 +48,17 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
  */
 final class RetryingPathRemover implements IPathRemover
 {
+    private static final long DELETE_ONE_FILE_TIMEOUT_MILLIS =
+            Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
+
+    private final static ExecutorService executor =
+            new NamingThreadPoolExecutor("Deletion Thread").daemonize();
 
     private final int maxRetriesOnFailure;
 
@@ -66,7 +85,7 @@ final class RetryingPathRemover implements IPathRemover
         boolean deletionOK = false;
         while (true)
         {
-            deletionOK = FileUtilities.deleteRecursively(path);
+            deletionOK = deleteAndMonitor(path);
             if (deletionOK)
             {
                 break;
@@ -102,6 +121,85 @@ final class RetryingPathRemover implements IPathRemover
         } else
         {
             return Status.OK;
+        }
+    }
+
+    @Private
+    static class DeleteActivityDetector implements IActivitySensor, SimpleActivityObserver
+    {
+        private volatile long lastActivityTime = System.currentTimeMillis();
+
+        private final File path;
+
+        public DeleteActivityDetector(File path)
+        {
+            this.path = path;
+        }
+
+        // called each time when one file gets deleted
+        synchronized public void update()
+        {
+            lastActivityTime = System.currentTimeMillis();
+        }
+
+        synchronized public String describeInactivity(long now)
+        {
+            return "No delete activity of path " + path.getPath() + " for "
+                    + DurationFormatUtils.formatDurationHMS(now - lastActivityTime);
+        }
+
+        synchronized public long getTimeOfLastActivityMoreRecentThan(long thresholdMillis)
+        {
+            return lastActivityTime;
+        }
+
+    }
+
+    // if there is no progress during deletion, it will be stopped
+    private boolean deleteAndMonitor(final File path)
+    {
+        final DeleteActivityDetector sensor = new DeleteActivityDetector(path);
+        Callable<Boolean> deleteCallable = new Callable<Boolean>()
+            {
+                public Boolean call() throws Exception
+                {
+                    return FileUtilities.deleteRecursively(path, null, sensor);
+                }
+            };
+        return executeAndMonitor(sensor, deleteCallable, DELETE_ONE_FILE_TIMEOUT_MILLIS);
+    }
+
+    @Private
+    Boolean executeAndMonitor(final IActivitySensor sensor, final Callable<Boolean> deleteCallable,
+            final long inactivityThresholdMillis)
+    {
+        final Future<Boolean> deleteFuture = executor.submit(deleteCallable);
+
+        IInactivityObserver inactivityObserver = new IInactivityObserver()
+            {
+                // called when inactivity took longer than a timeout
+                public void update(long inactiveSinceMillis, String descriptionOfInactivity)
+                {
+                    operationLog.error(descriptionOfInactivity);
+                    deleteFuture.cancel(true);
+                }
+            };
+        InactivityMonitor inactivityMonitor =
+                new InactivityMonitor(sensor, inactivityObserver, inactivityThresholdMillis, true);
+
+        ExecutionResult<Boolean> executionResult =
+                ConcurrencyUtilities.getResult(deleteFuture, ConcurrencyUtilities.NO_TIMEOUT);
+        inactivityMonitor.stop();
+
+        Boolean result = executionResult.tryGetResult();
+        if (result != null)
+        {
+            return result.booleanValue();
+        } else
+        {
+            operationLog.error("Operation terminated with an error status: "
+                    + executionResult.getStatus());
+            return false;
         }
     }
 }

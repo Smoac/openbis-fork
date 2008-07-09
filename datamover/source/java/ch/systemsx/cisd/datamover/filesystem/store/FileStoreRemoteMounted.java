@@ -84,12 +84,8 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
 
     public final Status delete(final StoreItem item)
     {
-        final Status statusOrNull = localImplMonitored.delete(item);
-        if (statusOrNull == null)
-        {
-            return Status.createRetriableError("Could not delete '" + item + "': time out.");
-        }
-        return statusOrNull;
+        // we do not run delete with a timeout
+        return localImpl.delete(item);
     }
 
     public final BooleanStatus exists(final StoreItem item)
@@ -103,12 +99,14 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         return statusOrNull;
     }
 
-    public final StatusWithResult<Long> lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final StatusWithResult<Long> lastChanged(final StoreItem item,
+            final long stopWhenFindYounger)
     {
-        final StatusWithResult<Long> statusOrNull = localImplMonitored.lastChanged(item, stopWhenFindYounger);
+        final StatusWithResult<Long> statusOrNull =
+                localImplMonitored.lastChanged(item, stopWhenFindYounger);
         if (statusOrNull == null)
         {
-            return StatusWithResult.<Long>createError(String.format(
+            return StatusWithResult.<Long> createError(String.format(
                     "Could not determine \"last changed time\" of %s: time out.", item));
         }
         return statusOrNull;
@@ -121,7 +119,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
                 localImplMonitored.lastChangedRelative(item, stopWhenFindYoungerRelative);
         if (statusOrNull == null)
         {
-            return StatusWithResult.<Long>createError(String.format(
+            return StatusWithResult.<Long> createError(String.format(
                     "Could not determine \"last changed time\" of %s: time out.", item));
         }
         return statusOrNull;
