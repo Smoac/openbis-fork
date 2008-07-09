@@ -1,11 +1,13 @@
 .border {
     width: 100%;
     height: 100%;
-    vertical-align: middle;
+    vertical-align: top;
 }
 
 .header {
-    padding: 10;
+    padding: 10px;
+    width: 100%;
+    height: 10px;
     vertical-align: middle;
 }
 
@@ -17,6 +19,11 @@
 }
 
 .footer {
+    vertical-align: bottom;
+    height: 100%;
+}
+
+.footer-label {
     width: 100%;
     text-align: center;
     font-size: 80%;
@@ -42,7 +49,6 @@
 
 .console-login-content {
     vertical-align: middle;
-    width: 100%;
     padding: 5px;
 }
 
@@ -60,6 +66,8 @@
 
 .console-content {
     width: 100%;
+    height: 100%;
+    vertical-align: top;
     padding: 5px;
 }
 

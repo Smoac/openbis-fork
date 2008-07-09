@@ -60,9 +60,9 @@ public class LoginWidget extends Composite
         panel.add(welcome);
         
         VerticalPanel loginPanel = new VerticalPanel();
-        panel.setStyleName(STYLE_PREFIX + "content");
+        loginPanel.setStyleName(STYLE_PREFIX + "content");
         panel.add(loginPanel);
-        FieldSet fieldSet = new FieldSet("Login");
+        FieldSet fieldSet = new FieldSet(messageResources.getLoginLegend());
         loginPanel.add(fieldSet);
         Grid grid = new Grid(2, 2);
         fieldSet.add(grid);
@@ -101,7 +101,8 @@ public class LoginWidget extends Composite
                         {
                             if (user == null)
                             {
-                                Window.alert("Invalid authentication. Please login again.");
+                                IMessageResources messageResources = viewContext.getMessageResources();
+                                Window.alert(messageResources.getLoginFailedMessage());
                             } else
                             {
                                 viewContext.getPageController().reload();

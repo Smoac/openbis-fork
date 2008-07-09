@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.datamover.console.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.datamover.console.client.application.IMessageResources;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
 import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
@@ -105,7 +106,8 @@ public class Console extends Composite
         label.setStyleName(STYLE_HEADER_PREFIX + "label");
         headerPanel.add(label);
         
-        headerPanel.add(createTableButton("logout", new ClickListener()
+        String buttonLabel = viewContext.getMessageResources().getLogoutButtonLabel();
+        headerPanel.add(createTableButton(buttonLabel, new ClickListener()
             {
                 public void onClick(Widget arg0)
                 {
@@ -148,7 +150,7 @@ public class Console extends Composite
     {
         content.clear();
         content.setHorizontalAlignment(VerticalPanel.ALIGN_LEFT);
-        content.add(new Label("Data will be loaded. Please wait."));
+        content.add(new Label(viewContext.getMessageResources().getConsoleWaitMessage()));
     }
     
     private void showTable(List<DatamoverInfo> list)
@@ -157,7 +159,8 @@ public class Console extends Composite
         content.add(createStatusLine());
         content.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
         content.add(createView(list));
-        content.add(createHeaderButton("refresh", new ClickListener()
+        String buttonLabel = viewContext.getMessageResources().getRefreshButtonLabel();
+        content.add(createHeaderButton(buttonLabel, new ClickListener()
             {
                 public void onClick(Widget widget)
                 {
@@ -175,10 +178,11 @@ public class Console extends Composite
     {
         Grid grid = new Grid(list.size() + 1, 4);
         grid.setStyleName(STYLE_TABLE_PREFIX + "table");
-        grid.setText(0, 0, "Datamover");
-        grid.setText(0, 1, "Target Location");
-        grid.setText(0, 2, "Status");
-        grid.setText(0, 3, "Command");
+        IMessageResources messageResources = viewContext.getMessageResources();
+        grid.setText(0, 0, messageResources.getDatamoverColumnHeader());
+        grid.setText(0, 1, messageResources.getTargetLocationColumnHeader());
+        grid.setText(0, 2, messageResources.getStatusColumnHeader());
+        grid.setText(0, 3, messageResources.getCommandColumnHeader());
         grid.getRowFormatter().setStyleName(0, STYLE_TABLE_PREFIX + "header");
         for (int i = 0, n = list.size(); i < n; i++)
         {
@@ -195,11 +199,13 @@ public class Console extends Composite
         grid.setText(rowIndex, 0, datamoverInfo.getName());
         DatamoverStatus status = datamoverInfo.getStatus();
         grid.setText(rowIndex, 2, status.toString());
+        IMessageResources messageResources = viewContext.getMessageResources();
         if (status == DatamoverStatus.DOWN || status == DatamoverStatus.STALE)
         {
             final ListBox targetListBox = createTargetListBox();
             grid.setWidget(rowIndex, 1, targetListBox);
-            Button button = createTableButton("start", new ClickListener()
+            String buttonLabel = messageResources.getStartButtonLabel();
+            Button button = createTableButton(buttonLabel, new ClickListener()
                 {
                     public void onClick(Widget arg0)
                     {
@@ -212,7 +218,8 @@ public class Console extends Composite
             grid.setText(rowIndex, 1, getTargetName(datamoverInfo));
             if (status != DatamoverStatus.SHUTDOWN)
             {
-                Button button = createTableButton("stop", new ClickListener()
+                String buttonLabel = messageResources.getStopButtonLabel();
+                Button button = createTableButton(buttonLabel, new ClickListener()
                     {
                         public void onClick(Widget arg0)
                         {

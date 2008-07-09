@@ -27,11 +27,8 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface IMessageResources extends Messages
 {
-    /**
-     * Returns a default invocation exception message (as it obviously does not contain any).
-     * 
-     * @gwt.key exception.invocation.message
-     */
+    /** Returns a default invocation exception message (as it obviously does not contain any). */
+    @Key("exception.invocation.message")
     public String getInvocationExceptionMessage();
 
     /**
@@ -39,58 +36,80 @@ public interface IMessageResources extends Messages
      * <p>
      * The returned error message will contain the type of the exception thrown.
      * </p>
-     * 
-     * @gwt.key exception.without.message
      */
+    @Key("exception.without.message")
     public String getExceptionWithoutMessage(final String typeName);
 
-    /**
-     * Returns the footer text.
-     * 
-     * @gwt.key footer.text
-     */
+    /** Returns the footer text. */
+    @Key("footer.text")
     public String getFooterText(String version);
     
-    /**
-     * Returns the header title.
-     * 
-     * @gwt.key header.title
-     */
+    /** Returns the header title. */
+    @Key("header.title")
     public String getHeaderTitle();
     
-    /**
-     * Returns welcome text that appears on the first page (login page).
-     * 
-     * @gwt.key login.welcome.text
-     */
+    /** Returns welcome text that appears on the first page (login page). */
+    @Key("login.welcome.text")
     public String getLoginWelcomeText();
     
-    /**
-     * Returns the password label for the login form.
-     * 
-     * @gwt.key login.password.label
-     */
+    /** Returns legend of login field set. */
+    @Key("login.legend")
+    public String getLoginLegend();
+    
+    /** Returns the password label for the login form. */
+    @Key("login.password.label")
     public String getLoginPasswordLabel();
 
-    /**
-     * Returns the email label for the login form.
-     * 
-     * @gwt.key login.user.label
-     */
+    /** Returns the email label for the login form. */
+    @Key("login.user.label")
     public String getLoginUserLabel();
 
-    /**
-     * Returns the button label for the login form.
-     * 
-     * @gwt.key login.button.label
-     */
+    /** Returns the button label for the login form. */
+    @Key("login.button.label")
     public String getLoginButtonLabel();
 
-    /**
-     * Returns the status line with the specified timestamp.
-     * 
-     * @gwt.key console.status.line
-     */
+    /** Returns the text shown when login failed. */
+    @Key("login.failed.message")
+    public String getLoginFailedMessage();
+    
+    /** Returns the status line with the specified timestamp. */
+    @Key("console.status.line")
     public String getConsoleStatusLine(Date timestamp);
 
+    /** Returns the label of the logout button. */
+    @Key("console.logout.button.label")
+    public String getLogoutButtonLabel();
+    
+    /** Returns the wait message used when wait for server response. */
+    @Key("console.wait.message")
+    public String getConsoleWaitMessage();
+    
+    /** Returns the column header of datamover. */
+    @Key("console.column.datamover")
+    public String getDatamoverColumnHeader();
+    
+    /** Returns the column header of target location. */
+    @Key("console.column.target.location")
+    public String getTargetLocationColumnHeader();
+    
+    /** Returns the column header of status. */
+    @Key("console.column.status")
+    public String getStatusColumnHeader();
+    
+    /** Returns the column header of command. */
+    @Key("console.column.command")
+    public String getCommandColumnHeader();
+    
+    /** Returns the label of the start button. */
+    @Key("console.start.button.label")
+    public String getStartButtonLabel();
+    
+    /** Returns the label of the stop button. */
+    @Key("console.stop.button.label")
+    public String getStopButtonLabel();
+    
+    /** Returns the label of the refresh button. */
+    @Key("console.refresh.button.label")
+    public String getRefreshButtonLabel();
+    
 }

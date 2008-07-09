@@ -52,20 +52,22 @@ public class DatamoverConsoleEntryPoint implements EntryPoint
         {
             private Timer timer;
 
-            public void setTimer(Timer timer)
-            {
-                this.timer = timer;
-            }
-
-            public void reload()
+            public void setTimer(Timer timerOrNull)
             {
                 if (timer != null)
                 {
                     timer.cancel();
                 }
+                timer = timerOrNull;
+            }
+
+            public void reload()
+            {
+                setTimer(null);
                 onModuleLoad();
             }
         };
+        
     private ViewContext viewContext;
     
     public void onModuleLoad()

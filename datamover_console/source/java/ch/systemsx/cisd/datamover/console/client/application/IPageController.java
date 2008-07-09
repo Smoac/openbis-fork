@@ -19,13 +19,19 @@ package ch.systemsx.cisd.datamover.console.client.application;
 import com.google.gwt.user.client.Timer;
 
 /**
- * 
+ * Controller of pages and refresh timers.
  *
  * @author Franz-Josef Elmer
  */
 public interface IPageController
 {
-    public void setTimer(Timer timer);
+    /**
+     * Sets the current refresh timer. Cancels previous timer.
+     */
+    public void setTimer(Timer timerOrNull);
     
+    /**
+     * Cancels previous refresh timer and reloads page.
+     */
     public void reload();
 }
