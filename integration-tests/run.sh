@@ -215,7 +215,7 @@ function install_lims_server {
 	copy_templates $LIMS_SERVER_NAME
     
         unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
-	$LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties $LIMS_SERVER/roles.conf
+	$LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties
 	wait_for_server
     else
         copy_templates $LIMS_SERVER_NAME
