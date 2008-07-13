@@ -200,11 +200,12 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
         try
         {
-            int numberOfItems;
+            int numberOfItemsHandled;
             do
             {
                 final StoreItem[] storeItems = listStoreItems();
-                numberOfItems = storeItems.length;
+                final int numberOfItems = storeItems.length;
+                numberOfItemsHandled = numberOfItems;
                 directoryScanningHandler.beforeHandle();
                 for (int i = 0; i < numberOfItems; i++)
                 {
@@ -241,6 +242,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
                         }
                     } else
                     {
+                        --numberOfItemsHandled;
                         if (operationLog.isTraceEnabled())
                         {
                             operationLog.trace(String.format(
@@ -248,7 +250,7 @@ public final class DirectoryScanningTimerTask extends TimerTask
                         }
                     }
                 }
-            } while (numberOfItems > 0);
+            } while (numberOfItemsHandled > 0);
         } catch (final Exception ex)
         {
             printNotification(ex);
