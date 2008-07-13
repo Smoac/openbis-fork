@@ -94,7 +94,7 @@ public final class ValidatorUtilsTest
     public final void testCreatePatternValidator()
     {
         assertNull(ValidatorUtils.createPatternValidator(ArrayUtils.EMPTY_STRING_ARRAY));
-        Validator<String> validator = ValidatorUtils.createPatternValidator("he*");
+        IValidator<String> validator = ValidatorUtils.createPatternValidator("he*");
         assert validator.isValid("he");
         assert validator.isValid("hello");
         assert validator.isValid("hullo") == false;

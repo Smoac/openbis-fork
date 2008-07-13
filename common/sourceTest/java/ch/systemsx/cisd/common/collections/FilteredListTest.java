@@ -58,7 +58,7 @@ public final class FilteredListTest
 
     private final static List<String> createList()
     {
-        final Validator<String> validator = ValidatorUtils.getNotNullValidator();
+        final IValidator<String> validator = ValidatorUtils.getNotNullValidator();
         List<String> list = new ArrayList<String>();
         list.add(null);
         list.add(null);

@@ -58,7 +58,7 @@ public final class CompositeValidatorTest
     public final void testIsValid()
     {
         final CompositeValidator<Object> validator = new CompositeValidator<Object>();
-        validator.addValidator(new Validator<Object>()
+        validator.addValidator(new IValidator<Object>()
             {
 
                 //
@@ -70,7 +70,7 @@ public final class CompositeValidatorTest
                     return object instanceof String;
                 }
             });
-        validator.addValidator(new Validator<Object>()
+        validator.addValidator(new IValidator<Object>()
             {
 
                 //

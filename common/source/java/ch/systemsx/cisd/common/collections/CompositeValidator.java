@@ -29,22 +29,22 @@ import java.util.List;
  * 
  * @author Christian Ribeaud
  */
-public final class CompositeValidator<T> implements Validator<T>
+public final class CompositeValidator<T> implements IValidator<T>
 {
-    private final List<Validator<T>> validators;
+    private final List<IValidator<T>> validators;
 
     public CompositeValidator()
     {
-        this.validators = new ArrayList<Validator<T>>();
+        this.validators = new ArrayList<IValidator<T>>();
     }
 
-    public final void addValidator(final Validator<T> validator)
+    public final void addValidator(final IValidator<T> validator)
     {
         assert validator != null : "Unspecified validator.";
         validators.add(validator);
     }
 
-    public final void removeValidator(final Validator<T> validator)
+    public final void removeValidator(final IValidator<T> validator)
     {
         assert validator != null : "Unspecified validator.";
         validators.remove(validator);
@@ -56,7 +56,7 @@ public final class CompositeValidator<T> implements Validator<T>
 
     public final boolean isValid(final T t)
     {
-        for (final Validator<T> validator : validators)
+        for (final IValidator<T> validator : validators)
         {
             if (validator.isValid(t))
             {

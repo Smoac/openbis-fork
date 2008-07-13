@@ -32,7 +32,7 @@ public final class ValidatorUtils
      * A <code>Validator</code> implementation which check whether given <code>Object</code> is
      * not <code>null</code>.
      */
-    private final static Validator<Object> NOT_NULL_VALIDATOR = new Validator<Object>()
+    private final static IValidator<Object> NOT_NULL_VALIDATOR = new IValidator<Object>()
         {
 
             //
@@ -48,7 +48,7 @@ public final class ValidatorUtils
     /**
      * A <code>Validator</code> implementation which always returns <code>true</code>.
      */
-    private final static Validator<Object> ALWAYS_TRUE = new Validator<Object>()
+    private final static IValidator<Object> ALWAYS_TRUE = new IValidator<Object>()
         {
 
             //
@@ -72,7 +72,7 @@ public final class ValidatorUtils
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.
      */
-    public final static Validator<String> createPatternValidator(final String[] patterns)
+    public final static IValidator<String> createPatternValidator(final String[] patterns)
     {
         assert patterns != null : "Unspecified patterns.";
         final int length = patterns.length;
@@ -98,7 +98,7 @@ public final class ValidatorUtils
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.
      */
-    public final static Validator<String> createPatternValidator(final String pattern)
+    public final static IValidator<String> createPatternValidator(final String pattern)
     {
         if (pattern == null)
         {
@@ -111,17 +111,17 @@ public final class ValidatorUtils
     /** Returns a typed validator for non-<code>null</code> objects. */
     @SuppressWarnings(
         { "cast", "unchecked" })
-    public static final <T> Validator<T> getNotNullValidator()
+    public static final <T> IValidator<T> getNotNullValidator()
     {
-        return (Validator<T>) NOT_NULL_VALIDATOR;
+        return (IValidator<T>) NOT_NULL_VALIDATOR;
     }
 
     /** Returns a typed validator which always returns <code>true</code>. */
     @SuppressWarnings(
         { "cast", "unchecked" })
-    public static final <T> Validator<T> getAlwaysTrueValidator()
+    public static final <T> IValidator<T> getAlwaysTrueValidator()
     {
-        return (Validator<T>) ALWAYS_TRUE;
+        return (IValidator<T>) ALWAYS_TRUE;
     }
 
     /**

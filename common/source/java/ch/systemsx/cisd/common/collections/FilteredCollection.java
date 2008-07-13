@@ -32,7 +32,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
 {
 
     /** The validator to use. */
-    protected final Validator<E> validator;
+    protected final IValidator<E> validator;
 
     /**
      * Factory method to create a filtered (validating) collection.
@@ -45,7 +45,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      *            <code>null</code>.
      * @return a new filtered collection.
      */
-    public static <E> Collection<E> decorate(final Collection<E> coll, final Validator<E> validator)
+    public static <E> Collection<E> decorate(final Collection<E> coll, final IValidator<E> validator)
     {
         return new FilteredCollection<E>(coll, validator);
     }
@@ -57,7 +57,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>.
      */
-    protected FilteredCollection(final Collection<E> collection, final Validator<E> validator)
+    protected FilteredCollection(final Collection<E> collection, final IValidator<E> validator)
     {
         super(filterCollection(collection, validator));
         assert validator != null;
@@ -74,7 +74,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      */
     @SuppressWarnings("unchecked")
     protected final static <E> Collection<E> filterCollection(final Collection<? extends E> collection,
-            final Validator<E> validator)
+            final IValidator<E> validator)
     {
         if (collection == null)
         {

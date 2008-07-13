@@ -26,7 +26,7 @@ package ch.systemsx.cisd.common.collections;
  * 
  * @author Christian Ribeaud
  */
-public interface Validator<E>
+public interface IValidator<E>
 {
 
     /**

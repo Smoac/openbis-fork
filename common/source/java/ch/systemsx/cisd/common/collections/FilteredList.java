@@ -40,7 +40,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>
      */
-    protected FilteredList(final List<E> list, final Validator<E> validator)
+    protected FilteredList(final List<E> list, final IValidator<E> validator)
     {
         super(list, validator);
     }
@@ -55,7 +55,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * @param validator the <code>Validator</code> to use for validation. Must not be
      *            <code>null</code>
      */
-    public static <E> List<E> decorate(final List<E> list, final Validator<E> validator)
+    public static <E> List<E> decorate(final List<E> list, final IValidator<E> validator)
     {
         return new FilteredList<E>(list, validator);
     }

@@ -19,11 +19,11 @@ package ch.systemsx.cisd.common.collections;
 import java.util.regex.Pattern;
 
 /**
- * A {@link Validator} based on regular expressions.
+ * A {@link IValidator} based on regular expressions.
  * 
  * @author Christian Ribeaud
  */
-public final class RegExValidator implements Validator<String>
+public final class RegExValidator implements IValidator<String>
 {
     private final Pattern regEx;
 
