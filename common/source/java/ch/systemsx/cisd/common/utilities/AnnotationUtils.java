@@ -116,4 +116,87 @@ public final class AnnotationUtils
         }
         return list;
     }
+
+    /**
+     * From the list of given annotations tries to return the one of given type.
+     * 
+     * @return <code>null</code> if not found.
+     */
+    public final static <A extends Annotation> A tryGetAnnotation(final Annotation[] annotations,
+            final Class<A> annotationType)
+    {
+        assert annotations != null : "Unspecified annotations";
+        assert annotationType != null : "Unspecified annotation type";
+        for (final Annotation annotation : annotations)
+        {
+            if (annotation.annotationType().equals(annotationType))
+            {
+                return annotationType.cast(annotation);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a list of method parameters where given <var>annotation</var> could be found.
+     * 
+     * @return never <code>null</code> but could return an empty list.
+     */
+    public final static <A extends Annotation> List<Parameter<A>> getAnnotatedParameters(
+            final Method method, final Class<A> annotationType)
+    {
+        assert method != null : "Unspecified method";
+        assert annotationType != null : "Unspecified annotation type";
+        final Annotation[][] annotations = method.getParameterAnnotations();
+        final Class<?>[] types = method.getParameterTypes();
+        final List<Parameter<A>> list = new ArrayList<Parameter<A>>();
+        for (int i = 0; i < types.length; i++)
+        {
+            final Class<?> type = types[i];
+            final A annotationOrNull = tryGetAnnotation(annotations[i], annotationType);
+            if (annotationOrNull != null)
+            {
+                list.add(new Parameter<A>(i, type, annotationOrNull));
+            }
+        }
+        return list;
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final static class Parameter<A extends Annotation>
+    {
+        /**
+         * This parameter index in the list of method arguments.
+         */
+        private final int index;
+
+        private final Class<?> type;
+
+        private final A annotation;
+
+        Parameter(final int index, final Class<?> type, final A annotation)
+        {
+            this.index = index;
+            this.type = type;
+            this.annotation = annotation;
+        }
+
+        public final int getIndex()
+        {
+            return index;
+        }
+
+        public final Class<?> getType()
+        {
+            return type;
+        }
+
+        public final A getAnnotation()
+        {
+            return annotation;
+        }
+    }
 }
