@@ -116,12 +116,12 @@ public final class IncomingProcessorTest
                 assertEquals("Marker file " + markerFile + " still there", false, markerFile
                         .exists());
             }
-    
+
             public void canceling()
             {
                 fail("Invocation of 'canceling()' not expected.");
             }
-    
+
         };
 
     @BeforeMethod
@@ -134,7 +134,7 @@ public final class IncomingProcessorTest
         mover = context.mock(IPathMover.class);
         remover = context.mock(IPathRemover.class);
         exitHandler = context.mock(IExitHandler.class);
-        
+
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
@@ -220,7 +220,6 @@ public final class IncomingProcessorTest
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
 
     @Test
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
@@ -302,7 +301,7 @@ public final class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE,
+        return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE, null,
                 fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
 
     }
