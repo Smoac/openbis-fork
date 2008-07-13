@@ -200,51 +200,55 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
         try
         {
-            final StoreItem[] storeItems = listStoreItems();
-            directoryScanningHandler.beforeHandle();
-            int len = storeItems.length;
-            for (int i = 0; i < len; i++)
+            int numberOfItems;
+            do
             {
-                final StoreItem storeItem = storeItems[i];
-                if (stopRun)
+                final StoreItem[] storeItems = listStoreItems();
+                numberOfItems = storeItems.length;
+                directoryScanningHandler.beforeHandle();
+                for (int i = 0; i < numberOfItems; i++)
                 {
-                    if (operationLog.isDebugEnabled())
+                    final StoreItem storeItem = storeItems[i];
+                    if (stopRun)
                     {
-                        operationLog.debug(String.format("Scan of store '%s' has been cancelled. "
-                                + "Following items have NOT been handled: %s.", sourceDirectory,
-                                CollectionUtils.abbreviate(ArrayUtils.subarray(storeItems, i + 1,
-                                        len), 10)));
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug(String.format("Scan of store '%s' has been cancelled. "
+                                    + "Following items have NOT been handled: %s.", sourceDirectory,
+                                    CollectionUtils.abbreviate(ArrayUtils.subarray(storeItems, i + 1,
+                                            numberOfItems), 10)));
+                        }
+                        return;
                     }
-                    return;
-                }
-                if (directoryScanningHandler.mayHandle(sourceDirectory, storeItem))
-                {
-                    try
+                    if (directoryScanningHandler.mayHandle(sourceDirectory, storeItem))
                     {
-                        storeHandler.handle(storeItem);
+                        try
+                        {
+                            storeHandler.handle(storeItem);
+                            if (operationLog.isTraceEnabled())
+                            {
+                                operationLog.trace(String.format(
+                                        "Following store item '%s' has been handled.", storeItem));
+                            }
+                        } catch (final Exception ex)
+                        {
+                            // Do not stop when processing of one file has failed,
+                            // continue with other files.
+                            printNotification(ex);
+                        } finally
+                        {
+                            directoryScanningHandler.finishItemHandle(sourceDirectory, storeItem);
+                        }
+                    } else
+                    {
                         if (operationLog.isTraceEnabled())
                         {
                             operationLog.trace(String.format(
-                                    "Following store item '%s' has been handled.", storeItem));
+                                    "Following store item '%s' has NOT been handled.", storeItem));
                         }
-                    } catch (final Exception ex)
-                    {
-                        // Do not stop when processing of one file has failed,
-                        // continue with other files.
-                        printNotification(ex);
-                    } finally
-                    {
-                        directoryScanningHandler.finishItemHandle(sourceDirectory, storeItem);
-                    }
-                } else
-                {
-                    if (operationLog.isTraceEnabled())
-                    {
-                        operationLog.trace(String.format(
-                                "Following store item '%s' has NOT been handled.", storeItem));
                     }
                 }
-            }
+            } while (numberOfItems > 0);
         } catch (final Exception ex)
         {
             printNotification(ex);
