@@ -26,14 +26,18 @@ import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * An implementation of {@link ITimerTaskListener} which creates an empty marker file before
- * the timer task is executed and which removes this marker file if the task has been finished.
- *
+ * An implementation of {@link ITimerTaskListener} which creates an empty marker file before the
+ * timer task is executed and which removes this marker file when the task has been finished.
+ * Optionally, the listener can create another marker file when the task is finished (which it will
+ * not remove itself).
+ * 
  * @author Franz-Josef Elmer
  */
 public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListener
 {
-    private final File markerFile;
+    private final File startMarkerFile;
+
+    private final File endMarkerFilOrNull;
 
     /**
      * Creates an instance for the specified marker file.
@@ -41,17 +45,22 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
      * @throws IllegalArgumentException if the argument is <code>null</code> or it denotes a
      *             directory.
      */
-    public TimerTaskListenerForMarkerFileProtocol(String markerFileName)
+    public TimerTaskListenerForMarkerFileProtocol(String startMarkerFileName,
+            String endMarkerFileNameOrNull)
     {
-        if (markerFileName == null)
+        if (startMarkerFileName == null)
         {
-            throw new IllegalArgumentException("Unspecified marker file name.");
+            throw new IllegalArgumentException("Unspecified start marker file name.");
         }
-        markerFile = new File(markerFileName);
-        if (markerFile.isDirectory())
+        startMarkerFile = new File(startMarkerFileName);
+        failIfDirectory(startMarkerFile);
+        if (endMarkerFileNameOrNull != null)
         {
-            throw new IllegalArgumentException("Marker file is a directory: "
-                    + markerFile.getAbsolutePath());
+            endMarkerFilOrNull = new File(endMarkerFileNameOrNull);
+            failIfDirectory(startMarkerFile);
+        } else
+        {
+            endMarkerFilOrNull = null;
         }
     }
 
@@ -63,6 +72,33 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     @Override
     public void startRunning()
     {
+        touch(startMarkerFile);
+    }
+
+    /**
+     * Deletes the marker file.
+     */
+    @Override
+    public void finishRunning()
+    {
+        if (endMarkerFilOrNull != null)
+        {
+            touch(endMarkerFilOrNull);
+        }
+        startMarkerFile.delete();
+    }
+
+    private static void failIfDirectory(File markerFile)
+    {
+        if (markerFile.isDirectory())
+        {
+            throw new IllegalArgumentException("Marker file is a directory: "
+                    + markerFile.getAbsolutePath());
+        }
+    }
+
+    private static void touch(final File markerFile) throws EnvironmentFailureException
+    {
         try
         {
             FileUtils.touch(markerFile);
@@ -72,15 +108,5 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
                     + markerFile.getAbsolutePath() + "'.", ex);
         }
     }
-    
-    /**
-     * Deletes the marker file.
-     */
-    @Override
-    public void finishRunning()
-    {
-        markerFile.delete();
-    }
 
-    
 }

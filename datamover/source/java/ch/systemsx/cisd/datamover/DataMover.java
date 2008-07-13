@@ -118,11 +118,20 @@ public final class DataMover
     }
 
     static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
-            final String markerFileName)
+            final String startMarkerFileName, final String endMarkerFileName)
     {
         final TimerTaskWithListeners timerTaskWithListeners = new TimerTaskWithListeners(timerTask);
         timerTaskWithListeners.addListener(new TimerTaskListenerForMarkerFileProtocol(
-                markerFileName));
+                startMarkerFileName, endMarkerFileName));
+        return timerTaskWithListeners;
+    }
+
+    static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
+            final String startMarkerFileName)
+    {
+        final TimerTaskWithListeners timerTaskWithListeners = new TimerTaskWithListeners(timerTask);
+        timerTaskWithListeners.addListener(new TimerTaskListenerForMarkerFileProtocol(
+                startMarkerFileName, null));
         return timerTaskWithListeners;
     }
 
@@ -192,7 +201,7 @@ public final class DataMover
     private final DataMoverProcess createIncomingProcess()
     {
         return IncomingProcessor.createMovingProcess(parameters, INCOMING_PROCESS_MARKER_FILENAME,
-                factory, bufferDirs);
+                LOCAL_PROCESS_MARKER_FILENAME, factory, bufferDirs);
     }
 
     private final DataMoverProcess createLocalProcess()
@@ -206,7 +215,7 @@ public final class DataMover
                         localProcessor);
         final TimerTask timerTask =
                 createTimerTaskForMarkerFileProtocol(localProcessingTask,
-                        LOCAL_PROCESS_MARKER_FILENAME);
+                        LOCAL_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME);
         final DataMoverProcess dataMoverProcess =
                 new RunOnceMoreAfterTerminateDataMoverProcess(timerTask, "Local Processor",
                         localProcessor);

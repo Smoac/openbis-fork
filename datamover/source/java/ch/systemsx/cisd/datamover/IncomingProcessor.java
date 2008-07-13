@@ -83,31 +83,36 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final IStoreItemFilter storeItemFilter;
 
-    private final String markerFileName;
+    private final String startMarkerFileName;
+
+    private final String endMarkerFileName;
 
     public static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final String markerFile, final IFileSysOperationsFactory factory,
-            final LocalBufferDirs bufferDirs)
+            final String startMarkerFile, final String endMarkerFile,
+            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
     {
-        return createMovingProcess(parameters, markerFile, factory, SYSTEM_TIME_PROVIDER,
-                bufferDirs);
+        return createMovingProcess(parameters, startMarkerFile, endMarkerFile, factory,
+                SYSTEM_TIME_PROVIDER, bufferDirs);
     }
 
     static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final String markerFile, final IFileSysOperationsFactory factory,
-            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
-    {
-        final IncomingProcessor processor =
-                new IncomingProcessor(parameters, markerFile, factory, timeProvider, bufferDirs);
-        return processor.create();
-    }
-
-    private IncomingProcessor(final Parameters parameters, final String markerFileName,
+            final String startMarkerFile, final String endMarkerFile,
             final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
             final LocalBufferDirs bufferDirs)
     {
+        final IncomingProcessor processor =
+                new IncomingProcessor(parameters, startMarkerFile, endMarkerFile, factory,
+                        timeProvider, bufferDirs);
+        return processor.create();
+    }
+
+    private IncomingProcessor(final Parameters parameters, final String startMarkerFileName,
+            final String endMarkerFileName, final IFileSysOperationsFactory factory,
+            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
+    {
         this.parameters = parameters;
-        this.markerFileName = markerFileName;
+        this.startMarkerFileName = startMarkerFileName;
+        this.endMarkerFileName = endMarkerFileName;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.incomingStore = parameters.getIncomingStore(factory);
         this.pathMover = factory.getMover();
@@ -148,7 +153,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                         new FileScannedStore(incomingStore, storeItemFilter),
                         directoryScanningHandler, pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         final TimerTask timerTask =
-                DataMover.createTimerTaskForMarkerFileProtocol(movingTask, markerFileName);
+                DataMover.createTimerTaskForMarkerFileProtocol(movingTask, startMarkerFileName,
+                        endMarkerFileName);
         return new DataMoverProcess(timerTask, "Mover of Incoming Data", this)
             {
 
