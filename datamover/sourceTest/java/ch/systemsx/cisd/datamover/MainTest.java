@@ -70,17 +70,19 @@ public final class MainTest
     private static final int QUIET_PERIOD = 2;
 
     private static final int WAITING_TIME_OUT = 30;
-    
+
     private static final File unitTestRootDirectory =
             new File("targets" + File.separator + "unit-test-wd");
 
     private static final File workingDirectory =
             new File(unitTestRootDirectory, MainTest.class.getSimpleName());
 
-    private static final File ORIGINAL_SCRIPT_FILE = new File(new File("dist"), ShellScriptTest.SCRIPT_FILE_NAME);
-    
-    private static final File SCRIPT_FILE = new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
-    
+    private static final File ORIGINAL_SCRIPT_FILE =
+            new File(new File("dist"), ShellScriptTest.SCRIPT_FILE_NAME);
+
+    private static final File SCRIPT_FILE =
+            new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
+
     @BeforeClass(alwaysRun = true)
     public void init()
     {
@@ -88,7 +90,7 @@ public final class MainTest
         unitTestRootDirectory.mkdirs();
         assertTrue(unitTestRootDirectory.isDirectory());
     }
-    
+
     @BeforeMethod(alwaysRun = true)
     public void setUp()
     {
@@ -362,9 +364,17 @@ public final class MainTest
             }
             Thread.sleep(1000);
         }
-        fail("Not finished after " + WAITING_TIME_OUT + " seconds.");
+        final StringBuilder buf = new StringBuilder();
+        for (File f : getProcessingMarkerFiles())
+        {
+            buf.append(f.getAbsoluteFile());
+            buf.append(", ");
+        }
+        buf.setLength(Math.max(0, buf.length() - 2));
+        fail(String.format("Not finished after %d seconds, processing files still existing: %s.",
+                WAITING_TIME_OUT, buf.toString()));
     }
-    
+
     private File[] getProcessingMarkerFiles()
     {
         File[] files = new File(".").listFiles(new FileFilter()
@@ -756,7 +766,7 @@ public final class MainTest
         assertEquals(2 * size, dirs.outgoing.list().length);
         assertTrue(terminable.terminate());
     }
-    
+
     @Test(groups =
         { "slow" })
     // some data are in incoming, test the whole pipeline taking manual intervention and cleansing
