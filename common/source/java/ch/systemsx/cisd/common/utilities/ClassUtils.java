@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -350,5 +354,43 @@ public final class ClassUtils
             field.setAccessible(true);
         }
         return field;
+    }
+
+    /**
+     * Returns the type argument found at given <var>index</var> of given generic interface
+     * <var>genericInterfaceClass</var>.
+     * 
+     * @return <code>null</code> if not found.
+     */
+    public final static <I> Class<?> tryGetInterfaceTypeArgument(final Class<?> clazz,
+            final Class<I> genericInterfaceClass, final int index)
+    {
+        assert clazz != null : "Unspecified class";
+        assert genericInterfaceClass != null && genericInterfaceClass.isInterface() : "Is not defined or not an interface";
+        assert index > -1 : "Only positive index (> -1)";
+        final Type[] genericInterfaces = clazz.getGenericInterfaces();
+        for (final Type genericInterface : genericInterfaces)
+        {
+            // Only typed interface are instance of ParameterizedType. Other is just a Class.
+            if (genericInterface instanceof ParameterizedType)
+            {
+                final ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                if (genericInterfaceClass.isAssignableFrom((Class<?>) parameterizedType
+                        .getRawType()))
+                {
+                    Type typeArgument = parameterizedType.getActualTypeArguments()[index];
+                    if (typeArgument instanceof GenericArrayType)
+                    {
+                        final GenericArrayType genericArrayType = (GenericArrayType) typeArgument;
+                        // TODO 2008-07-12, Christian Ribeaud: Is there a better way to do this?
+                        return Array.newInstance(
+                                ((Class<?>) genericArrayType.getGenericComponentType()), 0)
+                                .getClass();
+                    }
+                    return (Class<?>) typeArgument;
+                }
+            }
+        }
+        return null;
     }
 }
