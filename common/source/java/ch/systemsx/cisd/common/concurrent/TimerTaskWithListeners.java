@@ -20,6 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
+
 /**
  * Decorator of a {@link TimerTask} objects which allows to add {@link ITimerTaskListener} objects
  * which will be notified for certain type of events.
@@ -29,6 +31,7 @@ import java.util.TimerTask;
 public class TimerTaskWithListeners extends TimerTask
 {
     private final TimerTask timerTask;
+    private final ITimerTaskStatusProvider statusProviderOrNull;
     private final Set<ITimerTaskListener> listeners = new LinkedHashSet<ITimerTaskListener>();
 
     /**
@@ -43,6 +46,13 @@ public class TimerTaskWithListeners extends TimerTask
             throw new IllegalArgumentException("Unspecified timer task.");
         }
         this.timerTask = timerTask;
+        if (timerTask instanceof ITimerTaskStatusProvider)
+        {
+            this.statusProviderOrNull = (ITimerTaskStatusProvider) timerTask;
+        } else
+        {
+            this.statusProviderOrNull = null;
+        }
     }
     
     /**
@@ -73,7 +83,7 @@ public class TimerTaskWithListeners extends TimerTask
         {
             for (ITimerTaskListener listener : listeners)
             {
-                listener.finishRunning();
+                listener.finishRunning(statusProviderOrNull);
             }
         }
     }

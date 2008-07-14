@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import ch.systemsx.cisd.common.concurrent.DummyTimerTaskListener;
 import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * An implementation of {@link ITimerTaskListener} which creates an empty marker file before the
@@ -35,32 +36,48 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListener
 {
-    private final File startMarkerFile;
+    private final File markerFile;
 
-    private final File endMarkerFilOrNull;
+    private final File errorMarkerFileOrNull;
+
+    private final File successorMarkerFilOrNull;
 
     /**
      * Creates an instance for the specified marker file.
      * 
-     * @throws IllegalArgumentException if the argument is <code>null</code> or it denotes a
-     *             directory.
+     * @param markerFileName The name of the marker file that indicates that the
+     *            {@link java.util.TimerTask} is currently running.
+     * @param errorMarkerFileNameOrNull The name of the file indicating that the last time the timer
+     *            task was running it produced an error.
+     * @param successorMarkerFileNameOrNull The name of the file to indicate that the successor of
+     *            this timer task has some work to do.
+     * @throws IllegalArgumentException if the <var>markerFileName</var> is <code>null</code> or
+     *             it denotes a directory.
      */
-    public TimerTaskListenerForMarkerFileProtocol(String startMarkerFileName,
-            String endMarkerFileNameOrNull)
+    public TimerTaskListenerForMarkerFileProtocol(String markerFileName,
+            String errorMarkerFileNameOrNull, String successorMarkerFileNameOrNull)
     {
-        if (startMarkerFileName == null)
+        if (markerFileName == null)
         {
             throw new IllegalArgumentException("Unspecified start marker file name.");
         }
-        startMarkerFile = new File(startMarkerFileName);
-        failIfDirectory(startMarkerFile);
-        if (endMarkerFileNameOrNull != null)
+        markerFile = new File(markerFileName);
+        failIfDirectory(markerFile);
+        if (errorMarkerFileNameOrNull != null)
         {
-            endMarkerFilOrNull = new File(endMarkerFileNameOrNull);
-            failIfDirectory(startMarkerFile);
+            errorMarkerFileOrNull = new File(errorMarkerFileNameOrNull);
+            failIfDirectory(errorMarkerFileOrNull);
         } else
         {
-            endMarkerFilOrNull = null;
+            errorMarkerFileOrNull = null;
+        }
+        if (successorMarkerFileNameOrNull != null)
+        {
+            successorMarkerFilOrNull = new File(successorMarkerFileNameOrNull);
+            failIfDirectory(successorMarkerFilOrNull);
+        } else
+        {
+            successorMarkerFilOrNull = null;
         }
     }
 
@@ -72,20 +89,40 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     @Override
     public void startRunning()
     {
-        touch(startMarkerFile);
+        touch(markerFile);
     }
 
     /**
      * Deletes the marker file.
      */
     @Override
-    public void finishRunning()
+    public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
     {
-        if (endMarkerFilOrNull != null)
+        if (successorMarkerFilOrNull != null && hasPerformedMeaningfullWork(statusProviderOrNull))
         {
-            touch(endMarkerFilOrNull);
+            touch(successorMarkerFilOrNull);
         }
-        startMarkerFile.delete();
+        if (errorMarkerFileOrNull != null && hasErrors(statusProviderOrNull))
+        {
+            touch(errorMarkerFileOrNull);
+        }
+        // Avoid deleting the marker file when it is used as error marker file, too, and an error
+        // occurred.
+        if (markerFile.equals(errorMarkerFileOrNull) == false
+                || hasErrors(statusProviderOrNull) == false)
+        {
+            markerFile.delete();
+        }
+    }
+
+    private boolean hasPerformedMeaningfullWork(ITimerTaskStatusProvider statusProviderOrNull)
+    {
+        return (statusProviderOrNull == null) || statusProviderOrNull.hasPerformedMeaningfulWork();
+    }
+
+    private boolean hasErrors(ITimerTaskStatusProvider statusProviderOrNull)
+    {
+        return (statusProviderOrNull != null) && statusProviderOrNull.hasErrors();
     }
 
     private static void failIfDirectory(File markerFile)

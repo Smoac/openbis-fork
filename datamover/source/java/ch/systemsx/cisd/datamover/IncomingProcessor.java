@@ -83,36 +83,41 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final IStoreItemFilter storeItemFilter;
 
-    private final String startMarkerFileName;
+    private final String markerFileName;
+    
+    private final String errorMarkerFileName;
 
-    private final String endMarkerFileName;
+    private final String successorMarkerFileName;
 
     public static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final String startMarkerFile, final String endMarkerFile,
-            final IFileSysOperationsFactory factory, final LocalBufferDirs bufferDirs)
+            final String markerFile, final String errorMarkerFile,
+            final String successorMarkerFile, final IFileSysOperationsFactory factory,
+            final LocalBufferDirs bufferDirs)
     {
-        return createMovingProcess(parameters, startMarkerFile, endMarkerFile, factory,
-                SYSTEM_TIME_PROVIDER, bufferDirs);
+        return createMovingProcess(parameters, markerFile, errorMarkerFile, successorMarkerFile,
+                factory, SYSTEM_TIME_PROVIDER, bufferDirs);
     }
 
     static final DataMoverProcess createMovingProcess(final Parameters parameters,
-            final String startMarkerFile, final String endMarkerFile,
-            final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
-            final LocalBufferDirs bufferDirs)
+            final String markerFile, final String errorMarkerFile,
+            final String successorMarkerFile, final IFileSysOperationsFactory factory,
+            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
     {
         final IncomingProcessor processor =
-                new IncomingProcessor(parameters, startMarkerFile, endMarkerFile, factory,
-                        timeProvider, bufferDirs);
+                new IncomingProcessor(parameters, markerFile, errorMarkerFile, successorMarkerFile,
+                        factory, timeProvider, bufferDirs);
         return processor.create();
     }
 
-    private IncomingProcessor(final Parameters parameters, final String startMarkerFileName,
-            final String endMarkerFileName, final IFileSysOperationsFactory factory,
-            final ITimeProvider timeProvider, final LocalBufferDirs bufferDirs)
+    private IncomingProcessor(final Parameters parameters, final String markerFileName,
+            final String errorMarkerFileName, final String successorMarkerFileName,
+            final IFileSysOperationsFactory factory, final ITimeProvider timeProvider,
+            final LocalBufferDirs bufferDirs)
     {
         this.parameters = parameters;
-        this.startMarkerFileName = startMarkerFileName;
-        this.endMarkerFileName = endMarkerFileName;
+        this.markerFileName = markerFileName;
+        this.errorMarkerFileName = errorMarkerFileName;
+        this.successorMarkerFileName = successorMarkerFileName;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.incomingStore = parameters.getIncomingStore(factory);
         this.pathMover = factory.getMover();
@@ -153,8 +158,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                         new FileScannedStore(incomingStore, storeItemFilter),
                         directoryScanningHandler, pathHandler, NUMBER_OF_ERRORS_IN_LISTING_IGNORED);
         final TimerTask timerTask =
-                DataMover.createTimerTaskForMarkerFileProtocol(movingTask, startMarkerFileName,
-                        endMarkerFileName);
+                DataMover.createTimerTaskForMarkerFileProtocol(movingTask, markerFileName,
+                        errorMarkerFileName, successorMarkerFileName);
         return new DataMoverProcess(timerTask, "Mover of Incoming Data", this)
             {
 

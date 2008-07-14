@@ -67,6 +67,8 @@ public final class DataMover
     private static final String PROCESSING_MARKER_TEMPLATE =
             PROCESS_MARKER_PREFIX + "%s_processing";
 
+    private static final String ERROR_MARKER_TEMPLATE = PROCESS_MARKER_PREFIX + "%s_error";
+
     @Private
     static final String INCOMING_PROCESS_MARKER_FILENAME =
             String.format(PROCESSING_MARKER_TEMPLATE, "incoming");
@@ -80,6 +82,17 @@ public final class DataMover
             String.format(PROCESSING_MARKER_TEMPLATE, "local");
 
     @Private
+    static final String INCOMING_ERROR_MARKER_FILENAME =
+            String.format(ERROR_MARKER_TEMPLATE, "incoming");
+
+    @Private
+    static final String OUTGOING_ERROR_MARKER_FILENAME =
+            String.format(ERROR_MARKER_TEMPLATE, "outgoing");
+
+    @Private
+    static final String LOCAL_ERROR_MARKER_FILENAME = String.format(ERROR_MARKER_TEMPLATE, "local");
+
+    @Private
     static final String RECOVERY_PROCESS_MARKER_FILENAME =
             String.format(PROCESSING_MARKER_TEMPLATE, "recovery");
 
@@ -91,8 +104,9 @@ public final class DataMover
 
     private static final String[] PROCESS_MARKER_FILENAMES =
                 { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
-                        LOCAL_PROCESS_MARKER_FILENAME, RECOVERY_PROCESS_MARKER_FILENAME,
-                        SHUTDOWN_PROCESS_MARKER_FILENAME };
+                        LOCAL_PROCESS_MARKER_FILENAME, INCOMING_ERROR_MARKER_FILENAME,
+                        OUTGOING_ERROR_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
+                        RECOVERY_PROCESS_MARKER_FILENAME, SHUTDOWN_PROCESS_MARKER_FILENAME };
 
     private final Parameters parameters;
 
@@ -118,21 +132,26 @@ public final class DataMover
     }
 
     static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
-            final String startMarkerFileName, final String endMarkerFileName)
+            final String markerFileName, final String errorFileNameOrNull,
+            final String successorMarkerFileNameOrNull)
     {
         final TimerTaskWithListeners timerTaskWithListeners = new TimerTaskWithListeners(timerTask);
         timerTaskWithListeners.addListener(new TimerTaskListenerForMarkerFileProtocol(
-                startMarkerFileName, endMarkerFileName));
+                markerFileName, errorFileNameOrNull, successorMarkerFileNameOrNull));
         return timerTaskWithListeners;
     }
 
-    static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
-            final String startMarkerFileName)
+    private static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
+            final String markerFileName, final String errorMarkerFileName)
     {
-        final TimerTaskWithListeners timerTaskWithListeners = new TimerTaskWithListeners(timerTask);
-        timerTaskWithListeners.addListener(new TimerTaskListenerForMarkerFileProtocol(
-                startMarkerFileName, null));
-        return timerTaskWithListeners;
+        return createTimerTaskForMarkerFileProtocol(timerTask, markerFileName, errorMarkerFileName,
+                null);
+    }
+
+    private static TimerTask createTimerTaskForMarkerFileProtocol(final TimerTask timerTask,
+            final String markerFileName)
+    {
+        return createTimerTaskForMarkerFileProtocol(timerTask, markerFileName, null, null);
     }
 
     private static LocalBufferDirs createLocalBufferDirs(final Parameters parameters)
@@ -201,7 +220,7 @@ public final class DataMover
     private final DataMoverProcess createIncomingProcess()
     {
         return IncomingProcessor.createMovingProcess(parameters, INCOMING_PROCESS_MARKER_FILENAME,
-                LOCAL_PROCESS_MARKER_FILENAME, factory, bufferDirs);
+                INCOMING_ERROR_MARKER_FILENAME, LOCAL_PROCESS_MARKER_FILENAME, factory, bufferDirs);
     }
 
     private final DataMoverProcess createLocalProcess()
@@ -215,7 +234,8 @@ public final class DataMover
                         localProcessor);
         final TimerTask timerTask =
                 createTimerTaskForMarkerFileProtocol(localProcessingTask,
-                        LOCAL_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME);
+                        LOCAL_PROCESS_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
+                        OUTGOING_PROCESS_MARKER_FILENAME);
         final DataMoverProcess dataMoverProcess =
                 new RunOnceMoreAfterTerminateDataMoverProcess(timerTask, "Local Processor",
                         localProcessor);
@@ -238,7 +258,7 @@ public final class DataMover
                         remoteStoreMover, directoryScanningHandler);
         final TimerTask timerTask =
                 createTimerTaskForMarkerFileProtocol(outgoingMovingTask,
-                        OUTGOING_PROCESS_MARKER_FILENAME);
+                        OUTGOING_PROCESS_MARKER_FILENAME, OUTGOING_ERROR_MARKER_FILENAME);
         final DataMoverProcess outgoingProcess =
                 new RunOnceMoreAfterTerminateDataMoverProcess(timerTask, "Final Destination Mover");
         outgoingProcess.startup(0L, parameters.getCheckIntervalInternalMillis());

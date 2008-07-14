@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -30,6 +31,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -63,6 +67,8 @@ public final class IncomingProcessorTest
 {
 
     private static final String MARKER_FILE = ".marker";
+
+    private static final String ERROR_MARKER_FILE = ".error";
 
     private static final File TEST_FOLDER = new File("targets/unit-test/IncomingProcessorTest");
 
@@ -110,7 +116,7 @@ public final class IncomingProcessorTest
                 assertEquals("Missing marker file " + markerFile, true, markerFile.exists());
             }
 
-            public void finishRunning()
+            public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
             {
                 File markerFile = new File(MARKER_FILE);
                 assertEquals("Marker file " + markerFile + " still there", false, markerFile
@@ -186,16 +192,61 @@ public final class IncomingProcessorTest
     }
 
     @Test
-    public void testWithDataCompletedScript() throws IOException
+    public void testFailureMarker() throws IOException
     {
-        createExampleScript(EXAMPLE_SCRIPT);
         final File testDataFile = new File(incomingDir, "test-data.txt");
+        final File errorMarker = new File(ERROR_MARKER_FILE);
+        errorMarker.delete();
+        assertFalse(errorMarker.exists());
         testDataFile.createNewFile();
         context.checking(new Expectations()
             {
                 {
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+                }
+            });
+
+        final DataMoverProcess process =
+                createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
+                        "1");
+        final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
+
+        final LogMonitoringAppender operationAppender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        "has been added to faulty paths file");
+        dataMoverTimerTask.run(); // 1. round finds a file to process
+        assertFalse(errorMarker.exists());
+        dataMoverTimerTask.run(); // 2. round finds that quiet period is over
+        assertTrue(errorMarker.exists());
+        operationAppender.verifyLogHasHappened();
+        LogMonitoringAppender.removeAppender(operationAppender);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testWithDataCompletedScript() throws IOException
+    {
+        createExampleScript(EXAMPLE_SCRIPT);
+        final File testDataFile = new File(incomingDir, "test-data.txt");
+        testDataFile.createNewFile();
+        final File errorMarker = new File(ERROR_MARKER_FILE);
+        errorMarker.delete();
+        assertFalse(errorMarker.exists());
+        context.checking(new Expectations()
+            {
+                {
+                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                    will(new CustomAction("move file")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File result =
+                                        new File(copyCompleteDir, testDataFile.getName());
+                                testDataFile.renameTo(result);
+                                return result;
+                            }
+                        });
                 }
             });
 
@@ -211,12 +262,15 @@ public final class IncomingProcessorTest
 
         final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
         dataMoverTimerTask.run(); // 1. round finds a file to process
+        assertFalse(errorMarker.exists());
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
+        assertFalse(errorMarker.exists());
         notifyAppender.verifyLogHasHappened();
         operationAppender.verifyLogHasHappened();
 
         logRecorder.resetLogContent();
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
+        assertFalse(errorMarker.exists());
         assertEquals("", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -301,8 +355,8 @@ public final class IncomingProcessorTest
                     will(returnValue(remover));
                 }
             });
-        return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE, null,
-                fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
+        return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE, ERROR_MARKER_FILE,
+                null, fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
 
     }
 }

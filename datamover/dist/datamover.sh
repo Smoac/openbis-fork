@@ -61,6 +61,8 @@ getStatus()
 			if [ -f .MARKER_shutdown ]; then
 				STATUS=SHUTDOWN
 				return 1
+			elif [ "`ls -a1 | awk '/\.MARKER_.*_error/ {print $1}'`" = "" ]; then
+				STATUS=ERROR
 			elif [ "`ls -a1 | awk '/\.MARKER_.*_processing/ {print $1}'`" = "" ]; then
 				STATUS=IDLE
 			else
@@ -82,6 +84,9 @@ printStatus()
 	PID=`cat $PIDFILE`
 	MSG_PREFIX="Datamover (pid $PID) is"
 	case "$1" in
+		ERROR)
+			echo "$MSG_PREFIX running and in error state"
+			;;
 		PROCESSING)
 			echo "$MSG_PREFIX running and in processing state"
 			;;

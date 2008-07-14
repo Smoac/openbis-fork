@@ -18,9 +18,11 @@ package ch.systemsx.cisd.common.concurrent;
 
 import java.util.TimerTask;
 
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
+
 /**
  * Listener for {@link TimerTask} events.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface ITimerTaskListener
@@ -29,13 +31,16 @@ public interface ITimerTaskListener
      * Starts running. This method is invoked before {@link TimerTask#run()}.
      */
     public void startRunning();
-    
+
     /**
      * Finishes running. This method is invoked after {@link TimerTask#run()} even if an exception
      * is thrown.
+     * 
+     * @param statusProviderOrNull The status provider for the timer task, or <code>null</code>,
+     *            if no status provider is available.
      */
-    public void finishRunning();
-    
+    public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull);
+
     /**
      * Canceling the task. This method is invoked before {@link TimerTask#cancel()}.
      */
