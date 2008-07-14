@@ -131,7 +131,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                     if (freeSpace > HIGHWATER_MARK)
                     {
                         one(directoryScanningHandler).mayHandle(scannedStore, storeItem);
-                        will(returnValue(true));
+                        will(returnValue(HandleInstruction.PROCESS));
                     }
                 }
             });
@@ -161,7 +161,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                         will(returnValue(freeSpace));
 
                         one(directoryScanningHandler).mayHandle(scannedStore, storeItem);
-                        will(returnValue(true));
+                        will(returnValue(HandleInstruction.PROCESS));
                     }
                 }
             });
