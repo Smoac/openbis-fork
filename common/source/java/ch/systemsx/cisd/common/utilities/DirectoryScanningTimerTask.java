@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstruction;
 
 /**
  * A {@link TimerTask} that scans a source directory for entries that are accepted by some
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public final class DirectoryScanningTimerTask extends TimerTask
+public final class DirectoryScanningTimerTask extends TimerTask implements ITimerTaskStatusProvider
 {
 
     private static final Logger operationLog =
@@ -58,6 +59,10 @@ public final class DirectoryScanningTimerTask extends TimerTask
     private final IDirectoryScanningHandler directoryScanningHandler;
 
     private final ConditionalNotificationLogger notificationLogger;
+
+    private int numberOfProcessedItems;
+
+    private int numberOfErrorItems;
 
     /**
      * Indicates that we should try to exit the {@link #run()} method as soon as possible.
@@ -200,12 +205,14 @@ public final class DirectoryScanningTimerTask extends TimerTask
         }
         try
         {
-            int numberOfItemsHandled;
+            numberOfProcessedItems = 0;
+            numberOfErrorItems = 0;
+            int numberOfItemsProcessedInLastRound;
             do
             {
+                numberOfItemsProcessedInLastRound = 0;
                 final StoreItem[] storeItems = listStoreItems();
                 final int numberOfItems = storeItems.length;
-                numberOfItemsHandled = numberOfItems;
                 directoryScanningHandler.beforeHandle();
                 for (int i = 0; i < numberOfItems; i++)
                 {
@@ -214,14 +221,17 @@ public final class DirectoryScanningTimerTask extends TimerTask
                     {
                         if (operationLog.isDebugEnabled())
                         {
-                            operationLog.debug(String.format("Scan of store '%s' has been cancelled. "
-                                    + "Following items have NOT been handled: %s.", sourceDirectory,
-                                    CollectionUtils.abbreviate(ArrayUtils.subarray(storeItems, i + 1,
-                                            numberOfItems), 10)));
+                            operationLog.debug(String.format(
+                                    "Scan of store '%s' has been cancelled. "
+                                            + "Following items have NOT been handled: %s.",
+                                    sourceDirectory, CollectionUtils.abbreviate(ArrayUtils
+                                            .subarray(storeItems, i + 1, numberOfItems), 10)));
                         }
                         return;
                     }
-                    if (directoryScanningHandler.mayHandle(sourceDirectory, storeItem))
+                    final HandleInstruction instruction =
+                            directoryScanningHandler.mayHandle(sourceDirectory, storeItem);
+                    if (HandleInstruction.PROCESS.equals(instruction))
                     {
                         try
                         {
@@ -231,26 +241,39 @@ public final class DirectoryScanningTimerTask extends TimerTask
                                 operationLog.trace(String.format(
                                         "Following store item '%s' has been handled.", storeItem));
                             }
+                            ++numberOfProcessedItems;
+                            ++numberOfItemsProcessedInLastRound;
                         } catch (final Exception ex)
                         {
                             // Do not stop when processing of one file has failed,
                             // continue with other files.
+                            ++numberOfErrorItems;
                             printNotification(ex);
                         } finally
                         {
-                            directoryScanningHandler.finishItemHandle(sourceDirectory, storeItem);
+                            final boolean ok =
+                                    directoryScanningHandler.finishItemHandle(sourceDirectory,
+                                            storeItem);
+                            if (ok == false)
+                            {
+                                ++numberOfErrorItems;
+                            }
                         }
                     } else
                     {
-                        --numberOfItemsHandled;
+                        if (HandleInstruction.ERROR.equals(instruction))
+                        {
+                            ++numberOfErrorItems;
+                        }
                         if (operationLog.isTraceEnabled())
                         {
                             operationLog.trace(String.format(
-                                    "Following store item '%s' has NOT been handled.", storeItem));
+                                    "Following store item '%s' has NOT been handled (%s).",
+                                    storeItem, instruction));
                         }
                     }
                 }
-            } while (numberOfItemsHandled > 0);
+            } while (numberOfItemsProcessedInLastRound > 0);
         } catch (final Exception ex)
         {
             printNotification(ex);
@@ -259,6 +282,20 @@ public final class DirectoryScanningTimerTask extends TimerTask
         {
             operationLog.trace(String.format("Finished scanning directory '%s'.", sourceDirectory));
         }
+    }
+
+    //
+    // ITimerTaskStatusProvider
+    //
+
+    public boolean hasErrors()
+    {
+        return (numberOfErrorItems > 0);
+    }
+
+    public boolean hasPerformedMeaningfulWork()
+    {
+        return (numberOfProcessedItems > 0);
     }
 
     //
@@ -283,4 +320,5 @@ public final class DirectoryScanningTimerTask extends TimerTask
          */
         String getLocationDescription(StoreItem item);
     }
+
 }

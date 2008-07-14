@@ -44,13 +44,13 @@ public class DirectoryScanningHandlerInterceptor implements IDirectoryScanningHa
         directoryScanningHandler.beforeHandle();
     }
 
-    public boolean mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
         return directoryScanningHandler.mayHandle(scannedStore, storeItem);
     }
 
-    public void finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public boolean finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
-        directoryScanningHandler.finishItemHandle(scannedStore, storeItem);
+        return directoryScanningHandler.finishItemHandle(scannedStore, storeItem);
     }
 }

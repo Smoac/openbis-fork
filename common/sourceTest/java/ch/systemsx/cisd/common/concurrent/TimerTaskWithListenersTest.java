@@ -25,6 +25,8 @@ import java.util.TimerTask;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
+
 /**
  * 
  *
@@ -77,7 +79,7 @@ public class TimerTaskWithListenersTest
             recorder.add(name + ".canceling");
         }
 
-        public void finishRunning()
+        public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
         {
             recorder.add(name + ".finishRunning");
         }

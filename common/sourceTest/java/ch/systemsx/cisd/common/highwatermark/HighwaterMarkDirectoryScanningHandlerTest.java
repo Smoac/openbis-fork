@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProv
 import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstruction;
 
 /**
  * Test cases for the {@link HighwaterMarkDirectoryScanningHandler}.
@@ -134,7 +135,8 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                     }
                 }
             });
-        boolean mayHandle = scanningHandler.mayHandle(scannedStore, storeItem);
+        boolean mayHandle =
+                HandleInstruction.PROCESS.equals(scanningHandler.mayHandle(scannedStore, storeItem));
         assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
         context.assertIsSatisfied();
     }
@@ -163,7 +165,8 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                     }
                 }
             });
-        boolean mayHandle = scanningHandler.mayHandle(scannedStore, storeItem);
+        boolean mayHandle =
+                HandleInstruction.PROCESS.equals(scanningHandler.mayHandle(scannedStore, storeItem));
         assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
         context.assertIsSatisfied();
     }

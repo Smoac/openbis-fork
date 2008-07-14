@@ -86,9 +86,10 @@ public final class HighwaterMarkDirectoryScanningHandler extends
     //
 
     @Override
-    public final boolean mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
-        return mayHandle() == false ? false : super.mayHandle(scannedStore, storeItem);
+        return mayHandle() == false ? HandleInstruction.ERROR : super.mayHandle(
+                scannedStore, storeItem);
     }
 
 }

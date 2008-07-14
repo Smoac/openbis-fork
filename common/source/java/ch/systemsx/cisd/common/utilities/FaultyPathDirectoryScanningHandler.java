@@ -129,19 +129,31 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         checkForFaultyPathsFileChanged();
     }
 
-    public final boolean mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public final HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
-        return isFaultyPath(scannedStore, storeItem) == false
-                && isFaultyPathsFile(scannedStore, storeItem) == false;
+        if (isFaultyPathsFile(scannedStore, storeItem))
+        {
+            return HandleInstruction.IGNORE;
+        } else if (isFaultyPath(scannedStore, storeItem))
+        {
+            return HandleInstruction.ERROR;
+        } else
+        {
+            return HandleInstruction.PROCESS;
+        }
     }
 
-    public final void finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public final boolean finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
         // If the item still exists, we assume that it has not been handled. So it
         // should be added to the faulty paths.
         if (scannedStore.existsOrError(storeItem))
         {
             addToFaultyPaths(scannedStore, storeItem);
+            return false;
+        } else
+        {
+            return true;
         }
     }
 

@@ -29,18 +29,29 @@ public interface IDirectoryScanningHandler
 {
 
     /**
+     * The instruction of whether to process an item or not.
+     */
+    public enum HandleInstruction
+    {
+        PROCESS, IGNORE, ERROR
+    }
+
+    /**
      * Is performed just before handling all the items contained in the store.
      */
     public void beforeHandle();
 
     /**
      * Whether given <code>storeItem</code> found in given <var>scannedStore</var> should be
-     * processed or not.
+     * processed or not, and whether not processing it constitues an error or not.
      */
-    public boolean mayHandle(IScannedStore scannedStore, StoreItem storeItem);
+    public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem);
 
     /**
      * Finishes and closes the handling of given <var>storeItem</var>.
+     * 
+     * @returns <code>true</code>, if the item has been handled correctly and <code>false</code>
+     *          if an error occurred.
      */
-    public void finishItemHandle(IScannedStore scannedStore, StoreItem storeItem);
+    public boolean finishItemHandle(IScannedStore scannedStore, StoreItem storeItem);
 }
