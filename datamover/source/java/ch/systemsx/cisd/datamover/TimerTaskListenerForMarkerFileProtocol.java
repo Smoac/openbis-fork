@@ -40,7 +40,7 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
 
     private final File errorMarkerFileOrNull;
 
-    private final File successorMarkerFilOrNull;
+    private final File successorMarkerFileOrNull;
 
     /**
      * Creates an instance for the specified marker file.
@@ -73,11 +73,11 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
         }
         if (successorMarkerFileNameOrNull != null)
         {
-            successorMarkerFilOrNull = new File(successorMarkerFileNameOrNull);
-            failIfDirectory(successorMarkerFilOrNull);
+            successorMarkerFileOrNull = new File(successorMarkerFileNameOrNull);
+            failIfDirectory(successorMarkerFileOrNull);
         } else
         {
-            successorMarkerFilOrNull = null;
+            successorMarkerFileOrNull = null;
         }
     }
 
@@ -98,9 +98,9 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     @Override
     public void finishRunning(ITimerTaskStatusProvider statusProviderOrNull)
     {
-        if (successorMarkerFilOrNull != null && hasPerformedMeaningfullWork(statusProviderOrNull))
+        if (successorMarkerFileOrNull != null && hasPerformedMeaningfullWork(statusProviderOrNull))
         {
-            touch(successorMarkerFilOrNull);
+            touch(successorMarkerFileOrNull);
         }
         if (errorMarkerFileOrNull != null && hasErrors(statusProviderOrNull))
         {
