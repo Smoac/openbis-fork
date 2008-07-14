@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public enum DatamoverStatus implements IsSerializable
 {
     PROCESSING,
+    ERROR,
     IDLE,
     SHUTDOWN,
     DOWN,

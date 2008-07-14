@@ -218,7 +218,7 @@ public class Console extends Composite
         } else
         {
             grid.setText(rowIndex, 1, targetName == null ? "?" : targetName);
-            if (status != DatamoverStatus.SHUTDOWN)
+            if (status != DatamoverStatus.SHUTDOWN && status != DatamoverStatus.ERROR)
             {
                 String buttonLabel = messageResources.getStopButtonLabel();
                 Button button = createTableButton(buttonLabel, new ClickListener()
