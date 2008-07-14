@@ -61,7 +61,7 @@ getStatus()
 			if [ -f .MARKER_shutdown ]; then
 				STATUS=SHUTDOWN
 				return 1
-			elif [ "`ls -a1 | awk '/\.MARKER_.*_error/ {print $1}'`" = "" ]; then
+			elif [ "`ls -a1 | awk '/\.MARKER_.*_error/ {print $1}'`" != "" ]; then
 				STATUS=ERROR
 			elif [ "`ls -a1 | awk '/\.MARKER_.*_processing/ {print $1}'`" = "" ]; then
 				STATUS=IDLE
