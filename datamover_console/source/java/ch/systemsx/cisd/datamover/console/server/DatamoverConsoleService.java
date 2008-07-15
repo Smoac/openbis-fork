@@ -97,6 +97,7 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
         {
             String name = workingDirectoryEntry.getKey();
             IDatamoverConsole console = factory.create(name, workingDirectoryEntry.getValue());
+            console.check();
             consoles.put(name, console);
         }
         applicationInfo = new ApplicationInfo();

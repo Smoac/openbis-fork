@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
@@ -23,7 +24,7 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IDatamoverConsole
+public interface IDatamoverConsole extends ISelfTestable
 {
     /**
      * Obtains the current status of the datamover.

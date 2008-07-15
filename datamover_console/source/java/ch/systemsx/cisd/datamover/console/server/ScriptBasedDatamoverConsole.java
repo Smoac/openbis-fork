@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -34,23 +35,23 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
  * Implementation based on script <code>datamover.sh</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ScriptBasedDatamoverConsole implements IDatamoverConsole
 {
     private static final String SCRIPT_FILE = "datamover.sh";
-    
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, ScriptBasedDatamoverConsole.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, ScriptBasedDatamoverConsole.class);
+
     private static final Logger machineLog =
-        LogFactory.getLogger(LogCategory.MACHINE, ScriptBasedDatamoverConsole.class);
+            LogFactory.getLogger(LogCategory.MACHINE, ScriptBasedDatamoverConsole.class);
 
     private final String name;
-    
+
     private final String scriptPath;
-    
+
     /**
      * Creates an instance for the specified datamover name and its working directory.
      */
@@ -62,16 +63,16 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         {
             operationLog.info("Shutdown signal sent to datamover '" + name + "'.");
         }
-        
+
     }
-    
+
     public DatamoverStatus obtainStatus()
     {
         final List<String> output = execute("mstatus").getOutput();
         if (output.isEmpty())
         {
             throw new EnvironmentFailureException(
-                    "Nothing returned when obtaining status  of datamover '" + name + "'.");
+                    "Nothing returned when obtaining status of datamover '" + name + "'.");
         }
         String value = output.get(0);
         DatamoverStatus status = DatamoverStatus.valueOf(value);
@@ -89,18 +90,18 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         if (presult.getExitValue() != 1)
         {
             return null;
-        } else 
+        } else
         {
             return StringUtils.join(presult.getOutput(), '\n');
         }
     }
-    
+
     public String tryObtainTarget()
     {
         List<String> output = execute("target").getOutput();
         return output.isEmpty() ? null : output.get(0);
     }
-    
+
     public void shutdown()
     {
         ProcessResult result = execute("shutdown");
@@ -138,7 +139,21 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
             throw new EnvironmentFailureException(message + ".");
         }
     }
-    
+
+    //
+    // ISelfTestable
+    //
+
+    public void check() throws ConfigurationFailureException
+    {
+        final ProcessResult result = execute("mstatus");
+        if (result.isOK() == false)
+        {
+            throw new ConfigurationFailureException("Failure to call datamover '" + scriptPath
+                    + "'");
+        }
+    }
+
     private ProcessResult execute(String commandName, String... options)
     {
         List<String> command = new ArrayList<String>();
@@ -149,9 +164,10 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         command.add(scriptPath);
         command.add(commandName);
         command.addAll(Arrays.asList(options));
-        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog,
-                ConcurrencyUtilities.NO_TIMEOUT,
-                ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+        ProcessResult result =
+                ProcessExecutionHelper.run(command, operationLog, machineLog,
+                        ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
         return result;
     }
 
