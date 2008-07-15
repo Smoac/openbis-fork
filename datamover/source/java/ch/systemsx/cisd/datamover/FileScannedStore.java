@@ -17,8 +17,11 @@ package ch.systemsx.cisd.datamover;
 
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
@@ -80,17 +83,35 @@ final class FileScannedStore implements IScannedStore
         return items;
     }
 
-    public final StoreItem[] filterReadyToProcess(final StoreItem[] items)
+    public final StoreItem[] filterReadyToProcess(final StoreItem[] items,
+            ISimpleLogger loggerOrNull)
     {
-        final Vector<StoreItem> result = new Vector<StoreItem>();
-        for (final StoreItem item : items)
+        StoreItem currentItem = null;
+        try
         {
-            if (isReadyToProcess(item))
+            final Vector<StoreItem> result = new Vector<StoreItem>();
+            for (final StoreItem item : items)
             {
-                result.add(item);
+                currentItem = item;
+                if (isReadyToProcess(item))
+                {
+                    result.add(item);
+                }
             }
+            return result.toArray(StoreItem.EMPTY_ARRAY);
+        } catch (final RuntimeException ex)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.ERROR, String.format(
+                        "Failed to filter store items for processing: "
+                                + "filter '%s' threw exception %s (message: \"%s\") on item '%s'",
+                        StringUtils.defaultIfEmpty(storeItemFilter.getClass().getSimpleName(),
+                                "UNKNOWN"), ex.getClass().getSimpleName(), StringUtils
+                                .defaultIfEmpty(ex.getMessage(), "-"), currentItem));
+            }
+            return null;
         }
-        return result.toArray(StoreItem.EMPTY_ARRAY);
     }
 
     //
