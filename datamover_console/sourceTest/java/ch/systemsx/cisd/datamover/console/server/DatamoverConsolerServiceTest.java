@@ -93,6 +93,13 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testGetApplicationInfo()
     {
+        context.checking(new Expectations()
+        {
+            {
+                one(dm1).check();
+                one(dm2).check();
+            }
+        });
         ApplicationInfo applicationInfo = createService().getApplicationInfo();
         assertEquals(42000, applicationInfo.getRefreshTimeInterval());
         
@@ -133,6 +140,9 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
             {
                 {
+                    one(dm1).check();
+                    one(dm2).check();
+
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
                     
@@ -160,6 +170,9 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
         {
             {
+                one(dm1).check();
+                one(dm2).check();
+                
                 one(authenticationService).authenticateApplication();
                 String aToken = "atoken";
                 will(returnValue(aToken));
@@ -186,6 +199,9 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
             {
                 {
+                    one(dm1).check();
+                    one(dm2).check();
+                    
                     one(authenticationService).authenticateApplication();
                     String aToken = "atoken";
                     will(returnValue(aToken));
@@ -246,8 +262,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testListDatamoverInfos()
     {
-        IDatamoverConsoleService service = createService();
         prepareForAuthenticated();
+        IDatamoverConsoleService service = createService();
         context.checking(new Expectations()
             {
                 {
@@ -282,8 +298,8 @@ public class DatamoverConsolerServiceTest
     public void testListDatamoverInfoWithError()
     {
         final String msg = "[first target]\nsomething's fishy";
-        IDatamoverConsoleService service = createService();
         prepareForAuthenticated();
+        IDatamoverConsoleService service = createService();
         context.checking(new Expectations()
             {
                 {
@@ -316,8 +332,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testGetTargets()
     {
-        IDatamoverConsoleService service = createService();
         prepareForAuthenticated();
+        IDatamoverConsoleService service = createService();
         Map<String, String> targets = service.getTargets();
         
         assertEquals("{t1=target1, t2=target2}", targets.toString());
@@ -328,8 +344,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testListDatamoverInfosNotAuthenticated()
     {
-        IDatamoverConsoleService service = createService();
         prepareForNotAuthenticated();
+        IDatamoverConsoleService service = createService();
         
         try
         {
@@ -346,8 +362,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testGetTargetsNotAuthenticated()
     {
-        IDatamoverConsoleService service = createService();
         prepareForNotAuthenticated();
+        IDatamoverConsoleService service = createService();
         
         try
         {
@@ -395,8 +411,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testStartDatamoverNotAuthenticated()
     {
-        IDatamoverConsoleService service = createService();
         prepareForNotAuthenticated();
+        IDatamoverConsoleService service = createService();
         
         try
         {
@@ -443,8 +459,8 @@ public class DatamoverConsolerServiceTest
     @Test
     public void testShutdownDatamoverNotAuthenticated()
     {
-        IDatamoverConsoleService service = createService();
         prepareForNotAuthenticated();
+        IDatamoverConsoleService service = createService();
         
         try
         {
@@ -463,6 +479,9 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
             {
                 {
+                    one(dm1).check();
+                    one(dm2).check();
+                    
                     one(requestContextProvider).getHttpServletRequest();
                     will(returnValue(request));
                     
@@ -477,6 +496,9 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
         {
             {
+                one(dm1).check();
+                one(dm2).check();
+                
                 one(requestContextProvider).getHttpServletRequest();
                 will(returnValue(request));
                 
