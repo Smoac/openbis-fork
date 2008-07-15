@@ -55,37 +55,40 @@ MAX_LOOPS=10
 getStatus()
 {
 	if [ -f $PIDFILE ]; then
-		PID=`cat $PIDFILE`
+		PID=`cat $PIDFILE 2> /dev/null`
 		isPIDRunning $PID
 		if [ $? -eq 0 ]; then
 			if [ -f .MARKER_shutdown ]; then
 				STATUS=SHUTDOWN
-				return 1
-			elif [ "`ls -a1 | awk '/\.MARKER_.*_error/ {print $1}'`" != "" ]; then
+				return 2
+			elif [ "`ls -a1 .MARKER_*_error 2> /dev/null`" != "" ]; then
 				STATUS=ERROR
-			elif [ "`ls -a1 | awk '/\.MARKER_.*_processing/ {print $1}'`" = "" ]; then
-				STATUS=IDLE
-			else
+				return 1
+			elif [ "`ls -a1 .MARKER_*_processing 2> /dev/null`" != "" ]; then
 				STATUS=PROCESSING
+			else
+				STATUS=IDLE
 			fi 
 			return 0
 		else
 			STATUS=STALE
-			return 3
+			return 4
 		fi
 	else
 		STATUS=DOWN
-		return 2
+		return 3
 	fi
 }
 
 printStatus()
 {
-	PID=`cat $PIDFILE`
+	PID=`cat $PIDFILE 2> /dev/null`
 	MSG_PREFIX="Datamover (pid $PID) is"
 	case "$1" in
 		ERROR)
-			echo "$MSG_PREFIX running and in error state"
+			echo "$MSG_PREFIX running and in error state:"
+			cat .MARKER_*_error 2> /dev/null
+			echo
 			;;
 		PROCESSING)
 			echo "$MSG_PREFIX running and in processing state"
@@ -174,7 +177,8 @@ case "$command" in
 				kill $PID
 				if [ $? -eq 0 ]; then
 					echo "(pid $PID)"
-					rm $PIDFILE
+					# Shouldn't be necessary as Datamover deletes the file itself, but just to be sure
+					rm $PIDFILE 2> /dev/null
 				else
 					echo "FAILED"
 				fi
