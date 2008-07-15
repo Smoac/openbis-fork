@@ -71,7 +71,7 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         if (output.isEmpty())
         {
             throw new EnvironmentFailureException(
-                    "Nothing returned when obtaining statuc of datamover '" + name + "'.");
+                    "Nothing returned when obtaining status  of datamover '" + name + "'.");
         }
         String value = output.get(0);
         DatamoverStatus status = DatamoverStatus.valueOf(value);
