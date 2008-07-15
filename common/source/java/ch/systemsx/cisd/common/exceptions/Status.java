@@ -63,6 +63,13 @@ public class Status
         return new Status(StatusFlag.ERROR, message);
     }
     
+    public static Status createError(String messageTemplate, Object ... args)
+    {
+        assert messageTemplate != null;
+        
+        return new Status(StatusFlag.ERROR, String.format(messageTemplate, args));
+    }
+    
     public static Status createRetriableError()
     {
         return new Status(StatusFlag.RETRIABLE_ERROR, "");
@@ -75,6 +82,13 @@ public class Status
         return new Status(StatusFlag.RETRIABLE_ERROR, message);
     }
 
+    public static Status createRetriableError(String messageTemplate, Object ... args)
+    {
+        assert messageTemplate != null;
+        
+        return new Status(StatusFlag.RETRIABLE_ERROR, String.format(messageTemplate, args));
+    }
+    
     protected static StatusFlag getErrorFlag(boolean retriable)
     {
         return retriable ? StatusFlag.RETRIABLE_ERROR : StatusFlag.ERROR;
