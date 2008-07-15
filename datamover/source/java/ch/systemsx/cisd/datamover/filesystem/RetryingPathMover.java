@@ -64,7 +64,7 @@ class RetryingPathMover implements IPathMover
         assert prefixTemplate != null;
         assert sourcePath != null;
 
-        if (checkDirectoryAccesible(destinationDirectory) == false)
+        if (checkDirectoryAccessible(destinationDirectory) == false)
         {
             return null;
         }
@@ -91,7 +91,7 @@ class RetryingPathMover implements IPathMover
         }
     }
 
-    private boolean checkDirectoryAccesible(final File destinationDirectory)
+    private boolean checkDirectoryAccessible(final File destinationDirectory)
     {
         String errorMessage =
                 FileUtilities.checkDirectoryFullyAccessible(destinationDirectory, "destination");
