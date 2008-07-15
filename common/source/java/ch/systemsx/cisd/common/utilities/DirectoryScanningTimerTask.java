@@ -69,7 +69,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     private final ConditionalNotificationLogger notificationLogger;
 
     private final Map<StoreItem, String> errorLog;
-    
+
     private boolean didSomeWork;
 
     private String threadNameOrNull;
@@ -182,8 +182,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
 
     private final StoreItem[] listStoreItems()
     {
-        final StoreItem[] storeItems =
-                sourceDirectory.tryListSorted(notificationLogger);
+        final StoreItem[] storeItems = sourceDirectory.tryListSorted(notificationLogger);
         if (storeItems != null)
         {
             notificationLogger.reset(String.format("Directory '%s' is available again.",
@@ -224,7 +223,12 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                 numberOfItemsProcessedInLastRound = 0;
                 final StoreItem[] allStoreItems = listStoreItems();
                 cleanseErrorLog(allStoreItems);
-                final StoreItem[] storeItems = sourceDirectory.filterReadyToProcess(allStoreItems);
+                final StoreItem[] storeItems =
+                        sourceDirectory.filterReadyToProcess(allStoreItems, notificationLogger);
+                if (storeItems == null)
+                {
+                    break;
+                }
                 final int numberOfItems = storeItems.length;
                 directoryScanningHandler.beforeHandle();
                 for (int i = 0; i < numberOfItems; i++)
@@ -304,9 +308,13 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         }
     }
 
-    private void cleanseErrorLog(StoreItem[] allStoreItems)
+    private void cleanseErrorLog(StoreItem[] allStoreItemsOrNull)
     {
-        final Set<StoreItem> itemSet = new HashSet<StoreItem>(Arrays.asList(allStoreItems));
+        if (allStoreItemsOrNull == null)
+        {
+            return;
+        }
+        final Set<StoreItem> itemSet = new HashSet<StoreItem>(Arrays.asList(allStoreItemsOrNull));
         for (StoreItem errorItem : errorLog.keySet())
         {
             if (itemSet.contains(errorItem) == false)
@@ -315,7 +323,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             }
         }
     }
-    
+
     private String getDefaultErrorMessage(final StoreItem storeItem)
     {
         return String.format("Error processing item '%s'.", storeItem);
@@ -364,9 +372,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         /**
          * Performs a filtering on the items.
          * 
-         * @returns Only those <var>items</var> which are ready to be processed right now.
+         * @returns Only those <var>items</var> which are ready to be processed right now, or
+         *          <code>null</code>, if the filtering step produced an exception.
          */
-        StoreItem[] filterReadyToProcess(final StoreItem[] items);
+        StoreItem[] filterReadyToProcess(final StoreItem[] items, ISimpleLogger loggerOrNull);
 
         /**
          * Returns <code>true</code>, if the <var>item</var> either still exists or is in an

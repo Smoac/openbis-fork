@@ -20,7 +20,10 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 
 /**
@@ -69,17 +72,34 @@ public final class DirectoryScannedStore implements IScannedStore
         }
     }
 
-    public StoreItem[] filterReadyToProcess(StoreItem[] items)
+    public StoreItem[] filterReadyToProcess(StoreItem[] items, ISimpleLogger loggerOrNull)
     {
-        final List<StoreItem> result = new ArrayList<StoreItem>(items.length);
-        for (StoreItem item : items)
+        StoreItem currentItem = null;
+        try
         {
-            if (filter.accept(new File(directory, item.getName())))
+            final List<StoreItem> result = new ArrayList<StoreItem>(items.length);
+            for (StoreItem item : items)
             {
-                result.add(item);
+                currentItem = item;
+                if (filter.accept(new File(directory, item.getName())))
+                {
+                    result.add(item);
+                }
             }
+            return result.toArray(new StoreItem[result.size()]);
+        } catch (final RuntimeException ex)
+        {
+            if (loggerOrNull != null)
+            {
+                loggerOrNull.log(LogLevel.ERROR, String.format(
+                        "Failed to filter store items for processing: "
+                                + "filter '%s' threw exception %s (message: \"%s\") on item '%s'",
+                        StringUtils.defaultIfEmpty(filter.getClass().getSimpleName(), "UNKNOWN"),
+                        ex.getClass().getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
+                                "-"), currentItem));
+            }
+            return null;
         }
-        return result.toArray(new StoreItem[result.size()]);
     }
 
     //

@@ -301,7 +301,7 @@ public class DirectoryScanningTimerTaskTest
         createNewFile(file);
         final LogMonitoringAppender appender1 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
-                        "Failed to get listing of directory");
+                        "Failed to filter store items for processing:");
         final LogMonitoringAppender appender2 =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         EXCEPTION_THROWING_FILE_FILTER_MESSAGE);
