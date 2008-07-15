@@ -52,10 +52,10 @@ final class RetryingPathRemover implements IPathRemover
             Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RetryingPathMover.class);
+            LogFactory.getLogger(LogCategory.OPERATION, RetryingPathRemover.class);
 
     private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathMover.class);
+            LogFactory.getLogger(LogCategory.NOTIFY, RetryingPathRemover.class);
 
     private final static ExecutorService executor =
             new NamingThreadPoolExecutor("Deletion Thread").daemonize();
