@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.highwatermark;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstruction;
+import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstructionFlag;
 
 /**
  * Test cases for the {@link HighwaterMarkDirectoryScanningHandler}.
@@ -62,6 +64,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
         context = new Mockery();
         directoryScanningHandler = context.mock(IDirectoryScanningHandler.class);
         scannedStore = context.mock(IScannedStore.class);
+        
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         highwaterMarkWatcher = new HighwaterMarkWatcher(HIGHWATER_MARK, freeSpaceProvider);
     }
@@ -135,9 +138,18 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                     }
                 }
             });
-        boolean mayHandle =
-                HandleInstruction.PROCESS.equals(scanningHandler.mayHandle(scannedStore, storeItem));
-        assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
+        final HandleInstruction instruction = scanningHandler.mayHandle(scannedStore, storeItem);
+        boolean mayHandleExpected = (freeSpace > HIGHWATER_MARK);
+        boolean mayHandleObserved = HandleInstructionFlag.PROCESS.equals(instruction.getFlag());
+        assertEquals(mayHandleExpected, mayHandleObserved);
+        if (mayHandleExpected)
+        {
+            assertNull(instruction.tryGetMessage());
+        } else
+        {
+            assertEquals("Not enough disk space on store 'iScannedStore'.", instruction
+                    .tryGetMessage());
+        }
         context.assertIsSatisfied();
     }
 
@@ -165,9 +177,18 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
                     }
                 }
             });
-        boolean mayHandle =
-                HandleInstruction.PROCESS.equals(scanningHandler.mayHandle(scannedStore, storeItem));
-        assertEquals(freeSpace > HIGHWATER_MARK, mayHandle);
+        final HandleInstruction instruction = scanningHandler.mayHandle(scannedStore, storeItem);
+        boolean mayHandleExpected = (freeSpace > HIGHWATER_MARK);
+        boolean mayHandleObserved = HandleInstructionFlag.PROCESS.equals(instruction.getFlag());
+        assertEquals(mayHandleExpected, mayHandleObserved);
+        if (mayHandleExpected)
+        {
+            assertNull(instruction.tryGetMessage());
+        } else
+        {
+            assertEquals("Not enough disk space on store 'iScannedStore'.", instruction
+                    .tryGetMessage());
+        }
         context.assertIsSatisfied();
     }
 }

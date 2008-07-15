@@ -84,7 +84,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private final IStoreItemFilter storeItemFilter;
 
     private final String markerFileName;
-    
+
     private final String errorMarkerFileName;
 
     private final String successorMarkerFileName;
@@ -284,7 +284,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
             for (final File file : files)
             {
-                if (MarkerFile.isDeletionInProgressMarker(file))
+                if (MarkerFile.isDeletionInProgressMarker(file)
+                        || MarkerFile.isFaultyPathsFile(file))
                 {
                     continue;
                 }

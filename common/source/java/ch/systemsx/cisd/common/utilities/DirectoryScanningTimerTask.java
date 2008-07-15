@@ -18,18 +18,26 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimerTask;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstruction;
+import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstructionFlag;
 
 /**
  * A {@link TimerTask} that scans a source directory for entries that are accepted by some
@@ -60,9 +68,11 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
 
     private final ConditionalNotificationLogger notificationLogger;
 
-    private int numberOfProcessedItems;
+    private final Map<StoreItem, String> errorLog;
+    
+    private boolean didSomeWork;
 
-    private int numberOfErrorItems;
+    private String threadNameOrNull;
 
     /**
      * Indicates that we should try to exit the {@link #run()} method as soon as possible.
@@ -139,6 +149,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         this.notificationLogger =
                 new ConditionalNotificationLogger(operationLog, Level.WARN, notificationLog,
                         ignoredErrorCount);
+        this.errorLog = new LinkedHashMap<StoreItem, String>();
     }
 
     /**
@@ -172,7 +183,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     private final StoreItem[] listStoreItems()
     {
         final StoreItem[] storeItems =
-                sourceDirectory.tryListSortedReadyToProcess(notificationLogger);
+                sourceDirectory.tryListSorted(notificationLogger);
         if (storeItems != null)
         {
             notificationLogger.reset(String.format("Directory '%s' is available again.",
@@ -203,15 +214,17 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         {
             operationLog.trace(String.format("Start scanning directory '%s'.", sourceDirectory));
         }
+        threadNameOrNull = Thread.currentThread().getName();
         try
         {
-            numberOfProcessedItems = 0;
-            numberOfErrorItems = 0;
+            didSomeWork = false;
             int numberOfItemsProcessedInLastRound;
             do
             {
                 numberOfItemsProcessedInLastRound = 0;
-                final StoreItem[] storeItems = listStoreItems();
+                final StoreItem[] allStoreItems = listStoreItems();
+                cleanseErrorLog(allStoreItems);
+                final StoreItem[] storeItems = sourceDirectory.filterReadyToProcess(allStoreItems);
                 final int numberOfItems = storeItems.length;
                 directoryScanningHandler.beforeHandle();
                 for (int i = 0; i < numberOfItems; i++)
@@ -231,7 +244,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                     }
                     final HandleInstruction instruction =
                             directoryScanningHandler.mayHandle(sourceDirectory, storeItem);
-                    if (HandleInstruction.PROCESS.equals(instruction))
+                    if (HandleInstructionFlag.PROCESS.equals(instruction.getFlag()))
                     {
                         try
                         {
@@ -239,31 +252,38 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                             if (operationLog.isTraceEnabled())
                             {
                                 operationLog.trace(String.format(
-                                        "Following store item '%s' has been handled.", storeItem));
+                                        "Store item '%s' has been handled.", storeItem));
                             }
-                            ++numberOfProcessedItems;
+                            didSomeWork = true;
                             ++numberOfItemsProcessedInLastRound;
                         } catch (final Exception ex)
                         {
                             // Do not stop when processing of one file has failed,
                             // continue with other files.
-                            ++numberOfErrorItems;
+                            errorLog.put(storeItem, String.format(
+                                    "Exception when processing item '%s': %s (%s)", storeItem, ex
+                                            .getClass().getSimpleName(), StringUtils.defaultString(
+                                            ex.getMessage(), "no message")));
                             printNotification(ex);
                         } finally
                         {
-                            final boolean ok =
+                            final Status status =
                                     directoryScanningHandler.finishItemHandle(sourceDirectory,
                                             storeItem);
-                            if (ok == false)
+                            if (status.isError())
                             {
-                                ++numberOfErrorItems;
+                                final String msgOrNull = status.tryGetErrorMessage();
+                                errorLog.put(storeItem, StringUtils.defaultIfEmpty(msgOrNull,
+                                        getDefaultErrorMessage(storeItem)));
                             }
                         }
                     } else
                     {
-                        if (HandleInstruction.ERROR.equals(instruction))
+                        if (HandleInstructionFlag.ERROR.equals(instruction.getFlag()))
                         {
-                            ++numberOfErrorItems;
+                            final String msgOrNull = instruction.tryGetMessage();
+                            errorLog.put(storeItem, StringUtils.defaultIfEmpty(msgOrNull,
+                                    getDefaultErrorMessage(storeItem)));
                         }
                         if (operationLog.isTraceEnabled())
                         {
@@ -284,18 +304,47 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         }
     }
 
+    private void cleanseErrorLog(StoreItem[] allStoreItems)
+    {
+        final Set<StoreItem> itemSet = new HashSet<StoreItem>(Arrays.asList(allStoreItems));
+        for (StoreItem errorItem : errorLog.keySet())
+        {
+            if (itemSet.contains(errorItem) == false)
+            {
+                errorLog.remove(errorItem);
+            }
+        }
+    }
+    
+    private String getDefaultErrorMessage(final StoreItem storeItem)
+    {
+        return String.format("Error processing item '%s'.", storeItem);
+    }
+
     //
     // ITimerTaskStatusProvider
     //
 
     public boolean hasErrors()
     {
-        return (numberOfErrorItems > 0);
+        return errorLog.size() > 0;
     }
 
     public boolean hasPerformedMeaningfulWork()
     {
-        return (numberOfProcessedItems > 0);
+        return didSomeWork;
+    }
+
+    public String tryGetErrorLog()
+    {
+        if (hasErrors())
+        {
+            return String.format("  [%s]\n  %s", StringUtils.defaultIfEmpty(threadNameOrNull,
+                    "UNKNOWN"), StringUtils.join(errorLog.values(), "\n  "));
+        } else
+        {
+            return null;
+        }
     }
 
     //
@@ -305,12 +354,24 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     public static interface IScannedStore
     {
         /**
-         * List items in the scanned store in order in which they should be handled.
+         * List <i>all</i> items (not just the ones who are ready to be processed) in the scanned
+         * store in order in which they should be handled.
          * 
          * @return <code>null</code> if it was no able to access the items of this scanned store.
          */
-        StoreItem[] tryListSortedReadyToProcess(ISimpleLogger loggerOrNull);
+        StoreItem[] tryListSorted(ISimpleLogger loggerOrNull);
 
+        /**
+         * Performs a filtering on the items.
+         * 
+         * @returns Only those <var>items</var> which are ready to be processed right now.
+         */
+        StoreItem[] filterReadyToProcess(final StoreItem[] items);
+
+        /**
+         * Returns <code>true</code>, if the <var>item</var> either still exists or is in an
+         * error state.
+         */
         boolean existsOrError(StoreItem item);
 
         /**

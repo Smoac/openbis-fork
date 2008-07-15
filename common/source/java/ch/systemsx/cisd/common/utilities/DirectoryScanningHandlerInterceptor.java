@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 
 /**
@@ -49,7 +50,7 @@ public class DirectoryScanningHandlerInterceptor implements IDirectoryScanningHa
         return directoryScanningHandler.mayHandle(scannedStore, storeItem);
     }
 
-    public boolean finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public Status finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
         return directoryScanningHandler.finishItemHandle(scannedStore, storeItem);
     }

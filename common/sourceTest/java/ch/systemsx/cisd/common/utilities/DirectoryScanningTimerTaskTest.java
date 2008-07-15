@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -113,7 +114,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final static File getFaultyPathFile()
     {
-        return new File(workingDirectory, FaultyPathDirectoryScanningHandler.FAULTY_PATH_FILENAME);
+        return new File(workingDirectory, Constants.FAULTY_PATH_FILENAME);
     }
 
     private final static void createNewFile(final File someFile) throws IOException

@@ -55,6 +55,13 @@ public class MarkerFile
         return file.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX);
     }
 
+    public static boolean isFaultyPathsFile(File file)
+    {
+        assert file != null;
+        
+        return Constants.FAULTY_PATH_FILENAME.equals(file.getName());
+    }
+
     public static File extractOriginalFromCopyFinishedMarker(File markerFile)
     {
         assert isCopyFinishedMarker(markerFile);
@@ -80,4 +87,5 @@ public class MarkerFile
     {
         return new StoreItem(".requiresDeletionBeforeCreation");
     }
+    
 }

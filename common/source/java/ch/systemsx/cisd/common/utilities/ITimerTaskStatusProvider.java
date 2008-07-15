@@ -17,15 +17,29 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * A provider for status information about the last run of a {@link java.util.TimerTask}. 
- *
+ * A provider for status information about the last run of a {@link java.util.TimerTask}.
+ * 
  * @author Bernd Rinn
  */
 public interface ITimerTaskStatusProvider
 {
-    
+
+    /**
+     * Returns <code>true</code> if the last execution of the timer task found some useful work to
+     * do.
+     */
     public boolean hasPerformedMeaningfulWork();
-    
+
+    /**
+     * Returns <code>true</code> if during the last execution of the timer task errors have
+     * occurred.
+     */
     public boolean hasErrors();
+
+    /**
+     * Returns the error log of the last execution, or <code>null</code>, if no errors have
+     * occurred.
+     */
+    public String tryGetErrorLog();
 
 }

@@ -17,6 +17,8 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
@@ -54,9 +56,9 @@ public final class DirectoryScannedStore implements IScannedStore
         return StoreItem.asFile(directory, item).exists();
     }
 
-    public final StoreItem[] tryListSortedReadyToProcess(final ISimpleLogger loggerOrNull)
+    public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)
     {
-        final File[] files = FileUtilities.tryListFiles(directory, filter, loggerOrNull);
+        final File[] files = FileUtilities.tryListFiles(directory, null, loggerOrNull);
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
@@ -65,6 +67,19 @@ public final class DirectoryScannedStore implements IScannedStore
         {
             return null;
         }
+    }
+
+    public StoreItem[] filterReadyToProcess(StoreItem[] items)
+    {
+        final List<StoreItem> result = new ArrayList<StoreItem>(items.length);
+        for (StoreItem item : items)
+        {
+            if (filter.accept(new File(directory, item.getName())))
+            {
+                result.add(item);
+            }
+        }
+        return result.toArray(new StoreItem[result.size()]);
     }
 
     //
@@ -76,4 +91,5 @@ public final class DirectoryScannedStore implements IScannedStore
     {
         return directory.toString();
     }
+
 }

@@ -88,7 +88,8 @@ public final class HighwaterMarkDirectoryScanningHandler extends
     @Override
     public HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
-        return mayHandle() == false ? HandleInstruction.ERROR : super.mayHandle(
+        return (mayHandle() == false) ? HandleInstruction.createError(
+                "Not enough disk space on store '%s'.", scannedStore) : super.mayHandle(
                 scannedStore, storeItem);
     }
 

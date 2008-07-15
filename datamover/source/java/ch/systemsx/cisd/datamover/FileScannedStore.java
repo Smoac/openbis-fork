@@ -44,19 +44,6 @@ final class FileScannedStore implements IScannedStore
         this.storeItemFilter = storeItemFilter;
     }
 
-    private final StoreItem[] filterReadyToProcess(final StoreItem[] items)
-    {
-        final Vector<StoreItem> result = new Vector<StoreItem>();
-        for (final StoreItem item : items)
-        {
-            if (isReadyToProcess(item))
-            {
-                result.add(item);
-            }
-        }
-        return result.toArray(StoreItem.EMPTY_ARRAY);
-    }
-
     private final boolean isReadyToProcess(final StoreItem item)
     {
         if (item.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX))
@@ -81,7 +68,7 @@ final class FileScannedStore implements IScannedStore
         return fileStore.getLocationDescription(item);
     }
 
-    public final StoreItem[] tryListSortedReadyToProcess(final ISimpleLogger loggerOrNull)
+    public StoreItem[] tryListSorted(ISimpleLogger loggerOrNull)
     {
         // Older items will be handled before newer items. This becomes important when doing online
         // quality control of measurements.
@@ -90,7 +77,20 @@ final class FileScannedStore implements IScannedStore
         {
             return null;
         }
-        return filterReadyToProcess(items);
+        return items;
+    }
+
+    public final StoreItem[] filterReadyToProcess(final StoreItem[] items)
+    {
+        final Vector<StoreItem> result = new Vector<StoreItem>();
+        for (final StoreItem item : items)
+        {
+            if (isReadyToProcess(item))
+            {
+                result.add(item);
+            }
+        }
+        return result.toArray(StoreItem.EMPTY_ARRAY);
     }
 
     //

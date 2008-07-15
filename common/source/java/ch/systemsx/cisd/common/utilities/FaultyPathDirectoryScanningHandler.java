@@ -22,8 +22,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
@@ -49,12 +51,10 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
 
     private long faultyPathsLastChanged;
 
-    static final String FAULTY_PATH_FILENAME = ".faulty_paths";
-
     public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory)
     {
         this.faultyPaths = new HashSet<String>();
-        this.faultyPathsFile = new File(faultyPathDirectory, FAULTY_PATH_FILENAME);
+        this.faultyPathsFile = new File(faultyPathDirectory, Constants.FAULTY_PATH_FILENAME);
     }
 
     private final void checkForFaultyPathsFileChanged()
@@ -129,31 +129,32 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         checkForFaultyPathsFileChanged();
     }
 
-    public final HandleInstruction mayHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public final HandleInstruction mayHandle(final IScannedStore scannedStore,
+            final StoreItem storeItem)
     {
         if (isFaultyPathsFile(scannedStore, storeItem))
         {
             return HandleInstruction.IGNORE;
         } else if (isFaultyPath(scannedStore, storeItem))
         {
-            return HandleInstruction.ERROR;
+            return HandleInstruction.createError("Known bad item '%s'.", storeItem);
         } else
         {
             return HandleInstruction.PROCESS;
         }
     }
 
-    public final boolean finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
+    public final Status finishItemHandle(final IScannedStore scannedStore, final StoreItem storeItem)
     {
         // If the item still exists, we assume that it has not been handled. So it
         // should be added to the faulty paths.
         if (scannedStore.existsOrError(storeItem))
         {
             addToFaultyPaths(scannedStore, storeItem);
-            return false;
+            return Status.createError("Failed to move item '%s'.", storeItem);
         } else
         {
-            return true;
+            return Status.OK;
         }
     }
 

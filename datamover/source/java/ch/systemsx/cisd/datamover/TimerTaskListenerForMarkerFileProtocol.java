@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.concurrent.DummyTimerTaskListener;
 import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
@@ -89,7 +90,7 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     @Override
     public void startRunning()
     {
-        touch(markerFile);
+        touch(markerFile, StringUtils.EMPTY);
     }
 
     /**
@@ -100,11 +101,17 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
     {
         if (successorMarkerFileOrNull != null && hasPerformedMeaningfullWork(statusProviderOrNull))
         {
-            touch(successorMarkerFileOrNull);
+            touch(successorMarkerFileOrNull, StringUtils.EMPTY);
         }
-        if (errorMarkerFileOrNull != null && hasErrors(statusProviderOrNull))
+        if (errorMarkerFileOrNull != null)
         {
-            touch(errorMarkerFileOrNull);
+            if (hasErrors(statusProviderOrNull))
+            {
+                touch(errorMarkerFileOrNull, getErrorLog(statusProviderOrNull));
+            } else
+            {
+                errorMarkerFileOrNull.delete();
+            }
         }
         // Avoid deleting the marker file when it is used as error marker file, too, and an error
         // occurred.
@@ -125,6 +132,22 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
         return (statusProviderOrNull != null) && statusProviderOrNull.hasErrors();
     }
 
+    private String getErrorLog(ITimerTaskStatusProvider statusProviderOrNull)
+    {
+        if (statusProviderOrNull == null)
+        {
+            return StringUtils.EMPTY;
+        }
+        final String errorLogOrNull = statusProviderOrNull.tryGetErrorLog();
+        if (errorLogOrNull == null)
+        {
+            return StringUtils.EMPTY;
+        } else
+        {
+            return errorLogOrNull;
+        }
+    }
+
     private static void failIfDirectory(File markerFile)
     {
         if (markerFile.isDirectory())
@@ -134,11 +157,12 @@ public class TimerTaskListenerForMarkerFileProtocol extends DummyTimerTaskListen
         }
     }
 
-    private static void touch(final File markerFile) throws EnvironmentFailureException
+    private static void touch(final File markerFile, String message)
+            throws EnvironmentFailureException
     {
         try
         {
-            FileUtils.touch(markerFile);
+            FileUtils.writeStringToFile(markerFile, message);
         } catch (IOException ex)
         {
             throw new EnvironmentFailureException("Can not create marker file '"

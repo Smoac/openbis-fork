@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 
 /**
@@ -29,11 +30,68 @@ public interface IDirectoryScanningHandler
 {
 
     /**
-     * The instruction of whether to process an item or not.
+     * The instruction flag of whether to process an item or not.
      */
-    public enum HandleInstruction
+    public enum HandleInstructionFlag
     {
         PROCESS, IGNORE, ERROR
+    }
+
+    /**
+     * The instruction of whether to process an item or not, possibly including a message on why not
+     * to process it.
+     * 
+     * @author Bernd Rinn
+     */
+    public static class HandleInstruction
+    {
+        public static HandleInstruction PROCESS =
+                new HandleInstruction(HandleInstructionFlag.PROCESS, null);
+
+        public static HandleInstruction IGNORE =
+                new HandleInstruction(HandleInstructionFlag.IGNORE, null);
+
+        private final HandleInstructionFlag flag;
+
+        private final String messageOrNull;
+
+        public static HandleInstruction createError()
+        {
+            return new HandleInstruction(HandleInstructionFlag.ERROR, null);
+        }
+
+        public static HandleInstruction createError(String message)
+        {
+            assert message != null;
+
+            return new HandleInstruction(HandleInstructionFlag.ERROR, message);
+        }
+
+        public static HandleInstruction createError(String messageTemplate, Object... args)
+        {
+            assert messageTemplate != null;
+
+            return new HandleInstruction(HandleInstructionFlag.ERROR, String.format(
+                    messageTemplate, args));
+        }
+
+        private HandleInstruction(HandleInstructionFlag flag, String messageOrNull)
+        {
+            assert flag != null;
+
+            this.flag = flag;
+            this.messageOrNull = messageOrNull;
+        }
+
+        public final HandleInstructionFlag getFlag()
+        {
+            return flag;
+        }
+
+        public final String tryGetMessage()
+        {
+            return messageOrNull;
+        }
     }
 
     /**
@@ -50,8 +108,7 @@ public interface IDirectoryScanningHandler
     /**
      * Finishes and closes the handling of given <var>storeItem</var>.
      * 
-     * @returns <code>true</code>, if the item has been handled correctly and <code>false</code>
-     *          if an error occurred.
+     * @returns A status of handling the <var>storeItem</var>.
      */
-    public boolean finishItemHandle(IScannedStore scannedStore, StoreItem storeItem);
+    public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem);
 }
