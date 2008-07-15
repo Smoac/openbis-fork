@@ -29,26 +29,26 @@ import ch.systemsx.cisd.common.exceptions.StopException;
  */
 public final class CallableExecutor
 {
-    private final int maxRetryOnFailure;
+    private final int maxInvocationsOnFailure;
 
     private final long millisToSleepOnFailure;
 
     public CallableExecutor()
     {
-        this(Constants.MAXIMUM_RETRY_COUNT, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        this(Constants.MAXIMUM_INVOCATIONS_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
-    public CallableExecutor(final int maxRetryOnFailure, final long millisToSleepOnFailure)
+    public CallableExecutor(final int maxInvocationsOnFailure, final long millisToSleepOnFailure)
     {
         assert millisToSleepOnFailure > -1 : "Negative value";
-        assert maxRetryOnFailure > -1 : "Negative value";
-        this.maxRetryOnFailure = maxRetryOnFailure;
+        assert maxInvocationsOnFailure > -1 : "Negative value";
+        this.maxInvocationsOnFailure = maxInvocationsOnFailure;
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
     /**
      * Executes given <var>callable</var> until it returns a non-<code>null</code> value (or
-     * until <code>maxRetryOnFailure</code> is reached).
+     * until <code>maxInvocationsOnFailure</code> is reached).
      */
     public final <T> T executeCallable(final Callable<T> callable) throws StopException
     {
@@ -60,11 +60,15 @@ public final class CallableExecutor
             {
                 StopException.check();
                 result = callable.call();
-                if (counter > 0 && millisToSleepOnFailure > 0)
+                if (result == null)
                 {
-                    Thread.sleep(millisToSleepOnFailure);
+                    ++counter;
+                    if (counter < maxInvocationsOnFailure && millisToSleepOnFailure > 0)
+                    {
+                        Thread.sleep(millisToSleepOnFailure);
+                    }
                 }
-            } while (counter++ < maxRetryOnFailure && result == null);
+            } while (result == null && counter < maxInvocationsOnFailure);
         } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

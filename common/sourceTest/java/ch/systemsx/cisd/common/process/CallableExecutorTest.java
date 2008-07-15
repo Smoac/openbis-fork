@@ -95,7 +95,13 @@ public final class CallableExecutorTest
         context.checking(new Expectations()
             {
                 {
-                    exactly(maxRetryOnFailure + 1).of(callable).call();
+                    if (maxRetryOnFailure == 0)
+                    {
+                        one(callable).call();
+                    } else
+                    {
+                        exactly(maxRetryOnFailure).of(callable).call();
+                    }
                     will(returnValue(null));
                 }
             });
