@@ -223,6 +223,11 @@ public final class ClassUtilsTest
         typeArgument =
                 ClassUtils.tryGetInterfaceTypeArgument(ExtendingExtendingA.class, IB.class, 0);
         assertNull(typeArgument);
+        // We do not support array type argument
+        typeArgument =
+                ClassUtils
+                        .tryGetInterfaceTypeArgument(ExtendingArrayA.class, IExtendingIA.class, 0);
+        assertNull(typeArgument);
     }
 
     //
@@ -301,6 +306,10 @@ public final class ClassUtilsTest
     }
 
     private static class ExtendingA extends A implements IExtendingIA<String>
+    {
+    }
+
+    private static class ExtendingArrayA extends A implements IExtendingIA<String[]>
     {
     }
 
