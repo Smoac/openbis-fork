@@ -25,13 +25,14 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.datamover.console.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.datamover.console.client.application.IMessageResources;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
@@ -41,20 +42,23 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
  * Main page.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Console extends Composite
 {
     private static final String STYLE_PREFIX = "console-";
+
     private static final String STYLE_HEADER_PREFIX = STYLE_PREFIX + "header-";
+
     private static final String STYLE_TABLE_PREFIX = STYLE_PREFIX + "table-";
-    
+
     private final ViewContext viewContext;
+
     private final VerticalPanel content;
-    
+
     private final AsyncCallback<Void> refreshCallBack;
-        
+
     public Console(ViewContext viewContext)
     {
         this.viewContext = viewContext;
@@ -66,15 +70,16 @@ public class Console extends Composite
         panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         panel.add(content);
         initWidget(panel);
-        
-        viewContext.getService().getTargets(new AbstractAsyncCallback<Map<String, String>>(viewContext)
-            {
-                public void onSuccess(Map<String, String> map)
-                {
-                    viewContext.getModel().setTargets(map);
-                    refreshView();
-                }
-            });
+
+        viewContext.getService().getTargets(
+                new AbstractAsyncCallback<Map<String, String>>(viewContext)
+                    {
+                        public void onSuccess(Map<String, String> map)
+                        {
+                            viewContext.getModel().setTargets(map);
+                            refreshView();
+                        }
+                    });
         refreshCallBack = new AbstractAsyncCallback<Void>(viewContext)
             {
                 public void onSuccess(Void arg0)
@@ -94,16 +99,16 @@ public class Console extends Composite
         ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
         timer.scheduleRepeating(applicationInfo.getRefreshTimeInterval());
     }
-    
+
     private Widget createHeaderPanel()
     {
         HorizontalPanel headerPanel = new HorizontalPanel();
         headerPanel.setSpacing(10);
-        
+
         Label label = new Label(viewContext.getModel().getUser().getUserFullName());
         label.setStyleName(STYLE_HEADER_PREFIX + "label");
         headerPanel.add(label);
-        
+
         String buttonLabel = viewContext.getMessageResources().getLogoutButtonLabel();
         headerPanel.add(createTableButton(buttonLabel, new ClickListener()
             {
@@ -120,7 +125,7 @@ public class Console extends Composite
             }));
         return headerPanel;
     }
-    
+
     private Button createHeaderButton(String label, ClickListener listener)
     {
         Button button = new Button(label);
@@ -151,7 +156,7 @@ public class Console extends Composite
         content.setHorizontalAlignment(VerticalPanel.ALIGN_LEFT);
         content.add(new Label(viewContext.getMessageResources().getConsoleWaitMessage()));
     }
-    
+
     private void showTable()
     {
         content.clear();
@@ -167,7 +172,7 @@ public class Console extends Composite
                 }
             }));
     }
-    
+
     private Widget createStatusLine()
     {
         return new Label(viewContext.getMessageResources().getConsoleStatusLine(new Date()));
@@ -199,7 +204,23 @@ public class Console extends Composite
         final String datamoverName = datamoverInfo.getName();
         grid.setText(rowIndex, 0, datamoverName == null ? "?" : datamoverName);
         DatamoverStatus status = datamoverInfo.getStatus();
-        grid.setText(rowIndex, 2, status.toString());
+        if (datamoverInfo.getErrorMessage() != null)
+        {
+            final Button button = createTableButton(status.toString(), new ClickListener()
+                {
+                    public void onClick(Widget sender)
+                    {
+                        final DialogBox box = new DialogBox(true);
+                        box.setText("Error Details");
+                        box.add(new HTML("<pre>" + datamoverInfo.getErrorMessage() + "</pre>"));
+                        box.show();
+                    }
+                });
+            grid.setWidget(rowIndex, 2, button);
+        } else
+        {
+            grid.setText(rowIndex, 2, status.toString());
+        }
         IMessageResources messageResources = viewContext.getMessageResources();
         String targetName = tryToGetTargetName(datamoverInfo);
         if (status == DatamoverStatus.DOWN || status == DatamoverStatus.STALE)
@@ -232,7 +253,7 @@ public class Console extends Composite
             }
         }
     }
-    
+
     private String tryToGetTargetName(DatamoverInfo datamoverInfo)
     {
         String targetLocation = datamoverInfo.getTargetLocation();
@@ -246,18 +267,18 @@ public class Console extends Composite
         }
         return targetLocation;
     }
-    
+
     private void startDatamover(String name, ListBox targetListBox)
     {
         String target = getSelectedValueOf(targetListBox);
         viewContext.getService().startDatamover(name, target, refreshCallBack);
     }
-    
+
     private String getSelectedValueOf(ListBox listBox)
     {
         return listBox.getValue(listBox.getSelectedIndex());
     }
-    
+
     private void stopDatamover(String name)
     {
         viewContext.getService().shutdownDatamover(name, refreshCallBack);
@@ -270,7 +291,7 @@ public class Console extends Composite
         button.addClickListener(clickListener);
         return button;
     }
-    
+
     private ListBox createTargetListBox(String targetNameOrNull)
     {
         ListBox list = new ListBox();
