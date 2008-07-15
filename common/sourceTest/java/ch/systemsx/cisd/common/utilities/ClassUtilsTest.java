@@ -205,31 +205,6 @@ public final class ClassUtilsTest
         assertSame(object, myExtendedClass.finalObject);
     }
 
-    @Test
-    public final void testGetInterfaceTypeArgument()
-    {
-        boolean fail = true;
-        try
-        {
-            ClassUtils.tryGetInterfaceTypeArgument(null, null, -1);
-        } catch (final AssertionError e)
-        {
-            fail = false;
-        }
-        assertFalse(fail);
-        Class<?> typeArgument =
-                ClassUtils.tryGetInterfaceTypeArgument(ExtendingA.class, IExtendingIA.class, 0);
-        assertNotNull(typeArgument);
-        typeArgument =
-                ClassUtils.tryGetInterfaceTypeArgument(ExtendingExtendingA.class, IB.class, 0);
-        assertNull(typeArgument);
-        // We do not support array type argument
-        typeArgument =
-                ClassUtils
-                        .tryGetInterfaceTypeArgument(ExtendingArrayA.class, IExtendingIA.class, 0);
-        assertNull(typeArgument);
-    }
-
     //
     // Helper Classes
     //
@@ -306,10 +281,6 @@ public final class ClassUtilsTest
     }
 
     private static class ExtendingA extends A implements IExtendingIA<String>
-    {
-    }
-
-    private static class ExtendingArrayA extends A implements IExtendingIA<String[]>
     {
     }
 
