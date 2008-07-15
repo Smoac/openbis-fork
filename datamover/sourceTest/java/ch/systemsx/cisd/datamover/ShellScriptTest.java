@@ -72,6 +72,12 @@ public class ShellScriptTest
     private static final File TARGET_LOCATION_FILE =
             new File(WORKING_DIRECTORY, DataMover.OUTGOING_TARGET_LOCATION_FILE);
 
+    private static final File MARKER_FILE_INCOMING_ERROR =
+            new File(WORKING_DIRECTORY, DataMover.INCOMING_ERROR_MARKER_FILENAME);
+
+    private static final File MARKER_FILE_OUTGOING_ERROR =
+            new File(WORKING_DIRECTORY, DataMover.OUTGOING_ERROR_MARKER_FILENAME);
+
     private Logger operationLog;
 
     private Logger machineLog;
@@ -105,15 +111,15 @@ public class ShellScriptTest
     @Test
     public void testStatusDown()
     {
-        checkStatus(2, "DOWN", false);
+        checkStatus(3, "DOWN", false);
     }
 
     @Test
     public void testStatusStale() throws IOException
     {
         FileUtilities.writeToFile(PID_FILE, "-1");
-        checkStatus(3, "STALE", false);
-        checkStatus(3, "Datamover is dead (stale pid -1)", true);
+        checkStatus(4, "STALE", false);
+        checkStatus(4, "Datamover is dead (stale pid -1)", true);
     }
 
     @Test
@@ -136,16 +142,27 @@ public class ShellScriptTest
     }
 
     @Test
+    public void testStatusError() throws IOException
+    {
+        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
+        FileUtils.touch(MARKER_FILE_INCOMING_ERROR);
+        checkStatus(1, "ERROR", false);
+        checkStatus(1, "Datamover (pid ) is running and in error state:", true, 2);
+        FileUtils.touch(MARKER_FILE_OUTGOING_ERROR);
+        checkStatus(1, "ERROR", false);
+    }
+
+    @Test
     public void testStatusShutdown() throws IOException
     {
         FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
         FileUtils.touch(MARKER_FILE_SHUTDOWN);
-        checkStatus(1, "SHUTDOWN", false);
-        checkStatus(1, "Datamover (pid ) is in shutdown mode", true);
+        checkStatus(2, "SHUTDOWN", false);
+        checkStatus(2, "Datamover (pid ) is in shutdown mode", true);
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
-        checkStatus(1, "SHUTDOWN", false);
+        checkStatus(2, "SHUTDOWN", false);
     }
-    
+
     @Test
     public void testUnknownTarget()
     {
@@ -165,14 +182,20 @@ public class ShellScriptTest
         assertEquals(targetlocation, output.get(0));
         assertEquals(1, output.size());
     }
-    
+
     private void checkStatus(int expectedExitValue, String expectedStatus, boolean pretty)
+    {
+        checkStatus(expectedExitValue, expectedStatus, pretty, 1);
+    }
+
+    private void checkStatus(int expectedExitValue, String expectedStatus, boolean pretty,
+            int numberOfOutputLines)
     {
         ProcessResult result = executeShellScript(pretty ? "status" : "mstatus");
         assertEquals(expectedExitValue, result.getExitValue());
         List<String> output = result.getOutput();
         assertEquals(expectedStatus, output.get(0));
-        assertEquals(1, output.size());
+        assertEquals(numberOfOutputLines, output.size());
     }
 
     private ProcessResult executeShellScript(String... arguments)
