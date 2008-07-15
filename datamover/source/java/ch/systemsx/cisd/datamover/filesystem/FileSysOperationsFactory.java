@@ -21,7 +21,6 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -45,9 +44,6 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     private static final String SSH_BINARY_NAME = "ssh";
 
     private static final String RSYNC_BINARY_NAME = "rsync";
-
-    /** The maximal number of retries when the move operation fails. */
-    private static final int MAX_RETRIES_ON_FAILURE = 12;
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileSysOperationsFactory.class);
@@ -112,8 +108,8 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathRemover getRemover()
     {
-        return new RetryingPathRemover(MAX_RETRIES_ON_FAILURE,
-                Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        return new RetryingPathRemover(parameters.getMaximalNumberOfRetries(),
+                parameters.getIntervalToWaitAfterFailure());
     }
 
     public final IDirectoryImmutableCopier getImmutableCopier()
@@ -167,7 +163,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
 
     public final IPathMover getMover()
     {
-        return new RetryingPathMover(MAX_RETRIES_ON_FAILURE,
-                Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        return new RetryingPathMover(parameters.getMaximalNumberOfRetries(),
+                parameters.getIntervalToWaitAfterFailure());
     }
 }

@@ -58,6 +58,16 @@ public class FileOperationsUtil
                 {
                     return true;
                 }
+
+                public long getIntervalToWaitAfterFailure()
+                {
+                    return 0;
+                }
+
+                public int getMaximalNumberOfRetries()
+                {
+                    return 0;
+                }
             };
     }
 }

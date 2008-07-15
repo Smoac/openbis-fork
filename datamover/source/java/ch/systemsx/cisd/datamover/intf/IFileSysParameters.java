@@ -49,4 +49,16 @@ public interface IFileSysParameters
      *         called on every file individually (which is a lot slower).
      */
     boolean useRsyncForExtraCopies();
+    
+    /**
+     * @return The time interval to wait after a retriable error has occurred before a new attempt
+     *         is made.
+     */
+    public long getIntervalToWaitAfterFailure();
+
+    /**
+     * @return The maximal number of retries of a failed retriable operation before giving up on it.
+     */
+    public int getMaximalNumberOfRetries();
+
 }
