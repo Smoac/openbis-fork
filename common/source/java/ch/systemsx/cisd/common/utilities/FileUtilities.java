@@ -1018,19 +1018,20 @@ public final class FileUtilities
      * Lists all resources in a given directory which match the filter.
      * 
      * @param directory the directory to list
-     * @param filter only files matching this filter will show up in the result
+     * @param filterOrNull only files matching this filter will show up in the result, if it is not
+     *            <code>null</code>.
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
      * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if
      *         <var>directory</var> does not exist or is not a directory.
      */
-    public static File[] tryListFiles(final File directory, final FileFilter filter,
+    public static File[] tryListFiles(final File directory, final FileFilter filterOrNull,
             final ISimpleLogger loggerOrNull)
     {
         File[] paths = null;
         RuntimeException ex = null;
         try
         {
-            paths = directory.listFiles(filter);
+            paths = directory.listFiles(filterOrNull);
         } catch (final RuntimeException e)
         {
             ex = e;
