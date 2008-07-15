@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,11 +147,24 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
 
     public void check() throws ConfigurationFailureException
     {
-        final ProcessResult result = execute("mstatus");
-        if (result.isOK() == false)
+        final File datamoverScriptFile = new File(scriptPath);
+        if (datamoverScriptFile.exists() == false)
         {
-            throw new ConfigurationFailureException("Failure to call datamover '" + scriptPath
-                    + "'");
+            throw new ConfigurationFailureException("Cannot find Datamover '"
+                    + datamoverScriptFile.getAbsolutePath() + "'");
+        }
+        final ProcessResult result = execute("mstatus");
+        if (result.getExitValue() == ProcessResult.NO_EXIT_VALUE)
+        {
+            throw new ConfigurationFailureException("Unable to run Datamover '"
+                    + datamoverScriptFile.getAbsolutePath() + "'");
+        }
+        final List<String> output = result.getOutput();
+        if (output.size() != 1)
+        {
+            throw new ConfigurationFailureException("Unexpected output from Datamover '"
+                    + datamoverScriptFile.getAbsolutePath() + "':\n"
+                    + StringUtils.join(output, '\n'));
         }
     }
 
