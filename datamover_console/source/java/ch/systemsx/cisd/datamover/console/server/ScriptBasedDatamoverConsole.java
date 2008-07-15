@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
@@ -66,7 +67,7 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
     
     public DatamoverStatus obtainStatus()
     {
-        List<String> output = execute("mstatus").getOutput();
+        final List<String> output = execute("mstatus").getOutput();
         if (output.isEmpty())
         {
             throw new EnvironmentFailureException(
@@ -82,7 +83,19 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         return status;
     }
 
-    public String tryToObtainTarget()
+    public String tryObtainErrorMessage()
+    {
+        final ProcessResult presult = execute("status");
+        if (presult.getExitValue() != 1)
+        {
+            return null;
+        } else 
+        {
+            return StringUtils.join(presult.getOutput(), '\n');
+        }
+    }
+    
+    public String tryObtainTarget()
     {
         List<String> output = execute("target").getOutput();
         return output.isEmpty() ? null : output.get(0);
@@ -141,7 +154,5 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
                 ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
         return result;
     }
-    
-    
 
 }

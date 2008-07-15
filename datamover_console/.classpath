@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-library-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

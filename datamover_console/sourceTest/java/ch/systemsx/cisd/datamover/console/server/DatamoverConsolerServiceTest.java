@@ -251,12 +251,12 @@ public class DatamoverConsolerServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(dm1).tryToObtainTarget();
+                    one(dm1).tryObtainTarget();
                     will(returnValue("first target"));
                     one(dm1).obtainStatus();
                     will(returnValue(DatamoverStatus.PROCESSING));
 
-                    one(dm2).tryToObtainTarget();
+                    one(dm2).tryObtainTarget();
                     will(returnValue("target1"));
                     one(dm2).obtainStatus();
                     will(returnValue(DatamoverStatus.SHUTDOWN));
@@ -274,6 +274,41 @@ public class DatamoverConsolerServiceTest
         assertEquals("dm2", info2.getName());
         assertEquals("target1", info2.getTargetLocation());
         assertEquals(DatamoverStatus.SHUTDOWN, info2.getStatus());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListDatamoverInfoWithError()
+    {
+        final String msg = "[first target]\nsomething's fishy";
+        IDatamoverConsoleService service = createService();
+        prepareForAuthenticated();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dm1).tryObtainTarget();
+                    will(returnValue("first target"));
+                    one(dm1).obtainStatus();
+                    will(returnValue(DatamoverStatus.ERROR));
+                    one(dm1).tryObtainErrorMessage();
+                    will(returnValue(msg));
+
+                    one(dm2).tryObtainTarget();
+                    will(returnValue("target1"));
+                    one(dm2).obtainStatus();
+                    will(returnValue(DatamoverStatus.IDLE));
+                }
+            });
+        
+        final List<DatamoverInfo> infos = service.listDatamoverInfos();
+        
+        assertEquals(2, infos.size());
+        DatamoverInfo info1 = infos.get(0);
+        assertEquals("dm1", info1.getName());
+        assertEquals("first target", info1.getTargetLocation());
+        assertEquals(DatamoverStatus.ERROR, info1.getStatus());
+        assertEquals(msg, info1.getErrorMessage());
         
         context.assertIsSatisfied();
     }

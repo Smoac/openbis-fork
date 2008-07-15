@@ -20,7 +20,7 @@ import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 
 /**
  * Interface to a Datamover.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDatamoverConsole
@@ -29,19 +29,25 @@ public interface IDatamoverConsole
      * Obtains the current status of the datamover.
      */
     public DatamoverStatus obtainStatus();
-    
+
+    /**
+     * Obtains the error message of this datamover. The error message will be <code>null</code>,
+     * if this datamover is not in an error state.
+     */
+    public String tryObtainErrorMessage();
+
     /**
      * Obtains the current target of the running datamover.
      * 
      * @return <code>null</code> if the datamover is not running.
      */
-    public String tryToObtainTarget();
-    
+    public String tryObtainTarget();
+
     /**
-     * Initiates a shutdown of tzhe datamover.
+     * Initiates a shutdown of the datamover.
      */
     public void shutdown();
-    
+
     /**
      * Starts the datamover with the specified outgoing target.
      */

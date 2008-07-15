@@ -36,6 +36,7 @@ import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.InvalidSessionException;
 import ch.systemsx.cisd.datamover.console.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.datamover.console.client.dto.DatamoverInfo;
+import ch.systemsx.cisd.datamover.console.client.dto.DatamoverStatus;
 import ch.systemsx.cisd.datamover.console.client.dto.User;
 
 /**
@@ -181,12 +182,16 @@ public class DatamoverConsoleService implements IDatamoverConsoleService
             IDatamoverConsole console = entry.getValue();
             DatamoverInfo datamoverInfo = new DatamoverInfo();
             datamoverInfo.setName(name);
-            String target = console.tryToObtainTarget();
+            String target = console.tryObtainTarget();
             if (target != null)
             {
                 datamoverInfo.setTargetLocation(target);
             }
             datamoverInfo.setStatus(console.obtainStatus());
+            if (DatamoverStatus.ERROR.equals(datamoverInfo.getStatus()))
+            {
+                datamoverInfo.setErrorMessage(console.tryObtainErrorMessage());
+            }
             list.add(datamoverInfo);
         }
         return list;

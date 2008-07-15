@@ -27,6 +27,7 @@ public class DatamoverInfo implements IsSerializable
 {
     private String name;
     private String targetLocation;
+    private String errorMessage;
     private DatamoverStatus status = DatamoverStatus.DOWN;
     
     public final String getName()
@@ -57,6 +58,16 @@ public class DatamoverInfo implements IsSerializable
     public final void setStatus(DatamoverStatus status)
     {
         this.status = status;
+    }
+
+    public final String getErrorMessage()
+    {
+        return errorMessage;
+    }
+
+    public final void setErrorMessage(String errorMessage)
+    {
+        this.errorMessage = errorMessage;
     }
     
     
