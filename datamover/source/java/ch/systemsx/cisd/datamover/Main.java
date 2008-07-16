@@ -177,8 +177,8 @@ public final class Main
         initLog();
         final Parameters parameters = new Parameters(args);
         printInitialLogMessage(parameters);
-        selfTest(parameters);
         startupServer(parameters);
+        selfTest(parameters);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Datamover ready and waiting for data.");
