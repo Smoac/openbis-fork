@@ -45,10 +45,10 @@ public interface IDirectoryScanningHandler
      */
     public static class HandleInstruction
     {
-        public static HandleInstruction PROCESS =
+        public final static HandleInstruction PROCESS =
                 new HandleInstruction(HandleInstructionFlag.PROCESS, null);
 
-        public static HandleInstruction IGNORE =
+        public final static HandleInstruction IGNORE =
                 new HandleInstruction(HandleInstructionFlag.IGNORE, null);
 
         private final HandleInstructionFlag flag;
