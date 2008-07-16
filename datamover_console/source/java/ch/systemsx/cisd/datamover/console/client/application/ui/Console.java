@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.datamover.console.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.datamover.console.client.application.IMessageResources;
 import ch.systemsx.cisd.datamover.console.client.application.ViewContext;
@@ -210,6 +211,7 @@ public class Console extends Composite
                 {
                     public void onClick(Widget sender)
                     {
+                        // TODO 2008-07-16, Christian Ribeaud: Put a link instead of a button.
                         final DialogBox box = new DialogBox(true);
                         box.setText("Error Details");
                         box.add(new HTML("<pre>" + datamoverInfo.getErrorMessage() + "</pre>"));
