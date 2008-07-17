@@ -25,14 +25,11 @@ public final class HomeGroupUndefinedException extends UserFailureException
 {
     private static final long serialVersionUID = 1L;
 
-    public HomeGroupUndefinedException(final String message)
-    {
-        super(message);
-    }
+    private final static String MESSAGE = "Group not specified, home group unknown";
 
     public HomeGroupUndefinedException()
     {
-        super("Home group undefined.");
+        super(MESSAGE);
     }
 
 }
