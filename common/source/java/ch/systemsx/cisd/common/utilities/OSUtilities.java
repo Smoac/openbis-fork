@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
  * Some useful methods related to the operating system.
  * <p>
  * Does <em>not</em> depend on any library jar files. But before using or extending this class and
- * if you do not mind using <a href="http://jakarta.apache.org/commons/lang/">commons lang</a>,
- * then have a look on <code>SystemUtils</code>.
+ * if you do not mind using <a href="http://jakarta.apache.org/commons/lang/">commons lang</a>, then
+ * have a look on <code>SystemUtils</code>.
  * </p>
  * 
  * @author Bernd Rinn
@@ -63,6 +63,21 @@ public class OSUtilities
     }
 
     /**
+     * @return The name of the computer platform that is compatible with respect to executables (CPU
+     *         architecture and OS name, both as precise as possible to be able to share libraries
+     *         and binaries).
+     */
+    public static String getCompatibleComputerPlatform()
+    {
+        String osName = System.getProperty("os.name");
+        if ("Windows XP".equals(osName) || "Windows Vista".equals(osName))
+        {
+            osName = "Windows";
+        }
+        return System.getProperty("os.arch") + "-" + osName;
+    }
+
+    /**
      * @return The name of the computer platform (CPU architecture and OS name).
      */
     public static String getComputerPlatform()
@@ -79,8 +94,8 @@ public class OSUtilities
     }
 
     /**
-     * @return <code>true</code> if the user that runs this program is known to have root
-     *         privileges (based on his name).
+     * @return <code>true</code> if the user that runs this program is known to have root privileges
+     *         (based on his name).
      */
     public static boolean isRoot()
     {
@@ -156,8 +171,8 @@ public class OSUtilities
      * @param executableName The name of the executable to search for. Under Windows, a name with
      *            and without <code>.exe</code> appended will work, but the executable found needs
      *            to have the .exe extension.
-     * @return The binary file that has been found in the path, or <code>null</code>, if no
-     *         binary file could be found.
+     * @return The binary file that has been found in the path, or <code>null</code>, if no binary
+     *         file could be found.
      */
     public static File findExecutable(String executableName)
     {
@@ -174,8 +189,8 @@ public class OSUtilities
      * @param pathSet The set of paths to search for. It is recommended to use an ordered set like
      *            the {@link LinkedHashSet} here in order to get results that are independent of the
      *            JRE implementation.
-     * @return The binary file that has been found in the path, or <code>null</code>, if no
-     *         binary file could be found.
+     * @return The binary file that has been found in the path, or <code>null</code>, if no binary
+     *         file could be found.
      */
     public static File findExecutable(String executableName, Set<String> pathSet)
     {

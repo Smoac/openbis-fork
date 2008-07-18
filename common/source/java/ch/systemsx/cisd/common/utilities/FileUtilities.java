@@ -1126,7 +1126,7 @@ public final class FileUtilities
     public final static String tryCopyNativeLibraryToTempFile(final String libraryName)
     {
         return tryCopyResourceToTempFile(String.format("/native/%s/%s/%s.so", libraryName,
-                OSUtilities.getComputerPlatform(), libraryName), libraryName, ".so");
+                OSUtilities.getCompatibleComputerPlatform(), libraryName), libraryName, ".so");
     }
 
     /**
