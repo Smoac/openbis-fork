@@ -50,6 +50,8 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
  */
 abstract class AbstractCIFEXServiceServlet extends HttpServlet
 {
+    private static final long serialVersionUID = 1L;
+
     private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
 
     protected final Logger operationLog;

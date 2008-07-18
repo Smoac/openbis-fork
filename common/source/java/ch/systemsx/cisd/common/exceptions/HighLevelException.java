@@ -25,6 +25,8 @@ package ch.systemsx.cisd.common.exceptions;
 public abstract class HighLevelException extends RuntimeException
 {
 
+    private static final long serialVersionUID = 1L;
+
     protected HighLevelException(String message)
     {
         super(message);

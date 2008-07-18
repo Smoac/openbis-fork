@@ -161,8 +161,8 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * A {@link Callable} that has available a {@link IStoppableExecutor} for running code that
-     * cannot be interrupted but stopped.
+     * A {@link Callable} that has available a {@link TerminableCallable.IStoppableExecutor} for
+     * running code that cannot be interrupted but stopped.
      */
     public interface ICallable<V>
     {
@@ -200,7 +200,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
     }
 
     /**
-     * A roles that implements both the {@link ICallable} and {@link ICleaner}.
+     * A roles that implements both the {@link TerminableCallable.ICallable} and {@link ICleaner}.
      */
     public interface ICallableCleaner<V> extends ICallable<V>, ICleaner
     {

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  */
 public abstract class ID extends AbstractHashable implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private Long id;
 
     protected static Long getAndCheckID(final ID objectWithID, final Long id)
