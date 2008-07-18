@@ -29,8 +29,8 @@ public final class ValidatorUtils
 {
 
     /**
-     * A <code>Validator</code> implementation which check whether given <code>Object</code> is
-     * not <code>null</code>.
+     * A <code>Validator</code> implementation which check whether given <code>Object</code> is not
+     * <code>null</code>.
      */
     private final static IValidator<Object> NOT_NULL_VALIDATOR = new IValidator<Object>()
         {
@@ -110,7 +110,7 @@ public final class ValidatorUtils
 
     /** Returns a typed validator for non-<code>null</code> objects. */
     @SuppressWarnings(
-        { "cast", "unchecked" })
+        { "unchecked" })
     public static final <T> IValidator<T> getNotNullValidator()
     {
         return (IValidator<T>) NOT_NULL_VALIDATOR;
@@ -118,7 +118,7 @@ public final class ValidatorUtils
 
     /** Returns a typed validator which always returns <code>true</code>. */
     @SuppressWarnings(
-        { "cast", "unchecked" })
+        { "unchecked" })
     public static final <T> IValidator<T> getAlwaysTrueValidator()
     {
         return (IValidator<T>) ALWAYS_TRUE;
