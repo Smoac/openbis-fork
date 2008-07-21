@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
+
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A utility class that provides access to hard link and symbolic link creation on Unix platforms.

@@ -1,3 +1,3 @@
 #! /bin/bash
 
-gcc -shared unixlink.c -I/usr/java/jdk1.5.0_13/include -I/usr/java/jdk1.5.0_13/include/linux -o i386-Linux_jlink.so
+gcc -shared -O3 unixlink.c -I/usr/java/jdk1.5.0_16/include -I/usr/java/jdk1.5.0_16/include/linux -o jlink.so

@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <jni.h>
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_hardlink
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_filesystem_FileLinkUtilities_hardlink
   (JNIEnv *env, jclass clss, jstring filename, jstring linktarget)
 {
     const char* pfilename;
@@ -27,7 +27,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_
    return retval;
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_symlink
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_filesystem_FileLinkUtilities_symlink
   (JNIEnv *env, jclass clss, jstring filename, jstring linktarget)
 {
     const char* pfilename;
@@ -48,7 +48,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_
    return retval;
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_linkinfo(JNIEnv *env, jclass clss, jstring filename, jintArray result)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_filesystem_FileLinkUtilities_linkinfo(JNIEnv *env, jclass clss, jstring filename, jintArray result)
 {
     const char* pfilename;
 	struct stat statbuf;
@@ -72,7 +72,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_
 	}
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_readlink(JNIEnv *env, jclass clss, jstring linkname, jint linkvallen)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_filesystem_FileLinkUtilities_readlink(JNIEnv *env, jclass clss, jstring linkname, jint linkvallen)
 {
     const char* plinkname;
 	char plinkvalue[linkvallen + 1];
@@ -91,7 +91,7 @@ JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtiliti
 	}
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_utilities_FileLinkUtilities_strerror(JNIEnv *env, jclass clss, jint errnum)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_filesystem_FileLinkUtilities_strerror(JNIEnv *env, jclass clss, jint errnum)
 {
     return (*env)->NewStringUTF(env, strerror(errnum < 0 ? -errnum : errnum));
 }

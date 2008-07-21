@@ -20,8 +20,9 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
+import ch.systemsx.cisd.common.filesystem.FileLinkUtilities;
+import ch.systemsx.cisd.common.filesystem.FileLinkUtilities.FileLinkException;
 import ch.systemsx.cisd.common.process.CallableExecutor;
-import ch.systemsx.cisd.common.utilities.FileLinkUtilities.FileLinkException;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.
