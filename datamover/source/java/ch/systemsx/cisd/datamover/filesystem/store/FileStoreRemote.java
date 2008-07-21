@@ -229,7 +229,8 @@ public class FileStoreRemote extends AbstractFileStore
         return constructStoreCopier(destinationDirectory, requiresDeletion);
     }
 
-    public final StatusWithResult<Long> lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final StatusWithResult<Long> lastChanged(final StoreItem item,
+            final long stopWhenFindYounger)
     {
         return lastChanged(item);
     }

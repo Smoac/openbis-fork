@@ -52,11 +52,11 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
      *            time of the item will be terminated and will return with an error.
      */
     public FileStoreRemoteMounted(final HostAwareFileWithHighwaterMark file,
-            final String desription, final IFileSysOperationsFactory factory,
+            final String description, final IFileSysOperationsFactory factory,
             long lastChangedTimeoutMillis)
     {
-        super(file, desription, factory);
-        this.localImpl = new FileStoreLocal(file, desription, factory);
+        super(file, description, factory);
+        this.localImpl = new FileStoreLocal(file, description, factory);
         this.localImplMonitored =
                 MonitoringProxy.create(IFileStore.class, localImpl).timeoutMillis(
                         lastChangedTimeoutMillis).get();

@@ -60,9 +60,9 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
     public FileStoreLocal(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
-            final String desription, final IFileSysOperationsFactory factory)
+            final String description, final IFileSysOperationsFactory factory)
     {
-        super(hostAwareFileWithHighwaterMark, desription, factory);
+        super(hostAwareFileWithHighwaterMark, description, factory);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
