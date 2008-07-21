@@ -16,66 +16,96 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import org.apache.commons.io.FilenameUtils;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Confuguration parameters.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ConfigParameters
 {
-    @Private static final String REFRESH_TIME_INTERVAL = "refresh-time-interval";
-    @Private static final String TARGETS = "targets";
-    @Private static final String LOCATION = "location";
-    @Private static final String DATAMOVERS = "datamovers";
-    @Private static final String WORKING_DIRECTORY = "working-directory";
-    
+    @Private
+    static final String REFRESH_TIME_INTERVAL = "refresh-time-interval";
+
+    @Private
+    static final String TARGETS = "targets";
+
+    @Private
+    static final String LOCATION = "location";
+
+    @Private
+    static final String DATAMOVERS = "datamovers";
+
+    @Private
+    static final String WORKING_DIRECTORY = "working-directory";
+
     private final Map<String, String> targets;
+
     private final Map<String, String> datamoversWorkingDirectories;
+
     private final int refreshTimeInterval;
 
     /**
      * Creates an instance based on the specified properties.
      */
-    public ConfigParameters(Properties properties)
+    public ConfigParameters(final Properties properties)
     {
         refreshTimeInterval = PropertyUtils.getInt(properties, REFRESH_TIME_INTERVAL, 60) * 1000;
-        targets = obtainMapFrom(properties, TARGETS, LOCATION);
-        if (targets.isEmpty())
-        {
-            throw new ConfigurationFailureException("At least one target should be specified.");
-        }
         datamoversWorkingDirectories = obtainMapFrom(properties, DATAMOVERS, WORKING_DIRECTORY);
         if (datamoversWorkingDirectories.isEmpty())
         {
             throw new ConfigurationFailureException("At least one datamover should be specified.");
         }
+        targets = obtainMapFrom(properties, TARGETS, LOCATION);
+        if (targets.isEmpty())
+        {
+            throw new ConfigurationFailureException("At least one target should be specified.");
+        }
     }
-    
+
     public final int getRefreshTimeInterval()
     {
         return refreshTimeInterval;
     }
 
-    private Map<String, String> obtainMapFrom(Properties properties, String name, String valueName)
+    private Map<String, String> obtainMapFrom(final Properties properties, final String name,
+            final String valueName)
     {
-        String keys = PropertyUtils.getMandatoryProperty(properties, name);
-        StringTokenizer tokenizer = new StringTokenizer(keys);
-        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        final String keys = PropertyUtils.getMandatoryProperty(properties, name);
+        final StringTokenizer tokenizer = new StringTokenizer(keys);
+        final LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         while (tokenizer.hasMoreTokens())
         {
-            String key = tokenizer.nextToken();
-            map.put(key, PropertyUtils.getMandatoryProperty(properties, key + "." + valueName));
+            final String key = tokenizer.nextToken();
+            map.put(key, getCanonicalLocation(properties, valueName, key));
         }
         return map;
+    }
+
+    private final String getCanonicalLocation(final Properties properties, final String valueName,
+            final String key)
+    {
+        final String property =
+                PropertyUtils.getMandatoryProperty(properties, key + "." + valueName);
+        final int prefixLength = FilenameUtils.getPrefixLength(property);
+        // Given path is relative
+        if (prefixLength == 0)
+        {
+            return FileUtilities.getCanonicalPath(new File(property));
+        }
+        return property;
     }
 
     /**
