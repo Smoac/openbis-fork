@@ -21,13 +21,13 @@ package ch.systemsx.cisd.common.exceptions;
  * 
  * @author Christian Ribeaud
  */
-public final class HomeGroupUndefinedException extends UserFailureException
+public final class UndefinedGroupException extends UserFailureException
 {
     private static final long serialVersionUID = 1L;
 
     private final static String MESSAGE = "Group not specified, home group unknown";
 
-    public HomeGroupUndefinedException()
+    public UndefinedGroupException()
     {
         super(MESSAGE);
     }
