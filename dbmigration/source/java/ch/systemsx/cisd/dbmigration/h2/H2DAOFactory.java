@@ -27,7 +27,9 @@ import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
 import ch.systemsx.cisd.dbmigration.IDAOFactory;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.IDatabaseVersionLogDAO;
+import ch.systemsx.cisd.dbmigration.IJavaMigrationStepExecutor;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
+import ch.systemsx.cisd.dbmigration.JavaMigrationStepExecutor;
 import ch.systemsx.cisd.dbmigration.SqlScriptExecutor;
 
 /**
@@ -45,18 +47,21 @@ public class H2DAOFactory implements IDAOFactory
 
     private final IMassUploader massUploader;
 
+    private final IJavaMigrationStepExecutor javaMigrationStepExecutor;
+
     /**
      * Creates an instance based on the specified configuration context.
      */
-    public H2DAOFactory(DatabaseConfigurationContext context)
+    public H2DAOFactory(final DatabaseConfigurationContext context)
     {
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
+        javaMigrationStepExecutor = new JavaMigrationStepExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
             massUploader = new H2MassUploader(dataSource, context.getSequenceNameMapper());
-        } catch (SQLException ex)
+        } catch (final SQLException ex)
         {
             throw new CheckedExceptionTunnel(ex);
         }
@@ -83,6 +88,11 @@ public class H2DAOFactory implements IDAOFactory
     public IMassUploader getMassUploader()
     {
         return massUploader;
+    }
+
+    public IJavaMigrationStepExecutor getJavaMigrationStepExecutor()
+    {
+        return javaMigrationStepExecutor;
     }
 
 }

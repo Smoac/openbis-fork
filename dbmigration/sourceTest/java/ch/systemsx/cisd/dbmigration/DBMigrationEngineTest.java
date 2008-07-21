@@ -18,6 +18,7 @@ package ch.systemsx.cisd.dbmigration;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
@@ -55,6 +57,18 @@ public class DBMigrationEngineTest
         {
             will(returnValue(script));
             one(scriptExecutor).execute(script, honorSingleStepMode, logDAO);
+
+        }
+
+        protected void expectSuccessfulScriptExecutionWithMigrationSteps(final Script script,
+                final boolean honorSingleStepMode)
+        {
+            will(returnValue(script));
+            one(javaMigrationStepExecutor).tryPerformPreMigration(script);
+            will(returnValue(Status.OK));
+            one(scriptExecutor).execute(script, honorSingleStepMode, logDAO);
+            one(javaMigrationStepExecutor).tryPerformPostMigration(script);
+            will(returnValue(Status.OK));
         }
     }
 
@@ -70,6 +84,8 @@ public class DBMigrationEngineTest
 
     private ISqlScriptExecutor scriptExecutor;
 
+    private IJavaMigrationStepExecutor javaMigrationStepExecutor;
+
     private BufferedAppender logRecorder;
 
     @BeforeMethod
@@ -81,6 +97,7 @@ public class DBMigrationEngineTest
         adminDAO = context.mock(IDatabaseAdminDAO.class);
         logDAO = context.mock(IDatabaseVersionLogDAO.class);
         scriptExecutor = context.mock(ISqlScriptExecutor.class);
+        javaMigrationStepExecutor = context.mock(IJavaMigrationStepExecutor.class);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
@@ -115,6 +132,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -165,6 +184,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -214,6 +235,9 @@ public class DBMigrationEngineTest
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
 
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
+
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -255,6 +279,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -299,6 +325,9 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -345,6 +374,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(false));
@@ -390,6 +421,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -432,6 +465,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -445,13 +480,15 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseURL();
                     will(returnValue("my database URL"));
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
-                    expectSuccessfulExecution(new Script("m-099-100", "code 099 100", toVersion),
-                            true);
+                    final Script script = new Script("m-099-100", "code 099 100", toVersion);
+                    expectSuccessfulScriptExecutionWithMigrationSteps(script, true);
+
                     one(scriptProvider).tryGetMigrationScript("100", toVersion);
-                    expectSuccessfulExecution(new Script("m-100-101", "code 100 101", toVersion),
-                            true);
+                    expectSuccessfulScriptExecutionWithMigrationSteps(new Script("m-100-101",
+                            "code 100 101", toVersion), true);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
+
                 }
             });
         final DBMigrationEngine migrationEngine =
@@ -464,8 +501,16 @@ public class DBMigrationEngineTest
                 "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                         + "Trying to migrate database 'my 1. database' from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration succesfull."
+                        + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                         + "Successfully migrated from version 099 to 100 in 0 msec"
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
                         + "Successfully migrated from version 100 to 101 in 0 msec"
@@ -474,6 +519,132 @@ public class DBMigrationEngineTest
                         + "Database 'my 2. database' successfully migrated from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Using database 'my database URL'",
+                logContent);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMigrationStepsFailPostMigrationStep()
+    {
+        final String fromVersion = "099";
+        final String toVersion = "101";
+        context.checking(new MyExpectations()
+            {
+                {
+                    one(daoFactory).getDatabaseDAO();
+                    will(returnValue(adminDAO));
+                    one(daoFactory).getDatabaseVersionLogDAO();
+                    will(returnValue(logDAO));
+                    one(daoFactory).getSqlScriptExecutor();
+                    will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
+
+                    one(logDAO).canConnectToDatabase();
+                    will(returnValue(true));
+                    one(logDAO).getLastEntry();
+                    final LogEntry logEntry = new LogEntry();
+                    logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
+                    logEntry.setVersion(fromVersion);
+                    will(returnValue(logEntry));
+                    one(adminDAO).getDatabaseName();
+                    will(returnValue("my 1. database"));
+                    one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
+                    final Script script = new Script("m-099-100", "code 099 100", toVersion);
+
+                    will(returnValue(script));
+
+                    one(javaMigrationStepExecutor).tryPerformPreMigration(script);
+                    will(returnValue(Status.OK));
+                    one(scriptExecutor).execute(script, true, logDAO);
+
+                    one(javaMigrationStepExecutor).tryPerformPostMigration(script);
+                    will(returnValue(Status.createError("Bad system user code.")));
+                }
+            });
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, false);
+
+        boolean exceptionThrown = false;
+        try
+        {
+            migrationEngine.migrateTo(toVersion);
+        } catch (final EnvironmentFailureException e)
+        {
+            exceptionThrown = true;
+            assertEquals(
+                    "Java post-migration finnished with an error status ('Bad system user code.')",
+                    e.getMessage());
+        }
+        assertTrue(exceptionThrown);
+        String logContent = logRecorder.getLogContent();
+        logContent = logContent.replaceAll("\\d+ msec", "0 msec");
+        assertEquals(
+                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "Trying to migrate database 'my 1. database' from version 099 to 101."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration finnished with an error status ('Bad system user code.')",
+                logContent);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMigrationStepsFailPreMigration()
+    {
+        final String fromVersion = "099";
+        final String toVersion = "101";
+        context.checking(new MyExpectations()
+            {
+                {
+                    one(daoFactory).getDatabaseDAO();
+                    will(returnValue(adminDAO));
+                    one(daoFactory).getDatabaseVersionLogDAO();
+                    will(returnValue(logDAO));
+                    one(daoFactory).getSqlScriptExecutor();
+                    will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
+
+                    one(logDAO).canConnectToDatabase();
+                    will(returnValue(true));
+                    one(logDAO).getLastEntry();
+                    final LogEntry logEntry = new LogEntry();
+                    logEntry.setRunStatus(LogEntry.RunStatus.SUCCESS);
+                    logEntry.setVersion(fromVersion);
+                    will(returnValue(logEntry));
+                    one(adminDAO).getDatabaseName();
+                    will(returnValue("my 1. database"));
+                    one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
+                    final Script script = new Script("m-099-100", "code 099 100", toVersion);
+                    will(returnValue(script));
+                    one(javaMigrationStepExecutor).tryPerformPreMigration(script);
+                    will(returnValue(Status.createError("Bad system user code.")));
+                }
+            });
+        final DBMigrationEngine migrationEngine =
+                new DBMigrationEngine(daoFactory, scriptProvider, false);
+        boolean exceptionThrown = false;
+        try
+        {
+            migrationEngine.migrateTo(toVersion);
+        } catch (final EnvironmentFailureException e)
+        {
+            exceptionThrown = true;
+            assertEquals(
+                    "Java pre-migration finnished with an error status ('Bad system user code.')",
+                    e.getMessage());
+        }
+        assertTrue(exceptionThrown);
+        String logContent = logRecorder.getLogContent();
+        logContent = logContent.replaceAll("\\d+ msec", "0 msec");
+        assertEquals(
+                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Trying to migrate database 'my 1. database' from version 099 to 101."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration finnished with an error status ('Bad system user code.')",
                 logContent);
 
         context.assertIsSatisfied();
@@ -493,6 +664,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -545,6 +718,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -588,6 +763,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -633,6 +810,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -682,6 +861,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(adminDAO).dropDatabase();
                     one(logDAO).canConnectToDatabase();
@@ -728,6 +909,8 @@ public class DBMigrationEngineTest
                     will(returnValue(logDAO));
                     one(daoFactory).getSqlScriptExecutor();
                     will(returnValue(scriptExecutor));
+                    one(daoFactory).getJavaMigrationStepExecutor();
+                    will(returnValue(javaMigrationStepExecutor));
 
                     one(logDAO).canConnectToDatabase();
                     will(returnValue(true));
@@ -741,6 +924,8 @@ public class DBMigrationEngineTest
                     one(scriptProvider).tryGetMigrationScript(fromVersion, toVersion);
                     final Script script = new Script("m-1-2", "code", toVersion);
                     will(returnValue(script));
+
+                    one(javaMigrationStepExecutor).tryPerformPreMigration(script);
                     one(scriptExecutor).execute(script, true, logDAO);
                     will(throwException(exception));
                 }

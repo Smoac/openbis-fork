@@ -44,4 +44,9 @@ public interface IDAOFactory
      * Returns the mass uploader used for initial data uploading.
      */
     public IMassUploader getMassUploader();
+
+    /**
+     * FIXME:
+     */
+    public IJavaMigrationStepExecutor getJavaMigrationStepExecutor();
 }
