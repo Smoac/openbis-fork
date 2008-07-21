@@ -24,19 +24,21 @@ import static ch.systemsx.cisd.datamover.console.server.ConfigParameters.WORKING
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
+ * Test cases for corresponding {@link ConfigParameters} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=ConfigParameters.class)
+@Friend(toClasses = ConfigParameters.class)
 public class ConfigParametersTest
 {
     @Test
@@ -51,7 +53,7 @@ public class ConfigParametersTest
             assertEquals("Given key '" + TARGETS + "' not found in properties '[]'", e.getMessage());
         }
     }
-    
+
     @Test
     public void testMissingDatamovers()
     {
@@ -68,7 +70,7 @@ public class ConfigParametersTest
                     + ", 1." + LOCATION + "]'", e.getMessage());
         }
     }
-    
+
     @Test
     public void testEmptyDatamovers()
     {
@@ -82,11 +84,10 @@ public class ConfigParametersTest
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException e)
         {
-            assertEquals("Property '" + DATAMOVERS + "' is an empty string.",
-                    e.getMessage());
+            assertEquals("Property '" + DATAMOVERS + "' is an empty string.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testEmptyTargets()
     {
@@ -99,11 +100,10 @@ public class ConfigParametersTest
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException e)
         {
-            assertEquals("Property '" + TARGETS + "' is an empty string.",
-                    e.getMessage());
+            assertEquals("Property '" + TARGETS + "' is an empty string.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testProperConfigParameters()
     {
@@ -115,12 +115,14 @@ public class ConfigParametersTest
         properties.setProperty("dm1." + WORKING_DIRECTORY, "wd1");
         properties.setProperty("dm2." + WORKING_DIRECTORY, "wd2");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        
+
         assertEquals(60000, configParameters.getRefreshTimeInterval());
         assertEquals("{t1=/target1, t2=/target2}", configParameters.getTargets().toString());
-        assertEquals("{dm1=wd1, dm2=wd2}", configParameters.getDatamoversWorkingDirectories().toString());
+        assertEquals("{dm1=" + FileUtilities.getCanonicalPath(new File("wd1")) + ", dm2="
+                + FileUtilities.getCanonicalPath(new File("wd2")) + "}", configParameters
+                .getDatamoversWorkingDirectories().toString());
     }
-    
+
     @Test
     public void testProperConfigParametersWithRefreshTimeInterval()
     {
@@ -131,7 +133,7 @@ public class ConfigParametersTest
         properties.setProperty(DATAMOVERS, "dm");
         properties.setProperty("dm." + WORKING_DIRECTORY, "wd");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        
+
         assertEquals(10000, configParameters.getRefreshTimeInterval());
     }
 }
