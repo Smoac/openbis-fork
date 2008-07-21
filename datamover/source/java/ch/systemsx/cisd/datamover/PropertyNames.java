@@ -64,7 +64,7 @@ public final class PropertyNames
 
     static final String MAX_RETRIES = "max-retries";
 
-    /** The remote directory to move the data to. */
+    /** The remote directory (or host and directory) to move the data to. */
     static final String OUTGOING_TARGET = "outgoing-target";
 
     static final String PREFIX_FOR_INCOMING = "prefix-for-incoming";
@@ -74,7 +74,7 @@ public final class PropertyNames
     static final String RSYNC_EXECUTABLE = "rsync-executable";
 
     static final String RSYNC_OVERWRITE = "rsync-overwrite";
-    
+
     static final String USE_RSYNC_FOR_EXTRA_COPIES = "use-rsync-for-extra-copies";
 
     static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
