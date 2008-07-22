@@ -58,7 +58,7 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
 
     private final long timeToSleepAfterCopyFails;
 
-    private RsyncCopier rsyncCopier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
+    private final RsyncCopier rsyncCopier;
 
     public interface ILastChangedChecker
     {
@@ -67,13 +67,28 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
 
     public RsyncBasedRecursiveHardLinkMaker()
     {
-        this(DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ERRORS_TO_IGNORE,
+        this(null, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ERRORS_TO_IGNORE,
                 DEFAULT_MAX_ATTEMPTS, DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS);
     }
 
-    public RsyncBasedRecursiveHardLinkMaker(long inactivityThresholdMillis, int maxErrorsToIgnore,
-            int maxAttempts, long timeToSleepAfterCopyFails)
+    public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull)
     {
+        this(rsyncExecutableOrNull, DEFAULT_INACTIVITY_TRESHOLD_MILLIS,
+                DEFAULT_MAX_ERRORS_TO_IGNORE, DEFAULT_MAX_ATTEMPTS,
+                DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS);
+    }
+
+    public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull,
+            long inactivityThresholdMillis, int maxErrorsToIgnore, int maxAttempts,
+            long timeToSleepAfterCopyFails)
+    {
+        if (rsyncExecutableOrNull == null)
+        {
+            rsyncCopier = new RsyncCopier(OSUtilities.findExecutable(RSYNC_EXEC));
+        } else
+        {
+            rsyncCopier = new RsyncCopier(rsyncExecutableOrNull);
+        }
         this.inactivityThresholdMillis = inactivityThresholdMillis;
         this.timeToSleepAfterCopyFails = timeToSleepAfterCopyFails;
         this.maxErrorsToIgnore = maxErrorsToIgnore;
