@@ -280,7 +280,8 @@ public class CrowdAuthenticationServiceTest
 
     private String createLogEntry(final String level, final String message)
     {
-        return level + " OPERATION." + authenticationService.getClass().getName() + " - " + message;
+        return level + " OPERATION." + authenticationService.getClass().getSimpleName() + " - "
+                + message;
     }
 
     private String createXMLElement(final String element, final String content)
