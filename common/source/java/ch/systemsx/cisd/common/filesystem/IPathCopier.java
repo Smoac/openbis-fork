@@ -55,11 +55,14 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param destinationDirectory The directory to use as a destination in the copy operation. It
      *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
      *            will be overwritten.
-     * @param destinationHost The host where the <var>destinationDirectory</var> resides or null if
-     *            it is local.
+     * @param destinationHostOrNull The host where the <var>destinationDirectory</var> resides or
+     *            null if it is local.
+     * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
+     *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHost);
+    Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHostOrNull,
+            String rsyncModuleNameOrNull);
 
     /**
      * Copies <var>sourcePath</var> on <var>sourceHost</var> to <var>destinationDir</var>.
@@ -70,7 +73,18 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param destinationDirectory The directory to use as a destination in the copy operation. It
      *            must be readable and writable. If <var>destinationDir/sourcePath</var> exists, it
      *            will be overwritten.
+     * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
+     *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory);
+    Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
+            String rsyncModuleNameOrNull);
+    
+    
+    /**
+     * Try to connect to this server now and see whether we can list the module.
+     * 
+     * @return <code>true</code> if the connection was successfull and <code>false</code> otherwise. 
+     */
+    boolean checkRsyncConnection(String host, String rsyncModule);
 }

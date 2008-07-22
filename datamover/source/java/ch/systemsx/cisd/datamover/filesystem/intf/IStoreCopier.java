@@ -17,13 +17,14 @@
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 
 /**
  * @author Tomasz Pylak
  */
-public interface IStoreCopier extends ITerminable
+public interface IStoreCopier extends ITerminable, ISelfTestable
 {
     Status copy(StoreItem item);
 }

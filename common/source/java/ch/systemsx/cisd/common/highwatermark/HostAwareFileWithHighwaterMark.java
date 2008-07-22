@@ -51,24 +51,26 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     /**
      * @param hostOrNull the host on which given <var>file</var> is located.
      * @param file the file path.
-     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means
-     *            that the system will not be watching.
+     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
+     *            no rsync server should be used.
+     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
+     *            the system will not be watching.
      */
     public HostAwareFileWithHighwaterMark(final String hostOrNull, final File file,
-            final long highwaterMarkInKb)
+            final String rsyncModuleOrNull, final long highwaterMarkInKb)
     {
-        super(hostOrNull, file);
+        super(hostOrNull, file, rsyncModuleOrNull);
         this.highwaterMarkInKb = highwaterMarkInKb;
     }
 
     /**
      * @param path the file path.
-     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means
-     *            that the system will not be watching.
+     * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
+     *            the system will not be watching.
      */
     public HostAwareFileWithHighwaterMark(final File path, final long highwaterMarkInKb)
     {
-        this(null, path, highwaterMarkInKb);
+        this(null, path, null, highwaterMarkInKb);
     }
 
     /**
@@ -82,15 +84,18 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     /**
      * @param hostOrNull the host on which given <var>file</var> is located.
      * @param path the file path.
+     * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
+     *            no rsync server should be used.
      */
-    public HostAwareFileWithHighwaterMark(final String hostOrNull, final File path)
+    public HostAwareFileWithHighwaterMark(final String hostOrNull, final File path,
+            final String rsyncModuleOrNull)
     {
-        this(hostOrNull, path, DEFAULT_HIGHWATER_MARK);
+        this(hostOrNull, path, rsyncModuleOrNull, DEFAULT_HIGHWATER_MARK);
     }
 
     /**
-     * Instantiates a new <code>FileWithHighwaterMark</code> from given <var>properties</var>.
-     * Some examples:
+     * Instantiates a new <code>FileWithHighwaterMark</code> from given <var>properties</var>. Some
+     * examples:
      * 
      * <pre>
      * &lt;host-file-property-key&gt; = /temp
@@ -111,19 +116,30 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         final String filePath;
         String hostNameOrNull = null;
         final int index = hostFile.indexOf(HOST_FILE_SEP);
+        final String rsyncModuleOrNull;
         if (index > -1)
         {
             hostNameOrNull = hostFile.substring(0, index);
-            filePath = hostFile.substring(index + 1);
+            final int index2 = hostFile.indexOf(HOST_FILE_SEP, index + 1);
+            if (index2 > -1)
+            {
+                rsyncModuleOrNull = hostFile.substring(index + 1, index2);
+                filePath = hostFile.substring(index2 + 1);
+            } else
+            {
+                rsyncModuleOrNull = null;
+                filePath = hostFile.substring(index + 1);
+            }
         } else
         {
+            rsyncModuleOrNull = null;
             filePath = hostFile;
         }
         final long highwaterMarkInKb =
                 PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
                         HIGHWATER_MARK_PROPERTY_KEY), -1L);
         return new HostAwareFileWithHighwaterMark(hostNameOrNull, new File(filePath),
-                highwaterMarkInKb);
+                rsyncModuleOrNull, highwaterMarkInKb);
     }
 
     /**

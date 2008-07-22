@@ -289,7 +289,7 @@ public class FileStoreRemote extends AbstractFileStore
     }
 
     // outgoing and self-test
-    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         final BooleanStatus status = checkDirectoryAccessible(getPathString(), timeOutMillis);
         if (status.isSuccess())
@@ -305,6 +305,11 @@ public class FileStoreRemote extends AbstractFileStore
         {
             return status;
         }
+    }
+
+    public boolean isRemote()
+    {
+        return true;
     }
 
     private String createNoFindUtilMessage()
@@ -465,6 +470,12 @@ public class FileStoreRemote extends AbstractFileStore
     public final String toString()
     {
         final String pathStr = getPathString();
-        return "[remote fs] " + getHost() + ":" + pathStr;
+        if (tryGetRsyncModuleName() != null)
+        {
+            return "[remote fs] " + getHost() + ":" + tryGetRsyncModuleName() + ":" + pathStr;
+        } else
+        {
+            return "[remote fs] " + getHost() + ":" + pathStr;
+        }
     }
 }

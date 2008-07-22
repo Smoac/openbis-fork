@@ -144,4 +144,9 @@ final class LineBasedUserStore implements IUserStore
         lineStore.check();
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
 }

@@ -191,8 +191,13 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     //
-    // IAuthenticationService
+    // ISelfTestable
     //
+
+    public boolean isRemote()
+    {
+        return true;
+    }
 
     public final void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
@@ -215,6 +220,10 @@ public class CrowdAuthenticationService implements IAuthenticationService
             throw new EnvironmentFailureException(ex.getMessage(), ex);
         }
     }
+
+    //
+    // IAuthenticationService
+    //
 
     public final String authenticateApplication()
     {
@@ -401,4 +410,5 @@ public class CrowdAuthenticationService implements IAuthenticationService
         final int index = matcher.start(1);
         return index;
     }
+
 }

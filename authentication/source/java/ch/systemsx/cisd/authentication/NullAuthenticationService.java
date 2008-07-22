@@ -46,4 +46,9 @@ public class NullAuthenticationService implements IAuthenticationService
     {
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
 }

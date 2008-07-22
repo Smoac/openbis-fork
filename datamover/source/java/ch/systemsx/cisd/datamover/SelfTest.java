@@ -35,6 +35,9 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
  */
 public class SelfTest
 {
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, SelfTest.class);
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SelfTest.class);
 
@@ -44,13 +47,34 @@ public class SelfTest
     }
 
     private static void checkPathRecords(final IFileStore[] fileStores)
+            throws ConfigurationFailureException
     {
         assert fileStores != null : "Unspecified file stores";
-        for (final ISelfTestable fileStore : fileStores)
-        {
-            fileStore.check();
-        }
+        checkSelfTestables(fileStores);
         checkPathRecordsContainEachOther(fileStores);
+    }
+
+    private static void checkSelfTestables(final ISelfTestable[] selfTestables)
+    {
+        assert selfTestables != null : "Unspecified self-testables";
+        for (final ISelfTestable selfTestable : selfTestables)
+        {
+            if (selfTestable.isRemote())
+            {
+                try
+                {
+                    selfTestable.check();
+                } catch (ConfigurationFailureException ex)
+                {
+                    notificationLog.error("Self-test failed for self testable '" + selfTestable
+                            + "'. This self-testable  is remote and the resource may become "
+                            + "available later, thus continuing anyway.");
+                }
+            } else
+            {
+                selfTestable.check();
+            }
+        }
     }
 
     private static void checkPathRecordsContainEachOther(final IFileStore[] store)
@@ -75,13 +99,15 @@ public class SelfTest
      * what went wrong. This method performs failure logging of
      * {@link ConfigurationFailureException}s and {@link EnvironmentFailureException}s.
      */
-    public static void check(final IPathCopier copier, final IFileStore... stores)
+    public static void check(final IPathCopier copier, final IFileStore[] stores,
+            final ISelfTestable[] selfTestables)
     {
         try
         {
             copier.check();
             checkPathRecords(stores);
-
+            checkSelfTestables(selfTestables);
+            
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Self test successfully completed.");

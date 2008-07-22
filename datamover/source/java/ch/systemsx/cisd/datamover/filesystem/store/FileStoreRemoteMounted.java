@@ -125,10 +125,10 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         return statusOrNull;
     }
 
-    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         final BooleanStatus statusOrNull =
-                localImplMonitored.tryCheckDirectoryFullyAccessible(timeOutMillis);
+                localImplMonitored.checkDirectoryFullyAccessible(timeOutMillis);
         if (statusOrNull == null)
         {
             return BooleanStatus.createError("Could not determine whether store '" + toString()
@@ -176,6 +176,11 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
     public final HighwaterMarkWatcher getHighwaterMarkWatcher()
     {
         return localImpl.getHighwaterMarkWatcher();
+    }
+
+    public boolean isRemote()
+    {
+        return true;
     }
 
     //

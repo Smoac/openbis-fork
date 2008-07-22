@@ -122,6 +122,11 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
         }
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
     public static void main(String[] args)
     {
         LogInitializer.init();

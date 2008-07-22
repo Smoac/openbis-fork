@@ -51,7 +51,7 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SystemExit.class, Parameters.class })
+    { SystemExit.class, Parameters.class, FileStoreFactory.class })
 public final class ParametersTest extends AbstractFileSystemTestCase
 {
     private ByteArrayOutputStream logRecorder;
@@ -184,6 +184,38 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals(highwaterMark, hostAwareFileWithHighwaterMark.getHighwaterMark());
     }
+
+    public final void testTarget() throws Exception
+    {
+        Parameters parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "dir");
+        HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark =
+            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertNull(hostAwareFileWithHighwaterMark.tryGetHost());
+        assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
+
+        parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:dir");
+        hostAwareFileWithHighwaterMark =
+            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
+        assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
+
+        parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir");
+        hostAwareFileWithHighwaterMark =
+            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
+        assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
+
+        parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir>42");
+        hostAwareFileWithHighwaterMark =
+            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
+        assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
+        assertEquals(42L, hostAwareFileWithHighwaterMark.getHighwaterMark());
+}
 
     private final HostAwareFileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
             final Parameters parameters)
@@ -422,7 +454,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
             return FileStoreFactory.createLocal(file, kind, factory);
         } else
         {
-            return FileStoreFactory.createRemoteHost(file, hostOrNull, kind, factory);
+            return FileStoreFactory.createRemoteHost(file, hostOrNull, null, kind, factory);
         }
     }
 }

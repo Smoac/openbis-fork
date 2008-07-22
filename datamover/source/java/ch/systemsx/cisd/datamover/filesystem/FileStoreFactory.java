@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -67,18 +68,22 @@ public final class FileStoreFactory
     }
 
     /**
-     * use when file store is on a remote share mounted on local host
-     * 
-     * @param factory
+     * <i>For unit tests only!</i>
+     * <p>
+     * Use when file store is on a remote share mounted on local host
      */
+    @Private
     public static final IFileStore createRemoteHost(final File path, final String host,
-            final String kind, final IFileSysOperationsFactory factory)
+            final String rsyncModuleOrNull, final String kind,
+            final IFileSysOperationsFactory factory)
     {
-        return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path), kind, factory, null);
+        return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull),
+                kind, factory, null);
     }
 
     /**
-     * Returns the most convenient <code>IFileStore</code> implementation with given <var>values</var>.
+     * Returns the most convenient <code>IFileStore</code> implementation with given
+     * <var>values</var>.
      * 
      * @param checkIntervalMillis only used if given <var>isRemote</var> is <code>true</code>.
      */

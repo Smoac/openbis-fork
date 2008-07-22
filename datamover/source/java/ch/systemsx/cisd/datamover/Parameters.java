@@ -590,8 +590,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist
-     *         are overwritten rather than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist are
+     *         overwritten rather than appended to.
      */
     public final boolean isRsyncOverwrite()
     {
@@ -616,9 +616,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return <code>true</code>, if <code>rsync</code> will be used for creating the extra
-     *         (hard link) copies, <code>false</code> if <code>ln</code> will be called on every
-     *         file individually (which is a lot slower).
+     * @return <code>true</code>, if <code>rsync</code> will be used for creating the extra (hard
+     *         link) copies, <code>false</code> if <code>ln</code> will be called on every file
+     *         individually (which is a lot slower).
      */
     public boolean useRsyncForExtraCopies()
     {
@@ -724,8 +724,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     /**
      * @return The directory where we create an additional copy of incoming data or
-     *         <code>null</code> if it is not specified. Note that this directory needs to be on
-     *         the same file system as {@link #getBufferDirectoryPath}.
+     *         <code>null</code> if it is not specified. Note that this directory needs to be on the
+     *         same file system as {@link #getBufferDirectoryPath}.
      */
     public final File tryGetExtraCopyDir()
     {
@@ -905,10 +905,21 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             final File file;
             final int hostFileIndex = value.indexOf(HostAwareFileWithHighwaterMark.HOST_FILE_SEP);
             final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
+            String rsyncModuleOrNull = null;
             if (hostFileIndex > -1 && fileHWMIndex > -1)
             {
                 host = value.substring(0, hostFileIndex);
-                file = new File(value.substring(hostFileIndex + 1, fileHWMIndex));
+                final int rsyncModuleIndex =
+                        value.indexOf(HostAwareFileWithHighwaterMark.HOST_FILE_SEP,
+                                hostFileIndex + 1);
+                if (rsyncModuleIndex > -1)
+                {
+                    rsyncModuleOrNull = value.substring(hostFileIndex + 1, rsyncModuleIndex);
+                    file = new File(value.substring(rsyncModuleIndex + 1, fileHWMIndex));
+                } else
+                {
+                    file = new File(value.substring(hostFileIndex + 1, fileHWMIndex));
+                }
                 strHighwaterMark = value.substring(fileHWMIndex + 1);
             } else if (hostFileIndex > -1)
             {
@@ -935,7 +946,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                             strHighwaterMark));
                 }
             }
-            setter.addValue(new HostAwareFileWithHighwaterMark(host, file, highwaterMark));
+            setter.addValue(new HostAwareFileWithHighwaterMark(host, file, rsyncModuleOrNull,
+                    highwaterMark));
         }
     }
 

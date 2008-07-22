@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.datamover.filesystem;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.datamover.Main;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
@@ -39,11 +41,15 @@ public final class RemoteMonitoredMoverFactory
      * @param sourceDirectory The directory to move paths from
      * @param destinationDirectory The directory to move paths to.
      * @param parameters The timing parameters used for monitoring and reporting stall situations.
+     * @throws ConfigurationFailureException If the store copier is local and doesn't pass the
+     *             self-test.
      */
     public static final IStoreHandler create(final IFileStore sourceDirectory,
             final IFileStore destinationDirectory, final ITimingParameters parameters)
+            throws ConfigurationFailureException
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
+        Main.addSelfTestable(copier);
         return new RemotePathMover(sourceDirectory, destinationDirectory, copier, parameters);
     }
 }

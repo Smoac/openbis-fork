@@ -28,6 +28,12 @@ public interface ISelfTestable
 {
 
     /**
+     * Returns <code>true</code>, if this self-testable performs remote operations (i.e. requires
+     * network resources.
+     */
+    public boolean isRemote();
+
+    /**
      * Checks this <code>ISelfTestable</code>. Implementations are not supposed to do any failure
      * logging (debug logging is OK), but the caller is in charge of this.
      * 

@@ -38,6 +38,6 @@ public final class RemoteFreeSpaceProviderTest
         final RemoteFreeSpaceProvider freeSpaceProvider =
                 new RemoteFreeSpaceProvider(sshCmdBuilder);
         System.out.println(freeSpaceProvider.freeSpaceKb(new HostAwareFile("fake-host-name",
-                new File("/"))));
+                new File("/"), null)));
     }
 }

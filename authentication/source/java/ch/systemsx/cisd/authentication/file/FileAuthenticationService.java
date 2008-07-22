@@ -116,4 +116,9 @@ public class FileAuthenticationService implements IAuthenticationService
         userStore.check();
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
 }

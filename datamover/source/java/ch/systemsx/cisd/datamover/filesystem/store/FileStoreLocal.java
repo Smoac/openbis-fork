@@ -88,13 +88,14 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         return BooleanStatus.createFromBoolean(exists);
     }
 
-    public final StatusWithResult<Long> lastChanged(final StoreItem item, final long stopWhenFindYounger)
+    public final StatusWithResult<Long> lastChanged(final StoreItem item,
+            final long stopWhenFindYounger)
     {
         try
         {
             long lastChanged =
                     FileUtilities.lastChanged(getChildFile(item), true, stopWhenFindYounger);
-            return StatusWithResult.<Long>create(lastChanged);
+            return StatusWithResult.<Long> create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
@@ -109,7 +110,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             long lastChanged =
                     FileUtilities.lastChangedRelative(getChildFile(item), true,
                             stopWhenFindYoungerRelative);
-            return StatusWithResult.<Long>create(lastChanged);
+            return StatusWithResult.<Long> create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
             return createLastChangedError(item, ex);
@@ -122,10 +123,10 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         String errorMsg =
                 String.format("Could not determine \"last changed time\" of %s: %s", item, ex
                         .getCause());
-        return StatusWithResult.<Long>createError(errorMsg);
+        return StatusWithResult.<Long> createError(errorMsg);
     }
 
-    public final BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis)
+    public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         final boolean available =
                 FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
@@ -149,6 +150,11 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         {
             return BooleanStatus.createTrue();
         }
+    }
+
+    public boolean isRemote()
+    {
+        return false;
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
@@ -278,7 +284,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     }
 
     //
-    // FileStore
+    // Object
     //
 
     @Override
@@ -287,4 +293,5 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         final String pathStr = getPath().getPath();
         return "[local fs] " + pathStr;
     }
+
 }

@@ -178,7 +178,7 @@ public final class RemotePathMover implements IStoreHandler
     {
         final BooleanStatus status =
                 destinationDirectory
-                        .tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                        .checkDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (status.isSuccess() == false)
         {
             conditionalLogger.log(LogLevel.ERROR, status.tryGetMessage());

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.highwatermark;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -90,8 +91,26 @@ public final class HostAwareFileWithHighwaterMarkTest
                 + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "123");
         final HostAwareFileWithHighwaterMark fileWithHighwaterMark =
                 HostAwareFileWithHighwaterMark.fromProperties(properties, key);
-        assertEquals(fileWithHighwaterMark.getHighwaterMark(), 123L);
-        assertEquals(fileWithHighwaterMark.tryGetHost(), "localhost");
-        assertEquals(fileWithHighwaterMark.getFile(), new File("/my/path"));
+        assertEquals(123L, fileWithHighwaterMark.getHighwaterMark());
+        assertEquals("localhost", fileWithHighwaterMark.tryGetHost());
+        assertNull(fileWithHighwaterMark.tryGetRsyncModule());
+        assertEquals(new File("/my/path"), fileWithHighwaterMark.getFile());
+    }
+
+    @Test
+    public final void testFromPropertiesWithHostAndRsyncModule()
+    {
+        final Properties properties = new Properties();
+        final String hostFilePath = "localhost:my_module:/my/path";
+        final String key = "key";
+        properties.setProperty(key, hostFilePath);
+        properties.setProperty(key + HostAwareFileWithHighwaterMark.SEP
+                + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "123");
+        final HostAwareFileWithHighwaterMark fileWithHighwaterMark =
+                HostAwareFileWithHighwaterMark.fromProperties(properties, key);
+        assertEquals(123L, fileWithHighwaterMark.getHighwaterMark());
+        assertEquals("localhost", fileWithHighwaterMark.tryGetHost());
+        assertEquals("my_module", fileWithHighwaterMark.tryGetRsyncModule());
+        assertEquals(new File("/my/path"), fileWithHighwaterMark.getFile());
     }
 }

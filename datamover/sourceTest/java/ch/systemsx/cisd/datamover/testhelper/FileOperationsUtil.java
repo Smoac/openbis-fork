@@ -25,7 +25,7 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  */
 public class FileOperationsUtil
 {
-    public final static IFileSysOperationsFactory createTestFatory()
+    public final static IFileSysOperationsFactory createTestFactory()
     {
         return new FileSysOperationsFactory(createDummyFileSysParameters());
     }

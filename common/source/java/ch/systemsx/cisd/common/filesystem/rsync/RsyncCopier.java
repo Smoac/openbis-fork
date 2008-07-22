@@ -56,14 +56,13 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
      */
     @Private
-    static final Status TERMINATED_STATUS =
-            Status.createRetriableError("Process was terminated.");
+    static final Status TERMINATED_STATUS = Status.createRetriableError("Process was terminated.");
 
     private static final Status INTERRUPTED_STATUS =
-        Status.createRetriableError("Process was interrupted.");
+            Status.createRetriableError("Process was interrupted.");
 
     private static final Status TIMEOUT_STATUS =
-        Status.createRetriableError("Process has stopped because of timeout.");
+            Status.createRetriableError("Process has stopped because of timeout.");
 
     private final String rsyncExecutable;
 
@@ -147,19 +146,19 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     public final Status copy(final File sourcePath, final File destinationDirectory)
     {
-        return copy(sourcePath, null, destinationDirectory, null);
+        return copy(sourcePath, null, destinationDirectory, null, null);
     }
 
     public final Status copyFromRemote(final File sourcePath, final String sourceHost,
-            final File destinationDirectory)
+            final File destinationDirectory, String rsyncModuleNameOrNull)
     {
-        return copy(sourcePath, sourceHost, destinationDirectory, null);
+        return copy(sourcePath, sourceHost, destinationDirectory, null, rsyncModuleNameOrNull);
     }
 
     public final Status copyToRemote(final File sourcePath, final File destinationDirectory,
-            final String destinationHost)
+            final String destinationHost, String rsyncModuleNameOrNull)
     {
-        return copy(sourcePath, null, destinationDirectory, destinationHost);
+        return copy(sourcePath, null, destinationDirectory, destinationHost, rsyncModuleNameOrNull);
     }
 
     //
@@ -177,15 +176,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLine =
                 createCommandLineForImmutableCopy(sourceDirectory, createTargetDirectory(
                         sourceDirectory, destinationDirectory, targetNameOrNull));
-        final IProcessHandler processHandler;
-        synchronized (this)
-        {
-            processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
-            rsyncTerminator.set(processHandler);
-        }
-        final ProcessResult processResult = processHandler.getResult();
-        processResult.log();
+        final ProcessResult processResult = runCommand(commandLine);
         return processResult.isOK();
     }
 
@@ -282,8 +273,23 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
+    public boolean checkRsyncConnection(String host, String rsyncModule)
+    {
+        final List<String> commandLineList = new ArrayList<String>();
+        commandLineList.add(rsyncExecutable);
+        commandLineList.add(buildPath(host, new File("/"), rsyncModule, false));
+        final ProcessResult processResult = runCommand(commandLineList);
+        return processResult.isOK();
+    }
+
     private final Status copy(final File sourcePath, final String sourceHostOrNull,
-            final File destinationDirectory, final String destinationHostOrNull)
+            final File destinationDirectory, final String destinationHostOrNull,
+            final String rsyncModuleNameOrNull)
     {
         assert sourcePath != null;
         assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
@@ -293,17 +299,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert sourceHostOrNull == null || destinationHostOrNull == null;
         final List<String> commandLine =
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
-                        destinationHostOrNull);
-        IProcessHandler processHandler;
-        synchronized (this)
-        {
-            processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
-            rsyncTerminator.set(processHandler);
-        }
-        final ProcessResult processResult = processHandler.getResult();
-        processResult.log();
-        return createStatus(processResult);
+                        destinationHostOrNull, rsyncModuleNameOrNull);
+        return createStatus(runCommand(commandLine));
     }
 
     private final String logNonExistent(final File path)
@@ -317,8 +314,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
     }
 
-    private final List<String> createCommandLineForMutableCopy(final File sourcePath,
-            final String sourceHost, final File destinationDirectory, final String destinationHost)
+    @Private
+    final List<String> createCommandLineForMutableCopy(final File sourcePath,
+            final String sourceHost, final File destinationDirectory, final String destinationHost,
+            final String rsyncModuleNameOrNull)
     {
         assert sourcePath != null && (sourceHost != null || sourcePath.exists());
         assert destinationDirectory != null
@@ -338,7 +337,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.add("--append");
         }
-        if (sshExecutable != null && destinationHost != null)
+        if (sshExecutable != null && destinationHost != null && rsyncModuleNameOrNull == null)
         {
             commandLineList.add("--rsh");
             commandLineList.add(getSshExecutableArgument(sshExecutable));
@@ -347,8 +346,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.addAll(additionalCmdLineFlags);
         }
-        commandLineList.add(buildPath(sourceHost, sourcePath, false));
-        commandLineList.add(buildPath(destinationHost, destinationDirectory, true));
+        commandLineList.add(buildPath(sourceHost, sourcePath, rsyncModuleNameOrNull, false));
+        commandLineList.add(buildPath(destinationHost, destinationDirectory, rsyncModuleNameOrNull,
+                true));
 
         return commandLineList;
     }
@@ -365,7 +365,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     private static String buildPath(final String host, final File resource,
-            final boolean isDirectory)
+            final String rsyncModule, final boolean isDirectory)
     {
         if (null == host)
         {
@@ -377,14 +377,20 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             return toUnix(path);
         } else
         {
-            String path = resource.getPath();
+            String sep = "::";
+            String path = rsyncModule;
+            if (path == null)
+            {
+                sep = ":";
+                path = resource.getPath();
+            }
             if (isDirectory)
             {
                 path += File.separator;
             }
             // We must not use the absolute path here because that is the business of the
             // destination host.
-            return host + ":" + toUnix(path);
+            return host + sep + toUnix(path);
         }
     }
 
@@ -429,6 +435,34 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         final boolean retriableError = (flag == StatusFlag.RETRIABLE_ERROR);
         return Status.createError(retriableError, RsyncExitValueTranslator.getMessage(exitValue));
+    }
+
+    private ProcessResult runCommand(final List<String> commandLine)
+    {
+        IProcessHandler processHandler;
+        if (operationLog.isTraceEnabled())
+        {
+            operationLog.trace(String.format("Trying to get lock for running command '%s'",
+                    commandLine));
+        }
+        synchronized (this)
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Running command '%s'", commandLine));
+            }
+            processHandler =
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
+            rsyncTerminator.set(processHandler);
+        }
+        if (operationLog.isTraceEnabled())
+        {
+            operationLog.trace(String.format("Waiting for process of command '%s' to finish.",
+                    commandLine));
+        }
+        final ProcessResult processResult = processHandler.getResult();
+        processResult.log();
+        return processResult;
     }
 
 }

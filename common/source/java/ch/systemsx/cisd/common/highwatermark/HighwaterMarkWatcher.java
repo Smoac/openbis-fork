@@ -201,7 +201,7 @@ public final class HighwaterMarkWatcher implements Runnable
             throw new EnvironmentFailureException(errorMsg);
         }
         return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
-                .getFile(), highwaterMarkInKb), freeSpaceInKb);
+                .getFile(), file.tryGetRsyncModule(), highwaterMarkInKb), freeSpaceInKb);
     }
 
     /**
@@ -324,8 +324,8 @@ public final class HighwaterMarkWatcher implements Runnable
     }
 
     /**
-     * A <code>ChangeListener</code> implementation which informs the administrator when free
-     * space becomes tight or when free space is again "green".
+     * A <code>ChangeListener</code> implementation which informs the administrator when free space
+     * becomes tight or when free space is again "green".
      * 
      * @author Christian Ribeaud
      */

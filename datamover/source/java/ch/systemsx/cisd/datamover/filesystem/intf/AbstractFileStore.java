@@ -21,7 +21,6 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -75,6 +74,11 @@ public abstract class AbstractFileStore implements IFileStore
         return hostAwareFileWithHighwaterMark.tryGetHost();
     }
 
+    protected final String tryGetRsyncModuleName()
+    {
+        return hostAwareFileWithHighwaterMark.tryGetRsyncModule();
+    }
+
     protected final String getDescription()
     {
         return kind;
@@ -92,8 +96,9 @@ public abstract class AbstractFileStore implements IFileStore
     {
         final IPathCopier copier = factory.getCopier(requiresDeletionBeforeCreation);
         final String srcHostOrNull = tryGetHost();
-        final String destHostOrNull = ((AbstractFileStore) destinationDirectory).tryGetHost();
-        final File destPath = ((AbstractFileStore) destinationDirectory).getPath();
+        final AbstractFileStore destinationStore = (AbstractFileStore) destinationDirectory;
+        final String destHostOrNull = destinationStore.tryGetHost();
+        final File destPath = destinationStore.getPath();
         return new IStoreCopier()
             {
                 public Status copy(final StoreItem item)
@@ -106,18 +111,76 @@ public abstract class AbstractFileStore implements IFileStore
                             return copier.copy(srcItem, destPath);
                         } else
                         {
-                            return copier.copyToRemote(srcItem, destPath, destHostOrNull);
+                            return copier.copyToRemote(srcItem, destPath, destHostOrNull,
+                                    destinationStore.tryGetRsyncModuleName());
                         }
                     } else
                     {
                         assert destHostOrNull == null;
-                        return copier.copyFromRemote(srcItem, srcHostOrNull, destPath);
+                        return copier.copyFromRemote(srcItem, srcHostOrNull, destPath,
+                                tryGetRsyncModuleName());
                     }
                 }
 
                 public boolean terminate()
                 {
                     return copier.terminate();
+                }
+
+                public void check() throws ConfigurationFailureException
+                {
+                    if (srcHostOrNull != null && tryGetRsyncModuleName() != null)
+                    {
+                        check(srcHostOrNull, tryGetRsyncModuleName());
+                    }
+                    if (destHostOrNull != null && destinationStore.tryGetRsyncModuleName() != null)
+                    {
+                        check(destHostOrNull, destinationStore.tryGetRsyncModuleName());
+                    }
+                }
+
+                private void check(String host, String rsyncModule)
+                {
+                    final boolean connectionOK = copier.checkRsyncConnection(host, rsyncModule);
+                    if (connectionOK == false)
+                    {
+                        throw new ConfigurationFailureException(String.format(
+                                "Connection to rsync module %s::%s failed", srcHostOrNull,
+                                tryGetRsyncModuleName()));
+                    }
+
+                }
+
+                public boolean isRemote()
+                {
+                    return srcHostOrNull != null || destHostOrNull != null;
+                }
+
+                @Override
+                public String toString()
+                {
+                    String src = describe(AbstractFileStore.this);
+                    String dest = describe(destinationStore);
+                    return "store copier " + src + " -> " + dest;
+                }
+
+                private String describe(AbstractFileStore store)
+                {
+                    String description;
+                    final String hostOrNull = store.tryGetHost();
+                    final String rsyncModuleOrNull = store.tryGetRsyncModuleName();
+                    if (hostOrNull != null)
+                    {
+                        description = hostOrNull;
+                        if (rsyncModuleOrNull != null)
+                        {
+                            description += "::" + rsyncModuleOrNull;
+                        }
+                    } else
+                    {
+                        description = "local";
+                    }
+                    return description;
                 }
             };
     }
@@ -143,7 +206,7 @@ public abstract class AbstractFileStore implements IFileStore
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         final BooleanStatus result =
-                tryCheckDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                checkDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (result.isSuccess() == false)
         {
             throw new ConfigurationFailureException(result.tryGetMessage());

@@ -111,6 +111,86 @@ public final class RsyncCopierTest
         return createRsync("2.6.9", "exit " + exitValue);
     }
 
+    @Test
+    public void testCommandLineForMutableCopyLocal() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, destinationDirectory,
+                        null, null);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
+                .size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyToRemoteSSHTunnel() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final File dstPath = new File("dst");
+        final String host = "hst";
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host, null);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(host + ":dst/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyToRemoteRsyncModule() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final File dstPath = new File("dst");
+        final String host = "hst";
+        final String rsyncModule = "rsmod";
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host,
+                        rsyncModule);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyFromRemoteSSHTunnel() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final String host = "hst";
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, host, destinationDirectory,
+                        null, null);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(host + ":" + sourceDirectory.getPath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
+                .size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyFromRemoteRsyncModule() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final String host = "hst";
+        final String rsyncModule = "rsmod";
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, host, destinationDirectory,
+                        null, rsyncModule);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(host + "::" + rsyncModule, cmdLine.get(cmdLine.size() - 2));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
+                .size() - 1));
+    }
+
     @Test(groups =
         { "requires_unix" })
     public void testRsyncOK() throws IOException, InterruptedException
@@ -118,7 +198,7 @@ public final class RsyncCopierTest
         final File rsyncBinary = createRsync(0);
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, null, false, false);
         final Status status = copier.copy(sourceFile, destinationDirectory);
-        assert Status.OK == status;
+        assertEquals(Status.OK, status);
     }
 
     @Test(groups =

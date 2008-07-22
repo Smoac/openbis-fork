@@ -168,6 +168,11 @@ public class ScriptBasedDatamoverConsole implements IDatamoverConsole
         }
     }
 
+    public boolean isRemote()
+    {
+        return false;
+    }
+
     private ProcessResult execute(String commandName, String... options)
     {
         List<String> command = new ArrayList<String>();

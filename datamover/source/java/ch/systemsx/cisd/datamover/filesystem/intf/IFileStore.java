@@ -53,7 +53,7 @@ public interface IFileStore extends ISelfTestable
      *         <var>directory</var>. In this case nothing can be stated about directory
      *         accessability.
      */
-    public BooleanStatus tryCheckDirectoryFullyAccessible(final long timeOutMillis);
+    public BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis);
 
     /**
      * Checks if the specified store item exists in this file store. This operation can fail, error

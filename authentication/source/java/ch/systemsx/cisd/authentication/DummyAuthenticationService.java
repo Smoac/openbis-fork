@@ -54,4 +54,9 @@ public final class DummyAuthenticationService implements IAuthenticationService
     {
         // Always available.
     }
+
+    public boolean isRemote()
+    {
+        return false;
+    }
 }
