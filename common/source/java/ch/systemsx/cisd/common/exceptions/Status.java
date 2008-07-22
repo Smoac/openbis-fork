@@ -39,12 +39,12 @@ public class Status
      * 
      * @param retriable If <code>true</code>, the error will be marked 'retriable'.
      */
-    public static Status createError(boolean retriable)
+    public static Status createError(final boolean retriable)
     {
         return new Status(getErrorFlag(retriable), "");
     }
 
-    public static Status createError(boolean retriable, String message)
+    public static Status createError(final boolean retriable, final String message)
     {
         assert message != null;
         
@@ -56,14 +56,14 @@ public class Status
         return new Status(StatusFlag.ERROR, "");
     }
     
-    public static Status createError(String message)
+    public static Status createError(final String message)
     {
         assert message != null;
         
         return new Status(StatusFlag.ERROR, message);
     }
     
-    public static Status createError(String messageTemplate, Object ... args)
+    public static Status createError(final String messageTemplate, final Object ... args)
     {
         assert messageTemplate != null;
         
@@ -75,26 +75,26 @@ public class Status
         return new Status(StatusFlag.RETRIABLE_ERROR, "");
     }
 
-    public static Status createRetriableError(String message)
+    public static Status createRetriableError(final String message)
     {
         assert message != null;
         
         return new Status(StatusFlag.RETRIABLE_ERROR, message);
     }
 
-    public static Status createRetriableError(String messageTemplate, Object ... args)
+    public static Status createRetriableError(final String messageTemplate, final Object ... args)
     {
         assert messageTemplate != null;
         
         return new Status(StatusFlag.RETRIABLE_ERROR, String.format(messageTemplate, args));
     }
     
-    protected static StatusFlag getErrorFlag(boolean retriable)
+    protected static StatusFlag getErrorFlag(final boolean retriable)
     {
         return retriable ? StatusFlag.RETRIABLE_ERROR : StatusFlag.ERROR;
     }
     
-    protected Status(StatusFlag flag, String message)
+    protected Status(final StatusFlag flag, final String message)
     {
         assert flag != null;
         assert StatusFlag.OK.equals(flag) || message != null;
@@ -133,7 +133,7 @@ public class Status
     //
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {

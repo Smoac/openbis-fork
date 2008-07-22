@@ -25,6 +25,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,52 +57,6 @@ public final class ClassUtilsTest
         assertSame(IExtendingIA.class, iterator.next());
 
         assertEquals(false, iterator.hasNext());
-    }
-
-    /**
-     * Test method for {@link ch.systemsx.cisd.common.utilities.ClassUtils#getCurrentMethod()}.
-     */
-    @Test
-    public final void testGetCurrentMethod()
-    {
-        assertEquals("testGetCurrentMethod", ClassUtils.getCurrentMethod().getName());
-        // Border cases
-        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(
-                new Object(), new Object()));
-    }
-
-    private final static class SameMethodName
-    {
-
-        public final String getMethodName()
-        {
-            final StackTraceElement[] elements = new Throwable().getStackTrace();
-            return elements[0].getMethodName();
-        }
-
-        public final String getMethodName(final Object one, final Object two)
-        {
-            final StackTraceElement[] elements = new Throwable().getStackTrace();
-            return elements[0].getMethodName();
-        }
-    }
-
-    @Test
-    public final void testGetMethodOnStack()
-    {
-        assertEquals("getMethodOnStack", ClassUtils.getMethodOnStack(0).getName());
-        assertEquals("testGetMethodOnStack", ClassUtils.getMethodOnStack(1).getName());
-        assertNull(ClassUtils.getMethodOnStack(2));
-        privateMethodOnStack();
-    }
-
-    private final void privateMethodOnStack()
-    {
-        // If <code>Class.getDeclaredMethods</code> were used instead of
-        // <code>Class.getDeclaredMethods</code>,
-        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()'
-        // here.
-        assertNull(ClassUtils.getMethodOnStack(1));
     }
 
     @Test
@@ -203,6 +158,14 @@ public final class ClassUtilsTest
         final Object object = new Object();
         ClassUtils.setFieldValue(myExtendedClass, "finalObject", object);
         assertSame(object, myExtendedClass.finalObject);
+    }
+
+    @Test
+    public final void testDescribeMethod()
+    {
+        final Method method = Object.class.getMethods()[0];
+        final String methodDescription = ClassUtils.describeMethod(method);
+        assertEquals("Object.hashCode", methodDescription);
     }
 
     //
