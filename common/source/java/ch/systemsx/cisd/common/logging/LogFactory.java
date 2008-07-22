@@ -37,7 +37,7 @@ public final class LogFactory
      */
     public static String getLoggerName(LogCategory category, Class<?> clazz)
     {
-        return category.name() + "." + clazz.getCanonicalName();
+        return category.name() + "." + clazz.getSimpleName();
     }
 
     /**
