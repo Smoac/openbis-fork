@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -54,6 +55,8 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreRemote.class);
+
+    private static final String NO_SUCH_FILE_OR_DIRECTORY_MSG = "No such file or directory";
 
     private static final long QUICK_SSH_TIMEOUT_MILIS = 15 * 1000;
 
@@ -246,15 +249,8 @@ public class FileStoreRemote extends AbstractFileStore
         if (errMsg == null)
         {
             final String resultLine = result.getOutput().get(0);
-            try
-            {
-                long lastChanged = Long.parseLong(resultLine) * 1000;
-                return StatusWithResult.<Long> create(lastChanged);
-            } catch (final NumberFormatException e)
-            {
-                return createLastChangeError(item, "The result of " + cmd + " on remote host "
-                        + getHost() + "should be a number but was: " + result.getOutput());
-            }
+            final long lastChanged = tryParseLastChangedMillis(resultLine);
+            return StatusWithResult.<Long> create(lastChanged);
         } else
         {
             return createLastChangeError(item, errMsg);
@@ -454,9 +450,33 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (result.isOK() == false)
         {
-            return "ICommand '" + result.getCommandLine() + "' failed with error result "
-                    + result.getExitValue();
+            return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
+                    .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
+                    '\n'));
+        } else if (result.getOutput().size() != 1
+                || tryParseLastChangedMillis(result.getOutput().get(0)) == null)
+        {
+            if (result.getOutput().size() > 0
+                    && result.getOutput().get(0).indexOf(NO_SUCH_FILE_OR_DIRECTORY_MSG) > -1)
+            {
+                return NO_SUCH_FILE_OR_DIRECTORY_MSG;
+            } else
+            {
+                return String.format("Command '%s' failed with output=[%s]", result
+                        .getCommandLine(), StringUtils.join(result.getOutput(), '\n'));
+            }
         } else
+        {
+            return null;
+        }
+    }
+
+    private static Long tryParseLastChangedMillis(String numberStr)
+    {
+        try
+        {
+            return Long.parseLong(numberStr) * 1000;
+        } catch (final NumberFormatException e)
         {
             return null;
         }
