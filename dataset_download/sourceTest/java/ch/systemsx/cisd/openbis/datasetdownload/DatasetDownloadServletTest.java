@@ -65,8 +65,7 @@ public class DatasetDownloadServletTest
     private static final String EXPIRATION_MESSAGE =
             "<html><body>Download session expired.</body></html>";
 
-    private static final String LOGGER_NAME =
-            "OPERATION.ch.systemsx.cisd.openbis.datasetdownload.DatasetDownloadServlet";
+    private static final String LOGGER_NAME = "OPERATION.DatasetDownloadServlet";
 
     private static final String LOG_INFO = "INFO  " + LOGGER_NAME + " - ";
 
