@@ -134,8 +134,15 @@ command=$1
 command="${command#--*}"
 case "$command" in
 	start)
-		echo -n "Starting Datamover "
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -lt 3 ]; then
+      echo "Cannot start Datamover:"
+      printStatus $STATUS
+      exit 100
+    fi
 
+    echo -n "Starting Datamover "
 		shift 1
 		${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
 		if [ $? -eq 0 ]; then
