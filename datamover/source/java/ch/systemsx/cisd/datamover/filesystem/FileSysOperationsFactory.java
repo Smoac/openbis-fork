@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.RsyncBasedRecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -80,7 +81,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public final IDirectoryImmutableCopier getImmutableCopier()
     {
         final File rsyncExecutable = findRsyncExecutable();
-        return new RsyncCopier(rsyncExecutable);
+        return new RsyncBasedRecursiveHardLinkMaker(rsyncExecutable);
     }
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
