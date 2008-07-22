@@ -96,9 +96,10 @@ public final class ProcessResult
         return (exitValue == EXIT_VALUE_OK);
     }
 
-    ProcessResult(final List<String> commandLine, final int processNumber, final ExecutionStatus status,
-            final String startupFailureMessageOrNull, final int exitValue, final List<String> processOutputOrNull,
-            final Logger operationLog, final Logger machineLog)
+    ProcessResult(final List<String> commandLine, final int processNumber,
+            final ExecutionStatus status, final String startupFailureMessageOrNull,
+            final int exitValue, final List<String> processOutputOrNull, final Logger operationLog,
+            final Logger machineLog)
     {
         this.commandLine = commandLine;
         this.commandName = ProcessExecutionHelper.getCommandName(commandLine);
@@ -146,8 +147,8 @@ public final class ProcessResult
     }
 
     /**
-     * Returns <code>true</code> if the output (<code>stdout</code> and <code>stderr</code>)
-     * is available (note that even if it available it may still be empty).
+     * Returns <code>true</code> if the output (<code>stdout</code> and <code>stderr</code>) is
+     * available (note that even if it available it may still be empty).
      */
     public boolean isOutputAvailable()
     {
@@ -155,8 +156,8 @@ public final class ProcessResult
     }
 
     /**
-     * Returns the output of the process (<code>stdout</code> and <code>stderr</code>). If it
-     * not available (see {@link #isOutputAvailable()}, an empty list is returned.
+     * Returns the output of the process (<code>stdout</code> and <code>stderr</code>). If it not
+     * available (see {@link #isOutputAvailable()}, an empty list is returned.
      */
     public List<String> getOutput()
     {
@@ -230,6 +231,7 @@ public final class ProcessResult
 
         if (isOK() == false)
         {
+            logCommandLine(Level.WARN);
             logProcessExitValue(Level.WARN);
             logProcessOutput(Level.WARN);
         } else if (operationLog.isDebugEnabled())
@@ -237,6 +239,12 @@ public final class ProcessResult
             logProcessExitValue(Level.DEBUG);
             logProcessOutput(Level.DEBUG);
         }
+    }
+
+    private void logCommandLine(final Level logLevel)
+    {
+        operationLog.log(logLevel, String.format("P%d-{%s} had command line: %s", processNumber,
+                commandName, getCommandLine()));
     }
 
     private void logProcessExitValue(final Level logLevel)
