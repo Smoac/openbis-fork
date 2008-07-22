@@ -127,7 +127,7 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
         if (currentResult.isError())
         {
             return "Error: Unable to determine the time of write activity on "
-                    + getTargetDescription();
+                    + getTargetDescription() + "\n" + currentResult.tryGetErrorMessage();
         } else
         {
             final String inactivityPeriod =
