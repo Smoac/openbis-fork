@@ -339,7 +339,7 @@ public class FileStoreRemote extends AbstractFileStore
     private boolean checkFindExecutable(final String findExec)
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS, false);
         return result.isOK();
     }
 
@@ -436,13 +436,23 @@ public class FileStoreRemote extends AbstractFileStore
 
     // -----------------------
 
-    private ProcessResult tryExecuteCommandRemotely(final String localCmd, final long timeOutMillis)
+    private ProcessResult tryExecuteCommandRemotely(final String localCmd,
+            final long timeOutMillis)
+    {
+        return tryExecuteCommandRemotely(localCmd, timeOutMillis, true);
+    }
+    
+    private ProcessResult tryExecuteCommandRemotely(final String localCmd,
+            final long timeOutMillis, final boolean logResult)
     {
         final List<String> cmdLine = sshCommandBuilder.createSshCommand(localCmd, getHost());
         final ProcessResult result =
                 ProcessExecutionHelper.run(cmdLine, operationLog, machineLog, timeOutMillis,
                         OutputReadingStrategy.ALWAYS, false);
-        result.log();
+        if (logResult)
+        {
+            result.log();
+        }
         return result;
     }
 
