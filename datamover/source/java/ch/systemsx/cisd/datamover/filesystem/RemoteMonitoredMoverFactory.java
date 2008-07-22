@@ -18,7 +18,6 @@ package ch.systemsx.cisd.datamover.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.IStoreHandler;
-import ch.systemsx.cisd.datamover.Main;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;
@@ -49,7 +48,7 @@ public final class RemoteMonitoredMoverFactory
             throws ConfigurationFailureException
     {
         final IStoreCopier copier = sourceDirectory.getCopier(destinationDirectory);
-        Main.addSelfTestable(copier);
+        FileStoreSelfTestables.addSelfTestable(copier);
         return new RemotePathMover(sourceDirectory, destinationDirectory, copier, parameters);
     }
 }

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.datamover;
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
@@ -33,11 +32,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
+import ch.systemsx.cisd.datamover.filesystem.FileStoreSelfTestables;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -72,8 +71,6 @@ public final class Main
                                 + "'].", e);
                     }
                 };
-
-    private static final List<ISelfTestable> selfTestables = new ArrayList<ISelfTestable>();
 
     private static void initLog()
     {
@@ -125,8 +122,8 @@ public final class Main
                 stores.add(dummyStore);
             }
             final IPathCopier copyProcess = factory.getCopier(false);
-            SelfTest.check(copyProcess, stores.toArray(IFileStore.EMPTY_ARRAY), selfTestables
-                    .toArray(new ISelfTestable[selfTestables.size()]));
+            SelfTest.check(copyProcess, stores.toArray(IFileStore.EMPTY_ARRAY),
+                    FileStoreSelfTestables.getSelfTestables());
         } catch (final HighLevelException e)
         {
             System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
@@ -177,14 +174,6 @@ public final class Main
         return file;
     }
 
-    /**
-     * Adds a self-testable to the list.
-     */
-    public static synchronized void addSelfTestable(ISelfTestable selfTestable)
-    {
-        selfTestables.add(selfTestable);
-    }
-    
     public static void main(final String[] args)
     {
         initLog();
