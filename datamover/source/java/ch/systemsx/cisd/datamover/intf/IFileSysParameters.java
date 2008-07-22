@@ -22,11 +22,6 @@ package ch.systemsx.cisd.datamover.intf;
 public interface IFileSysParameters
 {
     /**
-     * The path to the <code>ln</code> executable file for creating hard links.
-     */
-    String getHardLinkExecutable();
-
-    /**
      * The name of the <code>rsync</code> executable to use for copy operations.
      */
     String getRsyncExecutable();
@@ -43,13 +38,6 @@ public interface IFileSysParameters
      */
     String getSshExecutable();
 
-    /**
-     * @return <code>true</code>, if <code>rsync</code> should be used for creating the
-     *         additional hard link copies, <code>false</code> if <code>ln</code> should be
-     *         called on every file individually (which is a lot slower).
-     */
-    boolean useRsyncForExtraCopies();
-    
     /**
      * @return The time interval to wait after a retriable error has occurred before a new attempt
      *         is made.

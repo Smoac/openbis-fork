@@ -34,11 +34,6 @@ public class FileOperationsUtil
     {
         return new IFileSysParameters()
             {
-                public String getHardLinkExecutable()
-                {
-                    return null;
-                }
-
                 public String getRsyncExecutable()
                 {
                     return null;
@@ -52,11 +47,6 @@ public class FileOperationsUtil
                 public boolean isRsyncOverwrite()
                 {
                     return false;
-                }
-
-                public boolean useRsyncForExtraCopies()
-                {
-                    return true;
                 }
 
                 public long getIntervalToWaitAfterFailure()

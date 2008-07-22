@@ -124,14 +124,6 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testSetLnExecutableLong() throws Exception
-    {
-        final String exec = "/usr/local/bin/ln";
-        final Parameters parameters = parse("--hard-link-executable", exec);
-        assertEquals(exec, parameters.getHardLinkExecutable());
-    }
-
-    @Test
     public void testSetCleansingRegexLong() throws Exception
     {
         final String cleansingRegex = "[0-9]+";
