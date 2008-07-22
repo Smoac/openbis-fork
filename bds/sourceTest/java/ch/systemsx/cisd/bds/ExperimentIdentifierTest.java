@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import org.testng.annotations.Test;
+
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 
 /**
@@ -23,6 +25,7 @@ import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
  * 
  * @author Christian Ribeaud
  */
+@Test
 public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<ExperimentIdentifier>
 {
 
