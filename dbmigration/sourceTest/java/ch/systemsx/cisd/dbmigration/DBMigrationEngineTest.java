@@ -160,11 +160,11 @@ public class DBMigrationEngineTest
                 new DBMigrationEngine(daoFactory, scriptProvider, true);
         migrationEngine.migrateTo(version);
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -208,11 +208,11 @@ public class DBMigrationEngineTest
                 new DBMigrationEngine(daoFactory, scriptProvider, true);
         migrationEngine.migrateTo(version);
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -258,9 +258,9 @@ public class DBMigrationEngineTest
             assertSame(exception, e);
         }
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 1. database' does not exist.", logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -303,9 +303,9 @@ public class DBMigrationEngineTest
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
         migrationEngine.migrateTo(version);
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -352,9 +352,9 @@ public class DBMigrationEngineTest
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(daoFactory, scriptProvider, false);
         migrationEngine.migrateTo(version);
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -400,9 +400,9 @@ public class DBMigrationEngineTest
         {
             assertEquals(message, e.getMessage());
         }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - " + message,
+                + "ERROR OPERATION.DBMigrationEngine - " + message,
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -442,10 +442,10 @@ public class DBMigrationEngineTest
 
         migrationEngine.migrateTo(version);
         assertEquals(
-                "DEBUG OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                "DEBUG OPERATION.DBMigrationEngine - "
                         + "No migration needed for database 'my database'. It has the right version (042)."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Using database 'my database URL'",
+                        + "INFO  OPERATION.DBMigrationEngine - Using database 'my database URL'",
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -498,27 +498,27 @@ public class DBMigrationEngineTest
         String logContent = logRecorder.getLogContent();
         logContent = logContent.replaceAll("\\d+ msec", "0 msec");
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                "INFO  OPERATION.DBMigrationEngine - "
                         + "Trying to migrate database 'my 1. database' from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + "INFO  OPERATION.DBMigrationEngine - Java pre-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration succesfull."
+                        + "INFO  OPERATION.DBMigrationEngine - Java post-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Successfully migrated from version 099 to 100 in 0 msec"
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + "INFO  OPERATION.DBMigrationEngine - Java pre-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration succesfull."
+                        + "INFO  OPERATION.DBMigrationEngine - Java post-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Successfully migrated from version 100 to 101 in 0 msec"
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "INFO  OPERATION.DBMigrationEngine - "
                         + "Database 'my 2. database' successfully migrated from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Using database 'my database URL'",
+                        + "INFO  OPERATION.DBMigrationEngine - Using database 'my database URL'",
                 logContent);
 
         context.assertIsSatisfied();
@@ -581,12 +581,12 @@ public class DBMigrationEngineTest
         String logContent = logRecorder.getLogContent();
         logContent = logContent.replaceAll("\\d+ msec", "0 msec");
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                "INFO  OPERATION.DBMigrationEngine - "
                         + "Trying to migrate database 'my 1. database' from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration succesfull."
+                        + "INFO  OPERATION.DBMigrationEngine - Java pre-migration succesfull."
                         + OSUtilities.LINE_SEPARATOR
-                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java post-migration finnished with an error status ('Bad system user code.')",
+                        + "ERROR OPERATION.DBMigrationEngine - Java post-migration finnished with an error status ('Bad system user code.')",
                 logContent);
 
         context.assertIsSatisfied();
@@ -642,9 +642,9 @@ public class DBMigrationEngineTest
         String logContent = logRecorder.getLogContent();
         logContent = logContent.replaceAll("\\d+ msec", "0 msec");
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Trying to migrate database 'my 1. database' from version 099 to 101."
+                "INFO  OPERATION.DBMigrationEngine - Trying to migrate database 'my 1. database' from version 099 to 101."
                         + OSUtilities.LINE_SEPARATOR
-                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Java pre-migration finnished with an error status ('Bad system user code.')",
+                        + "ERROR OPERATION.DBMigrationEngine - Java pre-migration finnished with an error status ('Bad system user code.')",
                 logContent);
 
         context.assertIsSatisfied();
@@ -695,10 +695,10 @@ public class DBMigrationEngineTest
         {
             assertEquals(errorMessage, e.getMessage());
         }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Trying to migrate database 'my 1. database' from version 099 to 101."
                 + OSUtilities.LINE_SEPARATOR
-                + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                + "ERROR OPERATION.DBMigrationEngine - "
                 + errorMessage, logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -745,7 +745,7 @@ public class DBMigrationEngineTest
         {
             assertEquals(errorMessage, e.getMessage());
         }
-        assertEquals("ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("ERROR OPERATION.DBMigrationEngine - "
                 + errorMessage, logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -785,9 +785,9 @@ public class DBMigrationEngineTest
             assertEquals(message, e.getMessage());
         }
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "ERROR OPERATION.DBMigrationEngine - "
                         + message, logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -835,9 +835,9 @@ public class DBMigrationEngineTest
             assertEquals(message, e.getMessage());
         }
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "ERROR OPERATION.DBMigrationEngine - "
                         + message, logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -886,9 +886,9 @@ public class DBMigrationEngineTest
             assertEquals(message, e.getMessage());
         }
         assertEquals(
-                "INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - Dropping database."
+                "INFO  OPERATION.DBMigrationEngine - Dropping database."
                         + OSUtilities.LINE_SEPARATOR
-                        + "ERROR OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+                        + "ERROR OPERATION.DBMigrationEngine - "
                         + message, logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -941,7 +941,7 @@ public class DBMigrationEngineTest
         {
             assertSame(exception, e);
         }
-        assertEquals("INFO  OPERATION.ch.systemsx.cisd.dbmigration.DBMigrationEngine - "
+        assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Trying to migrate database 'my database' from version 001 to 002.", logRecorder
                 .getLogContent());
 
