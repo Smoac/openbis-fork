@@ -77,8 +77,6 @@ public final class PropertyNames
 
     static final String USE_RSYNC_FOR_EXTRA_COPIES = "use-rsync-for-extra-copies";
 
-    static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-
     static final String SSH_EXECUTABLE = "ssh-executable";
 
     static final String TREAT_INCOMING_AS_REMOTE = "treat-incoming-as-remote";

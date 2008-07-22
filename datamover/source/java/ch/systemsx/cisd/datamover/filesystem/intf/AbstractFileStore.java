@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.DatamoverConstants;
 
 /**
  * The abstract super-class of classes that represent a file store.
@@ -112,13 +113,15 @@ public abstract class AbstractFileStore implements IFileStore
                         } else
                         {
                             return copier.copyToRemote(srcItem, destPath, destHostOrNull,
-                                    destinationStore.tryGetRsyncModuleName());
+                                    destinationStore.tryGetRsyncModuleName(),
+                                    DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
                         }
                     } else
                     {
                         assert destHostOrNull == null;
                         return copier.copyFromRemote(srcItem, srcHostOrNull, destPath,
-                                tryGetRsyncModuleName());
+                                tryGetRsyncModuleName(),
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
                     }
                 }
 
@@ -131,22 +134,24 @@ public abstract class AbstractFileStore implements IFileStore
                 {
                     if (srcHostOrNull != null && tryGetRsyncModuleName() != null)
                     {
-                        check(srcHostOrNull, tryGetRsyncModuleName());
+                        check(srcHostOrNull, tryGetRsyncModuleName(),
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
                     }
                     if (destHostOrNull != null && destinationStore.tryGetRsyncModuleName() != null)
                     {
-                        check(destHostOrNull, destinationStore.tryGetRsyncModuleName());
+                        check(destHostOrNull, destinationStore.tryGetRsyncModuleName(),
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
                     }
                 }
 
-                private void check(String host, String rsyncModule)
+                private void check(String host, String rsyncModule, String rsyncPasswordFileOrNull)
                 {
-                    final boolean connectionOK = copier.checkRsyncConnection(host, rsyncModule);
+                    final boolean connectionOK =
+                            copier.checkRsyncConnection(host, rsyncModule, rsyncPasswordFileOrNull);
                     if (connectionOK == false)
                     {
                         throw new ConfigurationFailureException(String.format(
-                                "Connection to rsync module %s::%s failed", srcHostOrNull,
-                                tryGetRsyncModuleName()));
+                                "Connection to rsync module %s::%s failed", host, rsyncModule));
                     }
 
                 }

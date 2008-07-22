@@ -146,19 +146,23 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     public final Status copy(final File sourcePath, final File destinationDirectory)
     {
-        return copy(sourcePath, null, destinationDirectory, null, null);
+        return copy(sourcePath, null, destinationDirectory, null, null, null);
     }
 
     public final Status copyFromRemote(final File sourcePath, final String sourceHost,
-            final File destinationDirectory, String rsyncModuleNameOrNull)
+            final File destinationDirectory, String rsyncModuleNameOrNull,
+            String rsyncPasswordFileOrNull)
     {
-        return copy(sourcePath, sourceHost, destinationDirectory, null, rsyncModuleNameOrNull);
+        return copy(sourcePath, sourceHost, destinationDirectory, null, rsyncModuleNameOrNull,
+                rsyncPasswordFileOrNull);
     }
 
     public final Status copyToRemote(final File sourcePath, final File destinationDirectory,
-            final String destinationHost, String rsyncModuleNameOrNull)
+            final String destinationHost, String rsyncModuleNameOrNull,
+            String rsyncPasswordFileOrNull)
     {
-        return copy(sourcePath, null, destinationDirectory, destinationHost, rsyncModuleNameOrNull);
+        return copy(sourcePath, null, destinationDirectory, destinationHost, rsyncModuleNameOrNull,
+                rsyncPasswordFileOrNull);
     }
 
     //
@@ -278,10 +282,16 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return false;
     }
 
-    public boolean checkRsyncConnection(String host, String rsyncModule)
+    public boolean checkRsyncConnection(String host, String rsyncModule,
+            String rsyncPasswordFileOrNull)
     {
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
+        if (rsyncPasswordFileOrNull != null && new File(rsyncPasswordFileOrNull).exists())
+        {
+            commandLineList.add("--password-file");
+            commandLineList.add(rsyncPasswordFileOrNull);
+        }
         commandLineList.add(buildPath(host, new File("/"), rsyncModule, false));
         final ProcessResult processResult = runCommand(commandLineList);
         return processResult.isOK();
@@ -289,7 +299,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final Status copy(final File sourcePath, final String sourceHostOrNull,
             final File destinationDirectory, final String destinationHostOrNull,
-            final String rsyncModuleNameOrNull)
+            final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull)
     {
         assert sourcePath != null;
         assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
@@ -299,7 +309,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert sourceHostOrNull == null || destinationHostOrNull == null;
         final List<String> commandLine =
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
-                        destinationHostOrNull, rsyncModuleNameOrNull);
+                        destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull);
         return createStatus(runCommand(commandLine));
     }
 
@@ -317,7 +327,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     @Private
     final List<String> createCommandLineForMutableCopy(final File sourcePath,
             final String sourceHost, final File destinationDirectory, final String destinationHost,
-            final String rsyncModuleNameOrNull)
+            final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull)
     {
         assert sourcePath != null && (sourceHost != null || sourcePath.exists());
         assert destinationDirectory != null
@@ -341,6 +351,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.add("--rsh");
             commandLineList.add(getSshExecutableArgument(sshExecutable));
+        }
+        if (rsyncModuleNameOrNull != null && rsyncPasswordFileOrNull != null
+                && new File(rsyncPasswordFileOrNull).exists())
+        {
+            commandLineList.add("--password-file");
+            commandLineList.add(rsyncPasswordFileOrNull);
         }
         if (additionalCmdLineFlags != null)
         {

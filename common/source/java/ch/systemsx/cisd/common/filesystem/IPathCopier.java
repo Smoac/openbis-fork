@@ -59,10 +59,13 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            null if it is local.
      * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
      *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
+     * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
+     *            used. May be <code>null</code> or the name of a non-existent file, in which case
+     *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHostOrNull,
-            String rsyncModuleNameOrNull);
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
      * Copies <var>sourcePath</var> on <var>sourceHost</var> to <var>destinationDir</var>.
@@ -75,16 +78,18 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            will be overwritten.
      * @param rsyncModuleNameOrNull The name of the rsync module to use in the rsync protocol, or
      *            <code>null</code>, if the bulk transfer should be using an ssh tunnel.
+     * @param rsyncPasswordFileOrNull The name of the password file to use if an rsync server is
+     *            used. May be <code>null</code> or the name of a non-existent file, in which case
+     *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
     Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
-            String rsyncModuleNameOrNull);
-    
-    
+            String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
+
     /**
      * Try to connect to this server now and see whether we can list the module.
      * 
-     * @return <code>true</code> if the connection was successfull and <code>false</code> otherwise. 
+     * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
      */
-    boolean checkRsyncConnection(String host, String rsyncModule);
+    boolean checkRsyncConnection(String host, String rsyncModule, String rsyncPassworFileOrNull);
 }

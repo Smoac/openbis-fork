@@ -105,13 +105,15 @@ public class SelfTestTest
                 }
 
                 public Status copyFromRemote(File sourcePath, String sourceHost,
-                        File destinationDirectory, String rsyncModuleNameOrNull)
+                        File destinationDirectory, String rsyncModuleNameOrNull,
+                        String rsyncPasswordFileOrNull)
                 {
                     throw new AssertionError();
                 }
 
                 public Status copyToRemote(File sourcePath, File destinationDirectory,
-                        String destinationHostOrNull, String rsyncModuleNameOrNull)
+                        String destinationHostOrNull, String rsyncModuleNameOrNull,
+                        String rsyncPasswordFileOrNull)
                 {
                     throw new AssertionError();
                 }
@@ -131,7 +133,8 @@ public class SelfTestTest
                     return false;
                 }
 
-                public boolean checkRsyncConnection(String host, String rsyncModule)
+                public boolean checkRsyncConnection(String host, String rsyncModule,
+                        String rsyncPassworFileOrNull)
                 {
                     throw new AssertionError();
                 }

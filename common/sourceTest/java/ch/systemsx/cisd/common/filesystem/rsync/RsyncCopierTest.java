@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -112,18 +113,16 @@ public final class RsyncCopierTest
     }
 
     @Test
-    public void testCommandLineForMutableCopyLocal() throws IOException,
-            InterruptedException
+    public void testCommandLineForMutableCopyLocal() throws IOException, InterruptedException
     {
         final File rsyncBinary = createRsync(0);
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
         final List<String> cmdLine =
                 copier.createCommandLineForMutableCopy(sourceDirectory, null, destinationDirectory,
-                        null, null);
+                        null, null, null);
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
-        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
-                .size() - 1));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
     }
 
     @Test
@@ -135,7 +134,8 @@ public final class RsyncCopierTest
         final String host = "hst";
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
         final List<String> cmdLine =
-                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host, null);
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host, null,
+                        null);
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + ":dst/", cmdLine.get(cmdLine.size() - 1));
@@ -152,8 +152,52 @@ public final class RsyncCopierTest
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
         final List<String> cmdLine =
                 copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host,
-                        rsyncModule);
+                        rsyncModule, null);
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyToRemoteRsyncModuleWithPwFile() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final File dstPath = new File("dst");
+        final String host = "hst";
+        final String rsyncModule = "rsmod";
+        final File pwFile = new File(workingDirectory, "rsync.pwd");
+        FileUtils.touch(pwFile);
+        pwFile.deleteOnExit();
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host,
+                        rsyncModule, pwFile.getPath());
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals("--password-file", cmdLine.get(cmdLine.size() - 4));
+        assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyToRemoteRsyncModuleWithNonExistentPwFile()
+            throws IOException, InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final File dstPath = new File("dst");
+        final String host = "hst";
+        final String rsyncModule = "rsmod";
+        final File pwFile = new File(workingDirectory, "rsync.pwd");
+        pwFile.delete();
+        assertFalse(pwFile.exists());
+        final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, dstPath, host,
+                        rsyncModule, pwFile.getPath());
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertFalse("--password-file".equals(cmdLine.get(cmdLine.size() - 4)));
+        assertFalse((workingDirectory + "/rsync.pwd").equals(cmdLine.get(cmdLine.size() - 3)));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(host + "::" + rsyncModule + "/", cmdLine.get(cmdLine.size() - 1));
     }
@@ -167,11 +211,10 @@ public final class RsyncCopierTest
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
         final List<String> cmdLine =
                 copier.createCommandLineForMutableCopy(sourceDirectory, host, destinationDirectory,
-                        null, null);
+                        null, null, null);
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(host + ":" + sourceDirectory.getPath(), cmdLine.get(cmdLine.size() - 2));
-        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
-                .size() - 1));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
     }
 
     @Test
@@ -181,14 +224,18 @@ public final class RsyncCopierTest
         final File rsyncBinary = createRsync(0);
         final String host = "hst";
         final String rsyncModule = "rsmod";
+        final File pwFile = new File(workingDirectory, "rsync.pwd");
+        FileUtils.touch(pwFile);
+        pwFile.deleteOnExit();
         final RsyncCopier copier = new RsyncCopier(rsyncBinary, rsyncBinary, false, false);
         final List<String> cmdLine =
                 copier.createCommandLineForMutableCopy(sourceDirectory, host, destinationDirectory,
-                        null, rsyncModule);
+                        null, rsyncModule, pwFile.getPath());
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals("--password-file", cmdLine.get(cmdLine.size() - 4));
+        assertEquals(workingDirectory + "/rsync.pwd", cmdLine.get(cmdLine.size() - 3));
         assertEquals(host + "::" + rsyncModule, cmdLine.get(cmdLine.size() - 2));
-        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine
-                .size() - 1));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
     }
 
     @Test(groups =

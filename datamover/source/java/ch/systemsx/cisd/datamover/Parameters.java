@@ -552,7 +552,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         final Properties properties = new Properties();
         try
         {
-            final InputStream is = new FileInputStream(PropertyNames.SERVICE_PROPERTIES_FILE);
+            final InputStream is = new FileInputStream(DatamoverConstants.SERVICE_PROPERTIES_FILE);
             try
             {
                 properties.load(is);
@@ -565,7 +565,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         {
             final String msg =
                     "Could not load the service properties from resource '"
-                            + PropertyNames.SERVICE_PROPERTIES_FILE + "'.";
+                            + DatamoverConstants.SERVICE_PROPERTIES_FILE + "'.";
             operationLog.warn(msg, ex);
             throw new ConfigurationFailureException(msg, ex);
         }
