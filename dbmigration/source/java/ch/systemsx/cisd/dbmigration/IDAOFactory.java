@@ -46,7 +46,7 @@ public interface IDAOFactory
     public IMassUploader getMassUploader();
 
     /**
-     * FIXME:
+     * Returns the java migration step executor.
      */
     public IJavaMigrationStepExecutor getJavaMigrationStepExecutor();
 }
