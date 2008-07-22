@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.datamover.filesystem.remote;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractCopyActivitySensor;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -30,6 +34,9 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
  */
 public class RemoteStoreCopyActivitySensor extends AbstractCopyActivitySensor
 {
+    private final static Logger machineLog =
+        LogFactory.getLogger(LogCategory.MACHINE, RemoteStoreCopyActivitySensor.class);
+
     private final IFileStore destinationStore;
 
     private final StoreItem copyItem;
@@ -59,6 +66,12 @@ public class RemoteStoreCopyActivitySensor extends AbstractCopyActivitySensor
     protected String getTargetDescription()
     {
         return String.format("item '%s' in store '%s'", copyItem, destinationStore);
+    }
+
+    @Override
+    protected Logger getMachineLog()
+    {
+        return machineLog;
     }
 
 }

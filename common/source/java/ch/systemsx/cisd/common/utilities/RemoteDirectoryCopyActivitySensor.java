@@ -18,9 +18,13 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A {@link IActivitySensor} that senses changes in copy operations to a directory.
@@ -29,6 +33,9 @@ import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
  */
 public final class RemoteDirectoryCopyActivitySensor extends AbstractCopyActivitySensor
 {
+    private final static Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, RemoteDirectoryCopyActivitySensor.class);
+
     private final File target;
 
     public RemoteDirectoryCopyActivitySensor(File target)
@@ -53,7 +60,7 @@ public final class RemoteDirectoryCopyActivitySensor extends AbstractCopyActivit
             return StatusWithResult.create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
-            return StatusWithResult.<Long>createError("Cannot determine time of last change of "
+            return StatusWithResult.<Long> createError("Cannot determine time of last change of "
                     + getTargetDescription());
         }
     }
@@ -62,6 +69,12 @@ public final class RemoteDirectoryCopyActivitySensor extends AbstractCopyActivit
     protected String getTargetDescription()
     {
         return String.format("target '%s'", target);
+    }
+
+    @Override
+    protected Logger getMachineLog()
+    {
+        return machineLog;
     }
 
 }

@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A super class for {@link IActivitySensor}s that sense changes in some sort of copy operation to
@@ -33,9 +31,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public abstract class AbstractCopyActivitySensor implements IActivitySensor
 {
-    protected static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, AbstractCopyActivitySensor.class);
-
     protected static final int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
 
     protected final int maxErrorsToIgnore;
@@ -77,6 +72,11 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
      * Returns a textual description of the target.
      */
     protected abstract String getTargetDescription();
+    
+    /**
+     * Returns the machine log for the concrete implementation.
+     */
+    protected abstract Logger getMachineLog();
 
     //
     // IActivitySensor
@@ -92,13 +92,13 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
             if (errorCount <= maxErrorsToIgnore)
             {
                 timeOfLastReportedActivity = now;
-                machineLog.error(describeInactivity(now)
+                getMachineLog().error(describeInactivity(now)
                         + String.format(" (error count: %d <= %d, goes unreported)", errorCount,
                                 maxErrorsToIgnore));
             } else
             {
-                machineLog.error(describeInactivity(now)
-                        + " (error count: %s, reported to monitor)");
+                getMachineLog().error(describeInactivity(now)
+                        + String.format(" (error count: %s, reported to monitor)", errorCount));
             }
         } else
         {
@@ -106,9 +106,9 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
             {
                 timeOfLastConfirmedActivity = now;
                 lastNonErrorResult = currentResult.tryGetResult();
-                if (machineLog.isDebugEnabled())
+                if (getMachineLog().isDebugEnabled())
                 {
-                    machineLog.debug("Observing write activity on " + getTargetDescription());
+                    getMachineLog().debug("Observing write activity on " + getTargetDescription());
                 }
             }
             // Implementation note: This means we can report an older time of activity than what we
