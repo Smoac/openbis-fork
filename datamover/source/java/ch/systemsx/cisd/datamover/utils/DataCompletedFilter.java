@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.datamover.DatamoverConstants;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.StoreItemLocation;
 
@@ -56,6 +57,11 @@ public class DataCompletedFilter implements IStoreItemFilter
 
     private final static Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DataCompletedFilter.class);
+
+    private final ConditionalNotificationLogger conditionalNotificationLog =
+        new ConditionalNotificationLogger(operationLog, notificationLog,
+                DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
+
 
     private final IFileStore fileStore;
 
@@ -156,13 +162,11 @@ public class DataCompletedFilter implements IStoreItemFilter
                                     describeProcessResult(result), commandLine);
             if (ok)
             {
-                if (notificationLog.isInfoEnabled())
-                {
-                    notificationLog.info(message);
-                }
+                conditionalNotificationLog.reset(null);
+                conditionalNotificationLog.log(LogLevel.INFO, message);
             } else
             {
-                notificationLog.error(message);
+                conditionalNotificationLog.log(LogLevel.ERROR, message);
             }
             result.log();
             lastProcessResult = result;

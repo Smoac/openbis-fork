@@ -48,7 +48,6 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -100,8 +99,6 @@ public final class IncomingProcessorTest
 
     private File incomingDir;
 
-    private IExitHandler exitHandler;
-
     private File copyInProgressDir;
 
     private File copyCompleteDir;
@@ -139,7 +136,6 @@ public final class IncomingProcessorTest
         fileSysOpertationFactory = context.mock(IFileSysOperationsFactory.class);
         mover = context.mock(IPathMover.class);
         remover = context.mock(IPathRemover.class);
-        exitHandler = context.mock(IExitHandler.class);
 
         FileUtilities.deleteRecursively(TEST_FOLDER);
         TEST_FOLDER.mkdirs();
@@ -253,10 +249,10 @@ public final class IncomingProcessorTest
         final DataMoverProcess process =
                 createProcess("--" + PropertyNames.INCOMING_TARGET, incomingDir.toString(), "-q",
                         "1", "--" + PropertyNames.DATA_COMPLETED_SCRIPT, exampleScript.toString());
-        final LogMonitoringAppender notifyAppender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+        final LogMonitoringAppender operationAppender1 =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         "Processing status of data completed script has changed");
-        final LogMonitoringAppender operationAppender =
+        final LogMonitoringAppender operationAppender2 =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, "Running command",
                         "process returned with exit value 0");
 
@@ -265,8 +261,8 @@ public final class IncomingProcessorTest
         assertFalse(errorMarker.exists());
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
         assertFalse(errorMarker.exists());
-        notifyAppender.verifyLogHasHappened();
-        operationAppender.verifyLogHasHappened();
+        operationAppender1.verifyLogHasHappened();
+        operationAppender2.verifyLogHasHappened();
 
         logRecorder.resetLogContent();
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
@@ -295,21 +291,21 @@ public final class IncomingProcessorTest
         final TimerTask dataMoverTimerTask = getInstrumentedTimerTaskFrom(process);
         dataMoverTimerTask.run(); // 1. round finds a file to process
         dataMoverTimerTask.run(); // 2. round finds that quiet period is over
-        final LogMonitoringAppender notifyAppender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
+        final LogMonitoringAppender operationAppender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
                         "Processing status of data completed script has changed");
 
         logRecorder.resetLogContent();
         dataMoverTimerTask.run(); // 3. round does not change status, thus no log
         assertEquals("", logRecorder.getLogContent());
-        notifyAppender.verifyLogHasNotHappened();
+        operationAppender.verifyLogHasNotHappened();
 
         logRecorder.resetLogContent();
-        notifyAppender.reset();
+        operationAppender.reset();
         TEST_FILE.createNewFile();
         dataMoverTimerTask.run(); // 4. round finds changed status, thus log
         assertTrue(logRecorder.getLogContent().length() > 0);
-        notifyAppender.verifyLogHasHappened();
+        operationAppender.verifyLogHasHappened();
 
         context.assertIsSatisfied();
     }
@@ -341,7 +337,7 @@ public final class IncomingProcessorTest
 
     private DataMoverProcess createProcess(final String... args)
     {
-        final Parameters parameters = new Parameters(args, exitHandler);
+        final Parameters parameters = new Parameters(args);
         final LocalBufferDirs localBufferDirs =
                 new LocalBufferDirs(new HostAwareFileWithHighwaterMark(TEST_FOLDER),
                         COPY_IN_PROGRESS_DIR, COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
