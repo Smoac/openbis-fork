@@ -102,14 +102,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
-        final StatusWithResult<Long> statusOrNull =
-                localImplMonitored.lastChanged(item, stopWhenFindYounger);
-        if (statusOrNull == null)
-        {
-            return StatusWithResult.<Long> createError(String.format(
-                    "Could not determine \"last changed time\" of %s: time out.", item));
-        }
-        return statusOrNull;
+        return localImplMonitored.lastChanged(item, stopWhenFindYounger);
     }
 
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
