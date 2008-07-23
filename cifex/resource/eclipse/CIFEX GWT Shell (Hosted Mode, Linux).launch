@@ -19,5 +19,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.GWTShell"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-out targets/www ch.systemsx.cisd.cifex.Cifex/index.html"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cifex"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=file:etc/log.xml&#13;-Xmx512M&#13;-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=etc/log.xml&#13;-Xmx512M&#13;-ea"/>
 </launchConfiguration>
