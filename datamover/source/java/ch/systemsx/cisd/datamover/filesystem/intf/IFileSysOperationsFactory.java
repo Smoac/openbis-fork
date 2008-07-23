@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 import java.io.File;
 
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
-import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
+import ch.systemsx.cisd.common.utilities.IImmutableCopier;
 
 /**
  * A role that provides access to the roles which perform file system operations.
@@ -29,7 +29,7 @@ public interface IFileSysOperationsFactory
 {
     public IPathCopier getCopier(boolean requiresDeletionBeforeCreation);
 
-    public IDirectoryImmutableCopier getImmutableCopier();
+    public IImmutableCopier getImmutableCopier();
 
     public IPathRemover getRemover();
 

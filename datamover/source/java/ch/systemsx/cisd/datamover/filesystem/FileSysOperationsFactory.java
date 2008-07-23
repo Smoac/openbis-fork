@@ -23,9 +23,9 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
-import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
+import ch.systemsx.cisd.common.utilities.FastRecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.utilities.IImmutableCopier;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.common.utilities.RsyncBasedRecursiveHardLinkMaker;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -78,10 +78,10 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
                 parameters.getIntervalToWaitAfterFailure());
     }
 
-    public final IDirectoryImmutableCopier getImmutableCopier()
+    public final IImmutableCopier getImmutableCopier()
     {
         final File rsyncExecutable = findRsyncExecutable();
-        return new RsyncBasedRecursiveHardLinkMaker(rsyncExecutable);
+        return FastRecursiveHardLinkMaker.tryCreate(rsyncExecutable);
     }
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)

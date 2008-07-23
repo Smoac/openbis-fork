@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IPathImmutableCopier;
+import ch.systemsx.cisd.common.utilities.IImmutableCopier;
 import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 
 /**
@@ -105,9 +105,9 @@ public class RecursiveHardLinkMakerTest
         assert file.isFile();
     }
 
-    private static IPathImmutableCopier createHardLinkCopier()
+    private static IImmutableCopier createHardLinkCopier()
     {
-        IPathImmutableCopier copier = RecursiveHardLinkMaker.tryCreate();
+        IImmutableCopier copier = RecursiveHardLinkMaker.tryCreate(HardLinkMaker.tryCreate());
         assert copier != null;
         return copier;
     }
@@ -143,7 +143,7 @@ public class RecursiveHardLinkMakerTest
     {
         File inputDir = createDirectory(workingDirectory, "resource-to-copy");
         createStructure(inputDir);
-        assertTrue(createHardLinkCopier().copyDirectoryImmutably(inputDir, outputDir, null));
+        assertTrue(createHardLinkCopier().copyImmutably(inputDir, outputDir, null));
         File newInput = new File(outputDir, inputDir.getName());
 
         assertStructureExists(newInput);
@@ -170,7 +170,7 @@ public class RecursiveHardLinkMakerTest
         File src = createFile(workingDirectory, "fileXXX");
         assertFileExists(src);
 
-        assertTrue(createHardLinkCopier().copyFileImmutably(src, outputDir, null));
+        assertTrue(createHardLinkCopier().copyImmutably(src, outputDir, null));
         File dest = new File(outputDir, src.getName());
         assertFileExists(dest);
 

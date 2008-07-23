@@ -20,32 +20,34 @@ import java.io.File;
 
 /**
  * A role which can perform an immutable copy of a file. <i>Immutable</i> here means, that the
- * copied file must not be changed or else the original file may be changed, too.
+ * copied file must not be changed or else the original file may be changed, too. It is, however,
+ * safe to delete the file. This restrictions allows to use hard links for performing the copy which
+ * can save a lot of disk space.
  * 
  * @author Bernd Rinn
  */
 public interface IFileImmutableCopier
 {
     /**
-     * Creates a copy of the file <code>file</code> (which may be a file or a directory) in
-     * <code>destinationDirectory</code>, which must not be modified later.
+     * Creates an immutable copy of the {@link File} <code>source</code> in
+     * <code>destinationDirectory</code>.
      * <p>
-     * Note that this method don't do any checks about whether paths are files and whether
-     * they exist or not. Use methods like
-     * {@link FileUtilities#checkPathFullyAccessible(File, String)} for checking prior to
-     * calling this method where appropriate.
+     * Note that this method does not perform any checks about whether <var>source</var> exists and
+     * is accessible. Use methods like {@link FileUtilities#checkPathFullyAccessible(File, String)}
+     * for checking prior to calling this method where appropriate.
      * </p>
      * <p>
      * <i>Can use hard links if available.</i>
      * </p>
      * 
-     * @param file The source file. This really has to be a file. Can not be <code>null</code>.
-     * @param destinationDirectory The directory where given <var>path</var> should be copied. Can
+     * @param source The source file. Can not be <code>null</code> or a directory.
+     * @param destinationDirectory The directory where given <var>source</var> should be copied. Can
      *            not be <code>null</code> and must be an existing directory.
-     * @param nameOrNull The link name in the destination directory. If it is <code>null</code>,
-     *            the name of <var>file</var> will be used instead.
-     * @return <code>true</code>, if the file was copied successfully, <code>false</code> otherwise.
+     * @param nameOrNull The link name in the destination file. If it is <code>null</code>, the name
+     *            of <var>source</var> will be used instead.
+     * @return <code>true</code>, if the source file was copied successfully, <code>false</code>
+     *         otherwise.
      */
-    boolean copyFileImmutably(final File file, final File destinationDirectory,
+    boolean copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull);
 }

@@ -18,11 +18,11 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.IFileImmutableCopier;
-import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.utilities.FastRecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.utilities.IImmutableCopier;
 
 /**
- * A provider of {@link IFileImmutableCopier} implementations.
+ * A provider of {@link IImmutableCopier} implementations.
  * 
  * @author Christian Ribeaud
  */
@@ -33,17 +33,17 @@ public final class LinkMakerProvider
 
     private static final int MAX_COPY_RETRIES = 7;
 
-    private static IFileImmutableCopier hardLinkMaker;
+    private static IImmutableCopier hardLinkMaker;
 
     private LinkMakerProvider()
     {
         // This class can not be instantiated.
     }
 
-    private final static IFileImmutableCopier tryCreateHardLinkMaker()
+    private final static IImmutableCopier tryCreateHardLinkMaker()
     {
-        final IFileImmutableCopier copier =
-                RecursiveHardLinkMaker.tryCreateRetrying(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
+        final IImmutableCopier copier =
+                FastRecursiveHardLinkMaker.tryCreate(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
                         MAX_COPY_RETRIES, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
         if (copier != null)
         {
@@ -58,7 +58,7 @@ public final class LinkMakerProvider
      * Returns an <code>IPathImmutableCopier</code> implementation which makes <i>hard links</i>
      * using the underlying <i>operating system</i>.
      */
-    public final static IFileImmutableCopier getLinkMaker()
+    public final static IImmutableCopier getLinkMaker()
     {
         if (hardLinkMaker == null)
         {
