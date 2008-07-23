@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.logging;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -36,6 +37,8 @@ public class LogInitializer
 
     private static final String LOG_FILENAME = "log.xml";
 
+    private static final String FILE_URL_PREFIX = "file:";
+
     static
     {
         // Do not let log4j configure itself. We will do it our own way.
@@ -45,14 +48,47 @@ public class LogInitializer
 
     private static boolean initialized = false;
 
-    private final static URL createURL()
+    private final static URL createURL(final String configurationOrNull)
     {
-        return LogInitializer.class.getResource("/" + LOG_DIRECTORY + "/" + LOG_FILENAME);
+        try
+        {
+            if (configurationOrNull != null)
+            {
+                return new URL(configurationOrNull);
+            }
+        } catch (final MalformedURLException ex)
+        {
+            ex.printStackTrace();
+        }
+        final URL resource =
+                LogInitializer.class.getResource("/" + LOG_DIRECTORY + "/" + LOG_FILENAME);
+        return resource;
     }
 
-    private final static File createLogFile()
+    /**
+     * Tries to find the <code>log4j.configuration</code> in system properties.
+     */
+    private final static String tryFindConfigurationInSystemProperties()
     {
-        return new File(LOG_DIRECTORY, LOG_FILENAME);
+        final String configuration = System.getProperty("log4j.configuration");
+        if (configuration != null)
+        {
+            final String trimmed = configuration.trim();
+            if (trimmed.length() > 0)
+            {
+                return trimmed;
+            }
+        }
+        return null;
+    }
+
+    private final static File createLogFile(final String configurationOrNull)
+    {
+        if (configurationOrNull == null)
+        {
+            return new File(LOG_DIRECTORY, LOG_FILENAME);
+        }
+        return new File(configurationOrNull);
     }
 
     private final static void configureFromFile(final File logFile)
@@ -76,12 +112,21 @@ public class LogInitializer
                 configureFromFile(logFile);
                 return;
             }
-        } catch (URISyntaxException ex)
+        } catch (final URISyntaxException ex)
         {
             LogLog.warn(String.format("Given url '%s' could not be parsed.", url), ex);
         }
         DOMConfigurator.configure(url);
         LogLog.debug(String.format("Log configured from URL '%s' (NOT watching).", url));
+    }
+
+    /**
+     * Finishes the initialization process.
+     */
+    private final static void finishInit()
+    {
+        initialized = true;
+        LogLog.setQuietMode(true);
     }
 
     /**
@@ -100,22 +145,28 @@ public class LogInitializer
         {
             return;
         }
-        final File logFile = createLogFile();
-        if (logFile.exists())
+        final String configuration = tryFindConfigurationInSystemProperties();
+        if (configuration == null || configuration.startsWith(FILE_URL_PREFIX) == false)
         {
-            configureFromFile(logFile);
-        } else
+            final File logFile = createLogFile(configuration);
+            if (logFile.exists())
+            {
+                configureFromFile(logFile);
+                finishInit();
+                return;
+            }
+        }
+        if (configuration == null || configuration.startsWith(FILE_URL_PREFIX))
         {
-            final URL url = createURL();
+            final URL url = createURL(configuration);
             if (url != null)
             {
                 configureFromURL(url);
-            } else
-            {
-                BasicConfigurator.configure();
+                finishInit();
+                return;
             }
         }
-        initialized = true;
-        LogLog.setQuietMode(true);
+        BasicConfigurator.configure();
+        finishInit();
     }
 }
