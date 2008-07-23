@@ -96,45 +96,31 @@ public final class Main
      */
     private static void selfTest(final Parameters parameters)
     {
-        final String msgStart = "Datamover self test failed:";
-        try
+        final ArrayList<IFileStore> stores = new ArrayList<IFileStore>();
+        final FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
+        stores.add(parameters.getIncomingStore(factory));
+        final IFileStore bufferStore =
+                FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(),
+                        Parameters.BUFFER_KIND_DESC, factory);
+        stores.add(bufferStore);
+        stores.add(parameters.getOutgoingStore(factory));
+        if (parameters.tryGetManualInterventionDir() != null)
         {
-            final ArrayList<IFileStore> stores = new ArrayList<IFileStore>();
-            final FileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
-            stores.add(parameters.getIncomingStore(factory));
-            final IFileStore bufferStore =
-                    FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(),
-                            Parameters.BUFFER_KIND_DESC, factory);
-            stores.add(bufferStore);
-            stores.add(parameters.getOutgoingStore(factory));
-            if (parameters.tryGetManualInterventionDir() != null)
-            {
-                final IFileStore dummyStore =
-                        FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(),
-                                "manual intervention", factory);
-                stores.add(dummyStore);
-            }
-            if (parameters.tryGetExtraCopyDir() != null)
-            {
-                final IFileStore dummyStore =
-                        FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy",
-                                factory);
-                stores.add(dummyStore);
-            }
-            final IPathCopier copyProcess = factory.getCopier(false);
-            SelfTest.check(copyProcess, stores.toArray(IFileStore.EMPTY_ARRAY),
-                    FileStoreSelfTestables.getSelfTestables());
-        } catch (final HighLevelException e)
-        {
-            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
-                    .getMessage());
-            System.exit(1);
-        } catch (final RuntimeException e)
-        {
-            System.err.println(msgStart);
-            e.printStackTrace();
-            System.exit(1);
+            final IFileStore dummyStore =
+                    FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(),
+                            "manual intervention", factory);
+            stores.add(dummyStore);
         }
+        if (parameters.tryGetExtraCopyDir() != null)
+        {
+            final IFileStore dummyStore =
+                    FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy",
+                            factory);
+            stores.add(dummyStore);
+        }
+        final IPathCopier copyProcess = factory.getCopier(false);
+        SelfTest.check(copyProcess, stores.toArray(IFileStore.EMPTY_ARRAY),
+                FileStoreSelfTestables.getSelfTestables());
     }
 
     private final static void createShutdownHookTimer(final ITerminable terminable)
@@ -176,14 +162,32 @@ public final class Main
 
     public static void main(final String[] args)
     {
-        initLog();
-        final Parameters parameters = new Parameters(args);
-        printInitialLogMessage(parameters);
-        startupServer(parameters);
-        selfTest(parameters);
-        if (operationLog.isInfoEnabled())
+        String msgStart = "";
+        try
         {
-            operationLog.info("Datamover ready and waiting for data.");
+            initLog();
+            msgStart = "Datamover parameters wrong:"; 
+            final Parameters parameters = new Parameters(args);
+            msgStart = "";
+            printInitialLogMessage(parameters);
+            msgStart = "Failure in starting up server";
+            startupServer(parameters);
+            msgStart = "Datamover self test failed:";
+            selfTest(parameters);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Datamover ready and waiting for data.");
+            }
+        } catch (final HighLevelException e)
+        {
+            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
+                    .getMessage());
+            System.exit(1);
+        } catch (final RuntimeException e)
+        {
+            System.err.println(msgStart);
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 

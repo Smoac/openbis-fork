@@ -41,15 +41,12 @@ import ch.systemsx.cisd.args4j.spi.LongOptionHandler;
 import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
-import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -335,56 +332,42 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     Parameters(final String[] args)
     {
-        this(args, SystemExit.SYSTEM_EXIT);
-    }
-
-    Parameters(final String[] args, final IExitHandler systemExitHandler)
-    {
         initParametersFromProperties();
-        try
+        parser.parseArgument(args);
+        if (incomingTarget == null)
         {
-            parser.parseArgument(args);
-            if (incomingTarget == null)
-            {
-                throw createConfigurationFailureException(PropertyNames.INCOMING_TARGET);
-            } else if (incomingTarget.getHighwaterMark() > -1L)
+            throw createConfigurationFailureException(PropertyNames.INCOMING_TARGET);
+        } else if (incomingTarget.getHighwaterMark() > -1L)
+        {
+            throw ConfigurationFailureException.fromTemplate(
+                    "Can not specify a high water mark for '%s'.",
+                    PropertyNames.INCOMING_TARGET);
+        }
+        if (bufferDirectory == null)
+        {
+            throw createConfigurationFailureException(PropertyNames.BUFFER_DIR);
+        } else if (bufferDirectory.tryGetHost() != null)
+        {
+            throw ConfigurationFailureException.fromTemplate("Remote '%s' not supported.",
+                    PropertyNames.BUFFER_DIR);
+        }
+        if (outgoingTarget == null)
+        {
+            throw createConfigurationFailureException(PropertyNames.OUTGOING_TARGET);
+        }
+        if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
+        {
+            throw ConfigurationFailureException.fromTemplate("No '%s' defined, but '%s'.",
+                    PropertyNames.MANUAL_INTERVENTION_DIR,
+                    PropertyNames.MANUAL_INTERVENTION_REGEX);
+        }
+        if (getDataCompletedScript() != null)
+        {
+            if (OSUtilities.executableExists(dataCompletedScript) == false)
             {
                 throw ConfigurationFailureException.fromTemplate(
-                        "Can not specify a high water mark for '%s'.",
-                        PropertyNames.INCOMING_TARGET);
+                        DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE, dataCompletedScript);
             }
-            if (bufferDirectory == null)
-            {
-                throw createConfigurationFailureException(PropertyNames.BUFFER_DIR);
-            } else if (bufferDirectory.tryGetHost() != null)
-            {
-                throw ConfigurationFailureException.fromTemplate("Remote '%s' not supported.",
-                        PropertyNames.BUFFER_DIR);
-            }
-            if (outgoingTarget == null)
-            {
-                throw createConfigurationFailureException(PropertyNames.OUTGOING_TARGET);
-            }
-            if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
-            {
-                throw ConfigurationFailureException.fromTemplate("No '%s' defined, but '%s'.",
-                        PropertyNames.MANUAL_INTERVENTION_DIR,
-                        PropertyNames.MANUAL_INTERVENTION_REGEX);
-            }
-            if (getDataCompletedScript() != null)
-            {
-                if (OSUtilities.executableExists(dataCompletedScript) == false)
-                {
-                    throw ConfigurationFailureException.fromTemplate(
-                            DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE, dataCompletedScript);
-                }
-            }
-        } catch (final Exception ex)
-        {
-            outputException(ex);
-            systemExitHandler.exit(1);
-            // Only reached in unit tests.
-            throw new AssertionError(ex.getMessage());
         }
     }
 
@@ -392,22 +375,6 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             final String propertyKey)
     {
         return ConfigurationFailureException.fromTemplate("No '%s' defined.", propertyKey);
-    }
-
-    private final void outputException(final Exception ex)
-    {
-        if (ex instanceof HighLevelException || ex instanceof CmdLineException)
-        {
-            System.err.println(ex.getMessage());
-        } else
-        {
-            System.err.println("An exception occurred.");
-            ex.printStackTrace();
-        }
-        if (ex instanceof CmdLineException)
-        {
-            printHelp(false);
-        }
     }
 
     private final static long toMillis(final long seconds)

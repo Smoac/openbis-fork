@@ -21,20 +21,17 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.SystemExit;
@@ -54,21 +51,9 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
     { SystemExit.class, Parameters.class, FileStoreFactory.class })
 public final class ParametersTest extends AbstractFileSystemTestCase
 {
-    private ByteArrayOutputStream logRecorder;
-
-    private PrintStream systemOut;
-
-    private PrintStream systemErr;
-
     private final Parameters parse(final String... args)
     {
-        return new Parameters(args, SystemExit.SYSTEM_EXIT);
-    }
-
-    /** Returns the content of the log recorder. */
-    private final String getLogContent()
-    {
-        return logRecorder.toString().trim();
+        return new Parameters(args);
     }
 
     @BeforeClass
@@ -81,30 +66,6 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public void finish()
     {
         SystemExit.setThrowException(false);
-    }
-
-    @Override
-    @BeforeMethod
-    public final void setUp()
-    {
-        logRecorder = new ByteArrayOutputStream();
-        systemOut = System.out;
-        systemErr = System.err;
-        System.setErr(new PrintStream(logRecorder));
-        System.setOut(new PrintStream(logRecorder));
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-        if (systemOut != null)
-        {
-            System.setOut(systemOut);
-        }
-        if (systemErr != null)
-        {
-            System.setErr(systemErr);
-        }
     }
 
     @Test
@@ -241,10 +202,10 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         try
         {
             parameters = parse("--" + PropertyNames.DATA_COMPLETED_SCRIPT, scriptName);
-        } catch (final RuntimeException ex)
+        } catch (final ConfigurationFailureException ex)
         {
             assertEquals(String.format(Parameters.DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE,
-                    scriptName), getLogContent());
+                    scriptName), ex.getMessage());
         }
         final File scriptFile = new File(workingDirectory, scriptName);
         FileUtils.touch(scriptFile);
