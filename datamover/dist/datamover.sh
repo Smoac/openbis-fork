@@ -169,7 +169,7 @@ case "$command" in
 				rm $PIDFILE
 				echo "FAILED"
 				echo "startup log says:"
-				cat $WD/$STARTUPLOG
+				cat $STARTUPLOG
 			fi
 		else
 			echo "FAILED"
