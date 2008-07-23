@@ -111,6 +111,12 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
                 notified = true;
             }
             errorCount++;
+        } else
+        {
+            if (level != null)
+            {
+                super.log(level, message);
+            }
         }
     }
 }

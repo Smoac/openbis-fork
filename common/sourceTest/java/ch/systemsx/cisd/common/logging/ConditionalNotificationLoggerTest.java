@@ -112,6 +112,16 @@ public final class ConditionalNotificationLoggerTest
     }
 
     @Test
+    public final void testLogWithInfoLevel()
+    {
+        final ConditionalNotificationLogger logger = createConditionalNotificationLogger(0);
+        final String logMessage = "Some message";
+        logger.log(LogLevel.INFO, logMessage);
+        assertEquals(logMessage, operationLogRecorder.getLogContent());
+        assertEquals("", notificationLogRecorder.getLogContent());
+    }
+
+    @Test
     public final void testLogWithNullLevel()
     {
         final ConditionalNotificationLogger logger = createConditionalNotificationLogger(0);
