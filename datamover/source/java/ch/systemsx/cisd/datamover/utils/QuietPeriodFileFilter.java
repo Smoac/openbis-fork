@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.datamover.DatamoverConstants;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
@@ -51,8 +52,6 @@ import ch.systemsx.cisd.datamover.intf.ITimingParameters;
  */
 public class QuietPeriodFileFilter implements IStoreItemFilter
 {
-    private static final int IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION = 3;
-
     @Private
     static final int CLEANUP_TO_QUIET_PERIOD_RATIO = 10;
 
@@ -67,12 +66,12 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
     private final static Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, QuietPeriodFileFilter.class);
 
-    private final static Logger notifyLog =
+    private final static Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, QuietPeriodFileFilter.class);
 
-    private final ConditionalNotificationLogger conditionalNotifyLog =
-            new ConditionalNotificationLogger(machineLog, notifyLog,
-                    IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
+    private final ConditionalNotificationLogger conditionalNotificationLog =
+            new ConditionalNotificationLogger(machineLog, notificationLog,
+                    DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
 
     private final long quietPeriodMillis;
 
@@ -173,13 +172,13 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
             final StatusWithResult<Long> status = fileStore.lastChanged(item, oldLastChanged);
             if (status.isError())
             {
-                conditionalNotifyLog.log(LogLevel.ERROR, String.format(
+                conditionalNotificationLog.log(LogLevel.ERROR, String.format(
                         "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s",
                         item, fileStore, status.tryGetErrorMessage()));
                 return false;
             } else
             {
-                conditionalNotifyLog.reset(null);
+                conditionalNotificationLog.reset(null);
             }
             final long newLastChanged = status.tryGetResult();
             if (newLastChanged != oldLastChanged)
@@ -219,10 +218,10 @@ public class QuietPeriodFileFilter implements IStoreItemFilter
         if (status.isError() == false)
         {
             pathMap.put(item, new PathCheckRecord(now, status.tryGetResult()));
-            conditionalNotifyLog.reset(null);
+            conditionalNotificationLog.reset(null);
         } else
         {
-            conditionalNotifyLog.log(LogLevel.ERROR, String.format(
+            conditionalNotificationLog.log(LogLevel.ERROR, String.format(
                     "Cannot obtain \"last changed\" status of item '%s' in store '%s': %s",
                     item, fileStore, status.tryGetErrorMessage()));
         }

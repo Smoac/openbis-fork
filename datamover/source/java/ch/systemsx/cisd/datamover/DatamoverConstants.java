@@ -28,4 +28,7 @@ public class DatamoverConstants
     public static final String RSYNC_PASSWORD_FILE_INCOMING = "etc/rsync_incoming.passwd"; 
 
     public static final String RSYNC_PASSWORD_FILE_OUTGOING = "etc/rsync_outgoing.passwd";
+
+    public static final int IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION = 3;
+
 }
