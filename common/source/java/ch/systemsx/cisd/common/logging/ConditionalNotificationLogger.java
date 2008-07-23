@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.common.logging;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 /**
- * An <code>ISimpleLogger</code> implementation which sends an email (via logger) when the number
- * of log errors reaches a given number.
+ * An <code>ISimpleLogger</code> implementation which sends an email (via logger) when the number of
+ * log errors reaches a given number.
  * <p>
  * Note that this class sends one and only one notification email. To reset the state of this class,
  * use {@link #reset(String)}.
@@ -41,8 +40,8 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
     private boolean notified;
 
     /**
-     * @param log4jLogger logger that is called when <var>ignoredErrorCountBeforeNotification</var>
-     *            is not reached yet. By default gets called with {@link Level#WARN}.
+     * @param log4jLogger The (normal, e.g. non-notify) logger that is called when
+     *            <var>ignoredErrorCountBeforeNotification</var> is not reached yet.
      * @param notificationLog logger that is conditionally called.
      * @param ignoredErrorCountBeforeNotification the number of errors that are ignored before
      *            sending a notification email.
@@ -81,13 +80,13 @@ public final class ConditionalNotificationLogger extends Log4jSimpleLogger
      * if an email has already been sent to inform the "bad" state and if log info is enabled).
      * </p>
      * 
-     * @param message the info log message.
+     * @param messageOrNull the info log message or <code>null</code>, if no message should be sent.
      */
-    public final void reset(final String message)
+    public final void reset(final String messageOrNull)
     {
-        if (notified && notificationLog.isInfoEnabled())
+        if (notified && notificationLog.isInfoEnabled() && messageOrNull != null)
         {
-            notificationLog.info(message);
+            notificationLog.info(messageOrNull);
         }
         errorCount = 0;
         notified = false;

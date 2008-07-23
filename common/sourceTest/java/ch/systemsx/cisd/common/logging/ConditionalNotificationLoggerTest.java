@@ -53,11 +53,14 @@ public final class ConditionalNotificationLoggerTest
 
     private BufferedAppender notificationLogRecorder;
 
+    private BufferedAppender notificationInfoLogRecorder;
+
     @BeforeMethod
     public final void setUp()
     {
         operationLogRecorder = new BufferedAppender("%m", Level.WARN);
         notificationLogRecorder = new BufferedAppender("%m", Level.ERROR);
+        notificationInfoLogRecorder = new BufferedAppender("%m", Level.INFO);
     }
 
     @Test
@@ -136,13 +139,35 @@ public final class ConditionalNotificationLoggerTest
     {
         final ConditionalNotificationLogger logger = createConditionalNotificationLogger(2);
         final String logMessage = "Some message";
+        final String okLogMessage = "Green again";
         logger.log(LogLevel.ERROR, logMessage);
         logger.log(LogLevel.ERROR, logMessage);
         logger.log(LogLevel.ERROR, logMessage);
         assertEquals(logMessage, notificationLogRecorder.getLogContent());
         logger.log(LogLevel.ERROR, logMessage);
         assertEquals(logMessage, notificationLogRecorder.getLogContent());
-        logger.reset("Green again");
+        notificationInfoLogRecorder.resetLogContent();
+        logger.reset(okLogMessage);
+        assertEquals(okLogMessage, notificationInfoLogRecorder.getLogContent());
+        notificationLogRecorder.resetLogContent();
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals("", notificationLogRecorder.getLogContent());
+    }
+
+    @Test
+    public final void testResetWithoutMessage()
+    {
+        final ConditionalNotificationLogger logger = createConditionalNotificationLogger(2);
+        final String logMessage = "Some message";
+        logger.log(LogLevel.ERROR, logMessage);
+        logger.log(LogLevel.ERROR, logMessage);
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals(logMessage, notificationLogRecorder.getLogContent());
+        logger.log(LogLevel.ERROR, logMessage);
+        assertEquals(logMessage, notificationLogRecorder.getLogContent());
+        notificationInfoLogRecorder.resetLogContent();
+        logger.reset(null);
+        assertEquals("", notificationInfoLogRecorder.getLogContent());
         notificationLogRecorder.resetLogContent();
         logger.log(LogLevel.ERROR, logMessage);
         assertEquals("", notificationLogRecorder.getLogContent());
