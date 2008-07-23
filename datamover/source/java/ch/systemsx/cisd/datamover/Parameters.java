@@ -470,6 +470,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             incomingTarget =
                     HostAwareFileWithHighwaterMark.fromProperties(serviceProperties,
                             PropertyNames.INCOMING_TARGET);
+            if (incomingTarget.tryGetHost() != null)
+            {
+                treatIncomingAsRemote = true;
+            }
         }
         if (serviceProperties.getProperty(PropertyNames.BUFFER_DIR) != null)
         {
