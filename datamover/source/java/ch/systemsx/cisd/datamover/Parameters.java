@@ -340,8 +340,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         } else if (incomingTarget.getHighwaterMark() > -1L)
         {
             throw ConfigurationFailureException.fromTemplate(
-                    "Can not specify a high water mark for '%s'.",
-                    PropertyNames.INCOMING_TARGET);
+                    "Can not specify a high water mark for '%s'.", PropertyNames.INCOMING_TARGET);
         }
         if (bufferDirectory == null)
         {
@@ -358,8 +357,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         if (manualInterventionDirectoryOrNull == null && manualInterventionRegex != null)
         {
             throw ConfigurationFailureException.fromTemplate("No '%s' defined, but '%s'.",
-                    PropertyNames.MANUAL_INTERVENTION_DIR,
-                    PropertyNames.MANUAL_INTERVENTION_REGEX);
+                    PropertyNames.MANUAL_INTERVENTION_DIR, PropertyNames.MANUAL_INTERVENTION_REGEX);
         }
         if (getDataCompletedScript() != null)
         {
@@ -605,14 +603,21 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         return maximalNumberOfRetries;
     }
 
+    /** The cached incoming store. */
+    private IFileStore incomingStore = null;
+
     /**
      * @return The store to monitor for new files and directories to move to the buffer.
      */
     public final IFileStore getIncomingStore(final IFileSysOperationsFactory factory)
     {
-        return FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
-                treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
-                checkIntervalMillis);
+        if (incomingStore == null)
+        {
+            incomingStore = FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
+                    treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
+                    checkIntervalMillis);
+        }
+        return incomingStore;
     }
 
     public final HostAwareFileWithHighwaterMark getOutgoingTarget()
@@ -628,13 +633,21 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         return bufferDirectory;
     }
 
+    /** The cached outgoing store. */
+    private IFileStore outgoingStore = null;
+
     /**
      * @return The store to copy the data to.
      */
     public final IFileStore getOutgoingStore(final IFileSysOperationsFactory factory)
     {
-        return FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
-                outgoingHostFindExecutableOrNull, checkIntervalMillis);
+        if (outgoingStore == null)
+        {
+            outgoingStore =
+                    FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
+                            outgoingHostFindExecutableOrNull, checkIntervalMillis);
+        }
+        return outgoingStore;
     }
 
     /**
