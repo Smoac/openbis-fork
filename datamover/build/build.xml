@@ -39,9 +39,10 @@
 				<include name="**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
-			<fileset dir="${nativeroot}">
+			<!-- Commented out until we have a stable set of libraries. -->
+			<!--fileset dir="${nativeroot}">
 				<include name="**/jlink.so"/>
-			</fileset>
+			</fileset-->
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
 				<attribute name="Class-Path"
