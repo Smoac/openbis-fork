@@ -69,7 +69,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
      * Filters given <var>collection</var> with given <var>validator</var>.
      * <p>
      * Note that this operation changes passed <code>Collection</code> if some invalid elements
-     * are found. The original collection does not get cloned before .
+     * are found. The original collection does not get cloned before.
      * </p>
      */
     @SuppressWarnings("unchecked")
