@@ -71,10 +71,18 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
             final long millisToWaitForCompletion, final int maxRetryOnFailure,
             final long millisToSleepOnFailure)
     {
+        return tryCreate(rsyncExecutable, millisToWaitForCompletion, maxRetryOnFailure,
+                millisToSleepOnFailure, false);
+    }
+
+    public final static IImmutableCopier tryCreate(final File rsyncExecutable,
+            final long millisToWaitForCompletion, final int maxRetryOnFailure,
+            final long millisToSleepOnFailure, final boolean neverUseNative)
+    {
         try
         {
             return new FastRecursiveHardLinkMaker(rsyncExecutable, millisToSleepOnFailure,
-                    maxRetryOnFailure, millisToSleepOnFailure);
+                    maxRetryOnFailure, millisToSleepOnFailure, neverUseNative);
         } catch (ConfigurationFailureException ex)
         {
             return null;
@@ -83,11 +91,12 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
 
     private FastRecursiveHardLinkMaker(final File rsyncExcutable,
             final long inactivityThresholdMillis, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure) throws ConfigurationFailureException
+            final long millisToSleepOnFailure, final boolean neverUseNative)
+            throws ConfigurationFailureException
     {
         this.fastFileCopierOrNull =
-                FastHardLinkMaker.tryCreate(inactivityThresholdMillis, maxRetryOnFailure,
-                        millisToSleepOnFailure);
+                neverUseNative ? null : FastHardLinkMaker.tryCreate(inactivityThresholdMillis,
+                        maxRetryOnFailure, millisToSleepOnFailure);
         this.fastDirectoryCopierOrNull =
                 new RsyncBasedRecursiveHardLinkMaker(rsyncExcutable, inactivityThresholdMillis,
                         DEFAULT_MAX_ERRORS_TO_IGNORE, maxRetryOnFailure, millisToSleepOnFailure);
@@ -117,7 +126,7 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
             if (fastDirectoryCopierOrNull != null)
             {
                 operationLog.info("Using 'rsync' to traverse directories when making recursive "
-                        + "hard links copies.");
+                        + "hard link copies.");
             } else
             {
                 operationLog.info("Using Java to traverse directories when making recursive hard "
