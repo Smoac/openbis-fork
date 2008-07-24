@@ -19,7 +19,7 @@ awkBin()
 isPIDRunning()
 {
 	if [ "$1" = "" ]; then
-		return 0
+		return 1
 	fi
 	# This will have a return value of 0 on BSDish systems
 	isBSD="`ps aux > /dev/null 2>&1; echo $?`"
@@ -150,13 +150,23 @@ case "$command" in
 			n=0
 			while [ $n -lt $MAX_LOOPS ]; do
 				sleep 1
+                                if [ ! -e $PIDFILE ]; then
+                                        break
+                                fi
+                                if [ -s $STARTUPLOG ]; then
+                                        PID=`cat $PIDFILE 2> /dev/null`
+                                        isPIDRunning $PID
+                                        if [ $? -ne 0 ]; then
+                                                break
+                                        fi
+                                fi
 				grep "$SUCCESS_MSG" $LOGFILE > /dev/null 2>&1
 				if [ $? -eq 0 ]; then
 					break
 				fi
 				n=$(($n+1))
 			done 
-			PID=`cat $PIDFILE`
+			PID=`cat $PIDFILE 2> /dev/null`
 			isPIDRunning $PID
 			if [ $? -eq 0 ]; then
 				grep "$SUCCESS_MSG" $LOGFILE > /dev/null 2>&1
@@ -166,7 +176,7 @@ case "$command" in
 					echo "(pid $PID)"
 				fi
 			else
-				rm $PIDFILE
+				test -e $PIDFILE && rm $PIDFILE
 				echo "FAILED"
 				echo "startup log says:"
 				cat $STARTUPLOG
