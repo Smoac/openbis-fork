@@ -48,7 +48,7 @@ public final class FilteredListTest
         exceptionThrown = false;
         try
         {
-            FilteredList.decorate(null, ValidatorUtils.getNotNullValidator());
+            FilteredList.decorate((List<Object>) null, ValidatorUtils.getNotNullValidator());
         } catch (AssertionError e)
         {
             exceptionThrown = true;
