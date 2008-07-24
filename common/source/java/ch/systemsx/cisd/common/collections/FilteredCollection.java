@@ -80,7 +80,7 @@ public class FilteredCollection<E> extends AbstractCollectionDecorator<E>
         {
             return null;
         }
-        for (final Iterator<? extends E> iter = collection.iterator(); iter.hasNext();)
+        for (final Iterator<? extends E> iter = collection.iterator(); iter.hasNext(); )
         {
             if (validator.isValid(iter.next()) == false)
             {
