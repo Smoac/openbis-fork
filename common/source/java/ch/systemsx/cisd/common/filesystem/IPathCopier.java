@@ -87,9 +87,10 @@ public interface IPathCopier extends ITerminable, ISelfTestable
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
-     * Try to connect to this server now and see whether we can list the module.
+     * Try to connect to the <var>host</var> and see whether the connection is OK.
      * 
      * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
      */
-    boolean checkRsyncConnection(String host, String rsyncModule, String rsyncPassworFileOrNull);
+    boolean checkRsyncConnection(String host, String rsyncModuleOrNull,
+            String rsyncPassworFileOrNull);
 }

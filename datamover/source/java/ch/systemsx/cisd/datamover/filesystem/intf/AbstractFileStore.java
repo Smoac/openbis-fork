@@ -132,12 +132,12 @@ public abstract class AbstractFileStore implements IFileStore
 
                 public void check() throws ConfigurationFailureException
                 {
-                    if (srcHostOrNull != null && tryGetRsyncModuleName() != null)
+                    if (srcHostOrNull != null)
                     {
                         check(srcHostOrNull, tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
                     }
-                    if (destHostOrNull != null && destinationStore.tryGetRsyncModuleName() != null)
+                    if (destHostOrNull != null)
                     {
                         check(destHostOrNull, destinationStore.tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
@@ -150,8 +150,15 @@ public abstract class AbstractFileStore implements IFileStore
                             copier.checkRsyncConnection(host, rsyncModule, rsyncPasswordFileOrNull);
                     if (connectionOK == false)
                     {
-                        throw new ConfigurationFailureException(String.format(
-                                "Connection to rsync module %s::%s failed", host, rsyncModule));
+                        if (rsyncModule != null)
+                        {
+                            throw ConfigurationFailureException.fromTemplate(
+                                    "Connection to rsync module %s::%s failed", host, rsyncModule);
+                        } else
+                        {
+                            throw ConfigurationFailureException.fromTemplate(
+                                    "No good rsync executable found on host '%s'", host);
+                        }
                     }
 
                 }

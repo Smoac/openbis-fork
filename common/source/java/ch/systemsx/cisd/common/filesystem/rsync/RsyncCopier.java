@@ -19,9 +19,13 @@ package ch.systemsx.cisd.common.filesystem.rsync;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -35,6 +39,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -65,6 +70,34 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             Status.createRetriableError("Process has stopped because of timeout.");
 
     private final String rsyncExecutable;
+
+    /**
+     * Record for storing information about an rsync executable.
+     */
+    private static class RsyncRecord
+    {
+        private final String rsyncExecutable;
+
+        private final RsyncVersion rsyncVersion;
+
+        RsyncRecord(String rsyncExecutable, RsyncVersion rsyncVersion)
+        {
+            this.rsyncExecutable = rsyncExecutable;
+            this.rsyncVersion = rsyncVersion;
+        }
+
+        public final String getRsyncExecutable()
+        {
+            return rsyncExecutable;
+        }
+
+        public final RsyncVersion getRsyncVersion()
+        {
+            return rsyncVersion;
+        }
+    }
+
+    private Map<String, RsyncRecord> remoteHostRsyncMap = new HashMap<String, RsyncRecord>();
 
     private final RsyncVersion rsyncVersion;
 
@@ -127,17 +160,23 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
     }
 
-    private boolean rsyncSupportsAppend()
+    private boolean rsyncSupportsAppend(RsyncVersion versionOrNull)
     {
-        assert rsyncVersion != null;
-
-        return rsyncVersion.isNewerOrEqual(2, 6, 7);
+        return versionOrNull == null || versionOrNull.isNewerOrEqual(2, 6, 7);
     }
 
-    private boolean isOverwriteMode()
+    private boolean isGoodEnough(RsyncVersion versionOrNull)
     {
-        return overwrite || destinationDirectoryRequiresDeletionBeforeCreation
-                || (rsyncSupportsAppend() == false);
+        return versionOrNull != null && versionOrNull.isNewerOrEqual(2, 6, 0);
+    }
+
+    private boolean isOverwriteMode(final RsyncRecord remoteRsyncOrNull)
+    {
+        return overwrite
+                || destinationDirectoryRequiresDeletionBeforeCreation
+                || (rsyncSupportsAppend(rsyncVersion) == false)
+                || (remoteRsyncOrNull != null && (rsyncSupportsAppend(remoteRsyncOrNull
+                        .getRsyncVersion()) == false));
     }
 
     //
@@ -180,7 +219,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLine =
                 createCommandLineForImmutableCopy(sourceDirectory, createTargetDirectory(
                         sourceDirectory, destinationDirectory, targetNameOrNull));
-        final ProcessResult processResult = runCommand(commandLine);
+        final ProcessResult processResult =
+                runCommand(commandLine, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
         return processResult.isOK();
     }
 
@@ -255,7 +295,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                         "Rsync executable '%s' does not exist.", rsyncExecutable));
             }
         }
-        if (rsyncVersion.isNewerOrEqual(2, 6, 0) == false)
+        if (isGoodEnough(rsyncVersion) == false)
         {
             throw new ConfigurationFailureException(String.format(
                     "Rsync executable '%s' is too old (required: 2.6.0, found: %s)",
@@ -265,7 +305,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             machineLog.info(String.format("Using rsync executable '%s', version %s, mode: %s",
                     rsyncExecutable, rsyncVersion.getVersionString(),
-                    (isOverwriteMode() ? "overwrite" : "append")));
+                    (isOverwriteMode(null) ? "overwrite" : "append")));
         }
         if (rsyncVersion.isRsyncPreReleaseVersion())
         {
@@ -282,7 +322,19 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return false;
     }
 
-    public boolean checkRsyncConnection(String host, String rsyncModule,
+    public boolean checkRsyncConnection(String host, String rsyncModuleOrNull,
+            String rsyncPasswordFileOrNull)
+    {
+        if (rsyncModuleOrNull != null)
+        {
+            return checkRsyncServerConnection(host, rsyncModuleOrNull, rsyncPasswordFileOrNull);
+        } else
+        {
+            return checkRsyncSSHTunnelConnection(host);
+        }
+    }
+
+    private boolean checkRsyncServerConnection(String host, String rsyncModuleOrNull,
             String rsyncPasswordFileOrNull)
     {
         final List<String> commandLineList = new ArrayList<String>();
@@ -292,9 +344,75 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add("--password-file");
             commandLineList.add(rsyncPasswordFileOrNull);
         }
-        commandLineList.add(buildPath(host, new File("/"), rsyncModule, false));
-        final ProcessResult processResult = runCommand(commandLineList);
+        commandLineList.add(buildPath(host, new File("/"), rsyncModuleOrNull, false));
+        final ProcessResult processResult =
+                runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
+        processResult.log();
         return processResult.isOK();
+    }
+
+    private final static List<String> createSshCommand(final String host,
+            final String sshExecutable, final String command)
+    {
+        final ArrayList<String> wrappedCmd = new ArrayList<String>();
+        final List<String> sshCommand = Arrays.asList(sshExecutable, "-T", host);
+        wrappedCmd.addAll(sshCommand);
+        wrappedCmd.add(command);
+        return wrappedCmd;
+    }
+
+    private boolean checkRsyncSSHTunnelConnection(String host)
+    {
+        if (remoteHostRsyncMap.containsKey(host))
+        {
+            return true;
+        }
+        List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
+        final ProcessResult result = runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
+        result.log();
+        if (result.isOK() && result.getOutput().size() != 1)
+        {
+            if (result.getOutput().size() == 0)
+            {
+                machineLog.warn(String.format("No output on command '%s'.", StringUtils.join(
+                        commandLineList, ' ')));
+            } else
+            {
+                machineLog.warn(String.format("Unexpected output on command '%s':\n%s", StringUtils
+                        .join(commandLineList, ' '), StringUtils.join(result.getOutput(), '\n')));
+            }
+        }
+        if (result.isOK() && result.getOutput().size() == 1)
+        {
+            final String rsyncExec = result.getOutput().get(0);
+            commandLineList = createSshCommand(host, sshExecutable, rsyncExec + " --version");
+            final ProcessResult verResult =
+                    runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
+            verResult.log();
+            if (verResult.isOK() && result.getOutput().size() > 0)
+            {
+                final RsyncVersion versionOrNull =
+                        RsyncVersionChecker.tryParseVersionLine(verResult.getOutput().get(0));
+                final boolean ok = isGoodEnough(versionOrNull);
+                if (ok)
+                {
+                    remoteHostRsyncMap.put(host, new RsyncRecord(rsyncExec, versionOrNull));
+                    if (machineLog.isInfoEnabled())
+                    {
+                        machineLog.info(String.format(
+                                "On host '%s': using rsync executable '%s', version %s", host,
+                                rsyncExec, ObjectUtils.toString(versionOrNull, "UNKNOWN")));
+                    }
+                } else
+                {
+                    machineLog.error(String.format(
+                            "On host '%s': rsync executable '%s', version %s is too old", host,
+                            rsyncExec, ObjectUtils.toString(versionOrNull, "UNKNOWN")));
+                }
+                return ok;
+            }
+        }
+        return false;
     }
 
     private final Status copy(final File sourcePath, final String sourceHostOrNull,
@@ -310,7 +428,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLine =
                 createCommandLineForMutableCopy(sourcePath, sourceHostOrNull, destinationDirectory,
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull);
-        return createStatus(runCommand(commandLine));
+        return createStatus(runCommand(commandLine,
+                ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY));
     }
 
     private final String logNonExistent(final File path)
@@ -326,31 +445,41 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     @Private
     final List<String> createCommandLineForMutableCopy(final File sourcePath,
-            final String sourceHost, final File destinationDirectory, final String destinationHost,
-            final String rsyncModuleNameOrNull, final String rsyncPasswordFileOrNull)
+            final String sourceHostOrNull, final File destinationDirectory,
+            final String destinationHostOrNull, final String rsyncModuleNameOrNull,
+            final String rsyncPasswordFileOrNull)
     {
-        assert sourcePath != null && (sourceHost != null || sourcePath.exists());
+        assert sourcePath != null && (sourceHostOrNull != null || sourcePath.exists());
         assert destinationDirectory != null
-                && (destinationHost != null || destinationDirectory.isDirectory());
-        assert (destinationHost != null && sshExecutable != null) || (destinationHost == null);
-        assert (sourceHost != null && sshExecutable != null) || (sourceHost == null);
+                && (destinationHostOrNull != null || destinationDirectory.isDirectory());
+        assert (destinationHostOrNull != null && sshExecutable != null)
+                || (destinationHostOrNull == null);
+        assert (sourceHostOrNull != null && sshExecutable != null) || (sourceHostOrNull == null);
 
         final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
         final List<String> commandLineList = new ArrayList<String>();
+        final RsyncRecord remoteRsyncOrNull =
+                tryGetRemotRsync(sourceHostOrNull, destinationHostOrNull);
 
         commandLineList.add(rsyncExecutable);
         commandLineList.addAll(standardParameters);
-        if (isOverwriteMode())
+        if (isOverwriteMode(remoteRsyncOrNull))
         {
             commandLineList.add("--whole-file");
         } else
         {
             commandLineList.add("--append");
         }
-        if (sshExecutable != null && destinationHost != null && rsyncModuleNameOrNull == null)
+        if (sshExecutable != null && (destinationHostOrNull != null || sourceHostOrNull != null)
+                && rsyncModuleNameOrNull == null)
         {
             commandLineList.add("--rsh");
             commandLineList.add(getSshExecutableArgument(sshExecutable));
+            if (remoteRsyncOrNull != null)
+            {
+                commandLineList.add("--rsync-path");
+                commandLineList.add(remoteRsyncOrNull.getRsyncExecutable());
+            }
         }
         if (rsyncModuleNameOrNull != null && rsyncPasswordFileOrNull != null
                 && new File(rsyncPasswordFileOrNull).exists())
@@ -362,11 +491,25 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.addAll(additionalCmdLineFlags);
         }
-        commandLineList.add(buildPath(sourceHost, sourcePath, rsyncModuleNameOrNull, false));
-        commandLineList.add(buildPath(destinationHost, destinationDirectory, rsyncModuleNameOrNull,
-                true));
+        commandLineList.add(buildPath(sourceHostOrNull, sourcePath, rsyncModuleNameOrNull, false));
+        commandLineList.add(buildPath(destinationHostOrNull, destinationDirectory,
+                rsyncModuleNameOrNull, true));
 
         return commandLineList;
+    }
+
+    private RsyncRecord tryGetRemotRsync(final String sourceHostOrNull,
+            final String destinationHostOrNull)
+    {
+        final RsyncRecord sourceRemoteRsyncOrNull =
+                (sourceHostOrNull == null) ? null : remoteHostRsyncMap.get(sourceHostOrNull);
+        final RsyncRecord destinationRemoteRsyncOrNull =
+                (destinationHostOrNull == null) ? null : remoteHostRsyncMap
+                        .get(destinationHostOrNull);
+        final RsyncRecord remoteRsyncOrNull =
+                (sourceRemoteRsyncOrNull != null) ? sourceRemoteRsyncOrNull
+                        : destinationRemoteRsyncOrNull;
+        return remoteRsyncOrNull;
     }
 
     private final static String getSshExecutableArgument(final String sshExecutable)
@@ -453,7 +596,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return Status.createError(retriableError, RsyncExitValueTranslator.getMessage(exitValue));
     }
 
-    private ProcessResult runCommand(final List<String> commandLine)
+    private ProcessResult runCommand(final List<String> commandLine,
+            OutputReadingStrategy outputReadingStrategy)
     {
         IProcessHandler processHandler;
         if (operationLog.isTraceEnabled())
@@ -468,7 +612,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 operationLog.debug(String.format("Running command '%s'", commandLine));
             }
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog);
+                    ProcessExecutionHelper.runUnblocking(commandLine, outputReadingStrategy,
+                            operationLog, machineLog);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())

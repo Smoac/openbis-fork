@@ -69,8 +69,7 @@ final class RsyncVersionChecker
         private final int rsyncPatchVersion;
 
         /**
-         * Returns <code>true</code>, if the version is a pre-release version of
-         * <code>rsync</code>.
+         * Returns <code>true</code>, if the version is a pre-release version of <code>rsync</code>.
          */
         private final boolean rsyncPreReleaseVersion;
 
@@ -151,11 +150,21 @@ final class RsyncVersionChecker
             }
         }
 
+        //
+        // Object
+        //
+        
+        @Override
+        public String toString()
+        {
+            return getVersionString();
+        }
+
     }
 
     /**
-     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its
-     * a good executable at all.
+     * Looks up the version of the <var>rsyncExecutable</var>, and, on its way, checks whether its a
+     * good executable at all.
      * 
      * @param rsyncExecutable The executable to find the version for.
      * @return The version information, or <code>null</code>, if the executable doesn't work.
@@ -169,6 +178,14 @@ final class RsyncVersionChecker
         {
             return null;
         }
+        return parseVersion(rsyncVersion);
+    }
+
+    /**
+     * Parses the <var>rsyncVersion</var>.
+     */
+    static RsyncVersion parseVersion(String rsyncVersion)
+    {
         String[] rsyncVersionParts = rsyncVersion.split("\\.");
         if (rsyncVersionParts.length != 3)
         {
@@ -196,6 +213,28 @@ final class RsyncVersionChecker
 
         return new RsyncVersion(rsyncVersion, rsyncMajorVersion, rsyncMinorVersion,
                 rsyncPatchVersion, preReleaseVersion);
+    }
+
+    /**
+     * Tries to parse the <var>rsyncVersionLine</var>. Returns <code>null</code>, if it is not a
+     * valid version line.
+     */
+    static RsyncVersion tryParseVersionLine(String rsyncVersionLine)
+    {
+        final String rsyncVersionOrNull = tryExtractRsyncVersion(rsyncVersionLine);
+        if (rsyncVersionLine == null)
+        {
+            return null;
+        } else
+        {
+            try
+            {
+                return parseVersion(rsyncVersionOrNull);
+            } catch (NumberFormatException ex)
+            {
+                return null;
+            }
+        }
     }
 
     private static String tryGetRsyncVersion(String rsyncExecutableToCheck)

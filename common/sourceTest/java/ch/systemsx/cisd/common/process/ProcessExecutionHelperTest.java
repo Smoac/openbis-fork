@@ -282,7 +282,8 @@ public class ProcessExecutionHelperTest
         final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);
         final IProcessHandler handler =
                 ProcessExecutionHelper.runUnblocking(Arrays.asList(dummyExec.getAbsolutePath()),
-                        operationLog, machineLog);
+                        ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY, operationLog,
+                        machineLog);
         final AtomicReference<ProcessResult> result = new AtomicReference<ProcessResult>(null);
         final Runnable resultGetter = new Runnable()
             {

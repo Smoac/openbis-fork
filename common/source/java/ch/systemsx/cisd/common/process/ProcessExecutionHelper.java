@@ -205,8 +205,8 @@ public final class ProcessExecutionHelper
      *            a watch dog.
      * @param outputReadingStrategy The strategy for when to read the output (both
      *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
-     *            gets interrupted while waiting on the future.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread gets
+     *            interrupted while waiting on the future.
      * @return The process result.
      * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
      *             <code>true</code>.
@@ -236,15 +236,17 @@ public final class ProcessExecutionHelper
      * result.
      * 
      * @param cmd The command line to run.
+     * @param outputReadingStrategy The strategy about when to read the output from the process.
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return The handler which allows to wait for the result or terminate the process.
      */
-    public static IProcessHandler runUnblocking(final List<String> cmd, final Logger operationLog,
+    public static IProcessHandler runUnblocking(final List<String> cmd,
+            final OutputReadingStrategy outputReadingStrategy, Logger operationLog,
             final Logger machineLog)
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
-                DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runUnblocking();
+                outputReadingStrategy, operationLog, machineLog).runUnblocking();
     }
 
     /**

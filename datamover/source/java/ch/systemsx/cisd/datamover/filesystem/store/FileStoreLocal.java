@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
@@ -228,16 +229,25 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
      *         can be overwritten.
      */
     protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationDirectory,
-            final IStoreCopier simpleCopier)
+            final IStoreCopier copier)
     {
+        try
+        {
+            copier.check();
+        } catch (ConfigurationFailureException ex)
+        {
+            machineLog.warn("Cannot determine whether copying to '" + destinationDirectory
+                    + "' requires deletion before copying, assuming 'true'", ex);
+            return true;
+        }
         final StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
-        simpleCopier.copy(item);
+        copier.copy(item);
         boolean requiresDeletion;
         try
         {
             // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
-            requiresDeletion = Status.OK.equals(simpleCopier.copy(item)) == false;
+            requiresDeletion = Status.OK.equals(copier.copy(item)) == false;
             logCopierOverwriteState(destinationDirectory, requiresDeletion);
         } catch (final Exception e)
         {

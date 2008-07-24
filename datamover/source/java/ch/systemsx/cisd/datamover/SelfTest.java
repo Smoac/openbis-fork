@@ -67,8 +67,9 @@ public class SelfTest
                 } catch (ConfigurationFailureException ex)
                 {
                     notificationLog.error("Self-test failed for self testable '" + selfTestable
-                            + "'. This self-testable  is remote and the resource may become "
-                            + "available later, thus continuing anyway.");
+                            + "'. This self-testable is remote and the resource may become "
+                            + "available later, thus continuing anyway [error message: "
+                            + ex.getMessage() + ".");
                 }
             } else
             {
@@ -107,7 +108,7 @@ public class SelfTest
             copier.check();
             checkPathRecords(stores);
             checkSelfTestables(selfTestables);
-            
+
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Self test successfully completed.");
