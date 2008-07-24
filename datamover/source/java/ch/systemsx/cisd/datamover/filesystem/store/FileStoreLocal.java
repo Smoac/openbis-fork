@@ -251,7 +251,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             logCopierOverwriteState(destinationDirectory, requiresDeletion);
         } catch (final Exception e)
         {
-            logFIleSystemNeedsOverwrite(destinationDirectory);
+            logFileSystemNeedsOverwrite(destinationDirectory);
             requiresDeletion = true;
         } finally
         {
@@ -262,7 +262,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         return requiresDeletion;
     }
 
-    private final static void logFIleSystemNeedsOverwrite(final IFileStore destinationDirectory)
+    private final static void logFileSystemNeedsOverwrite(final IFileStore destinationDirectory)
     {
         if (machineLog.isInfoEnabled())
         {
