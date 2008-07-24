@@ -88,8 +88,6 @@ public final class IncomingProcessorTest
 
     private static final String EXAMPLE_SCRIPT = "echo hello world";
 
-    private static final File TEST_FILE = new File(TEST_FOLDER, "blabla.txt");
-
     private BufferedAppender logRecorder;
 
     private Mockery context;
@@ -301,7 +299,7 @@ public final class IncomingProcessorTest
     @Test
     public void testWithDataCompletedScriptWhichFailsInitially() throws IOException
     {
-        createExampleScript(EXAMPLE_SCRIPT + "\nrm -v " + TEST_FILE.toString().replace('\\', '/'));
+        createExampleScript("exit 1");
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
         final File markerFile = new File(incomingDir, MarkerFile.createRequiresDeletionBeforeCreationMarker().getName());
@@ -318,7 +316,11 @@ public final class IncomingProcessorTest
                             markerFile.renameTo(result);
                             return result;
                         }
+
                     });
+
+                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
                 }
             });
 
@@ -339,7 +341,7 @@ public final class IncomingProcessorTest
 
         logRecorder.resetLogContent();
         operationAppender.reset();
-        TEST_FILE.createNewFile();
+        createExampleScript("exit 0"); // now the script will run fine
         dataMoverTimerTask.run(); // 4. round finds changed status, thus log
         assertTrue(logRecorder.getLogContent().length() > 0);
         operationAppender.verifyLogHasHappened();
