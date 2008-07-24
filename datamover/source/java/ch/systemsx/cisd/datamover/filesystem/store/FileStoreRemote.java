@@ -58,7 +58,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static final String NO_SUCH_FILE_OR_DIRECTORY_MSG = "No such file or directory";
 
-    private static final long QUICK_SSH_TIMEOUT_MILIS = 15 * 1000;
+    private static final long QUICK_SSH_TIMEOUT_MILLIS = 15 * 1000;
 
     private static final long LONG_SSH_TIMEOUT_MILIS = 120 * 1000;
 
@@ -201,7 +201,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String pathString = StoreItem.asFile(getPath(), item).getPath();
         final String cmd = mkDeleteFileCommand(pathString);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNull(result);
         if (errMsg == null)
         {
@@ -216,7 +216,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final File itemFile = StoreItem.asFile(getPath(), item);
         final String cmd = mkCheckFileExistsCommand(itemFile.getPath());
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
         if (result.isOK())
         {
             return BooleanStatus.createFromBoolean(isSuccessfulCheck(result));
@@ -316,7 +316,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private String createNoFindUtilMessage()
     {
-        return "No GNU find utility is present on the remote machine " + getHost();
+        return "No GNU find utility is present on the remote machine '" + getHost() + "'";
     }
 
     private String getPathString()
@@ -345,25 +345,40 @@ public class FileStoreRemote extends AbstractFileStore
     private boolean checkFindExecutable(final String findExec)
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILIS, false);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+        if (machineLog.isDebugEnabled())
+        {
+            result.log();
+        }
         if (result.isOK())
         {
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
-                    tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILIS, false);
-            return verResult.isOK() && verResult.getOutput().size() > 0
-                    && verResult.getOutput().get(0).startsWith("GNU find");
+                    tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+            if (machineLog.isDebugEnabled())
+            {
+                verResult.log();
+            }
+            return verResult.isOK() && isGNUFind(verResult.getOutput());
         } else
         {
             return false;
         }
     }
 
-    private void setAndLogFindExecutable(final String findExecutable)
+    private boolean isGNUFind(List<String> output)
     {
-        this.remoteFindExecutableOrNull = findExecutable;
-        machineLog.info("Using GNU find executable '" + findExecutable + "' on store '" + this
-                + "'.");
+        return output.size() > 0 && output.get(0).contains("GNU") && output.get(0).contains("find");
+    }
+    
+    private void setAndLogFindExecutable(final String findExecutableOrNull)
+    {
+        if (findExecutableOrNull != null)
+        {
+            this.remoteFindExecutableOrNull = findExecutableOrNull;
+            machineLog.info("Using GNU find executable '" + findExecutableOrNull + "' on store '"
+                    + this + "'.");
+        }
     }
 
     private BooleanStatus checkDirectoryAccessible(final String pathString, final long timeOutMillis)
@@ -378,8 +393,16 @@ public class FileStoreRemote extends AbstractFileStore
                 return BooleanStatus.createTrue();
             } else
             {
-                return BooleanStatus.createFalse("Directory not accessible: " + dirDesc
-                        + ". Check that it exists and that you have read and write rights to it.");
+                String msg =
+                        "Directory not accessible: " + dirDesc
+                                + ". Check that it exists and that you have read and write "
+                                + "permissions to it.";
+                if (result.getOutput().size() > 0
+                        && "false".equals(result.getOutput().get(0)) == false)
+                {
+                    msg += " [check says: " + StringUtils.join(result.getOutput(), '\n') + "]";
+                }
+                return BooleanStatus.createFalse(msg);
             }
         } else
         {
