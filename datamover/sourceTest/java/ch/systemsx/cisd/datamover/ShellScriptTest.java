@@ -125,18 +125,20 @@ public class ShellScriptTest
     @Test
     public void testStatusIdle() throws IOException
     {
-        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
+        // Convention for unit tests to get PID accepted as "running".
+        FileUtils.writeStringToFile(PID_FILE, "fake"); 
         checkStatus(0, "IDLE", false);
-        checkStatus(0, "Datamover (pid ) is running and in idle state", true);
+        checkStatus(0, "Datamover (pid fake) is running and in idle state", true);
     }
 
     @Test
     public void testStatusProcessing() throws IOException
     {
-        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
+        // Convention for unit tests to get PID accepted as "running".
+        FileUtils.writeStringToFile(PID_FILE, "fake"); 
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
-        checkStatus(0, "Datamover (pid ) is running and in processing state", true);
+        checkStatus(0, "Datamover (pid fake) is running and in processing state", true);
         FileUtils.touch(MARKER_FILE_OUTGOING_PROCESSING);
         checkStatus(0, "PROCESSING", false);
     }
@@ -144,10 +146,11 @@ public class ShellScriptTest
     @Test
     public void testStatusError() throws IOException
     {
-        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
+        // Convention for unit tests to get PID accepted as "running".
+        FileUtils.writeStringToFile(PID_FILE, "fake"); 
         FileUtils.touch(MARKER_FILE_INCOMING_ERROR);
         checkStatus(1, "ERROR", false);
-        checkStatus(1, "Datamover (pid ) is running and in error state:", true, 2);
+        checkStatus(1, "Datamover (pid fake) is running and in error state:", true, 2);
         FileUtils.touch(MARKER_FILE_OUTGOING_ERROR);
         checkStatus(1, "ERROR", false);
     }
@@ -155,10 +158,11 @@ public class ShellScriptTest
     @Test
     public void testStatusShutdown() throws IOException
     {
-        FileUtils.touch(PID_FILE); // empty PID file is for the shell script like a running process
+        // Convention for unit tests to get PID accepted as "running".
+        FileUtils.writeStringToFile(PID_FILE, "fake"); 
         FileUtils.touch(MARKER_FILE_SHUTDOWN);
         checkStatus(2, "SHUTDOWN", false);
-        checkStatus(2, "Datamover (pid ) is in shutdown mode", true);
+        checkStatus(2, "Datamover (pid fake) is in shutdown mode", true);
         FileUtils.touch(MARKER_FILE_INCOMING_PROCESSING);
         checkStatus(2, "SHUTDOWN", false);
     }
