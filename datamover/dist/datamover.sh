@@ -54,7 +54,7 @@ rotateLogFiles()
     echo "Error: rotateLogFiles: max argument missing"
     return 1
   fi
-  test -f $logfile.$max && rm -f $logfile.$max
+  test -f $logfile.$max && rm $logfile.$max
   n=$max
   while [ $n -gt 1 ]; do
     nnew=$(($n-1))
@@ -202,7 +202,6 @@ case "$command" in
           echo "(pid $PID)"
         fi
       else
-        test -e $PIDFILE && rm -f $PIDFILE 2> /dev/null
         echo "FAILED"
         echo "startup log says:"
         cat $STARTUPLOG
