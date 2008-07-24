@@ -68,8 +68,8 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the rsync module on the rsync server to use to access this file, or <code>null</code>,
-     * if no rsync server but rather an ssh tunnel should be used.
+     * Returns the rsync module on the rsync server to use to access this file, or <code>null</code>
+     * , if no rsync server but rather an ssh tunnel should be used.
      */
     public final String tryGetRsyncModule()
     {
@@ -84,7 +84,14 @@ public class HostAwareFile extends AbstractHashable implements Serializable
             return FileUtilities.getCanonicalPath(getFile());
         } else
         {
-            return tryGetHost() + HOST_FILE_SEP + getFile();
+            if (tryGetRsyncModule() == null)
+            {
+                return tryGetHost() + HOST_FILE_SEP + getFile();
+            } else
+            {
+                return tryGetHost() + HOST_FILE_SEP + tryGetRsyncModule() + HOST_FILE_SEP
+                        + getFile();
+            }
         }
     }
 }
