@@ -159,7 +159,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private void ensureSpecifiedFindExists(final String host, final String remoteFindExecutable)
     {
-        if (checkFindExecutable(remoteFindExecutableOrNull) == false)
+        if (checkFindExecutable(remoteFindExecutableOrNull) == null)
         {
             throw new EnvironmentFailureException("Cannot find specified find executable '"
                     + remoteFindExecutableOrNull + "' on the remote host '" + host + "'.");
@@ -332,17 +332,17 @@ public class FileStoreRemote extends AbstractFileStore
             { "gfind", "find" };
         for (final String findExec : findExecutables)
         {
-            boolean ok = checkFindExecutable(findExec);
-            if (ok)
+            final String findExecutableOrNull = checkFindExecutable(findExec);
+            if (findExecutableOrNull != null)
             {
-                setAndLogFindExecutable(findExec);
+                setAndLogFindExecutable(findExecutableOrNull);
                 return true;
             }
         }
         return false;
     }
 
-    private boolean checkFindExecutable(final String findExec)
+    private String checkFindExecutable(final String findExec)
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
         final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
@@ -352,6 +352,7 @@ public class FileStoreRemote extends AbstractFileStore
         }
         if (result.isOK())
         {
+            final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
                     tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS, false);
@@ -359,11 +360,12 @@ public class FileStoreRemote extends AbstractFileStore
             {
                 verResult.log();
             }
-            return verResult.isOK() && isGNUFind(verResult.getOutput());
-        } else
-        {
-            return false;
+            if (verResult.isOK() && isGNUFind(verResult.getOutput()))
+            {
+                return findExecutable;
+            }
         }
+        return null;
     }
 
     private boolean isGNUFind(List<String> output)
