@@ -54,6 +54,13 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
 
     private final IDirectoryImmutableCopier fastDirectoryCopierOrNull;
 
+    public final static IImmutableCopier tryCreate(final File rsyncExecutable,
+            boolean neverUseNative)
+    {
+        return tryCreate(rsyncExecutable, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ATTEMPTS,
+                DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS, neverUseNative);
+    }
+
     public final static IImmutableCopier tryCreate(final File rsyncExecutable)
     {
         return tryCreate(rsyncExecutable, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ATTEMPTS,
