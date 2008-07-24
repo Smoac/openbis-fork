@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
 /**
  * Decorates another <code>List</code> to validate that all additions match a specified
- * <code>Validator</code>.
+ * <code>IValidator</code>.
  * <p>
  * This list exists to provide validation for the decorated list. This class is not
  * <code>Serializable</code>.
@@ -37,7 +39,7 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * Constructor that filters given <code>List</code>.
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>Validator</code> to use for validation. Must not be
+     * @param validator the <code>IValidator</code> to use for validation. Must not be
      *            <code>null</code>
      */
     protected FilteredList(final List<E> list, final IValidator<E> validator)
@@ -52,12 +54,27 @@ public final class FilteredList<E> extends FilteredCollection<E> implements List
      * </p>
      * 
      * @param list the list to decorate. Must not be <code>null</code>
-     * @param validator the <code>Validator</code> to use for validation. Must not be
+     * @param validator the <code>IValidator</code> to use for validation. Must not be
      *            <code>null</code>
      */
     public static <E> List<E> decorate(final List<E> list, final IValidator<E> validator)
     {
         return new FilteredList<E>(list, validator);
+    }
+
+    /**
+     * Factory method to create a filtered (validating) list.
+     * <p>
+     * If there are any elements already in the array being decorated, they are validated.
+     * </p>
+     * 
+     * @param array the array to decorate. Must not be <code>null</code>
+     * @param validator the <code>IValidator</code> to use for validation. Must not be
+     *            <code>null</code>
+     */
+    public static <E> List<E> decorate(final E[] array, final IValidator<E> validator)
+    {
+        return new FilteredList<E>(new ArrayList<E>(Arrays.asList(array)), validator);
     }
 
     /**

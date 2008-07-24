@@ -21,7 +21,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * <code>ValidatorUtils</code> provides reference implementations and utilities for the
- * <code>Validator</code> interface.
+ * <code>IValidator</code> interface.
  * 
  * @author Christian Ribeaud
  */
@@ -29,14 +29,14 @@ public final class ValidatorUtils
 {
 
     /**
-     * A <code>Validator</code> implementation which check whether given <code>Object</code> is not
-     * <code>null</code>.
+     * A <code>IValidator</code> implementation which check whether given <code>Object</code> is
+     * not <code>null</code>.
      */
     private final static IValidator<Object> NOT_NULL_VALIDATOR = new IValidator<Object>()
         {
 
             //
-            // Validator
+            // IValidator
             //
 
             public final boolean isValid(final Object object)
@@ -46,13 +46,13 @@ public final class ValidatorUtils
         };
 
     /**
-     * A <code>Validator</code> implementation which always returns <code>true</code>.
+     * A <code>IValidator</code> implementation which always returns <code>true</code>.
      */
     private final static IValidator<Object> ALWAYS_TRUE = new IValidator<Object>()
         {
 
             //
-            // Validator
+            // IValidator
             //
 
             public final boolean isValid(final Object object)
@@ -67,7 +67,7 @@ public final class ValidatorUtils
     }
 
     /**
-     * Creates a <code>Validator</code> based on the given pattern.
+     * Creates a <code>IValidator</code> based on the given pattern.
      * 
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.
@@ -93,7 +93,7 @@ public final class ValidatorUtils
     }
 
     /**
-     * Creates a <code>Validator</code> based on the given pattern.
+     * Creates a <code>IValidator</code> based on the given pattern.
      * 
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.

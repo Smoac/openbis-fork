@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.collections;
 /**
  * Defines a functor interface implemented by classes that perform a predicate test on an object.
  * <p>
- * A <code>Validator</code> is the object equivalent of an <code>if</code> statement. It uses
+ * A <code>IValidator</code> is the object equivalent of an <code>if</code> statement. It uses
  * the input object to return a <code>true</code> or <code>false</code> value, and is often used
  * in validation or filtering.
  * </p>

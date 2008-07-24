@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An <code>Validator</code> implementation which validates using a list of individual
- * <code>Validator</code>.
+ * An <code>IValidator</code> implementation which validates using a list of individual
+ * <code>IValidator</code>.
  * <p>
  * This is an <code>OR</code> operation: the tested object should only be validated by at least
- * one <code>Validator</code> to be valid.
+ * one <code>IValidator</code> to be valid.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -51,7 +51,7 @@ public final class CompositeValidator<T> implements IValidator<T>
     }
 
     //
-    // Validator
+    // IValidator
     //
 
     public final boolean isValid(final T t)
