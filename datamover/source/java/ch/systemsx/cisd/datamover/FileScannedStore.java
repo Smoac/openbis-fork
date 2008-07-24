@@ -15,8 +15,8 @@
  */
 package ch.systemsx.cisd.datamover;
 
-import java.util.Vector;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.Constants;
@@ -89,7 +89,7 @@ final class FileScannedStore implements IScannedStore
         StoreItem currentItem = null;
         try
         {
-            final Vector<StoreItem> result = new Vector<StoreItem>();
+            final List<StoreItem> result = new ArrayList<StoreItem>();
             for (final StoreItem item : items)
             {
                 currentItem = item;
