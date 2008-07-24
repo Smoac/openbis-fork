@@ -40,6 +40,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
 import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
@@ -91,9 +94,11 @@ public final class IncomingProcessorTest
 
     private Mockery context;
 
-    private IFileSysOperationsFactory fileSysOpertationFactory;
+    private IFileSysOperationsFactory fileSysOperationFactory;
 
     private IPathMover mover;
+
+    private IPathCopier copier;
 
     private IPathRemover remover;
 
@@ -133,8 +138,9 @@ public final class IncomingProcessorTest
         LogInitializer.init();
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
         context = new Mockery();
-        fileSysOpertationFactory = context.mock(IFileSysOperationsFactory.class);
+        fileSysOperationFactory = context.mock(IFileSysOperationsFactory.class);
         mover = context.mock(IPathMover.class);
+        copier = context.mock(IPathCopier.class);
         remover = context.mock(IPathRemover.class);
 
         FileUtilities.deleteRecursively(TEST_FOLDER);
@@ -163,10 +169,14 @@ public final class IncomingProcessorTest
     public void testWithoutDataCompletedScript() throws IOException
     {
         final File testDataFile = new File(incomingDir, "test-data.txt");
+        final File markerFile = new File(incomingDir, MarkerFile.createRequiresDeletionBeforeCreationMarker().getName());
         testDataFile.createNewFile();
         context.checking(new Expectations()
             {
                 {
+                    one(mover).tryMove(markerFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, markerFile.getName())));
+
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
                 }
@@ -191,6 +201,7 @@ public final class IncomingProcessorTest
     public void testFailureMarker() throws IOException
     {
         final File testDataFile = new File(incomingDir, "test-data.txt");
+        final File markerFile = new File(incomingDir, MarkerFile.createRequiresDeletionBeforeCreationMarker().getName());
         final File errorMarker = new File(ERROR_MARKER_FILE);
         errorMarker.delete();
         assertFalse(errorMarker.exists());
@@ -198,6 +209,9 @@ public final class IncomingProcessorTest
         context.checking(new Expectations()
             {
                 {
+                    one(mover).tryMove(markerFile, copyCompleteDir, "");
+                    will(returnValue(new File(copyCompleteDir, markerFile.getName())));
+
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
                 }
@@ -225,6 +239,7 @@ public final class IncomingProcessorTest
     {
         createExampleScript(EXAMPLE_SCRIPT);
         final File testDataFile = new File(incomingDir, "test-data.txt");
+        final File markerFile = new File(incomingDir, MarkerFile.createRequiresDeletionBeforeCreationMarker().getName());
         testDataFile.createNewFile();
         final File errorMarker = new File(ERROR_MARKER_FILE);
         errorMarker.delete();
@@ -232,6 +247,18 @@ public final class IncomingProcessorTest
         context.checking(new Expectations()
             {
                 {
+                    one(mover).tryMove(markerFile, copyCompleteDir, "");
+                    will(new CustomAction("move file")
+                    {
+                        public Object invoke(Invocation invocation) throws Throwable
+                        {
+                            final File result =
+                                    new File(copyCompleteDir, markerFile.getName());
+                            markerFile.renameTo(result);
+                            return result;
+                        }
+                    });
+
                     one(mover).tryMove(testDataFile, copyCompleteDir, "");
                     will(new CustomAction("move file")
                         {
@@ -277,11 +304,21 @@ public final class IncomingProcessorTest
         createExampleScript(EXAMPLE_SCRIPT + "\nrm -v " + TEST_FILE.toString().replace('\\', '/'));
         final File testDataFile = new File(incomingDir, "test-data.txt");
         testDataFile.createNewFile();
+        final File markerFile = new File(incomingDir, MarkerFile.createRequiresDeletionBeforeCreationMarker().getName());
         context.checking(new Expectations()
             {
                 {
-                    one(mover).tryMove(testDataFile, copyCompleteDir, "");
-                    will(returnValue(new File(copyCompleteDir, testDataFile.getName())));
+                    one(mover).tryMove(markerFile, copyCompleteDir, "");
+                    will(new CustomAction("move file")
+                    {
+                        public Object invoke(Invocation invocation) throws Throwable
+                        {
+                            final File result =
+                                    new File(copyCompleteDir, markerFile.getName());
+                            markerFile.renameTo(result);
+                            return result;
+                        }
+                    });
                 }
             });
 
@@ -341,18 +378,33 @@ public final class IncomingProcessorTest
         final LocalBufferDirs localBufferDirs =
                 new LocalBufferDirs(new HostAwareFileWithHighwaterMark(TEST_FOLDER),
                         COPY_IN_PROGRESS_DIR, COPY_COMPLETE_DIR, READY_TO_MOVE_DIR, TEMP_DIR);
+        final File incomingDeletionCheckFile =
+                new File(new File(TEST_FOLDER, INCOMING_DIR), MarkerFile
+                        .createRequiresDeletionBeforeCreationMarker().getName());
+        final File inProgressDeletionCheckFile =
+            new File(new File(TEST_FOLDER, COPY_IN_PROGRESS_DIR), MarkerFile
+                    .createRequiresDeletionBeforeCreationMarker().getName());
         context.checking(new Expectations()
             {
                 {
-                    allowing(fileSysOpertationFactory).getMover();
+                    allowing(fileSysOperationFactory).getMover();
                     will(returnValue(mover));
 
-                    allowing(fileSysOpertationFactory).getRemover();
+                    allowing(fileSysOperationFactory).getRemover();
                     will(returnValue(remover));
+
+                    one(fileSysOperationFactory).getCopier(false);
+                    will(returnValue(copier));
+
+                    allowing(copier).copy(incomingDeletionCheckFile, copyInProgressDir);
+                    will(returnValue(Status.OK));
+                    
+                    one(remover).remove(incomingDeletionCheckFile);
+                    one(remover).remove(inProgressDeletionCheckFile);
                 }
             });
         return IncomingProcessor.createMovingProcess(parameters, MARKER_FILE, ERROR_MARKER_FILE,
-                null, fileSysOpertationFactory, new MockTimeProvider(), localBufferDirs);
+                null, fileSysOperationFactory, new MockTimeProvider(), localBufferDirs);
 
     }
 }
