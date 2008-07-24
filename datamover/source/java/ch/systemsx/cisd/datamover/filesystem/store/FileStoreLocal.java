@@ -244,32 +244,15 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         createNewFile(item);
         copier.copy(item);
         boolean requiresDeletion;
-        try
-        {
-            // If we have e.g. a Cellera NAS server, the next call will raise an IOException.
-            requiresDeletion = Status.OK.equals(copier.copy(item)) == false;
-            logCopierOverwriteState(destinationDirectory, requiresDeletion);
-        } catch (final Exception e)
-        {
-            logFileSystemNeedsOverwrite(destinationDirectory);
-            requiresDeletion = true;
-        } finally
-        {
-            // We don't check for success because there is nothing we can do if we fail.
-            delete(item);
-            destinationDirectory.delete(item);
-        }
-        return requiresDeletion;
-    }
+        // A CIFS mount from a Cellera NAS server is an example that gives 'true' here.
+        requiresDeletion = Status.OK.equals(copier.copy(item)) == false;
+        logCopierOverwriteState(destinationDirectory, requiresDeletion);
 
-    private final static void logFileSystemNeedsOverwrite(final IFileStore destinationDirectory)
-    {
-        if (machineLog.isInfoEnabled())
-        {
-            machineLog.info(String.format(
-                    "The file system on '%s' requires deletion before creation of existing files.",
-                    destinationDirectory));
-        }
+        // We don't check for success because there is nothing we can do if we fail.
+        delete(item);
+        destinationDirectory.delete(item);
+
+        return requiresDeletion;
     }
 
     private final static void logCopierOverwriteState(final IFileStore destinationDirectory,
