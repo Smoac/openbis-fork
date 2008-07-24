@@ -176,7 +176,7 @@ case "$command" in
       n=0
       while [ $n -lt $MAX_LOOPS ]; do
         sleep 1
-        if [ ! -e $PIDFILE ]; then
+        if [ ! -f $PIDFILE ]; then
           break
         fi
         if [ -s $STARTUPLOG ]; then
@@ -202,7 +202,7 @@ case "$command" in
           echo "(pid $PID)"
         fi
       else
-        test -e $PIDFILE && rm -f $PIDFILE
+        test -e $PIDFILE && rm -f $PIDFILE 2> /dev/null
         echo "FAILED"
         echo "startup log says:"
         cat $STARTUPLOG
@@ -221,13 +221,15 @@ case "$command" in
         if [ $? -eq 0 ]; then
           echo "(pid $PID)"
           # Shouldn't be necessary as Datamover deletes the file itself, but just to be sure
-          test -e $PIDFILE && rm $PIDFILE
+          test -f $PIDFILE && rm $PIDFILE 2> /dev/null
         else
           echo "FAILED"
         fi
       else
-        rm $PIDFILE
-        echo "(was dead - cleaned up pid file)"
+        if [ -f $PIDFILE ]; then
+          rm $PIDFILE 2> /dev/null
+          echo "(was dead - cleaned up pid file)"
+        fi
       fi
     else
       echo "(not running - nothing to do)"
