@@ -217,7 +217,16 @@ case "$command" in
       isPIDRunning $PID
       if [ $? -eq 0 ]; then
         kill $PID
-        if [ $? -eq 0 ]; then
+        n=0
+        while [ $n -lt $MAX_LOOPS ]; do
+          isPIDRunning $PID
+          if [ $? -ne 0 ]; then
+            break
+          fi
+          n=$(($n+1))
+        done
+        isPIDRunning $PID
+        if [ $? -ne 0 ]; then
           echo "(pid $PID)"
           # Shouldn't be necessary as Datamover deletes the file itself, but just to be sure
           test -f $PIDFILE && rm $PIDFILE 2> /dev/null
