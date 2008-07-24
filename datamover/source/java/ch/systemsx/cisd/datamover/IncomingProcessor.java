@@ -71,8 +71,6 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final Parameters parameters;
 
-    private final IFileSysOperationsFactory factory;
-
     private final IPathMover pathMover;
 
     private final LocalBufferDirs bufferDirs;
@@ -88,6 +86,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private final String errorMarkerFileName;
 
     private final String successorMarkerFileName;
+
+    private final IStoreHandler remotePathMover;
 
     public static final DataMoverProcess createMovingProcess(final Parameters parameters,
             final String markerFile, final String errorMarkerFile,
@@ -121,9 +121,12 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.incomingStore = parameters.getIncomingStore(factory);
         this.pathMover = factory.getMover();
-        this.factory = factory;
         this.bufferDirs = bufferDirs;
         this.storeItemFilter = createFilter(timeProvider);
+        this.remotePathMover =
+                createRemotePathMover(incomingStore, FileStoreFactory.createLocal(bufferDirs
+                        .getCopyInProgressDir(), "local", factory));
+
     }
 
     private final IStoreItemFilter createFilter(final ITimeProvider timeProvider)
@@ -137,6 +140,13 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             filterBank.add(new DataCompletedFilter(incomingStore, dataCompletedScript, timeout));
         }
         return filterBank;
+    }
+
+    private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
+            final IFileStore destinationDirectory)
+    {
+        return RemoteMonitoredMoverFactory
+                .create(sourceDirectory, destinationDirectory, parameters);
     }
 
     public TimerTask createRecoverableTimerTask()
@@ -209,9 +219,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private void moveFromRemoteIncoming(final StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
-        final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
-        moveFromRemoteToLocal(sourceItem, incomingStore, copyInProgressDir);
-        final File copiedFile = new File(copyInProgressDir, sourceItem.getName());
+        moveFromRemoteToLocal(sourceItem);
+        final File copiedFile = new File(bufferDirs.getCopyInProgressDir(), sourceItem.getName());
         if (copiedFile.exists() == false)
         {
             return;
@@ -246,18 +255,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(final StoreItem sourceItem, final IFileStore sourceStore,
-            final File localDestDir)
+    private void moveFromRemoteToLocal(final StoreItem sourceItem)
     {
-        createRemotePathMover(sourceStore,
-                FileStoreFactory.createLocal(localDestDir, "local", factory)).handle(sourceItem);
-    }
-
-    private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
-            final IFileStore destinationDirectory)
-    {
-        return RemoteMonitoredMoverFactory
-                .create(sourceDirectory, destinationDirectory, parameters);
+        remotePathMover.handle(sourceItem);
     }
 
     private File tryMoveLocal(final File sourceFile, final File destinationDir,
