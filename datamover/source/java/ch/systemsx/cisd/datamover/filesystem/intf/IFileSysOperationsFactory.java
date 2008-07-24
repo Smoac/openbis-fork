@@ -41,4 +41,16 @@ public interface IFileSysOperationsFactory
      * @return <code>null</code> if not found.
      */
     public File tryFindSshExecutable();
+
+    /**
+     * Returns the rsync executable on the incoming host, if any has been set. Otherwise
+     * <code>null</code> is returned.
+     */
+    public String tryGetIncomingRsyncExecutable();
+
+    /**
+     * Returns the rsync executable on the incoming host, if any has been set. Otherwise
+     * <code>null</code> is returned.
+     */
+    public String tryGetOutgoingRsyncExecutable();
 }

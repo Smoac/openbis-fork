@@ -133,8 +133,14 @@ public class SelfTestTest
                     return false;
                 }
 
-                public boolean checkRsyncConnection(String host, String rsyncModule,
+                public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
                         String rsyncPassworFileOrNull)
+                {
+                    throw new AssertionError();
+                }
+
+                public boolean checkRsyncConnectionViaSsh(String host,
+                        String rsyncExecutableOnHostOrNull)
                 {
                     throw new AssertionError();
                 }

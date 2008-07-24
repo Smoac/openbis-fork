@@ -58,6 +58,16 @@ public class FileOperationsUtil
                 {
                     return 0;
                 }
+
+                public String getIncomingRsyncExecutable()
+                {
+                    return null;
+                }
+
+                public String getOutgoingRsyncExecutable()
+                {
+                    return null;
+                }
             };
     }
 }

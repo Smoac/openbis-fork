@@ -134,27 +134,37 @@ public abstract class AbstractFileStore implements IFileStore
                 {
                     if (srcHostOrNull != null)
                     {
-                        check(srcHostOrNull, tryGetRsyncModuleName(),
+                        check(srcHostOrNull, factory.tryGetIncomingRsyncExecutable(),
+                                tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
                     }
                     if (destHostOrNull != null)
                     {
-                        check(destHostOrNull, destinationStore.tryGetRsyncModuleName(),
+                        check(destHostOrNull, factory.tryGetOutgoingRsyncExecutable(),
+                                destinationStore.tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
                     }
                 }
 
-                private void check(String host, String rsyncModule, String rsyncPasswordFileOrNull)
+                private void check(String host, String remoteRsyncExecutable,
+                        String rsyncModuleOrNull, String rsyncPasswordFileOrNull)
                 {
-                    final boolean connectionOK =
-                            copier.checkRsyncConnection(host, rsyncModule, rsyncPasswordFileOrNull);
-                    if (connectionOK == false)
+                    if (rsyncModuleOrNull != null)
                     {
-                        if (rsyncModule != null)
+                        final boolean connectionOK =
+                                copier.checkRsyncConnectionViaRsyncServer(host, rsyncModuleOrNull,
+                                        rsyncPasswordFileOrNull);
+                        if (connectionOK == false)
                         {
                             throw ConfigurationFailureException.fromTemplate(
-                                    "Connection to rsync module %s::%s failed", host, rsyncModule);
-                        } else
+                                    "Connection to rsync module %s::%s failed", host,
+                                    rsyncModuleOrNull);
+                        }
+                    } else
+                    {
+                        final boolean connectionOK =
+                                copier.checkRsyncConnectionViaSsh(host, remoteRsyncExecutable);
+                        if (connectionOK == false)
                         {
                             throw ConfigurationFailureException.fromTemplate(
                                     "No good rsync executable found on host '%s'", host);

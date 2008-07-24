@@ -113,4 +113,14 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         return new RetryingPathMover(parameters.getMaximalNumberOfRetries(),
                 parameters.getIntervalToWaitAfterFailure());
     }
+
+    public String tryGetIncomingRsyncExecutable()
+    {
+        return parameters.getIncomingRsyncExecutable();
+    }
+
+    public String tryGetOutgoingRsyncExecutable()
+    {
+        return parameters.getOutgoingRsyncExecutable();
+    }
 }

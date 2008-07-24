@@ -87,10 +87,25 @@ public interface IPathCopier extends ITerminable, ISelfTestable
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
-     * Try to connect to the <var>host</var> and see whether the connection is OK.
+     * Try to connect to the <var>host</var> via ssh and return whether the connection is OK.
      * 
+     * @param host The host to check the connection to.
+     * @param rsyncExecutableOnHostOrNull The rsync executable to use on the host, or
+     *            <code>null</code>, if the first one in the path should be chosen.
      * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
      */
-    boolean checkRsyncConnection(String host, String rsyncModuleOrNull,
+    boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull);
+
+    /**
+     * Try to connect to the <var>host</var> via rsync server and return whether the connection is
+     * OK.
+     * 
+     * @param host The host to check the connection to.
+     * @param rsyncModule The rsync module to use.
+     * @param rsyncPassworFileOrNull The password file for the rsync connection or <code>null</code>
+     *            if none should be used.
+     * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
+     */
+    boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
             String rsyncPassworFileOrNull);
 }

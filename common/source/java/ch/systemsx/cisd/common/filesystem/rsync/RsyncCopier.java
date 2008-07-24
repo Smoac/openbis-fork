@@ -322,19 +322,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return false;
     }
 
-    public boolean checkRsyncConnection(String host, String rsyncModuleOrNull,
-            String rsyncPasswordFileOrNull)
-    {
-        if (rsyncModuleOrNull != null)
-        {
-            return checkRsyncServerConnection(host, rsyncModuleOrNull, rsyncPasswordFileOrNull);
-        } else
-        {
-            return checkRsyncSSHTunnelConnection(host);
-        }
-    }
-
-    private boolean checkRsyncServerConnection(String host, String rsyncModuleOrNull,
+    public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
             String rsyncPasswordFileOrNull)
     {
         final List<String> commandLineList = new ArrayList<String>();
@@ -344,7 +332,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add("--password-file");
             commandLineList.add(rsyncPasswordFileOrNull);
         }
-        commandLineList.add(buildPath(host, new File("/"), rsyncModuleOrNull, false));
+        commandLineList.add(buildPath(host, new File("/"), rsyncModule, false));
         final ProcessResult processResult =
                 runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
         processResult.log();
@@ -361,12 +349,55 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return wrappedCmd;
     }
 
-    private boolean checkRsyncSSHTunnelConnection(String host)
+    public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull)
     {
         if (remoteHostRsyncMap.containsKey(host))
         {
             return true;
         }
+        final String rsyncExec;
+        if (rsyncExecutableOnHostOrNull == null)
+        {
+            rsyncExec = tryFindRemoteRsyncExecutable(host);
+        } else
+        {
+            rsyncExec = rsyncExecutableOnHostOrNull;
+        }
+        if (rsyncExec == null)
+        {
+            return false;
+        }
+        final List<String> commandLineList =
+                createSshCommand(host, sshExecutable, rsyncExec + " --version");
+        final ProcessResult verResult = runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
+        verResult.log();
+        if (verResult.isOK() == false || verResult.getOutput().size() == 0)
+        {
+            return false;
+        }
+        final RsyncVersion versionOrNull =
+                RsyncVersionChecker.tryParseVersionLine(verResult.getOutput().get(0));
+        final boolean ok = isGoodEnough(versionOrNull);
+        if (ok)
+        {
+            remoteHostRsyncMap.put(host, new RsyncRecord(rsyncExec, versionOrNull));
+            if (machineLog.isInfoEnabled())
+            {
+                machineLog.info(String.format(
+                        "On host '%s': using rsync executable '%s', version %s", host, rsyncExec,
+                        ObjectUtils.toString(versionOrNull, "UNKNOWN")));
+            }
+        } else
+        {
+            machineLog.error(String.format(
+                    "On host '%s': rsync executable '%s', version %s is too old", host, rsyncExec,
+                    ObjectUtils.toString(versionOrNull, "UNKNOWN")));
+        }
+        return ok;
+    }
+
+    private String tryFindRemoteRsyncExecutable(String host)
+    {
         List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
         final ProcessResult result = runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
         result.log();
@@ -384,35 +415,11 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         if (result.isOK() && result.getOutput().size() == 1)
         {
-            final String rsyncExec = result.getOutput().get(0);
-            commandLineList = createSshCommand(host, sshExecutable, rsyncExec + " --version");
-            final ProcessResult verResult =
-                    runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
-            verResult.log();
-            if (verResult.isOK() && result.getOutput().size() > 0)
-            {
-                final RsyncVersion versionOrNull =
-                        RsyncVersionChecker.tryParseVersionLine(verResult.getOutput().get(0));
-                final boolean ok = isGoodEnough(versionOrNull);
-                if (ok)
-                {
-                    remoteHostRsyncMap.put(host, new RsyncRecord(rsyncExec, versionOrNull));
-                    if (machineLog.isInfoEnabled())
-                    {
-                        machineLog.info(String.format(
-                                "On host '%s': using rsync executable '%s', version %s", host,
-                                rsyncExec, ObjectUtils.toString(versionOrNull, "UNKNOWN")));
-                    }
-                } else
-                {
-                    machineLog.error(String.format(
-                            "On host '%s': rsync executable '%s', version %s is too old", host,
-                            rsyncExec, ObjectUtils.toString(versionOrNull, "UNKNOWN")));
-                }
-                return ok;
-            }
+            return result.getOutput().get(0);
+        } else
+        {
+            return null;
         }
-        return false;
     }
 
     private final Status copy(final File sourcePath, final String sourceHostOrNull,

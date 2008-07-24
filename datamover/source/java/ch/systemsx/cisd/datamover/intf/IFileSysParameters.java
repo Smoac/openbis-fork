@@ -27,10 +27,21 @@ public interface IFileSysParameters
     String getRsyncExecutable();
 
     /**
+     * @return The name of the <code>rsync</code> executable on the incoming host to use for copy
+     *         operations.
+     */
+    public String getIncomingRsyncExecutable();
+
+    /**
+     * @return The name of the <code>rsync</code> executable on the outgoing host to use for copy
+     *         operations.
+     */
+    public String getOutgoingRsyncExecutable();
+
+    /**
      * @return <code>true</code>, if rsync is called in such a way to files that already exist
      *         are overwritten rather than appended to.
      */
-
     boolean isRsyncOverwrite();
 
     /**

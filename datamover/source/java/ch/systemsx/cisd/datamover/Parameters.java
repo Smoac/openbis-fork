@@ -90,6 +90,20 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private String rsyncExecutable = null;
 
     /**
+     * The name of the <code>rsync</code> executable to use for copy operations.
+     */
+    @Option(longName = PropertyNames.INCOMING_HOST_RSYNC_EXECUTABLE, metaVar = "EXEC", usage = "The rsync executable "
+            + "to use as a counterpart on the incoming host for copy operations.")
+    private String incomingRsyncExecutable = null;
+
+    /**
+     * The name of the <code>rsync</code> executable to use for copy operations.
+     */
+    @Option(longName = PropertyNames.OUTGOING_HOST_RSYNC_EXECUTABLE, metaVar = "EXEC", usage = "The rsync executable "
+            + "to use as a counterpart on the outgoing host for copy operations.")
+    private String outgoingRsyncExecutable = null;
+
+    /**
      * Default of whether rsync should use overwrite or append mode, if append mode is available.
      */
     private static final boolean DEFAULT_RSYNC_OVERWRITE = false;
@@ -392,6 +406,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         rsyncExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.RSYNC_EXECUTABLE,
                         rsyncExecutable);
+        incomingRsyncExecutable =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.INCOMING_HOST_RSYNC_EXECUTABLE, rsyncExecutable);
+        outgoingRsyncExecutable =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.OUTGOING_HOST_RSYNC_EXECUTABLE, rsyncExecutable);
         rsyncOverwrite =
                 PropertyUtils.getBoolean(serviceProperties, PropertyNames.RSYNC_OVERWRITE,
                         rsyncOverwrite);
@@ -532,6 +552,24 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
+     * @return The name of the <code>rsync</code> executable on the incoming host to use for copy
+     *         operations.
+     */
+    public final String getIncomingRsyncExecutable()
+    {
+        return incomingRsyncExecutable;
+    }
+
+    /**
+     * @return The name of the <code>rsync</code> executable on the outgoing host to use for copy
+     *         operations.
+     */
+    public final String getOutgoingRsyncExecutable()
+    {
+        return outgoingRsyncExecutable;
+    }
+
+    /**
      * @return <code>true</code>, if rsync is called in such a way to files that already exist are
      *         overwritten rather than appended to.
      */
@@ -613,9 +651,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     {
         if (incomingStore == null)
         {
-            incomingStore = FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
-                    treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
-                    checkIntervalMillis);
+            incomingStore =
+                    FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
+                            treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
+                            checkIntervalMillis);
         }
         return incomingStore;
     }
