@@ -72,7 +72,8 @@ public final class ValidatorUtils
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.
      */
-    public final static IValidator<String> createPatternValidator(final String[] patterns)
+    public final static IValidator<String> createCaseInsensitivePatternValidator(
+            final String[] patterns)
     {
         assert patterns != null : "Unspecified patterns.";
         final int length = patterns.length;
@@ -81,30 +82,31 @@ public final class ValidatorUtils
             case 0:
                 return null;
             case 1:
-                return createPatternValidator(patterns[0]);
+                return createCaseInsensitivePatternValidator(patterns[0]);
             default:
                 final CompositeValidator<String> validator = new CompositeValidator<String>();
                 for (final String pattern : patterns)
                 {
-                    validator.addValidator(createPatternValidator(pattern));
+                    validator.addValidator(createCaseInsensitivePatternValidator(pattern));
                 }
                 return validator;
         }
     }
 
     /**
-     * Creates a <code>IValidator</code> based on the given pattern.
+     * Creates a case insensitive <code>IValidator</code> based on the given pattern.
      * 
      * @return <code>null</code> if given <var>pattern</var> is also <code>null</code>.
      * @throws PatternSyntaxException if the expression's syntax is invalid.
      */
-    public final static IValidator<String> createPatternValidator(final String pattern)
+    public final static IValidator<String> createCaseInsensitivePatternValidator(
+            final String pattern)
     {
         if (pattern == null)
         {
             return null;
         }
-        final Pattern regEx = Pattern.compile(convertToRegEx(pattern));
+        final Pattern regEx = Pattern.compile(convertToRegEx(pattern), Pattern.CASE_INSENSITIVE);
         return new RegExValidator(regEx);
     }
 

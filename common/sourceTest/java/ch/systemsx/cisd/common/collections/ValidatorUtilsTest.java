@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -91,18 +92,35 @@ public final class ValidatorUtilsTest
     }
 
     @Test
-    public final void testCreatePatternValidator()
+    public final void testCreateStarPatternValidator()
     {
-        assertNull(ValidatorUtils.createPatternValidator(ArrayUtils.EMPTY_STRING_ARRAY));
-        IValidator<String> validator = ValidatorUtils.createPatternValidator("he*");
-        assert validator.isValid("he");
-        assert validator.isValid("hello");
-        assert validator.isValid("hullo") == false;
-        validator = ValidatorUtils.createPatternValidator("he?lo");
-        assert validator.isValid("helo") == false;
-        assert validator.isValid("hello");
-        assert validator.isValid("he lo");
-        assert validator.isValid("he.lo");
-        assert validator.isValid("he\nlo") == false;
+        assertNull(ValidatorUtils
+                .createCaseInsensitivePatternValidator(ArrayUtils.EMPTY_STRING_ARRAY));
+        IValidator<String> validator = ValidatorUtils.createCaseInsensitivePatternValidator("he*");
+        assertTrue(validator.isValid("he"));
+        assertTrue(validator.isValid("hello"));
+        assertFalse(validator.isValid("hullo"));
+    }
+
+    @Test
+    public final void testCreateQuestionMarkPatternValidator()
+    {
+        IValidator<String> validator =
+                ValidatorUtils.createCaseInsensitivePatternValidator("he?lo");
+        assertFalse(validator.isValid("helo"));
+        assertTrue(validator.isValid("hello"));
+        assertTrue(validator.isValid("he lo"));
+        assertTrue(validator.isValid("he.lo"));
+        assertFalse(validator.isValid("he\nlo"));
+    }
+
+    @Test
+    public final void testPatternValidatorIsCaseInsensitive()
+    {
+        IValidator<String> validator = ValidatorUtils.createCaseInsensitivePatternValidator("he*");
+        assertTrue(validator.isValid("HELL"));
+        assertTrue(validator.isValid("HeLL"));
+        assertTrue(validator.isValid("hell"));
+        assertFalse(validator.isValid("HiLL"));
     }
 }
