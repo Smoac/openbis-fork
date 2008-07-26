@@ -1,6 +1,9 @@
+login -u test -p <password>
+logout
 login -u etlserver -p <password>
 logout
 login -u test -p <password>
+register-role-assignments testdata/role-assignments.txt
 register-group /CISD
 assign-home-group test /CISD
 logout

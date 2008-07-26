@@ -1,0 +1,2 @@
+role	instance	group	user
+ETL_SERVER	CISD		etlserver
