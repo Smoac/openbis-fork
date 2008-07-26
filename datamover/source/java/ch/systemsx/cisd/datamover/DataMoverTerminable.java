@@ -53,8 +53,10 @@ final class DataMoverTerminable extends CompoundTerminable
             return super.terminate(terminable);
         } catch (final Exception e)
         {
+            final DataMoverProcess process = (DataMoverProcess) terminable;
             operationLog.warn(String
-                    .format("Terminating Datamover process '%s' threw an exception."), e);
+                    .format("Terminating Datamover process '%s' threw an exception.", process
+                            .getTaskName()), e);
             return false;
         }
     }
