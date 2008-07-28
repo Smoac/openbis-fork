@@ -42,6 +42,10 @@ public final class PropertyNames
     /** The local directory where we create additional copy of the incoming data. */
     static final String EXTRA_COPY_DIR = "extra-copy-dir";
 
+    /**
+     * Time period (in seconds) to wait after a failure has occurred before the operation is
+     * re-tried.
+     */
     static final String FAILURE_INTERVAL = "failure-interval";
 
     static final String HARD_LINK_EXECUTABLE = "hard-link-executable";
@@ -62,6 +66,9 @@ public final class PropertyNames
 
     static final String MANUAL_INTERVENTION_REGEX = "manual-intervention-regex";
 
+    /**
+     * Maximal number of re-tries of a failed operation before giving up on it.
+     */
     static final String MAX_RETRIES = "max-retries";
 
     /** The remote directory (or host and directory) to move the data to. */
