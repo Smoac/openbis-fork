@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>
  * where the key does not have to be unique.
@@ -144,6 +146,16 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
     public final Set<E> tryGet(final K key)
     {
         return map.get(key);
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**

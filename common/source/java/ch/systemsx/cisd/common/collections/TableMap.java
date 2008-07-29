@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * A table of rows of type <code>E</code> with random access via a key of type <code>K</code>.
  * 
@@ -186,6 +188,16 @@ public class TableMap<K, E> implements Iterable<E>
     public final Set<K> keySet()
     {
         return Collections.unmodifiableSet(map.keySet());
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**
