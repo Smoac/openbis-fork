@@ -39,6 +39,8 @@ public final class LogInvocationHandler implements InvocationHandler
 
     private final Class<?> classUsedToNameLogger;
 
+    private final boolean onlyIfAnnotated;
+
     /**
      * Creates a new instance.
      * 
@@ -50,10 +52,27 @@ public final class LogInvocationHandler implements InvocationHandler
     public LogInvocationHandler(final Object object, final String name, final Level logLevel,
             final Class<?> classUsedToNameLogger)
     {
+        this(object, name, logLevel, classUsedToNameLogger, false);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param object Object whose invocations should be logged.
+     * @param name Meaningful name of <code>object</code>. Will be used in the log message.
+     * @param logLevel The log level to use for normal (successful) events.
+     * @param classUsedToNameLogger Class used to specify the name of the logger.
+     * @param onlyIfAnnotated whether the log should be activated only if method is annotated with
+     *            {@link LogAnnotation}.
+     */
+    public LogInvocationHandler(final Object object, final String name, final Level logLevel,
+            final Class<?> classUsedToNameLogger, final boolean onlyIfAnnotated)
+    {
         this.object = object;
         this.name = name;
         this.defaultLogLevel = logLevel;
         this.classUsedToNameLogger = classUsedToNameLogger;
+        this.onlyIfAnnotated = onlyIfAnnotated;
     }
 
     public Object invoke(final Object proxy, final Method method, final Object[] args)
@@ -78,57 +97,65 @@ public final class LogInvocationHandler implements InvocationHandler
             throw t;
         } finally
         {
-            final Level logLevel = getLogLevel(method);
-            final Logger logger = createLogger(method);
-            if (throwable != null || logger.isEnabledFor(logLevel))
+            final LogAnnotation logAnnotationOrNull = tryGetAnnotation(method);
+            if (onlyIfAnnotated == false || logAnnotationOrNull != null)
             {
-                final StringBuilder builder =
-                        new StringBuilder(throwable == null ? "Successful" : "Failed");
-                builder.append(" invocation of ");
-                builder.append(name).append('.').append(method.getName()).append('(');
-                if (args != null)
+                final Level logLevel = getLogLevel(method, logAnnotationOrNull);
+                final Logger logger = createLogger(method, logAnnotationOrNull);
+                if (throwable != null || logger.isEnabledFor(logLevel))
                 {
-                    for (int i = 0; i < args.length; i++)
+                    final StringBuilder builder =
+                            new StringBuilder(throwable == null ? "Successful" : "Failed");
+                    builder.append(" invocation of ");
+                    builder.append(name).append('.').append(method.getName()).append('(');
+                    if (args != null)
                     {
-                        builder.append(args[i]);
-                        if (i < args.length - 1)
+                        for (int i = 0; i < args.length; i++)
                         {
-                            builder.append(", ");
+                            builder.append(args[i]);
+                            if (i < args.length - 1)
+                            {
+                                builder.append(", ");
+                            }
                         }
                     }
-                }
-                builder.append(") took ").append(System.currentTimeMillis() - time).append(" msec");
-                if (throwable == null)
-                {
-                    logger.log(logLevel, builder.toString());
-                } else
-                {
-                    logger.error(builder.toString(), throwable);
+                    builder.append(") took ").append(System.currentTimeMillis() - time).append(
+                            " msec");
+                    if (throwable == null)
+                    {
+                        logger.log(logLevel, builder.toString());
+                    } else
+                    {
+                        logger.error(builder.toString(), throwable);
+                    }
                 }
             }
         }
     }
 
-    private final Level getLogLevel(final Method method)
+    private final LogAnnotation tryGetAnnotation(final Method method)
     {
-        final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
-        if (annotation == null)
+        return method.getAnnotation(LogAnnotation.class);
+    }
+
+    private final Level getLogLevel(final Method method, final LogAnnotation annotationOrNull)
+    {
+        if (annotationOrNull == null)
         {
             return Level.DEBUG;
-        } else if (annotation.logLevel().equals(LogLevel.UNDEFINED))
+        } else if (annotationOrNull.logLevel().equals(LogLevel.UNDEFINED))
         {
             return defaultLogLevel;
         } else
         {
-            return Log4jSimpleLogger.toLog4jPriority(annotation.logLevel());
+            return Log4jSimpleLogger.toLog4jPriority(annotationOrNull.logLevel());
         }
     }
 
-    private final Logger createLogger(final Method method)
+    private final Logger createLogger(final Method method, final LogAnnotation annotationOrNull)
     {
-        final LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
         final LogCategory logCategory =
-                (annotation == null) ? LogCategory.OPERATION : annotation.logCategory();
+                (annotationOrNull == null) ? LogCategory.OPERATION : annotationOrNull.logCategory();
         return LogFactory.getLogger(logCategory, classUsedToNameLogger);
     }
 }
