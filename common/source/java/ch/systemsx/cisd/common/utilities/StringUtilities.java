@@ -207,4 +207,19 @@ public final class StringUtilities
         }
         return number + "th";
     }
+
+    /** compares two strings which can be null. Null is smaller than not-null string. */
+    public static int compareNullable(String s1OrNull, String s2OrNull)
+    {
+        if (s1OrNull == null)
+        {
+            return s2OrNull == null ? 0 : -1;
+        } else if (s2OrNull == null)
+        {
+            return 1;
+        } else
+        {
+            return s1OrNull.compareTo(s2OrNull);
+        }
+    }
 }
