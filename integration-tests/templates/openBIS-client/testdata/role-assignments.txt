@@ -1,2 +1,4 @@
 role	instance	group	user
+ADMIN		/CISD	test
 ETL_SERVER	CISD		etlserver
+ETL_SERVER		/CISD	etlserver
