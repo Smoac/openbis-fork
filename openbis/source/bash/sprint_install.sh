@@ -1,0 +1,38 @@
+#!/bin/bash
+# This script assumes that you already are on the sprint server and must be run from that place
+# in the home directory.
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <sprint number>"
+    exit 1
+fi
+
+VER=$1
+PREV_VER=$(( $VER - 1 ))
+DB_SNAPSHOT=db_snapshots/sprint$PREV_VER-lims_productive.sql
+
+./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
+./sprint/download-server/download-service.sh stop
+
+pg_dump -U postgres -O lims_productive > $DB_SNAPSHOT
+tar -cf - $DB_SNAPSHOT | bzip2 >db_snapshots/sprint$PREV_VER-lims_productive.tar.bz2
+rm -f $DB_SNAPSHOT
+
+mv sprint-$PREV_VER old
+rm sprint
+mkdir sprint-$VER
+ln -s sprint-$VER sprint
+cd sprint
+unzip ../openBIS-server-S$VER-* 
+cd openBIS-server
+./install.sh $PWD ../../service.properties
+
+cd ..
+unzip ../download-server-S$VER-* 
+cd download-server
+cp ~/old/sprint-$PREV_VER/download-server/etc/service.properties etc/
+chmod 700 download-service.sh
+export JAVA_HOME=/usr
+./download-service.sh start
+cd
+mv *.zip tmp
