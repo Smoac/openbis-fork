@@ -223,6 +223,7 @@ case "$command" in
           if [ $? -ne 0 ]; then
             break
           fi
+          sleep 1
           n=$(($n+1))
         done
         isPIDRunning $PID
