@@ -284,6 +284,6 @@ case "$command" in
   ;;
   *)
     echo $"Usage: $0 {start|stop|restart|shutdown|status|mstatus|target|recover|help|version|test-notify}"
-    exit 1
+    exit 200
 esac
 exit 0
