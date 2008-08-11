@@ -252,7 +252,7 @@ public final class DataMover
                 createRemotePathMover(readyToMoveStore, outgoingStore);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
-                        sourceDirectory), outgoingStore.getHighwaterMarkWatcher());
+                        sourceDirectory, remoteStoreMover), outgoingStore.getHighwaterMarkWatcher());
         final DirectoryScanningTimerTask outgoingMovingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
                         remoteStoreMover, directoryScanningHandler);

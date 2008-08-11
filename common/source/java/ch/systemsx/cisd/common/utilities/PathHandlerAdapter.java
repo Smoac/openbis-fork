@@ -54,4 +54,9 @@ public class PathHandlerAdapter implements IStoreHandler
         pathHandler.handle(asFile(item));
     }
 
+    public boolean isStopped()
+    {
+        return pathHandler.isStopped();
+    }
+
 }

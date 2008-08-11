@@ -25,6 +25,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -32,6 +33,8 @@ import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 
 /**
+ * A class for creating hard links based on the Unix 'ln' program.
+ * 
  * @author Bernd Rinn
  */
 public class HardLinkMaker implements IFileImmutableCopier
@@ -46,110 +49,79 @@ public class HardLinkMaker implements IFileImmutableCopier
 
     private final String linkExecPath;
 
-    private final RetryingOperationTimeout singleFileLinkTimeout;
-
-    private static class RetryingOperationTimeout
-    {
-        private final long millisToWaitForCompletion;
-
-        private final int maxRetryOnFailure;
-
-        private final long millisToSleepOnFailure;
-
-        private RetryingOperationTimeout(long millisToWaitForCompletion, int maxRetryOnFailure,
-                long millisToSleepOnFailure)
-        {
-            this.millisToWaitForCompletion = millisToWaitForCompletion;
-            this.maxRetryOnFailure = maxRetryOnFailure;
-            this.millisToSleepOnFailure = millisToSleepOnFailure;
-        }
-
-        public long getMillisToWaitForCompletion()
-        {
-            return millisToWaitForCompletion;
-        }
-
-        public int getMaxRetryOnFailure()
-        {
-            return maxRetryOnFailure;
-        }
-
-        public long getMillisToSleepOnFailure()
-        {
-            return millisToSleepOnFailure;
-        }
-    }
-
-    private HardLinkMaker(final String linkExecPath,
-            RetryingOperationTimeout singleFileLinkTimeoutOrNull)
-    {
-        this.linkExecPath = linkExecPath;
-        this.singleFileLinkTimeout =
-                singleFileLinkTimeoutOrNull != null ? singleFileLinkTimeoutOrNull
-                        : createNoTimeout();
-    }
+    private final TimingParameters timingParameters;
 
     //
     // Factory methods
     //
 
     /**
-     * Creates copier which won't retry an operation if it fails.
-     * 
-     * @param linkExecPath The path to the <code>ln</code> executable.
-     */
-    public static final IFileImmutableCopier create(final String linkExecPath)
-    {
-        return new HardLinkMaker(linkExecPath, null);
-    }
-
-    /**
      * Creates copier trying to find the path to the <code>ln</code> executable.
      * 
+     * @param timingParameters The timing parameters to use when monitoring the call to 'ln'.
      * @return <code>null</code> if the <code>ln</code> executable was not found.
      */
-    public static final IFileImmutableCopier tryCreate()
-    {
-        return tryCreate(null);
-    }
-
-    /**
-     * Creates copier which is able to retry the operation of creating the hard link of a file if
-     * it does not complete after a specified timeout.
-     * 
-     * @param millisToWaitForCompletion The time to wait for the process creating one hard link to a
-     *            file to complete in milli seconds. If the process is not finished after that time,
-     *            it will be terminated.
-     * @param maxRetryOnFailure The number of times we should try to create each hard link if copy
-     *            operation fails.
-     * @param millisToSleepOnFailure The number of milliseconds we should wait before re-executing
-     *            the copy of a single file. Specify 0 to wait till the first operation completes.
-     */
-    public static final IFileImmutableCopier tryCreateRetrying(
-            final long millisToWaitForCompletion, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure)
-    {
-        RetryingOperationTimeout timeout =
-                new RetryingOperationTimeout(millisToWaitForCompletion, maxRetryOnFailure,
-                        millisToSleepOnFailure);
-        return tryCreate(timeout);
-    }
-
-    private static final IFileImmutableCopier tryCreate(
-            RetryingOperationTimeout singleFileLinkTimeoutOrNull)
+    public static final IFileImmutableCopier tryCreate(TimingParameters timingParameters)
     {
         final File lnExec = OSUtilities.findExecutable(HARD_LINK_EXEC);
         if (lnExec == null)
         {
             return null;
         }
-        return new HardLinkMaker(lnExec.getAbsolutePath(), singleFileLinkTimeoutOrNull);
+        return create(lnExec, timingParameters);
     }
 
-    private RetryingOperationTimeout createNoTimeout()
+    /**
+     * Creates copier trying to find the path to the <code>ln</code> executable. Uses default timing
+     * parameters.
+     * 
+     * @return <code>null</code> if the <code>ln</code> executable was not found.
+     * @see TimingParameters#getDefaultParameters()
+     */
+    public static final IFileImmutableCopier tryCreate()
     {
-        return new RetryingOperationTimeout(0, 1, 0);
+        final File lnExec = OSUtilities.findExecutable(HARD_LINK_EXEC);
+        if (lnExec == null)
+        {
+            return null;
+        }
+        return create(lnExec);
     }
+
+    /**
+     * Creates copier which is able to retry the operation of creating the hard link of a file if it
+     * does not complete after a specified timeout.
+     * 
+     * @param lnExec The executable of the 'ln' program.
+     * @param timingParameters The timing parameters to use when monitoring the call to 'ln'.
+     */
+    public static final IFileImmutableCopier create(final File lnExec,
+            final TimingParameters timingParameters)
+    {
+        return new HardLinkMaker(lnExec.getAbsolutePath(), timingParameters);
+    }
+
+    /**
+     * Creates copier which is able to retry the operation of creating the hard link of a file if it
+     * does not complete after a specified timeout. Uses default timing parameters.
+     * 
+     * @param lnExec The executable of the 'ln' program.
+     * @see TimingParameters#getDefaultParameters()
+     */
+    public static final IFileImmutableCopier create(final File lnExec)
+    {
+        return new HardLinkMaker(lnExec.getAbsolutePath(), TimingParameters.getDefaultParameters());
+    }
+
+    private HardLinkMaker(final String linkExecPath, TimingParameters timingParameters)
+    {
+        this.linkExecPath = linkExecPath;
+        this.timingParameters = timingParameters;
+    }
+
+    //
+    // IFileImutableCopier
+    //
 
     public boolean copyFileImmutably(final File source, final File destinationDirectory,
             final String nameOrNull)
@@ -165,9 +137,9 @@ public class HardLinkMaker implements IFileImmutableCopier
                 {
                     boolean result =
                             ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog,
-                                    singleFileLinkTimeout.getMillisToWaitForCompletion());
-                    // NOTE: we have noticed that sometimes the result is false although the file
-                    // have been copied
+                                    timingParameters.getTimeoutMillis());
+                    // NOTE: we have noticed that in some environments sometimes the result is
+                    // false although the file have been copied
                     if (result == false && destFile.exists()
                             && checkIfIdenticalContent(source, destFile))
                     {
@@ -182,8 +154,8 @@ public class HardLinkMaker implements IFileImmutableCopier
                 }
             };
         boolean ok =
-                runRepeatableProcess(processTask, singleFileLinkTimeout.getMaxRetryOnFailure(),
-                        singleFileLinkTimeout.getMillisToSleepOnFailure());
+                runRepeatableProcess(processTask, timingParameters.getMaxRetriesOnFailure(),
+                        timingParameters.getIntervalToWaitAfterFailureMillis());
         return ok;
     }
 

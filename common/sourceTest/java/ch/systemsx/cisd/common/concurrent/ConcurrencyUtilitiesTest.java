@@ -18,18 +18,25 @@ package ch.systemsx.cisd.common.concurrent;
 
 import static org.testng.AssertJUnit.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * Test cases for {@link ConcurrencyUtilities}.
@@ -41,10 +48,83 @@ public class ConcurrencyUtilitiesTest
 
     private final static String name = "This is the pool name";
 
-    @BeforeClass
+    private static class LogRecord
+    {
+        final LogLevel level;
+
+        final String message;
+
+        LogRecord(LogLevel level, String message)
+        {
+            this.level = level;
+            this.message = message;
+        }
+    }
+
+    private class AssertingLogger implements ISimpleLogger
+    {
+        private final List<LogRecord> records = new ArrayList<LogRecord>();
+
+        public void log(LogLevel level, String message)
+        {
+            records.add(new LogRecord(level, message));
+        }
+
+        public void assertNumberOfMessage(int expectedNumberOfMessages)
+        {
+            assertEquals(expectedNumberOfMessages, records.size());
+        }
+
+        public void assertEq(int i, LogLevel expectedLevel, String expectedMessage)
+        {
+            assertEquals(expectedLevel, records.get(i).level);
+            assertEquals(expectedMessage, records.get(i).message);
+        }
+
+    }
+
+    private ILogSettings logSettings;
+
+    private AssertingLogger logger;
+
+    @BeforeTest
     public void init()
     {
         LogInitializer.init();
+    }
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        logger = new AssertingLogger();
+        createLogSettings(LogLevel.WARN);
+    }
+
+    @AfterClass
+    public void clearThreadInterruptionState()
+    {
+        Thread.interrupted();
+    }
+
+    private void createLogSettings(final LogLevel level)
+    {
+        logSettings = new ILogSettings()
+            {
+                public LogLevel getLogLevelForError()
+                {
+                    return level;
+                }
+
+                public AssertingLogger getLogger()
+                {
+                    return logger;
+                }
+
+                public String getOperationName()
+                {
+                    return name;
+                }
+            };
     }
 
     @Test
@@ -60,13 +140,37 @@ public class ConcurrencyUtilitiesTest
                     return valueProvided;
                 }
             });
-        final String valueObtained = ConcurrencyUtilities.tryGetResult(future, 200L);
+        final String valueObtained =
+                ConcurrencyUtilities.tryGetResult(future, 200L, logSettings, true);
         assertEquals(valueProvided, valueObtained);
         assertTrue(future.isDone());
+        logger.assertNumberOfMessage(0);
     }
 
     @Test
     public void testGetExecutionResultOK()
+    {
+        final String valueProvided = "This is the execution return value";
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    return valueProvided;
+                }
+            });
+        final ExecutionResult<String> result =
+                ConcurrencyUtilities.getResult(future, 200L, logSettings);
+        assertEquals(ExecutionStatus.COMPLETE, result.getStatus());
+        assertNull(result.tryGetException());
+        assertEquals(valueProvided, result.tryGetResult());
+        assertTrue(future.isDone());
+        logger.assertNumberOfMessage(0);
+    }
+
+    @Test
+    public void testGetExecutionResultOKWithoutLogging()
     {
         final String valueProvided = "This is the execution return value";
         final ThreadPoolExecutor eservice =
@@ -104,9 +208,12 @@ public class ConcurrencyUtilitiesTest
                     return null;
                 }
             });
-        final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 20L);
+        final String shouldBeNull =
+                ConcurrencyUtilities.tryGetResult(future, 20L, logSettings, true);
         assertNull(shouldBeNull);
         assertTrue(future.isDone());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.WARN, name + ": timeout of 0.02 s exceeded, cancelled.");
     }
 
     @Test(groups = "slow")
@@ -128,17 +235,67 @@ public class ConcurrencyUtilitiesTest
                     return null;
                 }
             });
-        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 20L);
+        final ExecutionResult<String> result =
+                ConcurrencyUtilities.getResult(future, 20L, logSettings);
         assertEquals(ExecutionStatus.TIMED_OUT, result.getStatus());
         assertNull(result.tryGetResult());
         assertNull(result.tryGetException());
         assertTrue(future.isDone());
         assertTrue(future.isCancelled());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.WARN, name + ": timeout of 0.02 s exceeded, cancelled.");
+    }
+
+    @Test(groups = "slow")
+    public void testGetExecutionResultNoTimeoutDueToSensor()
+    {
+        final RecordingActivityObserverSensor sensor = new RecordingActivityObserverSensor();
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final Timer updatingTimer = new Timer();
+        final String msg = "success";
+        try
+        {
+            updatingTimer.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        sensor.update();
+                    }
+                }, 0L, 10L);
+            final Future<String> future = eservice.submit(new Callable<String>()
+                {
+                    public String call() throws Exception
+                    {
+                        try
+                        {
+                            Thread.sleep(200L);
+                        } catch (InterruptedException ex)
+                        {
+                            throw new CheckedExceptionTunnel(ex);
+                        }
+                        return msg;
+                    }
+                });
+            final ExecutionResult<String> result =
+                    ConcurrencyUtilities.getResult(future, 20L, true, logSettings, sensor);
+            assertEquals(ExecutionStatus.COMPLETE, result.getStatus());
+            assertEquals(msg, result.tryGetResult());
+            assertNull(result.tryGetException());
+            assertTrue(future.isDone());
+            assertFalse(future.isCancelled());
+            logger.assertNumberOfMessage(0);
+        } finally
+        {
+            updatingTimer.cancel();
+        }
     }
 
     @Test(groups = "slow")
     public void testGetExecutionResultTimeoutWithoutCancelation()
     {
+        createLogSettings(LogLevel.INFO);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
@@ -156,12 +313,14 @@ public class ConcurrencyUtilitiesTest
                 }
             });
         final ExecutionResult<String> result =
-                ConcurrencyUtilities.getResult(future, 20L, false, null, null);
+                ConcurrencyUtilities.getResult(future, 20L, false, logSettings);
         assertEquals(ExecutionStatus.TIMED_OUT, result.getStatus());
         assertNull(result.tryGetResult());
         assertNull(result.tryGetException());
         assertFalse(future.isDone());
         assertFalse(future.isCancelled());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.INFO, name + ": timeout of 0.02 s exceeded.");
     }
 
     @Test
@@ -193,11 +352,14 @@ public class ConcurrencyUtilitiesTest
                     thread.interrupt();
                 }
             }, 20L);
-        final String shouldBeNull = ConcurrencyUtilities.tryGetResult(future, 200L, false);
+        final String shouldBeNull =
+                ConcurrencyUtilities.tryGetResult(future, 200L, logSettings, false);
         t.cancel();
         assertNull(shouldBeNull);
         assertTrue(future.isCancelled());
         assertFalse(Thread.interrupted());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.WARN, name + ": interrupted.");
     }
 
     @Test(expectedExceptions =
@@ -237,6 +399,7 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultInterrupted()
     {
+        createLogSettings(LogLevel.DEBUG);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Thread thread = Thread.currentThread();
@@ -263,23 +426,36 @@ public class ConcurrencyUtilitiesTest
                     thread.interrupt();
                 }
             }, 20L);
-        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 200L);
+        final ExecutionResult<String> result =
+                ConcurrencyUtilities.getResult(future, 200L, logSettings);
         t.cancel();
         assertEquals(ExecutionStatus.INTERRUPTED, result.getStatus());
         assertNull(result.tryGetResult());
         assertNull(result.tryGetException());
         assertTrue(future.isCancelled());
         assertFalse(Thread.interrupted());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.DEBUG, name + ": interrupted.");
     }
 
     private static class TaggedException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
+
+        public TaggedException()
+        {
+        }
+
+        public TaggedException(String msg)
+        {
+            super(msg);
+        }
     }
 
     @Test
     public void testGetExecutionResultException()
     {
+        createLogSettings(LogLevel.ERROR);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
@@ -289,23 +465,54 @@ public class ConcurrencyUtilitiesTest
                     throw new TaggedException();
                 }
             });
-        final ExecutionResult<String> result = ConcurrencyUtilities.getResult(future, 100L);
+        final ExecutionResult<String> result =
+                ConcurrencyUtilities.getResult(future, 100L, logSettings);
         assertEquals(ExecutionStatus.EXCEPTION, result.getStatus());
         assertTrue(result.tryGetException() instanceof TaggedException);
         assertNull(result.tryGetResult());
         assertTrue(future.isDone());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.ERROR, name + ": exception: <no message> [TaggedException].");
     }
 
     @Test
     public void testTryGetFutureException()
     {
+        final String msg = "This is some sort of error message";
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 public String call() throws Exception
                 {
-                    throw new TaggedException();
+                    throw new TaggedException(msg);
+                }
+            });
+        try
+        {
+            ConcurrencyUtilities.tryGetResult(future, 100L, logSettings, true);
+            fail("Should have been a TaggedException");
+        } catch (TaggedException ex)
+        {
+            // Good
+        }
+        assertTrue(future.isDone());
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.WARN, name
+                + ": exception: This is some sort of error message [TaggedException].");
+    }
+
+    @Test
+    public void testTryGetFutureExceptionWithoutLogging()
+    {
+        final String msg = "This is some sort of error message";
+        final ThreadPoolExecutor eservice =
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+        final Future<String> future = eservice.submit(new Callable<String>()
+            {
+                public String call() throws Exception
+                {
+                    throw new TaggedException(msg);
                 }
             });
         try

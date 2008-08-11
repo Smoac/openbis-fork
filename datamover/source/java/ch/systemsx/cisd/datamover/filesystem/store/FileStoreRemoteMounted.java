@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -58,8 +59,8 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         super(file, description, factory);
         this.localImpl = new FileStoreLocal(file, description, factory);
         this.localImplMonitored =
-                MonitoringProxy.create(IFileStore.class, localImpl).timeoutMillis(
-                        lastChangedTimeoutMillis).get();
+                MonitoringProxy.create(IFileStore.class, localImpl).timing(
+                        TimingParameters.create(lastChangedTimeoutMillis)).get();
     }
 
     //

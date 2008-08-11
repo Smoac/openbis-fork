@@ -29,20 +29,20 @@ import ch.systemsx.cisd.common.exceptions.StopException;
  */
 public final class CallableExecutor
 {
-    private final int maxInvocationsOnFailure;
+    private final int maxRetriesOnFailure;
 
     private final long millisToSleepOnFailure;
 
     public CallableExecutor()
     {
-        this(Constants.MAXIMUM_INVOCATIONS_ON_FAILURE, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        this(Constants.MAXIMUM_RETRY_COUNT, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
-    public CallableExecutor(final int maxInvocationsOnFailure, final long millisToSleepOnFailure)
+    public CallableExecutor(final int maxRetriesOnFailure, final long millisToSleepOnFailure)
     {
         assert millisToSleepOnFailure > -1 : "Negative value";
-        assert maxInvocationsOnFailure > -1 : "Negative value";
-        this.maxInvocationsOnFailure = maxInvocationsOnFailure;
+        assert maxRetriesOnFailure > -1 : "Negative value";
+        this.maxRetriesOnFailure = maxRetriesOnFailure;
         this.millisToSleepOnFailure = millisToSleepOnFailure;
     }
 
@@ -63,12 +63,12 @@ public final class CallableExecutor
                 if (result == null)
                 {
                     ++counter;
-                    if (counter < maxInvocationsOnFailure && millisToSleepOnFailure > 0)
+                    if (counter < maxRetriesOnFailure && millisToSleepOnFailure > 0)
                     {
                         Thread.sleep(millisToSleepOnFailure);
                     }
                 }
-            } while (result == null && counter < maxInvocationsOnFailure);
+            } while (result == null && counter < maxRetriesOnFailure);
         } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

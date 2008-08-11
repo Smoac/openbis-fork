@@ -28,6 +28,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -69,6 +70,7 @@ public class ProcessExecutionHelperTest
         final File executable = new File(workingDirectory, name);
         executable.delete();
         CollectionIO.writeIterable(executable, Arrays.asList(lines));
+        Thread.interrupted(); // Paranoia: clear interrupted state.
         Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", executable.getPath()))
                 .waitFor();
         executable.deleteOnExit();
@@ -104,6 +106,13 @@ public class ProcessExecutionHelperTest
         workingDirectory.delete();
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
+    }
+
+    @BeforeMethod
+    @AfterClass
+    public void clearThreadInterruptionState()
+    {
+        Thread.interrupted();
     }
 
     @Test(groups =
@@ -185,6 +194,37 @@ public class ProcessExecutionHelperTest
                             2 * WATCHDOG_WAIT_MILLIS);
             ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), operationLog,
                     machineLog, WATCHDOG_WAIT_MILLIS);
+        } finally
+        {
+            timer.cancel();
+        }
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" }, expectedExceptions =
+        { StopException.class })
+    public void testSleepyExecutionGetsStoppedUsingRunUnblocking() throws Exception
+    {
+        final Thread thisThread = Thread.currentThread();
+        final Timer timer = new Timer();
+        try
+        {
+            timer.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        thisThread.interrupt();
+                    }
+                }, WATCHDOG_WAIT_MILLIS / 10);
+            final File dummyExec =
+                    createSleepingExecutable("dummySleepyFailedWithTimeOut.sh",
+                            2 * WATCHDOG_WAIT_MILLIS);
+            final IProcessHandler processHandler =
+                    ProcessExecutionHelper.runUnblocking(
+                            Arrays.asList(dummyExec.getAbsolutePath()),
+                            OutputReadingStrategy.ON_ERROR, operationLog, machineLog);
+            processHandler.getResult();
         } finally
         {
             timer.cancel();

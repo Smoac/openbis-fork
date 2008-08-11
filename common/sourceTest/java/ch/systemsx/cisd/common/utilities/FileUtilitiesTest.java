@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 
@@ -430,6 +432,72 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             IOUtils.closeQuietly(is);
         }
 
+    }
+
+    private class CountingActivityObserver implements IActivityObserver
+    {
+        int count = 0;
+
+        public void update()
+        {
+            ++count;
+        }
+    }
+
+    @Test
+    public void testListFiles() throws IOException
+    {
+        final File dir = new File(workingDirectory, "listFiles");
+        dir.mkdir();
+        final File nonExistentDir = new File(dir, "nonExistent");
+        assertTrue(FileUtilities.listFiles(dir, null, true, null).isEmpty());
+        assertTrue(FileUtilities.listFiles(nonExistentDir, null, true, null).isEmpty());
+        final File subDir = new File(dir, "subdir");
+        subDir.mkdir();
+        assertTrue(FileUtilities.listFiles(dir, null, true, null).isEmpty());
+        assertEquals("subdir", FileUtilities.listDirectories(dir, true, null).get(0).getName());
+        final File f1 = new File(dir, "f1.dat");
+        f1.createNewFile();
+        final File f2 = new File(dir, "f2.bla");
+        f2.createNewFile();
+        final File f3 = new File(subDir, "f3");
+        f3.createNewFile();
+        final File f4 = new File(subDir, "f4.dat");
+        f4.createNewFile();
+        final CountingActivityObserver observer = new CountingActivityObserver();
+
+        final List<File> list1 = FileUtilities.listFiles(dir, null, true, null);
+        assertEquals(4, list1.size());
+        assertEquals(new HashSet<File>(Arrays.asList(f1, f2, f3, f4)), new HashSet<File>(list1));
+
+        final List<File> list2 = FileUtilities.listFiles(dir, null, true, observer);
+        assertEquals(list1, list2);
+        assertTrue("" + observer.count, observer.count >= list2.size());
+
+        observer.count = 0;
+        final List<File> list3 = FileUtilities.listFiles(dir, new String[]
+            { "dat" }, true, observer);
+        assertEquals(2, list3.size());
+        assertEquals(new HashSet<File>(Arrays.asList(f1, f4)), new HashSet<File>(list3));
+        assertTrue("" + observer.count, observer.count >= list3.size());
+
+        final File subDir2 = new File(subDir, "subDir2");
+        subDir2.mkdir();
+        final File subDir3 = new File(dir, "subDir3");
+        subDir3.mkdir();
+        observer.count = 0;
+        final List<File> list4 = FileUtilities.listDirectories(dir, true, observer);
+        assertEquals(3, list4.size());
+        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir2, subDir3)), new HashSet<File>(
+                list4));
+        assertTrue("" + observer.count, observer.count >= list4.size());
+
+        observer.count = 0;
+        final List<File> list5 = FileUtilities.listDirectories(dir, false, observer);
+        assertEquals(2, list5.size());
+        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir3)), new HashSet<File>(
+                list5));
+        assertTrue("" + observer.count, observer.count >= list5.size());
     }
 
     @Test

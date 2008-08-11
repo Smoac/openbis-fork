@@ -62,6 +62,9 @@ public final class RemotePathMover implements IStoreHandler
     private static final String MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE =
             "Moving path '%s' to remote directory '%s' failed.";
 
+    private static final String MOVING_PATH_TO_REMOTE_STOPPED_TEMPLATE =
+            "Moving path '%s' to remote directory '%s' was stopped.";
+
     private static final String REMOVING_LOCAL_PATH_FAILED_TEMPLATE =
             "Removing local path '%s' failed (%s).";
 
@@ -97,6 +100,8 @@ public final class RemotePathMover implements IStoreHandler
 
     private final int maximalNumberOfRetries;
 
+    private boolean stopped;
+
     /**
      * Creates a <var>PathRemoteMover</var>.
      * 
@@ -108,8 +113,8 @@ public final class RemotePathMover implements IStoreHandler
      * @throws ConfigurationFailureException If the destination directory is not fully accessible.
      */
     public RemotePathMover(final IFileStore sourceDirectory, final IFileStore destinationDirectory,
-            final IStoreCopier copier,
-            final ITimingParameters timingParameters) throws ConfigurationFailureException
+            final IStoreCopier copier, final ITimingParameters timingParameters)
+            throws ConfigurationFailureException
     {
         assert sourceDirectory != null;
         assert destinationDirectory != null;
@@ -123,6 +128,7 @@ public final class RemotePathMover implements IStoreHandler
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
         this.inactivityPeriodMillis = timingParameters.getInactivityPeriodMillis();
+        this.stopped = false;
 
         assert intervallToWaitAfterFailure >= 0;
         assert maximalNumberOfRetries >= 0;
@@ -143,8 +149,9 @@ public final class RemotePathMover implements IStoreHandler
                                 public void update(long inactiveSinceMillis,
                                         String descriptionOfInactivity)
                                 {
-                                    operationLog.warn(String.format(TERMINATING_COPIER_LOG_TEMPLATE,
-                                            copier.getClass().getName(), descriptionOfInactivity));
+                                    operationLog.warn(String.format(
+                                            TERMINATING_COPIER_LOG_TEMPLATE, copier.getClass()
+                                                    .getName(), descriptionOfInactivity));
                                     copier.terminate();
                                 }
                             }, inactivityPeriodMillis, true);
@@ -336,6 +343,11 @@ public final class RemotePathMover implements IStoreHandler
         int tryCount = 0;
         do
         {
+            if (Thread.interrupted())
+            {
+                stopped = true;
+                break;
+            }
             if (operationLog.isInfoEnabled())
             {
                 if (tryCount > 0) // This is a retry
@@ -384,12 +396,24 @@ public final class RemotePathMover implements IStoreHandler
                 Thread.sleep(intervallToWaitAfterFailure);
             } catch (final InterruptedException e)
             {
-                // We don't expect to get interrupted, but even if, there is no need to handle this
-                // here.
+                stopped = true;
+                break;
             }
         } while (true);
-        notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
-                getSrcPath(item), destinationDirectory));
+        if (stopped)
+        {
+            operationLog.warn(String.format(MOVING_PATH_TO_REMOTE_STOPPED_TEMPLATE,
+                    getSrcPath(item), destinationDirectory));
+        } else
+        {
+            notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
+                    getSrcPath(item), destinationDirectory));
+        }
+    }
+
+    public boolean isStopped()
+    {
+        return stopped;
     }
 
 }

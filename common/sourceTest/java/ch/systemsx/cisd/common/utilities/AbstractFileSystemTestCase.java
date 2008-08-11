@@ -77,6 +77,6 @@ public abstract class AbstractFileSystemTestCase
         {
             return;
         }
-        FileUtils.deleteDirectory(workingDirectory);
+        FileUtilities.deleteRecursively(workingDirectory);
     }
 }

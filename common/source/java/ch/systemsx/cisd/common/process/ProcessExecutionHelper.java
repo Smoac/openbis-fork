@@ -352,7 +352,10 @@ public final class ProcessExecutionHelper
                 }
             } catch (final Exception ex)
             {
-                machineLog.error("Exception when launching: " + ex.getMessage());
+                machineLog.error(String
+                        .format("Exception when launching: [%s, %s]",
+                                ex.getClass().getSimpleName(), StringUtils.defaultIfEmpty(ex
+                                        .getMessage(), "NO MESSAGE")));
                 throw ex;
             }
         }
@@ -524,8 +527,7 @@ public final class ProcessExecutionHelper
     private ExecutionResult<ProcessResult> getExecutionResult(
             final Future<ProcessResult> runnerFuture)
     {
-        return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null,
-                null);
+        return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null);
     }
 
     private Future<ProcessResult> launchProcessExecutor()

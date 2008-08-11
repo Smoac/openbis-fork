@@ -92,7 +92,7 @@ public class RemoteStoreCopyActivitySensorTest
             });
         final long delta =
                 System.currentTimeMillis()
-                        - sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+                        - sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertTrue("Delta is " + delta, delta < MAX_DELTA);
         final String msg = sensorUnderTest.describeInactivity(System.currentTimeMillis());
         assertTrue(
@@ -113,7 +113,7 @@ public class RemoteStoreCopyActivitySensorTest
                 }
             });
         final long now = System.currentTimeMillis();
-        final long delta = now - sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long delta = now - sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertTrue("Delta is " + delta, delta < MAX_DELTA);
         assertEquals("Error: Unable to determine the time of write activity on "
                 + "item 'I am probed' in store 'iFileStore'\nERROR message", sensorUnderTest
@@ -133,14 +133,14 @@ public class RemoteStoreCopyActivitySensorTest
             });
         ConcurrencyUtilities.sleep(10L);
         final long now = System.currentTimeMillis();
-        final long lastActivity1 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity1 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         final long delta = lastActivity1 - now;
         assertTrue("Delta is " + delta, delta < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
-        final long lastActivity2 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity2 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertEquals(lastActivity1, lastActivity2);
         ConcurrencyUtilities.sleep(10L);
-        final long lastActivity3 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity3 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertEquals(lastActivity1, lastActivity3);
     }
 
@@ -159,14 +159,14 @@ public class RemoteStoreCopyActivitySensorTest
             });
         ConcurrencyUtilities.sleep(10L);
         final long now1 = System.currentTimeMillis();
-        final long lastActivity1 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity1 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertTrue("Delta=" + (lastActivity1 - now1), lastActivity1 - now1 < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
         final long now2 = System.currentTimeMillis();
-        final long lastActivity2 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity2 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertTrue("Delta=" + (lastActivity2 - now2), lastActivity2 - now2 < MAX_DELTA);
         ConcurrencyUtilities.sleep(10L);
-        final long lastActivity3 = sensorUnderTest.getTimeOfLastActivityMoreRecentThan(THRESHOLD);
+        final long lastActivity3 = sensorUnderTest.getLastActivityMillisMoreRecentThan(THRESHOLD);
         assertEquals(lastActivity1, lastActivity3);
     }
 

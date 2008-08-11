@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
@@ -40,23 +41,11 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, RsyncBasedRecursiveHardLinkMaker.class);
 
-    private final static long MILLIS = 1000L;
-
-    private final static long DEFAULT_INACTIVITY_TRESHOLD_MILLIS = 300 * MILLIS;
-
     private final static int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
 
-    private final static int DEFAULT_MAX_ATTEMPTS = 10;
-
-    private final static long DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS = 5 * MILLIS;
-
-    private final long inactivityThresholdMillis;
+    private final TimingParameters timingParameters;
 
     private final int maxErrorsToIgnore;
-
-    private final int maxAttempts;
-
-    private final long timeToSleepAfterCopyFails;
 
     private final RsyncCopier rsyncCopier;
 
@@ -67,20 +56,17 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
 
     public RsyncBasedRecursiveHardLinkMaker()
     {
-        this(null, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ERRORS_TO_IGNORE,
-                DEFAULT_MAX_ATTEMPTS, DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS);
+        this(null, TimingParameters.getDefaultParameters(), DEFAULT_MAX_ERRORS_TO_IGNORE);
     }
 
     public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull)
     {
-        this(rsyncExecutableOrNull, DEFAULT_INACTIVITY_TRESHOLD_MILLIS,
-                DEFAULT_MAX_ERRORS_TO_IGNORE, DEFAULT_MAX_ATTEMPTS,
-                DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS);
+        this(rsyncExecutableOrNull, TimingParameters.getDefaultParameters(),
+                DEFAULT_MAX_ERRORS_TO_IGNORE);
     }
 
     public RsyncBasedRecursiveHardLinkMaker(File rsyncExecutableOrNull,
-            long inactivityThresholdMillis, int maxErrorsToIgnore, int maxAttempts,
-            long timeToSleepAfterCopyFails)
+            TimingParameters timingParameters, int maxErrorsToIgnore)
     {
         if (rsyncExecutableOrNull == null)
         {
@@ -89,12 +75,14 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
         {
             rsyncCopier = new RsyncCopier(rsyncExecutableOrNull);
         }
-        this.inactivityThresholdMillis = inactivityThresholdMillis;
-        this.timeToSleepAfterCopyFails = timeToSleepAfterCopyFails;
+        this.timingParameters = timingParameters;
         this.maxErrorsToIgnore = maxErrorsToIgnore;
-        this.maxAttempts = maxAttempts;
     }
 
+    //
+    // IDirectoryImmutableCopier
+    //
+    
     public boolean copyDirectoryImmutably(final File sourceDirectory,
             final File destinationDirectory, final String targetNameOrNull)
     {
@@ -110,19 +98,19 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
                 }
             };
         boolean ok;
-        int attempt = 0;
+        int counter = 0;
         while (true)
         {
             ok =
                     createHardLinks(sourceDirectory, destinationDirectory, targetNameOrNull,
                             target, observer);
-            if (ok || attempt++ > maxAttempts)
+            if (ok || counter++ > timingParameters.getMaxRetriesOnFailure())
             {
                 break;
             }
             if (ok == false)
             {
-                ConcurrencyUtilities.sleep(timeToSleepAfterCopyFails);
+                ConcurrencyUtilities.sleep(timingParameters.getIntervalToWaitAfterFailureMillis());
             }
         }
         return ok;
@@ -133,7 +121,7 @@ public class RsyncBasedRecursiveHardLinkMaker implements IDirectoryImmutableCopi
     {
         final InactivityMonitor monitor =
                 new InactivityMonitor(new RemoteDirectoryCopyActivitySensor(target,
-                        maxErrorsToIgnore), observer, inactivityThresholdMillis, true);
+                        maxErrorsToIgnore), observer, timingParameters.getTimeoutMillis(), true);
         final boolean result =
                 rsyncCopier.copyDirectoryImmutably(sourceDirectory, destinationDirectory,
                         targetNameOrNull);

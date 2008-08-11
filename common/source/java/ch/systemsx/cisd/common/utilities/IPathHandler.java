@@ -25,7 +25,7 @@ import java.io.File;
  * @see IStoreHandler
  * @author Bernd Rinn
  */
-public interface IPathHandler
+public interface IPathHandler extends IStopSignaler
 {
     /**
      * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone

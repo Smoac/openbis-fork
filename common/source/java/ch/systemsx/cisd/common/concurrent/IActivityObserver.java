@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package ch.systemsx.cisd.common.concurrent;
 
-package ch.systemsx.cisd.common.utilities;
+import java.util.Observer;
 
 /**
- * Handles items in the file store.
- * <p>
- * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
- * {@link java.io.File}.
- * </p>
+ * A simple role that can observe activity. It is a simple version of {@link Observer} that can only
+ * observes the fact that the {@link #update()} method has been called.
  * 
- * @see IPathHandler
- * @author Tomasz Pylak
+ * @author Bernd Rinn
  */
-public interface IStoreHandler extends IStopSignaler
+public interface IActivityObserver
 {
     /**
-     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being gone
-     * when the method returns.
+     * Called when activity occurred.
      */
-    void handle(StoreItem item);
+    public void update();
 }

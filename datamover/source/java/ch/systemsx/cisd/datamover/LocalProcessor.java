@@ -26,6 +26,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -79,6 +80,8 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     private final FileFilter cleansingFileFilter;
 
     private final File manualInterventionDir;
+
+    private boolean stopped = false;
 
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
             final IImmutableCopier copier, final IPathMover mover)
@@ -249,62 +252,74 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
 
     public final void handle(final File path)
     {
-        final boolean continueProcessing = doMoveManualOrClean(path);
-        if (continueProcessing == false)
+        stopped = false;
+        try
         {
-            // Stop processing
-            return;
-        }
-        File extraTmpCopy = null;
-        if (extraCopyDirOrNull != null)
-        {
-            extraTmpCopy = new File(tempDir, path.getName());
-            if (extraTmpCopy.exists())
+            final boolean continueProcessing = doMoveManualOrClean(path);
+            if (continueProcessing == false)
             {
-                operationLog.warn(String.format(
-                        "Half-finished extra copy directory '%s' exists - removing it.",
-                        extraTmpCopy.getAbsolutePath()));
-                if (FileUtilities.deleteRecursively(extraTmpCopy) == false)
+                // Stop processing
+                return;
+            }
+            File extraTmpCopy = null;
+            if (extraCopyDirOrNull != null)
+            {
+                extraTmpCopy = new File(tempDir, path.getName());
+                if (extraTmpCopy.exists())
                 {
-                    notificationLog.error(String.format(
-                            "Removal of half-finished extra copy directory '%s' failed.",
+                    operationLog.warn(String.format(
+                            "Half-finished extra copy directory '%s' exists - removing it.",
                             extraTmpCopy.getAbsolutePath()));
+                    if (FileUtilities.deleteRecursively(extraTmpCopy) == false)
+                    {
+                        notificationLog.error(String.format(
+                                "Removal of half-finished extra copy directory '%s' failed.",
+                                extraTmpCopy.getAbsolutePath()));
+                        return;
+                    }
+                }
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info(String.format("Creating extra copy of directory '%s' to '%s'.",
+                            path.getAbsolutePath(), tempDir.getAbsoluteFile()));
+                }
+                final boolean ok = copier.copyImmutably(path, tempDir, null);
+                if (ok == false)
+                {
+                    notificationLog.error(String.format("Creating extra copy of '%s' failed.", path
+                            .getAbsolutePath()));
                     return;
                 }
             }
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("Creating extra copy of directory '%s' to '%s'.",
-                        path.getAbsolutePath(), tempDir.getAbsoluteFile()));
-            }
-            final boolean ok = copier.copyImmutably(path, tempDir, null);
-            if (ok == false)
-            {
-                notificationLog.error(String.format("Creating extra copy of '%s' failed.", path
-                        .getAbsolutePath()));
-                return;
-            }
-        }
-
-        final File movedFile = mover.tryMove(path, outputDir);
-        if (movedFile == null)
-        {
-            notificationLog.error(String.format(
-                    "Moving '%s' to '%s' for final moving process failed.", path, outputDir));
-            return;
-        }
-
-        if (extraTmpCopy != null)
-        {
-            assert extraCopyDirOrNull != null;
-            final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
-            if (extraCopy == null)
+    
+            final File movedFile = mover.tryMove(path, outputDir);
+            if (movedFile == null)
             {
                 notificationLog.error(String.format(
-                        "Moving temporary extra copy '%s' to destination '%s' failed.",
-                        extraTmpCopy, extraCopyDirOrNull));
+                        "Moving '%s' to '%s' for final moving process failed.", path, outputDir));
+                return;
             }
+    
+            if (extraTmpCopy != null)
+            {
+                assert extraCopyDirOrNull != null;
+                final File extraCopy = mover.tryMove(extraTmpCopy, extraCopyDirOrNull);
+                if (extraCopy == null)
+                {
+                    notificationLog.error(String.format(
+                            "Moving temporary extra copy '%s' to destination '%s' failed.",
+                            extraTmpCopy, extraCopyDirOrNull));
+                }
+            }
+        } catch (StopException ex)
+        {
+            stopped = true;
         }
+    }
+    
+    public boolean isStopped()
+    {
+        return stopped;
     }
 
     //

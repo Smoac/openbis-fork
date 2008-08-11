@@ -28,15 +28,15 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.FileUtilities.SimpleActivityObserver;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 
 /**
@@ -125,9 +125,9 @@ final class RetryingPathRemover implements IPathRemover
     }
 
     @Private
-    static class DeleteActivityDetector implements IActivitySensor, SimpleActivityObserver
+    static class DeleteActivityDetector implements IDescribingActivitySensor, IActivityObserver
     {
-        private volatile long lastActivityTime = System.currentTimeMillis();
+        private volatile long lastActivityMillis = System.currentTimeMillis();
 
         private final File path;
 
@@ -139,18 +139,23 @@ final class RetryingPathRemover implements IPathRemover
         // called each time when one file gets deleted
         synchronized public void update()
         {
-            lastActivityTime = System.currentTimeMillis();
+            lastActivityMillis = System.currentTimeMillis();
         }
 
         synchronized public String describeInactivity(long now)
         {
             return "No delete activity of path " + path.getPath() + " for "
-                    + DurationFormatUtils.formatDurationHMS(now - lastActivityTime);
+                    + DurationFormatUtils.formatDurationHMS(now - lastActivityMillis);
         }
 
-        synchronized public long getTimeOfLastActivityMoreRecentThan(long thresholdMillis)
+        synchronized public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
         {
-            return lastActivityTime;
+            return lastActivityMillis;
+        }
+
+        synchronized public boolean hasActivityMoreRecentThan(long thresholdMillis)
+        {
+            return (System.currentTimeMillis() - lastActivityMillis) < thresholdMillis;
         }
 
     }
@@ -170,7 +175,7 @@ final class RetryingPathRemover implements IPathRemover
     }
 
     @Private
-    Boolean executeAndMonitor(final IActivitySensor sensor, final Callable<Boolean> deleteCallable,
+    Boolean executeAndMonitor(final IDescribingActivitySensor sensor, final Callable<Boolean> deleteCallable,
             final long inactivityThresholdMillis)
     {
         final Future<Boolean> deleteFuture = executor.submit(deleteCallable);

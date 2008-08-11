@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -35,6 +34,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,11 +45,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
+import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
@@ -64,7 +69,8 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  * <p>
  * If you are tempted to add new functionality to this class, ensure that the new functionality does
  * not yet exist in <code>org.apache.common.io.FileUtils</code>, see <a
- * href="http://jakarta.apache.org/commons/io/api-release/org/apache/commons/io/FileUtils.html">javadoc</a>.
+ * href="http://jakarta.apache.org/commons/io/api-release/org/apache/commons/io/FileUtils.html"
+ * >javadoc</a>.
  * 
  * @author Bernd Rinn
  */
@@ -96,7 +102,7 @@ public final class FileUtilities
      * @throws EnvironmentFailureException if a {@link IOException} occured.
      */
     public static void copyFileTo(final File sourceFile, final File destinationFile,
-            final boolean preservesLastModifiedDate) throws CheckedExceptionTunnel
+            final boolean preservesLastModifiedDate) throws WrappedIOException
     {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
@@ -133,10 +139,10 @@ public final class FileUtilities
      *            is not <code>null</code>.
      * @return The content of the file. All newline characters are '\n' (Unix convention). Never
      *         returns <code>null</code>.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
-    public static String loadToString(final File file) throws CheckedExceptionTunnel
+    public static String loadToString(final File file) throws WrappedIOException
     {
         assert file != null;
 
@@ -147,7 +153,7 @@ public final class FileUtilities
             return readString(new BufferedReader(fileReader));
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(fileReader);
@@ -161,10 +167,10 @@ public final class FileUtilities
      *            is not <code>null</code>.
      * @return The content of the file. All newline characters are '\n' (Unix convention). Never
      *         returns <code>null</code>.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
-    public static String loadExactToString(final File file) throws CheckedExceptionTunnel
+    public static String loadExactToString(final File file) throws WrappedIOException
     {
         assert file != null;
 
@@ -175,7 +181,7 @@ public final class FileUtilities
             return readExactString(new BufferedReader(fileReader));
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(fileReader);
@@ -185,9 +191,9 @@ public final class FileUtilities
     /**
      * Writes the specified string to the specified file.
      * 
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}.
+     * @throws WrappedIOException for wrapping an {@link IOException}.
      */
-    public static void writeToFile(final File file, final String str) throws CheckedExceptionTunnel
+    public static void writeToFile(final File file, final String str) throws WrappedIOException
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";
@@ -199,7 +205,7 @@ public final class FileUtilities
             fileWriter.write(str);
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(fileWriter);
@@ -212,11 +218,10 @@ public final class FileUtilities
      * @param file the file that should be loaded. This method asserts that given <code>File</code>
      *            is not <code>null</code>.
      * @return The content of the file line by line.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
-    public final static List<String> loadToStringList(final File file)
-            throws CheckedExceptionTunnel
+    public final static List<String> loadToStringList(final File file) throws WrappedIOException
     {
         return loadToStringList(file, null);
     }
@@ -229,11 +234,11 @@ public final class FileUtilities
      * @param lineFilterOrNull a line filter if you are not interested in all lines. May be
      *            <code>null</code>.
      * @return The content of the file line by line.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
     public final static List<String> loadToStringList(final File file,
-            final ILineFilter lineFilterOrNull) throws CheckedExceptionTunnel
+            final ILineFilter lineFilterOrNull) throws WrappedIOException
     {
         assert file != null : "Unspecified file.";
 
@@ -244,7 +249,7 @@ public final class FileUtilities
             return readStringList(new BufferedReader(fileReader), lineFilterOrNull);
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(fileReader);
@@ -261,12 +266,12 @@ public final class FileUtilities
      *            <code>null</code>).
      * @param resource Absolute path of the resource (will be the argument of
      *            <code>getResource()</code>).
-     * @return The content of the resource, or <code>null</code> if the specified resource does
-     *         not exist.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}
+     * @return The content of the resource, or <code>null</code> if the specified resource does not
+     *         exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}
      */
     public static String loadToString(final Class<?> clazz, final String resource)
-            throws CheckedExceptionTunnel
+            throws WrappedIOException
     {
         assert clazz != null : "Given class can not be null.";
         assert resource != null && resource.length() > 0 : "Given resource can not be null.";
@@ -278,7 +283,7 @@ public final class FileUtilities
             return reader == null ? null : readString(reader);
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(reader);
@@ -295,11 +300,11 @@ public final class FileUtilities
      * @param resource absolute path of the resource (will be the argument of
      *            <code>getResource()</code>).
      * @return The content of the resource line by line.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource)
-            throws CheckedExceptionTunnel
+            throws WrappedIOException
     {
         return loadToStringList(clazz, resource, null);
     }
@@ -317,11 +322,11 @@ public final class FileUtilities
      *            <code>null</code>.
      * @return The content of the resource line by line or <code>null</code> if given
      *         <var>resource</var> can not be found.
-     * @throws CheckedExceptionTunnel for wrapping an {@link IOException}, e.g. if the file does
-     *             not exist.
+     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     *             exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource,
-            final ILineFilter lineFilterOrNull) throws CheckedExceptionTunnel
+            final ILineFilter lineFilterOrNull) throws WrappedIOException
     {
         assert clazz != null : "Given class can not be null.";
         assert StringUtils.isNotEmpty(resource) : "Given resource can not be empty.";
@@ -333,7 +338,7 @@ public final class FileUtilities
             return reader == null ? null : readStringList(reader, lineFilterOrNull);
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(reader);
@@ -341,7 +346,7 @@ public final class FileUtilities
     }
 
     private final static BufferedReader tryGetBufferedReader(final Class<?> clazz,
-            final String resource) throws FileNotFoundException
+            final String resource)
     {
         final URL url = clazz.getResource(resource);
         if (url == null)
@@ -351,9 +356,12 @@ public final class FileUtilities
         try
         {
             return new BufferedReader(new FileReader(new File(url.toURI())));
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } catch (final URISyntaxException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -407,8 +415,7 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the
-     * program.
+     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
@@ -442,8 +449,8 @@ public final class FileUtilities
      * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
      * the program (it's a directory, you can read and write in it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an
-     *         error message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
      */
     public static String checkDirectoryReadAccessible(final File directory,
             final String kindOfDirectory)
@@ -504,8 +511,8 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading
-     * and writing to the program (so it's a file and you can read and write it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and
+     * writing to the program (so it's a file and you can read and write it)
      * 
      * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
      *         describing the problem with the <var>file</var> otherwise.
@@ -552,14 +559,25 @@ public final class FileUtilities
     }
 
     /**
-     * A simple role that can observe activity.
+     * A class that monitors activity on recursive delete processes.
      */
-    public interface SimpleActivityObserver
+    public static class DeleteActivityDetector extends RecordingActivityObserverSensor implements
+            IDescribingActivitySensor
     {
-        /**
-         * Called when activity occurred.
-         */
-        public void update();
+        private final File path;
+
+        public DeleteActivityDetector(File path)
+        {
+            super();
+            this.path = path;
+        }
+
+        public String describeInactivity(long now)
+        {
+            return "No delete activity of path " + path.getPath() + " for "
+                    + DurationFormatUtils.formatDurationHMS(now - getLastActivityMillis());
+        }
+
     }
 
     /**
@@ -570,10 +588,11 @@ public final class FileUtilities
      * <code>null</code>.
      * 
      * @param path Path of the file or directory to delete.
-     * @return <code>true</code> if the path has been delete successfully, <code>false</code>
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
+     * @throws StopException If the current thread has been interrupted.
      */
-    public static boolean deleteRecursively(final File path)
+    public static boolean deleteRecursively(final File path) throws StopException
     {
         assert path != null;
 
@@ -587,10 +606,12 @@ public final class FileUtilities
      * @param path Path of the file or directory to delete.
      * @param loggerOrNull The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
-     * @return <code>true</code> if the path has been delete successfully, <code>false</code>
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
+     * @throws StopException If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull)
+            throws StopException
     {
         return deleteRecursively(path, loggerOrNull, null);
     }
@@ -602,15 +623,16 @@ public final class FileUtilities
      * @param path Path of the file or directory to delete.
      * @param loggerOrNull The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
-     *            deletion. This can be used to find out whether a (potentially) long-running
-     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
-     *            directory becoming unresponsive).
-     * @return <code>true</code> if the path has been delete successfully, <code>false</code>
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
+     *            This can be used to find out whether a (potentially) long-running recursive
+     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
+     * @throws StopException If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull,
-            final SimpleActivityObserver observerOrNull)
+            final IActivityObserver observerOrNull) throws StopException
     {
         assert path != null;
 
@@ -618,6 +640,10 @@ public final class FileUtilities
         {
             for (final File file : path.listFiles())
             {
+                if (Thread.interrupted())
+                {
+                    throw new StopException();
+                }
                 if (observerOrNull != null)
                 {
                     observerOrNull.update();
@@ -655,9 +681,10 @@ public final class FileUtilities
      * @param logger The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
+     * @throws StopException If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final FileFilter filter,
-            final ISimpleLogger logger)
+            final ISimpleLogger logger) throws StopException
     {
         assert path != null;
 
@@ -674,14 +701,16 @@ public final class FileUtilities
      * @param filter The {@link FileFilter} to use when deciding which paths to delete.
      * @param logger The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
-     *            deletion. This can be used to find out whether a (potentially) long-running
-     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
-     *            directory becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
+     *            This can be used to find out whether a (potentially) long-running recursive
+     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
+     * @throws StopException If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final FileFilter filter,
-            final ISimpleLogger logger, final SimpleActivityObserver observerOrNull)
+            final ISimpleLogger logger, final IActivityObserver observerOrNull)
+            throws StopException
     {
         assert path != null;
         assert filter != null;
@@ -695,6 +724,10 @@ public final class FileUtilities
             {
                 for (final File file : path.listFiles())
                 {
+                    if (Thread.interrupted())
+                    {
+                        throw new StopException();
+                    }
                     if (observerOrNull != null)
                     {
                         observerOrNull.update();
@@ -813,22 +846,21 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
-     * has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below
+     * <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
-     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
-     *            this parameter is ignored. When considering what this parameter is good for, note
-     *            that the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
+     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
+     *            parameter is ignored. When considering what this parameter is good for, note that
+     *            the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
      *            when a file or directory is found that is younger than the time specified in this
      *            parameter. Supposed to be used when one does not care about the absolute youngest
      *            entry, but only, if there are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
-     *             readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
@@ -839,23 +871,22 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
-     * has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below
+     * <var>path</var> has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
-     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
-     *            this parameter is ignored. When considering what this parameter is good for, note
-     *            that the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
+     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
+     *            parameter is ignored. When considering what this parameter is good for, note that
+     *            the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
      *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to
-     *            be used when one does not care about the absolute youngest entry, but only, if
-     *            there are entries that are "young enough".
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
+     *            used when one does not care about the absolute youngest entry, but only, if there
+     *            are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
-     *             readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
@@ -868,8 +899,7 @@ public final class FileUtilities
     /**
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
-     *             readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path) throws UnknownLastChangedException
@@ -919,9 +949,9 @@ public final class FileUtilities
      * 
      * @param defaultFileNameOrNull the default name for the new file if the digit pattern could not
      *            be found in its name. If empty then "1" will be appended to its name.
-     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (<code>(\\d+)</code>)
-     *            will be used. The given <var>regex</var> must contain <code>(\\d+)</code> or
-     *            <code>([0-9]+)</code>.
+     * @param regexOrNull pattern to find out the counter. If <code>null</code> then a default (
+     *            <code>(\\d+)</code>) will be used. The given <var>regex</var> must contain
+     *            <code>(\\d+)</code> or <code>([0-9]+)</code>.
      */
     public final static File createNextNumberedFile(final File path, final Pattern regexOrNull,
             final String defaultFileNameOrNull)
@@ -1006,8 +1036,8 @@ public final class FileUtilities
      * 
      * @param directory the directory to list
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
-     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var>
-     *         does not exist or is not a directory.
+     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var> does
+     *         not exist or is not a directory.
      */
     public static File[] tryListFiles(final File directory, final ISimpleLogger loggerOrNull)
     {
@@ -1019,7 +1049,7 @@ public final class FileUtilities
      * 
      * @param directory the directory to list
      * @param filterOrNull only files matching this filter will show up in the result, if it is not
-     *            <code>null</code>.
+     *            <code>null</code>
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
      * @return all files in <var>directory</var> that match the filter, or <code>null</code>, if
      *         <var>directory</var> does not exist or is not a directory.
@@ -1081,10 +1111,10 @@ public final class FileUtilities
      * @param postfix The postfix to use for the temporary name.
      * @return The name of the temporary file.
      * @throws IllegalArgumentException If the resource cannot be found in the class path.
-     * @throws CheckedExceptionTunnel If an {@link IOException} occurs.
+     * @throws WrappedIOException If an {@link IOException} occurs.
      */
     public final static String copyResourceToTempFile(final String resource, final String prefix,
-            final String postfix)
+            final String postfix) throws WrappedIOException
     {
         final InputStream resourceStream = FileUtilities.class.getResourceAsStream(resource);
         if (resourceStream == null)
@@ -1106,7 +1136,7 @@ public final class FileUtilities
             return tempFile.getAbsolutePath();
         } catch (final IOException ex)
         {
-            throw new CheckedExceptionTunnel(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(resourceStream);
@@ -1133,8 +1163,8 @@ public final class FileUtilities
      * Loads the native library <var>libraryName</var> from a Java resource that follows tha naming
      * convention described in {@link #tryCopyNativeLibraryToTempFile(String)}.
      * 
-     * @return <code>true</code> if the library has been loaded successfully and
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the library has been loaded successfully and <code>false</code>
+     *         otherwise.
      */
     public final static boolean loadNativeLibraryFromResource(final String libraryName)
     {
@@ -1201,6 +1231,226 @@ public final class FileUtilities
     }
 
     /**
+     * A {@link FileFilter} that matches against a list of file extensions and that
+     * 
+     * @author Bernd Rinn
+     */
+    private static final class ExtensionFileFilter implements FileFilter
+    {
+        private final String[] extensionsOrNull;
+
+        private final IActivityObserver observerOrNull;
+
+        private final boolean recursive;
+
+        ExtensionFileFilter(String[] extensionsOrNull, boolean recursive,
+                IActivityObserver observerOrNull)
+        {
+            this.extensionsOrNull = extensionsOrNull;
+            this.recursive = recursive;
+            this.observerOrNull = observerOrNull;
+        }
+
+        private boolean correctType(File file)
+        {
+            // Small optimization: if recursive, we know alrady that file.isDirectory() == false.
+            return recursive || file.isFile();
+        }
+
+        private boolean match(String extensionFound)
+        {
+            if (extensionsOrNull == null)
+            {
+                return true;
+            }
+            if (extensionFound.length() == 0)
+            {
+                return false;
+            }
+            for (String ext : extensionsOrNull)
+            {
+                if (extensionFound.equals(ext))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean accept(File file)
+        {
+            if (observerOrNull != null)
+            {
+                observerOrNull.update();
+            }
+            if (recursive && file.isDirectory())
+            {
+                return true; // We need to traverse directories in any case.
+            }
+            return correctType(file) && match(FilenameUtils.getExtension(file.getName()));
+        }
+
+    }
+
+    /**
+     * A {@link FileFilter} that matches against a list of file extensions and that
+     * 
+     * @author Bernd Rinn
+     */
+    private static final class DirectoryFilter implements FileFilter
+    {
+        private final IActivityObserver observerOrNull;
+
+        DirectoryFilter(IActivityObserver observerOrNull)
+        {
+            this.observerOrNull = observerOrNull;
+        }
+
+        public boolean accept(File pathname)
+        {
+            if (observerOrNull != null)
+            {
+                observerOrNull.update();
+            }
+            return pathname.isDirectory();
+        }
+
+    }
+
+    /**
+     * A {@link FileFilter} that matches against a list of file extensions and that
+     * 
+     * @author Bernd Rinn
+     */
+    private static final class TrueFilter implements FileFilter
+    {
+        private final IActivityObserver observerOrNull;
+
+        TrueFilter(IActivityObserver observerOrNull)
+        {
+            this.observerOrNull = observerOrNull;
+        }
+
+        public boolean accept(File pathname)
+        {
+            if (observerOrNull != null)
+            {
+                observerOrNull.update();
+            }
+            return true;
+        }
+
+    }
+
+    /**
+     * Finds files within a given directory (and optionally its subdirectories) which match an array
+     * of extensions.
+     * 
+     * @param directory The directory to search in.
+     * @param extensionsOrNull An array of extensions, ex. {"java","xml"}. If this parameter is
+     *            <code>null</code>, all files are returned.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @return A list of java.io.File (all files) with the matching files, or an empty list, if
+     *         <var>directory</var> ist not a directory.
+     */
+    public static List<File> listFiles(File directory, String[] extensionsOrNull,
+            boolean recursive, IActivityObserver observerOrNull)
+    {
+        assert directory != null;
+
+        final List<File> result = new LinkedList<File>();
+        internalListFiles(directory, result, new ExtensionFileFilter(extensionsOrNull, recursive,
+                observerOrNull), observerOrNull, recursive, FType.FILE);
+        return result;
+    }
+
+    /**
+     * Finds directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     */
+    public static List<File> listDirectories(File directory, boolean recursive,
+            IActivityObserver observerOrNull)
+    {
+        assert directory != null;
+
+        final List<File> result = new LinkedList<File>();
+        internalListFiles(directory, result, new DirectoryFilter(observerOrNull), observerOrNull,
+                recursive, FType.DIRECTORY);
+        return result;
+    }
+
+    /**
+     * Finds files and directories within a given directory (and optionally its subdirectories).
+     * 
+     * @param directory The directory to search in.
+     * @param recursive If true all subdirectories are searched as well.
+     * @param observerOrNull If not <code>null</code>, will be updated on progress of file
+     *            gathering. This can be used to find out whether a (potentially) long-running file
+     *            gathering call is alive-and-kicking or hangs (e.g. due to a remote directory
+     *            becoming unresponsive).
+     * @return A list of java.io.File (all directories), or an empty list, if <var>directory</var>
+     *         ist not a directory.
+     */
+    public static List<File> listFilesAndDirectories(File directory, boolean recursive,
+            IActivityObserver observerOrNull)
+    {
+        assert directory != null;
+
+        final List<File> result = new LinkedList<File>();
+        internalListFiles(directory, result, new TrueFilter(observerOrNull), observerOrNull,
+                recursive, FType.EITHER);
+        return result;
+    }
+
+    private enum FType
+    {
+        FILE, DIRECTORY, EITHER
+    }
+
+    private static void internalListFiles(File directory, List<File> result, FileFilter filter,
+            IActivityObserver observerOrNull, boolean recursive, FType ftype)
+    {
+        final File[] filteredFilesAndDirectories = directory.listFiles(filter);
+        if (filteredFilesAndDirectories == null)
+        {
+            return;
+        }
+        for (File f : filteredFilesAndDirectories)
+        {
+            if (observerOrNull != null)
+            {
+                observerOrNull.update();
+            }
+            if (f.isDirectory())
+            {
+                if (ftype != FType.FILE)
+                {
+                    result.add(f);
+                }
+                if (recursive)
+                {
+                    internalListFiles(f, result, filter, observerOrNull, recursive, ftype);
+                }
+            } else if (ftype != FType.DIRECTORY)
+            {
+                result.add(f);
+            }
+        }
+    }
+
+    /**
      * Normalizes given <var>file</var> path, removing double and single dot path steps.
      * <p>
      * It first tries to call {@link File#getCanonicalFile()}. If this fails, works with the file
@@ -1243,8 +1493,8 @@ public final class FileUtilities
      * Returns a human-readable version of the file size, where the input represents a specific
      * number of bytes.
      * <p>
-     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this
-     * version is more exact.
+     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this version
+     * is more exact.
      * </p>
      * 
      * @param size the number of bytes

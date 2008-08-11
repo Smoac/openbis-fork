@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
@@ -43,11 +43,11 @@ public class InactivityMonitorTest
 
     private static final long TIME_TO_WAIT_MILLIS = 4 * INACTIVITY_THRESHOLD_MILLIS;
 
-    private final static long DELTA = 10L;
+    private final static long DELTA = 20L;
 
     private Mockery context;
 
-    private IActivitySensor sensor;
+    private IDescribingActivitySensor sensor;
 
     private IInactivityObserver observer;
 
@@ -130,7 +130,7 @@ public class InactivityMonitorTest
     {
         exceptionHandler.reset();
         context = new Mockery();
-        sensor = context.mock(IActivitySensor.class);
+        sensor = context.mock(IDescribingActivitySensor.class);
         observer = context.mock(IInactivityObserver.class);
     }
 
@@ -153,7 +153,7 @@ public class InactivityMonitorTest
         context.checking(new Expectations()
             {
                 {
-                    atLeast(1).of(sensor).getTimeOfLastActivityMoreRecentThan(
+                    atLeast(1).of(sensor).getLastActivityMillisMoreRecentThan(
                             INACTIVITY_THRESHOLD_MILLIS);
                     will(new ReturnNowMinus(0L));
                 }
@@ -173,7 +173,7 @@ public class InactivityMonitorTest
         context.checking(new Expectations()
             {
                 {
-                    one(sensor).getTimeOfLastActivityMoreRecentThan(INACTIVITY_THRESHOLD_MILLIS);
+                    one(sensor).getLastActivityMillisMoreRecentThan(INACTIVITY_THRESHOLD_MILLIS);
                     will(new ReturnNowMinus(2 * INACTIVITY_THRESHOLD_MILLIS));
                     one(sensor).describeInactivity(with(new NowMatcher()));
                     will(returnValue(descriptionOfInactivity));
@@ -190,14 +190,16 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testInactivityMultipleTimes() throws Throwable
     {
+        // Wait for system to become quiet to get more accurate measurement.
+        ConcurrencyUtilities.sleep(300L);
         final String descriptionOfInactivity = "DESCRIPTION";
         context.checking(new Expectations()
             {
                 {
-                    atLeast(3).of(sensor).getTimeOfLastActivityMoreRecentThan(
+                    atLeast(3).of(sensor).getLastActivityMillisMoreRecentThan(
                             INACTIVITY_THRESHOLD_MILLIS);
                     will(new ReturnNowMinus(2 * INACTIVITY_THRESHOLD_MILLIS));
                     atLeast(3).of(sensor).describeInactivity(with(new NowMatcher()));

@@ -159,10 +159,10 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
+        final IStoreHandler pathHandler = createIncomingMovingPathHandler();
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
-                        copyInProgressDir), highwaterMarkWatcher, copyInProgressDir);
-        final IStoreHandler pathHandler = createIncomingMovingPathHandler();
+                        copyInProgressDir, pathHandler), highwaterMarkWatcher, copyInProgressDir);
         final DirectoryScanningTimerTask movingTask =
                 new DirectoryScanningTimerTask(
                         new FileScannedStore(incomingStore, storeItemFilter),
@@ -205,6 +205,12 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                     {
                         moveFromLocalIncoming(extendedFileStore, sourceItem);
                     }
+                }
+
+                public boolean isStopped()
+                {
+                    return (incomingStore.tryAsExtended() == null) ? remotePathMover.isStopped()
+                            : false;
                 }
             };
     }

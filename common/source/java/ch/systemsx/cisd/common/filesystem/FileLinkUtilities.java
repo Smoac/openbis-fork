@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import java.io.IOException;
+
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
@@ -28,28 +31,17 @@ public class FileLinkUtilities
 
     private final static boolean operational = FileUtilities.loadNativeLibraryFromResource("jlink");
 
-    /** An exception that indicates that creating a link failed. */
-    public static final class FileLinkException extends RuntimeException
+    private static void throwException(String type, String source, String target,
+            String errorMessage)
     {
-        private static final long serialVersionUID = 1L;
-
-        private FileLinkException(String type, String source, String target, String errorMessage)
-        {
-            super(String.format("Creating %s link '%s' -> '%s': %s", type, source, target,
-                    errorMessage));
-        }
+        throw new WrappedIOException(new IOException(String.format(
+                "Creating %s link '%s' -> '%s': %s", type, source, target, errorMessage)));
     }
 
-    /** An exception that indicates that obtaining information about a link failed. */
-    public static final class FileLinkInfoException extends RuntimeException
+    private static void throwException(String filename, String errorMessage)
     {
-        private static final long serialVersionUID = 1L;
-
-        private FileLinkInfoException(String filename, String errorMessage)
-        {
-            super(String.format("Cannot obtain inode info for file '%s': %s", filename,
-                    errorMessage));
-        }
+        throw new WrappedIOException(new IOException(String.format(
+                "Cannot obtain inode info for file '%s': %s", filename, errorMessage)));
     }
 
     /** A class that provides information about a link. */
@@ -131,54 +123,55 @@ public class FileLinkUtilities
     /**
      * Creates a hard link from <var>filename</var> to <var>linkname</var>.
      * 
-     * @throws FileLinkException If the underlying system call fails, e.g. because <var>filename</var>
-     *             does not exist or because <var>linkname</var> already exists.
+     * @throws WrappedIOException If the underlying system call fails, e.g. because
+     *             <var>filename</var> does not exist or because <var>linkname</var> already exists.
      */
     public static final void createHardLink(String filename, String linkname)
-            throws FileLinkException
+            throws WrappedIOException
     {
         if (filename == null || linkname == null)
         {
-            throw new FileLinkException("hard", filename, linkname, "null is not allowed");
+            throwException("hard", filename, linkname, "null is not allowed");
         }
         final int result = hardlink(filename, linkname);
         if (result < 0)
         {
-            throw new FileLinkException("hard", filename, linkname, strerror(result));
+            throwException("hard", filename, linkname, strerror(result));
         }
     }
 
     /**
      * Creates a symbolic link from <var>filename</var> to <var>linkname</var>.
      * 
-     * @throws FileLinkException If the underlying system call fails, e.g. because <var>filename</var>
-     *             does not exist or because <var>linktarget</var> already exists.
+     * @throws WrappedIOException If the underlying system call fails, e.g. because
+     *             <var>filename</var> does not exist or because <var>linktarget</var> already
+     *             exists.
      */
     public static final void createSymbolicLink(String filename, String linkname)
-            throws FileLinkException
+            throws WrappedIOException
     {
         if (filename == null || linkname == null)
         {
-            throw new FileLinkException("symbolic", filename, linkname, "null is not allowed");
+            throwException("symbolic", filename, linkname, "null is not allowed");
         }
         final int result = symlink(filename, linkname);
         if (result < 0)
         {
-            throw new FileLinkException("symbolic", filename, linkname, strerror(result));
+            throwException("symbolic", filename, linkname, strerror(result));
         }
     }
 
-    private static int[] getLinkInfoArray(String linkname) throws FileLinkInfoException
+    private static int[] getLinkInfoArray(String linkname) throws WrappedIOException
     {
         if (linkname == null)
         {
-            throw new FileLinkInfoException(linkname, "null is not allowed");
+            throwException(linkname, "null is not allowed");
         }
         final int[] inodeInfo = new int[4];
         final int result = linkinfo(linkname, inodeInfo);
         if (result < 0)
         {
-            throw new FileLinkInfoException(linkname, strerror(result));
+            throwException(linkname, strerror(result));
         }
         return inodeInfo;
     }
@@ -186,10 +179,10 @@ public class FileLinkUtilities
     /**
      * Returns the inode for the <var>filename</var>.
      * 
-     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final int getInode(String filename) throws FileLinkInfoException
+    public static final int getInode(String filename) throws WrappedIOException
     {
         return getLinkInfoArray(filename)[0];
     }
@@ -197,10 +190,10 @@ public class FileLinkUtilities
     /**
      * Returns the inode for the <var>filename</var>.
      * 
-     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final int getHardLinkCount(String filename) throws FileLinkInfoException
+    public static final int getHardLinkCount(String filename) throws WrappedIOException
     {
         return getLinkInfoArray(filename)[1];
     }
@@ -209,10 +202,10 @@ public class FileLinkUtilities
      * Returns <code>true</code> if <var>filename</var> is a symbolic link and <code>false</code>
      * otherwise.
      * 
-     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final boolean isSymbolicLink(String filename) throws FileLinkInfoException
+    public static final boolean isSymbolicLink(String filename) throws WrappedIOException
     {
         return getLinkInfoArray(filename)[2] != 0;
     }
@@ -221,10 +214,10 @@ public class FileLinkUtilities
      * Returns the value of the symbolik link <var>filename</var>, or <code>null</code>, if
      * <var>filename</var> is not a symbolic link.
      * 
-     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final String tryReadSymbolicLink(String linkname) throws FileLinkInfoException
+    public static final String tryReadSymbolicLink(String linkname) throws WrappedIOException
     {
         final int[] info = getLinkInfoArray(linkname);
         return (info[2] != 0) ? readlink(linkname, info[3]) : null;
@@ -233,10 +226,10 @@ public class FileLinkUtilities
     /**
      * Returns the information about <var>linkname</var>.
      * 
-     * @throws FileLinkInfoException If the information could not be obtained, e.g. because the link
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final LinkInfo getLinkInfo(String linkname) throws FileLinkInfoException
+    public static final LinkInfo getLinkInfo(String linkname) throws WrappedIOException
     {
         final int[] info = getLinkInfoArray(linkname);
         final String symbolicLinkOrNull = (info[2] != 0) ? readlink(linkname, info[3]) : null;

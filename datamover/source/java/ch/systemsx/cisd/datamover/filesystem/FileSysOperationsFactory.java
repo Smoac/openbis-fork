@@ -81,7 +81,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public final IImmutableCopier getImmutableCopier()
     {
         final File rsyncExecutable = findRsyncExecutable();
-        return FastRecursiveHardLinkMaker.tryCreate(rsyncExecutable, true);
+        return FastRecursiveHardLinkMaker.create(rsyncExecutable);
     }
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)

@@ -16,18 +16,25 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.exceptions.TimeoutException;
+import ch.systemsx.cisd.common.logging.ConsoleLogger;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
 
 /**
  * Test cases for the {@link MonitoringProxy}.
@@ -47,15 +54,26 @@ public class MonitoringProxyTest
 
     private static final Status THE_STATUS = Status.TWO;
 
-    private static final long TIMEOUT_MILLIS = 50L;
+    private static final long TIMEOUT_MILLIS = 100L;
 
     private volatile Thread threadToStop;
-    
+
+    private RecordingActivityObserverSensor observerSensor;
+
     private ITest defaultReturningProxy;
 
     private ITest exceptionThrowingProxy;
 
+    private ITest retryingOnceExceptionThrowingProxy;
+
+    private ITest retryingTwiceExceptionThrowingProxy;
+
     private static class SignalException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+    }
+
+    private static class RetryItException extends RuntimeException
     {
         private static final long serialVersionUID = 1L;
     }
@@ -69,6 +87,8 @@ public class MonitoringProxyTest
     {
         void idle(boolean hang);
 
+        void busyUpdatingActivity();
+
         String getString(boolean hang);
 
         boolean getBoolean(boolean hang);
@@ -80,13 +100,24 @@ public class MonitoringProxyTest
         Status getSpecialStatus(boolean hang);
 
         void throwSignalException() throws SignalException;
+
+        void worksOnSecondInvocation() throws RetryItException;
+
+        void worksOnThirdInvocation() throws RetryItException;
     }
 
     private final static Pattern THREAD_NAME_PATTERN =
-        Pattern.compile("Monitoring Proxy-T[0-9]+::main::" + THREAD_NAME);
+            Pattern.compile("Monitoring Proxy-T[0-9]+::main::" + THREAD_NAME);
 
     private class TestImpl implements ITest
     {
+        private final IActivityObserver observer;
+
+        TestImpl(IActivityObserver observer)
+        {
+            this.observer = observer;
+        }
+
         private void hang(boolean hang)
         {
             if (hang)
@@ -108,6 +139,18 @@ public class MonitoringProxyTest
         {
             checkThreadName();
             hang(hang);
+        }
+
+        public void busyUpdatingActivity()
+        {
+            checkThreadName();
+            threadToStop = Thread.currentThread();
+            final long timeToHangMillis = (long) (TIMEOUT_MILLIS * 1.5);
+            final long start = System.currentTimeMillis();
+            while (System.currentTimeMillis() - start < timeToHangMillis)
+            {
+                observer.update();
+            }
         }
 
         public boolean getBoolean(boolean hang)
@@ -150,20 +193,58 @@ public class MonitoringProxyTest
             checkThreadName();
             throw new SignalException();
         }
+
+        int invocationCount1 = 0;
+
+        public void worksOnSecondInvocation() throws RetryItException
+        {
+            checkThreadName();
+            if (++invocationCount1 < 2)
+            {
+                throw new RetryItException();
+            }
+        }
+
+        int invocationCount2 = 0;
+
+        public void worksOnThirdInvocation() throws RetryItException
+        {
+            checkThreadName();
+            if (++invocationCount2 < 3)
+            {
+                throw new RetryItException();
+            }
+        }
+
     }
 
-    @BeforeTest
+    @BeforeClass
     public void createMonitoringProxy() throws NoSuchMethodException
     {
+        final ISimpleLogger logger = new ConsoleLogger();
+        observerSensor = new RecordingActivityObserverSensor();
         defaultReturningProxy =
-                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(TIMEOUT_MILLIS)
-                        .errorValueOnTimeout().name(THREAD_NAME).errorTypeValueMapping(
-                                Status.class, Status.UUUPS).errorMethodValueMapping(
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.createNoRetries(TIMEOUT_MILLIS)).errorValueOnTimeout()
+                        .name(THREAD_NAME).errorTypeValueMapping(Status.class, Status.UUUPS)
+                        .errorMethodValueMapping(
                                 ITest.class.getMethod("getSpecialStatus", new Class<?>[]
-                                    { Boolean.TYPE }), Status.SPECIAL_UUUPS).get();
+                                    { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
+                        .errorLog(logger).get();
         exceptionThrowingProxy =
-                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(TIMEOUT_MILLIS)
-                        .name(THREAD_NAME).get();
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.createNoRetries(TIMEOUT_MILLIS)).name(THREAD_NAME).sensor(
+                        observerSensor).errorLog(logger).get();
+        retryingOnceExceptionThrowingProxy =
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.create(TIMEOUT_MILLIS, 1, 0L)).name(THREAD_NAME).sensor(
+                        observerSensor).exceptionClassSuitableForRetrying(RetryItException.class)
+                        .errorLog(logger).get();
+        retryingTwiceExceptionThrowingProxy =
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.create(TIMEOUT_MILLIS, 2, 0L)).name(THREAD_NAME).sensor(
+                        observerSensor).exceptionClassSuitableForRetrying(RetryItException.class)
+                        .errorLog(logger).get();
     }
 
     @SuppressWarnings("deprecation")
@@ -176,7 +257,14 @@ public class MonitoringProxyTest
             t.stop();
         }
     }
-    
+
+    @BeforeMethod
+    @AfterClass
+    public void clearThreadInterruptionState()
+    {
+        Thread.interrupted();
+    }
+
     @Test
     public void testVoid()
     {
@@ -205,6 +293,12 @@ public class MonitoringProxyTest
     public void testVoidTimeoutWithException()
     {
         exceptionThrowingProxy.idle(true);
+    }
+
+    @Test(groups = "slow")
+    public void testNoTimeoutDueToSensorUpdate()
+    {
+        exceptionThrowingProxy.busyUpdatingActivity();
     }
 
     @Test
@@ -283,8 +377,8 @@ public class MonitoringProxyTest
     public void testInterruptTheUninterruptableThrowsException()
     {
         final ITest proxy =
-                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(1000L).name(
-                        THREAD_NAME).get();
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.create(1000L)).name(THREAD_NAME).get();
         final Thread currentThread = Thread.currentThread();
         final Timer timer = new Timer();
         timer.schedule(new TimerTask()
@@ -295,7 +389,7 @@ public class MonitoringProxyTest
                     currentThread.interrupt();
                 }
             }, 50L);
-        // This call would not be interruptable if it wasn't proxied, but we get a StopException
+        // This call would not be interruptible if it wasn't proxied, but we get a StopException
         // from the proxy.
         proxy.idle(true);
         timer.cancel();
@@ -306,9 +400,9 @@ public class MonitoringProxyTest
     {
         final String defaultReturnValue = "That's the default return value.";
         final ITest proxy =
-                MonitoringProxy.create(ITest.class, new TestImpl()).timeoutMillis(1000L).name(
-                        THREAD_NAME).errorValueOnInterrupt().errorTypeValueMapping(String.class,
-                        defaultReturnValue).get();
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.create(1000L)).name(THREAD_NAME).errorValueOnInterrupt()
+                        .errorTypeValueMapping(String.class, defaultReturnValue).get();
         final Thread currentThread = Thread.currentThread();
         final Timer timer = new Timer();
         timer.schedule(new TimerTask()
@@ -323,5 +417,29 @@ public class MonitoringProxyTest
         // value for Strings here.
         assertEquals(defaultReturnValue, proxy.getString(true));
         timer.cancel();
+    }
+
+    @Test(expectedExceptions = RetryItException.class)
+    public void testNoRetryFailOnce()
+    {
+        exceptionThrowingProxy.worksOnSecondInvocation();
+    }
+
+    @Test
+    public void testRetryOnceFailOnce()
+    {
+        retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
+    }
+
+    @Test(expectedExceptions = RetryItException.class)
+    public void testRetryOnceFailTwice()
+    {
+        retryingOnceExceptionThrowingProxy.worksOnThirdInvocation();
+    }
+
+    @Test(groups = "slow")
+    public void testRetryTwiceFailTwice()
+    {
+        retryingTwiceExceptionThrowingProxy.worksOnThirdInvocation();
     }
 }

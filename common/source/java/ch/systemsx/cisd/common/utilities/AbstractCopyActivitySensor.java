@@ -19,17 +19,17 @@ package ch.systemsx.cisd.common.utilities;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 
 /**
- * A super class for {@link IActivitySensor}s that sense changes in some sort of copy operation to
- * a "target".
+ * A super class for {@link IDescribingActivitySensor}s that sense changes in some sort of copy
+ * operation to a "target".
  * 
  * @author Bernd Rinn
  */
-public abstract class AbstractCopyActivitySensor implements IActivitySensor
+public abstract class AbstractCopyActivitySensor implements IDescribingActivitySensor
 {
     protected static final int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
 
@@ -72,7 +72,7 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
      * Returns a textual description of the target.
      */
     protected abstract String getTargetDescription();
-    
+
     /**
      * Returns the machine log for the concrete implementation.
      */
@@ -82,7 +82,7 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
     // IActivitySensor
     //
 
-    public long getTimeOfLastActivityMoreRecentThan(long thresholdMillis)
+    public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
     {
         currentResult = getTargetTimeOfLastActivityMoreRecentThan(thresholdMillis);
         final long now = System.currentTimeMillis();
@@ -92,13 +92,16 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
             if (errorCount <= maxErrorsToIgnore)
             {
                 timeOfLastReportedActivity = now;
-                getMachineLog().error(describeInactivity(now)
-                        + String.format(" (error count: %d <= %d, goes unreported)", errorCount,
-                                maxErrorsToIgnore));
+                getMachineLog().error(
+                        describeInactivity(now)
+                                + String.format(" (error count: %d <= %d, goes unreported)",
+                                        errorCount, maxErrorsToIgnore));
             } else
             {
-                getMachineLog().error(describeInactivity(now)
-                        + String.format(" (error count: %s, reported to monitor)", errorCount));
+                getMachineLog().error(
+                        describeInactivity(now)
+                                + String.format(" (error count: %s, reported to monitor)",
+                                        errorCount));
             }
         } else
         {
@@ -122,6 +125,16 @@ public abstract class AbstractCopyActivitySensor implements IActivitySensor
         return timeOfLastReportedActivity;
     }
 
+    public boolean hasActivityMoreRecentThan(long thresholdMillis)
+    {
+        final long now = System.currentTimeMillis();
+        return (now - getLastActivityMillisMoreRecentThan(thresholdMillis)) < thresholdMillis;
+    }
+
+    //
+    // IDescribingActivitySensor
+    //
+    
     public String describeInactivity(long now)
     {
         if (currentResult.isError())

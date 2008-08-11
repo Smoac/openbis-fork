@@ -44,6 +44,27 @@ public final class ConcurrencyUtilities
     public static final long IMMEDIATE_TIMEOUT = 0L;
 
     /**
+     * Provides settings for error logging.
+     */
+    public interface ILogSettings
+    {
+        /**
+         * Returns the logger to be used for errors.
+         */
+        ISimpleLogger getLogger();
+
+        /**
+         * Returns the operation name to be used in error logging.
+         */
+        String getOperationName();
+
+        /**
+         * Returns the log level to be used in error logging.
+         */
+        LogLevel getLogLevelForError();
+    }
+
+    /**
      * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
      * for the result to become available. Any {@link ExecutionException} that might occur in the
      * future task is unwrapped and re-thrown.
@@ -57,7 +78,7 @@ public final class ConcurrencyUtilities
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis) throws StopException
     {
-        return tryGetResult(future, timeoutMillis, null, null, true);
+        return tryGetResult(future, timeoutMillis, null, true);
     }
 
     /**
@@ -76,7 +97,7 @@ public final class ConcurrencyUtilities
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis, boolean stopOnInterrupt)
             throws StopException
     {
-        return tryGetResult(future, timeoutMillis, null, null, stopOnInterrupt);
+        return tryGetResult(future, timeoutMillis, null, stopOnInterrupt);
     }
 
     /**
@@ -88,12 +109,10 @@ public final class ConcurrencyUtilities
      * @param future The future representing the execution to wait for.
      * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
      *            it is smaller than 0, no time-out will apply.
-     * @param loggerOrNull The logger to use for logging note-worthy information, or
-     *            <code>null</code>, if nothing should be logged.
-     * @param operationNameOrNull The name of the operation performed, for log messages, or
-     *            <code>null</code>, if it is not known or deemed unimportant.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
-     *            gets interrupted while waiting on the future.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
+     *            conditions should not be logged.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread gets
+     *            interrupted while waiting on the future.
      * @return The result of the future, or <code>null</code>, if the result does not become
      *         available within <var>timeoutMillis</var> ms or if the waiting thread gets
      *         interrupted.
@@ -101,11 +120,9 @@ public final class ConcurrencyUtilities
      *             <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
-            ISimpleLogger loggerOrNull, String operationNameOrNull, boolean stopOnInterrupt)
-            throws StopException
+            ILogSettings logSettingsOrNull, boolean stopOnInterrupt) throws StopException
     {
-        final ExecutionResult<T> result =
-                getResult(future, timeoutMillis, loggerOrNull, operationNameOrNull);
+        final ExecutionResult<T> result = getResult(future, timeoutMillis, logSettingsOrNull);
         return tryDealWithResult(result, stopOnInterrupt);
     }
 
@@ -129,12 +146,11 @@ public final class ConcurrencyUtilities
      * with the deviant cases yourself, then call this method to deal with the rest.
      * 
      * @param result A
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread
-     *            gets interrupted while waiting on the future.
-     * @return The value of the <var>result</var> of the future, or <code>null</code>, if the
-     *         result status is {@link ExecutionStatus#TIMED_OUT} or
-     *         {@link ExecutionStatus#INTERRUPTED} and <var>stopOnInterrupt</var> is
-     *         <code>false</code>.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread gets
+     *            interrupted while waiting on the future.
+     * @return The value of the <var>result</var> of the future, or <code>null</code>, if the result
+     *         status is {@link ExecutionStatus#TIMED_OUT} or {@link ExecutionStatus#INTERRUPTED}
+     *         and <var>stopOnInterrupt</var> is <code>false</code>.
      * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
      *             <code>true</code>.
      * @throws RuntimeException If the result status is {@link ExecutionStatus#EXCEPTION} and the
@@ -180,17 +196,16 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for
-     * the result to become available. The return value is never <code>null</code>, but always a
+     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the
+     * result to become available. The return value is never <code>null</code>, but always a
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
      * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li>
-     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
-     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
+     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
+     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
+     * execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -201,51 +216,47 @@ public final class ConcurrencyUtilities
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis)
     {
-        return getResult(future, timeoutMillis, null, null);
+        return getResult(future, timeoutMillis, null);
     }
 
     /**
-     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for
-     * the result to become available. The return value is never <code>null</code>, but always a
+     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for the
+     * result to become available. The return value is never <code>null</code>, but always a
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
      * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li>
-     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
-     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
+     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
+     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
+     * execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
      * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
      *            it is smaller than 0, no time-out will apply.
-     * @param loggerOrNull The logger to use for logging note-worthy information, or
-     *            <code>null</code>, if nothing should be logged.
-     * @param operationNameOrNull The name of the operation performed, for log messages, or
-     *            <code>null</code>, if it is not known or deemed unimportant.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
+     *            conditions should not be logged.
      * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
      *         the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
-            ISimpleLogger loggerOrNull, String operationNameOrNull)
+            ILogSettings logSettingsOrNull)
     {
-        return getResult(future, timeoutMillis, true, loggerOrNull, operationNameOrNull);
+        return getResult(future, timeoutMillis, true, logSettingsOrNull);
     }
 
     /**
-     * Returns the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var> for
-     * the result to become available. The return value is never <code>null</code>, but always a
+     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the
+     * result to become available. The return value is never <code>null</code>, but always a
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
      * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li>
-     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
-     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
-     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
-     * {@link Thread#interrupt()}).</li>
+     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
+     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
+     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
+     * execution was interrupted (see {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -253,65 +264,132 @@ public final class ConcurrencyUtilities
      *            it is smaller than 0, no time-out will apply.
      * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on
      *            time-out.
-     * @param loggerOrNull The logger to use for logging note-worthy information, or
-     *            <code>null</code>, if nothing should be logged.
-     * @param operationNameOrNull The name of the operation performed, for log messages, or
-     *            <code>null</code>, if it is not known or deemed unimportant.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
+     *            conditions should not be logged.
      * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
      *         the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
-            boolean cancelOnTimeout, ISimpleLogger loggerOrNull, String operationNameOrNull)
+            boolean cancelOnTimeout, ILogSettings logSettingsOrNull)
     {
-        final String operationName =
-                (operationNameOrNull == null) ? "UNKNOWN" : operationNameOrNull;
+        return getResult(future, timeoutMillis, cancelOnTimeout, logSettingsOrNull, null);
+    }
+
+    private static boolean isActive(IActivitySensor sensorOrNull, long timeoutMillis)
+    {
+        return (sensorOrNull != null) && sensorOrNull.hasActivityMoreRecentThan(timeoutMillis);
+    }
+
+    /**
+     * Returns the result of a <var>future</var>, at most waiting <var>timeoutMillis</var> for the
+     * result to become available. The return value is never <code>null</code>, but always a
+     * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
+     * are:
+     * <ul>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
+     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
+     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
+     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
+     * execution was interrupted (see {@link Thread#interrupt()}).</li>
+     * </ul>
+     * 
+     * @param future The future representing the execution to wait for.
+     * @param timeoutMillis The time-out (in milliseconds) to wait for the execution to finish. If
+     *            it is smaller than 0, no time-out will apply.
+     * @param cancelOnTimeout If <code>true</code>, the <var>future</var> will be canceled on
+     *            time-out.
+     * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
+     *            conditions should not be logged.
+     * @param sensorOrNull A sensor that can prevent the method from timing out by showing activity.
+     * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
+     *         the {@link ExecutionStatus} values.
+     */
+    public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
+            boolean cancelOnTimeout, ILogSettings logSettingsOrNull, IActivitySensor sensorOrNull)
+    {
         try
         {
-            return ExecutionResult.create(future.get(transform(timeoutMillis),
-                    TimeUnit.MILLISECONDS));
-        } catch (TimeoutException ex)
-        {
-            if (cancelOnTimeout)
+            ExecutionResult<T> result = null;
+            do
             {
-                future.cancel(true);
-            }
-            if (loggerOrNull != null)
+                try
+                {
+                    result = ExecutionResult.create(future.get(transform(timeoutMillis),
+                                    TimeUnit.MILLISECONDS));
+                } catch (TimeoutException ex)
+                {
+                    // result is still null
+                }
+            } while (result == null && isActive(sensorOrNull, timeoutMillis));
+            if (result == null)
             {
-                loggerOrNull.log(LogLevel.DEBUG, String.format(
-                        "%s took longer than %f s, cancelled.", operationName,
-                        timeoutMillis / 1000f));
+                if (cancelOnTimeout)
+                {
+                    future.cancel(true);
+                }
+                if (logSettingsOrNull != null)
+                {
+                    logSettingsOrNull.getLogger().log(
+                            logSettingsOrNull.getLogLevelForError(),
+                            String.format("%s: timeout of %.2f s exceeded%s.", logSettingsOrNull
+                                    .getOperationName(), timeoutMillis / 1000f,
+                                    cancelOnTimeout ? ", cancelled" : ""));
+                }
+                return ExecutionResult.createTimedOut();
+            } else
+            {
+                return result;
             }
-            return ExecutionResult.createTimedOut();
         } catch (InterruptedException ex)
         {
             future.cancel(true);
-            if (loggerOrNull != null)
+            if (logSettingsOrNull != null)
             {
-                loggerOrNull.log(LogLevel.DEBUG, String
-                        .format("%s got interrupted.", operationName));
+                logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
+                        String.format("%s: interrupted.", logSettingsOrNull.getOperationName()));
+            }
+            return ExecutionResult.createInterrupted();
+        } catch (StopException ex)
+        {
+            // Happens when Thread.stop(new StopException()) is called.
+            future.cancel(true);
+            if (logSettingsOrNull != null)
+            {
+                logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
+                        String.format("%s: stopped.", logSettingsOrNull.getOperationName()));
+            }
+            return ExecutionResult.createInterrupted();
+        } catch (ThreadDeath ex)
+        {
+            future.cancel(true);
+            if (logSettingsOrNull != null)
+            {
+                logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
+                        String.format("%s: stopped.", logSettingsOrNull.getOperationName()));
             }
             return ExecutionResult.createInterrupted();
         } catch (CancellationException ex)
         {
-            if (loggerOrNull != null)
+            if (logSettingsOrNull != null)
             {
-                loggerOrNull.log(LogLevel.DEBUG, String
-                        .format("%s got cancelled.", operationName));
+                logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
+                        String.format("%s: cancelled.", logSettingsOrNull.getOperationName()));
             }
-            // We treat cancelled the same as interrupted.
             return ExecutionResult.createInterrupted();
         } catch (ExecutionException ex)
         {
             final Throwable cause = ex.getCause();
-            if (loggerOrNull != null)
+            if (logSettingsOrNull != null)
             {
                 final String message =
                         (cause == null || cause.getMessage() == null) ? "<no message>" : cause
                                 .getMessage();
                 final String className =
                         (cause == null) ? "<unknown class>" : cause.getClass().getSimpleName();
-                loggerOrNull.log(LogLevel.ERROR, String.format(
-                        "%s has caused an exception: %s [%s]", operationName, message, className));
+                logSettingsOrNull.getLogger().log(
+                        logSettingsOrNull.getLogLevelForError(),
+                        String.format("%s: exception: %s [%s].", logSettingsOrNull
+                                .getOperationName(), message, className));
             }
             return ExecutionResult.createExceptional(cause == null ? ex : cause);
         }

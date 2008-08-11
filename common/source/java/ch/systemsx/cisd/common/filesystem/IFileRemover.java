@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
+
+import java.io.File;
 
 /**
- * Handles items in the file store.
- * <p>
- * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
- * {@link java.io.File}.
- * </p>
+ * A role that can remove a file or directory.
  * 
- * @see IPathHandler
- * @author Tomasz Pylak
+ * @author Bernd Rinn
  */
-public interface IStoreHandler extends IStopSignaler
+public interface IFileRemover
 {
     /**
-     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being gone
-     * when the method returns.
+     * Removes the given <var>fileToRemove</var>.
+     * 
+     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
+     *            recursively.
+     * @return <code>true</code> if the file or directory was removed successfully and
+     *         <code>false</code> otherwise.
      */
-    void handle(StoreItem item);
+    public boolean removeRecursively(File fileToRemove);
 }

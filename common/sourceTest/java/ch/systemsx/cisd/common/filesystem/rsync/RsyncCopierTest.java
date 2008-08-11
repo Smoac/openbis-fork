@@ -25,8 +25,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,8 +38,9 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
-import ch.systemsx.cisd.common.filesystem.rsync.RsyncExitValueTranslator;
+import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
@@ -49,6 +53,10 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 @Friend(toClasses = RsyncCopier.class)
 public final class RsyncCopierTest
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, RsyncCopierTest.class);
+
+    private static final long SLEEP_MILLIS = 1000L;
 
     private static final File unitTestRootDirectory =
             new File("targets" + File.separator + "unit-test-wd");
@@ -63,6 +71,28 @@ public final class RsyncCopierTest
 
     private final StoringUncaughtExceptionHandler exceptionHandler =
             new StoringUncaughtExceptionHandler();
+
+    private File createExecutable(String name, String... lines) throws IOException,
+            InterruptedException
+    {
+        final File executable = new File(workingDirectory, name);
+        executable.delete();
+        CollectionIO.writeIterable(executable, Arrays.asList(lines));
+        Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", executable.getPath()))
+                .waitFor();
+        executable.deleteOnExit();
+        return executable;
+    }
+
+    private final String sleepyMessage = "I am feeling sooo sleepy...";
+
+    private File createSleepingRsyncExecutable(String name, long millisToSleep) throws IOException,
+            InterruptedException
+    {
+        return createExecutable(name, "#! /bin/sh",
+                "if [ \"$1\" = \"--version\" ]; then echo \"rsync  version 3.0.3\"; exit 0; fi",
+                "echo " + sleepyMessage, "sleep " + (millisToSleep / 1000.0f), "exit 0");
+    }
 
     @BeforeClass
     public void init()
@@ -408,6 +438,41 @@ public final class RsyncCopierTest
     private File createSleepProcess(int seconds) throws IOException, InterruptedException
     {
         return createRsync("2.6.9", "/bin/sleep " + seconds);
+    }
+
+    @Test(groups =
+        { "slow", "requires_unix" }, expectedExceptions = StopException.class)
+    public void testStopRsyncCopierCopyImmutably() throws Exception
+    {
+        final File rsyncExecutable = createSleepingRsyncExecutable("rsync", SLEEP_MILLIS);
+        assertTrue(rsyncExecutable.exists());
+        final File source = new File(unitTestRootDirectory, "a");
+        source.mkdir();
+        source.deleteOnExit();
+        assertTrue(source.isDirectory());
+        final File destination = new File(unitTestRootDirectory, "b");
+        destination.mkdir();
+        destination.deleteOnExit();
+        assertTrue(destination.isDirectory());
+        final RsyncCopier copier = new RsyncCopier(rsyncExecutable);
+        final Thread thisThread = Thread.currentThread();
+        final Timer timer = new Timer();
+        try
+        {
+            timer.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        operationLog.info("Interrupting thread");
+                        thisThread.interrupt();
+                    }
+                }, SLEEP_MILLIS / 10);
+            copier.copyDirectoryImmutably(source, destination, null);
+        } finally
+        {
+            timer.cancel();
+        }
     }
 
 }

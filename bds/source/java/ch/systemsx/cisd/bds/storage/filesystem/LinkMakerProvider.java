@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.utilities.IImmutableCopier;
@@ -31,8 +31,6 @@ public final class LinkMakerProvider
 
     private static final String NO_HARD_LINK_EXECUTABLE = "No hard link executable has been found.";
 
-    private static final int MAX_COPY_RETRIES = 7;
-
     private static IImmutableCopier hardLinkMaker;
 
     private LinkMakerProvider()
@@ -43,8 +41,7 @@ public final class LinkMakerProvider
     private final static IImmutableCopier tryCreateHardLinkMaker()
     {
         final IImmutableCopier copier =
-                FastRecursiveHardLinkMaker.tryCreate(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
-                        MAX_COPY_RETRIES, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+            FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
         if (copier != null)
         {
             return copier;

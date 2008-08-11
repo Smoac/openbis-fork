@@ -20,14 +20,14 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A {@link IActivitySensor} that senses changes in copy operations to a directory.
+ * A {@link IDescribingActivitySensor} that senses changes in copy operations to a directory.
  * 
  * @author Bernd Rinn
  */

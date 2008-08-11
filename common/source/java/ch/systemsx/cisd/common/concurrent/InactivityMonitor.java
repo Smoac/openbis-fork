@@ -40,26 +40,13 @@ public class InactivityMonitor
     /**
      * The sensor to get activity information from.
      */
-    public interface IActivitySensor
+    public interface IDescribingActivitySensor extends IActivitySensor
     {
-        /**
-         * Returns the time of last activity in milli-seconds since start of the epoch.
-         * <p>
-         * The monitor assumes that a call of this method may be expensive and thus only calls it
-         * when necessary. However, the information returned is expected to be up-to-date.
-         * 
-         * @param thresholdMillis The time threshold for activity (in milli-seconds) that qualifies
-         *            as "recent enough" to terminate the search for even more recent activity. An
-         *            implementation can safely ignore this, as it is just meant for the sensor to
-         *            optimize its search.
-         */
-        long getTimeOfLastActivityMoreRecentThan(long thresholdMillis);
-
         /**
          * Returns a string that describes the kind (and possibly reason) of recent inactivity.
          * <p>
          * Used for log messages. It can generally be assumed that this method is called after
-         * {@link #getTimeOfLastActivityMoreRecentThan(long)}.
+         * {@link #getLastActivityMillisMoreRecentThan(long)}.
          * 
          * @param now The current time as it should be used in the description.
          */
@@ -83,7 +70,7 @@ public class InactivityMonitor
         void update(long inactiveSinceMillis, String descriptionOfInactivity);
     }
 
-    private final IActivitySensor sensor;
+    private final IDescribingActivitySensor sensor;
 
     private final IInactivityObserver observer;
 
@@ -102,11 +89,11 @@ public class InactivityMonitor
      * @param observer The observer to inform when the inactivity threshold has been exceeded.
      * @param inactivityThresholdMillis The threshold of a period of inactivity that needs to be
      *            exceeded before the inactivity observer gets informed.
-     * @param stopAfterFirstEvent If <code>true</code>, the monitor will stop itself after the
-     *            first event of exceeded inactivity threshold has happened, otherwise, the monitor
-     *            will continue to look for such events.
+     * @param stopAfterFirstEvent If <code>true</code>, the monitor will stop itself after the first
+     *            event of exceeded inactivity threshold has happened, otherwise, the monitor will
+     *            continue to look for such events.
      */
-    public InactivityMonitor(IActivitySensor sensor, IInactivityObserver observer,
+    public InactivityMonitor(IDescribingActivitySensor sensor, IInactivityObserver observer,
             long inactivityThresholdMillis, boolean stopAfterFirstEvent)
     {
         assert sensor != null;
@@ -162,7 +149,7 @@ public class InactivityMonitor
         private void updateTimeOfActivity()
         {
             timeOfLastActivity =
-                    sensor.getTimeOfLastActivityMoreRecentThan(inactivityThresholdMillis);
+                    sensor.getLastActivityMillisMoreRecentThan(inactivityThresholdMillis);
         }
 
         private boolean isInactivityThresholdExceeded(final long now)

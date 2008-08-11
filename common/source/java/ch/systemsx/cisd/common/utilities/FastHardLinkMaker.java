@@ -17,12 +17,11 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.filesystem.FileLinkUtilities;
-import ch.systemsx.cisd.common.filesystem.FileLinkUtilities.FileLinkException;
-import ch.systemsx.cisd.common.process.CallableExecutor;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.
@@ -45,7 +44,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                     FileLinkUtilities.createHardLink(source.getAbsolutePath(), destination
                             .getAbsolutePath());
                     return true;
-                } catch (FileLinkException ex)
+                } catch (WrappedIOException ex)
                 {
                     return false;
                 }
@@ -53,8 +52,8 @@ public class FastHardLinkMaker implements IFileImmutableCopier
         };
 
     /**
-     * Returns <code>true</code>, if the native library could be initialized successfully and
-     * thus this clase is operational, or <code>false</code> otherwise.
+     * Returns <code>true</code>, if the native library could be initialized successfully and thus
+     * this class is operational, or <code>false</code> otherwise.
      */
     public final static boolean isOperational()
     {
@@ -64,51 +63,51 @@ public class FastHardLinkMaker implements IFileImmutableCopier
     /**
      * Creates an {@link IFileImmutableCopier}.
      * 
-     * @param millisToWaitForCompletion The time out in milli-seconds to wait for one link creation
-     *            to finish.
-     * @param maxRetryOnFailure Maximal number of retries in case of failure.
-     * @param millisToSleepOnFailure Time in milli-seconds to sleep after a failure has occured and
-     *            before trying it again.
+     * @param timingParameters The timing parameters used to monitor and potentially retry the hard
+     *            link creation.
      * @return The copier, if the native library could be initialized successfully, or
      *         <code>null</code> otherwise.
      */
-    public final static IFileImmutableCopier tryCreate(final long millisToWaitForCompletion,
-            final int maxRetryOnFailure, final long millisToSleepOnFailure)
+    public final static IFileImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
         if (FileLinkUtilities.isOperational() == false)
         {
             return null;
         }
-        return new FastHardLinkMaker(millisToWaitForCompletion, maxRetryOnFailure,
-                millisToSleepOnFailure);
+        return new FastHardLinkMaker(timingParameters);
 
     }
 
-    private final CallableExecutor retryingExecutor;
+    /**
+     * Creates an {@link IFileImmutableCopier} with default timing pameters (uses
+     * {@link TimingParameters#getDefaultParameters()}.
+     * 
+     * @return The copier, if the native library could be initialized successfully, or
+     *         <code>null</code> otherwise.
+     */
+    public final static IFileImmutableCopier tryCreate()
+    {
+        if (FileLinkUtilities.isOperational() == false)
+        {
+            return null;
+        }
+        return new FastHardLinkMaker(TimingParameters.getDefaultParameters());
+
+    }
 
     private final IFileImmutableCopier monitoringProxy;
 
-    private FastHardLinkMaker(final long millisToWaitForCompletion, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure)
+    private FastHardLinkMaker(final TimingParameters timingParameters)
     {
-        retryingExecutor = new CallableExecutor(maxRetryOnFailure, millisToSleepOnFailure);
         monitoringProxy =
-                MonitoringProxy.create(IFileImmutableCopier.class, nativeCopier).timeoutMillis(
-                        millisToWaitForCompletion).get();
+                MonitoringProxy.create(IFileImmutableCopier.class, nativeCopier).timing(
+                        timingParameters).get();
     }
 
     public boolean copyFileImmutably(final File file, final File destinationDirectory,
             final String nameOrNull)
     {
-        final Callable<Boolean> creatorCallable = new Callable<Boolean>()
-            {
-                public Boolean call() throws Exception
-                {
-                    return monitoringProxy
-                            .copyFileImmutably(file, destinationDirectory, nameOrNull);
-                }
-            };
-        return retryingExecutor.executeCallable(creatorCallable);
+        return monitoringProxy.copyFileImmutably(file, destinationDirectory, nameOrNull);
     }
 
 }

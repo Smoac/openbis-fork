@@ -429,7 +429,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert sourcePath != null;
         assert sourceHostOrNull != null || sourcePath.exists() : logNonExistent(sourcePath);
         assert destinationDirectory != null;
-        assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(sourcePath);
+        assert destinationHostOrNull != null || destinationDirectory.isDirectory() : logNonExistent(destinationDirectory);
         // Only one side can be remote
         assert sourceHostOrNull == null || destinationHostOrNull == null;
         final List<String> commandLine =

@@ -20,6 +20,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -38,15 +39,7 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
 
     private static final String RSYNC_EXEC = "rsync";
 
-    private final static long MILLIS = 1000L;
-
-    private final static long DEFAULT_INACTIVITY_TRESHOLD_MILLIS = 300 * MILLIS;
-
     private final static int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
-
-    private final static int DEFAULT_MAX_ATTEMPTS = 10;
-
-    private final static long DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS = 5 * MILLIS;
 
     private final IImmutableCopier fallbackCopierOrNull;
 
@@ -54,64 +47,51 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
 
     private final IDirectoryImmutableCopier fastDirectoryCopierOrNull;
 
-    public final static IImmutableCopier tryCreate(final File rsyncExecutable,
-            boolean neverUseNative)
+    public final static IImmutableCopier tryCreate()
     {
-        return tryCreate(rsyncExecutable, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ATTEMPTS,
-                DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS, neverUseNative);
+        return tryCreate(TimingParameters.getDefaultParameters());
     }
 
-    public final static IImmutableCopier tryCreate(final File rsyncExecutable)
+    public final static IImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
-        return tryCreate(rsyncExecutable, DEFAULT_INACTIVITY_TRESHOLD_MILLIS, DEFAULT_MAX_ATTEMPTS,
-                DEFAULT_TIME_TO_SLEEP_AFTER_COPY_FAILS);
-    }
-
-    public final static IImmutableCopier tryCreate(final long millisToWaitForCompletion,
-            final int maxRetryOnFailure, final long millisToSleepOnFailure)
-    {
-        return tryCreate(OSUtilities.findExecutable(RSYNC_EXEC), millisToWaitForCompletion,
-                maxRetryOnFailure, millisToSleepOnFailure);
-    }
-
-    public final static IImmutableCopier tryCreate(final File rsyncExecutable,
-            final long millisToWaitForCompletion, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure)
-    {
-        return tryCreate(rsyncExecutable, millisToWaitForCompletion, maxRetryOnFailure,
-                millisToSleepOnFailure, false);
-    }
-
-    public final static IImmutableCopier tryCreate(final File rsyncExecutable,
-            final long millisToWaitForCompletion, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure, final boolean neverUseNative)
-    {
-        try
-        {
-            return new FastRecursiveHardLinkMaker(rsyncExecutable, millisToSleepOnFailure,
-                    maxRetryOnFailure, millisToSleepOnFailure, neverUseNative);
-        } catch (ConfigurationFailureException ex)
+        final File rsyncExecOrNull = OSUtilities.findExecutable(RSYNC_EXEC);
+        if (rsyncExecOrNull == null)
         {
             return null;
         }
+        return create(rsyncExecOrNull, timingParameters);
+    }
+
+    public final static IImmutableCopier create(final File rsyncExecutable,
+            final TimingParameters parameters)
+    {
+        return create(rsyncExecutable, parameters, false);
+    }
+
+    public final static IImmutableCopier create(final File rsyncExecutable)
+    {
+        return create(rsyncExecutable, TimingParameters.getDefaultParameters(), false);
+    }
+
+    public final static IImmutableCopier create(final File rsyncExecutable,
+            final TimingParameters parameters, final boolean neverUseNative)
+    {
+        return new FastRecursiveHardLinkMaker(rsyncExecutable, parameters, neverUseNative);
     }
 
     private FastRecursiveHardLinkMaker(final File rsyncExcutable,
-            final long inactivityThresholdMillis, final int maxRetryOnFailure,
-            final long millisToSleepOnFailure, final boolean neverUseNative)
+            final TimingParameters timingParameters, final boolean neverUseNative)
             throws ConfigurationFailureException
     {
         this.fastFileCopierOrNull =
-                neverUseNative ? null : FastHardLinkMaker.tryCreate(inactivityThresholdMillis,
-                        maxRetryOnFailure, millisToSleepOnFailure);
+                neverUseNative ? null : FastHardLinkMaker.tryCreate(timingParameters);
         this.fastDirectoryCopierOrNull =
-                new RsyncBasedRecursiveHardLinkMaker(rsyncExcutable, inactivityThresholdMillis,
-                        DEFAULT_MAX_ERRORS_TO_IGNORE, maxRetryOnFailure, millisToSleepOnFailure);
+                new RsyncBasedRecursiveHardLinkMaker(rsyncExcutable, timingParameters,
+                        DEFAULT_MAX_ERRORS_TO_IGNORE);
         if (fastFileCopierOrNull == null)
         {
             this.fallbackCopierOrNull =
-                    RecursiveHardLinkMaker.tryCreate(HardLinkMaker.tryCreateRetrying(
-                            inactivityThresholdMillis, maxRetryOnFailure, millisToSleepOnFailure));
+                    RecursiveHardLinkMaker.tryCreate(HardLinkMaker.tryCreate(timingParameters));
         } else
         {
             this.fallbackCopierOrNull = RecursiveHardLinkMaker.tryCreate(fastFileCopierOrNull);
@@ -123,6 +103,7 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
         }
         if (operationLog.isInfoEnabled())
         {
+            operationLog.info(timingParameters.toString());
             if (fastFileCopierOrNull != null)
             {
                 operationLog.info("Using native library to create hard link copies of files.");

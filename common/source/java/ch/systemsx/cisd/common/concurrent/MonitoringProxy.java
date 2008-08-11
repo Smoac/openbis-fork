@@ -20,21 +20,37 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.exceptions.TimeoutException;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A class that can provide a dynamic {@link Proxy} for an interface that delegates the method
  * invocations to an implementation of this interface, monitoring for calls to
- * {@link Thread#interrupt()} and for timeouts. (Note that by default no timeout is set.)
+ * {@link Thread#interrupt()} and for timeouts and allowing the invocation to be retried if it
+ * failed. (Note that by default no timeout is set and no retrying of failed operations is
+ * performed.)
  * <p>
  * On calls to {@link Thread#interrupt()} the proxy will throw a {@link StopException}, on timeouts
  * a {@link TimeoutException}.
+ * <p>
+ * Retrying failed invocations is enabled by calling {@link #timing(TimingParameters)} with a retry
+ * parameter greater than 0. You need to carefully consider whether the methods in the interface are
+ * suitable for retrying or not. Note that there is no retrying on thread interruption, but only on
+ * timeout. You can configure a 'white-list' of exception classes that are suitable for retrying the
+ * operation. By default this white-list is empty, thus method invocations failing with an exception
+ * will not be retried.
  * <p>
  * The proxy can be configured by chaining. If all options have been set, the actual proxy can be
  * obtained by calling {@link #get()}. In order to e.g. set the timeout to 10s, the following call
@@ -44,9 +60,9 @@ import ch.systemsx.cisd.common.exceptions.TimeoutException;
  * If proxy = MonitoringProxy.create(If.class, someInstance).timeoutMillis(10000L).get();
  * </pre>
  * 
- * Instead of throwing a exception, the proxy can also be configured to provide special error values
- * on error conditions. This configuration is done by {@link #errorValueOnInterrupt()} for thread
- * interrupts and {@link #errorValueOnTimeout()} for timeouts.
+ * Instead of throwing an exception, the proxy can also be configured to provide special error
+ * values on error conditions. This configuration is done by {@link #errorValueOnInterrupt()} for
+ * thread interrupts and {@link #errorValueOnTimeout()} for timeouts.
  * <p>
  * The error return values can be set, either for the type of the return value of a method, or by
  * the method itself. If present, the specific method-value mapping will take precedence of the
@@ -58,14 +74,25 @@ import ch.systemsx.cisd.common.exceptions.TimeoutException;
  *         MonitoringProxy.create(If.class, someInstance).errorValueOnInterrupt()
  *                 .errorTypeValueMapping(String.class, &quot;ERROR&quot;).get();
  * </pre>
+ * <p>
+ * <i>Note:</i> A MonitoringProxy object can only be used safely from more than one thread if
+ * <ol>
+ * <li>The proxied object is thread-safe
+ * <li>
+ * <li>No observer / sensor pattern is used to detect activity (can produce "false negatives" on
+ * hanging method calls)
+ * <li>
+ * </ol>
  * 
  * @author Bernd Rinn
  */
 public class MonitoringProxy<T>
 {
+    private final static int NUMBER_OF_CORE_THREADS = 10;
 
     private final static ExecutorService executor =
-            new NamingThreadPoolExecutor("Monitoring Proxy").daemonize();
+            new NamingThreadPoolExecutor("Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS)
+                    .daemonize();
 
     private final DelegatingInvocationHandler<T> delegate;
 
@@ -73,11 +100,13 @@ public class MonitoringProxy<T>
 
     private final Map<Method, Object> errorMethodValueMap;
 
+    private final Set<Class<? extends Exception>> exceptionClassesSuitableForRetrying;
+
     private final MonitoringInvocationHandler handler;
 
     private final T proxy;
 
-    private long timeoutMillis;
+    private TimingParameters timingParameters;
 
     private boolean errorValueOnTimeout;
 
@@ -85,9 +114,12 @@ public class MonitoringProxy<T>
 
     private String nameOrNull;
 
+    private ISimpleLogger loggerOrNull;
+
+    private IActivitySensor sensorOrNull;
+
     private static class DelegatingInvocationHandler<T> implements InvocationHandler
     {
-
         private final T objectToProxyFor;
 
         private DelegatingInvocationHandler(T objectToProxyFor)
@@ -96,10 +128,18 @@ public class MonitoringProxy<T>
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+
         {
             try
             {
-                return method.invoke(objectToProxyFor, args);
+                try
+                {
+                    return method.invoke(objectToProxyFor, args);
+                } catch (IllegalAccessException ex)
+                {
+                    method.setAccessible(true);
+                    return method.invoke(objectToProxyFor, args);
+                }
             } catch (InvocationTargetException ex)
             {
                 throw ex.getTargetException();
@@ -154,6 +194,64 @@ public class MonitoringProxy<T>
         public Object invoke(final Object myProxy, final Method method, final Object[] args)
                 throws Throwable
         {
+            final ExecutionResult<Object> result = retryingExecuteInThread(myProxy, method, args);
+            if (result.getStatus() == ExecutionStatus.TIMED_OUT)
+            {
+                if (errorValueOnTimeout == false)
+                {
+                    throw new TimeoutException(describe(method) + " timed out (timeout="
+                            + timingParameters.getTimeoutMillis() + "ms).");
+                }
+                return getErrorValue(method);
+            }
+            if (result.getStatus() == ExecutionStatus.INTERRUPTED && errorValueOnInterrupt)
+            {
+                return getErrorValue(method);
+            }
+            return ConcurrencyUtilities.tryDealWithResult(result);
+        }
+
+        private ExecutionResult<Object> retryingExecuteInThread(final Object myProxy,
+                final Method method, final Object[] args)
+        {
+            int counter = 0;
+            ExecutionResult<Object> result = null;
+            do
+            {
+                result = executeInThread(myProxy, method, args);
+                if (result.getStatus() == ExecutionStatus.COMPLETE
+                        || result.getStatus() == ExecutionStatus.INTERRUPTED)
+                {
+                    break;
+                }
+                if (exceptionStatusUnsuitableForRetry(result))
+                {
+                    break;
+                }
+                if (counter > 0 && timingParameters.getIntervalToWaitAfterFailureMillis() > 0)
+                {
+                    try
+                    {
+                        Thread.sleep(timingParameters.getIntervalToWaitAfterFailureMillis());
+                    } catch (InterruptedException ex)
+                    {
+                        return ExecutionResult.createInterrupted();
+                    }
+                }
+            } while (counter++ < timingParameters.getMaxRetriesOnFailure());
+            return result;
+        }
+
+        private boolean exceptionStatusUnsuitableForRetry(ExecutionResult<Object> result)
+        {
+            return (result.getStatus() == ExecutionStatus.EXCEPTION)
+                    && exceptionClassesSuitableForRetrying.contains(result.tryGetException()
+                            .getClass()) == false;
+        }
+
+        private ExecutionResult<Object> executeInThread(final Object myProxy, final Method method,
+                final Object[] args)
+        {
             final String callingThreadName = Thread.currentThread().getName();
             final Future<Object> future = executor.submit(new NamedCallable<Object>()
                 {
@@ -185,22 +283,32 @@ public class MonitoringProxy<T>
                         }
                     }
                 });
-            final ExecutionResult<Object> result =
-                    ConcurrencyUtilities.getResult(future, timeoutMillis);
-            if (result.getStatus() == ExecutionStatus.TIMED_OUT)
-            {
-                if (errorValueOnTimeout == false)
-                {
-                    throw new TimeoutException(describe(method) + " timed out (timeout="
-                            + timeoutMillis + "ms).");
-                }
-                return getErrorValue(method);
-            }
-            if (result.getStatus() == ExecutionStatus.INTERRUPTED && errorValueOnInterrupt)
-            {
-                return getErrorValue(method);
-            }
-            return ConcurrencyUtilities.tryDealWithResult(result);
+            final ILogSettings logSettingsOrNull =
+                    (loggerOrNull == null) ? null : new ILogSettings()
+                        {
+                            public LogLevel getLogLevelForError()
+                            {
+                                return LogLevel.ERROR;
+                            }
+
+                            public ISimpleLogger getLogger()
+                            {
+                                return loggerOrNull;
+                            }
+
+                            public String getOperationName()
+                            {
+                                if (nameOrNull != null)
+                                {
+                                    return describe(method) + "[" + nameOrNull + "]";
+                                } else
+                                {
+                                    return describe(method);
+                                }
+                            }
+                        };
+            return ConcurrencyUtilities.getResult(future, timingParameters.getTimeoutMillis(),
+                    true, logSettingsOrNull, sensorOrNull);
         }
 
         private Object getErrorValue(final Method method)
@@ -223,7 +331,8 @@ public class MonitoringProxy<T>
 
         this.errorTypeValueMap = createDefaultErrorTypeValueMap();
         this.errorMethodValueMap = new HashMap<Method, Object>();
-        this.timeoutMillis = ConcurrencyUtilities.NO_TIMEOUT;
+        this.exceptionClassesSuitableForRetrying = new HashSet<Class<? extends Exception>>();
+        this.timingParameters = TimingParameters.getNoTimeoutNoRetriesParameters();
         this.delegate = new DelegatingInvocationHandler<T>(objectToProxyFor);
         this.handler = new MonitoringInvocationHandler();
         this.proxy = createProxy(interfaceClass, objectToProxyFor);
@@ -255,13 +364,14 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Sets the timeout to <var>newTimeoutMillis</var>.
+     * Sets the timing parameters to <var>newParameters</var>.
      * 
      * @return This object (for chaining).
      */
-    public MonitoringProxy<T> timeoutMillis(long newTimeoutMillis)
+    public MonitoringProxy<T> timing(TimingParameters newParameters)
     {
-        this.timeoutMillis = newTimeoutMillis;
+        assert newParameters != null;
+        this.timingParameters = newParameters;
         return this;
     }
 
@@ -299,6 +409,17 @@ public class MonitoringProxy<T>
     }
 
     /**
+     * Sets the logger to be used for error logging to <var>newLogger</var>.
+     * 
+     * @return This object (for chaining).
+     */
+    public MonitoringProxy<T> errorLog(ISimpleLogger newLogger)
+    {
+        this.loggerOrNull = newLogger;
+        return this;
+    }
+
+    /**
      * Sets an error return <var>value</var> for the type <var>clazz</var>.
      * <p>
      * <i>A value set by this method is only relevant if the proxy is configured to return error
@@ -320,6 +441,35 @@ public class MonitoringProxy<T>
     public MonitoringProxy<T> errorMethodValueMapping(Method method, Object value)
     {
         errorMethodValueMap.put(method, value);
+        return this;
+    }
+
+    /**
+     * Add an {@link Exception} class that is suitable for retrying the operation.
+     */
+    public MonitoringProxy<T> exceptionClassSuitableForRetrying(Class<? extends Exception> clazz)
+    {
+        exceptionClassesSuitableForRetrying.add(clazz);
+        return this;
+    }
+
+    /**
+     * Add a list of {@link Exception} classes that are suitable for retrying the operation.
+     */
+    public MonitoringProxy<T> exceptionClassesSuitableForRetrying(
+            Collection<Class<? extends Exception>> classes)
+    {
+        exceptionClassesSuitableForRetrying.addAll(classes);
+        return this;
+    }
+
+    /**
+     * Sets an sensor of fine-grained activity. Activity on this sensor can prevent a method
+     * invocation from timing out.
+     */
+    public MonitoringProxy<T> sensor(IActivitySensor sensor)
+    {
+        this.sensorOrNull = sensor;
         return this;
     }
 

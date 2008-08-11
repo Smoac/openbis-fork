@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.FileUtilities.SimpleActivityObserver;
 
 /**
  * Test cases for the <code>deleteRecursively</code> methods of {@link FileUtilities}.
@@ -174,7 +174,7 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
                 {
                     return pathname.getAbsolutePath().equals(workingDirectory.getAbsolutePath()) == false;
                 }
-            }, null, new SimpleActivityObserver()
+            }, null, new IActivityObserver()
             {
                 public void update()
                 {

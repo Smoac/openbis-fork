@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,20 @@
 package ch.systemsx.cisd.common.utilities;
 
 /**
- * Handles items in the file store.
- * <p>
- * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
- * {@link java.io.File}.
- * </p>
- * 
- * @see IPathHandler
- * @author Tomasz Pylak
+ * A role that allows to signal that a worker was stopped. 
+ *
+ * @author Bernd Rinn
  */
-public interface IStoreHandler extends IStopSignaler
+public interface IStopSignaler
 {
+
     /**
-     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being gone
-     * when the method returns.
+     * Returns <code>true</code>, if the signaler has been stopped and <code>false</code> otherwise.
+     * <p>
+     * Not throwing a StopException, but signaling back that the worker was stopped by means of
+     * this method implies that it was prepared to handle the StopException and clean up
+     * after itself.
      */
-    void handle(StoreItem item);
+    boolean isStopped();
+
 }

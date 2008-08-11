@@ -41,19 +41,31 @@ public final class Constants
     public static final String DELETION_IN_PROGRESS_PREFIX =
             MARKER_PREFIX + "deletion_in_progress_";
 
-    /** The number of milliseconds to wait before considering timeout (<i>10s</i>). */
-    public static final long MILLIS_TO_WAIT_BEFORE_TIMEOUT = 10 * DateUtils.MILLIS_PER_SECOND;
-
-    /** The number of milliseconds to sleep before retrying (<i>3s</i>). */
-    public static final long MILLIS_TO_SLEEP_BEFORE_RETRYING = 3 * DateUtils.MILLIS_PER_SECOND;
-
-    /** The maximal number of invocations when a given process failed. */
-    public static final int MAXIMUM_INVOCATIONS_ON_FAILURE = 12;
-
     /** The prefix of marker files that indicate that a directory is currently being processed. */
     public static final String PROCESSING_PREFIX = MARKER_PREFIX + "processing_";
 
     /** The file name of the file that contains file names which are known to be bad. */
     public static final String FAULTY_PATH_FILENAME = ".faulty_paths";
+
+    //
+    // Timing
+    //
+    
+    /** Time in seconds to wait before a timeout occurs. */
+    public static final int TIMEOUT_SECONDS = 60;
+
+    /** Time in milli-seconds to wait before a timeout occurs.. */
+    public static final long MILLIS_TO_WAIT_BEFORE_TIMEOUT =
+            TIMEOUT_SECONDS * DateUtils.MILLIS_PER_SECOND;
+
+    /** Time interval in seconds to wait after an operation failed before retrying it. */
+    public static final int INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS = 10;
+
+    /** Time interval in milli-seconds to wait after an operation failed before retrying it. */
+    public static final long MILLIS_TO_SLEEP_BEFORE_RETRYING =
+            INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS * DateUtils.MILLIS_PER_SECOND;
+
+    /** Maximal number of retries when an operation fails. */
+    public static final int MAXIMUM_RETRY_COUNT = 11;
 
 }

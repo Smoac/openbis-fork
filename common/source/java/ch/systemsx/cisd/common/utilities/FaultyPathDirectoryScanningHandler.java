@@ -51,10 +51,14 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
 
     private long faultyPathsLastChanged;
 
-    public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory)
+    private IStopSignaler stopSignaler;
+
+    public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory,
+            final IStopSignaler stopSignaler)
     {
         this.faultyPaths = new HashSet<String>();
         this.faultyPathsFile = new File(faultyPathDirectory, Constants.FAULTY_PATH_FILENAME);
+        this.stopSignaler = stopSignaler;
     }
 
     private final void checkForFaultyPathsFileChanged()
@@ -148,7 +152,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     {
         // If the item still exists, we assume that it has not been handled. So it
         // should be added to the faulty paths.
-        if (scannedStore.existsOrError(storeItem))
+        if (scannedStore.existsOrError(storeItem) && stopSignaler.isStopped() == false)
         {
             addToFaultyPaths(scannedStore, storeItem);
             return Status.createError("Failed to move item '%s'.", storeItem);

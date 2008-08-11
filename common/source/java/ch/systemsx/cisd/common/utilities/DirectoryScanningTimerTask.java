@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -166,7 +167,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             final IPathHandler pathHandler, final int ignoredErrorCount)
     {
         this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
-                sourceDirectory), PathHandlerAdapter
+                sourceDirectory, pathHandler), PathHandlerAdapter
                 .asScanningHandler(sourceDirectory, pathHandler), ignoredErrorCount);
     }
 
@@ -234,7 +235,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                 for (int i = 0; i < numberOfItems; i++)
                 {
                     final StoreItem storeItem = storeItems[i];
-                    if (stopRun)
+                    if (stopRun || Thread.interrupted() || storeHandler.isStopped())
                     {
                         if (operationLog.isDebugEnabled())
                         {
@@ -262,6 +263,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                             ++numberOfItemsProcessedInLastRound;
                         } catch (final Exception ex)
                         {
+                            if (ex instanceof StopException)
+                            {
+                                break;
+                            }
                             // Do not stop when processing of one file has failed,
                             // continue with other files.
                             errorLog.put(storeItem, String.format(
@@ -300,7 +305,10 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             } while (numberOfItemsProcessedInLastRound > 0);
         } catch (final Exception ex)
         {
-            printNotification(ex);
+            if (ex instanceof StopException == false)
+            {
+                printNotification(ex);
+            }
         }
         if (operationLog.isTraceEnabled())
         {
