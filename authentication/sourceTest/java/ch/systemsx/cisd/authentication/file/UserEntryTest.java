@@ -100,7 +100,7 @@ public class UserEntryTest
     public void testAsPrincial()
     {
         final UserEntry entry = new UserEntry(PASSWORD_LINE);
-        final Principal principal = entry.asPrincial();
+        final Principal principal = entry.asPrincipal();
         assertEquals("id", principal.getUserId());
         assertEquals("First", principal.getFirstName());
         assertEquals("Last", principal.getLastName());

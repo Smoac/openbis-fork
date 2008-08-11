@@ -85,7 +85,7 @@ class UserEntry extends AbstractHashable
     /**
      * Returns the user entry as {@link Principal}.
      */
-    Principal asPrincial()
+    Principal asPrincipal()
     {
         return new Principal(getUserId(), getFirstName(), getLastName(), getEmail());
     }

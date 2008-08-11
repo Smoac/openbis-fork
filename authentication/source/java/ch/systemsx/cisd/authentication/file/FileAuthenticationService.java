@@ -108,7 +108,7 @@ public class FileAuthenticationService implements IAuthenticationService
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
         }
-        return userOrNull.asPrincial();
+        return userOrNull.asPrincipal();
     }
 
     public void check() throws EnvironmentFailureException, ConfigurationFailureException

@@ -126,7 +126,7 @@ public class FileAuthenticationServiceTest
                 will(returnValue(user));
             }
         });
-        assertEquals(user.asPrincial(), authService.getPrincipal(token, uid));
+        assertEquals(user.asPrincipal(), authService.getPrincipal(token, uid));
         context.assertIsSatisfied();
     }
     
