@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
+import java.io.IOException;
+
 /**
  * An exception for tunneling checked exception through code that doesn't expect it.
  * 
  * @author Bernd Rinn
  */
-public final class CheckedExceptionTunnel extends RuntimeException
+public class CheckedExceptionTunnel extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;
@@ -41,16 +43,23 @@ public final class CheckedExceptionTunnel extends RuntimeException
     /**
      * Convenience wrapper for {@link #wrapIfNecessary(Exception)}. If <var>throwable</var> is an
      * {@link Error}, this method will not return but the error will be thrown.
-     *  
+     * 
      * @param throwable The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>throwable</var>.
-     * @throws Error If <var>throwable</var> is an {@link Error}.
+     * @throws Error If <var>throwable</var> is an {@link Error} (except when it is a
+     *             {@link ThreadDeath}, which returns a {@link StopException}).
      */
     public final static RuntimeException wrapIfNecessary(final Throwable throwable) throws Error
     {
         if (throwable instanceof Error)
         {
-            throw (Error) throwable;
+            if (throwable instanceof ThreadDeath)
+            {
+                return new StopException();
+            } else
+            {
+                throw (Error) throwable;
+            }
         }
         return wrapIfNecessary((Exception) throwable);
     }
@@ -70,6 +79,10 @@ public final class CheckedExceptionTunnel extends RuntimeException
         {
             return (RuntimeException) exception;
         }
+        if (exception instanceof IOException)
+        {
+            return new WrappedIOException((IOException) exception);
+        }
         if (exception instanceof InterruptedException)
         {
             return new StopException((InterruptedException) exception);
@@ -79,6 +92,17 @@ public final class CheckedExceptionTunnel extends RuntimeException
             return new TimeoutException((java.util.concurrent.TimeoutException) exception);
         }
         return new CheckedExceptionTunnel(exception);
+    }
+
+    /**
+     * Returns the original exception before being wrapped for an {@link WrappedIOException}.
+     */
+    public final static IOException unwrapIfNecessary(final WrappedIOException exception)
+    {
+        assert exception != null : "Exception not specified.";
+
+        // We are sure that the wrapped exception is an 'IOException'.
+        return (IOException) exception.getCause();
     }
 
     /**
